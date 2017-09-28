@@ -77,9 +77,9 @@ The following are the supported browsers.
 
 egjs-view360 has the dependencies for the following libraries:
 
-|[egjs-component](http://github.com/naver/egjs/egjs-component)|
-|----|
-|2.0.0+|
+|[eg.Component](http://github.com/naver/egjs-component)|[eg.Axes](http://github.com/naver/egjs-axes)|[eg.Agent](http://github.com/naver/egjs-agent)|[es6-promise](https://github.com/stefanpenner/es6-promise)|[webvr-polyfill](https://github.com/googlevr/webvr-polyfill)|
+|----|----|---|---|---|
+|2.0.0+|2.1.0+|2.1.1+|4.1.1|0.9.16|
 
 
 ## How to start developing egjs-view360?
