@@ -1,0 +1,13 @@
+component: View360
+home: //naver.github.io/egjs
+desc: A module used to provide coordinate based on yaw/pitch orientation. This module receives user touch action, keyboard, mouse and device orientation(if it exists) as input, then combines them and converts it to yaw/pitch coordinates.
+dist:
+- release/latest/dist/view360.pkgd.min.js
+GA: UA-70842526-23
+github:
+  user: naver
+  repo: egjs-view360 
+js:
+- assets/js/demo.js
+css:
+- assets/css/demo.css

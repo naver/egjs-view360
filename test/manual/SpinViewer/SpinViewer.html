@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Manual Test : Spin Viewer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi">
+<!--<link rel="stylesheet" type="text/css" href="./css/main.css">-->
+<style>
+</style>
+</head>
+<body>
+  <h2>eg.view360.SpinViewer</h2>
+  <h3>Mini Bag</h3>
+  <div id="product-360"></div>
+</body>
+<script src="../lib/dat.gui.min.js"></script>
+<script src="../../../dist/SpinViewer/view360.spinviewer.pkgd.js"></script>
+<script>
+  var viewer;
+  var options = {
+    imageUrl: "../img/SpinViewer/bag360.jpg",
+    rowCount: 24,
+    width: "50%",
+    scale: 1
+  };
+  var gui = new dat.GUI({autoPlace:true});
+  gui.add(options, "scale", 0, 2).step(0.1).onFinishChange(function(value) {
+    viewer.setScale(value);
+  });
+
+  viewer = new eg.view360.SpinViewer(document.getElementById("product-360"), options);
+
+  viewer.on({
+    "load": function(e) {
+      console.log("load event fired - e.target", e.target, "e.bgElement", e.bgElement);
+      viewer.spinBy({angle:360, duration: 300});
+    },
+    "change": function(e) {
+      console.log(e.frameIndex, e.colRow, e.angle);
+    }
+  });
+</script>
+</html>

@@ -1,0 +1,125 @@
+* {
+ font-family: 'Roboto', sans-serif;
+ font-weight: 300;
+}
+
+html, body {
+    position: relative;
+    width: 100%;margin: 0px;
+}
+.container {
+  1padding: 30px;
+  width: 100%;
+  margin: auto;
+}
+
+  .pageHeader {
+    position: relative;
+    1margin-bottom: 80px;
+  }
+    h1.pageTitle {
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+
+    .exampleContainer {
+        margin-bottom: 50px;
+        text-align: center;
+    }
+
+
+  .exampleHeader {
+    margin-bottom: 20px;
+  }
+    h2.exampleTitle {
+    }
+
+      .exampleDescription {
+        margin-bottom: 10px;
+        font-size: 14px;
+        line-height: 18px;
+      }
+
+  .example {
+    margin: 10px;
+  }
+
+#graph-canvas {
+  width: 300px;
+  height: 300px;
+  box-shadow: 0px 1px 2px #888;
+  left: 310px;
+  position: relative;
+}
+
+.photo {
+  -webkit-transform: scale3d(1,1,1);
+  width: 300px;
+  height: 300px;
+  display: block;
+  box-shadow: 0px 1px 2px #999;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  background: url(landscape.jpg);
+}
+
+.controls {
+  text-align: center;
+  margin: auto;
+  margin-top: 10px;
+  width: 500px;
+}
+
+.controls label {
+  font-weight: 300;
+  font-size: 16px;
+  height: 30px;
+  line-height: 30px;
+  display: inline-block;
+  text-align: center;
+}
+
+.controls input[type=range] {
+  width: 300px;
+  height: 30px;
+  vertical-align:middle;
+  margin-top: -2px;
+}
+
+.pill {
+  border-radius: 32px;
+  background-color: rgba(0, 0, 0, 0.5);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -56px;
+  margin-top: -12px;
+  width: 100px;
+  color: #fff;
+  text-align: center;
+  padding: 6px;
+  font-size: 12px;
+  cursor: default;
+  -webkit-transition: opacity 0.3s;
+  -moz-transition: opacity 0.3s;
+  -ms-transition: opacity 0.3s;
+  -o-transition: opacity 0.3s;
+  transition: opacity 0.3s;
+  opacity: 1;
+}
+
+.photo.down .pill{
+  opacity: 0;
+}
+
+
+@media (-webkit-min-device-pixel-ratio: 2),
+(min--moz-device-pixel-ratio: 2),
+(min-resolution: 2dppx),
+(min-resolution: 192dpi) {
+
+  .reboundIcon {
+    background-image: url(images/rebound_2x.png);
+  }

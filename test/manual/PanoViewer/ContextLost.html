@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"
+  />
+  <link rel="stylesheet" href="../css/main.css">
+  <style>
+    .hidden_elem {
+      display: none;
+    }
+
+    .photo360-container {
+      display: inline-block;
+      position: relative;
+      height: 80px;
+      width: 80px;
+      margin-right: 3px;
+      background: #00C73C;
+    }
+
+    canvas {
+      z-index: 100;
+    }
+
+    .photo360-container>button {
+      position: absolute;
+      top: 20px;
+      z-index: 1000;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="container">PanoViewer Manual Test</div>
+  </header>
+  <section class="container">
+    <h2>WebGL contextloast Test</h2>
+    <p>
+      뷰어영역 클릭하면 resume suspend 가 토글된다
+    </p>
+    <h3> 총 뷰어 인스턴스 <span id="viewCnt">0</span>개</h3>
+    <h3> 액티브 컨텍스트 수 <span id="contextCnt">0</span>개</h3>
+    <button id="addBtn">뷰어 인스턴스 추가</button><br>
+  </section>
+  <!-- egjs를 위한 의존성 라이브러리 -->
+  <script src="../../../dist/view360.pkgd.js"></script>
+  <script>
+    var viewerInstances = [];
+    // 모바일 브라우저와 데스크탑 브라우저인지 판단하여 뷰어 config 값을 설정한다.
+    var config = {
+      image: "../img/PanoViewer/waterpark_cube_1024.jpg"
+    };
+
+    var viewerIdx = 0;
+    function generateViewer() {
+      document.querySelector("section.container").insertAdjacentHTML("beforeend",
+        '<div class="photo360-container" id="viewer' + (viewerIdx) + '">' +
+        '<button class="toggleStatus">toggle</button>' +
+        '<div>'
+      );
+
+      var rootNode = document.querySelector('#viewer' + viewerIdx);
+
+      var photo360Instance = new eg.view360.PanoViewer(rootNode, config);
+
+      photo360Instance
+        .on("suspend", function () {
+          console.log("suspend");
+        })
+        .on("resume", function () {
+          console.log("resume");
+        });
+
+      rootNode.querySelector(".toggleStatus").addEventListener("click", function () {
+        if (photo360Instance.isResumed()) {
+          photo360Instance.suspend();
+        } else {
+          photo360Instance.resume();
+        }
+      });
+
+      viewerInstances[viewerIdx] = photo360Instance;
+      photo360Instance.resume();
+      viewerIdx++;
+
+      // $("#viewCnt").html(viewerIdx);
+      document.getElementById("viewCnt").innerHTML = viewerIdx;
+    }
+
+    document.getElementById("addBtn").addEventListener("click", generateViewer);
+
+    setInterval(function () {
+      var contextCnt = 0;
+      viewerInstances.forEach(function (curr, idx, arr) {
+        // TODO: _photoSphereRender is private. it is used for test only.
+        if (curr._photoSphereRenderer) {
+          var isContextActive = (curr._photoSphereRenderer.hasRenderingContext());
+          isContextActive && contextCnt++;
+        }
+      });
+      // $("#contextCnt").html(contextCnt);
+      document.getElementById("contextCnt").innerHTML = contextCnt;
+    }, 300);
+
+  </script>
+</body>
+
+</html>
