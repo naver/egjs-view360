@@ -1,12 +1,27 @@
 # egjs-view360 [![npm version](https://badge.fury.io/js/%40egjs%2Fview360.svg)](https://badge.fury.io/js/%40egjs%2Fview360) [![Build Status](https://travis-ci.org/naver/egjs-view360.svg?branch=master)](https://travis-ci.org/naver/egjs-view360) [![Coverage Status](https://coveralls.io/repos/github/naver/egjs-view360/badge.svg?branch=master)](https://coveralls.io/github/naver/egjs-view360?branch=master)
 
-A module used to provide coordinate based on yaw/pitch orientation. This module receives user touch action, keyboard, mouse and device orientation(if it exists) as input, then combines them and converts it to yaw/pitch coordinates.
+egjs-view360 is a 360 integrated viewing solution from **inside-out view** to **outside-in view**. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.
+
+## Components
+egjs-view360 provides the following components.
+
+|  |PanoViewer|SpinViewer|
+|---|---|---|
+|View|Inside-out|Outside-in|
+|Example| <img src="https://raw.githubusercontent.com/naver/egjs-axes/master/demo/assets/image/360car.gif">TODO: use proper snapshot|<img src="https://raw.githubusercontent.com/naver/egjs-axes/master/demo/assets/image/360car.gif">TODO: use proper snapshot</img>|
+### PanoViewer
+It is a component that supports the **inside-out viewing** method in which observer becomes the center of the world and looks around. Full 360 photos taken with a 360-degree camera, as well as panoramic photos taken with a mobile phone. Touch, mouse, and keyboard, as well as sophisticated customized motion sensing support, provide immersive immersion in virtual reality.
+
+### SpinViewer
+It is a component that supports the **outside-in viewing** method in which the object is centered and the observer can turn around and observe the object. All you need to do is create a sprite image of objects from multiple angles. By giving images to components, we'll give you the experience of turning things around as if they were in your hands.
 
 ## Documents
 - [Get Started and Demos](https://naver.github.io/egjs-view360/)
 - [API documentation](https://naver.github.io/egjs-view360/release/latest/doc/)
 
 ## Download and Installation
+
+In addition to the integrated version of PanoViewer and SpinViewer, we have released a separate version. Here we describe the integrated version. If you want to reduce the size of the library through the use of individual modules, please refer to the PanoViewer guide document or the SpinViewer guide document.
 
 Download dist files from repo directly or install it via npm. 
 
@@ -48,9 +63,15 @@ $ npm install @egjs/view360
 ## Supported Browsers
 The following are the supported browsers.
 
-|Internet Explorer|Chrome|Firefox|Safari|iOS|Android|
-|---|---|---|---|---|---|
-|||||||
+### PanoViewer
+|Internet Explorer|Edge|Chrome|Firefox|Safari|iOS|Android|
+|---|---|---|---|---|---|---|
+|11+|latest|latest|latest|latest|9+|5.0+|
+
+### SpinViewer
+|Internet Explorer|Edge|Chrome|Firefox|Safari|iOS|Android|
+|---|---|---|---|---|---|---|
+|9+|latest|latest|latest|latest|7+|2.3+(except 3.x)|
 
 ## Dependency
 
@@ -86,7 +107,7 @@ $ npm install
 
 #### 3. Build
 
-Use npm script to build eg.View360
+Use npm script to build eg.view360
 
 ```bash
 # Run webpack-dev-server for development
@@ -129,11 +150,11 @@ If you find a bug, please report it to us using the [Issues](https://github.com/
 
 
 ## License
-egjs-view360 is released under the [MIT license](http://naver.github.io/egjs/license.txt).
+egjs-view360 is released under the [MIT license](https://github.com/naver/egjs-view360/blob/master/LICENSE).
 
 
 ```
-Copyright (c) 2015 NAVER Corp.
+Copyright (c) 2017 NAVER Corp.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
