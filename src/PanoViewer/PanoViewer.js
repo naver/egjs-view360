@@ -10,7 +10,7 @@ export default class PanoViewer extends Component {
 	 * 360 media viewer
 	 * @ko 360 미디어 뷰어
 	 * @class
-	 * @name PanoViewer
+	 * @name eg.view360.PanoViewer
 	 * @extends eg.Component
 	 *
 	 * @param {HTMLElement} container The container element for the renderer. <ko>렌더러의 컨테이너 엘리먼트</ko>
@@ -114,7 +114,7 @@ export default class PanoViewer extends Component {
 	/**
 	 * Getting the image information that the viewer is currently using.
 	 * @ko 뷰어가 현재 사용하고있는 이미지 정보를 얻습니다.
-	 * @method PanoViewer#getImage
+	 * @method eg.view360.PanoViewer#getImage
 	 * @return {ImageInfo}
 	 */
 	getImage() {
@@ -127,7 +127,7 @@ export default class PanoViewer extends Component {
 	/**
 	 * Setting the image information to be used by the viewer.
 	 * @ko 뷰어가 사용할 이미지 정보를 설정 합니다.
-	 * @method PanoViewer#setImage
+	 * @method eg.view360.PanoViewer#setImage
 	 * @param {ImageInfo} imageInfo Input image information  <ko>입력 이미지 정보</ko>
 	 */
 	setImage({image, imageType}) {
@@ -219,7 +219,7 @@ export default class PanoViewer extends Component {
 	/**
 	 * When set true, enables zoom with the wheel and Pinch gesture
 	 * @ko true 로 설정 시 휠 및 집기 동작으로 확대 / 축소 할 수 있습니다.
-	 * @method PanoViewer#setUseZoom
+	 * @method eg.view360.PanoViewer#setUseZoom
 	 * @param {Boolean} useZoom
 	 */
 	setUseZoom(useZoom) {
@@ -233,7 +233,7 @@ export default class PanoViewer extends Component {
 	/**
 	 * When true, enables the keyboard move key control: awsd, arrow keys
 	 * @ko true이면 키보드 이동 키 컨트롤을 활성화합니다. (awsd, 화살표 키)
-	 * @method PanoViewer#setUseKeyboard
+	 * @method eg.view360.PanoViewer#setUseKeyboard
 	 * @param {Boolean} useKeyboard
 	 */
 	setUseKeyboard(useKeyboard) {
@@ -243,7 +243,7 @@ export default class PanoViewer extends Component {
 	/**
 	 * Setting the range of controllable FOV values
 	 * @ko 제어 가능한 FOV 값의 범위 설정
-	 * @method PanoViewer#setFovRange
+	 * @method eg.view360.PanoViewer#setFovRange
 	 * @param {Array} range
 	 */
 	setFovRange(range) {
@@ -253,7 +253,7 @@ export default class PanoViewer extends Component {
 	/**
 	 * Getting the range of controllable FOV values
 	 * @ko 제어 가능한 FOV 값의 범위 가져 오기
-	 * @method PanoViewer#getFovRange
+	 * @method eg.view360.PanoViewer#getFovRange
 	 * @return {Array}
 	 */
 	getFovRange() {
@@ -263,7 +263,7 @@ export default class PanoViewer extends Component {
 	/**
 	 * Update size of canvas element by it's container element's or specified size.
 	 * @ko 캔버스 엘리먼트의 크기를 컨테이너 엘리먼트의 크기나 지정된 크기로 업데이트합니다.
-	 * @method PanoViewer#updateViewportDimensions
+	 * @method eg.view360.PanoViewer#updateViewportDimensions
 	 * @param {Object} [size]
 	 * @param {Number} [size.width=width of container]
 	 * @param {Number} [size.height=height of container]
@@ -288,7 +288,7 @@ export default class PanoViewer extends Component {
 	/**
 	 * Get the vertical field of view
 	 * @ko 뷰어의 수직 field of view 값을 가져옵니다.
-	 * @method PanoViewer#getFov
+	 * @method eg.view360.PanoViewer#getFov
 	 * @return {Number}
 	 */
 	getFov() {
@@ -306,7 +306,7 @@ export default class PanoViewer extends Component {
 	/**
 	 * Get current yaw value
 	 * @ko 뷰어의 yaw 값을 가져옵니다.
-	 * @method PanoViewer#getYaw
+	 * @method eg.view360.PanoViewer#getYaw
 	 * @return {Number}
 	 */
 	getYaw() {
@@ -316,7 +316,7 @@ export default class PanoViewer extends Component {
 	/**
 	 * Get current pitch value
 	 * @ko 뷰어의 pitch 값을 가져옵니다.
-	 * @method PanoViewer#getPitch
+	 * @method eg.view360.PanoViewer#getPitch
 	 * @return {Number}
 	 */
 	getPitch() {
@@ -326,7 +326,7 @@ export default class PanoViewer extends Component {
 	/**
 	 * Get the range of controllable Yaw values
 	 * @ko 컨트롤 가능한 Yaw 구간을 가져옵니다.
-	 * @method PanoViewer#getYawRange
+	 * @method eg.view360.PanoViewer#getYawRange
 	 * @return {Array}
 	 */
 	getYawRange() {
@@ -336,7 +336,7 @@ export default class PanoViewer extends Component {
 	/**
 	 * Get the range of controllable Pitch values
 	 * @ko 컨트롤 가능한 Pitch 구간을 가져옵니다.
-	 * @method PanoViewer#getPitchRange
+	 * @method eg.view360.PanoViewer#getPitchRange
 	 * @return {Array}
 	 */
 	getPitchRange() {
@@ -346,7 +346,7 @@ export default class PanoViewer extends Component {
 	/**
 	 * Set the range of controllable Yaw values
 	 * @ko 컨트롤 가능한 Yaw 구간을 설정합니다.
-	 * @method PanoViewer#setYawRange
+	 * @method eg.view360.PanoViewer#setYawRange
 	 * @param {Array} range
 	 */
 	setYawRange(yawRange) {
@@ -356,7 +356,7 @@ export default class PanoViewer extends Component {
 	/**
 	 * Set the range of controllable Pitch values
 	 * @ko 컨트롤 가능한 Pitch 구간을 설정합니다.
-	 * @method PanoViewer#setPitchRange
+	 * @method eg.view360.PanoViewer#setPitchRange
 	 * @param {Array} range
 	 */
 	setPitchRange(pitchRange) {
@@ -366,7 +366,7 @@ export default class PanoViewer extends Component {
 	/**
 	 * If false, the pole is not displayed inside the viewport
 	 * @ko false 인 경우, 폴은 뷰포트 내부에 표시되지 않습니다.
-	 * @method PanoViewer#setPitchRange
+	 * @method eg.view360.PanoViewer#setPitchRange
 	 * @param {Boolean} showPolePoint
 	 */
 	setShowPolePoint(showPolePoint) {
@@ -376,7 +376,7 @@ export default class PanoViewer extends Component {
 	/**
 	 * Set a new view by setting camera configuration. Any parameters not specified remain the same.
 	 * @ko 카메라 설정을 지정하여 화면을 갱신합니다. 지정되지 않은 매개 변수는 동일하게 유지됩니다.
-	 * @method PanoViewer#lookAt
+	 * @method eg.view360.PanoViewer#lookAt
 	 * @param {Object} orientation
 	 * @param {Number} orientation.yaw Target yaw in degree <ko>목표 yaw (degree 단위)</ko>
 	 * @param {Number} orientation.pitch Target pitch in degree <ko>목표 pitch (degree 단위)</ko>
@@ -408,7 +408,7 @@ export default class PanoViewer extends Component {
 	/**
 	 * Create webgl context and initiate user interaction and rendering
 	 * @ko WebGl 컨텍스트 생성 및 사용자 상호 작용과 렌더링 시작
-	 * @method PanoViewer#resume
+	 * @method eg.view360.PanoViewer#resume
 	 */
 	resume() {
 		if (this._isResumed || !this._yawPitchControl) {
@@ -474,7 +474,7 @@ export default class PanoViewer extends Component {
 	/**
 	 * Destroy webgl context and block user interaction and stop rendering
 	 * @ko Webgl 컨텍스트를 삭제하고 사용자 상호 작용을 차단하고 렌더링을 중지합니다.
-	 * @method PanoViewer#suspend
+	 * @method eg.view360.PanoViewer#suspend
 	 * @param {Boolean} persistOrientation When true, it persist last yaw, pitch, fov on next resume <ko>true 지정 시, 다음 resume 때 기존의 카메라 설정을 유지합니다.</ko>
 	 */
 	suspend() {
@@ -496,7 +496,7 @@ export default class PanoViewer extends Component {
 	/**
 	 * Returns whether the viewer is in resumed state.
 	 * @ko 뷰어가 resume 된 상태인지 여부를 반환합니다.
-	 * @method PanoViewer#isResumed
+	 * @method eg.view360.PanoViewer#isResumed
 	 * @return {Boolean}
 	 */
 	isResumed() {
@@ -507,7 +507,7 @@ export default class PanoViewer extends Component {
 	 * 모든 등록된 이벤트리스너를 제거하고 뷰어 캔버스를 삭제한다.
 	 * Destroy viewer
 	 * @ko 뷰어 인스턴스를 파괴합니다.
-	 * @method PanoViewer#destroy
+	 * @method eg.view360.PanoViewer#destroy
 	 */
 	destroy() {
 		this.suspend();
@@ -537,7 +537,7 @@ export default class PanoViewer extends Component {
 	 * Check whether the current environment supports the gyro sensor.
 	 * @ko 현재 브라우저 환경이 자이로 센서를 지원하는지 여부를 확인합니다.
 	 * @function isGyroSensorAvailable
-	 * @memberof PanoViewer
+	 * @memberof eg.view360.PanoViewer
 	 * @param {Function} callback Function to take the gyro sensor availability as argument <ko>자이로 센서를 지원하는지 여부를 인자로 받는 함수</ko>
 	 * @static
 	 */
