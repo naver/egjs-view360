@@ -52,7 +52,7 @@
     "clean-webpack-plugin": "^0.1.16",
     "coveralls": "^2.13.1",
     "cpx": "^1.5.0",
-    "egjs-jsdoc-template": "1.3.1",
+    "egjs-jsdoc-template": "1.4.0",
     "eslint": "^3.19.0",
     "eslint-config-naver": "^1.0.0",
     "eslint-loader": "^1.8.0",
