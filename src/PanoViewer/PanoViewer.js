@@ -7,7 +7,7 @@ import {glMatrix} from "../utils/math-util.js";
 
 export default class PanoViewer extends Component {
 	/**
-	 * 360 media viewer
+	 * @classdesc 360 media viewer
 	 * @ko 360 미디어 뷰어
 	 * @class
 	 * @name eg.view360.PanoViewer
@@ -504,9 +504,8 @@ export default class PanoViewer extends Component {
 	}
 
 	/**
-	 * 모든 등록된 이벤트리스너를 제거하고 뷰어 캔버스를 삭제한다.
-	 * Destroy viewer
-	 * @ko 뷰어 인스턴스를 파괴합니다.
+	 * Destroy viewer. Remove all registered event listeners and remove viewer canvas.
+	 * @ko 뷰어 인스턴스를 해제합니다. 모든 등록된 이벤트리스너를 제거하고 뷰어 캔버스를 삭제한다.
 	 * @method eg.view360.PanoViewer#destroy
 	 */
 	destroy() {
