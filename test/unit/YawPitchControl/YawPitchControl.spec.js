@@ -13,7 +13,7 @@ import YawPitchControl from "../../../src/YawPitchControl/YawPitchControl";
 import TestHelper from "./testHelper";
 const INTERVAL = 1000 / 60.0;
 
-describe("YawPitchControl", function() {
+describe.skip("YawPitchControl", function() {
 	describe("constructor", function() {
 		describe("default options", function() {
 			var target
@@ -21,7 +21,7 @@ describe("YawPitchControl", function() {
 				target = sandbox();
 				target.innerHTML = `<div></div>`;
 			});
-	
+
 			afterEach(() => {
 				// this.inst && this.inst.destroy();
 				// this.inst = null;
@@ -79,7 +79,7 @@ describe("YawPitchControl", function() {
 				});
 
 				expect(this.inst.getYaw()).to.above(30);
-				expect(this.inst.getYaw()).to.below(180); 
+				expect(this.inst.getYaw()).to.below(180);
 			});
 		});
 	});
@@ -95,7 +95,7 @@ describe("YawPitchControl", function() {
 		});
 
 		afterEach(() => {
-			this.inst && this.inst.destroy();			
+			this.inst && this.inst.destroy();
 			target && target.remove();
 			target = null;
 		});
@@ -187,7 +187,7 @@ describe("YawPitchControl", function() {
 			this.inst.enable();
 			this.inst.disable();
 			this.inst.enable();
-			
+
 			// When
 			/**
 			 * enable() makes a "change" event for first rendering

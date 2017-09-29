@@ -35,7 +35,7 @@ describe("ImageLoader", function() {
 			});
 		});
 
-		it("should fails when url is invalid#2", function(done) {
+		it.skip("should fails when url is invalid#2", function(done) {
 			this.inst = new ImageLoader("https://invalidurl.png");
 
 			expect(this.inst).to.be.exist;

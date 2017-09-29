@@ -2,7 +2,7 @@ import PanoViewer from "../../../src/PanoViewer/PanoViewer";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 
 describe("PanoViewer", function() {
-	describe("event flow", function() {
+	describe.skip("event flow", function() {
 		let target;
 		let photo360Viewer;
 		let IT = WebGLUtils.isWebGLAvailable() ? it : it.skip;

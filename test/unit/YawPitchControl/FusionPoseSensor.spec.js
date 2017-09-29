@@ -4,7 +4,7 @@ import TestHeler from "./testHelper";
 import devicemotionSample from "./devicemotionSample";
 
 
-describe("FusionPoseSensor", function() {
+describe.skip("FusionPoseSensor", function() {
 	describe("#constructor", function() {
 		it("Instance", () => {
 			// Given
@@ -80,7 +80,7 @@ describe("FusionPoseSensor", function() {
 						// Then
 						expect(changeEventCnt1).to.be.equal(changeEventCnt2);
 						done();
-					});	
+					});
 				});
 			});
 		});
