@@ -11,8 +11,8 @@ var config = {
 	entry: {
 		"view360": "./src/index.js",
 		"view360.min": "./src/index.js",
-		"YawPitchControl/view360.yawpitchcontrol": "./src/YawPitchControl/index.js",
-		"YawPitchControl/view360.yawpitchcontrol.min": "./src/YawPitchControl/index.js",
+		// "YawPitchControl/view360.yawpitchcontrol": "./src/YawPitchControl/index.js",
+		// "YawPitchControl/view360.yawpitchcontrol.min": "./src/YawPitchControl/index.js",
 		"SpinViewer/view360.spinviewer": "./src/SpinViewer/index.js",
 		"SpinViewer/view360.spinviewer.min": "./src/SpinViewer/index.js",
 		"PanoViewer/view360.panoviewer": "./src/PanoViewer/index.js",
