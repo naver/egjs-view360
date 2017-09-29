@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<!--<link rel="stylesheet" href="../css/pure.css">-->
+<link rel="stylesheet" href="../css/main.css">
+<style>
+.hidden_elem {
+	display: none;
+}
+.photo360-container {
+	margin: 0px;
+	padding-bottom: 20px;
+}
+
+.photo360 {
+  position: relative;
+  overflow: hidden;
+	background: rgba(0,0,0, .2);
+	background-repeat: no-repeat;;
+	background-position: center center;
+	background-size: cover;
+
+	height: 360px;
+	width: 80%;
+	max-width: 640px;
+	left: 10%;
+	/*transform: translateX(0%);
+	-webkit-transform: translateX(0%);*/
+
+	margin: 0px;
+}
+.photo360-container:last-child {
+	margin-bottom: 55px;
+}
+
+.photo360 > canvas {
+	z-index: 1;
+}
+.photo360 > .controlLayer {
+	display: none;
+	z-index: 100;
+    position: absolute;
+    color: white;
+    background-color: rgba(0,0,0,.3);
+    width: 100%;
+    text-align: center;
+    bottom: 0;
+}
+.photo360 > .loadingLayer {
+	display: none;
+	z-index: 100;
+    position: absolute;
+	top: 0;
+    color: white;
+    background-color: rgba(0,0,0,.3);
+    width: 100%;
+    text-align: center;
+}
+
+.inactive {
+	opacity: .3;
+}
+
+.photo360.loading::after {
+	content: '로드중';
+	display: block;
+	color: black;
+	font-size: 60px;
+	text-align: center;
+	line-height: 320px;
+}
+</style>
+</head>
+<body>
+<div>
+<header>
+	<div class="container">Manual Test</div>
+</header>
+<section class="container">
+	<h2>Visible Activation</h2>
+</section>
+</div>
+<!-- egjs를 위한 의존성 라이브러리 -->
+<script src="../../../node_modules/@egjs/visible/dist/visible.pkgd.js"></script>
+<script src="../../../dist/view360.pkgd.js"></script>
+<script type="text/template" id="viewer_template">
+	<div class="photo360-container">
+		<div class="photo360 inactive" style="background-image:url(../img/PanoViewer/waterpark_preview.jpg)" data-source="../img/PanoViewer/waterpark_cube_1024.jpg">
+		</div>
+	</div>
+	<div class="photo360-container">
+		<div class="photo360 inactive" style="background-image:url(../img/PanoViewer/deview_preview.jpg)" data-source="../img/PanoViewer/deview_cubemap.jpg">
+		</div>
+	</div>
+</script>
+<script>
+var viewerFixture = '';
+
+for(var i =0; i< 30; i++) {
+	viewerFixture += document.querySelector("#viewer_template").innerHTML;
+}
+
+
+document.querySelector("section.container").insertAdjacentHTML("beforeend", viewerFixture);
+
+
+var isMobile = window.navigator.userAgent.indexOf("Mobi") >= 0;
+
+// 문서 상의 모든 360 뷰어에 해당하는 엘리먼트의 인스턴스를 생성한다.
+var photo360NodeList = document.querySelectorAll(".photo360");
+var photo360ViewerMap = {};
+
+function getExpandSize() {
+	return -100;
+}
+
+var visible = new eg.Visible(document,{
+	 targetClass : "photo360-container",
+	 expandSize : getExpandSize()
+ }).on("change", function(e) {
+ 	//console.log("visible", e.visible.length,"invisible", e.invisible.length);
+
+	[].forEach.call(e.invisible, function(el) {
+		// 안 보이게 된 엘리먼트에 해당하는 뷰어를 photo360ViewerMap 에서 찾음
+		var viewerEl = el.querySelector(".photo360");
+		var key = viewerEl["__photo360__"];
+		var instance = photo360ViewerMap[key];
+		if(key && instance) { // 키가 있으면 맵에서 키에 해당하는 인스턴스를 찾아와서 있다면 resume
+			instance.suspend();
+		} 
+	});
+
+	// 보이게 된 엘리먼트 처리
+	[].forEach.call(e.visible, function(el, idx) {
+		// 보이게 된 엘리먼트에 해당하는 뷰어를 photo360ViewerPool 에서 찾음
+		var viewerEl = el.querySelector(".photo360");
+		var key = viewerEl["__photo360__"];
+		var instance = photo360ViewerMap[key];
+
+		if(key && instance) { // 키가 있으면 맵에서 키에 해당하는 인스턴스를 찾아와서 있다면 resume
+      viewerEl.classList.add("loading");
+			instance.resume();
+			return;
+		} 
+
+		// 인스턴스가 없으면 초기화 후 키 생성
+		if (!instance) { 
+			delete viewerEl["__photo360__"];
+			key = (new Date()).getTime() + idx;
+
+			instance = new eg.view360.PanoViewer(viewerEl,{
+					image: viewerEl.getAttribute("data-source")
+				}
+			).on("resume", function(evt) {
+				viewerEl.classList.remove("loading");
+				viewerEl.classList.remove("inactive");
+				setTimeout(function() {
+					instance.updateViewportDimensions();
+				}, 10);
+			}).on("suspend", function(evt) {
+				viewerEl.classList.add("inactive");
+			});
+      viewerEl.classList.add("loading");
+			instance.resume();
+
+			viewerEl["__photo360__"] = key;
+			photo360ViewerMap[key] = instance;
+		}
+	});
+});
+
+visible.check();
+
+// 데스크탑의 경우 창의 크기가 바뀔 경우 컨테이너의 크기도 바뀔 수 있다
+// 이에 대응
+
+window.addEventListener("resize", function() {
+  Object.keys(photo360ViewerMap).forEach(function(key){
+ 		var photo360Viewer = photo360ViewerMap[key];
+ 		if(photo360Viewer.isResumed) {
+ 			photo360Viewer.updateViewportDimensions();
+ 		}
+ 	})
+})
+
+// eg scrollEnd 를 사용
+window.addEventListener("scroll", debounce(function() {visible.check()}, 100));
+
+
+function debounce(func, wait, immediate) {
+	var timeout;
+	return function() {
+		var context = this, args = arguments;
+		var later = function() {
+			timeout = null;
+			if (!immediate) func.apply(context, args);
+		};
+		var callNow = immediate && !timeout;
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+		if (callNow) func.apply(context, args);
+	};
+};
+
+window.addEventListener("rotate", function() {
+	visible.option("expandSize", getExpandSize());
+	visible.check();
+});
+
+</script>
+</body>
+</html>
