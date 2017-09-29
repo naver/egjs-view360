@@ -35,7 +35,7 @@ describe("SpriteImage", function() {
 			}, 50);
 		});
 
-		it("should fire load event if imageUrl is valid", (done) => {
+		it.skip("should fire load event if imageUrl is valid", (done) => {
 			let o = new SpriteImage(target, {
 				imageUrl: "http://static.whale.naver.net/pc/header-wordmark.png"
 			});
@@ -116,7 +116,7 @@ describe("SpriteImage", function() {
 			target.innerHTML = `<div"></div>`;
 		});
 
-		it("should set background position correctly", (done) => {
+		it.skip("should set background position correctly", (done) => {
 			let o = new SpriteImage(target, {
 				imageUrl: "http://static.whale.naver.net/58rebrand/whale.png",
 				colCount: 10,
@@ -135,7 +135,7 @@ describe("SpriteImage", function() {
 			});
 		});
 
-		it("should not change background position if col or row is out of range", (done) => {
+		it.skip("should not change background position if col or row is out of range", (done) => {
 			let o = new SpriteImage(target, {
 				imageUrl: "http://static.whale.naver.net/58rebrand/whale.png",
 				colCount: 1,
@@ -174,7 +174,7 @@ describe("SpriteImage", function() {
 			assert(resultColRow[0] === 0 && resultColRow[1] === 0);
 		});
 
-		it("should not change background position if col or row is out of range", (done) => {
+		it.skip("should not change background position if col or row is out of range", (done) => {
 			let o = new SpriteImage(target, {
 				imageUrl: "http://static.whale.naver.net/58rebrand/whale.png",
 				colCount: 10,
@@ -233,7 +233,7 @@ describe("SpriteImage", function() {
 			});
 		});
 
-		it("should set background position correctly", (done) => {
+		it.skip("should set background position correctly", (done) => {
 			let o = new SpriteImage(target, {
 				imageUrl: "http://static.whale.naver.net/58rebrand/whale.png",
 				colCount: 10,
