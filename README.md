@@ -16,7 +16,7 @@ It is a component that supports the **inside-out viewing** method in which obser
 It is a component that supports the **outside-in viewing** method in which the object is centered and the observer can turn around and observe the object. All you need to do is create a sprite image of objects from multiple angles. By giving images to components, we'll give you the experience of turning things around as if they were in your hands.
 
 ## Documents
-- [Get Started and Demos](https://naver.github.io/egjs-view360/)
+- Get Started and Demos(Comming Soon...)
 - [API documentation](https://naver.github.io/egjs-view360/release/latest/doc/)
 
 ## Download and Installation
