@@ -1,7 +1,7 @@
 {
   "name": "@egjs/view360",
-  "version": "2.0.0-rc.1",
-  "description": "A module used to provide coordinate based on yaw/pitch orientation. This module receives user touch action, keyboard, mouse and device orientation(if it exists) as input, then combines them and converts it to yaw/pitch coordinates.",
+  "version": "2.0.0-rc",
+  "description": "360 integrated viewing solution from inside-out view to outside-in view. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.",
   "main": "dist/view360.js",
   "es2015": "src/index.js",
   "scripts": {
