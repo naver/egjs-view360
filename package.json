@@ -19,9 +19,11 @@
     "demo:deploy": "npm run build && npm run jsdoc && npm run demo:prebuild-version && npm run demo:prebuild-latest && npm run demo:build && gh-pages -d demo/_site",
     "demo:updateVersion": "echo $npm_package_version > demo/_data/version.yml",
     "demo:setup": "cpx 'node_modules/@egjs/common-demo/**/*' 'demo/' && rm demo/package.json",
+    "release": "node config/release.js",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "prepush": "npm run lint",
-    "commitmsg": "node config/validate-commit-msg.js"
+    "commitmsg": "node config/validate-commit-msg.js",
+    "changelog": "node config/changelog.js"
   },
   "author": {
     "name": "NAVER Corp."
@@ -30,6 +32,9 @@
     "eg": "eg"
   },
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/naver/egjs-view360/issues"
+  },
   "dependencies": {
     "@egjs/agent": "^2.1.1",
     "@egjs/axes": "^2.2.0",
@@ -80,6 +85,7 @@
     "webpack-dev-server": "^2.5.0",
     "webpack-merge": "^4.1.0",
     "write-file-webpack-plugin": "^4.1.0",
-    "hammer-simulator": "0.0.1"
+    "hammer-simulator": "0.0.1",
+    "xml2js": "^0.4.19"
   }
 }
