@@ -213,6 +213,81 @@ export default class PanoViewer extends Component {
 	_triggerEvent(name, param) {
 		const evt = param || {};
 
+		/**
+		 * Events that is fired when error occurs
+		 * @ko 에러 발생 시 발생하는 이벤트
+		 * @name eg.view360.PanoViewer#error
+		 * @event
+		 * @param {Object} param The object of data to be sent to an event <ko>이벤트에 전달되는 데이터 객체</ko>
+		 * @param {Number} param.type Error type (10: INVALID_DEVICE, 11: NO_WEBGL, 12, FAIL_IMAGE_LOAD, 13: FAIL_BIND_TEXTURE)<ko>에러 종류(10: INVALID_DEVICE, 11: NO_WEBGL, 12, FAIL_IMAGE_LOAD, 13: FAIL_BIND_TEXTURE)</ko>
+		 * @param {String} param.message Error message <ko>에러 메시지</ko>
+		 *
+		 * @example
+		 *
+		 * viwer.on({
+		 *	"error" : function(evt) {
+		 *		// evt.type === 13
+		 *		// evt.messaeg === "failed to bind texture"
+		 * });
+		 */
+
+		/**
+		 * Events that is fired when PanoViewer is ready to go.
+		 * @ko PanoViewer 가 준비된 상태에 발생하는 이벤트
+		 * @name eg.view360.PanoViewer#resume
+		 * @event
+		 *
+		 * @example
+		 *
+		 * viwer.on({
+		 *	"resume" : function(evt) {
+		 *		// PanoViewer is ready to show image and handle user interaction.
+		 * });
+		 */
+
+		/**
+		 * Events that is fired when PanoViewer is suspended
+		 * @ko PanoViewer 를 중지했을때 발생하는 이벤트
+		 * @name eg.view360.PanoViewer#suspend
+		 * @event
+		 *
+		 * @example
+		 *
+		 * viwer.on({
+		 *	"suspend" : function(evt) {
+		 *		// PanoViewer is ready to show image and handle user interaction.
+		 * });
+		 */
+
+		/**
+		 * Events that is fired when direction or fov is changed.
+		 * @ko PanoViewer 에서 바라보고 있는 방향이나 FOV(화각)가 변경되었을때 발생하는 이벤트
+		 * @name eg.view360.PanoViewer#viewChange
+		 * @event
+		 * @param {Object} param The object of data to be sent to an event <ko>이벤트에 전달되는 데이터 객체</ko>
+		 * @param {Number} param.yaw yaw<ko>yaw</ko>
+		 * @param {Number} param.pitch pitch <ko>pitch</ko>
+		 * @param {Number} param.fov Field of view (fov) <ko>화각</ko>
+		 * @example
+		 *
+		 * viwer.on({
+		 *	"viewChange" : function(evt) {
+		 *		//evt.yaw, evt.pitch, evt.fov is available.
+		 * });
+		 */
+
+		/**
+		 * Events that is fired when animation which is triggered by inertia is ended.
+		 * @ko 관성에 의한 애니메이션 동작이 완료되었을때 발생하는 이벤트
+		 * @name eg.view360.PanoViewer#animationEnd
+		 * @event
+		 * @example
+		 *
+		 * viwer.on({
+		 *	"animationEnd" : function(evt) {
+		 *		// animation is ended.
+		 * });
+		 */
 		return this.trigger(name, evt);
 	}
 
