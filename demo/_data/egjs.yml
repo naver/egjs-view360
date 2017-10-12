@@ -4,8 +4,6 @@ desc: Build immersive 360 media experience on your website
 ogimage: http://naver.github.io/egjs/img/og.png
 dist:
 - release/latest/dist/view360.pkgd.min.js
-- release/latest/dist/PanoViewer/view360.panoviewer.pkgd.min.js
-- release/latest/dist/SpinViewer/view360.spinviewer.pkgd.min.js
 GA: UA-70842526-23
 github:
   user: naver

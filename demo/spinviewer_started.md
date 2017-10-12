@@ -14,11 +14,12 @@ In case using script tag,
 Download the latest version of view360.js and include using the script tag
 
 ```html
-<!--script src="/path/to/js/{{ site.data.egjs.dist[2] }}"></script-->
-<script src="//{{ site.data.egjs.github.user }}.github.io/{{ site.data.egjs.github.repo }}/{{ site.data.egjs.dist[2] }}"></script>
+{% capture distFile %}{{ site.data.egjs.subComponents[1].distPath }}{{ site.data.egjs.subComponents[1].dists[1].filename }}{% endcapture %}
+<!--script src="/path/to/js/{{ distFile }}"></script-->
+<script src="//{{ site.data.egjs.github.user }}.github.io/{{ site.data.egjs.github.repo }}/{{ distFile }}"></script>
 ```
 
-[Download link](//{{ site.data.egjs.github.user }}.github.io/{{ site.data.egjs.github.repo }}/{{ site.data.egjs.dist[2] }})
+[Download link](//{{ site.data.egjs.github.user }}.github.io/{{ site.data.egjs.github.repo }}/{{ distFile }})
 
 ### Usage 
 
