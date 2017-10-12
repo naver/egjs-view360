@@ -9,8 +9,6 @@ github:
   user: naver
   repo: egjs-view360 
 js:
-css:
-- assets/css/demo.css
 subComponents:
 - name: PanoViewer
   desc: A panoramic media viewer for the mobile web
