@@ -5,7 +5,7 @@
 	<link rel="stylesheet" href="{{ css }}">
 {% endfor %}
 {% for dist in site.data.egjs.dist %}
-	<script src="../{{ dist }}"></script>
+	<script src="{{ dist }}"></script>
 {% endfor %}
 <script>
 	var homeUrl = window.location.href;
