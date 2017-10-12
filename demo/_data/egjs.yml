@@ -26,27 +26,6 @@ subComponents:
       size: 162
     - filename: view360.panoviewer.pkgd.min.js
       size: 102
-  examples:
-    - name: ex1
-      image:
-      url:
-    - name: ex2
-      image:
-      url:
-  tools:
-    - name: tool1
-      image:
-      url:
-    - name: tool2
-      image:
-      url:
-  projects:
-    - name: project1
-      image: 
-      url:
-    - name: project2
-      image:
-      url:
 - name: SpinViewer
   desc: Object 360 photo viewer 
   hashtags:
@@ -60,7 +39,3 @@ subComponents:
       size: 162
     - filename: view360.spinviewer.pkgd.min.js
       size: 102
-  examples:
-    - name: Basic
-      image:
-      url: ../assets/html/spinviewer.html
