@@ -1,15 +1,14 @@
-component: view360
-home: //naver.github.io/egjs/
-desc: 360 integrated viewing solution from inside-out view to outside-in view. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.
+component: View360
+home: //naver.github.io/egjs
+desc: Build immersive 360 media experience on your website
+ogimage: http://naver.github.io/egjs/img/og.png
 dist:
 - release/latest/dist/view360.pkgd.min.js
-hashtag: "#360"
 GA: UA-70842526-23
 github:
   user: naver
   repo: egjs-view360 
 js:
-- assets/js/demo.js
 css:
 - assets/css/demo.css
 subComponents:
@@ -55,9 +54,6 @@ subComponents:
     - name: Naver Partner Square
       image: http://edu.shopping.naver.com/static/front/img/img_nps_logo.jpg
       url: https://partners.naver.com/
-
-
-      
 - name: SpinViewer
   desc: Object 360 photo viewer ↪️👠↩️
   ogimage: ../assets/img/SpinViewer.png
