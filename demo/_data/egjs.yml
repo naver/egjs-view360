@@ -1,14 +1,62 @@
-component: view360
-home: //naver.github.io/egjs/
-desc: 360 integrated viewing solution from inside-out view to outside-in view. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.
+component: View360
+home: //naver.github.io/egjs
+desc: Build immersive 360 media experience on your website
+ogimage: http://naver.github.io/egjs/img/og.png
 dist:
 - release/latest/dist/view360.pkgd.min.js
-hashtag: "#360"
 GA: UA-70842526-23
 github:
   user: naver
   repo: egjs-view360 
 js:
-- assets/js/demo.js
 css:
 - assets/css/demo.css
+subComponents:
+- name: PanoViewer
+  desc: A panoramic media viewer for the mobile web
+  hashtags:
+    - photoSphere
+    - 360
+    - panorama
+    - inside-out
+    - motion-tracking
+  distPath: release/latest/dist/PanoViewer/
+  dists:
+    - filename: view360.panoviewer.pkgd.js
+      size: 162
+    - filename: view360.panoviewer.pkgd.min.js
+      size: 102
+  examples:
+    - name: ex1
+      image:
+      url:
+    - name: ex2
+      image:
+      url:
+  tools:
+    - name: tool1
+      image:
+      url:
+    - name: tool2
+      image:
+      url:
+  projects:
+    - name: project1
+      image: 
+      url:
+    - name: project2
+      image:
+      url:
+- name: SpinViewer
+  desc: Object 360 photo viewer 
+  hashtags:
+    - product
+    - turntable
+    - sprite-image
+    - outside-in
+  distPath: release/latest/dist/SpinViewer/
+  dists:
+    - filename: view360.spinviewer.pkgd.js
+      size: 162
+    - filename: view360.spinviewer.pkgd.min.js
+      size: 102

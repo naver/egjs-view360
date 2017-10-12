@@ -1,0 +1,24 @@
+<div>
+    <style>
+    #panoviewer-showcase {
+        position: relative;
+        width: 100%;
+        height: 400px;
+        margin: 0 auto;
+    }    
+    </style>
+    <div id="panoviewer-showcase">
+
+    </div>
+    <script>
+        var container = document.getElementById("panoviewer-showcase");
+        var PanoViewer = eg.view360.PanoViewer;
+        var panoViewer = new PanoViewer(container, {
+            image: "../assets/img/test_equi.png"
+        });
+        panoViewer.resume();
+        window.addEventListener("resize", function() {
+            panoViewer.updateViewportDimensions();
+        })
+    </script>
+</div>
