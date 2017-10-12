@@ -210,6 +210,9 @@ const YawPitchControl = class YawPitchControl extends Component {
 
 		// TEST: if fovRanges are updated, then fov may be changed.
 		if (keys.some(key => key === "fovRange")) {
+			if (!this.axes) {
+				return;
+			}
 			const fovRange = this.options.fovRange;
 			const prevFov = this.axes.get().fov;
 			let nextFov = this.axes.get().fov;
@@ -233,6 +236,9 @@ const YawPitchControl = class YawPitchControl extends Component {
 		if (keys.some(key => key === "useKeyboard")) {
 			const useKeyboard = this.options.useKeyboard;
 
+			if (!this.axes) {
+				return;
+			}
 			if (useKeyboard) {
 				this.axes.connect(["yaw", "pitch"], this.axesMoveKeyInput);
 			} else {
@@ -243,6 +249,9 @@ const YawPitchControl = class YawPitchControl extends Component {
 		if (keys.some(key => key === "useZoom")) {
 			const useZoom = this.options.useZoom;
 
+			if (!this.axes) {
+				return;
+			}
 			if (useZoom) {
 				this.axes.connect(["fov"], this.axesWheelInput);
 				this.axesPinchInput && this.axes.connect(["fov"], this.axesPinchInput);
@@ -437,6 +446,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 		this.axes.connect(["yaw", "pitch"], this.axesPanInput);
 		this.axesTiltMotionInput && this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
 		this._applyOptions(Object.keys(this.options), this.options);
+		this._setPanScale(this.getFov());
 
 		this._enabled = true;
 		return this;

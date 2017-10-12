@@ -1,9 +1,3 @@
-/**
- * Original Code
- * https://github.com/googlevr/webvr-polyfill/blob/v1.0.0/src/sensor-fusion/fusion-pose-sensor.js
- * The pose sensor, implemented using DeviceMotion APIs.
- * modified by egjs
- */
 import Component from "@egjs/component";
 import ComplementaryFilter from "webvr-polyfill/src/sensor-fusion/complementary-filter";
 import PosePredictor from "webvr-polyfill/src/sensor-fusion/pose-predictor";
@@ -148,7 +142,8 @@ export default class FusionPoseSensor extends Component {
 		// Take into account original pose.
 		this.resetQ.multiply(this.originalPoseAdjustQ);
 	}
-	_onDeviceMotionChange(deviceMotion) {
+	_onDeviceMotionChange({inputEvent}) {
+		const deviceMotion = inputEvent;
 		const accGravity = deviceMotion.accelerationIncludingGravity;
 		const rotRate = deviceMotion.adjustedRotationRate || deviceMotion.rotationRate;
 		let timestampS = deviceMotion.timeStamp / 1000;
