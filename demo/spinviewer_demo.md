@@ -1,1 +1,2 @@
-### What is the eg?
+
+{% include_relative assets/html/spinviewer.html %}
