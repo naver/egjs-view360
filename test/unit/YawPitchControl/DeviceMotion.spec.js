@@ -14,7 +14,7 @@ describe("DeviceMotion", function() {
 		});
 	});
 
-	describe.skip("DeviceMotion Test", function() {
+	describe("DeviceMotion Test", function() {
 		describe("devicemotion event fire Test", function() {
 			let inst = null;
 			let changed = false;
@@ -69,7 +69,7 @@ describe("DeviceMotion", function() {
 			let inst = new DeviceMotion();
 			let devicemotionEvent = null;
 			inst.on("devicemotion", (e) => {
-				devicemotionEvent = e;
+				devicemotionEvent = e.inputEvent;
 			});
 
 			// When
