@@ -5,7 +5,7 @@
 	<link rel="stylesheet" href="{{ css }}">
 {% endfor %}
 {% for dist in site.data.egjs.dist %}
-	<script src="../{{ dist }}"></script>
+	<script src="{{ dist }}"></script>
 {% endfor %}
 <script>
 	var homeUrl = window.location.href;
@@ -35,7 +35,7 @@
 {% include subcomponent_header.html %}
 <section id="promo" class="promo section">
 		<div class="container">
-			<div class="hero-image" style="background-image: url(../assets/img/{{ subComponent.name }}.png)">
+			<div class="hero-image" style="background-image: url(./assets/img/{{ subComponent.name }}.png)">
 			</div>
 			<h2 class="title">	
 				<span class="highlight">{{ subComponent.name }}</span>

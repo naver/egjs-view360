@@ -1,20 +1,23 @@
-
-
 ### Installation
+
 #### npm
-> npm install @egjs/view360 --save
+In case using npm,
 
-#### script tag
-Download the latest version of view360.js and include using the script tag
-``` html
-<script src="/path/to/js/view360.pkgd.min.js"></script>
-
-or for quick testing
-
-<script src="//{{ site.data.egjs.github.user }}.github.io/{{ site.data.egjs.github.repo }}/{{ site.data.egjs.dist }}"></script>
+```bash
+npm install @egjs/view360 --save
 ```
 
-[Download link](//{{ site.data.egjs.github.user }}.github.io/{{ site.data.egjs.github.repo }}/{{ site.data.egjs.dist }})
+#### script tag
+In case using script tag,
+Download the latest version of view360.js and include using the script tag
+
+```html
+{% capture distFile %}{{ site.data.egjs.subComponents[0].distPath }}{{ site.data.egjs.subComponents[0].dists[1].filename }}{% endcapture %}
+<!--script src="/path/to/js/{{ site.data.egjs.subComponents[0].distPath }}{{ distFile }}"></script-->
+<script src="//{{ site.data.egjs.github.user }}.github.io/{{ site.data.egjs.github.repo }}/{{ distFile }}"></script>
+```
+
+[Download link](//{{ site.data.egjs.github.user }}.github.io/{{ site.data.egjs.github.repo }}/{{ distFile }})
 
 ### Usage 
 
@@ -27,12 +30,19 @@ Your container element's dimensions should be defined.
 ```
 
 #### 2. Import Module
-```js
-// Use es6 import
-import {PanoViewer} from "@egjs/view360";
 
-// Or use global namespace
-const PanoViewer = eg.view360.PanoViewer;
+##### ES5
+
+```js
+// Use global namespace
+var PanoViewer = eg.view360.PanoViewer;
+```
+
+##### ES6+
+
+```js
+// Or use es6 import
+import {PanoViewer} from "@egjs/view360";
 ```
 
 #### 3. Initialize PanoViewer
@@ -46,3 +56,5 @@ const panoViewer = new PanoViewer(
   }
 );
 ```
+
+For more information about API, please visit the **[link](//{{ site.data.egjs.github.user }}.github.io/{{ site.data.egjs.github.repo }}/release/latest/doc/eg.view360.PanoViewer.html)**.
