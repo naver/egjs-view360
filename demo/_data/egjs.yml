@@ -13,7 +13,8 @@ css:
 - assets/css/demo.css
 subComponents:
 - name: PanoViewer
-  desc: A panoramic media viewer for the mobile web
+  desc: A panoramic media viewer for the mobile web ↪️🌐↩️
+  ogimage: ../assets/img/PanoViewer.png
   hashtags:
     - photoSphere
     - 360
@@ -26,29 +27,36 @@ subComponents:
       size: 162
     - filename: view360.panoviewer.pkgd.min.js
       size: 102
-  examples:
-    - name: ex1
-      image:
-      url:
-    - name: ex2
-      image:
-      url:
-  tools:
-    - name: tool1
-      image:
-      url:
-    - name: tool2
-      image:
-      url:
+  # examples:
+  #   - name: ex1
+  #     image:
+  #     url:
+  #   - name: ex2
+  #     image:
+  #     url:
+  # tools:
+  #   - name: tool1
+  #     image:
+  #     url:
+  #   - name: tool2
+  #     image:
+  #     url:
   projects:
-    - name: project1
-      image: 
-      url:
-    - name: project2
-      image:
-      url:
+    - name: Naver Blog
+      image: https://lh3.googleusercontent.com/nje3C66r8ANaUgtvyuRaxsI4YVs3_6sYaJ1dJ-SLINyt1Lu7h_VUS3ii4jEVoPEFMw
+      url: http://blog.naver.com
+    - name: Naver Post
+      image: https://lh3.googleusercontent.com/uScefQKPT5yHOl0S8v05outH8fPuYoiFYH2n39j4BpbSooVOTpM1WQV_K4lwATK3_9iK
+      url: http://post.naver.com
+    - name: Naver Realty
+      image: https://lh3.googleusercontent.com/dorF8poJB8B9vM9Voq0k4u9uXOvm4YDmSbsMuDUNOKHoNZcWfofno47ojgaa3xQeLw
+      url: http://land.naver.com
+    - name: Naver Partner Square
+      image: http://edu.shopping.naver.com/static/front/img/img_nps_logo.jpg
+      url: https://partners.naver.com/
 - name: SpinViewer
-  desc: Object 360 photo viewer 
+  desc: Object 360 photo viewer ↪️👠↩️
+  ogimage: ../assets/img/SpinViewer.png
   hashtags:
     - product
     - turntable
