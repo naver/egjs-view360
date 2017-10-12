@@ -59,7 +59,7 @@
 </header><!--//header-->
 <section id="promo" class="promo section">
 		<div class="container">
-			<div class="hero-image" style="background-image: url(../assets/img/PanoViewer.png)">
+			<div class="hero-image" style="background-image: url(./assets/img/PanoViewer.png)">
 			</div>
 			<h2 class="title">	
 				<span class="highlight">PanoViewer</span>
@@ -104,7 +104,7 @@
         var container = document.getElementById("panoviewer-showcase");
         var PanoViewer = eg.view360.PanoViewer;
         var panoViewer = new PanoViewer(container, {
-            image: "../assets/img/test_equi.png"
+            image: "./assets/img/test_equi.png"
         });
         panoViewer.resume();
         window.addEventListener("resize", function() {
