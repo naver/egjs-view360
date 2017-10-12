@@ -1,51 +1,58 @@
-### Browser support
-IE 11, latest of Chrome/FF/Safari/EDGE,, iOS 8+ and Android 4.3+
-(Browsers with stable WebGL)
 
-### Installation & Import
+
+### Installation
+
 #### npm
-> npm install @egjs/view360 --save
+In case using npm,
 
-```js
-import {PanoViewer} from "@egjs/view360";
-const panoViewer = new PanoViewer(...);
+```bash
+npm install @egjs/view360 --save
 ```
 
 #### script tag
-Download the latest version of view360.js and include the files in your HTML page using the following tags:
-``` html
-<script src="<script src="/path/to/js/view360.min.js"></script>"></script>
+In case using script tag,
+Download the latest version of view360.js and include using the script tag
+
+```html
+<!--script src="/path/to/js/{{ site.data.egjs.dist[2] }}"></script-->
+<script src="//{{ site.data.egjs.github.user }}.github.io/{{ site.data.egjs.github.repo }}/{{ site.data.egjs.dist[2] }}"></script>
 ```
 
-``` html
-{% for dist in site.data.egjs.dist %}
-<script src="//{{ site.data.egjs.github.user }}.github.io/{{ site.data.egjs.github.repo }}/{{ dist }}"></script>
-{% endfor %}
-```
+[Download link](//{{ site.data.egjs.github.user }}.github.io/{{ site.data.egjs.github.repo }}/{{ site.data.egjs.dist[2] }})
 
-Use Module in golbal namespace **eg**.
-```js
-const panoViewer = new eg.PanoViewer(...);
-```
-
-### Example 
+### Usage 
 
 #### 1. Set up your Container Element
 
 Your container element's dimensions should be defined.
 
-``` html
-<div id="myPanoViewer"></div>
+```html
+<div id="mySpinViewer"></div>
 ```
 
-#### 2. Initialize PanoViewer
+#### 2. Import Module
 
+##### ES5
 ```js
-// create PanoViewer with option
-const panoViewer = new eg.view360.PanoViewer(
-  document.getElementById("myPanoViewer"),
-  {
-    image: ""
+// Or use global namespace
+var SpinViewer = eg.view360.SpinViewer;
+```
+
+##### ES6+
+```js
+// Use es6 import
+import {SpinViewer} from "@egjs/view360";
+```
+
+#### 3. Initialize SpinViewer
+```js
+// create SpinViewer with option
+var spinViewer = new SpinViewer(
+  document.getElementById("mySpinViewer"), {
+    imageUrl: "/path/to/image/image.jpg", /*required */
+    rowCount: 24 /* If count of sprite row/col is lager than 1, this field is required */
   }
 );
 ```
+
+For more information about API, please visit the **[link](//{{ site.data.egjs.github.user }}.github.io/{{ site.data.egjs.github.repo }}/release/latest/doc/eg.view360.SpinViewer.html)**.
