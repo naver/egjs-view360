@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>egjs-view360</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">    
+    <link rel="stylesheet" href="../common/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../common/css/page.css">
+    <link rel="stylesheet" href="../common/css/monokai.css">
+    <script src="../common/js/jquery-2.2.4.js"></script>
+</head>
+
+    
+
+	<link rel="stylesheet" href="assets/css/demo.css">
+
+
+	<script src="../release/latest/dist/view360.pkgd.min.js"></script>
+
+<script>
+	var homeUrl = window.location.href;
+	if (homeUrl.indexOf("#") !== -1) {
+		homeUrl = homeUrl.substr(0, homeUrl.indexOf("#"));
+	}
+	homeUrl = homeUrl
+		.replace("/index.html", "/")
+		.replace("/gallery.html", "/");
+	if (homeUrl[homeUrl.length-1] !== "/") {
+		homeUrl += "/";
+	};
+	window.HOMELINK = homeUrl;
+	window.LIBLINK = [];
+	
+	window.LIBLINK.push(window.HOMELINK + "release/latest/dist/view360.pkgd.min.js");
+	
+</script>
+<body>
+
+
+
+<!-- ******HEADER****** -->
+<header id="header" class="header">
+        <div class="container">
+            <div class="logo pull-left home">
+                <a href="https://naver.github.io/egjs-view360">
+                    <img class="egjs_logo" src="../common/img/type_black.svg"/>
+                    view360
+                </a><!--//logo-->
+                <a href="https://github.com/naver/egjs-view360/releases/tag/2.0.0-rc">
+                    <span class="version">2.0.0-rc</span>
+                </a>
+            </div>
+            <div class="pull-right home">
+                <a target="_blank" href="//naver.github.io/egjs-view360/release/latest/doc/"> API </a>/ 
+                <a target="_blank" href="//github.com/naver/egjs-view360"> Github </a>
+            </div>
+
+        </div>
+</header><!--//header-->
+<section id="promo" class="promo section">
+		<div class="container">
+			<div class="hero-image" style="background-image: url(../assets/img/SpinViewer.png)">
+			</div>
+			<h2 class="title">	
+				<span class="highlight">SpinViewer</span>
+			</h2>
+			<p class="intro">Object 360 photo viewer<br/>
+				<span class="hashtag">		
+					
+					#product 
+					
+					#turntable 
+					
+					#sprite-image 
+					
+					#outside-in 
+					
+				</span>
+			</p>
+		</div>
+	</section>
+<div>
+
+	<section id="showcase" class="docs section">
+		<div class="container">
+			<div class="docs-inner">				
+				<h2 class="title text-center">Showcase</h2>
+				
+				
+<div>
+	<style>
+		#spinviewer-showcase {
+			position: relative;
+			margin: 0 auto;
+			height: 400px;
+			max-width: 400px;
+		}
+
+		.logo_360 {
+			position: absolute;
+			top: 20px;
+			right: 20px;
+			background-image: url(http://static.checkout.naver.net/stylewindow/p/min_20171012050749/img/sp_detail.png);
+			background-size: 556px 474px;
+			background-position: 0px -366px;
+			width: 52px;
+			height: 52px;
+		}
+	</style>
+	<div id="spinviewer-showcase">
+		<div class="logo_360"></div>
+	</div>
+	<!--<script type="application/javascript" src="https://naver.github.io/egjs-view360/release/latest/dist/SpinViewer/view360.spinviewer.pkgd.min.js"></script>-->
+	<script>
+		var container = document.getElementById("spinviewer-showcase");
+		var SpinViewer = eg.view360.SpinViewer;
+		var spinViewer = new SpinViewer(container, {
+			imageUrl: "../assets/img/spin_demo.jpg",
+			rowCount: 47,
+			scale: 1,
+			width: "100%"
+		});
+
+		spinViewer.on("load", function() {
+			this.spinBy({angle: 360, duration: 1000});
+		});
+	</script>
+</div>
+
+			</div>
+		</div>
+	</section>
+	<section id="index" class="section">
+			<div class="container">
+				<div class="docs-inner">
+					<p class="text-center">
+						<a href="#features">Features </a>/
+						<a href="#getting-started">Getting Started </a>
+						
+						
+						
+						
+					</p>
+				</div>
+			</div>
+		</section>
+	<section id="features" class="docs section">
+		<div class="container">
+			<div class="docs-inner">
+				<h2 class="title text-center">Features</h2>
+				
+				<h3 id="supported">Supported</h3>
+<ul>
+  <li>Sprite image of (n x m) Grid style</li>
+  <li>Auto resize</li>
+  <li>Various input devices (Keyboard, Mouse, Touch, Motion(<code class="highlighter-rouge">Comming Soon</code>)…)</li>
+  <li>Manual Spin</li>
+</ul>
+
+<h3 id="browser-support">Browser support</h3>
+
+<h4 id="desktop">Desktop</h4>
+<ul>
+  <li>Lastest version of Chrome, Firefox, Safari, EDGE</li>
+  <li>IE 9+</li>
+</ul>
+
+<h4 id="mobile">Mobile</h4>
+<ul>
+  <li>Safari (iOS 7+)</li>
+  <li>Chrome for android</li>
+  <li>Samsung Internet 4+</li>
+</ul>
+
+			</div>
+		</div>
+	</section>
+	<section id="getting-started" class="docs section">
+		<div class="container">
+			<div class="docs-inner">
+				<h2 class="title text-center">Getting Started</h2>
+				
+				
+<h3 id="installation">Installation</h3>
+
+<h4 id="npm">npm</h4>
+<p>In case using npm,</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>npm install @egjs/view360 --save
+</code></pre>
+</div>
+
+<h4 id="script-tag">script tag</h4>
+<p>In case using script tag,
+Download the latest version of view360.js and include using the script tag</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code>
+<span class="c">&lt;!--script src="/path/to/js/release/latest/dist/SpinViewer/view360.spinviewer.pkgd.min.js"&gt;&lt;/script--&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"//naver.github.io/egjs-view360/release/latest/dist/SpinViewer/view360.spinviewer.pkgd.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+</code></pre>
+</div>
+
+<p><a href="//naver.github.io/egjs-view360/release/latest/dist/SpinViewer/view360.spinviewer.pkgd.min.js">Download link</a></p>
+
+<h3 id="usage">Usage</h3>
+
+<h4 id="set-up-your-container-element">1. Set up your Container Element</h4>
+
+<p>Your container element’s dimensions should be defined.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"mySpinViewer"</span><span class="nt">&gt;&lt;/div&gt;</span>
+</code></pre>
+</div>
+
+<h4 id="import-module">2. Import Module</h4>
+
+<h5 id="es5">ES5</h5>
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="c1">// Or use global namespace</span>
+<span class="kd">var</span> <span class="nx">SpinViewer</span> <span class="o">=</span> <span class="nx">eg</span><span class="p">.</span><span class="nx">view360</span><span class="p">.</span><span class="nx">SpinViewer</span><span class="p">;</span>
+</code></pre>
+</div>
+
+<h5 id="es6">ES6+</h5>
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="c1">// Use es6 import</span>
+<span class="kr">import</span> <span class="p">{</span><span class="nx">SpinViewer</span><span class="p">}</span> <span class="nx">from</span> <span class="s2">"@egjs/view360"</span><span class="p">;</span>
+</code></pre>
+</div>
+
+<h4 id="initialize-spinviewer">3. Initialize SpinViewer</h4>
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="c1">// create SpinViewer with option</span>
+<span class="kd">var</span> <span class="nx">spinViewer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">SpinViewer</span><span class="p">(</span>
+  <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">"mySpinViewer"</span><span class="p">),</span> <span class="p">{</span>
+    <span class="na">imageUrl</span><span class="p">:</span> <span class="s2">"/path/to/image/image.jpg"</span><span class="p">,</span> <span class="cm">/*required */</span>
+    <span class="na">rowCount</span><span class="p">:</span> <span class="mi">24</span> <span class="cm">/* If count of sprite row/col is lager than 1, this field is required */</span>
+  <span class="p">}</span>
+<span class="p">);</span>
+</code></pre>
+</div>
+
+<p>For more information about API, please visit the <strong><a href="//naver.github.io/egjs-view360/release/latest/doc/eg.view360.SpinViewer.html">link</a></strong>.</p>
+
+			</div>
+		</div>
+	</section>
+	
+	
+	
+
+</div>
+<!-- ******FOOTER****** -->
+<footer>
+    <div id="footerContent">
+        <div class="left">
+        <ul>
+            <li><a target="_blank" href="https://github.com/naver">
+                <img class="naver_opensource" src="../common/img/naver_opensource.svg" />
+                </a></li>
+            <li>
+                <a target="_blank" href="https://naver.github.io/egjs/">
+                    <img class="billboard_logo" src="../common/img/egjs.svg" />
+            </a>
+            </li></a>
+            <li><a target="_blank" href="https://naver.github.io/billboard.js/">
+                <img class="billboard_logo" src="../common/img/billboardjs_gray.svg" />
+            </a></li>
+        </ul>
+        </div>
+    </div>
+</footer><!--//footer-->
+
+<!-- Javascript -->
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-70842526-23', 'auto');
+    ga('send', 'pageview');
+</script>
+
+
+</body>
+</html>
