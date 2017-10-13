@@ -66,3 +66,7 @@ subComponents:
       size: 162
     - filename: view360.spinviewer.pkgd.min.js
       size: 102
+  examples:
+    - name: Basic
+      image: assets/img/basic_spinview_thumb.gif
+      url: assets/html/spinviewer.html
