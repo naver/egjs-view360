@@ -5,6 +5,10 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    
+    <meta property="og:title" content="SpinViewer">
+    <meta property="og:image" content="../assets/img/SpinViewer.png">
+    <meta name="Description" content="Object 360 photo viewer ↪️👠↩️">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">    
     <link rel="stylesheet" href="./common/css/bootstrap.min.css">
     <link rel="stylesheet" href="./common/css/page.css">
@@ -12,7 +16,7 @@
     <script src="./common/js/jquery-2.2.4.js"></script>
 </head>
 
-    
+
 
 
 	<script src="release/latest/dist/view360.pkgd.min.js"></script>
@@ -64,7 +68,7 @@
 			<h2 class="title">	
 				<span class="highlight">SpinViewer</span>
 			</h2>
-			<p class="intro">Object 360 photo viewer<br/>
+			<p class="intro">Object 360 photo viewer ↪️👠↩️<br/>
 				<span class="hashtag">		
 					
 					#product 
@@ -110,12 +114,12 @@
 	<div id="spinviewer-showcase">
 		<div class="logo_360"></div>
 	</div>
-	<!--<script type="application/javascript" src="https://naver.github.io/egjs-view360/release/latest/dist/SpinViewer/view360.spinviewer.pkgd.min.js"></script>-->
+	<script type="text/javascript" src="https://naver.github.io/egjs-view360/release/latest/dist/SpinViewer/view360.spinviewer.pkgd.js"></script>
 	<script>
 		var container = document.getElementById("spinviewer-showcase");
 		var SpinViewer = eg.view360.SpinViewer;
 		var spinViewer = new SpinViewer(container, {
-			imageUrl: "./assets/img/spin_demo.jpg",
+			imageUrl: "https://naver.github.io/egjs-view360/assets/img/spin_demo.jpg",
 			rowCount: 47,
 			scale: 1,
 			width: "100%"
@@ -138,6 +142,8 @@
 						<a href="#getting-started">Getting Started </a>
 						
 						
+						
+							/ <a href="#examples">Examples </a>
 						
 						
 					</p>
@@ -239,6 +245,29 @@ Download the latest version of view360.js and include using the script tag</p>
 
 <p>For more information about API, please visit the <strong><a href="//naver.github.io/egjs-view360/release/latest/doc/eg.view360.SpinViewer.html">link</a></strong>.</p>
 
+			</div>
+		</div>
+	</section>
+	
+	
+	<section id="examples" class="docs section">
+		<div class="container">
+			<div class="docs-inner">
+				<h2 class="title text-center">Examples</h2>
+				<ul class="link_list">
+				
+				<li class="link_item">
+					<a href="assets/html/spinviewer.html" class="td_a">
+						<div class="link_item_image">
+							<img src="assets/img/basic_spinview_thumb.gif" width="166" height="108">
+						</div>
+						<div class="link_item_title">
+							<span class="">Basic</span>
+						</div>
+					</a>
+				</li>
+				
+				</ul>
 			</div>
 		</div>
 	</section>

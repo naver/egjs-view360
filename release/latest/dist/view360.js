@@ -5840,6 +5840,9 @@ var YawPitchControl = function (_Component) {
 		if (keys.some(function (key) {
 			return key === "fovRange";
 		})) {
+			if (!this.axes) {
+				return;
+			}
 			var fovRange = this.options.fovRange;
 			var prevFov = this.axes.get().fov;
 			var nextFov = this.axes.get().fov;
@@ -5865,6 +5868,9 @@ var YawPitchControl = function (_Component) {
 		})) {
 			var useKeyboard = this.options.useKeyboard;
 
+			if (!this.axes) {
+				return;
+			}
 			if (useKeyboard) {
 				this.axes.connect(["yaw", "pitch"], this.axesMoveKeyInput);
 			} else {
@@ -5877,6 +5883,9 @@ var YawPitchControl = function (_Component) {
 		})) {
 			var useZoom = this.options.useZoom;
 
+			if (!this.axes) {
+				return;
+			}
 			if (useZoom) {
 				this.axes.connect(["fov"], this.axesWheelInput);
 				this.axesPinchInput && this.axes.connect(["fov"], this.axesPinchInput);
@@ -6079,6 +6088,7 @@ var YawPitchControl = function (_Component) {
 		this.axes.connect(["yaw", "pitch"], this.axesPanInput);
 		this.axesTiltMotionInput && this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
 		this._applyOptions(Object.keys(this.options), this.options);
+		this._setPanScale(this.getFov());
 
 		this._enabled = true;
 		return this;
@@ -6272,7 +6282,9 @@ var DeviceMotion = function (_Component) {
 				gamma: this.adjustedGyroVec[2] };
 		}
 
-		this.trigger("devicemotion", e);
+		this.trigger("devicemotion", {
+			inputEvent: e
+		});
 	};
 
 	DeviceMotion.prototype.enable = function enable() {
@@ -6343,13 +6355,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Original Code
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * https://github.com/googlevr/webvr-polyfill/blob/v1.0.0/src/sensor-fusion/fusion-pose-sensor.js
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * The pose sensor, implemented using DeviceMotion APIs.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * modified by egjs
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
-
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var K_FILTER = 0.98;
 var PREDICTION_TIME_S = 0.040;
@@ -6493,7 +6499,10 @@ var FusionPoseSensor = function (_Component) {
 		this.resetQ.multiply(this.originalPoseAdjustQ);
 	};
 
-	FusionPoseSensor.prototype._onDeviceMotionChange = function _onDeviceMotionChange(deviceMotion) {
+	FusionPoseSensor.prototype._onDeviceMotionChange = function _onDeviceMotionChange(_ref) {
+		var inputEvent = _ref.inputEvent;
+
+		var deviceMotion = inputEvent;
 		var accGravity = deviceMotion.accelerationIncludingGravity;
 		var rotRate = deviceMotion.adjustedRotationRate || deviceMotion.rotationRate;
 		var timestampS = deviceMotion.timeStamp / 1000;
