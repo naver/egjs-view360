@@ -51,7 +51,9 @@ export default class DeviceMotion extends Component {
 				gamma: this.adjustedGyroVec[2]};
 		}
 
-		this.trigger("devicemotion", e);
+		this.trigger("devicemotion", {
+			inputEvent: e
+		});
 	}
 	enable() {
 		if (this.isAndroid) {

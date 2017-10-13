@@ -133,7 +133,7 @@
 					<li class="link_item">
 						<a href="{{ tool.url }}" class="td_a">
 							<div class="link_item_image">
-								<img src="{{ tool.image }}" width="166" height="108">
+								<img src="{{ tool.image }}" width="108" height="108">
 							</div>
 							<div class="link_item_title">
 								<span class="">{{ tool.name }}</span>
@@ -157,7 +157,7 @@
 				<li class="link_item">
 					<a href="{{ project.url }}" class="td_a">
 						<div class="link_item_image">
-							<img src="{{ project.image }}" width="166" height="108">
+							<img src="{{ project.image }}" width="108" height="108">
 						</div>
 						<div class="link_item_title">
 							<span class="">{{ project.name }}</span>
@@ -166,7 +166,9 @@
 				</li>
 				{% endfor %}
 				</ul>
-			</div>
+			</div>	
+			<p>Don't see your project? Post an issue over on the github page and we can sort it out.
+			</p>		
 		</div>
 	</section>
 	{% endif %}

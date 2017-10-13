@@ -1,13 +1,7 @@
-import {window} from "../../../src/YawPitchControl/browser";
 import Axes from "@egjs/axes";
 import MoveKeyInput from "../../../src/YawPitchControl/input/MoveKeyInput";
 import {KEYMAP} from "../../../src/YawPitchControl/consts";
 import TestHeler from "./testHelper";
-
-import {
-	CONTROL_MODE_VR,
-	CONTROL_MODE_YAWPITCH,
-} from "../../../src/YawPitchControl/consts";
 
 const INTERVAL = 1000 / 60.0;
 
