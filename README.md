@@ -8,7 +8,7 @@ egjs-view360 provides the following components.
 |  |PanoViewer|SpinViewer|
 |---|---|---|
 |View|Inside-out|Outside-in|
-|Example| <img style="width:412px" src="https://raw.githubusercontent.com/naver/egjs-view360/master/demo/assets/img/panoviewer_thumbnail.gif">|<img style="width:300px" src="https://raw.githubusercontent.com/naver/egjs-view360/master/demo/assets/img/basic_spinview_thumb.gif">|
+|Example| <img width="412" src="https://raw.githubusercontent.com/naver/egjs-view360/master/demo/assets/img/panoviewer_thumbnail.gif">|<img width="300" src="https://raw.githubusercontent.com/naver/egjs-view360/master/demo/assets/img/basic_spinview_thumb.gif">|
 ### [PanoViewer](https://naver.github.io/egjs-view360/panoviewer.html)
 It is a component that supports the **inside-out viewing** method in which observer becomes the center of the world and looks around. Full 360 photos taken with a 360-degree camera, as well as panoramic photos taken with a mobile phone. Touch, mouse, and keyboard, as well as sophisticated customized motion sensing support, provide immersive immersion in virtual reality.
 
