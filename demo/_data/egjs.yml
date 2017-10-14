@@ -15,16 +15,14 @@ subComponents:
   ogimage: ../assets/img/PanoViewer.png
   hashtags:
     - photoSphere
-    - 360
     - panorama
-    - inside-out
     - motion-tracking
   distPath: release/latest/dist/PanoViewer/
   dists:
     - filename: view360.panoviewer.pkgd.js
-      size: 162
+      size: 96
     - filename: view360.panoviewer.pkgd.min.js
-      size: 102
+      size: 151
   # examples:
   #   - name: ex1
   #     image:
@@ -46,7 +44,7 @@ subComponents:
     - name: Naver Post
       image: https://lh3.googleusercontent.com/uScefQKPT5yHOl0S8v05outH8fPuYoiFYH2n39j4BpbSooVOTpM1WQV_K4lwATK3_9iK
       url: http://post.naver.com
-    - name: Naver Realty
+    - name: Naver Real Estate
       image: https://lh3.googleusercontent.com/dorF8poJB8B9vM9Voq0k4u9uXOvm4YDmSbsMuDUNOKHoNZcWfofno47ojgaa3xQeLw
       url: http://land.naver.com
     - name: Naver Partner Square
@@ -59,10 +57,9 @@ subComponents:
     - product
     - turntable
     - sprite-image
-    - outside-in
   distPath: release/latest/dist/SpinViewer/
   dists:
     - filename: view360.spinviewer.pkgd.js
-      size: 162
+      size: 7
     - filename: view360.spinviewer.pkgd.min.js
-      size: 102
+      size: 62
