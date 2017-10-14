@@ -102,7 +102,7 @@
 			position: absolute;
 			top: 20px;
 			right: 20px;
-			background-image: url(http://static.checkout.naver.net/stylewindow/p/min_20171012050749/img/sp_detail.png);
+			background-image: url("https://naver.github.io/egjs-view360/assets/img/sp_detail.png");
 			background-size: 556px 474px;
 			background-position: 0px -366px;
 			width: 52px;
@@ -112,12 +112,12 @@
 	<div id="spinviewer-showcase">
 		<div class="logo_360"></div>
 	</div>
-	<!--<script type="application/javascript" src="https://naver.github.io/egjs-view360/release/latest/dist/SpinViewer/view360.spinviewer.pkgd.min.js"></script>-->
+	<script type="text/javascript" src="https://naver.github.io/egjs-view360/release/latest/dist/SpinViewer/view360.spinviewer.pkgd.js"></script>
 	<script>
 		var container = document.getElementById("spinviewer-showcase");
 		var SpinViewer = eg.view360.SpinViewer;
 		var spinViewer = new SpinViewer(container, {
-			imageUrl: "./assets/img/spin_demo.jpg",
+			imageUrl: "https://naver.github.io/egjs-view360/assets/img/spin_demo.jpg",
 			rowCount: 47,
 			scale: 1,
 			width: "100%"
@@ -140,6 +140,8 @@
 						<a href="#getting-started">Getting Started </a>
 						
 						
+						
+							/ <a href="#examples">Examples </a>
 						
 						
 					</p>
@@ -188,53 +190,82 @@
 <h4 id="npm">npm</h4>
 <p>In case using npm,</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm install @egjs/view360 <span class="nt">--save</span>
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>npm install @egjs/view360 --save
+</code></pre>
+</div>
 
 <h4 id="script-tag">script tag</h4>
 <p>In case using script tag,
 Download the latest version of view360.js and include using the script tag</p>
 
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<div class="language-html highlighter-rouge"><pre class="highlight"><code>
 <span class="c">&lt;!--script src="/path/to/js/release/latest/dist/SpinViewer/view360.spinviewer.pkgd.min.js"&gt;&lt;/script--&gt;</span>
 <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"//naver.github.io/egjs-view360/release/latest/dist/SpinViewer/view360.spinviewer.pkgd.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p><a href="//naver.github.io/egjs-view360/release/latest/dist/SpinViewer/view360.spinviewer.pkgd.min.js">Download link</a></p>
 
 <h3 id="usage">Usage</h3>
 
-<h4 id="1-set-up-your-container-element">1. Set up your Container Element</h4>
+<h4 id="set-up-your-container-element">1. Set up your Container Element</h4>
 
 <p>Your container element’s dimensions should be defined.</p>
 
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"mySpinViewer"</span><span class="nt">&gt;&lt;/div&gt;</span>
-</code></pre></div></div>
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"mySpinViewer"</span><span class="nt">&gt;&lt;/div&gt;</span>
+</code></pre>
+</div>
 
-<h4 id="2-import-module">2. Import Module</h4>
+<h4 id="import-module">2. Import Module</h4>
 
 <h5 id="es5">ES5</h5>
-<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Or use global namespace</span>
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="c1">// Or use global namespace</span>
 <span class="kd">var</span> <span class="nx">SpinViewer</span> <span class="o">=</span> <span class="nx">eg</span><span class="p">.</span><span class="nx">view360</span><span class="p">.</span><span class="nx">SpinViewer</span><span class="p">;</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <h5 id="es6">ES6+</h5>
-<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Use es6 import</span>
-<span class="k">import</span> <span class="p">{</span><span class="nx">SpinViewer</span><span class="p">}</span> <span class="k">from</span> <span class="s2">"@egjs/view360"</span><span class="p">;</span>
-</code></pre></div></div>
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="c1">// Use es6 import</span>
+<span class="kr">import</span> <span class="p">{</span><span class="nx">SpinViewer</span><span class="p">}</span> <span class="nx">from</span> <span class="s2">"@egjs/view360"</span><span class="p">;</span>
+</code></pre>
+</div>
 
-<h4 id="3-initialize-spinviewer">3. Initialize SpinViewer</h4>
-<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// create SpinViewer with option</span>
+<h4 id="initialize-spinviewer">3. Initialize SpinViewer</h4>
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="c1">// create SpinViewer with option</span>
 <span class="kd">var</span> <span class="nx">spinViewer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">SpinViewer</span><span class="p">(</span>
   <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">"mySpinViewer"</span><span class="p">),</span> <span class="p">{</span>
     <span class="na">imageUrl</span><span class="p">:</span> <span class="s2">"/path/to/image/image.jpg"</span><span class="p">,</span> <span class="cm">/*required */</span>
     <span class="na">rowCount</span><span class="p">:</span> <span class="mi">24</span> <span class="cm">/* If count of sprite row/col is lager than 1, this field is required */</span>
   <span class="p">}</span>
 <span class="p">);</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>For more information about API, please visit the <strong><a href="//naver.github.io/egjs-view360/release/latest/doc/eg.view360.SpinViewer.html">link</a></strong>.</p>
 
+			</div>
+		</div>
+	</section>
+	
+	
+	<section id="examples" class="docs section">
+		<div class="container">
+			<div class="docs-inner">
+				<h2 class="title text-center">Examples</h2>
+				<ul class="link_list">
+				
+				<li class="link_item">
+					<a href="assets/html/spinviewer.html" class="td_a">
+						<div class="link_item_image">
+							<img src="assets/img/basic_spinview_thumb.gif" width="166" height="108">
+						</div>
+						<div class="link_item_title">
+							<span class="">Basic</span>
+						</div>
+					</a>
+				</li>
+				
+				</ul>
 			</div>
 		</div>
 	</section>
