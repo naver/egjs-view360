@@ -688,9 +688,9 @@ footer ul {
     background: #fff;
   }
 
-  .link_item:nth-child(2n+1) {
+  /* .link_item:nth-child(2n+1) {
     clear: both;
-  }
+  } */
   .link_item {
     float: left;
     1width: 50%;
@@ -698,6 +698,8 @@ footer ul {
     box-sizing: border-box;
     padding: 0 3px 13px;
     list-style-type: none;
+    width: 108px;
+    margin: 0 6px;
   }
 
   .link_item_title {
@@ -709,4 +711,8 @@ footer ul {
     width: 34px;
     display: block;
     margin-bottom: -8px;
+  }
+
+  .container p {
+    clear: both;
   }
