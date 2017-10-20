@@ -4,7 +4,7 @@ import TestHeler from "./testHelper";
 import devicemotionSample from "./devicemotionSample";
 
 
-describe.skip("FusionPoseSensor", function() {
+describe("FusionPoseSensor", function() {
 	describe("#constructor", function() {
 		it("Instance", () => {
 			// Given

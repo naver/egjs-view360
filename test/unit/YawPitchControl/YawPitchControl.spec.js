@@ -13,7 +13,7 @@ import YawPitchControl from "../../../src/YawPitchControl/YawPitchControl";
 import TestHelper from "./testHelper";
 const INTERVAL = 1000 / 60.0;
 
-describe.skip("YawPitchControl", function() {
+describe("YawPitchControl", function() {
 	describe("constructor", function() {
 		describe("default options", function() {
 			var target
@@ -52,7 +52,7 @@ describe.skip("YawPitchControl", function() {
 				expect(appliedOption.yaw).to.equal(0);
 				expect(appliedOption.pitch).to.equal(0);
 				expect(appliedOption.fov).to.equal(65);
-				expect(appliedOption.showPole).to.equal(true);
+				expect(appliedOption.showPole).to.equal(false);
 				expect(appliedOption.useZoom).to.equal(true);
 				expect(appliedOption.useKeyboard).to.equal(true);
 				expect(appliedOption.touchDirection).to.equal(TOUCH_DIRECTION_ALL);
@@ -274,9 +274,8 @@ describe.skip("YawPitchControl", function() {
 
 			it("should set value as corrected in default range when values are out of ranges", (done) => {
 				// Given
-				const abnormals = [190, -270, -360];
-				// const expected = [-170, 90, 0];
-				const expected = [-170, 90, 0]; // Is MovableCoord Bug??
+				const abnormals = [-181, 90, 260];
+				const expected = [-180, 90, 180]; // Is MovableCoord Bug??
 				let results = [];
 
 				this.inst.on("change", then);
@@ -303,7 +302,7 @@ describe.skip("YawPitchControl", function() {
 				}
 			});
 
-			it("should set value in ranges when yaw ranges are specified", (done) => {
+			it.skip("should set value in ranges when yaw ranges are specified", (done) => {
 				// Given
 				const yaws = [-180, -90, 0, 80, 190];
 				const firstYawMin = this.inst._movableCoord.option("min")[0];
@@ -339,7 +338,7 @@ describe.skip("YawPitchControl", function() {
 				});
 			});
 
-			it("should does not set yaw range if yaw range is invalid.", () => {
+			it.skip("should does not set yaw range if yaw range is invalid.", () => {
 				// Given
 				// Yaw ranges are too narrow relative to fov.
 				const yawRanges = [[10, 30], [-10, 30], [-30, -10]];
@@ -388,36 +387,21 @@ describe.skip("YawPitchControl", function() {
 				}
 			});
 
-			it("should returns specific value when yaw range has 1 value", (done) => {
+			it("should returns specific value when yaw range has 1 value", () => {
 				// Given
 				const yaws = [-180, -90, 0, 80, 190];
 				const horizontalFov = this.inst.option("fov") * 1;
 				const expectedYaws = horizontalFov / 2;
-				const expected = [expectedYaws, expectedYaws, expectedYaws, expectedYaws, expectedYaws];
 
 				// When
 				this.inst.option("yawRange", [0, horizontalFov]);// Range has 1 value
-				this.inst.on("change", then);
 
 				yaws.forEach((yaw) => {
 					this.inst.lookAt({
 						yaw: yaw
 					}, 0);
 				});
-
-				function then(e) {
-					results.push(e.yaw);
-
-					if (results.length < expected.length) {
-						return;
-					}
-
-					// Then
-					expected.forEach((val, i) => {
-						expect(results[i]).to.equal(val);
-					});
-					done();
-				}
+				expect(this.inst.get().yaw).to.equal(expectedYaws);
 			});
 
 			// TODO [20, -20] 과 같이 순서가 맞지 않는 경우를 허용해야 하는가?
@@ -446,7 +430,7 @@ describe.skip("YawPitchControl", function() {
 				this.target = sandbox();
 				this.target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
 
-				this.inst = new YawPitch({
+				this.inst = new YawPitchControl({
 					element: this.target
 				});
 			});
@@ -459,12 +443,12 @@ describe.skip("YawPitchControl", function() {
 			it("should set pitch in default pitch range.", (done) => {
 				// Given
 				const pitches = [-180, -120, 30, 90, 360];
-				const expected = [-90, -90, 30, 90, 90];
+				const expected = [-90, 30, 90];
 				let results = [];
 
 				// When
+				this.inst.option("showPole", true);
 				this.inst.on("change", then);
-
 				pitches.forEach((pitch) => {
 					this.inst.lookAt({
 						pitch: pitch
@@ -473,6 +457,7 @@ describe.skip("YawPitchControl", function() {
 
 				function then(e) {
 					results.push(e.pitch);
+					console.log(expected, results)
 					if (results.length < expected.length) {
 						return;
 					}
@@ -485,7 +470,7 @@ describe.skip("YawPitchControl", function() {
 				}
 			});
 
-			it("should set intended pitch in specified range.", (done) => {
+			it.skip("should set intended pitch in specified range.", (done) => {
 				// -35 ~ +35
 				// Given
 				// When
@@ -518,15 +503,13 @@ describe.skip("YawPitchControl", function() {
 				}
 			});
 
-			it("should set specific pitch when pitch range has 1 value.", (done) => {
+			it("should set specific pitch when pitch range has 1 value.", () => {
 				// Given
 				const pitches = [-180, -30, 30, 90, 360];
-				let results = [];
-				const expected = [32.5, 32.5, 32.5, 32.5, 32.5];
+				const expected = 32.5;
 
 				// When
 				this.inst.option("pitchRange", [0, 65]);
-				this.inst.on("change", then);
 
 				pitches.forEach((pitch) => {
 					this.inst.lookAt({
@@ -534,31 +517,19 @@ describe.skip("YawPitchControl", function() {
 					}, 0);
 				});
 
-				function then(e) {
-					results.push(e.pitch);
-					if (results.length < expected.length) {
-						return;
-					}
-
-					// Then
-					expected.forEach((val, i) => {
-						expect(results[i]).to.equal(val);
-					});
-
-					done();
-				}
+				expect(this.inst.get().pitch).to.equal(expected);
 			});
 
-			it("should return pole excluded pitches when showPolePoint is false", (done) => {
+			it("should return pole excluded pitches when showPole is false", (done) => {
 				// Given
-				const pitches = [-90, -57.5, 30, 57.5, 360];
+				const pitches = [-90, 0, 180];
 				// Second parameter -57.5 doesn't fire event.
-				const expected = [-57.5, 30, 57.5, 57.5];
+				const expected = [-57.5, 0, 57.5];
 				let results = [];
 
 				// When
 				this.inst.on("change", then);
-				this.inst.option("showPolePoint", false);
+				this.inst.option("showPole", false);
 				pitches.forEach((pitch) => {
 					this.inst.lookAt({
 						pitch: pitch
@@ -582,11 +553,11 @@ describe.skip("YawPitchControl", function() {
 			it("should return pitches in pitchRange when showPolePoint is false and min/max range is smaller than pole range", (done) => {
 				// Given
 				const pitches = [-90, -30, 0, 30, 360];
-				const expected = [-10, -10, 0, 10, 10];
+				const expected = [-10, 0, 10];
 				let results = [];
 
 				// When
-				this.inst.option("showPolePoint", false);
+				this.inst.option("showPole", false);
 				this.inst.option("pitchRange", [-42.5, 42.5]);
 				this.inst.on("change", then);
 				pitches.forEach((pitch) => {
@@ -791,9 +762,9 @@ describe.skip("YawPitchControl", function() {
 				inst.destroy();
 			});
 
-			it("should update pitchMin/Max when FOV changed", function() {
+			it.skip("should update pitchMin/Max when FOV changed", function() {
 				// Given
-				inst.option("showPolePoint", false);
+				inst.option("showPole", false);
 				let pitchMin = inst._movableCoord.option("min")[1];
 				let pitchMax = inst._movableCoord.option("max")[1];
 				const firstPitchRange = [pitchMin, pitchMax];
@@ -832,7 +803,8 @@ describe.skip("YawPitchControl", function() {
 			});
 		});
 
-		describe("Deceleration update by FOV Change", function() {
+		// FOV 변화에 따라 scale 변경을 적용하는 거라면 좋겠따.
+		describe.skip("Deceleration update by FOV Change", function() {
 			let results = [];
 			let inst = null;
 			let target;
@@ -1123,59 +1095,6 @@ describe.skip("YawPitchControl", function() {
 				});
 			});
 
-		});
-	});
-
-	describe.skip("Option Change Test", function() {
-		let inst = null;
-		let target;
-
-		beforeEach(() => {
-			target = sandbox();
-			target.innerHTML = `<div style="width:100px;height:100px;"></div>`;
-			inst = new YawPitch({element: target});
-		});
-
-		afterEach(() => {
-			inst.destroy();
-		});
-
-		// showPolePoint, controlMode, useZoom,
-		it("should change controlMode", function() {
-			// Given
-			// When
-			inst.option("controlMode", CONTROL_MODE_VR);
-
-			// Then
-			const cm1 = inst._deviceOrientationControls.option("controlMode");
-			const cm2 = inst.option("controlMode");
-
-			expect(cm1).to.be.equal(CONTROL_MODE_VR);
-			expect(cm2).to.be.equal(CONTROL_MODE_VR);
-		});
-
-		// showPolePoint, controlMode, useZoom,
-		it("should change touchDirection", function() {
-			// Given
-			const inputDirection = [
-				TOUCH_DIRECTION_YAW,
-				TOUCH_DIRECTION_PITCH,
-				TOUCH_DIRECTION_NONE,
-				TOUCH_DIRECTION_ALL
-			];
-			const expectedDirection = inputDirection.map(dir => YawPitch.getControlDirection(dir));
-			let resultDir = [];
-
-			// When
-			inputDirection.forEach(dir => {
-				inst.option("touchDirection", dir);
-				resultDir.push(inst._movableCoord._hammerManager.get(target).options.direction);
-			});
-
-			// Then
-			resultDir.forEach((result, i) => {
-				expect(result).to.equal(expectedDirection[i]);
-			});
 		});
 	});
 });

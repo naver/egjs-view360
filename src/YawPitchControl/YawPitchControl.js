@@ -35,7 +35,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 	 * @param {Number} [options.yaw=0] initial yaw (degree)
 	 * @param {Number} [options.pitch=0] initial pitch (degree)
 	 * @param {Number} [options.fov=65] initial field of view (degree)
-	 * @param {Boolean} [optiosn.showPolePoint=true] Indicates whether pole is shown
+	 * @param {Boolean} [optiosn.showPole=true] Indicates whether pole is shown
 	 * @param {Boolean} [options.useZoom=true] Indicates whether zoom is available
 	 * @param {Boolean} [options.useKeyboard=true] Indicates whether keyboard is enabled
 	 * @param {Number} [options.touchDirection=TOUCH_DIRECTION_ALL] Direction of the touch movement (TOUCH_DIRECTION_ALL: all,  TOUCH_DIRECTION_YAW: horizontal, TOUCH_DIRECTION_PITCH: vertical, TOUCH_DIRECTION_NONE: no move)
@@ -52,7 +52,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 			yaw: 0,
 			pitch: 0,
 			fov: 65,
-			showPolePoint: false,
+			showPole: false,
 			useZoom: true,
 			useKeyboard: true,
 			touchDirection: TOUCH_DIRECTION_ALL,
@@ -73,7 +73,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 
 	_initAxes(opt) {
 		const yRange = YawPitchControl._updateYawRange(opt.yawRange, opt.fov, opt.aspectRatio);
-		const pRange = YawPitchControl._updatePitchRange(opt.pitchRange, opt.fov, opt.showPolePoint);
+		const pRange = YawPitchControl._updatePitchRange(opt.pitchRange, opt.fov, opt.showPole);
 		const circular = yRange[1] - yRange[0] < 360 ?
 			[false, false] : [true, true];
 
@@ -198,7 +198,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 	_applyOptions(keys, prevOptions) {
 		// If one of below is changed, call updateControlScale()
 		if (keys.some(key =>
-				key === "showPolePoint" || key === "fov" || key === "aspectRatio")) {
+				key === "showPole" || key === "fov" || key === "aspectRatio")) {
 			this._setYawPitchRange(prevOptions);
 			this._updateControlScale();
 		}
@@ -288,7 +288,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 	/**
 	 * Update yaw/pitch min/max by 5 factor
 	 *
-	 * 1. showPolePoint
+	 * 1. showPole
 	 * 2. fov
 	 * 3. yawRange
 	 * 4. pitchRange
@@ -300,7 +300,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 		const opt = this.options;
 		const fov = this.axes.get().fov;
 
-		const pRange = YawPitchControl._updatePitchRange(opt.pitchRange, fov, opt.showPolePoint);
+		const pRange = YawPitchControl._updatePitchRange(opt.pitchRange, fov, opt.showPole);
 		const yRange = YawPitchControl._updateYawRange(opt.yawRange, fov, opt.aspectRatio);
 
 		// TODO: If not changed!?
@@ -335,12 +335,12 @@ const YawPitchControl = class YawPitchControl extends Component {
 		return this;
 	}
 
-	static _updatePitchRange(pitchRange, fov, showPolePoint) {
+	static _updatePitchRange(pitchRange, fov, showPole) {
 		const verticalAngle = pitchRange[1] - pitchRange[0];
 		const halfFov = fov / 2;
 		const isPanorama = verticalAngle < 180;
 
-		if (showPolePoint && !isPanorama) {
+		if (showPole && !isPanorama) {
 			// Use full pinch range
 			return pitchRange.map(v => +v.toFixed(5));
 		}
