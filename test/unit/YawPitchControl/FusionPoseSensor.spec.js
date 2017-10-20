@@ -4,7 +4,7 @@ import TestHeler from "./testHelper";
 import devicemotionSample from "./devicemotionSample";
 
 
-describe.skip("FusionPoseSensor", function() {
+describe("FusionPoseSensor", function() {
 	describe("#constructor", function() {
 		it("Instance", () => {
 			// Given
@@ -59,32 +59,6 @@ describe.skip("FusionPoseSensor", function() {
 	});
 
 	describe("#enable", function() {
-		it("Should trigger 'change' once after enable method called twice", (done) => {
-			// Given
-			let inst = new FusionPoseSensor();
-			let changeEventCnt1 = 0;
-			let changeEventCnt2 = 0;
-			// When
-			inst.enable();
-			TestHeler.multipleDevicemotion(window, devicemotionSample, () => {
-				inst.on("change", (e) => {
-					changeEventCnt1 = changeEventCnt1 + 1;
-				});
-				TestHeler.multipleDevicemotion(window, devicemotionSample, () => {
-					inst.off("change");
-					inst.on("change", (e) => {
-						changeEventCnt2 = changeEventCnt2 + 1;
-					});
-					inst.enable();
-					TestHeler.multipleDevicemotion(window, devicemotionSample, () => {
-						// Then
-						expect(changeEventCnt1).to.be.equal(changeEventCnt2);
-						done();
-					});
-				});
-			});
-		});
-
 		it("should change event have quaternion property", (done) => {
 			// Given
 			let inst = new FusionPoseSensor();
