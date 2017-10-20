@@ -302,62 +302,6 @@ describe("YawPitchControl", function() {
 				}
 			});
 
-			it.skip("should set value in ranges when yaw ranges are specified", (done) => {
-				// Given
-				const yaws = [-180, -90, 0, 80, 190];
-				const firstYawMin = this.inst._movableCoord.option("min")[0];
-				const firstYawMax = this.inst._movableCoord.option("max")[0];
-
-				// When
-				// this.inst.on("change", onChanged);
-				// Setting yawRange changes yawMin/Max
-				this.inst.option("yawRange", [-90, 70]);
-				const yawMin = this.inst._movableCoord.option("min")[0];
-				const yawMax = this.inst._movableCoord.option("max")[0];
-				// Nearest boundary value
-				//
-				const expected = [yawMin, yawMin, 0, yawMax, yawMax];
-				// console.debug(firstYawMin, firstYawMax, yawMin, yawMax);
-				TestHelper.asyncLoop(yaws.length, (i, asyncDone) => {
-					this.inst.lookAt({yaw: yaws[i]}, 0);
-
-					setTimeout(() => {
-						// console.debug("lookAt result", this.inst._yaw);
-						results.push(this.inst._yaw);
-						asyncDone();
-					}, 100);
-				}, function() {
-					//Then
-					// console.debug(yawMin, firstYawMin, yawMax, firstYawMax, results);
-					expect(yawMin).to.not.equal(firstYawMin);
-					expect(yawMax).to.not.equal(firstYawMax);
-					expected.forEach((val, i) => {
-						expect(results[i]).to.equal(val);
-					});
-					done();
-				});
-			});
-
-			it.skip("should does not set yaw range if yaw range is invalid.", () => {
-				// Given
-				// Yaw ranges are too narrow relative to fov.
-				const yawRanges = [[10, 30], [-10, 30], [-30, -10]];
-				let expected = [];
-				let resultYaws = [];
-
-				// When
-				yawRanges.forEach((range) => {
-					expected.push(this.inst.option("yawRange"));
-					this.inst.option("yawRange", range);
-					resultYaws.push(this.inst.option("yawRange"));
-				})
-
-				// Then
-				expected.forEach((val, i) => {
-					expect(resultYaws[i]).to.equal(val);
-				});
-			});
-
 			it("should set yaw in range when default yaw is out of range.", (done) => {
 				// Given
 				const yawRanges = [[10, 180], [-180, 10], [30, 200]];
@@ -457,7 +401,6 @@ describe("YawPitchControl", function() {
 
 				function then(e) {
 					results.push(e.pitch);
-					console.log(expected, results)
 					if (results.length < expected.length) {
 						return;
 					}
@@ -470,18 +413,17 @@ describe("YawPitchControl", function() {
 				}
 			});
 
-			it.skip("should set intended pitch in specified range.", (done) => {
+			it("should set intended pitch in specified range.", (done) => {
 				// -35 ~ +35
 				// Given
 				// When
-				const pitches = [-180, -40, 0, 30, 90, 360];
+				const pitches = [-50, -70, -100];
 				let results = [];
 
 				this.inst.on("change", then);
-				this.inst.option("pitchRange", [-35, 35]);
-				const min =  this.inst._movableCoord.option("min")[1];
-				const max =  this.inst._movableCoord.option("max")[1];
-				const expected = [min, min, 0, max, max, max];
+				this.inst.option("showPole", true);
+				this.inst.option("pitchRange", [-90, 90]);
+				const expected = [-50, -70, -90];
 
 				pitches.forEach((pitch) => {
 					this.inst.lookAt({
@@ -622,7 +564,7 @@ describe("YawPitchControl", function() {
 		});
 	});
 
-	describe.skip("FOV Test", function() {
+	describe("FOV Test", function() {
 		describe("Min/Max FOV", function() {
 			let inst;
 			let target;
@@ -632,7 +574,7 @@ describe("YawPitchControl", function() {
 				target = sandbox();
 				target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
 
-				inst = new YawPitch({element: target});
+				inst = new YawPitchControl({element: target});
 			});
 
 			afterEach(() => {
@@ -661,7 +603,7 @@ describe("YawPitchControl", function() {
 					results.push(inst.option("fovRange"));
 				});
 
-				// Then
+				// Then				
 				this.expectedValues.forEach((expectedVal, i) => {
 					expect(results[i]).to.be.eql(expectedVal);
 				});
@@ -686,7 +628,7 @@ describe("YawPitchControl", function() {
 				target = sandbox();
 				target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
 
-				inst = new YawPitch({element: target});
+				inst = new YawPitchControl({element: target});
 			});
 
 			afterEach(() => {
@@ -698,7 +640,7 @@ describe("YawPitchControl", function() {
 			it("should set fov within fov-range", (done) => {
 				// Given
 				const inputFov = [-10, 0, 40, 90, 120, 200];
-				const expectedFov = [30, 30, 40, 90, 110, 110];
+				const expectedFov = [30, 40, 90, 110];
 
 				attachThenHandler(expectedFov, then);
 
@@ -712,7 +654,6 @@ describe("YawPitchControl", function() {
 					expectedFov.forEach((expectedVal, i) => {
 						expect(res[i]).to.equal(expectedVal);
 					});
-
 					done();
 				}
 			});
@@ -720,7 +661,7 @@ describe("YawPitchControl", function() {
 			it("should set fov within user defined fov-range", (done) => {
 				// Given
 				const inputFov = [-10, 0, 25, 30, 60, 120];
-				const expected = [20, 20, 25, 30, 60, 60];
+				const expected = [20, 25, 30, 60];
 
 				// When
 				inst.option("fovRange", [20, 60]);
@@ -734,7 +675,6 @@ describe("YawPitchControl", function() {
 
 				// Then
 				function then(res) {
-					console.debug("fov range:", res);
 					expected.forEach((expectedVal, i) => {
 						expect(res[i]).to.equal(expectedVal);
 					});
@@ -753,7 +693,7 @@ describe("YawPitchControl", function() {
 				target = sandbox();
 				target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
 
-				inst = new YawPitch({element: target});
+				inst = new YawPitchControl({element: target});
 			});
 
 			afterEach(() => {
@@ -762,33 +702,13 @@ describe("YawPitchControl", function() {
 				inst.destroy();
 			});
 
-			it.skip("should update pitchMin/Max when FOV changed", function() {
-				// Given
-				inst.option("showPole", false);
-				let pitchMin = inst._movableCoord.option("min")[1];
-				let pitchMax = inst._movableCoord.option("max")[1];
-				const firstPitchRange = [pitchMin, pitchMax];
-
-				// When
-				// It is valid when showPolePoint is false or isPanorama
-				inst.lookAt({fov: 30}); //fov: 65 -> 30
-
-				pitchMin = inst._movableCoord.option("min")[1];
-				pitchMax = inst._movableCoord.option("max")[1];
-				const lastPitchRange = [pitchMin, pitchMax];
-
-				// Then
-				expect(lastPitchRange[0]).to.be.below(firstPitchRange[0]);
-				expect(lastPitchRange[1]).to.be.above(firstPitchRange[1]);
-			});
-
 			it("should update current pitch when 'changed fov' cannot accept current pitch", function(done) {
 				// Given
 				const firstPitch = 57.5;
 
 				// When
 				// It is valid when showPolePoint is false or isPanorama
-				inst.option("showPolePoint", false);
+				inst.option("showPole", false);
 				inst.lookAt({pitch: firstPitch});//57.5 is current pitchMax
 
 				// This makes pitchMax to be updated to value which is below current pitch(57.5)
@@ -804,13 +724,13 @@ describe("YawPitchControl", function() {
 		});
 
 		// FOV 변화에 따라 scale 변경을 적용하는 거라면 좋겠따.
-		describe.skip("Deceleration update by FOV Change", function() {
+		describe("Deceleration update by FOV Change", function() {
 			let results = [];
 			let inst = null;
 			let target;
 			let attachThenHandler = (expected, then) => {
 				inst.on("change", e => {
-					const deceleration = inst._movableCoord.option("deceleration");
+					const deceleration = inst.axes.options["deceleration"];
 					results.push(deceleration);
 					if (results.length < expected.length) {
 						return;
@@ -823,7 +743,7 @@ describe("YawPitchControl", function() {
 				target = sandbox();
 				target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
 
-				inst = new YawPitch({element: target});
+				inst = new YawPitchControl({element: target});
 			});
 
 			afterEach(() => {
@@ -872,7 +792,7 @@ describe("YawPitchControl", function() {
 				target = sandbox();
 				target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
 
-				inst = new YawPitch({element: target});
+				inst = new YawPitchControl({element: target});
 			});
 
 			afterEach(() => {
@@ -924,18 +844,18 @@ describe("YawPitchControl", function() {
 				target = sandbox();
 				target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
 
-				inst = new YawPitch({element: target});
+				inst = new YawPitchControl({element: target});
 			});
 
 			afterEach(() => {
 				results = [];
 				target.remove();
-				inst.destroy();
+				inst && inst.destroy();
 			});
 
 			it("should increase fov using pinchZoom if useZoom is true", (done) => {
 				// Given
-				let firstFov = inst._fov;
+				let firstFov = inst.getFov();
 				inst.option("useZoom", true);
 
 				// When
@@ -943,14 +863,14 @@ describe("YawPitchControl", function() {
 					scale: 0.5
 				}, function() {
 					// Then
-					expect(inst._fov).to.be.above(firstFov);
+					expect(inst.getFov()).to.be.above(firstFov);
 					done();
 				});
 			});
 
 			it("should decrease fov using pinchZoom if useZoom is true", (done) => {
 				// Given
-				let firstFov = inst._fov;
+				let firstFov = inst.getFov();
 				inst.option("useZoom", true);
 
 				// When
@@ -958,14 +878,14 @@ describe("YawPitchControl", function() {
 					scale: 2
 				}, function() {
 					// Then
-					expect(inst._fov).to.be.below(firstFov);
+					expect(inst.getFov()).to.be.below(firstFov);
 					done();
 				});
 			});
 
 			it("should not change fov using pinchZoom if useZoom is false", (done) => {
 				// Given
-				let firstFov = inst._fov;
+				let firstFov = inst.getFov();
 				inst.option("useZoom", false);
 
 				// When
@@ -973,7 +893,7 @@ describe("YawPitchControl", function() {
 					scale: 2
 				}, function() {
 					// Then
-					expect(inst._fov).to.be.equal(firstFov);
+					expect(inst.getFov()).to.be.equal(firstFov);
 					done();
 				});
 			});
@@ -981,7 +901,7 @@ describe("YawPitchControl", function() {
 			// useZoom false 인 경우 pinch zoom 이 동작하지 않아야 한다.
 			it("should change fov using pinchZoom if useZoom is followed by true", (done) => {
 				// Given
-				let firstFov = inst._fov;
+				let firstFov = inst.getFov();
 				inst.option("useZoom", false);
 
 				// When
@@ -990,7 +910,7 @@ describe("YawPitchControl", function() {
 					scale: 2
 				}, function() {
 					// Then
-					expect(inst._fov).to.be.below(firstFov);
+					expect(inst.getFov()).to.be.below(firstFov);
 					done();
 				});
 			});
@@ -998,19 +918,19 @@ describe("YawPitchControl", function() {
 			it("should not change fov using pinchZoom if useZoom is false on constructor", (done) => {
 				// Given
 				inst.destroy();
-				inst = new YawPitch({
+				inst = new YawPitchControl({
 					element: target,
 					useZoom: false,
 				});
 
-				let firstFov = inst._fov;
+				let firstFov = inst.getFov();
 
 				// When
 				Simulator.gestures.pinch(target, {
 					scale: 2
 				}, function() {
 					// Then
-					expect(inst._fov).to.be.equal(firstFov);
+					expect(inst.getFov()).to.be.equal(firstFov);
 					done();
 				});
 			});
@@ -1025,7 +945,7 @@ describe("YawPitchControl", function() {
 			beforeEach(() => {
 				target = sandbox();
 				target.innerHTML = `<div style="width:100px;height:100px;"></div>`;
-				inst = new YawPitch({element: target});
+				inst = new YawPitchControl({element: target});
 
 				inst.on("change", (e) => {
 					lastFov = e.fov;
