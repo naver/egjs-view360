@@ -489,17 +489,9 @@ const YawPitchControl = class YawPitchControl extends Component {
 	 *
 	 * @param {Object} coordinate yaw, pitch, fov
 	 * @param {Number} duration Animation duration. if it is above 0 then it's animated.
-	 * @param {Boolean} skip Indicates whether it skip if yaw/pitch/fov is not changed.
 	 */
-	lookAt({yaw, pitch, fov}, duration, skip) {
+	lookAt({yaw, pitch, fov}, duration) {
 		const pos = this.axes.get();
-
-		// Skip if target direction is same with current direction.
-		if (skip &&
-				yaw === pos.yaw && pitch === pos.pitch &&
-				fov === pos.fov) {
-			return;
-		}
 
 		const y = yaw === undefined ? 0 : yaw - pos.yaw;
 		const p = pitch === undefined ? 0 : pitch - pos.pitch;

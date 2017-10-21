@@ -355,9 +355,7 @@ export default class PanoViewer extends Component {
 		this._photoSphereRenderer.updateViewportDimensions(this._width, this._height);
 		this._yawPitchControl.option("aspectRatio", this._aspectRatio);
 
-		const skip = false;
-
-		this.lookAt({}, 0, skip);
+		this.lookAt({}, 0);
 	}
 
 	/**
@@ -458,7 +456,7 @@ export default class PanoViewer extends Component {
 	 * @param {Number} orientation.fov Target vertical fov in degree <ko>목표 수직 fov (degree 단위)</ko>
 	 * @param {Number} duration Animation duration in milliseconds <ko>애니메이션 시간 (밀리 초)</ko>
 	 */
-	lookAt(orientation, duration, skip) {
+	lookAt(orientation, duration) {
 		if (!this._isResumed) {
 			return;
 		}
@@ -473,7 +471,7 @@ export default class PanoViewer extends Component {
 			fov = verticalAngleOfImage;
 		}
 
-		this._yawPitchControl.lookAt({yaw, pitch, fov}, duration, skip);
+		this._yawPitchControl.lookAt({yaw, pitch, fov}, duration);
 
 		if (duration === 0) {
 			this._photoSphereRenderer.render(yaw, pitch, fov);
