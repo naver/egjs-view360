@@ -1,5 +1,6 @@
 import Component from "@egjs/component";
 import Axes from "@egjs/axes";
+import {getComputedStyle, SUPPORT_TOUCH, SUPPORT_DEVICEMOTION} from "./browser";
 import MoveKeyInput from "./input/MoveKeyInput";
 import WheelInput from "./input/WheelInput";
 import TiltMotionInput from "./input/TiltMotionInput";
@@ -18,8 +19,6 @@ import {
 	PITCH_RANGE_HALF,
 } from "./consts";
 
-const SUPPORT_TOUCH = "ontouchstart" in window;
-const SUPPORT_DEVICEMOTION = "ondevicemotion" in window;
 /**
  * A module used to provide coordinate based on yaw/pitch orientation. This module receives user touch action, keyboard, mouse and device orientation(if it exists) as input, then combines them and converts it to yaw/pitch coordinates.
  *
@@ -138,7 +137,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 			return;
 		}
 
-		const areaHeight = parseInt(window.getComputedStyle(this._element).height, 10);
+		const areaHeight = parseInt(getComputedStyle(this._element).height, 10);
 		const scale = MC_BIND_SCALE[0] * fov / this._initialFov * PAN_SCALE / areaHeight;
 
 		this.axesPanInput.options.scale = [scale, scale];
@@ -489,17 +488,9 @@ const YawPitchControl = class YawPitchControl extends Component {
 	 *
 	 * @param {Object} coordinate yaw, pitch, fov
 	 * @param {Number} duration Animation duration. if it is above 0 then it's animated.
-	 * @param {Boolean} skip Indicates whether it skip if yaw/pitch/fov is not changed.
 	 */
-	lookAt({yaw, pitch, fov}, duration, skip) {
+	lookAt({yaw, pitch, fov}, duration) {
 		const pos = this.axes.get();
-
-		// Skip if target direction is same with current direction.
-		if (skip &&
-				yaw === pos.yaw && pitch === pos.pitch &&
-				fov === pos.fov) {
-			return;
-		}
 
 		const y = yaw === undefined ? 0 : yaw - pos.yaw;
 		const p = pitch === undefined ? 0 : pitch - pos.pitch;

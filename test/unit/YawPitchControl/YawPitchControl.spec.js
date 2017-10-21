@@ -8,9 +8,10 @@ import {
 	MC_DECELERATION,
 	MAX_FIELD_OF_VIEW
 } from "../../../src/YawPitchControl/consts";
-import {window} from "../../../src/YawPitchControl/browser";
 import YawPitchControl from "../../../src/YawPitchControl/YawPitchControl";
 import TestHelper from "./testHelper";
+import YawPitchControlrInjector from "inject-loader!../../../src/YawPitchControl/YawPitchControl";
+
 const INTERVAL = 1000 / 60.0;
 
 describe("YawPitchControl", function() {
@@ -1015,6 +1016,140 @@ describe("YawPitchControl", function() {
 				});
 			});
 
+		});
+	});
+
+	describe("no devicemotion, touch", function() {
+		let target;
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+			// this.inst = new YawPitchControl({
+			// 	element: target
+			// });
+		});
+
+		afterEach(() => {
+			this.inst && this.inst.destroy();
+			target && target.remove();
+			target = null;
+		});
+		it("no script errer with no touch, no motion", () => {
+			// Given
+			let errorThrown = false;	
+
+			// When
+            try {		
+				var MockYawPitchControl = YawPitchControlrInjector(
+					{              
+						"./browser": {
+							getComputedStyle: window.getComputedStyle,
+							SUPPORT_TOUCH: false, 
+							SUPPORT_DEVICEMOTION: false
+						}
+					}
+				).default;
+				new MockYawPitchControl({
+					element: target
+				})
+            } catch (e) {
+                errorThrown = true;
+			}
+			
+            // Then
+            expect(errorThrown).to.not.ok;
+		});
+	});
+
+	describe.skip("set option when disabled", function() {
+		let target;
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+			this.inst = new YawPitchControl({
+				element: target
+			});
+		});
+
+		afterEach(() => {
+			this.inst && this.inst.destroy();
+			target && target.remove();
+			target = null;
+		});
+		
+	});
+
+	describe("release, animationEnd", function() {
+		let target;
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+			this.inst = new YawPitchControl({
+				element: target
+			});
+		});
+
+		afterEach(() => {
+			this.inst && this.inst.destroy();
+			target && target.remove();
+			target = null;
+		});
+
+		it("pan scale change after pich zoom", (done) => {
+			// Given
+			let inst = this.inst;
+			let yawDistanceBeforePinch = 0;	
+			let yawDistanceAfterPinch = 0;	
+			let yaw = inst.getYaw();
+			this.inst.enable();
+
+			// When
+			Simulator.gestures.pan(target, { // this.el 이 300 * 300 이라고 가정
+				pos: [30, 30],
+				deltaX: 100,
+				deltaY: 0,
+				duration: 500,
+				easing: "linear"
+			}, function() {
+				yawDistanceBeforePinch = Math.abs(inst.getYaw() - yaw);
+				yaw = inst.getYaw();
+
+				Simulator.gestures.pinch(target, { // this.el 이 300 * 300 이라고 가정
+					scale: 1.2
+				}, function() {
+					Simulator.gestures.pan(target, { // this.el 이 300 * 300 이라고 가정
+						pos: [30, 30],
+						deltaX: 100,
+						deltaY: 0,
+						duration: 500,
+						easing: "linear"
+					}, function() {
+						yawDistanceAfterPinch = Math.abs(inst.getYaw() - yaw);
+						// Then
+						expect(yawDistanceAfterPinch).to.be.below(yawDistanceBeforePinch);
+						done()
+					});
+				});
+			});
+		});
+
+		it("animationEnd", (done) => {
+			// Given
+			let triggered = false;
+			this.inst.on("animationEnd", then);
+			this.inst.enable();
+
+			// When		
+			this.inst.lookAt({
+				yaw: 90
+			}, 1000);
+
+			function then() {
+				triggered = true;
+				// Then
+				expect(triggered).to.be.true;
+				done();
+			}
 		});
 	});
 });
