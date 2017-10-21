@@ -1,5 +1,6 @@
 import Component from "@egjs/component";
 import Axes from "@egjs/axes";
+import {getComputedStyle, ontouchstart, ondevicemotion} from "./browser";
 import MoveKeyInput from "./input/MoveKeyInput";
 import WheelInput from "./input/WheelInput";
 import TiltMotionInput from "./input/TiltMotionInput";
@@ -18,8 +19,8 @@ import {
 	PITCH_RANGE_HALF,
 } from "./consts";
 
-const SUPPORT_TOUCH = "ontouchstart" in window;
-const SUPPORT_DEVICEMOTION = "ondevicemotion" in window;
+const SUPPORT_TOUCH = !!ontouchstart;
+const SUPPORT_DEVICEMOTION = !!ondevicemotion;
 /**
  * A module used to provide coordinate based on yaw/pitch orientation. This module receives user touch action, keyboard, mouse and device orientation(if it exists) as input, then combines them and converts it to yaw/pitch coordinates.
  *
@@ -138,7 +139,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 			return;
 		}
 
-		const areaHeight = parseInt(window.getComputedStyle(this._element).height, 10);
+		const areaHeight = parseInt(getComputedStyle(this._element).height, 10);
 		const scale = MC_BIND_SCALE[0] * fov / this._initialFov * PAN_SCALE / areaHeight;
 
 		this.axesPanInput.options.scale = [scale, scale];

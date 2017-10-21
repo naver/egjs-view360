@@ -8,9 +8,10 @@ import {
 	MC_DECELERATION,
 	MAX_FIELD_OF_VIEW
 } from "../../../src/YawPitchControl/consts";
-import {window} from "../../../src/YawPitchControl/browser";
 import YawPitchControl from "../../../src/YawPitchControl/YawPitchControl";
 import TestHelper from "./testHelper";
+import YawPitchControlrInjector from "inject-loader!../../../src/YawPitchControl/YawPitchControl";
+
 const INTERVAL = 1000 / 60.0;
 
 describe("YawPitchControl", function() {
@@ -1015,6 +1016,48 @@ describe("YawPitchControl", function() {
 				});
 			});
 
+		});
+	});
+
+	describe("no devicemotion", function() {
+		let target;
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+			// this.inst = new YawPitchControl({
+			// 	element: target
+			// });
+		});
+
+		afterEach(() => {
+			this.inst && this.inst.destroy();
+			target && target.remove();
+			target = null;
+		});
+		it("no script errer with no touch, no motion", () => {
+			// Given
+			let errorThrown = false;	
+
+			// When
+            try {		
+				var MockYawPitchControl = YawPitchControlrInjector(
+					{              
+						"./browser": {
+							getComputedStyle: window.getComputedStyle,
+							ontouchstart: null, 
+							ondevicemotion: null
+						}
+					}
+				).default;
+				new MockYawPitchControl({
+					element: target
+				})
+            } catch (e) {
+                errorThrown = true;
+			}
+			
+            // Then
+            expect(errorThrown).to.not.ok;
 		});
 	});
 });

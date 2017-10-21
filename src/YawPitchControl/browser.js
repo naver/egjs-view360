@@ -9,3 +9,6 @@ win.Float32Array = (typeof win.Float32Array !== "undefined") ? win.Float32Array 
 export {win as window};
 export const document = win.document;
 export const Float32Array = win.Float32Array;
+export const getComputedStyle = win.getComputedStyle;
+export const ontouchstart = win.ontouchstart;
+export const ondevicemotion = win.ondevicemotion;
