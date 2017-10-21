@@ -1,6 +1,6 @@
 import Component from "@egjs/component";
 import Axes from "@egjs/axes";
-import {getComputedStyle, ontouchstart, ondevicemotion} from "./browser";
+import {getComputedStyle, SUPPORT_TOUCH, SUPPORT_DEVICEMOTION} from "./browser";
 import MoveKeyInput from "./input/MoveKeyInput";
 import WheelInput from "./input/WheelInput";
 import TiltMotionInput from "./input/TiltMotionInput";
@@ -19,8 +19,6 @@ import {
 	PITCH_RANGE_HALF,
 } from "./consts";
 
-const SUPPORT_TOUCH = !!ontouchstart;
-const SUPPORT_DEVICEMOTION = !!ondevicemotion;
 /**
  * A module used to provide coordinate based on yaw/pitch orientation. This module receives user touch action, keyboard, mouse and device orientation(if it exists) as input, then combines them and converts it to yaw/pitch coordinates.
  *

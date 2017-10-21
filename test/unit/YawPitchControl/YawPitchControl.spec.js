@@ -1044,8 +1044,8 @@ describe("YawPitchControl", function() {
 					{              
 						"./browser": {
 							getComputedStyle: window.getComputedStyle,
-							ontouchstart: null, 
-							ondevicemotion: null
+							SUPPORT_TOUCH: false, 
+							SUPPORT_DEVICEMOTION: false
 						}
 					}
 				).default;
