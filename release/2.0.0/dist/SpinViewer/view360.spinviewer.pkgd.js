@@ -478,7 +478,8 @@ module.exports = exports["default"];
 /* 5 */,
 /* 6 */,
 /* 7 */,
-/* 8 */
+/* 8 */,
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -2810,7 +2811,7 @@ exports.MoveKeyInput = MoveKeyInput;
 //# sourceMappingURL=axes.js.map
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3163,7 +3164,6 @@ var SpriteImage = function (_Component) {
 exports["default"] = SpriteImage;
 
 /***/ }),
-/* 10 */,
 /* 11 */,
 /* 12 */,
 /* 13 */,
@@ -5832,11 +5832,11 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _axes = __webpack_require__(8);
+var _axes = __webpack_require__(9);
 
 var _axes2 = _interopRequireDefault(_axes);
 
-var _SpriteImage = __webpack_require__(9);
+var _SpriteImage = __webpack_require__(10);
 
 var _SpriteImage2 = _interopRequireDefault(_SpriteImage);
 
@@ -6050,7 +6050,7 @@ var _SpinViewer = __webpack_require__(18);
 
 var _SpinViewer2 = _interopRequireDefault(_SpinViewer);
 
-var _SpriteImage = __webpack_require__(9);
+var _SpriteImage = __webpack_require__(10);
 
 var _SpriteImage2 = _interopRequireDefault(_SpriteImage);
 

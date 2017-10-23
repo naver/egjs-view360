@@ -742,6 +742,29 @@ module.exports = glMatrix;
 
 
 exports.__esModule = true;
+/* eslint-disable no-new-func */
+/* eslint-disable no-nested-ternary */
+var win = typeof window !== "undefined" && window.Math === Math ? window : typeof self !== "undefined" && self.Math === Math ? self : Function("return this")();
+/* eslint-enable no-nested-ternary */
+/* eslint-enable no-new-func */
+
+win.Float32Array = typeof win.Float32Array !== "undefined" ? win.Float32Array : win.Array;
+
+exports.window = win;
+var document = exports.document = win.document;
+var Float32Array = exports.Float32Array = win.Float32Array;
+var getComputedStyle = exports.getComputedStyle = win.getComputedStyle;
+var SUPPORT_TOUCH = exports.SUPPORT_TOUCH = "ontouchstart" in win;
+var SUPPORT_DEVICEMOTION = exports.SUPPORT_DEVICEMOTION = "ondevicemotion" in win;
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
 var CONTROL_MODE_VR = 1;
 var CONTROL_MODE_YAWPITCH = 2;
 
@@ -806,7 +829,7 @@ exports.PINCH_EVENTS = PINCH_EVENTS;
 exports.KEYMAP = KEYMAP;
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -830,7 +853,7 @@ exports["default"] = util;
 exports.toAxis = toAxis;
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process, global) {var require;/*!
@@ -1994,7 +2017,7 @@ return Promise$2;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(36), __webpack_require__(37)))
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports) {
 
 /*
@@ -2357,7 +2380,7 @@ module.exports = MathUtil;
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports) {
 
 /*
@@ -2442,8 +2465,16 @@ Util.isFirefoxAndroid = (function() {
   };
 })();
 
+Util.isR7 = (function() {
+  var isR7 = navigator.userAgent.indexOf('R7 Build') !== -1;
+  return function() {
+    return isR7;
+  };
+})();
+
 Util.isLandscapeMode = function() {
-  return (window.orientation == 90 || window.orientation == -90);
+  var rtn = (window.orientation == 90 || window.orientation == -90);
+  return Util.isR7() ? !rtn : rtn;
 };
 
 // Helper method to validate the time steps of sensor timestamps.
@@ -2836,7 +2867,7 @@ module.exports = Util;
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5168,7 +5199,7 @@ exports.MoveKeyInput = MoveKeyInput;
 //# sourceMappingURL=axes.js.map
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5521,7 +5552,7 @@ var SpriteImage = function (_Component) {
 exports["default"] = SpriteImage;
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5704,7 +5735,7 @@ var WebGLUtils = function () {
 exports["default"] = WebGLUtils;
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5719,26 +5750,6 @@ var Renderer = function Renderer() {
 };
 
 exports["default"] = Renderer;
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-/* eslint-disable no-new-func */
-/* eslint-disable no-nested-ternary */
-var win = typeof window !== "undefined" && window.Math === Math ? window : typeof self !== "undefined" && self.Math === Math ? self : Function("return this")();
-/* eslint-enable no-nested-ternary */
-/* eslint-enable no-new-func */
-
-win.Float32Array = typeof win.Float32Array !== "undefined" ? win.Float32Array : win.Array;
-
-exports.window = win;
-var document = exports.document = win.document;
-var Float32Array = exports.Float32Array = win.Float32Array;
 
 /***/ }),
 /* 13 */
@@ -8874,7 +8885,7 @@ var _YawPitchControl = __webpack_require__(26);
 
 var _YawPitchControl2 = _interopRequireDefault(_YawPitchControl);
 
-var _consts = __webpack_require__(3);
+var _consts = __webpack_require__(4);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -8918,7 +8929,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _Promise = typeof Promise === 'undefined' ? __webpack_require__(5).Promise : Promise;
+var _Promise = typeof Promise === 'undefined' ? __webpack_require__(6).Promise : Promise;
 
 var PanoViewer = function (_Component) {
 	_inherits(PanoViewer, _Component);
@@ -9293,9 +9304,7 @@ var PanoViewer = function (_Component) {
 		this._photoSphereRenderer.updateViewportDimensions(this._width, this._height);
 		this._yawPitchControl.option("aspectRatio", this._aspectRatio);
 
-		var skip = false;
-
-		this.lookAt({}, 0, skip);
+		this.lookAt({}, 0);
 	};
 
 	/**
@@ -9415,7 +9424,7 @@ var PanoViewer = function (_Component) {
   */
 
 
-	PanoViewer.prototype.lookAt = function lookAt(orientation, duration, skip) {
+	PanoViewer.prototype.lookAt = function lookAt(orientation, duration) {
 		if (!this._isResumed) {
 			return;
 		}
@@ -9430,7 +9439,7 @@ var PanoViewer = function (_Component) {
 			fov = verticalAngleOfImage;
 		}
 
-		this._yawPitchControl.lookAt({ yaw: yaw, pitch: pitch, fov: fov }, duration, skip);
+		this._yawPitchControl.lookAt({ yaw: yaw, pitch: pitch, fov: fov }, duration);
 
 		if (duration === 0) {
 			this._photoSphereRenderer.render(yaw, pitch, fov);
@@ -9666,11 +9675,11 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _axes = __webpack_require__(8);
+var _axes = __webpack_require__(9);
 
 var _axes2 = _interopRequireDefault(_axes);
 
-var _SpriteImage = __webpack_require__(9);
+var _SpriteImage = __webpack_require__(10);
 
 var _SpriteImage2 = _interopRequireDefault(_SpriteImage);
 
@@ -9884,7 +9893,7 @@ var _SpinViewer = __webpack_require__(18);
 
 var _SpinViewer2 = _interopRequireDefault(_SpinViewer);
 
-var _SpriteImage = __webpack_require__(9);
+var _SpriteImage = __webpack_require__(10);
 
 var _SpriteImage2 = _interopRequireDefault(_SpriteImage);
 
@@ -9909,7 +9918,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var _Promise = typeof Promise === 'undefined' ? __webpack_require__(5).Promise : Promise;
+var _Promise = typeof Promise === 'undefined' ? __webpack_require__(6).Promise : Promise;
 
 var ImageLoader = function () {
 	function ImageLoader(image) {
@@ -10013,7 +10022,7 @@ var _ImageLoader = __webpack_require__(20);
 
 var _ImageLoader2 = _interopRequireDefault(_ImageLoader);
 
-var _WebGLUtils = __webpack_require__(10);
+var _WebGLUtils = __webpack_require__(11);
 
 var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
 
@@ -10035,7 +10044,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _Promise = typeof Promise === 'undefined' ? __webpack_require__(5).Promise : Promise;
+var _Promise = typeof Promise === 'undefined' ? __webpack_require__(6).Promise : Promise;
 
 var ImageType = {
 	EQUIRECTANGULAR: "equirectangular",
@@ -10545,7 +10554,7 @@ var _PanoImageRenderer = __webpack_require__(21);
 
 var _PanoImageRenderer2 = _interopRequireDefault(_PanoImageRenderer);
 
-var _WebGLUtils = __webpack_require__(10);
+var _WebGLUtils = __webpack_require__(11);
 
 var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
 
@@ -10567,7 +10576,7 @@ var _agent = __webpack_require__(13);
 
 var _agent2 = _interopRequireDefault(_agent);
 
-var _Renderer2 = __webpack_require__(11);
+var _Renderer2 = __webpack_require__(12);
 
 var _Renderer3 = _interopRequireDefault(_Renderer2);
 
@@ -10786,7 +10795,7 @@ CubeRenderer._INDEX_DATA = null;
 
 exports.__esModule = true;
 
-var _Renderer2 = __webpack_require__(11);
+var _Renderer2 = __webpack_require__(12);
 
 var _Renderer3 = _interopRequireDefault(_Renderer2);
 
@@ -10966,9 +10975,11 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _axes = __webpack_require__(8);
+var _axes = __webpack_require__(9);
 
 var _axes2 = _interopRequireDefault(_axes);
+
+var _browser = __webpack_require__(3);
 
 var _MoveKeyInput = __webpack_require__(29);
 
@@ -10984,7 +10995,7 @@ var _TiltMotionInput2 = _interopRequireDefault(_TiltMotionInput);
 
 var _mathUtil = __webpack_require__(1);
 
-var _consts = __webpack_require__(3);
+var _consts = __webpack_require__(4);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -10994,8 +11005,6 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var SUPPORT_TOUCH = "ontouchstart" in window;
-var SUPPORT_DEVICEMOTION = "ondevicemotion" in window;
 /**
  * A module used to provide coordinate based on yaw/pitch orientation. This module receives user touch action, keyboard, mouse and device orientation(if it exists) as input, then combines them and converts it to yaw/pitch coordinates.
  *
@@ -11013,7 +11022,7 @@ var YawPitchControl = function (_Component) {
   * @param {Number} [options.yaw=0] initial yaw (degree)
   * @param {Number} [options.pitch=0] initial pitch (degree)
   * @param {Number} [options.fov=65] initial field of view (degree)
-  * @param {Boolean} [optiosn.showPolePoint=true] Indicates whether pole is shown
+  * @param {Boolean} [optiosn.showPole=true] Indicates whether pole is shown
   * @param {Boolean} [options.useZoom=true] Indicates whether zoom is available
   * @param {Boolean} [options.useKeyboard=true] Indicates whether keyboard is enabled
   * @param {Number} [options.touchDirection=TOUCH_DIRECTION_ALL] Direction of the touch movement (TOUCH_DIRECTION_ALL: all,  TOUCH_DIRECTION_YAW: horizontal, TOUCH_DIRECTION_PITCH: vertical, TOUCH_DIRECTION_NONE: no move)
@@ -11032,7 +11041,7 @@ var YawPitchControl = function (_Component) {
 			yaw: 0,
 			pitch: 0,
 			fov: 65,
-			showPolePoint: false,
+			showPole: false,
 			useZoom: true,
 			useKeyboard: true,
 			touchDirection: _consts.TOUCH_DIRECTION_ALL,
@@ -11056,13 +11065,13 @@ var YawPitchControl = function (_Component) {
 		var _this2 = this;
 
 		var yRange = YawPitchControl._updateYawRange(opt.yawRange, opt.fov, opt.aspectRatio);
-		var pRange = YawPitchControl._updatePitchRange(opt.pitchRange, opt.fov, opt.showPolePoint);
+		var pRange = YawPitchControl._updatePitchRange(opt.pitchRange, opt.fov, opt.showPole);
 		var circular = yRange[1] - yRange[0] < 360 ? [false, false] : [true, true];
 
 		this.axesPanInput = new _axes2["default"].PanInput(this._element);
 		this.axesWheelInput = new _WheelInput2["default"](this._element, { scale: 4 });
-		this.axesTiltMotionInput = SUPPORT_DEVICEMOTION ? new _TiltMotionInput2["default"](this._element) : null;
-		this.axesPinchInput = SUPPORT_TOUCH ? new _axes2["default"].PinchInput(this._element, { scale: -1 }) : null;
+		this.axesTiltMotionInput = _browser.SUPPORT_DEVICEMOTION ? new _TiltMotionInput2["default"](this._element) : null;
+		this.axesPinchInput = _browser.SUPPORT_TOUCH ? new _axes2["default"].PinchInput(this._element, { scale: -1 }) : null;
 		this.axesMoveKeyInput = new _MoveKeyInput2["default"](this._element, { scale: [-6, 6] });
 
 		this.axes = new _axes2["default"]({
@@ -11118,7 +11127,7 @@ var YawPitchControl = function (_Component) {
 			return;
 		}
 
-		var areaHeight = parseInt(window.getComputedStyle(this._element).height, 10);
+		var areaHeight = parseInt((0, _browser.getComputedStyle)(this._element).height, 10);
 		var scale = _consts.MC_BIND_SCALE[0] * fov / this._initialFov * _consts.PAN_SCALE / areaHeight;
 
 		this.axesPanInput.options.scale = [scale, scale];
@@ -11179,7 +11188,7 @@ var YawPitchControl = function (_Component) {
 	YawPitchControl.prototype._applyOptions = function _applyOptions(keys, prevOptions) {
 		// If one of below is changed, call updateControlScale()
 		if (keys.some(function (key) {
-			return key === "showPolePoint" || key === "fov" || key === "aspectRatio";
+			return key === "showPole" || key === "fov" || key === "aspectRatio";
 		})) {
 			this._setYawPitchRange(prevOptions);
 			this._updateControlScale();
@@ -11279,7 +11288,7 @@ var YawPitchControl = function (_Component) {
 	/**
   * Update yaw/pitch min/max by 5 factor
   *
-  * 1. showPolePoint
+  * 1. showPole
   * 2. fov
   * 3. yawRange
   * 4. pitchRange
@@ -11293,7 +11302,7 @@ var YawPitchControl = function (_Component) {
 		var opt = this.options;
 		var fov = this.axes.get().fov;
 
-		var pRange = YawPitchControl._updatePitchRange(opt.pitchRange, fov, opt.showPolePoint);
+		var pRange = YawPitchControl._updatePitchRange(opt.pitchRange, fov, opt.showPole);
 		var yRange = YawPitchControl._updateYawRange(opt.yawRange, fov, opt.aspectRatio);
 
 		// TODO: If not changed!?
@@ -11328,12 +11337,12 @@ var YawPitchControl = function (_Component) {
 		return this;
 	};
 
-	YawPitchControl._updatePitchRange = function _updatePitchRange(pitchRange, fov, showPolePoint) {
+	YawPitchControl._updatePitchRange = function _updatePitchRange(pitchRange, fov, showPole) {
 		var verticalAngle = pitchRange[1] - pitchRange[0];
 		var halfFov = fov / 2;
 		var isPanorama = verticalAngle < 180;
 
-		if (showPolePoint && !isPanorama) {
+		if (showPole && !isPanorama) {
 			// Use full pinch range
 			return pitchRange.map(function (v) {
 				return +v.toFixed(5);
@@ -11487,21 +11496,15 @@ var YawPitchControl = function (_Component) {
   *
   * @param {Object} coordinate yaw, pitch, fov
   * @param {Number} duration Animation duration. if it is above 0 then it's animated.
-  * @param {Boolean} skip Indicates whether it skip if yaw/pitch/fov is not changed.
   */
 
 
-	YawPitchControl.prototype.lookAt = function lookAt(_ref, duration, skip) {
+	YawPitchControl.prototype.lookAt = function lookAt(_ref, duration) {
 		var yaw = _ref.yaw,
 		    pitch = _ref.pitch,
 		    fov = _ref.fov;
 
 		var pos = this.axes.get();
-
-		// Skip if target direction is same with current direction.
-		if (skip && yaw === pos.yaw && pitch === pos.pitch && fov === pos.fov) {
-			return;
-		}
 
 		var y = yaw === undefined ? 0 : yaw - pos.yaw;
 		var p = pitch === undefined ? 0 : pitch - pos.pitch;
@@ -11572,7 +11575,7 @@ var _component2 = _interopRequireDefault(_component);
 
 var _mathUtil = __webpack_require__(1);
 
-var _browser = __webpack_require__(12);
+var _browser = __webpack_require__(3);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -11688,15 +11691,15 @@ var _posePredictor = __webpack_require__(39);
 
 var _posePredictor2 = _interopRequireDefault(_posePredictor);
 
-var _mathUtil = __webpack_require__(6);
+var _mathUtil = __webpack_require__(7);
 
 var _mathUtil2 = _interopRequireDefault(_mathUtil);
 
-var _util = __webpack_require__(7);
+var _util = __webpack_require__(8);
 
 var _util2 = _interopRequireDefault(_util);
 
-var _browser = __webpack_require__(12);
+var _browser = __webpack_require__(3);
 
 var _mathUtil3 = __webpack_require__(1);
 
@@ -11927,9 +11930,9 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _consts = __webpack_require__(3);
+var _consts = __webpack_require__(4);
 
-var _utils = __webpack_require__(4);
+var _utils = __webpack_require__(5);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -12052,7 +12055,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _utils = __webpack_require__(4);
+var _utils = __webpack_require__(5);
 
 var _FusionPoseSensor = __webpack_require__(28);
 
@@ -12181,7 +12184,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _utils = __webpack_require__(4);
+var _utils = __webpack_require__(5);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -13230,8 +13233,8 @@ module.exports = g;
  */
 
 var SensorSample = __webpack_require__(40);
-var MathUtil = __webpack_require__(6);
-var Util = __webpack_require__(7);
+var MathUtil = __webpack_require__(7);
+var Util = __webpack_require__(8);
 
 /**
  * An implementation of a simple complementary filter, which fuses gyroscope and
@@ -13400,8 +13403,8 @@ module.exports = ComplementaryFilter;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var MathUtil = __webpack_require__(6);
-var Util = __webpack_require__(7);
+var MathUtil = __webpack_require__(7);
+var Util = __webpack_require__(8);
 
 /**
  * Given an orientation and the gyroscope data, predicts the future orientation
