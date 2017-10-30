@@ -1,7 +1,7 @@
 import Axes from "@egjs/axes";
 import MoveKeyInput from "../../../src/YawPitchControl/input/MoveKeyInput";
 import {KEYMAP} from "../../../src/YawPitchControl/consts";
-import TestHeler from "./testHelper";
+import TestHelper from "./testHelper";
 
 const INTERVAL = 1000 / 60.0;
 
@@ -62,8 +62,8 @@ describe("MoveKeyInput", function() {
 					moveKeyInput.options.scale[0] = -1;
 					
 					// When
-					TestHeler.keyDown(document.body, leftKeyCode);
-					TestHeler.keyUp(document.body, leftKeyCode);
+					TestHelper.keyDown(document.body, leftKeyCode);
+					TestHelper.keyUp(document.body, leftKeyCode);
 
 					// Then
 					expect(changed).to.be.true;
@@ -81,8 +81,8 @@ describe("MoveKeyInput", function() {
 					};
 
 					// When
-					TestHeler.keyDown(document.body, rightKeyCode);
-					TestHeler.keyUp(document.body, rightKeyCode);
+					TestHelper.keyDown(document.body, rightKeyCode);
+					TestHelper.keyUp(document.body, rightKeyCode);
 
 					// Then
 					expect(changed).to.be.true;
@@ -99,8 +99,8 @@ describe("MoveKeyInput", function() {
 					};
 
 					// When
-					TestHeler.keyDown(document.body, upKeyCode);
-					TestHeler.keyUp(document.body, upKeyCode);
+					TestHelper.keyDown(document.body, upKeyCode);
+					TestHelper.keyUp(document.body, upKeyCode);
 
 					// Then
 					expect(changed).to.be.true;
@@ -118,8 +118,8 @@ describe("MoveKeyInput", function() {
 					moveKeyInput.options.scale[1] = -1;
 
 					// When
-					TestHeler.keyDown(document.body, downKeyCode);
-					TestHeler.keyUp(document.body, downKeyCode);
+					TestHelper.keyDown(document.body, downKeyCode);
+					TestHelper.keyUp(document.body, downKeyCode);
 
 					// Then
 					expect(changed).to.be.true;

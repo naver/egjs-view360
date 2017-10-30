@@ -14,7 +14,6 @@ import {
 	MC_BIND_SCALE,
 	MAX_FIELD_OF_VIEW,
 	PAN_SCALE,
-	YAW_DELTA_MAX,
 	YAW_RANGE_HALF,
 	PITCH_RANGE_HALF,
 } from "./consts";
@@ -118,10 +117,6 @@ const YawPitchControl = class YawPitchControl extends Component {
 				this._triggerChange();
 			},
 			release: evt => {
-				if (evt.delta.fov !== 0) {
-					this._setPanScale(evt.pos.fov);
-					this._updateControlScale();
-				}
 				this._triggerChange();
 			},
 			animationStart: evt => {
@@ -133,17 +128,12 @@ const YawPitchControl = class YawPitchControl extends Component {
 	}
 
 	_setPanScale(fov) {
-		if (!this._element) {
-			return;
-		}
-
 		const areaHeight = parseInt(getComputedStyle(this._element).height, 10);
 		const scale = MC_BIND_SCALE[0] * fov / this._initialFov * PAN_SCALE / areaHeight;
 
 		this.axesPanInput.options.scale = [scale, scale];
 		this.axes.options.deceleration = MC_DECELERATION * fov / MAX_FIELD_OF_VIEW;
 	}
-
 
 	/*
 	 * Override component's option method
@@ -164,54 +154,54 @@ const YawPitchControl = class YawPitchControl extends Component {
 
 		// Setter
 		const beforeOptions = Object.assign({}, this.options);// TODO: Need to deep?
+		let newOptions = {};
+
 		let changedKeyList = []; // TODO: if value is not changed, then do not push on changedKeyList.
 
 		if (argLen === 1) {
 			changedKeyList = Object.keys(args[0]);
+			newOptions = Object.assign({}, args[0]);
 		} else if (argLen >= 2) {
 			changedKeyList.push(args[0]);
+			newOptions[args[0]] = args[1];
 		}
 
-		this._option(...args);
+		// adjustOption
+		if (changedKeyList.some(key => key === "yawRange")) {
+			newOptions.yawRange = this._getValidYawRange(newOptions.yawRange);
+		}
+		if (changedKeyList.some(key => key === "pitchRange")) {
+			newOptions.pitchRange = this._getValidPitchRange(newOptions.pitchRange);
+		}
+
+		this._option(newOptions);
 		this._applyOptions(changedKeyList, beforeOptions);
 		return this;
 	}
 
 	_option(key, value) {
-		if (arguments.length >= 2) {
-			this.options[key] = value;
-			return this;
-		}
 		if (typeof key === "string") {
 			return this.options[key];
-		}
-		if (arguments.length === 0) {
+		} else if (arguments.length === 0) {
 			return this.options;
+		} else {
+			for (const i in key) {
+				this.options[i] = key[i];
+			}
+			return this;
 		}
-		for (const i in key) {
-			this.options[i] = key[i];
-		}
-		return this;
 	}
 
 	_applyOptions(keys, prevOptions) {
 		// If one of below is changed, call updateControlScale()
 		if (keys.some(key =>
-				key === "showPole" || key === "fov" || key === "aspectRatio")) {
-			this._setYawPitchRange(prevOptions);
+				key === "showPole" || key === "fov" || key === "aspectRatio" ||
+				key === "yawRange" || key === "pitchRange"
+			)) {
 			this._updateControlScale();
 		}
 
-		if (keys.some(key =>
-				key === "yawRange" || key === "pitchRange")) {
-			this._updateControlScale();
-		}
-
-		// TEST: if fovRanges are updated, then fov may be changed.
 		if (keys.some(key => key === "fovRange")) {
-			if (!this.axes) {
-				return;
-			}
 			const fovRange = this.options.fovRange;
 			const prevFov = this.axes.get().fov;
 			let nextFov = this.axes.get().fov;
@@ -235,9 +225,6 @@ const YawPitchControl = class YawPitchControl extends Component {
 		if (keys.some(key => key === "useKeyboard")) {
 			const useKeyboard = this.options.useKeyboard;
 
-			if (!this.axes) {
-				return;
-			}
 			if (useKeyboard) {
 				this.axes.connect(["yaw", "pitch"], this.axesMoveKeyInput);
 			} else {
@@ -248,9 +235,6 @@ const YawPitchControl = class YawPitchControl extends Component {
 		if (keys.some(key => key === "useZoom")) {
 			const useZoom = this.options.useZoom;
 
-			if (!this.axes) {
-				return;
-			}
 			if (useZoom) {
 				this.axes.connect(["fov"], this.axesWheelInput);
 				this.axesPinchInput && this.axes.connect(["fov"], this.axesPinchInput);
@@ -261,26 +245,27 @@ const YawPitchControl = class YawPitchControl extends Component {
 		}
 	}
 
-	// If new yaw or pitch range is narrow than viewport, it will not apply new ranges.
-	_setYawPitchRange(prevOptions) {
-		const prevYawRange = prevOptions.yawRange;
-		const prevPitchRange = prevOptions.pitchRange;
-		let currYawRange = [];
-		let currPitchRange = [];
-
-		// Restore if it is invalid value
+	_getValidYawRange(newYawRange) {
+		const ratio = YawPitchControl.adjustAspectRatio(this.options.aspectRatio || 1);
 		const fov = this.axes.get().fov;
-		const ratio = YawPitchControl.adjustAspectRatio(this.options.aspectRatio);
 		const horizontalFov = fov * ratio;
+		const isValid = !(newYawRange[1] - newYawRange[0] < horizontalFov);
 
-		currYawRange = this.option("yawRange");
-		if (currYawRange[1] - currYawRange[0] < horizontalFov) {
-			this.option("yawRange", prevYawRange);
+		if (isValid) {
+			return newYawRange;
+		} else {
+			return this.options.yawRange || [-YAW_RANGE_HALF, YAW_RANGE_HALF];
 		}
+	}
 
-		currPitchRange = this.option("pitchRange");
-		if (currPitchRange[1] - currPitchRange[0] < fov) {
-			this.option("pitchRange", prevPitchRange);
+	_getValidPitchRange(newPitchRange) {
+		const fov = this.axes.get().fov;
+		const isValid = !(newPitchRange[1] - newPitchRange[0] < fov);
+
+		if (isValid) {
+			return newPitchRange;
+		} else {
+			return this.options.pitchRange || [-PITCH_RANGE_HALF, PITCH_RANGE_HALF];
 		}
 	}
 
@@ -529,10 +514,6 @@ const YawPitchControl = class YawPitchControl extends Component {
 		this.axesTiltMotionInput && this.axesTiltMotionInput.destroy();
 		this.axesPinchInput && this.axesPinchInput.destroy();
 		this.axesMoveKeyInput && this.axesMoveKeyInput.destroy();
-	}
-
-	static get YAW_DELTA_MAX() {
-		return YAW_DELTA_MAX;
 	}
 };
 
