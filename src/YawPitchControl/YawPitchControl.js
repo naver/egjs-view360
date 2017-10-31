@@ -18,6 +18,8 @@ import {
 	PITCH_RANGE_HALF,
 } from "./consts";
 
+const DEFAULT_YAW_RANGE = [-YAW_RANGE_HALF, YAW_RANGE_HALF];
+const DEFAULT_PITCH_RANGE = [-PITCH_RANGE_HALF, PITCH_RANGE_HALF];
 /**
  * A module used to provide coordinate based on yaw/pitch orientation. This module receives user touch action, keyboard, mouse and device orientation(if it exists) as input, then combines them and converts it to yaw/pitch coordinates.
  *
@@ -54,8 +56,8 @@ const YawPitchControl = class YawPitchControl extends Component {
 			useZoom: true,
 			useKeyboard: true,
 			touchDirection: TOUCH_DIRECTION_ALL,
-			yawRange: [-YAW_RANGE_HALF, YAW_RANGE_HALF],
-			pitchRange: [-PITCH_RANGE_HALF, PITCH_RANGE_HALF],
+			yawRange: DEFAULT_YAW_RANGE,
+			pitchRange: DEFAULT_PITCH_RANGE,
 			fovRange: [30, 110],
 			aspectRatio: 1, /* TODO: Need Mandatory? */
 		}, options);
@@ -168,10 +170,11 @@ const YawPitchControl = class YawPitchControl extends Component {
 
 		// adjustOption
 		if (changedKeyList.some(key => key === "yawRange")) {
-			newOptions.yawRange = this._getValidYawRange(newOptions.yawRange);
+			newOptions.yawRange =
+				this._getValidYawRange(newOptions.yawRange, newOptions.fov, newOptions.aspectRatio);
 		}
 		if (changedKeyList.some(key => key === "pitchRange")) {
-			newOptions.pitchRange = this._getValidPitchRange(newOptions.pitchRange);
+			newOptions.pitchRange = this._getValidPitchRange(newOptions.pitchRange, newOptions.fov);
 		}
 
 		this._option(newOptions);
@@ -179,14 +182,16 @@ const YawPitchControl = class YawPitchControl extends Component {
 		return this;
 	}
 
-	_option(key, value) {
+	_option(key) {
 		if (typeof key === "string") {
 			return this.options[key];
 		} else if (arguments.length === 0) {
 			return this.options;
 		} else {
-			for (const i in key) {
-				this.options[i] = key[i];
+			const optionObj = key;
+
+			for (const optionKey in optionObj) {
+				this.options[optionKey] = optionObj[optionKey];
 			}
 			return this;
 		}
@@ -245,27 +250,27 @@ const YawPitchControl = class YawPitchControl extends Component {
 		}
 	}
 
-	_getValidYawRange(newYawRange) {
-		const ratio = YawPitchControl.adjustAspectRatio(this.options.aspectRatio || 1);
-		const fov = this.axes.get().fov;
+	_getValidYawRange(newYawRange, newFov, newAspectRatio) {
+		const ratio = YawPitchControl.adjustAspectRatio(newAspectRatio || this.options.aspectRatio || 1);
+		const fov = newFov || this.axes.get().fov;
 		const horizontalFov = fov * ratio;
-		const isValid = !(newYawRange[1] - newYawRange[0] < horizontalFov);
+		const isValid = newYawRange[1] - newYawRange[0] >= horizontalFov;
 
 		if (isValid) {
 			return newYawRange;
 		} else {
-			return this.options.yawRange || [-YAW_RANGE_HALF, YAW_RANGE_HALF];
+			return this.options.yawRange || DEFAULT_YAW_RANGE;
 		}
 	}
 
-	_getValidPitchRange(newPitchRange) {
-		const fov = this.axes.get().fov;
-		const isValid = !(newPitchRange[1] - newPitchRange[0] < fov);
+	_getValidPitchRange(newPitchRange, newFov) {
+		const fov = newFov || this.axes.get().fov;
+		const isValid = newPitchRange[1] - newPitchRange[0] >= fov;
 
 		if (isValid) {
 			return newPitchRange;
 		} else {
-			return this.options.pitchRange || [-PITCH_RANGE_HALF, PITCH_RANGE_HALF];
+			return this.options.pitchRange || DEFAULT_PITCH_RANGE;
 		}
 	}
 

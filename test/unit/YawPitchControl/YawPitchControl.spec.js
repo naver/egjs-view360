@@ -64,7 +64,7 @@ describe("YawPitchControl", function() {
 				expect(appliedOption.aspectRatio).to.equal(1);
 			});
 
-			it("should have default values when options are not invalid", () => {
+			it("should have default values when options are invalid", () => {
 				// Given
 				const options = {
 					element: target,
@@ -727,9 +727,9 @@ describe("YawPitchControl", function() {
 				inst.option("yawRange", [-1, 1]);
 
 				// Then
-				console.log(inst.option("yawRange"));
+				expect(inst.option("yawRange")).to.deep.equal([-180, 180]);
 			});
-			
+
 			it("should not apply pitchRange when current pitch range is narrower than viewport", () => {
 				// Given
 				inst.lookAt({
@@ -741,7 +741,7 @@ describe("YawPitchControl", function() {
 				inst.option("pitchRange", [-1, 1]);
 
 				// Then
-				console.log(inst.option("pitchRange"));
+				expect(inst.option("pitchRange")).to.deep.equal([-90, 90]);
 			});
 		});
 
