@@ -6,7 +6,8 @@ import {
 	TOUCH_DIRECTION_NONE,
 	TOUCH_DIRECTION_ALL,
 	MC_DECELERATION,
-	MAX_FIELD_OF_VIEW
+	MAX_FIELD_OF_VIEW,
+	KEYMAP
 } from "../../../src/YawPitchControl/consts";
 import YawPitchControl from "../../../src/YawPitchControl/YawPitchControl";
 import TestHelper from "./testHelper";
@@ -61,6 +62,23 @@ describe("YawPitchControl", function() {
 				expect(appliedOption.pitchRange).to.deep.equal([-90, 90]);
 				expect(appliedOption.fovRange).to.deep.equal([30, 110]);
 				expect(appliedOption.aspectRatio).to.equal(1);
+			});
+
+			it("should have default values when options are invalid", () => {
+				// Given
+				const options = {
+					element: target,
+					yawRange: [-1, 1],
+					pitchRange: [-1, 1],
+				};
+
+				// When
+				this.inst = new YawPitchControl(options);
+
+				// Then
+				const appliedOption = this.inst.option();
+				expect(appliedOption.yawRange).to.deep.equal([-180, 180]);
+				expect(appliedOption.pitchRange).to.deep.equal([-90, 90]);
 			});
 		});
 
@@ -203,6 +221,23 @@ describe("YawPitchControl", function() {
 				done();
 			}
 		});
+
+		it("should lookAt trigger change event once when enable called multiple times.", () => {
+			// Given
+			this.inst.enable();
+			this.inst.enable();
+			this.inst.enable();
+			let changeTriggerCnt = 0;
+			this.inst.on("change", function() {
+				changeTriggerCnt++;
+			});
+
+			// When
+			this.inst.lookAt({yaw: 45}, 0);
+
+			// Then
+			expect(changeTriggerCnt).to.equal(1);
+		});
 	});
 
 	describe("YawPitch Angle Test", function() {
@@ -229,22 +264,6 @@ describe("YawPitchControl", function() {
 				this.target.remove();
 				this.inst.destroy();
 			});
-
-			// If YAW_DELTA_MAX is useful, then below test is needed.
-			// it(`should not update yaw when delta yaw is over ${YawPitch.YAW_DELTA_MAX} degree.`, (done) => {
-			// 	// Given
-			// 	this.inst.on("change", then);
-
-			// 	// When
-			// 	this.inst.lookAt({yaw: YawPitch.YAW_DELTA_MAX + 1}, 0);
-
-			// 	// Then
-			// 	function then(e) {
-			// 		expect(e.yaw).to.equal(0);
-			// 		done();
-			// 	}
-
-			// });
 
 			it("should set value as intented in default range", (done) => {
 				// Given
@@ -460,7 +479,7 @@ describe("YawPitchControl", function() {
 					}, 0);
 				});
 
-				expect(this.inst.get().pitch).to.equal(expected);
+				expect(this.inst.getPitch()).to.equal(expected);
 			});
 
 			it("should return pole excluded pitches when showPole is false", (done) => {
@@ -683,6 +702,47 @@ describe("YawPitchControl", function() {
 					done();
 				}
 			});
+
+			it("should set fov when current fov is below new fov-range", () => {
+				// Given
+				inst.lookAt({
+					fov: 65
+				}, 0);
+
+				// When
+				inst.option("fovRange", [100, 110]);
+
+				// Then
+				expect(inst.getFov()).to.equal(100);
+			});
+
+			it("should not apply yawRange when current yaw range is narrower than viewport", () => {
+				// Given
+				inst.lookAt({
+					fov: 65,
+					yaw: 0
+				}, 0);
+
+				// When
+				inst.option("yawRange", [-1, 1]);
+
+				// Then
+				expect(inst.option("yawRange")).to.deep.equal([-180, 180]);
+			});
+
+			it("should not apply pitchRange when current pitch range is narrower than viewport", () => {
+				// Given
+				inst.lookAt({
+					fov: 65,
+					pitch: 0
+				}, 0);
+
+				// When
+				inst.option("pitchRange", [-1, 1]);
+
+				// Then
+				expect(inst.option("pitchRange")).to.deep.equal([-90, 90]);
+			});
 		});
 
 		describe("Pitch Min/Max update by FOV Change", function() {
@@ -823,7 +883,42 @@ describe("YawPitchControl", function() {
 						expect(res[i]).to.equal(expectedVal);
 					});
 				}
+			});
+		});
 
+		describe("useKeyboard false Test", () => {
+			let results = [];
+			let inst = null;
+			let target;
+
+			beforeEach(() => {
+				target = sandbox();
+				target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+
+				inst = new YawPitchControl({element: target});
+			});
+
+			afterEach(() => {
+				results = [];
+				target.remove();
+				inst.destroy();
+			});
+
+			// allow FOV (Zoom) (Spec for embedding in a document)
+			it("should not change yaw/pitch when useKeyboard is false", () => {
+				// Given
+				inst.option("useKeyboard", false);
+				let changeTriggered = false;
+				inst.on("change", e => {
+					changeTriggered = true;
+				});
+
+				// When
+				TestHelper.keyDown(target, KEYMAP.RIGHT_ARROW);
+				TestHelper.keyUp(target, KEYMAP.RIGHT_ARROW);
+
+				// Then
+				expect(changeTriggered).to.be.false;
 			});
 		});
 

@@ -15,10 +15,6 @@ const MIN_FIELD_OF_VIEW = 20;
 const MAX_FIELD_OF_VIEW = 110;
 const PAN_SCALE = 320;
 
-// TODO: Remove if below constant is not needed.
-const YAW_DELTA_MAX = 45;
-// const PITCH_DELTA_MAX = 45;
-
 // const DELTA_THRESHOLD = 0.015;
 // const DELTA_THRESHOLD = 0.09; // Note4
 // const DELTA_THRESHOLD = 0.0825;
@@ -57,7 +53,6 @@ export {
 	MIN_FIELD_OF_VIEW,
 	MAX_FIELD_OF_VIEW,
 	PAN_SCALE,
-	YAW_DELTA_MAX,
 	DELTA_THRESHOLD,
 	YAW_RANGE_HALF,
 	PITCH_RANGE_HALF,
