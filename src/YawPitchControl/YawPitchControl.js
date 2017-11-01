@@ -146,18 +146,16 @@ const YawPitchControl = class YawPitchControl extends Component {
 	option(...args) {
 		const argLen = args.length;
 
+		// Getter
 		if (argLen === 0) {
-			return this._option();
-		}
-
-		if (argLen === 1 && typeof args[0] === "string") {
-			return this._option(args[0]);
+			return this._getOptions();
+		} else if (argLen === 1 && typeof args[0] === "string") {
+			return this._getOptions(args[0]);
 		}
 
 		// Setter
-		const beforeOptions = Object.assign({}, this.options);// TODO: Need to deep?
+		const beforeOptions = Object.assign({}, this.options);
 		let newOptions = {};
-
 		let changedKeyList = []; // TODO: if value is not changed, then do not push on changedKeyList.
 
 		if (argLen === 1) {
@@ -168,32 +166,36 @@ const YawPitchControl = class YawPitchControl extends Component {
 			newOptions[args[0]] = args[1];
 		}
 
-		// adjustOption
-		if (changedKeyList.some(key => key === "yawRange")) {
-			newOptions.yawRange =
-				this._getValidYawRange(newOptions.yawRange, newOptions.fov, newOptions.aspectRatio);
-		}
-		if (changedKeyList.some(key => key === "pitchRange")) {
-			newOptions.pitchRange = this._getValidPitchRange(newOptions.pitchRange, newOptions.fov);
-		}
-
-		this._option(newOptions);
+		this._setOptions(this._getValidatedOptions(newOptions));
 		this._applyOptions(changedKeyList, beforeOptions);
 		return this;
 	}
 
-	_option(key) {
-		if (typeof key === "string") {
-			return this.options[key];
-		} else if (arguments.length === 0) {
-			return this.options;
-		} else {
-			const optionObj = key;
+	_getValidatedOptions(newOptions) {
+		if (newOptions.yawRange) {
+			newOptions.yawRange =
+				this._getValidYawRange(newOptions.yawRange, newOptions.fov, newOptions.aspectRatio);
+		}
+		if (newOptions.pitchRange) {
+			newOptions.pitchRange = this._getValidPitchRange(newOptions.pitchRange, newOptions.fov);
+		}
+		return newOptions;
+	}
 
-			for (const optionKey in optionObj) {
-				this.options[optionKey] = optionObj[optionKey];
-			}
-			return this;
+	_getOptions(key) {
+		let value;
+
+		if (typeof key === "string") {
+			value = this.options[key];
+		} else if (arguments.length === 0) {
+			value = this.options;
+		}
+		return value;
+	}
+
+	_setOptions(options) {
+		for (const key in options) {
+			this.options[key] = options[key];
 		}
 	}
 
