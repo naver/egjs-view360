@@ -4,15 +4,17 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+      "./node_modules/resemblejs/resemble.js",
       "./node_modules/lite-fixture/index.js",
 			"./node_modules/hammer-simulator/index.js",
 			"./test/hammer-simulator.run.js",
+			"./test/unit/util.js",
       "./test/unit/**/*.spec.js",
 			"./test/manual/img/**/*.*",
+      "./test/img/*.*",
     ],
 
 		proxies: {
-			"/images/": "/base/test/manual/img/"
 		},
 
     client: {
