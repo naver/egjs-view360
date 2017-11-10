@@ -1,6 +1,6 @@
 import ImageLoader from "../../../src/PanoImageRenderer/ImageLoader";
 
-describe("ImageLoader", function() {
+describe.only("ImageLoader", function() {
 	describe("#constructor", function() {
 		it("Instance", () => {
 			// Given
@@ -30,17 +30,17 @@ describe("ImageLoader", function() {
 
 			expect(this.inst).to.be.exist;
 			this.inst.get().then(null, (msg)=> {
-				console.log(msg);
-				done();
-			});
+					console.log(msg);
+					done();
+				});
 		});
 
-		it.skip("should fails when url is invalid#2", function(done) {
-			this.inst = new ImageLoader("https://invalidurl.png");
+		it("should fails to getwhen url is invalid#2", function(done) {
+			let inst = new ImageLoader("https://invalidurl.png");
 
-			expect(this.inst).to.be.exist;
+			expect(inst).to.be.exist;
 			setTimeout(() => {
-				this.inst.get().then(null, (msg) => {
+				inst.get().then(null, msg => {
 					console.log(msg);
 					done();
 				});
@@ -80,7 +80,7 @@ describe("ImageLoader", function() {
 			// When
 			this.inst = new ImageLoader();
 
-			this.inst.setImage("https://s.pstatic.net/static/www/mobile/edit/2015/0318/mobile_110629401121.png").then((img) => {
+			this.inst.set("https://s.pstatic.net/static/www/mobile/edit/2015/0318/mobile_110629401121.png").then((img) => {
 				assert.isOk(img.complete);
 				done();
 			});
