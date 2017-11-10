@@ -1,11 +1,59 @@
 import PanoViewer from "../../../src/PanoViewer/PanoViewer";
+import {ERROR_TYPE, EVENTS} from "../../../src/PanoViewer/consts";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 
 describe("PanoViewer", function() {
+	let It = WebGLUtils.isWebGLAvailable() ? it : it.skip;
+
+	describe("constructor", function() {
+		let target;
+		let panoViewer;
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div"></div>`;
+		});
+
+		afterEach(() => {
+			if (!panoViewer) {
+				return;
+			}
+			panoViewer.destroy();
+			panoViewer = null;
+		});
+
+		It("should use one resource (image or video) property #1 (no proerpty used)", function(done) {
+			panoViewer = new PanoViewer(target);
+			panoViewer.on(EVENTS.ERROR, e => {
+				if (e.type === ERROR_TYPE.INVALID_RESOURCE) {
+					done();
+				}
+			});
+		});
+
+		It("should use one resource (image or video) property #2 (both property used)", function(done) {
+			panoViewer = new PanoViewer(target, {
+				image: "imageurl-or-imagetag-or-imageobj",
+				video: "videotag"
+			});
+			panoViewer.on(EVENTS.ERROR, e => {
+				if (e.type === ERROR_TYPE.INVALID_RESOURCE) {
+					done();
+				}
+			});
+		});
+
+		It("should recognize image is not video", function() {
+			panoViewer = new PanoViewer(target, {
+				image: "./images/test_qui.jpg"
+			});
+			expect(panoViewer.getVideo()).to.be(null);
+		});
+	});
+
 	describe.skip("event flow", function() {
 		let target;
 		let photo360Viewer;
-		let IT = WebGLUtils.isWebGLAvailable() ? it : it.skip;
 
 		beforeEach(() => {
 			target = sandbox();
@@ -57,7 +105,7 @@ describe("PanoViewer", function() {
 			}
 		}
 
-		IT("should follow event order on create", function(done) {
+		It("should follow event order on create", function(done) {
 			var order = [
 				PanoViewer.EVENTS.VIEW_CHANGE,
 				PanoViewer.EVENTS.IMAGE_LOADED
@@ -66,7 +114,7 @@ describe("PanoViewer", function() {
 			startEventLogTest(order, done);
 		});
 
-		IT("should follow event order on resume", function(done) {
+		It("should follow event order on resume", function(done) {
 			var order = [
 				PanoViewer.EVENTS.VIEW_CHANGE,
 				PanoViewer.EVENTS.IMAGE_LOADED,
@@ -82,7 +130,7 @@ describe("PanoViewer", function() {
 			});
 		});
 
-		IT("should follow event order on suspend", function(done) {
+		It("should follow event order on suspend", function(done) {
 			var order = [
 				PanoViewer.EVENTS.VIEW_CHANGE,
 				PanoViewer.EVENTS.IMAGE_LOADED,

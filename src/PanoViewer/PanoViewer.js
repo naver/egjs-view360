@@ -16,7 +16,8 @@ export default class PanoViewer extends Component {
 	 * @param {HTMLElement} container The container element for the renderer. <ko>렌더러의 컨테이너 엘리먼트</ko>
 	 * @param {Object} config
 	 *
-	 * @param {String|Image} config.image Input image <ko>입력 이미지</ko>
+	 * @param {String|Image} config.image Input image url or image object<ko>입력 이미지 URL 혹은 이미지 객체(image 와 video 둘 중 하나만 설정한다.)</ko>
+	 * @param {String|HTMLVideoElement} config.video Input video url or tag<ko>입력 비디오 URL 혹은 video 태그(image 와 video 둘 중 하나만 설정한다.)</ko>
 	 * @param {String} [config.imageType=equirectangular] The type of the image: equirectangular, vertival_cubestrip <ko>이미지 유형 : equirectangular, vertival_cubestrip</ko>
 	 * @param {Number} [config.width=width of container] the viewer's width. (in px) <ko>뷰어의 너비 (px 단위)</ko>
 	 * @param {Number} [config.height=height of container] the viewer's height.(in px) <ko>뷰어의 높이 (px 단위)</ko>
@@ -32,7 +33,7 @@ export default class PanoViewer extends Component {
 	 * @param {Array} [config.fovRange=[30, 110]] Range of controllable vertical field of view values <ko>제어 가능한 수직 field of view 값의 범위</ko>
 	 * @param {Function} [config.checkSupport] A function that returns a boolean value that determines whether the component is working. <ko>뷰어가 작동할 지 여부를 결정하는 부울 값을 반환하는 함수입니다.</ko>
 	 */
-	constructor(container, options) {
+	constructor(container, options = {}) {
 		super();
 
 		if (options.checkSupport && !options.checkSupport()) {
@@ -57,8 +58,19 @@ export default class PanoViewer extends Component {
 			return this;
 		}
 
+		if (!!options.image === !!options.video) {
+			setTimeout(() => {
+				this.trigger(EVENTS.ERROR, {
+					type: ERROR_TYPE.INVALID_RESOURCE,
+					message: "Only one resource property (video or image) MUST be used."
+				});
+			}, 0);
+			return this;
+		}
+
 		this._container = container;
-		this._image = options.image;
+		this._image = options.image || options.video;
+		this._isVideo = !!options.video;
 		this._imageType = options.imageType || PanoImageRenderer.ImageType.EQUIRECTANGULAR;
 
 		// If the width and height are not provided, will use the size of the container.
@@ -112,12 +124,47 @@ export default class PanoViewer extends Component {
 	 */
 
 	/**
+		* Getting the video information that the viewer is currently using.
+		* @ko 뷰어가 현재 사용 중인 비디오 정보를 얻습니다.
+		* @method eg.view360.PanoViewer#getVideo
+		* @return {VideoInfo}
+		*/
+	getVideo() {
+		if (!this._isVideo) {
+			return null;
+		}
+
+		return {
+			video: this._image,
+			type: this._imageType
+		};
+	}
+
+	/**
+	 * Setting the video information to be used by the viewer.
+	 * @ko 뷰어가 사용할 이미지 정보를 설정 합니다.
+	 * @method eg.view360.PanoViewer#setVideo
+	 * @param {VideoInfo} videoInfo Input image information  <ko>입력 비디오 정보</ko>
+	 */
+	setVideo({video, type}) {
+		if (!video) {
+			return;
+		}
+
+		this.setImage({image: video, imageType: type, isVideo: true});
+	}
+
+	/**
 	 * Getting the image information that the viewer is currently using.
 	 * @ko 뷰어가 현재 사용하고있는 이미지 정보를 얻습니다.
 	 * @method eg.view360.PanoViewer#getImage
 	 * @return {ImageInfo}
 	 */
 	getImage() {
+		if (this._isVideo) {
+			return null;
+		}
+
 		return {
 			image: this._image,
 			imageType: this._imageType
@@ -130,11 +177,12 @@ export default class PanoViewer extends Component {
 	 * @method eg.view360.PanoViewer#setImage
 	 * @param {ImageInfo} imageInfo Input image information  <ko>입력 이미지 정보</ko>
 	 */
-	setImage({image, imageType}) {
-		if (image) {
-			this._image = image;
+	setImage({image, imageType, isVideo = false}) {
+		if (!image) {
+			return;
 		}
 
+		this._image = image;
 		if (imageType && this._imageType !== imageType) {
 			this._imageType = imageType;
 
@@ -148,7 +196,7 @@ export default class PanoViewer extends Component {
 		}
 
 		this._photoSphereRenderer
-			.setImage({image: this._image, imageType: this._imageType})
+			.setImage({image: this._image, imageType: this._imageType, isVideo})
 			.then(isSuccess => {
 				if (!isSuccess || !this._isResumed) {
 					return;
@@ -157,9 +205,7 @@ export default class PanoViewer extends Component {
 				// if it was resume status, render new image.
 				this._photoSphereRenderer
 					.bindTexture()
-					.then(() => {
-						this._startRender();
-					});
+					.then(() => this._startRender());
 			});
 	}
 
@@ -172,6 +218,7 @@ export default class PanoViewer extends Component {
 			this._image,
 			this._width,
 			this._height,
+			this._isVideo,
 			{
 				initialYaw: yaw,
 				initialPitch: pitch,
@@ -531,7 +578,7 @@ export default class PanoViewer extends Component {
 	}
 
 	_renderLoop() {
-		if (this._photoSphereRenderer && this._photoSphereRenderer.isImageLoaded()) {
+		if (this._photoSphereRenderer) {
 			this._photoSphereRenderer.render(this._yaw, this._pitch, this._fov);
 		}
 		this._rafId = window.requestAnimationFrame(this._renderLoop);
@@ -552,7 +599,6 @@ export default class PanoViewer extends Component {
 	 */
 	suspend() {
 		if (this._photoSphereRenderer) {
-			this._photoSphereRenderer.cancelLoadImage();
 			this._photoSphereRenderer.destroy();
 			this._photoSphereRenderer = null;
 		}

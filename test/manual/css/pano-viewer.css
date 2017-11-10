@@ -1,4 +1,4 @@
-@font-face{ 
+/* @font-face{ 
 	font-family: 'NanumSquareR';
 	src: url('../font/NanumSquareR.eot');
 	src: url('../font/NanumSquareR.eot?#iefix') format('embedded-opentype'),
@@ -10,7 +10,7 @@
 * {
 	font-family: 'NanumSquareR';
 	font-weight: 300;
-}
+} */
 
 body, html {
 	margin: 0;

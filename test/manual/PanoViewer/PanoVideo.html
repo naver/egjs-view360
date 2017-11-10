@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"
+  />
+  <!--<link rel="stylesheet" href="./css/pure.css">-->
+  <link rel="stylesheet" href="../css/pano-viewer.css">
+  <style>
+    section {
+      width: 100%;
+    }
+
+    .photo360 {
+      /*width: 100%;
+      height: auto;
+      padding-bottom:70%;*/
+      background: rgba(0, 0, 0, .2);
+    }
+
+    .photo360 > canvas {
+      z-index: 1;
+    }
+
+    .hidden_elem {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div>
+    <section class="container">
+      <h2>PanoVideo</h2>
+      <h3>Available on Chrome Browser</h3>
+      Video Source: <a href="https://github.com/mrdoob/three.js/blob/master/examples/textures/pano.webm">https://github.com/mrdoob/three.js/blob/master/examples/textures/pano.webm</a>
+      <!--<div class="360-area">-->
+        <video id="videoSrc" style="width:100%;height:400px;display:none" src="../img/PanoViewer/720p.mkv"></video>
+        <!-- <video id="videoSrc" style="width:100%;height:400px" src="https://pannellum.org/images/video/jfk.webm"></video> -->
+        <div class="photo360">
+          <!--<img class="preloaded_image hidden_elem" src="../img/book_equi_1.jpg"/>-->
+        </div>
+        <button id="play">play</button>
+        <button id="pause">pause</button>
+    </section>
+  </div>
+  <script src="../../../node_modules/hammerjs/hammer.js"></script>
+  <script src="../../../node_modules/@egjs/component/dist/component.js"></script>
+  <script src="../../../node_modules/@egjs/axes/dist/axes.js"></script>
+  <script src="../../../dist/view360.js"></script>
+  <!--script src="../build/photo360viewer.js"></script>-->
+  <script>
+    var rootNode = document.querySelector(".photo360");
+    var panoViewer = new eg.view360.PanoViewer(rootNode, {
+      video: document.getElementById("videoSrc"),
+      imageType: "equirectangular",
+      controlMode: "gallery_yaw_pitch"
+    });
+    
+    panoViewer.resume();
+
+    var video = panoViewer.getVideo().video;
+    document.getElementById("play").addEventListener("click", function() {
+      video.play();
+    });
+
+    document.getElementById("pause").addEventListener("click", function() {
+      video.pause();
+    });
+  </script>
+</body>
+
+</html>
