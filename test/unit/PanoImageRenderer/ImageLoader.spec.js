@@ -1,6 +1,6 @@
 import ImageLoader from "../../../src/PanoImageRenderer/ImageLoader";
 
-describe.only("ImageLoader", function() {
+describe("ImageLoader", function() {
 	describe("#constructor", function() {
 		it("Instance", () => {
 			// Given
