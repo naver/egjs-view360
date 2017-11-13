@@ -47,7 +47,7 @@ describe("PanoViewer", function() {
 			panoViewer = new PanoViewer(target, {
 				image: "./images/test_qui.jpg"
 			});
-			expect(panoViewer.getVideo()).to.be(null);
+			expect(panoViewer.getVideo()).to.be.null;
 		});
 	});
 
