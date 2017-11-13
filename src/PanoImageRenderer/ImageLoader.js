@@ -7,7 +7,7 @@ const STATUS = {
 
 export default class ImageLoader {
 	constructor(image) {
-		this.image = null;
+		this._image = null;
 		this._loadStatus = STATUS.NONE;
 
 		image && this.set(image);
@@ -15,15 +15,18 @@ export default class ImageLoader {
 
 	get() {
 		return new Promise((res, rej) => {
-			if (!this.image) {
+			if (!this._image) {
 				rej("ImageLoader: image is not defiend");
-			} else if (this._loadStatus === STATUS.LOADED) {
-				res(this.image);
+			} else if (this._loadStatus === STATUS.LOADED || ImageLoader._isMaybeLoaded(this._image)) {
+				/* Check isMaybeLoaded() first because there may have posibilities that image already loaded before get is called. for example calling get on external image onload callback.*/
+				res(this._image);
 			} else if (this._loadStatus === STATUS.LOADING) {
-				ImageLoader._once(this.image, "load", () => {
-					res(this.image);
+				ImageLoader._once(this._image, "load", () => {
+					this._loadStatus = STATUS.LOADED;
+					res(this._image);
 				});
-				ImageLoader._once(this.image, "error", () => {
+				ImageLoader._once(this._image, "error", () => {
+					this._loadStatus = STATUS.ERROR;
 					rej("ImageLoader: failed to load images.");
 				});
 			} else {
@@ -32,23 +35,35 @@ export default class ImageLoader {
 		});
 	}
 
-	set(image) { // img element or img url
+	/**
+	 * @param image img element or img url
+	 */
+	set(image) {
 		if (typeof image === "string") {
-			this.image = new Image();
+			this._image = new Image();
 			this._loadStatus = STATUS.LOADING;
-			this.image.onload = () => {
+			this._image.onload = () => {
 				this._loadStatus = STATUS.LOADED;
 			};
-			this.image.onerror = () => {
+			this._image.onerror = () => {
 				this._loadStatus = STATUS.ERROR;
 			};
-			this.image.src = image;
-		} else if (typeof image === "object") { // img element 나 image object 이어야 함
-			this.image = image;
+			this._image.src = image;
+		} else if (typeof image === "object") {
+			if (ImageLoader._isMaybeLoaded(image)) {
+				this._loadStatus = STATUS.LOADED;
+			} else {
+				this._loadStatus = STATUS.LOADING;
+			}
+			this._image = image;
 		}
 
 		// promise for image
 		return this.get();
+	}
+
+	static _isMaybeLoaded(image) {
+		return image && (image.width || image.height);
 	}
 
 	static _once(target, type, listener) {
@@ -56,26 +71,10 @@ export default class ImageLoader {
 			target.removeEventListener(type, fn);
 			listener(event);
 		});
-		// target.addEventListener(type, listener);
-	}
-
-	isImageLoaded() {
-		if (!this.image) {
-			return false;
-		}
-
-		return !!this.image.src && !!this.image.complete;
-	}
-
-	loadImage() {
-		if (this._imageURL && !this.isImageLoaded()) {
-			this.image.setAttribute("crossorigin", "anonymous");
-			this.image.src = this._imageURL;
-		}
 	}
 
 	destroy() {
-		this.image.src = "";
-		this.image = null;
+		this._image.src = "";
+		this._image = null;
 	}
 }
