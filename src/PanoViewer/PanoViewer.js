@@ -266,7 +266,19 @@ export default class PanoViewer extends Component {
 		 * @name eg.view360.PanoViewer#error
 		 * @event
 		 * @param {Object} param The object of data to be sent to an event <ko>이벤트에 전달되는 데이터 객체</ko>
-		 * @param {Number} param.type Error type (10: INVALID_DEVICE, 11: NO_WEBGL, 12, FAIL_IMAGE_LOAD, 13: FAIL_BIND_TEXTURE)<ko>에러 종류(10: INVALID_DEVICE, 11: NO_WEBGL, 12, FAIL_IMAGE_LOAD, 13: FAIL_BIND_TEXTURE)</ko>
+		 * @param {Number} param.type Error type
+		 * 		10: INVALID_DEVICE: Unsupported device
+		 * 		11: NO_WEBGL: Webgl not support
+		 * 		12, FAIL_IMAGE_LOAD: Failed to load image
+		 * 		13: FAIL_BIND_TEXTURE: Failed to bind texture
+		 * 		14: INVALID_RESOURCE: Only one resource(image or video) should be specified
+		 * <ko>에러 종류
+		 * 		10: INVALID_DEVICE: 미지원 기기
+		 * 		11: NO_WEBGL: WEBGL 미지원
+		 * 		12, FAIL_IMAGE_LOAD: 이미지 로드 실패
+		 * 		13: FAIL_BIND_TEXTURE: 텍스쳐 바인딩 실패
+		 * 		14: INVALID_RESOURCE: 리소스 지정 오류 (image 혹은 video 중 하나만 지정되어야 함)
+		 * </ko>
 		 * @param {String} param.message Error message <ko>에러 메시지</ko>
 		 *
 		 * @example
