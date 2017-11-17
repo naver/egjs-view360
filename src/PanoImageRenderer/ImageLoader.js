@@ -63,7 +63,7 @@ export default class ImageLoader {
 	}
 
 	static _isMaybeLoaded(image) {
-		return image && (image.width || image.height);
+		return image && image.naturalWidth !== 0;
 	}
 
 	static _once(target, type, listener) {
