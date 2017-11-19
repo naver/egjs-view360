@@ -476,6 +476,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var DEFAULT_PAN_SCALE = 0.21;
+
 /**
  * @class eg.view360.SpinViewer
  * @classdesc A module used to displays each image sequentially according to the direction of the user's touch movement (left / right) of the sprite image that is collected by rotating the object.
@@ -502,6 +504,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * 	rowCount: 24 //required
  * });
  */
+
 var SpinViewer = function (_Component) {
 	_inherits(SpinViewer, _Component);
 
@@ -516,7 +519,7 @@ var SpinViewer = function (_Component) {
 		var colCount = opt.colCount || 1;
 		var rowCount = opt.rowCount || 1;
 
-		_this._scale = opt.scale || 1;
+		_this._scale = (opt.scale || 1) * DEFAULT_PAN_SCALE;
 
 		_this._frameCount = colCount * rowCount;
 
@@ -627,7 +630,12 @@ var SpinViewer = function (_Component) {
 
 
 	SpinViewer.prototype.setScale = function setScale(scale) {
-		this._panInput.options.scale = [scale, scale];
+		if (isNaN(scale) || scale < 0) {
+			return this;
+		}
+
+		this._scale = scale * DEFAULT_PAN_SCALE;
+		this._panInput.options.scale = [this._scale, this._scale];
 
 		return this;
 	};

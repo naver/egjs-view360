@@ -9739,6 +9739,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var DEFAULT_PAN_SCALE = 0.21;
+
 /**
  * @class eg.view360.SpinViewer
  * @classdesc A module used to displays each image sequentially according to the direction of the user's touch movement (left / right) of the sprite image that is collected by rotating the object.
@@ -9765,6 +9767,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * 	rowCount: 24 //required
  * });
  */
+
 var SpinViewer = function (_Component) {
 	_inherits(SpinViewer, _Component);
 
@@ -9779,7 +9782,7 @@ var SpinViewer = function (_Component) {
 		var colCount = opt.colCount || 1;
 		var rowCount = opt.rowCount || 1;
 
-		_this._scale = opt.scale || 1;
+		_this._scale = (opt.scale || 1) * DEFAULT_PAN_SCALE;
 
 		_this._frameCount = colCount * rowCount;
 
@@ -9890,7 +9893,12 @@ var SpinViewer = function (_Component) {
 
 
 	SpinViewer.prototype.setScale = function setScale(scale) {
-		this._panInput.options.scale = [scale, scale];
+		if (isNaN(scale) || scale < 0) {
+			return this;
+		}
+
+		this._scale = scale * DEFAULT_PAN_SCALE;
+		this._panInput.options.scale = [this._scale, this._scale];
 
 		return this;
 	};
@@ -11070,7 +11078,7 @@ var YawPitchControl = function (_Component) {
   * @param {Number} [options.yaw=0] initial yaw (degree)
   * @param {Number} [options.pitch=0] initial pitch (degree)
   * @param {Number} [options.fov=65] initial field of view (degree)
-  * @param {Boolean} [optiosn.showPole=true] Indicates whether pole is shown
+  * @param {Boolean} [optiosn.showPolePoint=true] Indicates whether pole is shown
   * @param {Boolean} [options.useZoom=true] Indicates whether zoom is available
   * @param {Boolean} [options.useKeyboard=true] Indicates whether keyboard is enabled
   * @param {Number} [options.touchDirection=TOUCH_DIRECTION_ALL] Direction of the touch movement (TOUCH_DIRECTION_ALL: all,  TOUCH_DIRECTION_YAW: horizontal, TOUCH_DIRECTION_PITCH: vertical, TOUCH_DIRECTION_NONE: no move)
@@ -11089,7 +11097,7 @@ var YawPitchControl = function (_Component) {
 			yaw: 0,
 			pitch: 0,
 			fov: 65,
-			showPole: false,
+			showPolePoint: false,
 			useZoom: true,
 			useKeyboard: true,
 			touchDirection: _consts.TOUCH_DIRECTION_ALL,
@@ -11113,7 +11121,7 @@ var YawPitchControl = function (_Component) {
 		var _this2 = this;
 
 		var yRange = YawPitchControl._updateYawRange(opt.yawRange, opt.fov, opt.aspectRatio);
-		var pRange = YawPitchControl._updatePitchRange(opt.pitchRange, opt.fov, opt.showPole);
+		var pRange = YawPitchControl._updatePitchRange(opt.pitchRange, opt.fov, opt.showPolePoint);
 		var circular = yRange[1] - yRange[0] < 360 ? [false, false] : [true, true];
 
 		this.axesPanInput = new _axes2["default"].PanInput(this._element);
@@ -11244,7 +11252,7 @@ var YawPitchControl = function (_Component) {
 	YawPitchControl.prototype._applyOptions = function _applyOptions(keys, prevOptions) {
 		// If one of below is changed, call updateControlScale()
 		if (keys.some(function (key) {
-			return key === "showPole" || key === "fov" || key === "aspectRatio" || key === "yawRange" || key === "pitchRange";
+			return key === "showPolePoint" || key === "fov" || key === "aspectRatio" || key === "yawRange" || key === "pitchRange";
 		})) {
 			this._updateControlScale();
 		}
@@ -11326,7 +11334,7 @@ var YawPitchControl = function (_Component) {
 	/**
   * Update yaw/pitch min/max by 5 factor
   *
-  * 1. showPole
+  * 1. showPolePoint
   * 2. fov
   * 3. yawRange
   * 4. pitchRange
@@ -11340,7 +11348,7 @@ var YawPitchControl = function (_Component) {
 		var opt = this.options;
 		var fov = this.axes.get().fov;
 
-		var pRange = YawPitchControl._updatePitchRange(opt.pitchRange, fov, opt.showPole);
+		var pRange = YawPitchControl._updatePitchRange(opt.pitchRange, fov, opt.showPolePoint);
 		var yRange = YawPitchControl._updateYawRange(opt.yawRange, fov, opt.aspectRatio);
 
 		// TODO: If not changed!?
@@ -11375,12 +11383,12 @@ var YawPitchControl = function (_Component) {
 		return this;
 	};
 
-	YawPitchControl._updatePitchRange = function _updatePitchRange(pitchRange, fov, showPole) {
+	YawPitchControl._updatePitchRange = function _updatePitchRange(pitchRange, fov, showPolePoint) {
 		var verticalAngle = pitchRange[1] - pitchRange[0];
 		var halfFov = fov / 2;
 		var isPanorama = verticalAngle < 180;
 
-		if (showPole && !isPanorama) {
+		if (showPolePoint && !isPanorama) {
 			// Use full pinch range
 			return pitchRange.map(function (v) {
 				return +v.toFixed(5);
