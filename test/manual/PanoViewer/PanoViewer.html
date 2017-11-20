@@ -213,12 +213,17 @@ console.log(presets[INITIAL_PRESET]);
 
 var gridView = new GridView(document.querySelector(".grid-chart"), 0, 0);
 // var threePanoView = new ThreePanoView(document.querySelector( '.pano-viewer' ), object.image, 0, 0, object.pitchRangeSize < 65 ? object.pitchRangeSize : 65, 1);
-var panoViewer = new eg.view360.PanoViewer(
-	document.querySelector( '.pano-viewer' ),
-	presets[INITIAL_PRESET]
-);
 
-render();
+if (eg.view360.PanoViewer.isWebGLAvailable()) {
+  var panoViewer = new eg.view360.PanoViewer(
+    document.querySelector( '.pano-viewer' ),
+    presets[INITIAL_PRESET]
+  );
+  render();
+} else {
+  alert("이 브라우저는 webgl 을 지원하지 않습니다. 따라서 PanoViewer 가 동작할 수 없습니다.");
+}
+
 var gui = new dat.GUI(json);
 gui.remember(object);
 
