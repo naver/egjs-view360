@@ -384,7 +384,7 @@ panoViewer.on("viewChange", function(e) {
 
 
 gridView.onClick(function(yaw, pitch) {
-	panoViewer.lookAt({yaw, pitch}, 1200);
+	panoViewer.lookAt({yaw:yaw, pitch:pitch}, 1200);
 });
 
 function render() {
