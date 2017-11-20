@@ -2872,7 +2872,7 @@ module.exports = Util;
  * @egjs/axes JavaScript library
  * https://github.com/naver/egjs-axes
  * 
- * @version 2.3.0
+ * @version 2.3.1
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(true)
@@ -4176,10 +4176,10 @@ var EventManager = /** @class */ (function () {
             inputEvent: inputEvent,
             isTrusted: !!inputEvent,
             input: option && option.input || eventInfo && eventInfo.input || null,
-            set: event ? this.createUserControll(moveTo.pos) : function () { }
+            set: inputEvent ? this.createUserControll(moveTo.pos) : function () { }
         };
         this.axes.trigger("change", param);
-        event && this.am.axm.set(param.set()["destPos"]);
+        inputEvent && this.am.axm.set(param.set()["destPos"]);
     };
     /**
      * This event is fired when animation starts.
@@ -8605,6 +8605,8 @@ exports.YawPitchControl = _YawPitchControl2["default"];
 
 exports.__esModule = true;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
@@ -8701,7 +8703,7 @@ var PanoViewer = function (_Component) {
 		_this._aspectRatio = _this._width / _this._height;
 		var fovRange = options.fovRange || [30, 110];
 
-		var yawPitchConfig = Object.assign(options, {
+		var yawPitchConfig = _extends(options, {
 			element: container,
 			yaw: _this._yaw,
 			pitch: _this._pitch,
@@ -10418,6 +10420,8 @@ module.exports = {
 
 exports.__esModule = true;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
@@ -10485,7 +10489,7 @@ var YawPitchControl = function (_Component) {
 
 		var _this = _possibleConstructorReturn(this, _Component.call(this));
 
-		var opt = Object.assign({
+		var opt = _extends({
 			element: null,
 			yaw: 0,
 			pitch: 0,
@@ -10598,13 +10602,13 @@ var YawPitchControl = function (_Component) {
 		}
 
 		// Setter
-		var beforeOptions = Object.assign({}, this.options);
+		var beforeOptions = _extends({}, this.options);
 		var newOptions = {};
 		var changedKeyList = []; // TODO: if value is not changed, then do not push on changedKeyList.
 
 		if (argLen === 1) {
 			changedKeyList = Object.keys(args[0]);
-			newOptions = Object.assign({}, args[0]);
+			newOptions = _extends({}, args[0]);
 		} else if (argLen >= 2) {
 			changedKeyList.push(args[0]);
 			newOptions[args[0]] = args[1];
@@ -11358,6 +11362,8 @@ exports["default"] = FusionPoseSensor;
 
 exports.__esModule = true;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
@@ -11384,7 +11390,7 @@ var MoveKeyInput = function (_Component) {
 
 		_this.element = el;
 
-		_this.options = Object.assign({
+		_this.options = _extends({
 			scale: [1, 1],
 			threshold: 0
 		}, options);
@@ -11483,6 +11489,8 @@ exports["default"] = MoveKeyInput;
 
 exports.__esModule = true;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
@@ -11531,7 +11539,7 @@ var TiltMotionInput = function (_Component) {
 
 		_this.fusionPoseSensor = null;
 
-		_this.options = Object.assign({
+		_this.options = _extends({
 			scale: 1,
 			threshold: 0
 		}, options);
@@ -11612,6 +11620,8 @@ exports["default"] = TiltMotionInput;
 
 exports.__esModule = true;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
@@ -11636,7 +11646,7 @@ var WheelInput = function (_Component) {
 
 		_this.element = el;
 
-		_this.options = Object.assign({
+		_this.options = _extends({
 			scale: 1,
 			threshold: 0
 		}, options);

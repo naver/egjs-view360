@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@egjs/agent": "^2.1.1",
-    "@egjs/axes": "^2.3.0",
+    "@egjs/axes": "^2.3.1",
     "@egjs/component": "^2.0.0",
     "es6-promise": "^4.1.1",
     "webvr-polyfill": "^0.9.16"
