@@ -70,11 +70,6 @@ export default class PanoViewer extends Component {
 		this._fov = options.fov || 65;
 		this._aspectRatio = this._width / this._height;
 		const fovRange = options.fovRange || [30, 110];
-		const fovAngle = fovRange[1] - fovRange[0];
-
-		if (fovAngle < this._fov) {
-			this._fov = fovAngle;
-		}
 
 		const yawPitchConfig = Object.assign(options, {
 			element: container,

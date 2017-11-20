@@ -3644,11 +3644,6 @@ var PanoViewer = function (_Component) {
 		_this._fov = options.fov || 65;
 		_this._aspectRatio = _this._width / _this._height;
 		var fovRange = options.fovRange || [30, 110];
-		var fovAngle = fovRange[1] - fovRange[0];
-
-		if (fovAngle < _this._fov) {
-			_this._fov = fovAngle;
-		}
 
 		var yawPitchConfig = Object.assign(options, {
 			element: container,
@@ -4784,9 +4779,8 @@ var PanoImageRenderer = function (_Component) {
 		}
 
 		this._imageType = imageType;
-		this._isCubeStrip = imageType === ImageType.VERTICAL_CUBESTRIP || imageType === ImageType.CUBEMAP;
+		this._isCubeStrip = imageType === ImageType.VERTICAL_CUBESTRIP;
 		this._renderer = this._isCubeStrip ? _CubeRenderer2["default"] : _SphereRenderer2["default"];
-
 		this._initWebGL();
 	};
 

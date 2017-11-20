@@ -54,7 +54,7 @@ describe("YawPitchControl", function() {
 				expect(appliedOption.yaw).to.equal(0);
 				expect(appliedOption.pitch).to.equal(0);
 				expect(appliedOption.fov).to.equal(65);
-				expect(appliedOption.showPole).to.equal(false);
+				expect(appliedOption.showPolePoint).to.equal(false);
 				expect(appliedOption.useZoom).to.equal(true);
 				expect(appliedOption.useKeyboard).to.equal(true);
 				expect(appliedOption.touchDirection).to.equal(TOUCH_DIRECTION_ALL);
@@ -407,20 +407,26 @@ describe("YawPitchControl", function() {
 
 			it("should set pitch in default pitch range.", (done) => {
 				// Given
-				const pitches = [-180, -120, 30, 90, 360];
-				const expected = [-90, 30, 90];
+				const pitches = [-180, 60, 180];
+				const expected = [-90, 60, 90];
 				let results = [];
 
 				// When
-				this.inst.option("showPole", true);
+				this.inst.option("showPolePoint", true);
 				this.inst.on("change", then);
+
+				console.log(pitches);
+
 				pitches.forEach((pitch) => {
+					console.log("before", this.inst.getPitch(), pitch);
 					this.inst.lookAt({
 						pitch: pitch
 					}, 0);
+					console.log("after", this.inst.getPitch(), pitch);
 				});
 
 				function then(e) {
+					console.log("then", e.pitch);
 					results.push(e.pitch);
 					if (results.length < expected.length) {
 						return;
@@ -442,7 +448,7 @@ describe("YawPitchControl", function() {
 				let results = [];
 
 				this.inst.on("change", then);
-				this.inst.option("showPole", true);
+				this.inst.option("showPolePoint", true);
 				this.inst.option("pitchRange", [-90, 90]);
 				const expected = [-50, -70, -90];
 
