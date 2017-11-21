@@ -97,6 +97,13 @@
 	</div>
 </script>
 <script>
+
+function() {
+if (!eg.view360.PanoViewer.isWebGLAvailable()) {
+  alert("이 브라우저는 webgl 을 지원하지 않습니다. 따라서 PanoViewer 가 동작할 수 없습니다.");
+  return;
+}
+
 var viewerFixture = '';
 
 for(var i =0; i< 30; i++) {
@@ -215,6 +222,8 @@ window.addEventListener("rotate", function() {
 	visible.option("expandSize", getExpandSize());
 	visible.check();
 });
+
+}();
 
 </script>
 </body>
