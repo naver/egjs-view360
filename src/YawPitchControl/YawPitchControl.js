@@ -114,7 +114,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 			change: evt => {
 				if (evt.delta.fov !== 0) {
 					this._setPanScale(evt.pos.fov);
-					this._updateControlScale();
+					this._updateControlScale(evt);
 				}
 				this._triggerChange();
 			},
@@ -224,7 +224,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 			if (prevFov !== nextFov) {
 				this.axes.setTo({
 					fov: nextFov
-				});
+				}, 0);
 				this._updateControlScale();
 			}
 		}
@@ -287,7 +287,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 	 *
 	 * If one of above is changed, call this function
 	 */
-	_updateControlScale() {
+	_updateControlScale(changeEvt) {
 		const opt = this.options;
 		const fov = this.axes.get().fov;
 
@@ -318,10 +318,17 @@ const YawPitchControl = class YawPitchControl extends Component {
 			p = pRange[1];
 		}
 
+		if (changeEvt) {
+			changeEvt.set({
+				yaw: y,
+				pitch: p,
+			});
+		}
+
 		this.axes.setTo({
 			yaw: y,
 			pitch: p,
-		});
+		}, 0);
 
 		return this;
 	}
@@ -469,7 +476,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 			yaw: opt.yaw,
 			pitch: opt.pitch,
 			fov: opt.fov,
-		});
+		}, 0);
 
 		return this;
 	}

@@ -241,12 +241,6 @@ describe("YawPitchControl", function() {
 	});
 
 	describe("YawPitch Angle Test", function() {
-		// tilt (tilt) 각도의 범위 내에서 움직여야 한다.
-
-		// 두 각도 범위 내에서 움직여야 한다.
-		// 옵션 값의 범위가 있는 경우 설정 (최대/최소를 넘어가는 경우 어떻게 설정되는가?)
-
-		// pan (horizontal) 각도의 범위 내에서 움직여야 한다.
 		describe("Yaw Range Test", function() {
 			let results = [];
 			beforeEach(() => {
@@ -389,7 +383,6 @@ describe("YawPitchControl", function() {
 			// });
 		});
 
-		// 옵션 값의 범위가 있는 경우 설정 (최대/최소를 넘어가는 경우 어떻게 설정되는가?)
 		describe("Pitch Range Test", function() {
 			beforeEach(() => {
 				this.target = sandbox();
@@ -589,6 +582,7 @@ describe("YawPitchControl", function() {
 				}
 			});
 		});
+
 	});
 
 	describe("FOV Test", function() {
@@ -777,7 +771,7 @@ describe("YawPitchControl", function() {
 				// When
 				// It is valid when showPolePoint is false or isPanorama
 				inst.option("showPole", false);
-				inst.lookAt({pitch: firstPitch});//57.5 is current pitchMax
+				inst.lookAt({pitch: firstPitch});// 57.5 is current pitchMax
 
 				// This makes pitchMax to be updated to value which is below current pitch(57.5)
 				inst.on("change", changed);
@@ -1118,6 +1112,120 @@ describe("YawPitchControl", function() {
 				});
 			});
 
+		});
+	});
+
+	describe("Pitch adjustment", function() {
+		let targetEl;
+		beforeEach(() => {
+			targetEl = sandbox();
+			targetEl.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+			// this.inst = new YawPitchControl({
+			// 	element: target
+			// });
+		});
+
+		afterEach(() => {
+			this.inst && this.inst.destroy();
+			targetEl && targetEl.remove();
+			targetEl = null;
+		});
+
+		it("zoomming when showPolePoint is false, should adjust pitch", (done) => {
+			// Given
+			this.inst = new YawPitchControl({
+				element: targetEl,
+				pitch: -75,
+				fov: 30,
+				showPolePoint: false
+			});
+			// When
+			TestHelper.wheelVertical(targetEl , 100, () => {
+				// then
+				let pitch = this.inst.getPitch();
+				expect(this.inst.getPitch()).to.equal(-73);	
+				done();	
+			});
+		});
+
+		// it.only("zoomming when showPolePoint is false and after user input, should adjust pitch", (done) => {
+		// 	// Given
+		// 	this.inst = new YawPitchControl({
+		// 		element: targetEl,
+		// 		pitch: 0,
+		// 		fov: 30,
+		// 		showPolePoint: false
+		// 	});
+		// 	targetEl.focus();
+
+		// 	function getDownPromises(count, duration) {
+		// 		return Array.apply(null, {length: count})
+		// 		.map(Number.call, Number)
+		// 		.map(idx => idx * duration / count)
+		// 		.map(delay => new Promise(function(res, rej) {
+		// 			setTimeout(function() {
+		// 				Promise.all([
+		// 					new Promise(res => {
+		// 						TestHelper.keyDown(targetEl, KEYMAP.DOWN_ARROW, () => {
+		// 							console.log("keyDown");
+		// 							res();
+		// 						});
+		// 					}),
+		// 					new Promise(res => {
+		// 						TestHelper.keyUp(targetEl, KEYMAP.DOWN_ARROW, () => {
+		// 							console.log("keyUp");
+		// 							res();
+		// 						});
+		// 					})
+		// 				]).then(() => {
+		// 					res();							
+		// 				});
+		// 			}, delay);
+		// 		}));
+		// 	}
+		
+		// 	// When
+		// 	Promise.all(getDownPromises(3, 100)).then(() => {
+		// 		console.log(this.inst.getPitch());
+		// 	});
+		// 	// TestHelper.wheelVertical(targetEl , 100, () => {
+		// 	// 	// then
+		// 	// 	let pitch = this.inst.getPitch();
+		// 	// 	expect(this.inst.getPitch()).to.equal(-73);	
+		// 	// 	done();	
+		// 	// });
+		// });
+
+		it("zoomming when showPolePoint is false, should adjust pitch smoothly", (done) => {
+			// Given
+			this.inst = new YawPitchControl({
+				element: targetEl,
+				pitch: -100,
+				fov: 30,
+				showPolePoint: false
+			});
+			
+			function getWheelPromises(count, duration) {
+				return Array.apply(null, {length: count})
+				.map(Number.call, Number)
+				.map(idx => idx * duration / count)
+				.map(delay => new Promise(function(res, rej) {
+					setTimeout(function() {
+						TestHelper.wheelVertical(targetEl , 100, () => {
+							res();
+						});
+					}, delay);
+				}));
+			}
+
+			// When
+			const wheelP = getWheelPromises(20, 1000);
+			
+			Promise.all(wheelP).then(() => {
+				// then
+				expect(this.inst.getPitch()).to.be.equal(-35);	
+				done();			
+			});
 		});
 	});
 

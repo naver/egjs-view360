@@ -2872,7 +2872,7 @@ module.exports = Util;
  * @egjs/axes JavaScript library
  * https://github.com/naver/egjs-axes
  * 
- * @version 2.3.1
+ * @version 2.3.0
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(true)
@@ -4176,10 +4176,10 @@ var EventManager = /** @class */ (function () {
             inputEvent: inputEvent,
             isTrusted: !!inputEvent,
             input: option && option.input || eventInfo && eventInfo.input || null,
-            set: inputEvent ? this.createUserControll(moveTo.pos) : function () { }
+            set: event ? this.createUserControll(moveTo.pos) : function () { }
         };
         this.axes.trigger("change", param);
-        inputEvent && this.am.axm.set(param.set()["destPos"]);
+        event && this.am.axm.set(param.set()["destPos"]);
     };
     /**
      * This event is fired when animation starts.
@@ -10557,7 +10557,7 @@ var YawPitchControl = function (_Component) {
 			change: function change(evt) {
 				if (evt.delta.fov !== 0) {
 					_this2._setPanScale(evt.pos.fov);
-					_this2._updateControlScale();
+					_this2._updateControlScale(evt);
 				}
 				_this2._triggerChange();
 			},
@@ -10672,7 +10672,7 @@ var YawPitchControl = function (_Component) {
 			if (prevFov !== nextFov) {
 				this.axes.setTo({
 					fov: nextFov
-				});
+				}, 0);
 				this._updateControlScale();
 			}
 		}
@@ -10741,7 +10741,7 @@ var YawPitchControl = function (_Component) {
   */
 
 
-	YawPitchControl.prototype._updateControlScale = function _updateControlScale() {
+	YawPitchControl.prototype._updateControlScale = function _updateControlScale(changeEvt) {
 		var opt = this.options;
 		var fov = this.axes.get().fov;
 
@@ -10772,10 +10772,17 @@ var YawPitchControl = function (_Component) {
 			p = pRange[1];
 		}
 
+		if (changeEvt) {
+			changeEvt.set({
+				yaw: y,
+				pitch: p
+			});
+		}
+
 		this.axes.setTo({
 			yaw: y,
 			pitch: p
-		});
+		}, 0);
 
 		return this;
 	};
@@ -10929,7 +10936,7 @@ var YawPitchControl = function (_Component) {
 			yaw: opt.yaw,
 			pitch: opt.pitch,
 			fov: opt.fov
-		});
+		}, 0);
 
 		return this;
 	};

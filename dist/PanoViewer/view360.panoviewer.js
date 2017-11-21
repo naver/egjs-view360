@@ -5149,7 +5149,7 @@ var YawPitchControl = function (_Component) {
 			change: function change(evt) {
 				if (evt.delta.fov !== 0) {
 					_this2._setPanScale(evt.pos.fov);
-					_this2._updateControlScale();
+					_this2._updateControlScale(evt);
 				}
 				_this2._triggerChange();
 			},
@@ -5264,7 +5264,7 @@ var YawPitchControl = function (_Component) {
 			if (prevFov !== nextFov) {
 				this.axes.setTo({
 					fov: nextFov
-				});
+				}, 0);
 				this._updateControlScale();
 			}
 		}
@@ -5333,7 +5333,7 @@ var YawPitchControl = function (_Component) {
   */
 
 
-	YawPitchControl.prototype._updateControlScale = function _updateControlScale() {
+	YawPitchControl.prototype._updateControlScale = function _updateControlScale(changeEvt) {
 		var opt = this.options;
 		var fov = this.axes.get().fov;
 
@@ -5364,10 +5364,17 @@ var YawPitchControl = function (_Component) {
 			p = pRange[1];
 		}
 
+		if (changeEvt) {
+			changeEvt.set({
+				yaw: y,
+				pitch: p
+			});
+		}
+
 		this.axes.setTo({
 			yaw: y,
 			pitch: p
-		});
+		}, 0);
 
 		return this;
 	};
@@ -5521,7 +5528,7 @@ var YawPitchControl = function (_Component) {
 			yaw: opt.yaw,
 			pitch: opt.pitch,
 			fov: opt.fov
-		});
+		}, 0);
 
 		return this;
 	};

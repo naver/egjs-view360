@@ -3,11 +3,6 @@ export default class TestHelper {
 		if (target instanceof Element === false) {
 			return;
 		}
-
-		if (target.dispatchEvent) {
-			return;
-		}
-
 		const params = {deltaY: value};
 		let wheelEvent;
 
