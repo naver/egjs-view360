@@ -489,7 +489,11 @@ module.exports = exports["default"];
  * @egjs/axes JavaScript library
  * https://github.com/naver/egjs-axes
  * 
+<<<<<<< HEAD
  * @version 2.3.1
+=======
+ * @version 2.3.2
+>>>>>>> a5bdd6f... chore(all): update dist files.
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(true)
@@ -1472,7 +1476,7 @@ var AnimationManager = /** @class */ (function () {
             this._animateParam = null;
             this._raf && utils_1.cancelAnimationFrame(this._raf);
             this._raf = null;
-            this.em.triggerAnimationEnd(!!event);
+            this.em.triggerAnimationEnd(!!(option && option.event));
         }
     };
     AnimationManager.prototype.getEventInfo = function () {
