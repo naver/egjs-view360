@@ -489,7 +489,7 @@ module.exports = exports["default"];
  * @egjs/axes JavaScript library
  * https://github.com/naver/egjs-axes
  * 
- * @version 2.3.0
+ * @version 2.3.1
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(true)
@@ -1793,10 +1793,10 @@ var EventManager = /** @class */ (function () {
             inputEvent: inputEvent,
             isTrusted: !!inputEvent,
             input: option && option.input || eventInfo && eventInfo.input || null,
-            set: event ? this.createUserControll(moveTo.pos) : function () { }
+            set: inputEvent ? this.createUserControll(moveTo.pos) : function () { }
         };
         this.axes.trigger("change", param);
-        event && this.am.axm.set(param.set()["destPos"]);
+        inputEvent && this.am.axm.set(param.set()["destPos"]);
     };
     /**
      * This event is fired when animation starts.
