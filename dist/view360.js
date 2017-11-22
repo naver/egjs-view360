@@ -3709,8 +3709,6 @@ var PanoViewer = function (_Component) {
 
 
 	PanoViewer.prototype.setImage = function setImage(_ref) {
-		var _this2 = this;
-
 		var image = _ref.image,
 		    imageType = _ref.imageType;
 
@@ -3718,28 +3716,30 @@ var PanoViewer = function (_Component) {
 			this._image = image;
 		}
 
-		if (imageType && this._imageType !== imageType) {
-			this._imageType = imageType;
+		// if (imageType && this._imageType !== imageType) {
+		// 	this._imageType = imageType;
 
-			if (this._isResumed) {
-				this._stopRender();
-			}
-		}
+		// 	this.suspend();
+		// 	this.resume();
+		// } else if (this._photoSphereRenderer) {
+		// 	this._photoSphereRenderer
+		// 		.setImage({image: this._image, imageType: this._imageType})
+		// 		.then(isSuccess => {
+		// 			if (!isSuccess || !this._isResumed) {
+		// 				return;
+		// 			}
 
-		if (!this._photoSphereRenderer) {
-			return;
-		}
-
-		this._photoSphereRenderer.setImage({ image: this._image, imageType: this._imageType }).then(function (isSuccess) {
-			if (!isSuccess || !_this2._isResumed) {
-				return;
-			}
-
-			// if it was resume status, render new image.
-			_this2._photoSphereRenderer.bindTexture().then(function () {
-				_this2._startRender();
-			});
-		});
+		// 			// if it was resume status, render new image.
+		// 			this._photoSphereRenderer
+		// 				.bindTexture()
+		// 				.then(() => {
+		// 					this._startRender();
+		// 				});
+		// 		});
+		// }
+		this._imageType = imageType;
+		this.suspend();
+		this.resume();
 	};
 
 	PanoViewer.prototype._initRenderer = function _initRenderer(yaw, pitch, fov, imageType) {
@@ -3757,34 +3757,34 @@ var PanoViewer = function (_Component) {
 	};
 
 	PanoViewer.prototype._bindRendererHandler = function _bindRendererHandler() {
-		var _this3 = this;
+		var _this2 = this;
 
 		this._photoSphereRenderer.on(_PanoImageRenderer.PanoImageRenderer.EVENTS.ERROR, function (e) {
-			_this3.trigger(_consts.EVENTS.ERROR, e);
+			_this2.trigger(_consts.EVENTS.ERROR, e);
 		});
 
 		this._photoSphereRenderer.on(_PanoImageRenderer.PanoImageRenderer.EVENTS.RENDERING_CONTEXT_LOST, function (e) {
-			_this3.suspend();
+			_this2.suspend();
 		});
 
 		this._photoSphereRenderer.on(_PanoImageRenderer.PanoImageRenderer.EVENTS.RENDERING_CONTEXT_RESTORE, function (e) {
-			_this3.resume();
+			_this2.resume();
 		});
 	};
 
 	PanoViewer.prototype._initYawPitchControl = function _initYawPitchControl() {
-		var _this4 = this;
+		var _this3 = this;
 
 		this._yawPitchControl.on(_consts.EVENTS.ANIMATION_END, function (e) {
-			_this4._triggerEvent(_consts.EVENTS.ANIMATION_END, e);
+			_this3._triggerEvent(_consts.EVENTS.ANIMATION_END, e);
 		});
 
 		this._yawPitchControl.on("change", function (e) {
-			_this4._yaw = e.yaw;
-			_this4._pitch = e.pitch;
-			_this4._fov = e.fov;
+			_this3._yaw = e.yaw;
+			_this3._pitch = e.pitch;
+			_this3._fov = e.fov;
 
-			_this4._triggerEvent(_consts.EVENTS.VIEW_CHANGE, e);
+			_this3._triggerEvent(_consts.EVENTS.VIEW_CHANGE, e);
 		});
 	};
 
@@ -4091,7 +4091,7 @@ var PanoViewer = function (_Component) {
 
 
 	PanoViewer.prototype.resume = function resume() {
-		var _this5 = this;
+		var _this4 = this;
 
 		if (this._isResumed || !this._yawPitchControl) {
 			return;
@@ -4103,14 +4103,14 @@ var PanoViewer = function (_Component) {
 
 		// do setTimeout for not blocking UI when resume is called in syncrounos code.
 		setTimeout(function () {
-			if (_this5._isResumed || !_this5._photoSphereRenderer) {
+			if (_this4._isResumed || !_this4._photoSphereRenderer) {
 				return;
 			}
 
-			_this5._photoSphereRenderer.bindTexture().then(function () {
-				return _this5._resume();
+			_this4._photoSphereRenderer.bindTexture().then(function () {
+				return _this4._resume();
 			})["catch"](function () {
-				_this5._triggerEvent(_consts.EVENTS.ERROR, {
+				_this4._triggerEvent(_consts.EVENTS.ERROR, {
 					type: _consts.ERROR_TYPE.FAIL_BIND_TEXTURE,
 					message: "failed to bind texture"
 				});
