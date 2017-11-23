@@ -99,7 +99,7 @@
 <script>
 
 (function() {
-if (!eg.view360.PanoViewer.isWebGLAvailable()) {
+if (!eg.view360.PanoViewer.isStableWebGL() || !eg.view360.PanoViewer.isStableWebGL()) {
   alert("이 브라우저는 webgl 을 지원하지 않습니다. 따라서 PanoViewer 가 동작할 수 없습니다.");
   return;
 }

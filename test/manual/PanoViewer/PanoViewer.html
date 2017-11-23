@@ -84,7 +84,7 @@ var optionChanged = false;
 var object = {
 };
 
-if (!eg.view360.PanoViewer.isWebGLAvailable()) {
+if (!eg.view360.PanoViewer.isWebGLAvailable() || !eg.view360.PanoViewer.isStableWebGL()) {
   alert("이 브라우저는 webgl 을 지원하지 않습니다. 따라서 PanoViewer 가 동작할 수 없습니다.");
   return;
 }
@@ -176,7 +176,7 @@ var parsed_qs = parse_query_string(location.search.replace("?", ""));
 
 var INITIAL_PRESET = parsed_qs.preset || "360_cube";
 
-for (let i in presets[INITIAL_PRESET]) {
+for (var i in presets[INITIAL_PRESET]) {
   object[i] = presets[INITIAL_PRESET][i];
 }
 
