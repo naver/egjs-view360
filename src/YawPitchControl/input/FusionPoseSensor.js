@@ -1,11 +1,11 @@
 import Component from "@egjs/component";
-import ComplementaryFilter from "webvr-polyfill/src/sensor-fusion/complementary-filter";
 import PosePredictor from "webvr-polyfill/src/sensor-fusion/pose-predictor";
 import MathUtil from "webvr-polyfill/src/math-util";
 import Util from "webvr-polyfill/src/util";
 import {window} from "../browser";
 import {quat} from "../../utils/math-util";
 import DeviceMotion from "./DeviceMotion";
+import ComplementaryFilter from "./ComplementaryFilter";
 
 const K_FILTER = 0.98;
 const PREDICTION_TIME_S = 0.040;
@@ -82,6 +82,11 @@ export default class FusionPoseSensor extends Component {
 	_triggerChange() {
 		const orientation = this.getOrientation();
 
+		// if orientation is not prepared. don't trigger change event
+		if (!orientation) {
+			return;
+		}
+
 		if (!this._prevOrientation) {
 			this._prevOrientation = orientation;
 			return;
@@ -97,6 +102,10 @@ export default class FusionPoseSensor extends Component {
 		// Convert from filter space to the the same system used by the
 		// deviceorientation event.
 		const orientation = this.filter.getOrientation();
+
+		if (!orientation) {
+			return null;
+		}
 
 		// Predict orientation.
 		let out = this._convertFusionToPredicted(orientation);

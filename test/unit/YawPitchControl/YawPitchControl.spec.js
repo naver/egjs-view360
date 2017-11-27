@@ -408,18 +408,13 @@ describe("YawPitchControl", function() {
 				this.inst.option("showPolePoint", true);
 				this.inst.on("change", then);
 
-				console.log(pitches);
-
 				pitches.forEach((pitch) => {
-					console.log("before", this.inst.getPitch(), pitch);
 					this.inst.lookAt({
 						pitch: pitch
 					}, 0);
-					console.log("after", this.inst.getPitch(), pitch);
 				});
 
 				function then(e) {
-					console.log("then", e.pitch);
 					results.push(e.pitch);
 					if (results.length < expected.length) {
 						return;
