@@ -1,5 +1,5 @@
 // YawPitch 에서 현재 좌표의 위치와, 이동가능한 영역의 범위를 시각화 해서 보여준다.
-// Yaw Pitch 
+// Yaw Pitch
 // Fov 영억과 값도 시각화
 // 특정 위치를 클릭하면 그 영역으로 lookAt 을 이용해 이동하도록 한다.
 (function(global) {
@@ -34,14 +34,13 @@
 	};
 
 	GridView.prototype._renderGrid = function(yawRange, pitchRange) {
+		var i;
 		const ctx = this.ctx;
 		const canvas = this.canvas;
 
 		// 파란 그리드
 		ctx.beginPath();
 		ctx.lineWidth = 0.25;
-
-		let i;
 
 		for (i = 0; i < 600; i += 10) {
 			ctx.moveTo(0, i);
