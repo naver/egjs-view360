@@ -121,7 +121,7 @@ var photo360NodeList = document.querySelectorAll(".photo360");
 var photo360ViewerMap = {};
 
 function getExpandSize() {
-	return -100;
+	return -window.innerHeight / 2;
 }
 
 var visible = new eg.Visible(document,{
