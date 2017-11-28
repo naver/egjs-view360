@@ -15,6 +15,7 @@ module.exports = function(config) {
     ],
 
 		proxies: {
+      "/images/": "/base/test/manual/img/"
 		},
 
     client: {
