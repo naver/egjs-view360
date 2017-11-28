@@ -5,7 +5,7 @@
  * @egjs/view360 JavaScript library
  * 
  * 
- * @version 2.0.1-rc
+ * @version 2.0.1
  * 
  * All-in-one packaged file for ease use of '@egjs/view360' with below dependencies.
  * NOTE: This is not an official distribution file and is only for user convenience.
@@ -2872,11 +2872,7 @@ return Promise$2;
  * @egjs/axes JavaScript library
  * https://github.com/naver/egjs-axes
  * 
-<<<<<<< HEAD
- * @version 2.3.1
-=======
  * @version 2.3.2
->>>>>>> a5bdd6f... chore(all): update dist files.
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(true)
@@ -3716,7 +3712,7 @@ var Axes = /** @class */ (function (_super) {
         this.disconnect();
         this.em.destroy();
     };
-    Axes.VERSION = "2.0.1-rc";
+    Axes.VERSION = "2.0.1";
     Axes.PanInput = PanInput_1.PanInput;
     Axes.PinchInput = PinchInput_1.PinchInput;
     Axes.WheelInput = WheelInput_1.WheelInput;
@@ -11004,7 +11000,7 @@ var YawPitchControl = function (_Component) {
 	return YawPitchControl;
 }(_component2["default"]);
 
-YawPitchControl.VERSION = "2.0.1-rc";
+YawPitchControl.VERSION = "2.0.1";
 exports["default"] = YawPitchControl;
 
 /***/ }),
