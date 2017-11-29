@@ -295,7 +295,7 @@ describe("YawPitchControl", function() {
 			it("should set value as corrected in default range when values are out of ranges", (done) => {
 				// Given
 				const abnormals = [-181, 90, 260];
-				const expected = [-180, 90, 180]; // Is MovableCoord Bug??
+				const expected = [179, 90, -100];
 				let results = [];
 
 				this.inst.on("change", then);
