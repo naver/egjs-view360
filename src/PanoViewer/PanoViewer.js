@@ -58,11 +58,11 @@ export default class PanoViewer extends Component {
 			return this;
 		}
 
-		if (!!options.image === !!options.video) {
+		if (!!options.image && !!options.video) {
 			setTimeout(() => {
 				this.trigger(EVENTS.ERROR, {
 					type: ERROR_TYPE.INVALID_RESOURCE,
-					message: "Only one resource property (video or image) MUST be used."
+					message: "Specifying multi resouces(both image and video) is not valid."
 				});
 			}, 0);
 			return this;
@@ -124,67 +124,83 @@ export default class PanoViewer extends Component {
 	 */
 
 	/**
-		* Getting the video information that the viewer is currently using.
-		* @ko 뷰어가 현재 사용 중인 비디오 정보를 얻습니다.
+		* Getting the video element that the viewer is currently playing. You can use this for playback.
+		* @ko 뷰어가 현재 사용 중인 비디오 요소를 얻습니다. 이 요소를 이용해 비디오의 컨트롤을 할 수 있습니다.
 		* @method eg.view360.PanoViewer#getVideo
-		* @return {VideoInfo}
+		* @return {HTMLVideoElement} HTMLVideoElement<ko>HTMLVideoElement</ko>
 		*/
 	getVideo() {
-		if (!this._isVideo) {
+		if (!this._isVideo || !this._photoSphereRenderer.isImageLoaded()) {
 			return null;
 		}
 
-		return {
-			video: this._image,
-			type: this._imageType
-		};
+		return this._photoSphereRenderer.getContent();
 	}
 
 	/**
 	 * Setting the video information to be used by the viewer.
 	 * @ko 뷰어가 사용할 이미지 정보를 설정 합니다.
 	 * @method eg.view360.PanoViewer#setVideo
-	 * @param {VideoInfo} videoInfo Input image information  <ko>입력 비디오 정보</ko>
+	 * @param {String|HTMLVideoElement} video Video URL or Video Tag<ko>비디오 URL 혹은 비디오 태그</ko>
+	 * @param {Object} param
+	 * @param {String} [param.projectionType="equirectangular"] Projection Type<ko>프로젝션 타입</ko>
+	 *
+	 * @return {PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
 	 */
-	setVideo({video, type}) {
+	setVideo(video, param = {projectionType: PanoImageRenderer.ImageType.EQUIRECTANGULAR}) {
 		if (!video) {
-			return;
+			return this;
 		}
 
-		this.setImage({image: video, imageType: type, isVideo: true});
+		this.setImage(video, {imageType: param.projectionType, isVideo: true});
+		return this;
 	}
 
 	/**
 	 * Getting the image information that the viewer is currently using.
 	 * @ko 뷰어가 현재 사용하고있는 이미지 정보를 얻습니다.
 	 * @method eg.view360.PanoViewer#getImage
-	 * @return {ImageInfo}
+	 * @return {Image} Image Object<ko>이미지 객체</ko>
 	 */
 	getImage() {
-		if (this._isVideo) {
+		if (this._isVideo || !this._photoSphereRenderer.isImageLoaded()) {
 			return null;
 		}
 
-		return {
-			image: this._image,
-			imageType: this._imageType
-		};
+		return this._photoSphereRenderer.getContent();
 	}
 
 	/**
 	 * Setting the image information to be used by the viewer.
 	 * @ko 뷰어가 사용할 이미지 정보를 설정 합니다.
 	 * @method eg.view360.PanoViewer#setImage
-	 * @param {ImageInfo} imageInfo Input image information  <ko>입력 이미지 정보</ko>
+	 * @param {String|Image} image ImageURL or Image Object<ko>이미지 URL 혹은 Image 객체</ko>
+	 * @param {Object} param Additional information<ko>이미지 추가 정보</ko>
+	 * @param {String} [param.projectionType="equirectangular"] Projection Type<ko>프로젝션 타입</ko>
+	 *
+	 * @return {PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
 	 */
-	setImage({image, imageType, isVideo = false}) {
+	setImage(image, param = {
+		projectionType: PanoImageRenderer.ImageType.EQUIRECTANGULAR,
+		isVideo: false
+	}) {
+		const projectionType = param.projectionType || PanoImageRenderer.ImageType.EQUIRECTANGULAR;
+		const isVideo = param.isVideo || false;
+
+		if (this._image && isVideo !== this._isVideo) {
+			console.warn("Not support changing content type(Image <--> Video)");
+			return this;
+		}
+
 		if (!image) {
-			return;
+			return this;
 		}
 
 		this._image = image;
-		if (imageType && this._imageType !== imageType) {
-			this._imageType = imageType;
+		this._isVideo = isVideo;
+
+		if (projectionType && projectionType !== this._imageType) {
+			this._imageType = projectionType;
 
 			if (this._isResumed) {
 				this._stopRender();
@@ -192,11 +208,11 @@ export default class PanoViewer extends Component {
 		}
 
 		if (!this._photoSphereRenderer) {
-			return;
+			return this;
 		}
 
 		this._photoSphereRenderer
-			.setImage({image: this._image, imageType: this._imageType, isVideo})
+			.setImage({image: this._image, imageType: projectionType, isVideo: param.isVideo})
 			.then(isSuccess => {
 				if (!isSuccess || !this._isResumed) {
 					return;
@@ -207,6 +223,18 @@ export default class PanoViewer extends Component {
 					.bindTexture()
 					.then(() => this._startRender());
 			});
+
+		return this;
+	}
+
+	/**
+	 * Get projection type (equirectangular/cube)
+	 * @ko 프로젝션 타입(Equirectangular 혹은 Cube)을 반환한다.
+	 *
+	 * @method eg.view360.PanoViewer#getProjectionType
+	 */
+	getProjectionType() {
+		return this._imageType;
 	}
 
 	_initRenderer(yaw, pitch, fov, imageType) {
@@ -230,6 +258,10 @@ export default class PanoViewer extends Component {
 	}
 
 	_bindRendererHandler() {
+		this._photoSphereRenderer.on(PanoImageRenderer.EVENTS.IMAGE_LOADED, e => {
+			this.trigger(EVENTS.CONTENT_LOADED, e);
+		});
+
 		this._photoSphereRenderer.on(PanoImageRenderer.EVENTS.ERROR, e => {
 			this.trigger(EVENTS.ERROR, e);
 		});
@@ -347,6 +379,18 @@ export default class PanoViewer extends Component {
 		 *		// animation is ended.
 		 * });
 		 */
+
+		/**
+			* Events that is fired when content(Video/Image) is loaded
+			* @ko 컨텐츠(비디오 혹은 이미지)가 로드되었을때 발생되는 이벤트
+			*
+			* @name eg.view360.PanoViewer#contentLoaded
+			* @event
+			* @param {Object} event
+			* @param {HTMLVideoElement|Image} event.content
+			* @param {Boolean} event.isVideo
+			* @param {String} event.projectionType
+			*/
 		return this.trigger(name, evt);
 	}
 

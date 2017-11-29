@@ -12,7 +12,8 @@ const EVENTS = {
 	VIEW_CHANGE: "viewChange",
 	ANIMATION_END: "animationEnd",
 	ERROR: "error",
-	INIT: "init"
+	INIT: "init",
+	CONTENT_LOADED: "contentLoaded"
 };
 
 module.exports = {

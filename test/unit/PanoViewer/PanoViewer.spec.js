@@ -22,14 +22,15 @@ describe("PanoViewer", function() {
 			panoViewer = null;
 		});
 
-		It("should use one resource (image or video) property #1 (no proerpty used)", function(done) {
-			panoViewer = new PanoViewer(target);
-			panoViewer.on(EVENTS.ERROR, e => {
-				if (e.type === ERROR_TYPE.INVALID_RESOURCE) {
-					done();
-				}
-			});
-		});
+		/** No more valid test. because we will allow no image/video */
+		// It("should use one resource (image or video) property #1 (no proerpty used)", function(done) {
+		// 	panoViewer = new PanoViewer(target);
+		// 	panoViewer.on(EVENTS.ERROR, e => {
+		// 		if (e.type === ERROR_TYPE.INVALID_RESOURCE) {
+		// 			done();
+		// 		}
+		// 	});
+		// });
 
 		It("should use one resource (image or video) property #2 (both property used)", function(done) {
 			panoViewer = new PanoViewer(target, {
@@ -45,9 +46,122 @@ describe("PanoViewer", function() {
 
 		It("should recognize image is not video", function() {
 			panoViewer = new PanoViewer(target, {
-				image: "./images/test_qui.jpg"
+				image: "./images/test_equi.png"
 			});
 			expect(panoViewer.getVideo()).to.be.null;
+		});
+	});
+
+	describe("#setVideo/getVideo", function() {
+		let target;
+		let panoViewer;
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div"></div>`;
+		});
+
+		afterEach(() => {
+			if (!panoViewer) {
+				return;
+			}
+			panoViewer.destroy();
+			panoViewer = null;
+		});
+
+		It("should set video content", function(done) {
+			panoViewer = new PanoViewer(target);
+			panoViewer.setVideo("./images/PanoViewer/pano.webm");
+
+			panoViewer.on(PanoViewer.EVENTS.CONTENT_LOADED, e => {
+				const video = panoViewer.getVideo();
+				const projectionType = panoViewer.getProjectionType();
+
+				expect(video).to.not.be.null;
+				expect(projectionType).to.equal(PanoViewer.ImageType.EQUIRECTANGULAR);
+				done();
+			});
+		});
+
+		It("should not set different content type and should persist previous status", function(done) {
+			// Given
+			panoViewer = new PanoViewer(target, {
+				image: "./images/test_equi.png"
+			}).on(PanoViewer.EVENTS.CONTENT_LOADED, e => {
+				const image = panoViewer.getImage();
+
+				// When
+				panoViewer.setVideo("./images/PanoViewer/pano.webm");
+
+				// Then
+				expect(image).be.not.null;
+				expect(panoViewer.getVideo()).be.null; // not change to video
+				expect(panoViewer.getImage()).be.not.null; // persist previous status.
+				done();
+			});
+		});
+	});
+
+	describe("#setImage/getImage", function() {
+		let target;
+		let panoViewer;
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div"></div>`;
+		});
+
+		afterEach(() => {
+			if (!panoViewer) {
+				return;
+			}
+			panoViewer.destroy();
+			panoViewer = null;
+		});
+
+		It("should set image content", function(done) {
+			// Given
+			panoViewer = new PanoViewer(target);
+
+			panoViewer.on(PanoViewer.EVENTS.CONTENT_LOADED, e => {
+				// Then
+				const image = panoViewer.getImage();
+				const projectionType = panoViewer.getProjectionType();
+
+				expect(image).to.not.be.null;
+				expect(projectionType).to.equal(PanoViewer.ImageType.EQUIRECTANGULAR);
+				expect(e.content).to.equal(image);
+				expect(e.projectionType).to.equal(projectionType);
+				expect(e.isVideo).to.be.false;
+				done();
+			});
+
+			// When
+			panoViewer.setImage("./images/test_equi.png");
+		});
+
+		It("should replace image of other projection type", function(done) {
+			// Given
+			panoViewer = new PanoViewer(target, {
+				image: "./images/test_equi.png"
+			});
+
+			// first `onContentLoad` event is for image specified in constructor.
+			panoViewer.once(PanoViewer.EVENTS.CONTENT_LOADED, evt1 => {
+				const prevContentSrc = evt1.content.src;
+				const prevProjectionType = evt1.projectionType;
+
+				panoViewer.once(PanoViewer.EVENTS.CONTENT_LOADED, evt2 => {
+					// Then
+					expect(evt2.content.src).to.not.equal(prevContentSrc);
+					expect(evt2.projectionType).to.not.equal(prevProjectionType);
+					done();
+				});
+
+				// When
+				// Change image of other projection type.
+				panoViewer.setImage("./images/glasscity_cube_1024.jpg", {projectionType: PanoViewer.ImageType.VERTICAL_CUBESTRIP});
+			});
 		});
 	});
 
