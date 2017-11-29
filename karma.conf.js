@@ -44,14 +44,19 @@ module.exports = function(config) {
     },
 
     browsers: [],
-
+    customLaunchers: {
+      CustomChromeHeadless: {
+        base: 'Chrome',
+        flags: ['--headless', '--remote-debugging-port=9222']
+      }
+    },
     reporters: ["mocha"],
     webpackMiddleware: {
         noInfo: true
     }
   };
 
-  karmaConfig.browsers.push(config.chrome ? "Chrome" : "ChromeHeadless");
+  karmaConfig.browsers.push(config.chrome ? "Chrome" : "CustomChromeHeadless");
 
   if(config.coverage) {
     karmaConfig.reporters.push("coverage-istanbul");
