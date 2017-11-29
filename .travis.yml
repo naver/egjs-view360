@@ -21,7 +21,7 @@ before_script:
     - export DISPLAY=:99.0; sh -e /etc/init.d/xvfb start
     - npm run lint
 script:
-  - npm run test:chrome
+  - npm run test
   - npm run coverage
 after_success:
   - npm run coveralls
