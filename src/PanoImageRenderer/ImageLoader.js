@@ -74,7 +74,13 @@ export default class ImageLoader {
 	}
 
 	destroy() {
+		/**
+		 * Init event handlers
+		 */
+		this._image.onload = null;
+		this._image.onerror = null;
 		this._image.src = "";
 		this._image = null;
+		this._loadStatus = STATUS.NONE;
 	}
 }
