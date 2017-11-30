@@ -47,11 +47,11 @@ module.exports = function(config) {
     customLaunchers: {
       CustomChromeHeadlessWithGL: {
         base: 'Chrome',
-        flags: ['--headless', '--remote-debugging-port=9222']
+        flags: ['--headless', '--remote-debugging-port=9222', '--no-sandbox']
       },
       CustomChromeHeadless: {
         base: 'Chrome',
-        flags: ['--headless', '--disable-gpu', '--remote-debugging-port=9222']
+        flags: ['--headless', '--disable-gpu', '--remote-debugging-port=9222', '--no-sandbox']
       }
     },
     reporters: ["mocha"],
