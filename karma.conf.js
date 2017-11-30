@@ -47,7 +47,7 @@ module.exports = function(config) {
     customLaunchers: {
       CustomChromeHeadless: {
         base: 'Chrome',
-        flags: ['--headless', '--remote-debugging-port=9222', '--use-gl=osmesa']
+        flags: ['--headless', '--remote-debugging-port=9222']
       }
     },
     reporters: ["mocha"],
