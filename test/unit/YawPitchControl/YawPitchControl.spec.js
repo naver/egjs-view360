@@ -54,7 +54,7 @@ describe("YawPitchControl", function() {
 				expect(appliedOption.yaw).to.equal(0);
 				expect(appliedOption.pitch).to.equal(0);
 				expect(appliedOption.fov).to.equal(65);
-				expect(appliedOption.showPole).to.equal(false);
+				expect(appliedOption.showPolePoint).to.equal(false);
 				expect(appliedOption.useZoom).to.equal(true);
 				expect(appliedOption.useKeyboard).to.equal(true);
 				expect(appliedOption.touchDirection).to.equal(TOUCH_DIRECTION_ALL);
@@ -241,12 +241,6 @@ describe("YawPitchControl", function() {
 	});
 
 	describe("YawPitch Angle Test", function() {
-		// tilt (tilt) 각도의 범위 내에서 움직여야 한다.
-
-		// 두 각도 범위 내에서 움직여야 한다.
-		// 옵션 값의 범위가 있는 경우 설정 (최대/최소를 넘어가는 경우 어떻게 설정되는가?)
-
-		// pan (horizontal) 각도의 범위 내에서 움직여야 한다.
 		describe("Yaw Range Test", function() {
 			let results = [];
 			beforeEach(() => {
@@ -308,6 +302,7 @@ describe("YawPitchControl", function() {
 				});
 
 				// Then
+				// If requested angle is out of range then use circular value on circular mode.
 				function then(e) {
 					results.push(e.yaw);
 
@@ -388,7 +383,6 @@ describe("YawPitchControl", function() {
 			// });
 		});
 
-		// 옵션 값의 범위가 있는 경우 설정 (최대/최소를 넘어가는 경우 어떻게 설정되는가?)
 		describe("Pitch Range Test", function() {
 			beforeEach(() => {
 				this.target = sandbox();
@@ -406,13 +400,14 @@ describe("YawPitchControl", function() {
 
 			it("should set pitch in default pitch range.", (done) => {
 				// Given
-				const pitches = [-180, -120, 30, 90, 360];
-				const expected = [-90, 30, 90];
+				const pitches = [-180, 60, 180];
+				const expected = [-90, 60, 90];
 				let results = [];
 
 				// When
-				this.inst.option("showPole", true);
+				this.inst.option("showPolePoint", true);
 				this.inst.on("change", then);
+
 				pitches.forEach((pitch) => {
 					this.inst.lookAt({
 						pitch: pitch
@@ -441,7 +436,7 @@ describe("YawPitchControl", function() {
 				let results = [];
 
 				this.inst.on("change", then);
-				this.inst.option("showPole", true);
+				this.inst.option("showPolePoint", true);
 				this.inst.option("pitchRange", [-90, 90]);
 				const expected = [-50, -70, -90];
 
@@ -582,6 +577,7 @@ describe("YawPitchControl", function() {
 				}
 			});
 		});
+
 	});
 
 	describe("FOV Test", function() {
@@ -623,7 +619,7 @@ describe("YawPitchControl", function() {
 					results.push(inst.option("fovRange"));
 				});
 
-				// Then				
+				// Then
 				this.expectedValues.forEach((expectedVal, i) => {
 					expect(results[i]).to.be.eql(expectedVal);
 				});
@@ -770,7 +766,7 @@ describe("YawPitchControl", function() {
 				// When
 				// It is valid when showPolePoint is false or isPanorama
 				inst.option("showPole", false);
-				inst.lookAt({pitch: firstPitch});//57.5 is current pitchMax
+				inst.lookAt({pitch: firstPitch});// 57.5 is current pitchMax
 
 				// This makes pitchMax to be updated to value which is below current pitch(57.5)
 				inst.on("change", changed);
@@ -1114,6 +1110,120 @@ describe("YawPitchControl", function() {
 		});
 	});
 
+	describe("Pitch adjustment", function() {
+		let targetEl;
+		beforeEach(() => {
+			targetEl = sandbox();
+			targetEl.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+			// this.inst = new YawPitchControl({
+			// 	element: target
+			// });
+		});
+
+		afterEach(() => {
+			this.inst && this.inst.destroy();
+			targetEl && targetEl.remove();
+			targetEl = null;
+		});
+
+		it("zoomming when showPolePoint is false, should adjust pitch", (done) => {
+			// Given
+			this.inst = new YawPitchControl({
+				element: targetEl,
+				pitch: -75,
+				fov: 30,
+				showPolePoint: false
+			});
+			// When
+			TestHelper.wheelVertical(targetEl , 100, () => {
+				// then
+				let pitch = this.inst.getPitch();
+				expect(this.inst.getPitch()).to.equal(-73);	
+				done();	
+			});
+		});
+
+		// it.only("zoomming when showPolePoint is false and after user input, should adjust pitch", (done) => {
+		// 	// Given
+		// 	this.inst = new YawPitchControl({
+		// 		element: targetEl,
+		// 		pitch: 0,
+		// 		fov: 30,
+		// 		showPolePoint: false
+		// 	});
+		// 	targetEl.focus();
+
+		// 	function getDownPromises(count, duration) {
+		// 		return Array.apply(null, {length: count})
+		// 		.map(Number.call, Number)
+		// 		.map(idx => idx * duration / count)
+		// 		.map(delay => new Promise(function(res, rej) {
+		// 			setTimeout(function() {
+		// 				Promise.all([
+		// 					new Promise(res => {
+		// 						TestHelper.keyDown(targetEl, KEYMAP.DOWN_ARROW, () => {
+		// 							console.log("keyDown");
+		// 							res();
+		// 						});
+		// 					}),
+		// 					new Promise(res => {
+		// 						TestHelper.keyUp(targetEl, KEYMAP.DOWN_ARROW, () => {
+		// 							console.log("keyUp");
+		// 							res();
+		// 						});
+		// 					})
+		// 				]).then(() => {
+		// 					res();							
+		// 				});
+		// 			}, delay);
+		// 		}));
+		// 	}
+		
+		// 	// When
+		// 	Promise.all(getDownPromises(3, 100)).then(() => {
+		// 		console.log(this.inst.getPitch());
+		// 	});
+		// 	// TestHelper.wheelVertical(targetEl , 100, () => {
+		// 	// 	// then
+		// 	// 	let pitch = this.inst.getPitch();
+		// 	// 	expect(this.inst.getPitch()).to.equal(-73);	
+		// 	// 	done();	
+		// 	// });
+		// });
+
+		it("zoomming when showPolePoint is false, should adjust pitch smoothly", (done) => {
+			// Given
+			this.inst = new YawPitchControl({
+				element: targetEl,
+				pitch: -100,
+				fov: 30,
+				showPolePoint: false
+			});
+			
+			function getWheelPromises(count, duration) {
+				return Array.apply(null, {length: count})
+				.map(Number.call, Number)
+				.map(idx => idx * duration / count)
+				.map(delay => new Promise(function(res, rej) {
+					setTimeout(function() {
+						TestHelper.wheelVertical(targetEl , 100, () => {
+							res();
+						});
+					}, delay);
+				}));
+			}
+
+			// When
+			const wheelP = getWheelPromises(20, 1000);
+			
+			Promise.all(wheelP).then(() => {
+				// then
+				expect(this.inst.getPitch()).to.be.equal(-35);	
+				done();			
+			});
+		});
+	});
+
 	describe("no devicemotion, touch", function() {
 		let target;
 		beforeEach(() => {
@@ -1131,15 +1241,15 @@ describe("YawPitchControl", function() {
 		});
 		it("no script errer with no touch, no motion", () => {
 			// Given
-			let errorThrown = false;	
+			let errorThrown = false;
 
 			// When
-            try {		
+            try {
 				var MockYawPitchControl = YawPitchControlrInjector(
-					{              
+					{
 						"./browser": {
 							getComputedStyle: window.getComputedStyle,
-							SUPPORT_TOUCH: false, 
+							SUPPORT_TOUCH: false,
 							SUPPORT_DEVICEMOTION: false
 						}
 					}
@@ -1150,7 +1260,7 @@ describe("YawPitchControl", function() {
             } catch (e) {
                 errorThrown = true;
 			}
-			
+
             // Then
             expect(errorThrown).to.not.ok;
 		});
@@ -1171,7 +1281,7 @@ describe("YawPitchControl", function() {
 			target && target.remove();
 			target = null;
 		});
-		
+
 	});
 
 	describe("release, animationEnd", function() {
@@ -1193,8 +1303,8 @@ describe("YawPitchControl", function() {
 		it("pan scale change after pich zoom", (done) => {
 			// Given
 			let inst = this.inst;
-			let yawDistanceBeforePinch = 0;	
-			let yawDistanceAfterPinch = 0;	
+			let yawDistanceBeforePinch = 0;
+			let yawDistanceAfterPinch = 0;
 			let yaw = inst.getYaw();
 			this.inst.enable();
 
@@ -1234,7 +1344,7 @@ describe("YawPitchControl", function() {
 			this.inst.on("animationEnd", then);
 			this.inst.enable();
 
-			// When		
+			// When
 			this.inst.lookAt({
 				yaw: 90
 			}, 1000);

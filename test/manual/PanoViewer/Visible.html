@@ -84,7 +84,7 @@
 </section>
 </div>
 <!-- egjs를 위한 의존성 라이브러리 -->
-<script src="../../../node_modules/@egjs/visible/dist/visible.pkgd.js"></script>
+<script src="../lib/visible.pkgd.min.js"></script>
 <script src="../../../dist/view360.pkgd.js"></script>
 <script type="text/template" id="viewer_template">
 	<div class="photo360-container">
@@ -97,6 +97,13 @@
 	</div>
 </script>
 <script>
+
+(function() {
+if (!eg.view360.PanoViewer.isWebGLAvailable() || !eg.view360.PanoViewer.isStableWebGL()) {
+  alert("이 브라우저는 webgl 을 지원하지 않습니다. 따라서 PanoViewer 가 동작할 수 없습니다.");
+  return;
+}
+
 var viewerFixture = '';
 
 for(var i =0; i< 30; i++) {
@@ -114,7 +121,7 @@ var photo360NodeList = document.querySelectorAll(".photo360");
 var photo360ViewerMap = {};
 
 function getExpandSize() {
-	return -100;
+	return -window.innerHeight / 2;
 }
 
 var visible = new eg.Visible(document,{
@@ -152,7 +159,8 @@ var visible = new eg.Visible(document,{
 			key = (new Date()).getTime() + idx;
 
 			instance = new eg.view360.PanoViewer(viewerEl,{
-					image: viewerEl.getAttribute("data-source")
+					image: viewerEl.getAttribute("data-source"),
+					imageType: "vertical_cubestrip"
 				}
 			).on("resume", function(evt) {
 				viewerEl.classList.remove("loading");
@@ -195,13 +203,18 @@ function debounce(func, wait, immediate) {
 	return function() {
 		var context = this, args = arguments;
 		var later = function() {
+			console.log("later")
+
 			timeout = null;
 			if (!immediate) func.apply(context, args);
 		};
 		var callNow = immediate && !timeout;
 		clearTimeout(timeout);
 		timeout = setTimeout(later, wait);
-		if (callNow) func.apply(context, args);
+		console.log(callNow)
+		if (callNow) {
+			func.apply(context, args);
+		}
 	};
 };
 
@@ -209,6 +222,8 @@ window.addEventListener("rotate", function() {
 	visible.option("expandSize", getExpandSize());
 	visible.check();
 });
+
+})();
 
 </script>
 </body>

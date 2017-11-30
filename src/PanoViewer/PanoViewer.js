@@ -70,11 +70,6 @@ export default class PanoViewer extends Component {
 		this._fov = options.fov || 65;
 		this._aspectRatio = this._width / this._height;
 		const fovRange = options.fovRange || [30, 110];
-		const fovAngle = fovRange[1] - fovRange[0];
-
-		if (fovAngle < this._fov) {
-			this._fov = fovAngle;
-		}
 
 		const yawPitchConfig = Object.assign(options, {
 			element: container,
@@ -135,32 +130,30 @@ export default class PanoViewer extends Component {
 			this._image = image;
 		}
 
-		if (imageType && this._imageType !== imageType) {
-			this._imageType = imageType;
+		// if (imageType && this._imageType !== imageType) {
+		// 	this._imageType = imageType;
 
-			if (this._isResumed) {
-				this._stopRender();
-			}
-		}
+		// 	this.suspend();
+		// 	this.resume();
+		// } else if (this._photoSphereRenderer) {
+		// 	this._photoSphereRenderer
+		// 		.setImage({image: this._image, imageType: this._imageType})
+		// 		.then(isSuccess => {
+		// 			if (!isSuccess || !this._isResumed) {
+		// 				return;
+		// 			}
 
-		if (!this._photoSphereRenderer) {
-			return;
-		}
-
-		this._photoSphereRenderer
-			.setImage({image: this._image, imageType: this._imageType})
-			.then(isSuccess => {
-				if (!isSuccess || !this._isResumed) {
-					return;
-				}
-
-				// if it was resume status, render new image.
-				this._photoSphereRenderer
-					.bindTexture()
-					.then(() => {
-						this._startRender();
-					});
-			});
+		// 			// if it was resume status, render new image.
+		// 			this._photoSphereRenderer
+		// 				.bindTexture()
+		// 				.then(() => {
+		// 					this._startRender();
+		// 				});
+		// 		});
+		// }
+		this._imageType = imageType;
+		this.suspend();
+		this.resume();
 	}
 
 	_initRenderer(yaw, pitch, fov, imageType) {

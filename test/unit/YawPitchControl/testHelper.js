@@ -3,11 +3,6 @@ export default class TestHelper {
 		if (target instanceof Element === false) {
 			return;
 		}
-
-		if (target.dispatchEvent) {
-			return;
-		}
-
 		const params = {deltaY: value};
 		let wheelEvent;
 
@@ -78,43 +73,52 @@ export default class TestHelper {
 		target.dispatchEvent(keyboardEvent);
 	}
 	static devicemotion(target, value, callback) {
-		const params = value;
-		let deviceMotionEvent;
-
-		try {
-			deviceMotionEvent = new DeviceMotionEvent("devicemotion", params);
-		} catch (e) {
-			deviceMotionEvent = document.createEvent("Event");
-			deviceMotionEvent.initEvent("devicemotion");
-			Object.assign(deviceMotionEvent, params);
-		}
-
-		function callbackOnce() {
-			callback && callback();
-			target.removeEventListener("devicemotion", callbackOnce);
-		}
-
-		target.addEventListener("devicemotion", callbackOnce);
-		target.dispatchEvent(deviceMotionEvent);
-	}
-	static multipleDevicemotion(target, values, callback) {
-		const self = this;
-		const eventNumber = values.length;
-
-		function setNext(eventIdx) {
-			if (eventIdx >= eventNumber) {
-				callback && callback();
-				return;
+		return new Promise((resolve) => {
+			const params = value;
+			let deviceMotionEvent;
+	
+			try {
+				deviceMotionEvent = new DeviceMotionEvent("devicemotion", params);
+			} catch (e) {
+				deviceMotionEvent = document.createEvent("Event");
+				deviceMotionEvent.initEvent("devicemotion");
+				Object.assign(deviceMotionEvent, params);
 			}
-			const value = values[eventIdx];
+	
+			function callbackOnce() {
+				callback && callback();
+				resolve();
+				target.removeEventListener("devicemotion", callbackOnce);
+			}
+	
+			target.addEventListener("devicemotion", callbackOnce);
+			target.dispatchEvent(deviceMotionEvent);
+		});
+	}
 
-			setTimeout(() => {
-				self.devicemotion(target, value, () => {
-					setNext(eventIdx + 1);
+	static multipleDevicemotion(target, samples, callback) {
+		const self = this;
+
+		return new Promise(resolve => {
+			function promiseFactory(sample) {
+				return new Promise(res => {
+					setTimeout(() => {
+						self.devicemotion(target, sample, () => {
+							res();
+						});
+					}, sample.interval);
 				});
-			}, value.interval);
-		}
-		setNext(0);
+			}
+
+			const promiseChain = samples.reduce(
+				(startSample, nextSample) => startSample.then(() => promiseFactory(nextSample))
+			, Promise.resolve());
+
+			promiseChain.then(() => {
+				resolve();
+				callback();
+			});
+		});
 	}
 
 	/**
