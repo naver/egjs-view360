@@ -18,7 +18,7 @@ export default class PanoViewer extends Component {
 	 *
 	 * @param {String|Image} config.image Input image url or image object<ko>입력 이미지 URL 혹은 이미지 객체(image 와 video 둘 중 하나만 설정한다.)</ko>
 	 * @param {String|HTMLVideoElement} config.video Input video url or tag<ko>입력 비디오 URL 혹은 video 태그(image 와 video 둘 중 하나만 설정한다.)</ko>
-	 * @param {String} [config.imageType=equirectangular] The type of the image: equirectangular, vertival_cubestrip <ko>이미지 유형 : equirectangular, vertival_cubestrip</ko>
+	 * @param {String} [config.projectionType=equirectangular] The type of projection: equirectangular, vertival_cubestrip <ko>Projection 유형 : equirectangular, vertival_cubestrip</ko>
 	 * @param {Number} [config.width=width of container] the viewer's width. (in px) <ko>뷰어의 너비 (px 단위)</ko>
 	 * @param {Number} [config.height=height of container] the viewer's height.(in px) <ko>뷰어의 높이 (px 단위)</ko>
 	 *
@@ -71,7 +71,7 @@ export default class PanoViewer extends Component {
 		this._container = container;
 		this._image = options.image || options.video;
 		this._isVideo = !!options.video;
-		this._imageType = options.imageType || PanoImageRenderer.ImageType.EQUIRECTANGULAR;
+		this._projectionType = options.projectionType || PanoImageRenderer.ImageType.EQUIRECTANGULAR;
 
 		// If the width and height are not provided, will use the size of the container.
 		this._width = options.width || parseInt(window.getComputedStyle(container).width, 10);
@@ -100,7 +100,7 @@ export default class PanoViewer extends Component {
 		this._isResumed = false;
 
 		try {
-			this._initRenderer(this._yaw, this._pitch, this._fov, this._imageType);
+			this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType);
 		} catch (e) {
 			setTimeout(() => {
 				this._photoSphereRenderer && this._photoSphereRenderer.destroy();
@@ -116,12 +116,6 @@ export default class PanoViewer extends Component {
 
 		this._initYawPitchControl();
 	}
-
-	/**
-	 * @typedef {Object} ImageInfo
-	 * @property {String|Image} image Input image url or Image object or Image element <ko>입력 이미지 URL 이나 이미지 객체 나 엘리먼트</ko>
-	 * @property {String} imageType The type of the image: equirectangular, vertival_cubestrip <ko>이미지 유형 : equirectangular, vertival_cubestrip</ko>
-	 */
 
 	/**
 		* Getting the video element that the viewer is currently playing. You can use this for playback.
@@ -152,7 +146,7 @@ export default class PanoViewer extends Component {
 			return this;
 		}
 
-		this.setImage(video, {imageType: param.projectionType, isVideo: true});
+		this.setImage(video, {projectionType: param.projectionType, isVideo: true});
 		return this;
 	}
 
@@ -199,8 +193,8 @@ export default class PanoViewer extends Component {
 		this._image = image;
 		this._isVideo = isVideo;
 
-		if (projectionType && projectionType !== this._imageType) {
-			this._imageType = projectionType;
+		if (projectionType && projectionType !== this._projectionType) {
+			this._projectionType = projectionType;
 
 			if (this._isResumed) {
 				this._stopRender();
@@ -234,10 +228,10 @@ export default class PanoViewer extends Component {
 	 * @method eg.view360.PanoViewer#getProjectionType
 	 */
 	getProjectionType() {
-		return this._imageType;
+		return this._projectionType;
 	}
 
-	_initRenderer(yaw, pitch, fov, imageType) {
+	_initRenderer(yaw, pitch, fov, projectionType) {
 		if (this._photoSphereRenderer) {
 			this._photoSphereRenderer.destroy();
 		}
@@ -251,7 +245,7 @@ export default class PanoViewer extends Component {
 				initialYaw: yaw,
 				initialPitch: pitch,
 				fieldOfView: fov,
-				imageType
+				imageType: projectionType
 			}
 		);
 		this._bindRendererHandler();
@@ -592,7 +586,7 @@ export default class PanoViewer extends Component {
 		}
 
 		if (!this._photoSphereRenderer) {
-			this._initRenderer(this._yaw, this._pitch, this._fov, this._imageType);
+			this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType);
 		}
 
 		// do setTimeout for not blocking UI when resume is called in syncrounos code.
