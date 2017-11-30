@@ -21,7 +21,7 @@
 		"demo:setup": "cpx 'node_modules/@egjs/common-demo/**/*' 'demo/' && rm demo/package.json",
 		"release": "node config/release.js",
 		"coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-		"prepush": "npm run lint | npm run test",
+		"prepush": "npm run lint | npm run test --single-run",
 		"commitmsg": "node config/validate-commit-msg.js",
 		"changelog": "node config/changelog.js"
 	},
