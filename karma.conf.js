@@ -57,7 +57,7 @@ module.exports = function(config) {
   };
 
   karmaConfig.browsers.push(config.chrome ? "Chrome" :
-    (config.nogl ? "ChromeHeadlessWithGL" : "ChromeHeadless")
+    (config.nogl ? "ChromeHeadless" : "ChromeHeadlessWithGL")
   );
 
   if(config.coverage) {
