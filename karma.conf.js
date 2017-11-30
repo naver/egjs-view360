@@ -45,7 +45,7 @@ module.exports = function(config) {
 
     browsers: [],
     customLaunchers: {
-      CustomChromeHeadless: {
+      ChromeHeadlessWithGL: {
         base: 'Chrome',
         flags: ['--headless', '--remote-debugging-port=9222']
       }
@@ -56,7 +56,9 @@ module.exports = function(config) {
     }
   };
 
-  karmaConfig.browsers.push(config.chrome ? "Chrome" : "CustomChromeHeadless");
+  karmaConfig.browsers.push(config.chrome ? "Chrome" :
+    (config.nogl ? "ChromeHeadlessWithGL" : "ChromeHeadless")
+  );
 
   if(config.coverage) {
     karmaConfig.reporters.push("coverage-istanbul");
