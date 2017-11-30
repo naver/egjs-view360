@@ -48,7 +48,7 @@ module.exports = function(config) {
       // chrome chrashs without '--no-sandbox' flag at travis ci
       ChromeHeadlessNoGL: {
         base: 'ChromeHeadless',
-        flags: ['--disable-webgl']
+        flags: ['--disable-webgl', '--no-sandbox']
       }
     },
     reporters: ["mocha"],
