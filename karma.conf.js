@@ -50,8 +50,8 @@ module.exports = function(config) {
         flags: ['--headless', '--remote-debugging-port=9222']
       },
       CustomChromeHeadless: {
-        base: 'ChromeHeadless',
-        flags: ['--disable-gpu']
+        base: 'Chrome',
+        flags: ['--headless', '--disable-gpu', '--remote-debugging-port=9222']
       }
     },
     reporters: ["mocha"],
