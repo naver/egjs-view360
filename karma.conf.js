@@ -45,9 +45,13 @@ module.exports = function(config) {
 
     browsers: [],
     customLaunchers: {
-      ChromeHeadlessWithGL: {
+      CustomChromeHeadlessWithGL: {
         base: 'Chrome',
         flags: ['--headless', '--remote-debugging-port=9222']
+      },
+      CustomChromeHeadless: {
+        base: 'ChromeHeadless',
+        flags: ['--disable-gpu']
       }
     },
     reporters: ["mocha"],
@@ -57,7 +61,7 @@ module.exports = function(config) {
   };
 
   karmaConfig.browsers.push(config.chrome ? "Chrome" :
-    (config.nogl ? "ChromeHeadless" : "ChromeHeadlessWithGL")
+    (config.nogl ? "CustomChromeHeadless" : "CustomChromeHeadlessWithGL")
   );
 
   if(config.coverage) {
