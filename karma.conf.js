@@ -45,13 +45,10 @@ module.exports = function(config) {
 
     browsers: [],
     customLaunchers: {
-      CustomChromeHeadlessWithGL: {
-        base: 'Chrome',
-        flags: ['--headless', '--remote-debugging-port=9222', '--no-sandbox']
-      },
-      CustomChromeHeadless: {
-        base: 'Chrome',
-        flags: ['--headless', '--disable-gpu', '--disable-webgl', '--remote-debugging-port=9222', '--no-sandbox']
+      // chrome chrashs without '--no-sandbox' flag at travis ci
+      ChromeHeadlessNoGL: {
+        base: 'ChromeHeadless',
+        flags: ['--disable-webgl']
       }
     },
     reporters: ["mocha"],
@@ -61,7 +58,7 @@ module.exports = function(config) {
   };
 
   karmaConfig.browsers.push(config.chrome ? "Chrome" :
-    (config.nogl ? "CustomChromeHeadless" : "CustomChromeHeadlessWithGL")
+    (config.nogl ? "ChromeHeadlessNoGL" : "ChromeHeadless")
   );
 
   if(config.coverage) {
