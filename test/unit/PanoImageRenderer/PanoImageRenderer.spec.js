@@ -2,7 +2,7 @@ import PanoImageRenderer from "../../../src/PanoImageRenderer/PanoImageRenderer"
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 
 const IT = WebGLUtils.isWebGLAvailable() ? it : it.skip;
-
+console.log(WebGLUtils.isWebGLAvailable() ? "gl available" : "no gl");
 describe("PanoImageRenderer", function() {
 	describe("#constructor", function() {
 		IT("Instance", function() {
