@@ -8,6 +8,7 @@
 		"start": "webpack-dev-server --open",
 		"build": "webpack --env production && webpack --env packaged ",
 		"test": "karma start",
+		"test:single": "karma start --single-run",
 		"test:chrome": "karma start --chrome",
 		"lint": "eslint src",
 		"jsdoc": "rm -rf ./doc && jsdoc -c jsdoc.json",
@@ -21,7 +22,7 @@
 		"demo:setup": "cpx 'node_modules/@egjs/common-demo/**/*' 'demo/' && rm demo/package.json",
 		"release": "node config/release.js",
 		"coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-		"prepush": "npm run lint | npm run test --single-run",
+		"prepush": "npm run lint && npm run test:single",
 		"commitmsg": "node config/validate-commit-msg.js",
 		"changelog": "node config/changelog.js"
 	},
