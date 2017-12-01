@@ -94,13 +94,14 @@ describe("VideoLoader", function() {
 		});
 	});
 
-	describe("#set", function() {
-		it("should return promise after setImage", () => {
+	describe("#set/get", function() {
+		it("should be available to get/set sequentially", () => {
 			// Given
 			// When
 			this.inst = new VideoLoader();
+			this.inst.set("./images/PanoViewer/pano.webm");
 
-			return this.inst.set("./images/PanoViewer/pano.webm")
+			return this.inst.get()
 				.then(video => {
 					// First Then
 					expect(video instanceof HTMLVideoElement).to.be.true;
@@ -109,21 +110,25 @@ describe("VideoLoader", function() {
 					const v = document.createElement("video");
 
 					v.src = "./images/PanoViewer/pano.webm";
-					return this.inst.set(v)
+					this.inst.set(v);
+					return this.inst.get();
 				})
 				.then(video => {
 					expect(video instanceof HTMLVideoElement).to.be.true;
 				});
 		});
 
-		it("should destroy video instance if no parameter", () => {
+		it("should destroy video instance if set() called with no parameter", () => {
 			// Given & When
 			this.inst = new VideoLoader("./images/PanoViewer/pano.webm");
 
 			return this.inst.get()
 				.then(video => {
 					expect(video instanceof HTMLVideoElement);
-					return this.inst.set();
+					// When
+					this.inst.set();
+
+					return this.inst.get();
 				})
 				.then(video => {
 					expect(false, "this code should not be called.").to.be.true;
@@ -131,9 +136,32 @@ describe("VideoLoader", function() {
 					expect(true, "no parameter triggers reject.").to.be.true;
 				});
 		});
+
+		it("should get video without once handler if cached video", (done) => {
+			// Given & When
+			let videoEl = document.createElement("video");
+			videoEl.src = "./images/PanoViewer/pano.webm";
+			console.log(videoEl.readyState);
+			videoEl.addEventListener("canplaythrough", () => {
+				const loader = new VideoLoader(videoEl);
+
+				loader.get()
+					.then(video => {
+						expect(video).to.be.equal(videoEl);// It means that it resolve
+						done();
+					});
+			});
+		});
 	});
 
 	describe("#destroy", function() {
+		it("should not crash when destroying VideoLoader with no source.", () => {
+			// Given & When
+			this.inst = new VideoLoader();
+
+			this.inst.destroy();
+		});
+
 		it("should destroy video instance", () => {
 			// Given & When
 			this.inst = new VideoLoader("./images/PanoViewer/pano.webm");
@@ -141,7 +169,8 @@ describe("VideoLoader", function() {
 			return this.inst.get()
 				.then(video => {
 					expect(video instanceof HTMLVideoElement);
-					return this.inst.set();
+					this.inst.destroy();
+					return this.inst.get();
 				})
 				.then(video => {
 					expect(false, "this code should not be called.").to.be.true;

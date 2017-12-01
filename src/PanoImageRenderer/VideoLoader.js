@@ -1,6 +1,14 @@
+/* Ref https://www.w3schools.com/tags/av_prop_readystate.asp */
+const READY_STATUS = {
+	HAVE_NOTHING: 0, // no information whether or not the audio/video is ready
+	HAVE_METADATA: 1, // HAVE_METADATA - metadata for the audio/video is ready
+	HAVE_CURRENT_DATA: 2, // data for the current playback position is available, but not enough data to play next frame/millisecond
+	HAVE_FUTURE_DATA: 3, // data for the current and at least the next frame is available
+	HAVE_ENOUGH_DATA: 4 // enough data available to start playing
+};
+
 export default class VideoLoader {
 	constructor(video) {
-		this._isLoaded = false;
 		this._handlers = [];
 		video && this.set(video);
 	}
@@ -13,12 +21,9 @@ export default class VideoLoader {
 		} else if (video instanceof HTMLVideoElement) {
 			// video tag
 			this._video = video;
-			this._isLoaded = true;
 		} else {
 			this.destroy();
 		}
-
-		return this.get();
 	}
 
 	get() {
@@ -28,15 +33,13 @@ export default class VideoLoader {
 		return new Promise((res, rej) => {
 			if (!this._video) {
 				rej("VideoLoader: video is undefined");
-			} else if (this._isLoaded) {
+			} else if (this._video.readyState === READY_STATUS.HAVE_ENOUGH_DATA) {
 				res(this._video);
 			} else {
 				this._once("canplaythrough", () => {
-					this._isLoaded = false;
 					res(this._video);
 				});
 				this._once("error", () => rej(`VideoLoader: failed to load ${this._video.src}`));
-
 				this._video.load();
 			}
 		});
@@ -53,14 +56,9 @@ export default class VideoLoader {
 			this._video.src = "";
 			this._video = null;
 		}
-
-		this._isLoaded = false;
 	}
 
 	_once(type, listener) {
-		if (!this._video) {
-			return;
-		}
 		const target = this._video;
 
 		const fn = event => {
