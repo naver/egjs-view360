@@ -98,7 +98,9 @@ export default class PanoImageRenderer extends Component {
 		}
 
 		// img element or img url
-		return this._contentLoader.set(image)
+		this._contentLoader.set(image);
+
+		return this._contentLoader.get()
 			.then(this._onContentLoad)
 			.catch(this._onContentError);
 	}

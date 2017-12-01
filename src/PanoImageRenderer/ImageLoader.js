@@ -8,6 +8,7 @@ const STATUS = {
 export default class ImageLoader {
 	constructor(image) {
 		this._image = null;
+		this._onceHandlers = [];
 		this._loadStatus = STATUS.NONE;
 
 		image && this.set(image);
@@ -17,18 +18,12 @@ export default class ImageLoader {
 		return new Promise((res, rej) => {
 			if (!this._image) {
 				rej("ImageLoader: image is not defiend");
-			} else if (this._loadStatus === STATUS.LOADED || ImageLoader._isMaybeLoaded(this._image)) {
+			} else if (this._loadStatus === STATUS.LOADED) {
 				/* Check isMaybeLoaded() first because there may have posibilities that image already loaded before get is called. for example calling get on external image onload callback.*/
 				res(this._image);
 			} else if (this._loadStatus === STATUS.LOADING) {
-				ImageLoader._once(this._image, "load", () => {
-					this._loadStatus = STATUS.LOADED;
-					res(this._image);
-				});
-				ImageLoader._once(this._image, "error", () => {
-					this._loadStatus = STATUS.ERROR;
-					rej("ImageLoader: failed to load images.");
-				});
+				this._once("load", () => res(this._image));
+				this._once("error", () => rej("ImageLoader: failed to load images."));
 			} else {
 				rej("ImageLoader: failed to load images");
 			}
@@ -39,9 +34,10 @@ export default class ImageLoader {
 	 * @param image img element or img url
 	 */
 	set(image) {
+		this._loadStatus = STATUS.LOADING;
+
 		if (typeof image === "string") {
 			this._image = new Image();
-			this._loadStatus = STATUS.LOADING;
 			this._image.onload = () => {
 				this._loadStatus = STATUS.LOADED;
 			};
@@ -50,30 +46,36 @@ export default class ImageLoader {
 			};
 			this._image.src = image;
 		} else if (typeof image === "object") {
-			if (ImageLoader._isMaybeLoaded(image)) {
-				this._loadStatus = STATUS.LOADED;
-			} else {
-				this._loadStatus = STATUS.LOADING;
-			}
 			this._image = image;
 		}
 
-		// promise for image
-		return this.get();
+		if (ImageLoader._isMaybeLoaded(this._image)) {
+			// Already loaded image
+			this._loadStatus = STATUS.LOADED;
+		}
 	}
 
 	static _isMaybeLoaded(image) {
 		return image && image.naturalWidth !== 0;
 	}
 
-	static _once(target, type, listener) {
-		target.addEventListener(type, function fn(event) {
+	_once(type, listener) {
+		const target = this._image;
+
+		const fn = event => {
 			target.removeEventListener(type, fn);
 			listener(event);
-		});
+		};
+
+		target.addEventListener(type, fn);
+		this._onceHandlers.push({type, fn});
 	}
 
 	destroy() {
+		this._onceHandlers.forEach(handler => {
+			this._image.removeEventListener(handler.type, handler.fn);
+		});
+		this._onceHandlers = [];
 		/**
 		 * Init event handlers
 		 */

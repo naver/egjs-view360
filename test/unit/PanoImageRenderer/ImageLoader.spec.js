@@ -76,12 +76,13 @@ describe("ImageLoader", function() {
 	});
 
 	describe("#set", function() {
-		it("should return promise after setImage", () => {
+		it("should set image by set()", () => {
 			// Given
 			// When
 			this.inst = new ImageLoader();
+			this.inst.set("./images/PanoViewer/waterpark_preview.jpg");
 
-			return this.inst.set("./images/PanoViewer/waterpark_preview.jpg").then(img => {
+			return this.inst.get().then(img => {
 				assert.isOk(img.complete);
 			});
 		});
@@ -177,6 +178,20 @@ describe("ImageLoader", function() {
 
 					expect(inst._image).to.be.null;
 				});
+		});
+
+		it("should remove onceHandler if get() is not done.", () => {
+			// Given
+			// When
+			const inst = new ImageLoader("./images/PanoViewer/only-used-for-destroy-test.png");
+			inst.get();
+			const prevOnceHandlerCount = inst._onceHandlers.length;
+
+			inst.destroy();
+			const currOnceHandlerCount = inst._onceHandlers.length;
+
+			expect(prevOnceHandlerCount).to.be.equal(2);
+			expect(currOnceHandlerCount).to.be.equal(0);
 		});
 	});
 });
