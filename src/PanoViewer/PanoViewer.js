@@ -82,11 +82,6 @@ export default class PanoViewer extends Component {
 		this._fov = options.fov || 65;
 		this._aspectRatio = this._width / this._height;
 		const fovRange = options.fovRange || [30, 110];
-		const fovAngle = fovRange[1] - fovRange[0];
-
-		if (fovAngle < this._fov) {
-			this._fov = fovAngle;
-		}
 
 		const yawPitchConfig = Object.assign(options, {
 			element: container,
@@ -190,33 +185,9 @@ export default class PanoViewer extends Component {
 			return this;
 		}
 
-		this._image = image;
-		this._isVideo = isVideo;
-
-		if (projectionType && projectionType !== this._projectionType) {
-			this._projectionType = projectionType;
-
-			if (this._isResumed) {
-				this._stopRender();
-			}
-		}
-
-		if (!this._photoSphereRenderer) {
-			return this;
-		}
-
-		this._photoSphereRenderer
-			.setImage({image: this._image, imageType: projectionType, isVideo: param.isVideo})
-			.then(isSuccess => {
-				if (!isSuccess || !this._isResumed) {
-					return;
-				}
-
-				// if it was resume status, render new image.
-				this._photoSphereRenderer
-					.bindTexture()
-					.then(() => this._startRender());
-			});
+		this._imageType = projectionType;
+		this.suspend();
+		this.resume();
 
 		return this;
 	}

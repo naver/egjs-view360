@@ -3,16 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <title>Manual Test : Spin Viewer</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi">
+<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi"> -->
+<!-- minimal-scale=1.0 makes bug on old chromium -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi">
 <!--<link rel="stylesheet" type="text/css" href="./css/main.css">-->
 <style>
+  #message {
+    border: 1px solid red;
+    background-color: yellow;
+    display:none;
+  }
 </style>
 </head>
 <body>
   <h2>eg.view360.SpinViewer</h2>
   <h3>Mini Bag</h3>
+  <div id="message">GUIDE: Scale GUI is not available on <span>Android 2.3.</span></div>
   <div id="product-360"></div>
 </body>
+<!-- Shim for Android 2.3 and IE8 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.1.5/es5-shim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.1.5/es5-sham.min.js"></script>
 <script src="../lib/dat.gui.min.js"></script>
 <script src="../../../dist/SpinViewer/view360.spinviewer.pkgd.js"></script>
 <script>
@@ -23,21 +34,36 @@
     width: "50%",
     scale: 1
   };
-  var gui = new dat.GUI({autoPlace:true});
-  gui.add(options, "scale", 0, 2).step(0.1).onFinishChange(function(value) {
-    viewer.setScale(value);
-  });
+  if (window.navigator.userAgent.indexOf("Android 2.3") < 0) {
+    var gui = new dat.GUI({autoPlace:true});
+    gui.add(options, "scale", 0, 2).step(0.1).onFinishChange(function(value) {
+      // viewer.setScale(value);
+      viewer.setScale(getScaleByWidth());
+    });
+  } else {
+    document.getElementById("message").style.display = "block";
+  }
 
   viewer = new eg.view360.SpinViewer(document.getElementById("product-360"), options);
+  viewer.setScale(getScaleByWidth());//Temporary code
 
   viewer.on({
     "load": function(e) {
-      console.log("load event fired - e.target", e.target, "e.bgElement", e.bgElement);
+      // console.log("load event fired - e.target", e.target, "e.bgElement", e.bgElement);
       viewer.spinBy({angle:360, duration: 300});
     },
     "change": function(e) {
-      console.log(e.frameIndex, e.colRow, e.angle);
+      // console.log(e.frameIndex, e.colRow, e.angle);
     }
   });
+
+  window.onresize = function() {
+    viewer.setScale(getScaleByWidth());
+  }
+
+  /* TODO: this functionality should be covered by spinviewer */
+  function getScaleByWidth() {
+    return options.scale * 2000 / window.innerWidth;
+  }
 </script>
 </html>

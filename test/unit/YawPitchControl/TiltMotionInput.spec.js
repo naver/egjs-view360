@@ -1,12 +1,8 @@
+import Axes from "@egjs/axes";
 import {window} from "../../../src/YawPitchControl/browser";
 import TiltMotionInput from "../../../src/YawPitchControl/input/TiltMotionInput";
 import TestHeler from "./testHelper";
-import {
-	CONTROL_MODE_VR,
-	CONTROL_MODE_YAWPITCH,
-} from "../../../src/YawPitchControl/consts";
-
-const INTERVAL = 1000 / 60.0;
+import devicemotionRotateSample from "./devicemotionSampleRotate";
 
 describe("TiltMotionInput", function() {
 	describe("#constructor", function() {
@@ -21,39 +17,51 @@ describe("TiltMotionInput", function() {
 	});
 
 	describe("change event", function() {
-		describe("single key short press", function() {
 			let axes = null;
-			let moveKeyInput = null;
+			let tiltMotionInput = null;
 			let changed = false;
 			let deltaYaw = 0;
 			let deltaPitch = 0;
 
 			beforeEach(() => {
-				moveKeyInput = new TiltMotionInput(document.body, {scale:[1, 1]});
+				tiltMotionInput = new TiltMotionInput(document.body);
 				axes = new Axes({
-					yaw: {range: [0, 20]},
-					pitch: {range: [0, 20]}
+					yaw: {range: [-180, 180]},
+					pitch: {range: [-110, 110]}
+				}, {}, {
+					yaw: 0,
+					pitch: 0
 				})
 				.on({
 					change: e => {
 						changed = true;
-						deltaYaw = e.delta.yaw;
-						deltaPitch = e.delta.pitch;
+						if (Math.abs(deltaPitch) < Math.abs(e.delta.pitch)) {
+							deltaPitch = e.delta.pitch;
+						}
 					}
-				}).connect(["yaw", "pitch"], moveKeyInput);
+				}).connect(["yaw", "pitch"], tiltMotionInput);
 			});
 
 			afterEach(() => {
 				axes && axes.destroy();
-				moveKeyInput && moveKeyInput.destroy();
+				tiltMotionInput && tiltMotionInput.destroy();
 				axes = null;
-				moveKeyInput = null;
+				tiltMotionInput = null;
 				changed = false;
 				deltaYaw = 0;
 				deltaPitch = 0;
 			});
 
-			
+			it("Delta pitch should stay near 0 when rotating yaw axis", () => {
+				// Given
+				// When
+				return TestHeler.multipleDevicemotion(window, devicemotionRotateSample)
+				.then(() => {
+					// Then
+					expect(Math.abs(deltaPitch)).to.below(10);
+				});
+			});
+
 			//// landscape / portrait / landscape -> portrait / portrait -> landscape 총 네벌 수행
 			// Yaw 증가, Pitch 변화없음: 절대 Roll 사용, 테이블 위에 눕혀놓고 시계방향으로 돌리기
 			// Yaw 감소, Pitch 변화없음 : 절대 Roll 사용, 테이블 위에 눕혀놓고 반시계방향으로 돌리기
@@ -87,6 +95,5 @@ describe("TiltMotionInput", function() {
 			// 	expect(deltaYaw).to.be.equal(1);
 			// 	done();
 			// });
-		});
 	});
 });
