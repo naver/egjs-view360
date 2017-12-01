@@ -1,5 +1,6 @@
 import Component from "@egjs/component";
 import ImageLoader from "./ImageLoader";
+import VideoLoader from "./VideoLoader";
 import WebGLUtils from "./WebGLUtils";
 import CubeRenderer from "./renderer/CubeRenderer";
 import SphereRenderer from "./renderer/SphereRenderer";
@@ -38,7 +39,7 @@ const ERROR_TYPE = {
 };
 
 export default class PanoImageRenderer extends Component {
-	constructor(image, width, height, sphericalConfig) {
+	constructor(image, width, height, isVideo, sphericalConfig) {
 		// Super constructor
 		super();
 
@@ -65,21 +66,43 @@ export default class PanoImageRenderer extends Component {
 		this.canvas = this._initCanvas(width, height);
 
 		this._image = null;
-		this._imageLoader = new ImageLoader();
 
-		this._onImageLoad = 	this._onImageLoad.bind(this);
-		this._onImageError = 	this._onImageError.bind(this);
+		this._onContentLoad = 	this._onContentLoad.bind(this);
+		this._onContentError = 	this._onContentError.bind(this);
 
-		this.setImage({image, imageType: sphericalConfig.imageType});
+		if (image) {
+			this.setImage({image, imageType: sphericalConfig.imageType, isVideo});
+		}
 	}
 
-	setImage({image, imageType}) {
+	getContent() {
+		if (!this.isImageLoaded()) {
+			return null;
+		}
+
+		return this._image;
+	}
+
+	setImage({image, imageType, isVideo = false}) {
+		this._isVideo = isVideo;
 		this._setImageType(imageType);
 
+		if (this._contentLoader) {
+			this._contentLoader.destroy();
+		}
+
+		if (isVideo) {
+			this._contentLoader = new VideoLoader();
+		} else {
+			this._contentLoader = new ImageLoader();
+		}
+
 		// img element or img url
-		return this._imageLoader.setImage(image)
-			.then(this._onImageLoad)
-			.catch(this._onImageError);
+		this._contentLoader.set(image);
+
+		return this._contentLoader.get()
+			.then(this._onContentLoad)
+			.catch(this._onContentError);
 	}
 
 	_setImageType(imageType) {
@@ -120,7 +143,7 @@ export default class PanoImageRenderer extends Component {
 		return canvas;
 	}
 
-	_onImageError(error) {
+	_onContentError(error) {
 		this._image = null;
 
 		this.trigger(EVENTS.ERROR, {
@@ -131,12 +154,17 @@ export default class PanoImageRenderer extends Component {
 		return false;
 	}
 
-	_onImageLoad(image) {
+	_onContentLoad(image) {
 		// 이미지의 사이즈를 캐시한다.
+		// image is reference for content in contentLoader, so it may be not valid if contentLoader is destroyed.
 		this._image = image;
 
 		// 이벤트 발생. 여기에 핸들러로 render 하는 걸 넣어준다.
-		this.trigger(EVENTS.IMAGE_LOADED);
+		this.trigger(EVENTS.IMAGE_LOADED, {
+			content: this._image,
+			isVideo: this._isVideo,
+			projectionType: this._imageType
+		});
 		return true;
 	}
 
@@ -145,18 +173,18 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	cancelLoadImage() {
-		this._imageLoader.cancelLoadImage();
+		this._contentLoader.destroy();
 	}
 
 	bindTexture() {
 		return new Promise((res, rej) => {
-			if (!this._imageLoader) {
+			if (!this._contentLoader) {
 				rej("ImageLoader is not initialized");
 				return;
 			}
 
-			this._imageLoader.get()
-				.then(() => this._bindTexture(), () => rej("ImageLoader has failed to get image."))
+			this._contentLoader.get()
+				.then(() => this._bindTexture(), rej)
 				.then(res);
 		});
 	}
@@ -190,7 +218,7 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	destroy() {
-		this._imageLoader.destroy();
+		this._contentLoader.destroy();
 
 		this.detach();
 		this.forceContextLoss();
@@ -378,7 +406,7 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	renderWithQuaternion(quaternion, fieldOfView) {
-		if (!this.hasRenderingContext()) {
+		if (!this.isImageLoaded() || !this.hasRenderingContext()) {
 			return;
 		}
 
@@ -418,8 +446,12 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	render(yaw, pitch, fieldOfView) {
-		if (!this.hasRenderingContext()) {
+		if (!this.isImageLoaded() || !this.hasRenderingContext()) {
 			return;
+		}
+
+		if (this._isVideo) { /* TODO: && Check if isPlaying */
+			this._bindTexture();
 		}
 
 		if (this._lastYaw !== null && this._lastYaw === yaw &&

@@ -56,8 +56,8 @@ export default class SphereRenderer extends Renderer {
 		}
 
 		const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-		const width = image.width;// imageWidth;
-		const height = image.height;// imageHeight;
+		const width = image.naturalWidth || image.videoWidth;// imageWidth;
+		const height = image.naturalHeight || image.videoHeight;// imageHeight;
 		const aspectRatio = height / width;
 		const canvas = document.createElement("canvas");
 

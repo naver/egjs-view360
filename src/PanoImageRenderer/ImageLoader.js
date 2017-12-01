@@ -1,72 +1,94 @@
+const STATUS = {
+	"NONE": 0,
+	"LOADING": 1,
+	"LOADED": 2,
+	"ERROR": 3
+};
+
 export default class ImageLoader {
 	constructor(image) {
-		this.image = null;
+		this._image = null;
+		this._onceHandlers = [];
+		this._loadStatus = STATUS.NONE;
 
-		image && this.setImage(image);
+		image && this.set(image);
 	}
 
 	get() {
 		return new Promise((res, rej) => {
-			if (!this.image) {
-				rej("image is not defiend");
-			} else if (this.image.complete) {
-				res(this.image);
+			if (!this._image) {
+				rej("ImageLoader: image is not defiend");
+			} else if (this._loadStatus === STATUS.LOADED) {
+				/* Check isMaybeLoaded() first because there may have posibilities that image already loaded before get is called. for example calling get on external image onload callback.*/
+				res(this._image);
+			} else if (this._loadStatus === STATUS.LOADING) {
+				this._once("load", () => res(this._image));
+				this._once("error", () => rej("ImageLoader: failed to load images."));
 			} else {
-				ImageLoader._once(this.image, "load", () => {
-					res(this.image);
-				});
-				ImageLoader._once(this.image, "error", () => {
-					rej("failed to load images.");
-				});
+				rej("ImageLoader: failed to load images");
 			}
 		});
 	}
 
-	setImage(image) { // img element or img url
+	/**
+	 * @param image img element or img url
+	 */
+	set(image) {
+		this._loadStatus = STATUS.LOADING;
+
 		if (typeof image === "string") {
-			this.image = new Image();
-			this.image.src = image;
-		} else if (typeof image === "object") { // img element 나 image object 이어야 함
-			this.image = image;
+			this._image = new Image();
+			this._image.onload = () => {
+				this._loadStatus = STATUS.LOADED;
+			};
+			this._image.onerror = () => {
+				this._loadStatus = STATUS.ERROR;
+			};
+			this._image.src = image;
+		} else if (typeof image === "object") {
+			this._image = image;
 		}
 
-		// promise for image
-		return this.get();
+		if (ImageLoader._isMaybeLoaded(this._image)) {
+			// Already loaded image
+			this._loadStatus = STATUS.LOADED;
+		}
 	}
 
-	static _once(target, type, listener) {
-		target.addEventListener(type, function fn(event) {
+	static _isMaybeLoaded(image) {
+		return image && image.naturalWidth !== 0;
+	}
+
+	_once(type, listener) {
+		const target = this._image;
+
+		const fn = event => {
 			target.removeEventListener(type, fn);
 			listener(event);
-		});
-		// target.addEventListener(type, listener);
+		};
+
+		target.addEventListener(type, fn);
+		this._onceHandlers.push({type, fn});
 	}
 
-	isImageLoaded() {
-		if (!this.image) {
-			return false;
-		}
-
-		return !!this.image.src && !!this.image.complete;
-	}
-
-	/**
-	 * TODO: 이 기능이 정말로 필요한가?
-	 */
-	cancelLoadImage() {
-		if (!!this.image && !this.isImageLoaded()) {
-			this.image.src = "";
-		}
-	}
-
-	loadImage() {
-		if (this._imageURL && !this.isImageLoaded()) {
-			this.image.setAttribute("crossorigin", "anonymous");
-			this.image.src = this._imageURL;
-		}
+	getStatus() {
+		return this._loadStatus;
 	}
 
 	destroy() {
-		this.image = null;
+		this._onceHandlers.forEach(handler => {
+			this._image.removeEventListener(handler.type, handler.fn);
+		});
+		this._onceHandlers = [];
+		/**
+		 * Init event handlers
+		 */
+		this._image.onload = null;
+		this._image.onerror = null;
+		this._image.src = "";
+		this._image = null;
+		this._loadStatus = STATUS.NONE;
 	}
 }
+
+ImageLoader.STATUS = STATUS;

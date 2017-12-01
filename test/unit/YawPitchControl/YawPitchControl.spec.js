@@ -295,7 +295,7 @@ describe("YawPitchControl", function() {
 			it("should set value as corrected in default range when values are out of ranges", (done) => {
 				// Given
 				const abnormals = [-181, 90, 260];
-				const expected = [-180, 90, 180]; // Is MovableCoord Bug??
+				const expected = [179, 90, -100];
 				let results = [];
 
 				this.inst.on("change", then);
@@ -308,6 +308,7 @@ describe("YawPitchControl", function() {
 				});
 
 				// Then
+				// If requested angle is out of range then use circular value on circular mode.
 				function then(e) {
 					results.push(e.yaw);
 
@@ -623,7 +624,7 @@ describe("YawPitchControl", function() {
 					results.push(inst.option("fovRange"));
 				});
 
-				// Then				
+				// Then
 				this.expectedValues.forEach((expectedVal, i) => {
 					expect(results[i]).to.be.eql(expectedVal);
 				});
@@ -1131,15 +1132,15 @@ describe("YawPitchControl", function() {
 		});
 		it("no script errer with no touch, no motion", () => {
 			// Given
-			let errorThrown = false;	
+			let errorThrown = false;
 
 			// When
-            try {		
+            try {
 				var MockYawPitchControl = YawPitchControlrInjector(
-					{              
+					{
 						"./browser": {
 							getComputedStyle: window.getComputedStyle,
-							SUPPORT_TOUCH: false, 
+							SUPPORT_TOUCH: false,
 							SUPPORT_DEVICEMOTION: false
 						}
 					}
@@ -1150,7 +1151,7 @@ describe("YawPitchControl", function() {
             } catch (e) {
                 errorThrown = true;
 			}
-			
+
             // Then
             expect(errorThrown).to.not.ok;
 		});
@@ -1171,7 +1172,7 @@ describe("YawPitchControl", function() {
 			target && target.remove();
 			target = null;
 		});
-		
+
 	});
 
 	describe("release, animationEnd", function() {
@@ -1193,8 +1194,8 @@ describe("YawPitchControl", function() {
 		it("pan scale change after pich zoom", (done) => {
 			// Given
 			let inst = this.inst;
-			let yawDistanceBeforePinch = 0;	
-			let yawDistanceAfterPinch = 0;	
+			let yawDistanceBeforePinch = 0;
+			let yawDistanceAfterPinch = 0;
 			let yaw = inst.getYaw();
 			this.inst.enable();
 
@@ -1234,7 +1235,7 @@ describe("YawPitchControl", function() {
 			this.inst.on("animationEnd", then);
 			this.inst.enable();
 
-			// When		
+			// When
 			this.inst.lookAt({
 				yaw: 90
 			}, 1000);

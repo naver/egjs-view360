@@ -2,7 +2,8 @@ const ERROR_TYPE = {
 	INVALID_DEVICE: 10,
 	NO_WEBGL: 11,
 	FAIL_IMAGE_LOAD: 12,
-	FAIL_BIND_TEXTURE: 13
+	FAIL_BIND_TEXTURE: 13,
+	INVALID_RESOURCE: 14
 };
 
 const EVENTS = {
@@ -11,7 +12,8 @@ const EVENTS = {
 	VIEW_CHANGE: "viewChange",
 	ANIMATION_END: "animationEnd",
 	ERROR: "error",
-	INIT: "init"
+	INIT: "init",
+	CONTENT_LOADED: "contentLoaded"
 };
 
 module.exports = {
