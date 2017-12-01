@@ -93,7 +93,7 @@ describe("ImageLoader", function() {
 			const inst = new ImageLoader(imgObj); // image is not loaded.
 
 			// Then
-			expect(inst._loadStatus).to.be.equal(1); // 2 is LOADING status
+			expect(inst.getStatus()).to.be.equal(ImageLoader.STATUS.LOADING); // 2 is LOADING status
 		});
 
 		it("should set status loaded if image is already loaded", done => {
@@ -106,7 +106,7 @@ describe("ImageLoader", function() {
 				inst = new ImageLoader(imgObj);
 
 				// Then
-				expect(inst._loadStatus).to.be.equal(2); // 2 is LOADED status
+				expect(inst.getStatus()).to.be.equal(ImageLoader.STATUS.LOADED); // 2 is LOADED status
 				done();
 			};
 			imgObj.src = "./images/PanoViewer/waterpark_preview.jpg";

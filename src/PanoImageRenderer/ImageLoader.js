@@ -71,6 +71,10 @@ export default class ImageLoader {
 		this._onceHandlers.push({type, fn});
 	}
 
+	getStatus() {
+		return this._loadStatus;
+	}
+
 	destroy() {
 		this._onceHandlers.forEach(handler => {
 			this._image.removeEventListener(handler.type, handler.fn);
@@ -86,3 +90,5 @@ export default class ImageLoader {
 		this._loadStatus = STATUS.NONE;
 	}
 }
+
+ImageLoader.STATUS = STATUS;
