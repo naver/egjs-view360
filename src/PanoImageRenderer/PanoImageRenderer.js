@@ -184,9 +184,8 @@ export default class PanoImageRenderer extends Component {
 			}
 
 			this._contentLoader.get()
-				.then(() => this._bindTexture())
-				.then(res)
-				.catch(rej);
+				.then(() => this._bindTexture(), rej)
+				.then(res);
 		});
 	}
 
