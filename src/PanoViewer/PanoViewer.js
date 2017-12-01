@@ -182,7 +182,7 @@ export default class PanoViewer extends Component {
 		const isVideo = param.isVideo || false;
 
 		if (this._image && isVideo !== this._isVideo) {
-			console.warn("Not support changing content type(Image <--> Video)");
+			console.warn("Currently not supporting to change content type(Image <--> Video)");
 			return this;
 		}
 
