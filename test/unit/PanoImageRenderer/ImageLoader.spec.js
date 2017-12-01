@@ -11,47 +11,54 @@ describe("ImageLoader", function() {
 			expect(this.inst).to.be.exist;
 		});
 
-		it("should get image URL as a parameter", function(done) {
-			// this.inst = new ImageLoader("https://s.pstatic.net/static/www/mobile/edit/2015/0318/mobile_110629401121.png");
+		it("should get image URL as a parameter", function() {
+			// Given
 			this.inst = new ImageLoader("./images/PanoViewer/waterpark_preview.jpg");
 
+			// When
 			expect(this.inst).to.be.exist;
-			this.inst.get().then(image => {
+			return this.inst.get().then(image => {
+				// Then
 				assert.isOk(image);
 				assert.isOk(image.complete);
-				assert.isNumber(image.width);
-				assert.isNumber(image.height);
-				// expect(image.width)
-				done();
+				assert.isNumber(image.naturalWidth);
+				assert.isNumber(image.naturalHeight);
+				assert.notEqual(image.naturalWidth, 0); // need to check dimension is not 0
+				assert.notEqual(image.naturalHeight, 0); // need to check dimension is not 0
 			});
 		});
 
-		it("should fails when url is invalid#1", function(done) {
+		it("should fails when url is invalid#1", function() {
+			// Given
+			// When (invlid url param)
 			this.inst = new ImageLoader("https://invalidurl.png");
 
 			expect(this.inst).to.be.exist;
-			this.inst.get().then(null, (msg)=> {
-					console.log(msg);
-					done();
-				});
+			// Then
+			return this.inst.get()
+				.then(() => false, () => true)
+				.then(success => assert.isOk(success, "Invalid url should not be resolved."));
 		});
 
-		it("should fails to getwhen url is invalid#2", function(done) {
+		it("should fails to getwhen url is invalid#2", function() {
 			let inst = new ImageLoader("https://invalidurl.png");
 
 			expect(inst).to.be.exist;
-			setTimeout(() => {
-				inst.get().then(null, msg => {
-					console.log(msg);
-					done();
-				});
-			}, 100);
+
+			return new Promise((res, rej) => {
+				setTimeout(() => {
+					inst.get().then(rej, res);
+				}, 100);
+			});
 		});
 
-		it("should not call again", function(done) {
+		/**
+		 * Does this test has meaning ? because is is guaranteed by promise.
+		 */
+		it("should not call again", function() {
 			let countCb1 = 0;
 			let countCb2 = 0;
-			this.inst = new ImageLoader("https://i.imgur.com/PtUXzkl.png");
+			this.inst = new ImageLoader("./images/PanoViewer/waterpark_preview.jpg");
 
 			expect(this.inst).to.be.exist;
 
@@ -65,13 +72,17 @@ describe("ImageLoader", function() {
 				countCb2++;
 			}
 
-			this.inst.get().then(callback1);
-			this.inst.get().then(callback2);
-			this.inst.get().then(() => {
-				assert.equal(countCb1, 1);
-				assert.equal(countCb2, 1);
-				done();
-			});
+			// When
+			return this.inst.get()
+				.then(callback1)
+				.then(() => this.inst.get())
+				.then(callback2)
+				.then(() => this.inst.get())
+				.then(() => {
+					// Then
+					assert.equal(countCb1, 1);
+					assert.equal(countCb2, 1);
+				});
 		});
 	});
 

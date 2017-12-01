@@ -2,72 +2,78 @@ import VideoLoader from "../../../src/PanoImageRenderer/VideoLoader";
 
 describe("VideoLoader", function() {
 	describe("#constructor", function() {
-		it("Instance", (done) => {
+		it("Instance", () => {
 			// Given
 			// When
 			this.inst = new VideoLoader();
 
 			// Then
 			expect(this.inst).to.be.exist;
-			this.inst.get()
+			return this.inst.get()
 				.then(() => {
-					assert(false);
-					done();
+					assert(false, "No resource should not trigger resolve.");
 				})
 				.catch(() => {
 					assert(true);
-					done();
 				})
 		});
 
-		it("should set video as a url", function(done) {
+		it("should set video as a url", function() {
+			// Given && When
 			this.inst = new VideoLoader("./images/PanoViewer/pano.webm");
 
 			expect(this.inst).to.be.exist;
-			this.inst.get().then(video => {
-				assert.isOk(video);
-				assert.isTrue(video instanceof HTMLVideoElement);
-				done();
-			});
+
+			// Then
+			return this.inst.get()
+				.then(video => {
+					assert.isOk(video);
+					assert.isTrue(video instanceof HTMLVideoElement);
+				}, () => {
+					assert.isOk(false, "Failed to load video resource. check URL is valid.");
+				});
 		});
 
-		it("should set video as a video tag", function(done) {
+		it("should set video as a video tag", function() {
 			const video = document.createElement("video");
 
 			video.src = "./images/PanoViewer/pano.webm";
 			this.inst = new VideoLoader(video);
 
 			expect(this.inst).to.be.exist;
-			this.inst.get().then(video => {
-				assert.isOk(video);
-				assert.isTrue(video instanceof HTMLVideoElement);
-				done();
+			return this.inst.get()
+				.then(video => {
+					assert.isOk(video);
+					assert.isTrue(video instanceof HTMLVideoElement);
+				}, () => {
+					assert.isOk(false, "Failed to load video resource. check URL is valid.");
+				});
+		});
+
+		it("should fails when url is invalid#1", function() {
+			this.inst = new VideoLoader("https://invalidurl.png");
+
+			expect(this.inst).to.be.exist;
+			return this.inst.get()
+				.then(() => false, () => true)
+				.then(success => {
+					assert.isOk(success, "Invalid url should trigger promise 'reject'.");
+				});
+		});
+
+		it("should fails to get() after 100ms when url is invalid#2", function() {
+			this.inst = new VideoLoader("https://invalidurl.png");
+
+			expect(this.inst).to.be.exist;
+
+			return new Promise((res, rej) => {
+				setTimeout(() => {
+					this.inst.get().then(rej, res);
+				}, 100);
 			});
 		});
 
-		it("should fails when url is invalid#1", function(done) {
-			this.inst = new VideoLoader("https://invalidurl.png");
-
-			expect(this.inst).to.be.exist;
-			this.inst.get().then(null, (msg)=> {
-					console.log(msg);
-					done();
-				});
-		});
-
-		it("should fails when url is invalid#2", function(done) {
-			this.inst = new VideoLoader("https://invalidurl.png");
-
-			expect(this.inst).to.be.exist;
-			setTimeout(() => {
-				this.inst.get().then(null, (msg) => {
-					console.log(msg);
-					done();
-				});
-			}, 100);
-		});
-
-		it("should not call again", function(done) {
+		it("should not call again", function() {
 			let countCb1 = 0;
 			let countCb2 = 0;
 			this.inst = new VideoLoader("./images/PanoViewer/pano.webm");
@@ -84,13 +90,17 @@ describe("VideoLoader", function() {
 				countCb2++;
 			}
 
-			this.inst.get().then(callback1);
-			this.inst.get().then(callback2);
-			this.inst.get().then(() => {
-				assert.equal(countCb1, 1);
-				assert.equal(countCb2, 1);
-				done();
-			});
+			// When
+			return this.inst.get()
+				.then(callback1)
+				.then(() => this.inst.get())
+				.then(callback2)
+				.then(() => this.inst.get())
+				.then(() => {
+					// Then
+					assert.equal(countCb1, 1);
+					assert.equal(countCb2, 1);
+				});
 		});
 	});
 
@@ -137,20 +147,27 @@ describe("VideoLoader", function() {
 				});
 		});
 
-		it("should get video without once handler if cached video", (done) => {
+		it("should get video without once handler if cached video", () => {
 			// Given & When
 			let videoEl = document.createElement("video");
 			videoEl.src = "./images/PanoViewer/pano.webm";
-			console.log(videoEl.readyState);
-			videoEl.addEventListener("canplaythrough", () => {
-				const loader = new VideoLoader(videoEl);
 
-				loader.get()
-					.then(video => {
-						expect(video).to.be.equal(videoEl);// It means that it resolve
-						done();
-					});
+			return new Promise((res, rej) => {
+				videoEl.addEventListener("canplaythrough", () => {
+					const loader = new VideoLoader(videoEl);
+
+					loader.get()
+						.then(video => {
+							expect(video).to.be.equal(videoEl);// It means that it resolve
+							res();
+						})
+						.catch(rej);
+				});
+
+				videoEl.addEventListener("error", rej);
 			});
+
+
 		});
 	});
 
