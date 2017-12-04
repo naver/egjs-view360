@@ -38,16 +38,13 @@ export default class ImageLoader {
 
 		if (typeof image === "string") {
 			this._image = new Image();
-			this._image.onload = () => {
-				this._loadStatus = STATUS.LOADED;
-			};
-			this._image.onerror = () => {
-				this._loadStatus = STATUS.ERROR;
-			};
 			this._image.src = image;
 		} else if (typeof image === "object") {
 			this._image = image;
 		}
+
+		this._once("load", () => (this._loadStatus = STATUS.LOADED));
+		this._once("error", () => (this._loadStatus = STATUS.ERROR));
 
 		if (ImageLoader._isMaybeLoaded(this._image)) {
 			// Already loaded image
@@ -80,11 +77,6 @@ export default class ImageLoader {
 			this._image.removeEventListener(handler.type, handler.fn);
 		});
 		this._onceHandlers = [];
-		/**
-		 * Init event handlers
-		 */
-		this._image.onload = null;
-		this._image.onerror = null;
 		this._image.src = "";
 		this._image = null;
 		this._loadStatus = STATUS.NONE;
