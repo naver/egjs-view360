@@ -76,10 +76,6 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	getContent() {
-		if (!this.isImageLoaded()) {
-			return null;
-		}
-
 		return this._image;
 	}
 
@@ -99,6 +95,10 @@ export default class PanoImageRenderer extends Component {
 
 		// img element or img url
 		this._contentLoader.set(image);
+
+		// 이미지의 사이즈를 캐시한다.
+		// image is reference for content in contentLoader, so it may be not valid if contentLoader is destroyed.
+		this._image = this._contentLoader.getElement();
 
 		return this._contentLoader.get()
 			.then(this._onContentLoad)
@@ -154,10 +154,6 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	_onContentLoad(image) {
-		// 이미지의 사이즈를 캐시한다.
-		// image is reference for content in contentLoader, so it may be not valid if contentLoader is destroyed.
-		this._image = image;
-
 		// 이벤트 발생. 여기에 핸들러로 render 하는 걸 넣어준다.
 		this.trigger(EVENTS.IMAGE_LOADED, {
 			content: this._image,
