@@ -90,6 +90,11 @@ describe("PanoViewer", function() {
 				assert.isOk(false, "Error event occurs");
 				done();
 			});
+
+			panoViewer.on(PanoViewer.EVENTS.ERROR, e => {
+				assert.isOk(false, "Error event occurs");
+				done();
+			});
 		});
 
 		It("should not set different content type and should persist previous status", function(done) {
