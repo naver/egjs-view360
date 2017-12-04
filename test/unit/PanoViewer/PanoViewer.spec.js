@@ -58,7 +58,7 @@ describe("PanoViewer", function() {
 
 		beforeEach(() => {
 			target = sandbox();
-			target.innerHTML = `<div"></div>`;
+			target.innerHTML = `<div></div>`;
 		});
 
 		afterEach(() => {
@@ -70,15 +70,24 @@ describe("PanoViewer", function() {
 		});
 
 		It("should set video content", function(done) {
+			// Given
 			panoViewer = new PanoViewer(target);
+
+			// When
 			panoViewer.setVideo("./images/PanoViewer/pano.webm");
 
+			// Then
 			panoViewer.on(PanoViewer.EVENTS.CONTENT_LOADED, e => {
 				const video = panoViewer.getVideo();
 				const projectionType = panoViewer.getProjectionType();
 
 				expect(video).to.not.be.null;
 				expect(projectionType).to.equal(PanoViewer.ImageType.EQUIRECTANGULAR);
+				done();
+			});
+
+			panoViewer.on(PanoViewer.EVENTS.ERROR, e => {
+				assert.isOk(false, "Error event occurs");
 				done();
 			});
 		});
@@ -108,7 +117,7 @@ describe("PanoViewer", function() {
 
 		beforeEach(() => {
 			target = sandbox();
-			target.innerHTML = `<div"></div>`;
+			target.innerHTML = `<div></div>`;
 		});
 
 		afterEach(() => {
@@ -136,6 +145,12 @@ describe("PanoViewer", function() {
 				done();
 			});
 
+			panoViewer.on(PanoViewer.EVENTS.ERROR, e => {
+				// Then
+				assert.isOk(false, "Error event occurs");
+				done();
+			});
+
 			// When
 			panoViewer.setImage("./images/test_equi.png");
 		});
@@ -148,10 +163,12 @@ describe("PanoViewer", function() {
 
 			// first `onContentLoad` event is for image specified in constructor.
 			panoViewer.once(PanoViewer.EVENTS.CONTENT_LOADED, evt1 => {
+				console.log("contentLoaded #1", evt1.content.src, evt1.projectionType);
 				const prevContentSrc = evt1.content.src;
 				const prevProjectionType = evt1.projectionType;
 
 				panoViewer.once(PanoViewer.EVENTS.CONTENT_LOADED, evt2 => {
+					console.log("contentLoaded #2", evt2.content.src, evt2.projectionType);
 					// Then
 					expect(evt2.content.src).to.not.equal(prevContentSrc);
 					expect(evt2.projectionType).to.not.equal(prevProjectionType);

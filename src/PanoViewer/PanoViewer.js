@@ -185,7 +185,9 @@ export default class PanoViewer extends Component {
 			return this;
 		}
 
-		this._imageType = projectionType;
+		this._image = image;
+		this._isVideo = isVideo;
+		this._projectionType = projectionType;
 		this.suspend();
 		this.resume();
 

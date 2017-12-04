@@ -217,7 +217,9 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	destroy() {
-		this._contentLoader.destroy();
+		if (this._contentLoader) {
+			this._contentLoader.destroy();
+		}
 
 		this.detach();
 		this.forceContextLoss();

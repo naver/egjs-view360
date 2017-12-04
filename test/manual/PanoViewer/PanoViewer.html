@@ -102,7 +102,7 @@ var presets = {
     "useZoom": true,
     "useKeyboard": true,
     "image": "../img/test_cube.png",
-    "imageType": "vertical_cubestrip"
+    "projectionType": "vertical_cubestrip"
   },
   "360_equi": {
     "yaw": 0,
@@ -116,7 +116,7 @@ var presets = {
     "useZoom": true,
     "useKeyboard": true,
     "image": "../img/test_equi.png",
-    "imageType": "equirectangular"
+    "projectionType": "equirectangular"
   },
   "pano_360": {
     "yaw": 0,
@@ -131,7 +131,7 @@ var presets = {
     "useZoom": true,
     "useKeyboard": true,
     "image": "../img/pano_360.png",
-    "imageType": "equirectangular"
+    "projectionType": "equirectangular"
   },
   "pano_288": {
     "yaw": 0,
@@ -148,7 +148,7 @@ var presets = {
     "useZoom": true,
     "useKeyboard": true,
     "image": "../img/pano_288.png",
-    "imageType": "equirectangular"
+    "projectionType": "equirectangular"
   }
 };
 
@@ -273,9 +273,8 @@ function uploadImage() {
   var reader  = new FileReader();
   reader.addEventListener("load", function () {
     image.src = reader.result;
-    panoViewer.setImage({
-      image: image,
-      imageType: panoViewer.getImage().imageType
+    panoViewer.setImage(image, {
+      projectionType: panoViewer.getProjectionType()
     });
     render();
 
@@ -294,17 +293,15 @@ var imageController = gui.add(object, 'image', 40, 360).onChange(function(value)
   if(value[0] === '[') {
     return;
   }
-	panoViewer.setImage({
-    image: value,
-    imageType: panoViewer.getImage().imageType
+	panoViewer.setImage(value, {
+    projectionType: panoViewer.getProjectionType()
   });
   render();
 });
-gui.add(object, 'imageType', { equirectangular: 'equirectangular', vertical_cubestrip: 'vertical_cubestrip' } ).onChange(function(value) {
-  console.log(panoViewer.getImage().image, value);
-  panoViewer.setImage({
-    image: panoViewer.getImage().image,
-    imageType: value
+gui.add(object, 'projectionType', { equirectangular: 'equirectangular', vertical_cubestrip: 'vertical_cubestrip' } ).onChange(function(value) {
+  console.log(panoViewer.getImage(), value);
+  panoViewer.setImage(panoViewer.getImage(), {
+    proejctionType: value
   });
   render();
 });
