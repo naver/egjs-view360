@@ -2,6 +2,8 @@ import Component from "@egjs/component";
 import Axes from "@egjs/axes";
 import SpriteImage from "./SpriteImage";
 
+const DEFAULT_PAN_SCALE = 0.21;
+
 /**
  * @class eg.view360.SpinViewer
  * @classdesc A module used to displays each image sequentially according to the direction of the user's touch movement (left / right) of the sprite image that is collected by rotating the object.
@@ -38,7 +40,7 @@ export default class SpinViewer extends Component {
 		const colCount = opt.colCount || 1;
 		const rowCount = opt.rowCount || 1;
 
-		this._scale = opt.scale || 1;
+		this._scale = (opt.scale || 1) * DEFAULT_PAN_SCALE;
 
 		this._frameCount = colCount * rowCount;
 
@@ -146,7 +148,12 @@ export default class SpinViewer extends Component {
 	 * viewer.setScale(2);// It moves twice as much.
 	 */
 	setScale(scale) {
-		this._panInput.options.scale = [scale, scale];
+		if (isNaN(scale) || scale < 0) {
+			return this;
+		}
+
+		this._scale = scale * DEFAULT_PAN_SCALE;
+		this._panInput.options.scale = [this._scale, this._scale];
 
 		return this;
 	}

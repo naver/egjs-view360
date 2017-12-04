@@ -201,7 +201,7 @@ describe("ImageLoader", function() {
 			inst.destroy();
 			const currOnceHandlerCount = inst._onceHandlers.length;
 
-			expect(prevOnceHandlerCount).to.be.equal(2);
+			expect(prevOnceHandlerCount).to.be.equal(4); // 4 = 2(getter) + 2(setter)
 			expect(currOnceHandlerCount).to.be.equal(0);
 		});
 	});

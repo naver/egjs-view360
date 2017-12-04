@@ -4,15 +4,18 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+      "./node_modules/resemblejs/resemble.js",
       "./node_modules/lite-fixture/index.js",
 			"./node_modules/hammer-simulator/index.js",
 			"./test/hammer-simulator.run.js",
+			"./test/unit/util.js",
       "./test/unit/**/*.spec.js",
 			"./test/manual/img/**/*.*",
+      "./test/img/*.*",
     ],
 
 		proxies: {
-			"/images/": "/base/test/manual/img/"
+      "/images/": "/base/test/manual/img/"
 		},
 
     client: {
@@ -41,14 +44,22 @@ module.exports = function(config) {
     },
 
     browsers: [],
-
+    customLaunchers: {
+      // chrome chrashs without '--no-sandbox' flag at travis ci
+      ChromeHeadlessNoGL: {
+        base: 'ChromeHeadless',
+        flags: ['--disable-webgl', '--no-sandbox']
+      }
+    },
     reporters: ["mocha"],
     webpackMiddleware: {
         noInfo: true
     }
   };
 
-  karmaConfig.browsers.push(config.chrome ? "Chrome" : "ChromeHeadless");
+  karmaConfig.browsers.push(config.chrome ? "Chrome" :
+    (config.nogl ? "ChromeHeadlessNoGL" : "ChromeHeadless")
+  );
 
   if(config.coverage) {
     karmaConfig.reporters.push("coverage-istanbul");
