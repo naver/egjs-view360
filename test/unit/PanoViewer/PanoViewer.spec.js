@@ -82,7 +82,7 @@ describe("PanoViewer", function() {
 				const projectionType = panoViewer.getProjectionType();
 
 				expect(video).to.not.be.null;
-				expect(projectionType).to.equal(PanoViewer.ImageType.EQUIRECTANGULAR);
+				expect(projectionType).to.equal(PanoViewer.ProjectionType.EQUIRECTANGULAR);
 				done();
 			});
 
@@ -138,7 +138,7 @@ describe("PanoViewer", function() {
 				const projectionType = panoViewer.getProjectionType();
 
 				expect(image).to.not.be.null;
-				expect(projectionType).to.equal(PanoViewer.ImageType.EQUIRECTANGULAR);
+				expect(projectionType).to.equal(PanoViewer.ProjectionType.EQUIRECTANGULAR);
 				expect(e.content).to.equal(image);
 				expect(e.projectionType).to.equal(projectionType);
 				expect(e.isVideo).to.be.false;
@@ -177,7 +177,7 @@ describe("PanoViewer", function() {
 
 				// When
 				// Change image of other projection type.
-				panoViewer.setImage("./images/glasscity_cube_1024.jpg", {projectionType: PanoViewer.ImageType.VERTICAL_CUBESTRIP});
+				panoViewer.setImage("./images/glasscity_cube_1024.jpg", {projectionType: PanoViewer.ProjectionType.VERTICAL_CUBESTRIP});
 			});
 		});
 	});
@@ -204,7 +204,7 @@ describe("PanoViewer", function() {
 
 			photo360Viewer = new PanoViewer(target, {
 				image: "/images/book_equi_1.jpg",
-				imageType: "equirectangular",
+				projectionType: "equirectangular",
 				controlMode: "gallery_yaw_pitch"
 			}).on({
 				"resume": eventLogger,

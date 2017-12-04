@@ -723,4 +723,4 @@ export default class PanoViewer extends Component {
 
 PanoViewer.ERROR_TYPE = ERROR_TYPE;
 PanoViewer.EVENTS = EVENTS;
-PanoViewer.ImageType = PanoImageRenderer.ImageType;
+PanoViewer.ProjectionType = PanoImageRenderer.ImageType;
