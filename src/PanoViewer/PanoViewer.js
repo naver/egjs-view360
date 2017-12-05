@@ -119,7 +119,7 @@ export default class PanoViewer extends Component {
 		* @return {HTMLVideoElement} HTMLVideoElement<ko>HTMLVideoElement</ko>
 		*/
 	getVideo() {
-		if (!this._isVideo || !this._photoSphereRenderer.isImageLoaded()) {
+		if (!this._isVideo) {
 			return null;
 		}
 
@@ -152,7 +152,7 @@ export default class PanoViewer extends Component {
 	 * @return {Image} Image Object<ko>이미지 객체</ko>
 	 */
 	getImage() {
-		if (this._isVideo || !this._photoSphereRenderer.isImageLoaded()) {
+		if (this._isVideo) {
 			return null;
 		}
 
