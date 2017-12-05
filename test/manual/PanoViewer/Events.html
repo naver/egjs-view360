@@ -58,7 +58,7 @@
 
     var photo360Viewer = new eg.view360.PanoViewer(rootNode, {
       image: image,
-      imageType: "equirectangular",
+      projectionType: "equirectangular",
       controlMode: "gallery_yaw_pitch"
     }).on({
       "resume": eventLogger,
@@ -85,11 +85,11 @@
     }
 
     function setInvalidImage() {
-      photo360Viewer.setImage({image:"invalid image"});
+      photo360Viewer.setImage("invalid image");
     }
 
     function setValidImage() {
-      photo360Viewer.setImage({image:"../img/test_equi.png"});
+      photo360Viewer.setImage("../img/test_equi.png");
     }
   </script>
 </body>
