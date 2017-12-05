@@ -19,7 +19,6 @@ describe("PanoImageRenderer", function() {
 			expect(this.inst).to.be.exist;
 		});
 	});
-	
 
 	describe("#isImageLoaded", function() {
 		IT("should return false before image loaded", () => {
@@ -75,7 +74,7 @@ describe("PanoImageRenderer", function() {
 				fieldOfView: 65
 			});
 
-			inst.on("imageLoaded", () => {
+			inst.once("imageLoaded", () => {
 				// When
 				inst.setImage({
 					image: "./images/test_equi_0_0_65.png"
