@@ -160,7 +160,7 @@ var visible = new eg.Visible(document,{
 
 			instance = new eg.view360.PanoViewer(viewerEl,{
 					image: viewerEl.getAttribute("data-source"),
-					imageType: "vertical_cubestrip"
+					projectionType: "vertical_cubestrip"
 				}
 			).on("resume", function(evt) {
 				viewerEl.classList.remove("loading");
