@@ -13,7 +13,7 @@ describe("ImageLoader", function() {
 
 		it("should get image URL as a parameter", function() {
 			// Given
-			this.inst = new ImageLoader("./images/PanoViewer/waterpark_preview.jpgcd");
+			this.inst = new ImageLoader("./images/PanoViewer/waterpark_preview.jpg");
 
 			// When
 			expect(this.inst).to.be.exist;
