@@ -8,7 +8,7 @@ describe("PanoImageRenderer", function() {
 		IT("Instance", function() {
 			// Given
 			// When
-			this.inst = new PanoImageRenderer("./base/test/img/test_equi.png", 200, 200, false, {
+			this.inst = new PanoImageRenderer("./images/test_equi.png", 200, 200, false, {
 				yaw: 0,
 				pitch: 0,
 				imageType: "equirectangular",
@@ -19,6 +19,97 @@ describe("PanoImageRenderer", function() {
 			expect(this.inst).to.be.exist;
 		});
 	});
+	
+
+	describe("#isImageLoaded", function() {
+		IT("should return false before image loaded", () => {
+			// Given
+			const sourceImg = new Image();
+
+			sourceImg.src = "./images/test_equi.png";
+			const inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
+				initialYaw: 0,
+				initialpitch: 0,
+				imageType: "equirectangular",
+				fieldOfView: 65
+			});
+
+			// When
+			const isImageLoaded = inst.isImageLoaded();
+
+			// Then
+			expect(isImageLoaded).to.be.false;
+		});
+
+		IT("should return true after image loaded", (done) => {
+			// Given
+			const sourceImg = new Image();
+
+			sourceImg.src = "./images/test_equi.png";
+			const inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
+				initialYaw: 0,
+				initialpitch: 0,
+				imageType: "equirectangular",
+				fieldOfView: 65
+			});
+
+			inst.on("imageLoaded", () => {
+				// When
+				const isImageLoaded = inst.isImageLoaded();
+
+				// Then
+				expect(isImageLoaded).to.be.ok;
+				done();
+			});
+		});
+
+		IT("should return false when set another image after image loaded", done => {
+			// Given
+			const sourceImg = new Image();
+
+			sourceImg.src = "./images/test_equi.png";
+			const inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
+				initialYaw: 0,
+				initialpitch: 0,
+				imageType: "equirectangular",
+				fieldOfView: 65
+			});
+
+			inst.on("imageLoaded", () => {
+				// When
+				inst.setImage({
+					image: "./images/test_equi_0_0_65.png"
+				});
+				const isImageLoaded = inst.isImageLoaded();
+
+				// Then
+				expect(isImageLoaded).to.be.false;
+				done();
+			});
+		});
+
+		IT("should return false when set another image before the first image loaded", () => {
+			// Given
+			const sourceImg = new Image();
+
+			sourceImg.src = "./images/test_equi.png";
+			const inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
+				initialYaw: 0,
+				initialpitch: 0,
+				imageType: "equirectangular",
+				fieldOfView: 65
+			});
+
+			// When
+			inst.setImage({
+				image: "./images/test_equi_0_0_65.png"
+			});
+			const isImageLoaded = inst.isImageLoaded();
+
+			// Then
+			expect(isImageLoaded).to.be.false;
+		});
+	});
 
 	describe("Equirectangular Rendering", function() {
 		IT("yaw: 0, pitch:0, fov:65", function(done) {
@@ -26,7 +117,7 @@ describe("PanoImageRenderer", function() {
 			let inst = this.inst;
 			const sourceImg = new Image();
 
-			sourceImg.src = "./base/test/img/test_equi.png";
+			sourceImg.src = "./images/test_equi.png";
 			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
 				initialYaw: 0,
 				initialpitch: 0,
@@ -40,7 +131,7 @@ describe("PanoImageRenderer", function() {
 					.then(() => {
 						inst.render(0, 0, 65);
 						// Then
-						compare("./base/test/img/test_equi_0_0_65.png", inst.canvas, function(pct) {
+						compare("./images/test_equi_0_0_65.png", inst.canvas, function(pct) {
 							expect(pct).to.be.below(2);
 							done();
 						});

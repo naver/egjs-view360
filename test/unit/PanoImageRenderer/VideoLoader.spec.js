@@ -171,6 +171,36 @@ describe("VideoLoader", function() {
 		});
 	});
 
+	describe("#getElement", function() {
+		it("could get video element after set video by resource path", () => {
+			// Given
+			const videoPath = "./images/PanoViewer/pano.webm";
+			const inst = new VideoLoader(videoPath);
+
+			// When
+			const element = inst.getElement();
+
+			// Then
+			expect(element.getAttribute("src")).to.be.equal(videoPath);
+		});
+		it("could get video element after set video by element", () => {
+			// Given
+			const videoObj = document.createElement("video");		
+			const videoPath = "./images/PanoViewer/pano.webm";
+
+			videoObj.src = videoPath;
+			const inst = new VideoLoader(videoObj);
+
+			// When
+			const element = inst.getElement();
+
+			// Then
+			expect(element.getAttribute("src")).to.be.equal(videoPath);
+			expect(element).to.be.equal(videoObj);
+		});
+	});
+
+
 	describe("#destroy", function() {
 		it("should not crash when destroying VideoLoader with no source.", () => {
 			// Given & When
