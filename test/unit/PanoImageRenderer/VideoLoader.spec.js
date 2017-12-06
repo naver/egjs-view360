@@ -242,7 +242,7 @@ describe("VideoLoader", function() {
 
 			// Then
 			return this.inst.get().then(video => {
-				let els = video.getElementsByTagName("source");
+				let els = video.querySelectorAll("source");
 				expect(els.length).to.be.eql(2);
 			});
 		});
@@ -261,7 +261,7 @@ describe("VideoLoader", function() {
 			// Then
 			return this.inst.get()
 				.then(video => {
-					let els = video.getElementsByTagName("source");
+					let els = video.querySelectorAll("source");
 					expect(els.length).to.be.eql(3);
 
 					return true;
@@ -431,11 +431,12 @@ describe("VideoLoader", function() {
 			const element = inst.getElement();
 
 			// Then
-			expect(element.getAttribute("src")).to.be.equal(videoPath);
+
+			expect(element.querySelector("source").getAttribute("src")).to.be.equal(videoPath);
 		});
 		it("could get video element after set video by element", () => {
 			// Given
-			const videoObj = document.createElement("video");		
+			const videoObj = document.createElement("video");
 			const videoPath = "./images/PanoViewer/pano.webm";
 
 			videoObj.src = videoPath;
