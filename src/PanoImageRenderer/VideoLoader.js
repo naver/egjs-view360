@@ -82,6 +82,10 @@ export default class VideoLoader {
 		});
 	}
 
+	getElement() {
+		return this._video;
+	}
+
 	destroy() {
 		this._handlers.forEach(handler => {
 			this._video.removeEventListener(handler.type, handler.fn);

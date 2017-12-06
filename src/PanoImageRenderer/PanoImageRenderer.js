@@ -66,6 +66,7 @@ export default class PanoImageRenderer extends Component {
 		this.canvas = this._initCanvas(width, height);
 
 		this._image = null;
+		this._imageIsReady = false;
 
 		this._onContentLoad = 	this._onContentLoad.bind(this);
 		this._onContentError = 	this._onContentError.bind(this);
@@ -76,14 +77,11 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	getContent() {
-		if (!this.isImageLoaded()) {
-			return null;
-		}
-
 		return this._image;
 	}
 
 	setImage({image, imageType, isVideo = false}) {
+		this._imageIsReady = false;
 		this._isVideo = isVideo;
 		this._setImageType(imageType);
 
@@ -99,6 +97,10 @@ export default class PanoImageRenderer extends Component {
 
 		// img element or img url
 		this._contentLoader.set(image);
+
+		// 이미지의 사이즈를 캐시한다.
+		// image is reference for content in contentLoader, so it may be not valid if contentLoader is destroyed.
+		this._image = this._contentLoader.getElement();
 
 		return this._contentLoader.get()
 			.then(this._onContentLoad)
@@ -143,6 +145,7 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	_onContentError(error) {
+		this._imageIsReady = false;
 		this._image = null;
 
 		this.trigger(EVENTS.ERROR, {
@@ -154,9 +157,7 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	_onContentLoad(image) {
-		// 이미지의 사이즈를 캐시한다.
-		// image is reference for content in contentLoader, so it may be not valid if contentLoader is destroyed.
-		this._image = image;
+		this._imageIsReady = true;
 
 		// 이벤트 발생. 여기에 핸들러로 render 하는 걸 넣어준다.
 		this.trigger(EVENTS.IMAGE_LOADED, {
@@ -168,7 +169,7 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	isImageLoaded() {
-		return !!this._image;
+		return !!this._image && this._imageIsReady;
 	}
 
 	cancelLoadImage() {

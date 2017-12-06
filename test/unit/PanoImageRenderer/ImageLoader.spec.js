@@ -124,6 +124,35 @@ describe("ImageLoader", function() {
 		});
 	});
 
+	describe("#getElement", function() {
+		it("could get image element after set image by resource path", () => {
+			// Given
+			const imagePath = "./images/PanoViewer/waterpark_preview.jpg";
+			const inst = new ImageLoader(imagePath);
+
+			// When
+			const element = inst.getElement();
+
+			// Then
+			expect(element.getAttribute("src")).to.be.equal(imagePath);
+		});
+		it("could get image element after set image by element", () => {
+			// Given
+			const imgObj = new Image();
+			const imagePath = "./images/PanoViewer/waterpark_preview.jpg";
+
+			imgObj.src = imagePath;
+			const inst = new ImageLoader(imgObj);
+
+			// When
+			const element = inst.getElement();
+
+			// Then
+			expect(element.getAttribute("src")).to.be.equal(imagePath);
+			expect(element).to.be.equal(imgObj);
+		});
+	});
+
 	describe("#get", function() {
 		it("should accept image object as a parameter", done => {
 			// Given
