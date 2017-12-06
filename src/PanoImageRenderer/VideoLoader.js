@@ -13,14 +13,53 @@ export default class VideoLoader {
 		video && this.set(video);
 	}
 
+	/**
+	 *
+	 * @param {Object | String} video Object or String containing Video Source URL<ko>비디오 URL 정보를 담고 있는 문자열이나 객체 {type, src}</ko>
+	 */
+	_appendSourceElement(videoUrl) {
+		let videoSrc;
+		let videoType;
+
+		if (typeof videoUrl === "object") {
+			videoSrc = videoUrl.src;
+			videoType = videoUrl.type;
+		} else if (typeof videoUrl === "string") {
+			videoSrc = videoUrl;
+		}
+
+		if (!videoSrc) {
+			return false;
+		}
+
+		const sourceElement = document.createElement("source");
+
+		sourceElement.src = videoSrc;
+		videoType && (sourceElement.type = videoType);
+		// return sourceElement;
+		this._video.appendChild(sourceElement);
+		return true;
+	}
+
 	set(video) {
-		if (typeof video === "string") {
-			// url
-			this._video = document.createElement("video");
-			this._video.src = video;
-		} else if (video instanceof HTMLVideoElement) {
+		if (video instanceof HTMLVideoElement) {
 			// video tag
 			this._video = video;
+		} else if (typeof video === "string" || typeof video === "object") {
+			// url
+			let sourceCount = 0;
+
+			this._video = document.createElement("video");
+
+			if (video instanceof Array) {
+				video.forEach(v => this._appendSourceElement(v) && sourceCount++);
+			} else {
+				this._appendSourceElement(video) && sourceCount++;
+			}
+
+			if (sourceCount === 0) {
+				this.destroy();
+			}
 		} else {
 			this.destroy();
 		}
@@ -36,10 +75,8 @@ export default class VideoLoader {
 			} else if (this._video.readyState === READY_STATUS.HAVE_ENOUGH_DATA) {
 				res(this._video);
 			} else {
-				this._once("canplaythrough", () => {
-					res(this._video);
-				});
-				this._once("error", () => rej(`VideoLoader: failed to load ${this._video.src}`));
+				this._once("canplay", () => res(this._video));
+				this._once("error", e => rej(`VideoLoader: failed to load ${e.target.src}`));
 				this._video.load();
 			}
 		});
@@ -66,7 +103,8 @@ export default class VideoLoader {
 			listener(event);
 		};
 
-		target.addEventListener(type, fn);
+		/* By useCapture mode enabled, you can capture the error event being fired on source(child)*/
+		target.addEventListener(type, fn, true);
 		this._handlers.push({type, fn});
 	}
 }
