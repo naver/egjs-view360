@@ -10,6 +10,8 @@ const READY_STATUS = {
 export default class VideoLoader {
 	constructor(video) {
 		this._handlers = [];
+		this._sourceCount = 0;
+
 		video && this.set(video);
 	}
 
@@ -43,7 +45,7 @@ export default class VideoLoader {
 	}
 
 	set(video) {
-		this.destroy(); // destroy previous resources.
+		this._reset(); // reset resources.
 
 		if (video instanceof HTMLVideoElement) {
 			// video tag
@@ -85,6 +87,10 @@ export default class VideoLoader {
 	}
 
 	destroy() {
+		this._reset();
+	}
+
+	_reset() {
 		this._handlers.forEach(handler => {
 			this._video.removeEventListener(handler.type, handler.fn);
 		});
