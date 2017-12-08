@@ -36,48 +36,46 @@ export default class VideoLoader {
 
 		sourceElement.src = videoSrc;
 		videoType && (sourceElement.type = videoType);
-		// return sourceElement;
+
 		this._video.appendChild(sourceElement);
+		this._sourceCount++;
 		return true;
 	}
 
 	set(video) {
+		this.destroy(); // destroy previous resources.
+
 		if (video instanceof HTMLVideoElement) {
 			// video tag
 			this._video = video;
 		} else if (typeof video === "string" || typeof video === "object") {
 			// url
-			let sourceCount = 0;
-
 			this._video = document.createElement("video");
 
 			if (video instanceof Array) {
-				video.forEach(v => this._appendSourceElement(v) && sourceCount++);
+				video.forEach(v => this._appendSourceElement(v));
 			} else {
-				this._appendSourceElement(video) && sourceCount++;
+				this._appendSourceElement(video);
 			}
 
-			if (sourceCount === 0) {
-				this.destroy();
+			if (this._sourceCount > 0) {
+				this._video.load();
+			} else {
+				this._video = null;
 			}
-		} else {
-			this.destroy();
 		}
 	}
 
 	get() {
-		/**
-		 * TODO: How about to resolve(null) if video is defiend.
-		 */
 		return new Promise((res, rej) => {
 			if (!this._video) {
 				rej("VideoLoader: video is undefined");
-			} else if (this._video.readyState === READY_STATUS.HAVE_ENOUGH_DATA) {
+			} else if (this._video.readyState >= READY_STATUS.HAVE_CURRENT_DATA) {
 				res(this._video);
 			} else {
-				this._once("canplay", () => res(this._video));
-				this._once("error", e => rej(`VideoLoader: failed to load ${e.target.src}`));
-				this._video.load();
+				this._once("loadeddata", () => res(this._video));
+				// DO NOT HANDLE ERRORS, DELEGATE IT TO USER BY USING VIDEO ELEMENT.
+				// this._once("error", e => rej(`VideoLoader: failed to load ${e.target.src}`));
 			}
 		});
 	}
@@ -91,12 +89,9 @@ export default class VideoLoader {
 			this._video.removeEventListener(handler.type, handler.fn);
 		});
 		this._handlers = [];
+		this._video = null;
 
-		if (this._video) {
-			this._video.pause();
-			this._video.src = "";
-			this._video = null;
-		}
+		this._sourceCount = 0;
 	}
 
 	_once(type, listener) {

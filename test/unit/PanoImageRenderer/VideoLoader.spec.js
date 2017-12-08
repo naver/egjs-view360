@@ -112,7 +112,13 @@ describe("VideoLoader", function() {
 				});
 		});
 
-		it("should fails when url is invalid#1", function() {
+		/**
+		 * 2017.12.08. For the present, WE SKIP THIS TEST
+		 * we changed the spec that getter doesn't reject if error occurs on video source.
+		 * Delegate responsibility to user.because User can do advanced handling by video tag.
+		 *
+		 */
+		it.skip("should fails when url is invalid#1", function() {
 			this.inst = new VideoLoader("https://invalidurl.png");
 
 			expect(this.inst).to.be.exist;
@@ -123,7 +129,13 @@ describe("VideoLoader", function() {
 				});
 		});
 
-		it("should fails to get() after 100ms when url is invalid#2", function() {
+		/**
+		 * 2017.12.08. For the present, WE SKIP THIS TEST
+		 * we changed the spec that getter doesn't reject if error occurs on video source.
+		 * Delegate responsibility to user.because User can do advanced handling by video tag.
+		 *
+		 */
+		it.skip("should fails to get() after 100ms when url is invalid#2", function() {
 			this.inst = new VideoLoader("https://invalidurl.png");
 
 			expect(this.inst).to.be.exist;
@@ -253,9 +265,9 @@ describe("VideoLoader", function() {
 
 			// When
 			this.inst.set([
-				"./images/PanoViewer/pano.webm",
 				"https://invalidurl1.png",
-				"https://invalidurl2.png"
+				"https://invalidurl2.png",
+				"./images/PanoViewer/pano.webm"
 			]);
 
 			// Then
@@ -271,7 +283,13 @@ describe("VideoLoader", function() {
 				});
 		});
 
-		it("should reject video on getting video if invalid url list is set", () => {
+		/**
+		 * 2017.12.08. For the present, WE SKIP THIS TEST
+		 * we changed the spec that getter doesn't reject if error occurs on video source.
+		 * Delegate responsibility to user.because User can do advanced handling by video tag.
+		 *
+		 */
+		it.skip("should reject video on getting video if invalid url list is set", () => {
 			// Given
 			this.inst = new VideoLoader();
 
@@ -402,10 +420,10 @@ describe("VideoLoader", function() {
 
 			// When
 			this.inst.set([
-				{src: "./images/PanoViewer/pano.webm", type: "video/webm"},
 				{},
 				"https://invalidurl.mov",
-				""
+				"",
+				{src: "./images/PanoViewer/pano.webm", type: "video/webm"}
 			]);
 
 			// Then
