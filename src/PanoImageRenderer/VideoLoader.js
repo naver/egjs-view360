@@ -10,37 +10,74 @@ const READY_STATUS = {
 export default class VideoLoader {
 	constructor(video) {
 		this._handlers = [];
+		this._sourceCount = 0;
+
 		video && this.set(video);
 	}
 
+	/**
+	 *
+	 * @param {Object | String} video Object or String containing Video Source URL<ko>비디오 URL 정보를 담고 있는 문자열이나 객체 {type, src}</ko>
+	 */
+	_appendSourceElement(videoUrl) {
+		let videoSrc;
+		let videoType;
+
+		if (typeof videoUrl === "object") {
+			videoSrc = videoUrl.src;
+			videoType = videoUrl.type;
+		} else if (typeof videoUrl === "string") {
+			videoSrc = videoUrl;
+		}
+
+		if (!videoSrc) {
+			return false;
+		}
+
+		const sourceElement = document.createElement("source");
+
+		sourceElement.src = videoSrc;
+		videoType && (sourceElement.type = videoType);
+
+		this._video.appendChild(sourceElement);
+		this._sourceCount++;
+		return true;
+	}
+
 	set(video) {
-		if (typeof video === "string") {
-			// url
-			this._video = document.createElement("video");
-			this._video.src = video;
-		} else if (video instanceof HTMLVideoElement) {
+		this._reset(); // reset resources.
+
+		if (video instanceof HTMLVideoElement) {
 			// video tag
 			this._video = video;
-		} else {
-			this.destroy();
+		} else if (typeof video === "string" || typeof video === "object") {
+			// url
+			this._video = document.createElement("video");
+
+			if (video instanceof Array) {
+				video.forEach(v => this._appendSourceElement(v));
+			} else {
+				this._appendSourceElement(video);
+			}
+
+			if (this._sourceCount > 0) {
+				this._video.load();
+			} else {
+				this._video = null;
+			}
 		}
 	}
 
 	get() {
-		/**
-		 * TODO: How about to resolve(null) if video is defiend.
-		 */
 		return new Promise((res, rej) => {
 			if (!this._video) {
 				rej("VideoLoader: video is undefined");
-			} else if (this._video.readyState === READY_STATUS.HAVE_ENOUGH_DATA) {
+			} else if (this._video.readyState >= READY_STATUS.HAVE_CURRENT_DATA) {
 				res(this._video);
 			} else {
-				this._once("canplaythrough", () => {
-					res(this._video);
-				});
-				this._once("error", () => rej(`VideoLoader: failed to load ${this._video.src}`));
-				this._video.load();
+				this._once("loadeddata", () => res(this._video));
+				// DO NOT HANDLE ERRORS, DELEGATE IT TO USER BY USING VIDEO ELEMENT.
+				// this._once("error", e => rej(`VideoLoader: failed to load ${e.target.src}`));
 			}
 		});
 	}
@@ -50,16 +87,17 @@ export default class VideoLoader {
 	}
 
 	destroy() {
+		this._reset();
+	}
+
+	_reset() {
 		this._handlers.forEach(handler => {
 			this._video.removeEventListener(handler.type, handler.fn);
 		});
 		this._handlers = [];
+		this._video = null;
 
-		if (this._video) {
-			this._video.pause();
-			this._video.src = "";
-			this._video = null;
-		}
+		this._sourceCount = 0;
 	}
 
 	_once(type, listener) {
@@ -70,7 +108,8 @@ export default class VideoLoader {
 			listener(event);
 		};
 
-		target.addEventListener(type, fn);
+		/* By useCapture mode enabled, you can capture the error event being fired on source(child)*/
+		target.addEventListener(type, fn, true);
 		this._handlers.push({type, fn});
 	}
 }
