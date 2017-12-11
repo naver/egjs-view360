@@ -40,7 +40,7 @@ const axes = new eg.Axes({
 ```
 
 #### 4. Attach event handlers
-eg.Axes provides five events.
+eg.Axes provide five events.
 
 - [hold](./release/latest/doc/eg.Axes.html#event:hold)
 - [change](./release/latest/doc/eg.Axes.html#event:change)
@@ -57,7 +57,7 @@ axes.on({
 #### 5. Initialize InputTypes to use
 Create an InputType to associate with the axis of eg.Axes.
 
-Axes provides three inputTypes.
+Axes provide three inputTypes.
 - [eg.Axes.PanInput](./release/latest/doc/eg.Axes.PanInput.html)
 - [eg.Axes.PinchInput](./release/latest/doc/eg.Axes.PinchInput.html)
 - [eg.Axes.WheelInput](./release/latest/doc/eg.Axes.WheelInput.html)
