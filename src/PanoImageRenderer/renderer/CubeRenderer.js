@@ -100,7 +100,7 @@ export default class CubeRenderer extends Renderer {
 		}
 
 		const agent = Agent();
-		const width = image.width;
+		const width = image.naturalWidth || image.videoWidth;
 		const hasDrawImageBug = CubeRenderer.hasDrawImageBug(agent);
 		const maxCubeMapTextureSize = CubeRenderer.getMaxCubeMapTextureSize(gl, image, agent);
 		const heightScale = CubeRenderer.getHightScale(width, agent);
@@ -120,14 +120,9 @@ export default class CubeRenderer extends Renderer {
 					context.drawImage(
 						image, 0, surfaceIdx * (width * heightScale),
 						width, width * heightScale, 0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize);
-
-					const texImageData = new Uint8Array(
-						context.getImageData(0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize).data);
-
 					gl.texImage2D(
 						gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, 0, gl.RGBA,
-						maxCubeMapTextureSize, maxCubeMapTextureSize, 0, gl.RGBA,
-						gl.UNSIGNED_BYTE, texImageData);
+						gl.RGBA, gl.UNSIGNED_BYTE, canvas);
 				}
 			} else {
 				// #288, drawImage bug
@@ -150,7 +145,8 @@ export default class CubeRenderer extends Renderer {
 					context.scale(1 / 3, 3);
 					context.drawImage(
 						image, 0, width * 3 * i * heightScale,
-						image.width, image.height / 2 * heightScale,
+						image.naturalWidth || image.videoWidth,
+						(image.naturalHeight || image.videoHeight) / 2 * heightScale,
 						0, 0, halfCanvas.width, halfCanvas.height);
 					context.restore();
 					for (let j = 0; j < 3; j++) {
@@ -179,7 +175,7 @@ export default class CubeRenderer extends Renderer {
 
 	static getMaxCubeMapTextureSize(gl, image, agent) {
 		const maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
-		let _imageWidth = image.width;
+		let _imageWidth = image.naturalWidth || image.videoWidth;
 
 		if (agent.browser.name === "ie" && parseInt(agent.browser.version, 10) === 11) {
 			if (!util.isPowerOfTwo(_imageWidth)) {
