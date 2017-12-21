@@ -49,7 +49,11 @@ module.exports = function(config) {
       ChromeHeadlessNoGL: {
         base: 'ChromeHeadless',
         flags: ['--disable-webgl', '--no-sandbox']
-      }
+      },
+      ChromeHeadlessGL: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox']
+      },
     },
     reporters: ["mocha"],
     webpackMiddleware: {
@@ -58,7 +62,7 @@ module.exports = function(config) {
   };
 
   karmaConfig.browsers.push(config.chrome ? "Chrome" :
-    (config.nogl ? "ChromeHeadlessNoGL" : "ChromeHeadless")
+    (config.nogl ? "ChromeHeadlessNoGL" : "ChromeHeadlessGL")
   );
 
   if(config.coverage) {
