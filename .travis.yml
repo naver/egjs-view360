@@ -12,6 +12,8 @@ before_install:
   - sudo apt-get install -y libgconf-2-4 libgtk2.0-0 libnss3 libxss1 libx11-xcb1 libxtst6
   - sudo apt-get install -y libasound2 libxtst-dev libxss1 xvfb
   - sudo rm -rf /var/lib/apt/lists/*
+env:
+  - DISPLAY=:9.0
 install:
   - npm install
 addons:
