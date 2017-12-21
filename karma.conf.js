@@ -51,8 +51,8 @@ module.exports = function(config) {
         flags: ['--disable-webgl', '--no-sandbox']
       },
       ChromeHeadlessGL: {
-        base: 'ChromeHeadless',
-        flags: ['--no-sandbox', '--disable-setuid-sandbox', '--ignore-gpu-blacklist']
+        base: 'Electron',
+        flags: ['--ignore-gpu-blacklist', '--enable-logging']
       },
     },
     reporters: ["mocha"],
@@ -62,8 +62,7 @@ module.exports = function(config) {
   };
 
   karmaConfig.browsers.push(config.chrome ? "Chrome" :
-//    (config.nogl ? "ChromeHeadlessNoGL" : "ChromeHeadlessGL")
-    (config.nogl ? "ChromeHeadlessNoGL" : "Electron")
+    (config.nogl ? "ChromeHeadlessNoGL" : "ChromeHeadlessGL")
 );
 
   if(config.coverage) {
