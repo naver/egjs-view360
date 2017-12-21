@@ -24,9 +24,8 @@ cache:
     - "node_modules"
 before_script:
   - export DISPLAY=:9.0
-  - Xvfb -ac -screen scrn 1280x800x16 :9.0
   - npm run lint
 script:
-  - npm run coverage
+  - Xvfb -ac -screen scrn 1280x800x16 :9.0 & npm run coverage
 after_success:
   - npm run coveralls
