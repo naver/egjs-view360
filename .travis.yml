@@ -22,7 +22,9 @@ cache:
   directories:
     - "node_modules"
 before_script:
-    - npm run lint
+  - export DISPLAY=:9.0
+  - Xvfb -ac -screen scrn 1280x800x16 :9.0
+  - npm run lint
 script:
   - npm run coverage
 after_success:

@@ -52,7 +52,7 @@ module.exports = function(config) {
       },
       ChromeHeadlessGL: {
         base: 'Electron',
-        flags: ['--ignore-gpu-blacklist', '--enable-logging']
+        flags: ['--disable-gpu', '--ignore-gpu-blacklist', '--enable-logging']
       },
     },
     reporters: ["mocha"],
