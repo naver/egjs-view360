@@ -67,6 +67,7 @@ export default class PanoImageRenderer extends Component {
 
 		this._image = null;
 		this._imageIsReady = false;
+		this._keepUpdate = false; // Flag to specify 'continuous update' on video even when still.
 
 		this._onContentLoad = 	this._onContentLoad.bind(this);
 		this._onContentError = 	this._onContentError.bind(this);
@@ -91,8 +92,10 @@ export default class PanoImageRenderer extends Component {
 
 		if (isVideo) {
 			this._contentLoader = new VideoLoader();
+			this._keepUpdate = true;
 		} else {
 			this._contentLoader = new ImageLoader();
+			this._keepUpdate = false;
 		}
 
 		// img element or img url
@@ -169,7 +172,8 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	isImageLoaded() {
-		return !!this._image && this._imageIsReady;
+		return !!this._image && this._imageIsReady &&
+			(!this._isVideo || this._image.readyState >= 2 /* HAVE_CURRENT_DATA */);
 	}
 
 	cancelLoadImage() {
@@ -312,6 +316,9 @@ export default class PanoImageRenderer extends Component {
 			if (!this.shaderProgram) {
 				throw new Error(`Failed to intialize shaders: ${WebGLUtils.getErrorNameFromWebGLErrorCode(this.context.getError())}`);
 			}
+
+			// Buffers for shader
+			this._initBuffers();
 		} catch (e) {
 			this.trigger(EVENTS.ERROR, {
 				type: ERROR_TYPE.NO_WEBGL,
@@ -389,14 +396,16 @@ export default class PanoImageRenderer extends Component {
 		const gl = this.context;
 
 		this.vertexBuffer = WebGLUtils.initBuffer(
-			gl, gl.ARRAY_BUFFER, new Float32Array(vertexPositionData), 3);
+			gl, gl.ARRAY_BUFFER, new Float32Array(vertexPositionData), 3,
+			this.shaderProgram.vertexPositionAttribute);
 
 		this.indexBuffer = WebGLUtils.initBuffer(
 			gl, gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexData), 1);
 
 		if (textureCoordData !== null) {
 			this.textureCoordBuffer = WebGLUtils.initBuffer(
-				gl, gl.ARRAY_BUFFER, new Float32Array(textureCoordData), 2);
+				gl, gl.ARRAY_BUFFER, new Float32Array(textureCoordData), 2,
+				this.shaderProgram.textureCoordAttribute);
 		}
 	}
 
@@ -408,7 +417,7 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	renderWithQuaternion(quaternion, fieldOfView) {
-		if (!this.isImageLoaded() || !this.hasRenderingContext()) {
+		if (!this.isImageLoaded()) {
 			return;
 		}
 
@@ -447,16 +456,17 @@ export default class PanoImageRenderer extends Component {
 		}
 	}
 
+	keepUpdate(doUpdate) {
+		this._keepUpdate = doUpdate;
+	}
+
 	render(yaw, pitch, fieldOfView) {
-		if (!this.isImageLoaded() || !this.hasRenderingContext()) {
+		if (!this.isImageLoaded()) {
 			return;
 		}
 
-		if (this._isVideo) { /* TODO: && Check if isPlaying */
-			this._bindTexture();
-		}
-
-		if (this._lastYaw !== null && this._lastYaw === yaw &&
+		if (this._keepUpdate === false &&
+				this._lastYaw !== null && this._lastYaw === yaw &&
 				this._lastPitch !== null && this._lastPitch === pitch &&
 				this.fieldOfView && this.fieldOfView === fieldOfView &&
 				this._shouldForceDraw === false) {
@@ -485,44 +495,19 @@ export default class PanoImageRenderer extends Component {
 	_draw() {
 		const gl = this.context;
 
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-		gl.activeTexture(gl.TEXTURE0);
-		if (this._isCubeStrip) {
-			gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.texture);
-		} else {
-			gl.bindTexture(gl.TEXTURE_2D, this.texture);
-		}
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 
-		if (this.vertexBuffer === null || this.indexBuffer === null) {
-			this._initBuffers();
-		}
-
-		// gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 		gl.uniform1i(this.shaderProgram.samplerUniform, 0);
 		gl.uniformMatrix4fv(this.shaderProgram.pMatrixUniform, false, this.pMatrix);
 		gl.uniformMatrix4fv(this.shaderProgram.mvMatrixUniform, false, this.mvMatrix);
 
-		// textureCoordBuffer is used in sphere
-		if (this.textureCoordBuffer) {
-			WebGLUtils.bindBufferToAttribute(
-				gl, this.textureCoordBuffer, this.shaderProgram.textureCoordAttribute);
-		}
-
-		if (this.vertexBuffer) {
-			WebGLUtils.bindBufferToAttribute(
-				gl, this.vertexBuffer, this.shaderProgram.vertexPositionAttribute);
+		if (this._isVideo) {
+			this._renderer.texImage2D(this.context, this._image);
 		}
 
 		if (this.indexBuffer) {
-			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 			gl.drawElements(
 				gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-		}
-
-		if (this._isCubeStrip) {
-			gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
-		} else {
-			gl.bindTexture(gl.TEXTURE_2D, null);
 		}
 	}
 }

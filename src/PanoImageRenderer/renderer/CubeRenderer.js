@@ -99,6 +99,17 @@ export default class CubeRenderer extends Renderer {
 			return;
 		}
 
+		try {
+			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+			gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+
+			this.texImage2D(gl, image);
+		} catch (e) {
+
+		}
+	}
+
+	static texImage2D(gl, image) {
 		const agent = Agent();
 		const width = image.naturalWidth || image.videoWidth;
 		const height = image.naturalHeight || image.videoHeight;
@@ -106,67 +117,58 @@ export default class CubeRenderer extends Renderer {
 		const maxCubeMapTextureSize = CubeRenderer.getMaxCubeMapTextureSize(gl, image, agent);
 		const heightScale = CubeRenderer.getHightScale(width, agent);
 
-		try {
-			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-			gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+		if (!hasDrawImageBug) {
+			const canvas = document.createElement("canvas");
 
-			if (!hasDrawImageBug) {
-				const canvas = document.createElement("canvas");
+			canvas.width = maxCubeMapTextureSize;
+			canvas.height = maxCubeMapTextureSize;
+			const context = canvas.getContext("2d");
 
-				canvas.width = maxCubeMapTextureSize;
-				canvas.height = maxCubeMapTextureSize;
-				const context = canvas.getContext("2d");
+			for (let surfaceIdx = 0; surfaceIdx < 6; surfaceIdx++) {
+				context.drawImage(
+					image, 0, surfaceIdx * (width * heightScale),
+					width, width * heightScale, 0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize);
+				gl.texImage2D(
+					gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, 0, gl.RGBA,
+					gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+			}
+		} else {
+			// #288, drawImage bug
+			const halfCanvas = document.createElement("canvas");
+			const context = halfCanvas.getContext("2d");
 
-				for (let surfaceIdx = 0; surfaceIdx < 6; surfaceIdx++) {
-					context.drawImage(
-						image, 0, surfaceIdx * (width * heightScale),
-						width, width * heightScale, 0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize);
+			halfCanvas.width = maxCubeMapTextureSize * 3;
+			halfCanvas.height = maxCubeMapTextureSize;
+
+			const tileCanvas = document.createElement("canvas");
+			const tileContext = tileCanvas.getContext("2d");
+
+			tileCanvas.width = maxCubeMapTextureSize;
+			tileCanvas.height = maxCubeMapTextureSize;
+
+			for (let i = 0; i < 2; i++) {
+				context.save();
+				context.translate(0, maxCubeMapTextureSize);
+				context.rotate(-Math.PI / 2);
+				context.scale(1 / 3, 3);
+				context.drawImage(
+					image, 0, width * 3 * i * heightScale, width, height / 2 * heightScale,
+					0, 0, halfCanvas.width, halfCanvas.height);
+				context.restore();
+				for (let j = 0; j < 3; j++) {
+					tileContext.save();
+					tileContext.translate(maxCubeMapTextureSize, 0);
+					tileContext.rotate(Math.PI / 2);
+					tileContext.drawImage(
+						halfCanvas, j * width, 0, width, width, 0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize);
+					tileContext.restore();
 					gl.texImage2D(
-						gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, 0, gl.RGBA,
-						gl.RGBA, gl.UNSIGNED_BYTE, canvas);
-				}
-			} else {
-				// #288, drawImage bug
-				const halfCanvas = document.createElement("canvas");
-				const context = halfCanvas.getContext("2d");
-
-				halfCanvas.width = maxCubeMapTextureSize * 3;
-				halfCanvas.height = maxCubeMapTextureSize;
-
-				const tileCanvas = document.createElement("canvas");
-				const tileContext = tileCanvas.getContext("2d");
-
-				tileCanvas.width = maxCubeMapTextureSize;
-				tileCanvas.height = maxCubeMapTextureSize;
-
-				for (let i = 0; i < 2; i++) {
-					context.save();
-					context.translate(0, maxCubeMapTextureSize);
-					context.rotate(-Math.PI / 2);
-					context.scale(1 / 3, 3);
-					context.drawImage(
-						image, 0, width * 3 * i * heightScale, width, height / 2 * heightScale,
-						0, 0, halfCanvas.width, halfCanvas.height);
-					context.restore();
-					for (let j = 0; j < 3; j++) {
-						tileContext.save();
-						tileContext.translate(maxCubeMapTextureSize, 0);
-						tileContext.rotate(Math.PI / 2);
-						tileContext.drawImage(
-							halfCanvas, j * width, 0, width, width, 0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize);
-						tileContext.restore();
-						gl.texImage2D(
-							gl.TEXTURE_CUBE_MAP_POSITIVE_X + i * 3 + j, 0,
-							gl.RGBA, maxCubeMapTextureSize, maxCubeMapTextureSize, 0,
-							gl.RGBA, gl.UNSIGNED_BYTE, tileCanvas);
-					}
+						gl.TEXTURE_CUBE_MAP_POSITIVE_X + i * 3 + j, 0,
+						gl.RGBA, maxCubeMapTextureSize, maxCubeMapTextureSize, 0,
+						gl.RGBA, gl.UNSIGNED_BYTE, tileCanvas);
 				}
 			}
-		} catch (e) {
-
 		}
-
-		gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
 	}
 
 	static getMaxCubeMapTextureSize(gl, image, agent) {
