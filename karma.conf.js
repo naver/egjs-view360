@@ -62,8 +62,9 @@ module.exports = function(config) {
   };
 
   karmaConfig.browsers.push(config.chrome ? "Chrome" :
-    (config.nogl ? "ChromeHeadlessNoGL" : "ChromeHeadlessGL")
-  );
+//    (config.nogl ? "ChromeHeadlessNoGL" : "ChromeHeadlessGL")
+    (config.nogl ? "ChromeHeadlessNoGL" : "Electron")
+);
 
   if(config.coverage) {
     karmaConfig.reporters.push("coverage-istanbul");
