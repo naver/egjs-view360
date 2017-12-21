@@ -52,7 +52,7 @@ module.exports = function(config) {
       },
       ChromeHeadlessGL: {
         base: 'ChromeHeadless',
-        flags: ['--no-sandbox', '--disable-setuid-sandbox']
+        flags: ['--no-sandbox', '--disable-setuid-sandbox', '--ignore-gpu-blacklist']
       },
     },
     reporters: ["mocha"],
