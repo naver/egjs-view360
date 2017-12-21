@@ -4,7 +4,7 @@ node_js:
 dist: trusty
 sudo: false
 before_install:
-  - sudo add-apt update
+  - sudo apt-get update
   - sudo apt-get install -y libgconf-2-4 libgtk2.0-0 libnss3 libxss1 libx11-xcb1 libxtst6 libgtkextra-dev libasound2 libxtst-dev libxss1 xvfb
   - rm -rf /var/lib/apt/lists/*
 install:
