@@ -52,7 +52,7 @@ module.exports = function(config) {
       },
       ChromeHeadlessGL: {
         base: 'ChromeHeadless',
-        flags: ['--disable-gpu', '--ignore-gpu-blacklist', '--no-first-run', '--user-data-dir=~/chrome-stuff', '--use-gl=osmesa']
+        flags: ['--disable-gpu', '--no-first-run', '--user-data-dir=~/chrome-stuff', '--use-gl=osmesa']
       }
       // ChromeHeadlessGL: {
       //   base: 'Electron',
