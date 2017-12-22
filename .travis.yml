@@ -4,12 +4,12 @@ node_js:
 dist: trusty
 sudo: false
 before_install:
-  - sudo add-apt-repository main
-  - sudo add-apt-repository universe
-  - sudo add-apt-repository restricted
-  - sudo add-apt-repository multiverse
+  # - sudo add-apt-repository main
+  # - sudo add-apt-repository universe
+  # - sudo add-apt-repository restricted
+  # - sudo add-apt-repository multiverse
   - sudo apt-get update
-  - sudo apt-get install libosmesa
+  - sudo apt-get install libosmesa6
   - sudo ln -s /usr/lib/x86_64-linux-gnu/libOSMesa.so.6 /opt/google/chrome/libosmesa.so
   # - sudo apt-get install -y libgconf-2-4 libgtk2.0-0 libnss3 libxss1 libx11-xcb1 libxtst6
   # - sudo apt-get install -y libasound2 libxtst-dev libxss1 xvfb
