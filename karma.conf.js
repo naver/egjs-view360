@@ -54,15 +54,6 @@ module.exports = function(config) {
         base: 'ChromeHeadless',
         flags: ['--disable-gpu', '--ignore-gpu-blacklist', '--no-first-run', '--user-data-dir=~/chrome-stuff', '--use-gl=osmesa']
       }
-
-      down vote
-      accepted
-      This worked for me to get chrome to use osmesa
-      
-      sudo apt-get install libosmesa
-      sudo ln -s /usr/lib/x86_64-linux-gnu/libOSMesa.so.6 /opt/google/chrome/libosmesa.so
-      google-chrome --no-first-run --user-data-dir=~/chrome-stuff --use-gl=osmesa
-
       // ChromeHeadlessGL: {
       //   base: 'Electron',
       //   flags: ['--disable-gpu', '--ignore-gpu-blacklist', '--enable-logging']
