@@ -47,7 +47,7 @@ module.exports = function(config) {
     customLaunchers: {
       ChromeHeadlessGL: {
         base: 'ChromeHeadless',
-        flags: ['--disable-gpu', '--no-first-run', '--use-gl=osmesa']
+        flags: ['--disable-gpu', '--use-gl=osmesa']
       }
     },
     reporters: ["mocha"],
