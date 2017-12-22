@@ -457,6 +457,10 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	keepUpdate(doUpdate) {
+		if (doUpdate && !this._keepUpdate) {
+			this._shouldForceDraw = true;
+		}
+
 		this._keepUpdate = doUpdate;
 	}
 
