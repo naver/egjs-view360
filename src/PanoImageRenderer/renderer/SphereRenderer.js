@@ -55,32 +55,28 @@ export default class SphereRenderer extends Renderer {
 			return;
 		}
 
-		const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-		const width = image.naturalWidth || image.videoWidth;// imageWidth;
-		const height = image.naturalHeight || image.videoHeight;// imageHeight;
-		const aspectRatio = height / width;
-		const canvas = document.createElement("canvas");
+		// Make sure image isn't too big
+		const width = Math.max(image.width, image.height);
+		const maxWidth = gl.getParameter(gl.MAX_TEXTURE_SIZE);
 
-		if (aspectRatio <= 1) {
-			canvas.width = Math.min(width, maxTextureSize);
-			canvas.height = canvas.width * aspectRatio;
-		} else {
-			canvas.height = Math.min(height, maxTextureSize);
-			canvas.width = canvas.height / aspectRatio;
+		if (width > maxWidth) {
+			console.warn(`Image width(${width}) exceeds device limit(${maxWidth}))`);
+			return;
 		}
-		gl.bindTexture(gl.TEXTURE_2D, texture);
+
+		gl.activeTexture(gl.TEXTURE0);
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+		gl.bindTexture(gl.TEXTURE_2D, texture);
 
-		const context = canvas.getContext("2d");
+		// Draw first frame
+		this.texImage2D(gl, image);
+	}
 
-		context.drawImage(image, 0, 0, width, height, 0, 0, canvas.width, canvas.height);
-		const data = new Uint8Array(context.getImageData(0, 0, canvas.width, canvas.height).data);
-
-		gl.texImage2D(
-			gl.TEXTURE_2D, 0, gl.RGBA,
-			canvas.width, canvas.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
-		// this.trigger(EVENTS.BIND_TEXTURE);
-		gl.bindTexture(gl.TEXTURE_2D, null);
+	/**
+	 * https://www.khronos.org/registry/OpenGL-Refpages/es2.0/xhtml/glTexImage2D.xml
+	 */
+	static texImage2D(gl, image) {
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 	}
 
 	static _initData() {

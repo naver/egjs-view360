@@ -42,7 +42,7 @@ export default class WebGLUtils {
 		return null;
 	}
 
-	static initBuffer(gl, target /* bind point */, data, itemSize) {
+	static initBuffer(gl, target /* bind point */, data, itemSize, attr) {
 		const buffer = gl.createBuffer();
 
 		gl.bindBuffer(target, buffer);
@@ -51,6 +51,11 @@ export default class WebGLUtils {
 		if (buffer) {
 			buffer.itemSize = itemSize;
 			buffer.numItems = data.length / itemSize;
+		}
+
+		if (attr !== undefined) {
+			gl.enableVertexAttribArray(attr);
+			gl.vertexAttribPointer(attr, buffer.itemSize, gl.FLOAT, false, 0, 0);
 		}
 
 		return buffer;

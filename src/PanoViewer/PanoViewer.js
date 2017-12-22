@@ -194,6 +194,11 @@ export default class PanoViewer extends Component {
 		return this;
 	}
 
+	keepUpdate(doUpdate) {
+		this._photoSphereRenderer.keepUpdate(doUpdate);
+		return this;
+	}
+
 	/**
 	 * Get projection type (equirectangular/cube)
 	 * @ko 프로젝션 타입(Equirectangular 혹은 Cube)을 반환한다.
