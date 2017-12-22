@@ -457,7 +457,8 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	keepUpdate(doUpdate) {
-		if (doUpdate && !this._keepUpdate) {
+		if (doUpdate && this.isImageLoaded() === false) {
+			// Force to draw a frame after image is loaded on render()
 			this._shouldForceDraw = true;
 		}
 
