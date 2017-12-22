@@ -44,8 +44,6 @@
 		"webvr-polyfill": "^0.9.16"
 	},
 	"devDependencies": {
-		"karma-electron": "^5.2.2",
-		"electron": "^1.7.10",
 		"@egjs/common-demo": "github:naver/egjs#common-demo",
 		"@egjs/visible": "^2.1.0",
 		"babel-core": "^6.25.0",

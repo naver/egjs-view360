@@ -52,7 +52,7 @@ describe("TiltMotionInput", function() {
 				deltaPitch = 0;
 			});
 
-			it.skip("Delta pitch should stay near 0 when rotating yaw axis", () => {
+			it("Delta pitch should stay near 0 when rotating yaw axis", () => {
 				// Given
 				// When
 				return TestHeler.multipleDevicemotion(window, devicemotionRotateSample)
