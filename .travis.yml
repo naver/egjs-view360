@@ -4,17 +4,19 @@ node_js:
 dist: trusty
 sudo: false
 before_install:
-  - sudo add-apt-repository main
-  - sudo add-apt-repository universe
-  - sudo add-apt-repository restricted
-  - sudo add-apt-repository multiverse
-  - sudo apt-get update
-  - sudo apt-get install -y libgconf-2-4 libgtk2.0-0 libnss3 libxss1 libx11-xcb1 libxtst6
-  - sudo apt-get install -y libasound2 libxtst-dev libxss1 xvfb
-  - sudo apt-get install -y xfonts-100dpi xfonts-75dpi xfonts-cyrillic xorg dbus-x11
-  - sudo rm -rf /var/lib/apt/lists/*
+  - sudo apt-get install libosmesa
+  - sudo ln -s /usr/lib/x86_64-linux-gnu/libOSMesa.so.6 /opt/google/chrome/libosmesa.so
+  # - sudo add-apt-repository main
+  # - sudo add-apt-repository universe
+  # - sudo add-apt-repository restricted
+  # - sudo add-apt-repository multiverse
+  # - sudo apt-get update
+  # - sudo apt-get install -y libgconf-2-4 libgtk2.0-0 libnss3 libxss1 libx11-xcb1 libxtst6
+  # - sudo apt-get install -y libasound2 libxtst-dev libxss1 xvfb
+  # - sudo apt-get install -y xfonts-100dpi xfonts-75dpi xfonts-cyrillic xorg dbus-x11
+  # - sudo rm -rf /var/lib/apt/lists/*
 env:
-  - DISPLAY=:9.0
+  # - DISPLAY=:9.0
 install:
   - npm install
 addons:
@@ -23,9 +25,10 @@ cache:
   directories:
     - "node_modules"
 before_script:
-  - export DISPLAY=:9.0
+  # - export DISPLAY=:9.0
   - npm run lint
 script:
-  - Xvfb -ac -screen scrn 1280x800x16 :9.0 & npm run coverage
+  # - Xvfb -ac -screen scrn 1280x800x16 :9.0 & npm run coverage
+  - npm run coverage
 after_success:
   - npm run coveralls
