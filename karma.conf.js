@@ -45,11 +45,6 @@ module.exports = function(config) {
 
     browsers: [],
     customLaunchers: {
-      // chrome chrashs without '--no-sandbox' flag at travis ci
-      ChromeHeadlessNoGL: {
-        base: 'ChromeHeadless',
-        flags: ['--disable-webgl', '--no-sandbox']
-      },
       ChromeHeadlessGL: {
         base: 'ChromeHeadless',
         flags: ['--disable-gpu', '--no-first-run', '--use-gl=osmesa']
@@ -61,9 +56,7 @@ module.exports = function(config) {
     }
   };
 
-  karmaConfig.browsers.push(config.chrome ? "Chrome" :
-    (config.nogl ? "ChromeHeadlessNoGL" : "ChromeHeadlessGL")
-);
+  karmaConfig.browsers.push(config.chrome ? "Chrome" : "ChromeHeadlessGL");
 
   if(config.coverage) {
     karmaConfig.reporters.push("coverage-istanbul");
