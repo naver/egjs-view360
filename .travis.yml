@@ -1,8 +1,12 @@
 language: node_js
 node_js:
-  - "6"
+  - "6.9.1"
 dist: trusty
 sudo: false
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install libosmesa6
+  - sudo ln -s /usr/lib/x86_64-linux-gnu/libOSMesa.so.6 /opt/google/chrome/libosmesa.so
 install:
   - npm install
 addons:
@@ -11,8 +15,8 @@ cache:
   directories:
     - "node_modules"
 before_script:
-    - npm run lint
+  - npm run lint
 script:
-  - npm run coverage:nogl
+  - npm run coverage
 after_success:
   - npm run coveralls
