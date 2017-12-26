@@ -299,6 +299,7 @@ var imageController = gui.add(object, 'image', 40, 360).onChange(function(value)
   });
   render();
 });
+
 gui.add(object, 'projectionType', { equirectangular: 'equirectangular', vertical_cubestrip: 'vertical_cubestrip' } ).onChange(function(value) {
   panoViewer.setImage(imageController.object.image, {
     projectionType: value
