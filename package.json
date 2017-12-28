@@ -1,6 +1,6 @@
 {
 	"name": "@egjs/view360",
-	"version": "2.0.1-snapshot",
+	"version": "3.0.0-rc",
 	"description": "360 integrated viewing solution from inside-out view to outside-in view. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.",
 	"main": "dist/view360.js",
 	"es2015": "src/index.js",
@@ -37,10 +37,10 @@
 		"url": "https://github.com/naver/egjs-view360/issues"
 	},
 	"dependencies": {
-		"@egjs/agent": "^2.1.1",
-		"@egjs/axes": "^2.3.2",
-		"@egjs/component": "^2.0.0",
-		"es6-promise": "^4.1.1",
+		"@egjs/agent": "^2.1.2",
+		"@egjs/axes": "^2.3.3",
+		"@egjs/component": "^2.1.0",
+		"es6-promise": "^4.2.2",
 		"webvr-polyfill": "^0.9.16"
 	},
 	"devDependencies": {
@@ -60,7 +60,7 @@
 		"clean-webpack-plugin": "^0.1.16",
 		"coveralls": "^2.13.1",
 		"cpx": "^1.5.0",
-		"egjs-jsdoc-template": "1.4.0",
+		"egjs-jsdoc-template": "1.4.2",
 		"eslint": "^3.19.0",
 		"eslint-config-naver": "^1.0.0",
 		"eslint-loader": "^1.8.0",
