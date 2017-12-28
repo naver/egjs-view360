@@ -487,7 +487,7 @@ module.exports = exports["default"];
  * @egjs/axes JavaScript library
  * https://github.com/naver/egjs-axes
  * 
- * @version 2.3.2
+ * @version 2.3.3
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(true)
@@ -498,7 +498,7 @@ module.exports = exports["default"];
 		exports["Axes"] = factory(require("hammerjs"), require("@egjs/component"));
 	else
 		root["eg"] = root["eg"] || {}, root["eg"]["Axes"] = factory(root["Hammer"], root["eg"]["Component"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_4__, __WEBPACK_EXTERNAL_MODULE_8__) {
+})(typeof self !== 'undefined' ? self : this, function(__WEBPACK_EXTERNAL_MODULE_4__, __WEBPACK_EXTERNAL_MODULE_8__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -676,6 +676,14 @@ exports.cancelAnimationFrame = cancelAnimationFrame;
 
 "use strict";
 
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 exports.__esModule = true;
 var Hammer = __webpack_require__(4);
 exports.SUPPORT_TOUCH = "ontouchstart" in window;
@@ -690,24 +698,10 @@ function toAxis(source, offset) {
 }
 exports.toAxis = toAxis;
 ;
-function createHammer(element, recognizers, inputClass) {
+function createHammer(element, options) {
     try {
-        var options = {
-            recognizers: [
-                recognizers
-            ],
-            // css properties were removed due to usablility issue
-            // http://hammerjs.github.io/jsdoc/Hammer.defaults.cssProps.html
-            cssProps: {
-                userSelect: "none",
-                touchSelect: "none",
-                touchCallout: "none",
-                userDrag: "none"
-            }
-        };
-        inputClass && (options["inputClass"] = inputClass);
         // create Hammer
-        return new Hammer.Manager(element, options);
+        return new Hammer.Manager(element, __assign({}, options));
     }
     catch (e) {
         return null;
@@ -957,6 +951,14 @@ exports.TRANSFORM = (function () {
 "use strict";
 
 var Axes_1 = __webpack_require__(7);
+var PanInput_1 = __webpack_require__(13);
+var PinchInput_1 = __webpack_require__(14);
+var WheelInput_1 = __webpack_require__(15);
+var MoveKeyInput_1 = __webpack_require__(16);
+Axes_1["default"].PanInput = PanInput_1.PanInput;
+Axes_1["default"].PinchInput = PinchInput_1.PinchInput;
+Axes_1["default"].WheelInput = WheelInput_1.WheelInput;
+Axes_1["default"].MoveKeyInput = MoveKeyInput_1.MoveKeyInput;
 module.exports = Axes_1["default"];
 
 
@@ -991,10 +993,6 @@ var EventManager_1 = __webpack_require__(10);
 var InterruptManager_1 = __webpack_require__(11);
 var AxisManager_1 = __webpack_require__(3);
 var InputObserver_1 = __webpack_require__(12);
-var PanInput_1 = __webpack_require__(13);
-var PinchInput_1 = __webpack_require__(14);
-var WheelInput_1 = __webpack_require__(15);
-var MoveKeyInput_1 = __webpack_require__(16);
 var const_1 = __webpack_require__(5);
 /**
  * @typedef {Object} AxisOption The Axis information. The key of the axis specifies the name to use as the logical virtual coordinate system.
@@ -1328,10 +1326,6 @@ var Axes = /** @class */ (function (_super) {
         this.em.destroy();
     };
     Axes.VERSION = "3.0.0-rc";
-    Axes.PanInput = PanInput_1.PanInput;
-    Axes.PinchInput = PinchInput_1.PinchInput;
-    Axes.WheelInput = WheelInput_1.WheelInput;
-    Axes.MoveKeyInput = MoveKeyInput_1.MoveKeyInput;
     /**
      * @name eg.Axes.TRANSFORM
      * @desc Returns the transform attribute with CSS vendor prefixes.
@@ -2123,6 +2117,7 @@ var InputType_1 = __webpack_require__(1);
  * @property {Number} [scale.1=1] vertical axis scale <ko>수직축 배율</ko>
  * @property {Number} [thresholdAngle=45] The threshold value that determines whether user action is horizontal or vertical (0~90) <ko>사용자의 동작이 가로 방향인지 세로 방향인지 판단하는 기준 각도(0~90)</ko>
  * @property {Number} [threshold=0] Minimal pan distance required before recognizing <ko>사용자의 Pan 동작을 인식하기 위해산 최소한의 거리</ko>
+ * @property {Object} [hammerManagerOptions={cssProps: {userSelect: "none",touchSelect: "none",touchCallout: "none",userDrag: "none"}] Options of Hammer.Manager <ko>Hammer.Manager의 옵션</ko>
 **/
 /**
  * @class eg.Axes.PanInput
@@ -2169,7 +2164,17 @@ var PanInput = /** @class */ (function () {
             inputType: ["touch", "mouse"],
             scale: [1, 1],
             thresholdAngle: 45,
-            threshold: 0
+            threshold: 0,
+            hammerManagerOptions: {
+                // css properties were removed due to usablility issue
+                // http://hammerjs.github.io/jsdoc/Hammer.defaults.cssProps.html
+                cssProps: {
+                    userSelect: "none",
+                    touchSelect: "none",
+                    touchCallout: "none",
+                    userDrag: "none"
+                }
+            }
         }, options);
         this.onHammerInput = this.onHammerInput.bind(this);
         this.onPanmove = this.onPanmove.bind(this);
@@ -2231,7 +2236,7 @@ var PanInput = /** @class */ (function () {
         else {
             var keyValue = this.element[InputType_1.UNIQUEKEY];
             if (keyValue) {
-                this.hammer.destroy();
+                this.hammer && this.hammer.destroy();
             }
             else {
                 keyValue = String(Math.round(Math.random() * new Date().getTime()));
@@ -2240,7 +2245,12 @@ var PanInput = /** @class */ (function () {
             if (!inputClass) {
                 throw new Error("Wrong inputType parameter!");
             }
-            this.hammer = InputType_1.createHammer(this.element, [Hammer.Pan, hammerOption], inputClass);
+            this.hammer = InputType_1.createHammer(this.element, __assign({
+                recognizers: [
+                    [Hammer.Pan, hammerOption],
+                ],
+                inputClass: inputClass
+            }, this.options.hammerManagerOptions));
             this.element[InputType_1.UNIQUEKEY] = keyValue;
         }
         this.attachEvent(observer);
@@ -2391,6 +2401,7 @@ var InputType_1 = __webpack_require__(1);
  * @ko eg.Axes.PinchInput 모듈의 옵션 객체
  * @property {Number} [scale=1] Coordinate scale that a user can move<ko>사용자의 동작으로 이동하는 좌표의 배율</ko>
  * @property {Number} [threshold=0] Minimal scale before recognizing <ko>사용자의 Pinch 동작을 인식하기 위해산 최소한의 배율</ko>
+ * @property {Object} [hammerManagerOptions={cssProps: {userSelect: "none",touchSelect: "none",touchCallout: "none",userDrag: "none"}] Options of Hammer.Manager <ko>Hammer.Manager의 옵션</ko>
 **/
 /**
  * @class eg.Axes.PinchInput
@@ -2428,7 +2439,17 @@ var PinchInput = /** @class */ (function () {
         this.element = utils_1.$(el);
         this.options = __assign({
             scale: 1,
-            threshold: 0
+            threshold: 0,
+            hammerManagerOptions: {
+                // css properties were removed due to usablility issue
+                // http://hammerjs.github.io/jsdoc/Hammer.defaults.cssProps.html
+                cssProps: {
+                    userSelect: "none",
+                    touchSelect: "none",
+                    touchCallout: "none",
+                    userDrag: "none"
+                }
+            }
         }, options);
         this.onPinchStart = this.onPinchStart.bind(this);
         this.onPinchMove = this.onPinchMove.bind(this);
@@ -2454,7 +2475,12 @@ var PinchInput = /** @class */ (function () {
             else {
                 keyValue = String(Math.round(Math.random() * new Date().getTime()));
             }
-            this.hammer = InputType_1.createHammer(this.element, [Hammer.Pinch, hammerOption], Hammer.TouchInput);
+            this.hammer = InputType_1.createHammer(this.element, __assign({
+                recognizers: [
+                    [Hammer.Pinch, hammerOption],
+                ],
+                inputClass: Hammer.TouchInput
+            }, this.options.hammerManagerOptions));
             this.element[InputType_1.UNIQUEKEY] = keyValue;
         }
         this.attachEvent(observer);
