@@ -1,4 +1,4 @@
-# egjs-view360 [![npm version](https://badge.fury.io/js/%40egjs%2Fview360.svg)](https://badge.fury.io/js/%40egjs%2Fview360) [![Build Status](https://travis-ci.org/naver/egjs-view360.svg?branch=master)](https://travis-ci.org/naver/egjs-view360) [![Coverage Status](https://coveralls.io/repos/github/naver/egjs-view360/badge.svg?branch=master)](https://coveralls.io/github/naver/egjs-view360?branch=master)
+# egjs-view360 [![npm version](https://badge.fury.io/js/%40egjs%2Fview360.svg)](https://badge.fury.io/js/%40egjs%2Fview360) [![Build Status](https://travis-ci.org/naver/egjs-view360.svg?branch=3.0.0-rc)](https://travis-ci.org/naver/egjs-view360) [![Coverage Status](https://coveralls.io/repos/github/naver/egjs-view360/badge.svg?branch=3.0.0-rc)](https://coveralls.io/github/naver/egjs-view360?branch=3.0.0-rc)
 
 egjs-view360 is a 360 integrated viewing solution from **inside-out view** to **outside-in view**. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.
 
