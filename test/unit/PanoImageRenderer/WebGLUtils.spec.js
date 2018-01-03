@@ -1,5 +1,5 @@
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
-import WebglUtilsInjector from "inject-loader!../../../src/PanoImageRenderer/WebglUtils";
+import WebglUtilsInjector from "inject-loader!../../../src/PanoImageRenderer/WebGLUtils";
 
 const WEBGL_AVAILABILITY = WebGLUtils.isWebGLAvailable();
 const IT = WEBGL_AVAILABILITY ? it : it.skip;
