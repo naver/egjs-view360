@@ -2811,6 +2811,8 @@ var WEBGL_ERROR_CODE = {
 	"37442": "CONTEXT_LOST_WEBGL"
 };
 
+var webglAvailability = null;
+
 var WebGLUtils = function () {
 	function WebGLUtils() {
 		_classCallCheck(this, WebGLUtils);
@@ -2887,7 +2889,7 @@ var WebGLUtils = function () {
 
 		for (var i = 0; i < webglIdentifiers.length; i++) {
 			try {
-				// preserveDrawingBuffer: true 면 갤럭시 s6 네이버앱에서 떨림현상 발생
+				// preserveDrawingBuffer: if true, the Galaxy s6 Naver app will experience tremor
 				context = canvas.getContext(webglIdentifiers[i], { preserveDrawingBuffer: false });
 			} catch (t) {}
 			if (context) {
@@ -2914,30 +2916,32 @@ var WebGLUtils = function () {
 	};
 
 	/**
- 	 * 현재 환경의 webgl 지원여부를 확인한다
- 	 * @method Photo360Viewer#isWebGLAvailable
- 	 * @retuen {Boolean} isWebGLAvailable
- 	 */
+  * Returns the webgl availability of the current browser.
+  * @method WebGLUtils#isWebGLAvailable
+  * @retuen {Boolean} isWebGLAvailable
+  */
 
 
 	WebGLUtils.isWebGLAvailable = function isWebGLAvailable() {
-		var canvas = document.createElement("canvas");
-		var webglContext = WebGLUtils.getWebglContext(canvas);
-		var webglAvailability = !!webglContext;
+		if (webglAvailability === null) {
+			var canvas = document.createElement("canvas");
+			var webglContext = WebGLUtils.getWebglContext(canvas);
 
-		// webglContext 자원 강제 회수
-		if (webglContext) {
-			var loseContextExtension = webglContext.getExtension("WEBGL_lose_context");
+			webglAvailability = !!webglContext;
 
-			loseContextExtension && loseContextExtension.loseContext();
+			// webglContext Resource forced collection
+			if (webglContext) {
+				var loseContextExtension = webglContext.getExtension("WEBGL_lose_context");
+
+				loseContextExtension && loseContextExtension.loseContext();
+			}
 		}
-
 		return webglAvailability;
 	};
 
 	/**
-  * 현재 환경의 webgl 이 안정화 된 수준인지 확인한다.
-  * @method Photo360Viewer#isStableWebGL
+  * Returns whether webgl is stable in the current browser.
+  * @method WebGLUtils#isStableWebGL
   * @retuen {Boolean} isStableWebGL
   */
 
@@ -3810,7 +3814,9 @@ var PanoViewer = function (_Component) {
 		var isVideo = param.isVideo || false;
 
 		if (this._image && isVideo !== this._isVideo) {
+			/* eslint-disable no-console */
 			console.warn("Currently not supporting to change content type(Image <--> Video)");
+			/* eslint-enable no-console */
 			return this;
 		}
 
@@ -5833,7 +5839,9 @@ var SphereRenderer = function (_Renderer) {
 		var maxWidth = gl.getParameter(gl.MAX_TEXTURE_SIZE);
 
 		if (width > maxWidth) {
+			/* eslint-disable no-console */
 			console.warn("Image width(" + width + ") exceeds device limit(" + maxWidth + "))");
+			/* eslint-enable no-console */
 			return;
 		}
 

@@ -10,6 +10,8 @@ const WEBGL_ERROR_CODE = {
 	"37442": "CONTEXT_LOST_WEBGL"
 };
 
+let webglAvailability = null;
+
 export default class WebGLUtils {
 	static createShader(gl, type, source) {
 		const shader = gl.createShader(type);
@@ -82,9 +84,9 @@ export default class WebGLUtils {
 
 		for (let i = 0; i < webglIdentifiers.length; i++) {
 			try {
-				// preserveDrawingBuffer: true 면 갤럭시 s6 네이버앱에서 떨림현상 발생
+				// preserveDrawingBuffer: if true, the Galaxy s6 Naver app will experience tremor
 				context = canvas.getContext(webglIdentifiers[i], {preserveDrawingBuffer: false});
-			} catch (t) { }
+			} catch (t) {}
 			if (context) {
 				break;
 			}
@@ -108,29 +110,31 @@ export default class WebGLUtils {
 		return texture;
 	}
 
-/**
-	 * 현재 환경의 webgl 지원여부를 확인한다
-	 * @method Photo360Viewer#isWebGLAvailable
+	/**
+	 * Returns the webgl availability of the current browser.
+	 * @method WebGLUtils#isWebGLAvailable
 	 * @retuen {Boolean} isWebGLAvailable
 	 */
 	static isWebGLAvailable() {
-		const canvas = document.createElement("canvas");
-		const webglContext = WebGLUtils.getWebglContext(canvas);
-		const webglAvailability = !!webglContext;
+		if (webglAvailability === null) {
+			const canvas = document.createElement("canvas");
+			const webglContext = WebGLUtils.getWebglContext(canvas);
 
-		// webglContext 자원 강제 회수
-		if (webglContext) {
-			const loseContextExtension = webglContext.getExtension("WEBGL_lose_context");
+			webglAvailability = !!webglContext;
 
-			loseContextExtension && loseContextExtension.loseContext();
+			// webglContext Resource forced collection
+			if (webglContext) {
+				const loseContextExtension = webglContext.getExtension("WEBGL_lose_context");
+
+				loseContextExtension && loseContextExtension.loseContext();
+			}
 		}
-
 		return webglAvailability;
 	}
 
 	/**
-	 * 현재 환경의 webgl 이 안정화 된 수준인지 확인한다.
-	 * @method Photo360Viewer#isStableWebGL
+	 * Returns whether webgl is stable in the current browser.
+	 * @method WebGLUtils#isStableWebGL
 	 * @retuen {Boolean} isStableWebGL
 	 */
 	static isStableWebGL() {
