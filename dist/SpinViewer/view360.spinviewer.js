@@ -16,7 +16,7 @@
 		exports["view360"] = factory(require("@egjs/component"), require("@egjs/axes"));
 	else
 		root["eg"] = root["eg"] || {}, root["eg"]["view360"] = factory(root["eg"]["Component"], root["eg"]["Axes"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_0__, __WEBPACK_EXTERNAL_MODULE_7__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_0__, __WEBPACK_EXTERNAL_MODULE_8__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -106,11 +106,11 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _axes = __webpack_require__(7);
+var _axes = __webpack_require__(8);
 
 var _axes2 = _interopRequireDefault(_axes);
 
-var _SpriteImage = __webpack_require__(8);
+var _SpriteImage = __webpack_require__(9);
 
 var _SpriteImage2 = _interopRequireDefault(_SpriteImage);
 
@@ -333,7 +333,7 @@ var _SpinViewer = __webpack_require__(17);
 
 var _SpinViewer2 = _interopRequireDefault(_SpinViewer);
 
-var _SpriteImage = __webpack_require__(8);
+var _SpriteImage = __webpack_require__(9);
 
 var _SpriteImage2 = _interopRequireDefault(_SpriteImage);
 
@@ -347,14 +347,14 @@ _SpinViewer2["default"].VERSION = "3.0.0-rc";
 
 /***/ }),
 
-/***/ 7:
+/***/ 8:
 /***/ (function(module, exports) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE_7__;
+module.exports = __WEBPACK_EXTERNAL_MODULE_8__;
 
 /***/ }),
 
-/***/ 8:
+/***/ 9:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

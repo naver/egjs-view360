@@ -1,3 +1,5 @@
+import {GYRO_MODE} from "../YawPitchControl/consts";
+
 const ERROR_TYPE = {
 	INVALID_DEVICE: 10,
 	NO_WEBGL: 11,
@@ -17,6 +19,7 @@ const EVENTS = {
 };
 
 module.exports = {
+	GYRO_MODE,
 	EVENTS,
 	ERROR_TYPE
 };
