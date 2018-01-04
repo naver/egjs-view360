@@ -2793,7 +2793,7 @@ exports["default"] = SpriteImage;
 
 exports.__esModule = true;
 
-var _agent = __webpack_require__(13);
+var _agent = __webpack_require__(14);
 
 var _agent2 = _interopRequireDefault(_agent);
 
@@ -3000,6 +3000,42 @@ exports["default"] = Renderer;
 "use strict";
 
 
+var ERROR_TYPE = {
+	INVALID_DEVICE: 10,
+	NO_WEBGL: 11,
+	FAIL_IMAGE_LOAD: 12,
+	FAIL_BIND_TEXTURE: 13,
+	INVALID_RESOURCE: 14
+};
+
+var EVENTS = {
+	RESUME: "resume",
+	SUSPEND: "suspend",
+	VIEW_CHANGE: "viewChange",
+	ANIMATION_END: "animationEnd",
+	ERROR: "error",
+	INIT: "init",
+	CONTENT_LOADED: "contentLoaded"
+};
+
+var GYRO_MODE = {
+	NONE: "none",
+	YAWPITCH: "yawPitch"
+};
+
+module.exports = {
+	GYRO_MODE: GYRO_MODE,
+	EVENTS: EVENTS,
+	ERROR_TYPE: ERROR_TYPE
+};
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 exports.__esModule = true;
 var CONTROL_MODE_VR = 1;
 var CONTROL_MODE_YAWPITCH = 2;
@@ -3060,7 +3096,7 @@ exports.PINCH_EVENTS = PINCH_EVENTS;
 exports.KEYMAP = KEYMAP;
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3084,7 +3120,7 @@ exports["default"] = util;
 exports.toAxis = toAxis;
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -3554,7 +3590,7 @@ module.exports = exports["default"];
 });
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3567,7 +3603,7 @@ var _YawPitchControl = __webpack_require__(26);
 
 var _YawPitchControl2 = _interopRequireDefault(_YawPitchControl);
 
-var _consts = __webpack_require__(11);
+var _consts = __webpack_require__(12);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -3583,7 +3619,7 @@ _YawPitchControl2["default"].TOUCH_DIRECTION_NONE = _consts.TOUCH_DIRECTION_NONE
 exports.YawPitchControl = _YawPitchControl2["default"];
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3597,11 +3633,11 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _YawPitchControl = __webpack_require__(14);
+var _YawPitchControl = __webpack_require__(15);
 
-var _PanoImageRenderer = __webpack_require__(22);
+var _PanoImageRenderer = __webpack_require__(23);
 
-var _consts = __webpack_require__(25);
+var _consts = __webpack_require__(11);
 
 var _mathUtil = __webpack_require__(1);
 
@@ -3640,6 +3676,7 @@ var PanoViewer = function (_Component) {
   * @param {Boolean} [config.showPolePoint=false] If false, the pole is not displayed inside the viewport <ko>false 인 경우, 극점은 뷰포트 내부에 표시되지 않습니다</ko>
   * @param {Boolean} [config.useZoom=true] When true, enables zoom with the wheel and Pinch gesture <ko>true 일 때 휠 및 집기 제스춰로 확대 / 축소 할 수 있습니다.</ko>
   * @param {Boolean} [config.useKeyboard=true] When true, enables the keyboard move key control: awsd, arrow keys <ko>true 이면 키보드 이동 키 컨트롤을 활성화합니다: awsd, 화살표 키</ko>
+  * @param {String} [config.useGyro=yawPitch] Enables control through device motion. ("none", "yawPitch") <ko>디바이스 움직임을 통한 컨트롤을 활성화 합니다. ("none", "yawPitch") </ko>
   * @param {Array} [config.yawRange=[-180, 180]] Range of controllable Yaw values <ko>제어 가능한 Yaw 값의 범위</ko>
   * @param {Array} [config.pitchRange=[-90, 90]] Range of controllable Pitch values <ko>제어 가능한 Pitch 값의 범위</ko>
   * @param {Array} [config.fovRange=[30, 110]] Range of controllable vertical field of view values <ko>제어 가능한 수직 field of view 값의 범위</ko>
@@ -3702,6 +3739,9 @@ var PanoViewer = function (_Component) {
 		_this._yaw = options.yaw || 0;
 		_this._pitch = options.pitch || 0;
 		_this._fov = options.fov || 65;
+
+		_this._useGyro = options.useGyro || _consts.GYRO_MODE.YAWPITCH;
+
 		_this._aspectRatio = _this._width / _this._height;
 		var fovRange = options.fovRange || [30, 110];
 
@@ -3710,6 +3750,7 @@ var PanoViewer = function (_Component) {
 			yaw: _this._yaw,
 			pitch: _this._pitch,
 			fov: _this._fov,
+			useGyro: _this._useGyro,
 			fovRange: fovRange,
 			aspectRatio: _this._aspectRatio
 		});
@@ -4031,6 +4072,18 @@ var PanoViewer = function (_Component) {
 
 	PanoViewer.prototype.setUseKeyboard = function setUseKeyboard(useKeyboard) {
 		this._yawPitchControl.option("useKeyboard", useKeyboard);
+	};
+
+	/**
+  * Enables control through device motion. ("none", "yawPitch")
+  * @ko 디바이스 움직임을 통한 컨트롤을 활성화 합니다. ("none", "yawPitch")
+  * @method eg.view360.PanoViewer#setUseGyro
+  * @param {String} useGyro
+  */
+
+
+	PanoViewer.prototype.setUseGyro = function setUseGyro(useGyro) {
+		this._yawPitchControl.option("useGyro", useGyro);
 	};
 
 	/**
@@ -4417,7 +4470,7 @@ PanoViewer.EVENTS = _consts.EVENTS;
 PanoViewer.ProjectionType = _PanoImageRenderer.PanoImageRenderer.ImageType;
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4426,7 +4479,7 @@ PanoViewer.ProjectionType = _PanoImageRenderer.PanoImageRenderer.ImageType;
 exports.__esModule = true;
 exports.PanoViewer = undefined;
 
-var _PanoViewer = __webpack_require__(15);
+var _PanoViewer = __webpack_require__(16);
 
 var _PanoViewer2 = _interopRequireDefault(_PanoViewer);
 
@@ -4435,7 +4488,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 exports.PanoViewer = _PanoViewer2["default"];
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4660,7 +4713,7 @@ var SpinViewer = function (_Component) {
 exports["default"] = SpinViewer;
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4669,7 +4722,7 @@ exports["default"] = SpinViewer;
 exports.__esModule = true;
 exports.SpriteImage = exports.SpinViewer = undefined;
 
-var _SpinViewer = __webpack_require__(17);
+var _SpinViewer = __webpack_require__(18);
 
 var _SpinViewer2 = _interopRequireDefault(_SpinViewer);
 
@@ -4686,7 +4739,7 @@ exports.SpriteImage = _SpriteImage2["default"];
 _SpinViewer2["default"].VERSION = "3.0.0-rc";
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4815,7 +4868,7 @@ exports["default"] = ImageLoader;
 ImageLoader.STATUS = STATUS;
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4827,11 +4880,11 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _ImageLoader = __webpack_require__(19);
+var _ImageLoader = __webpack_require__(20);
 
 var _ImageLoader2 = _interopRequireDefault(_ImageLoader);
 
-var _VideoLoader = __webpack_require__(21);
+var _VideoLoader = __webpack_require__(22);
 
 var _VideoLoader2 = _interopRequireDefault(_VideoLoader);
 
@@ -4839,11 +4892,11 @@ var _WebGLUtils = __webpack_require__(9);
 
 var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
 
-var _CubeRenderer = __webpack_require__(23);
+var _CubeRenderer = __webpack_require__(24);
 
 var _CubeRenderer2 = _interopRequireDefault(_CubeRenderer);
 
-var _SphereRenderer = __webpack_require__(24);
+var _SphereRenderer = __webpack_require__(25);
 
 var _SphereRenderer2 = _interopRequireDefault(_SphereRenderer);
 
@@ -5375,7 +5428,7 @@ PanoImageRenderer.ERROR_TYPE = ERROR_TYPE;
 PanoImageRenderer.ImageType = ImageType;
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5524,7 +5577,7 @@ var VideoLoader = function () {
 exports["default"] = VideoLoader;
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5533,7 +5586,7 @@ exports["default"] = VideoLoader;
 exports.__esModule = true;
 exports.WebGLUtils = exports.PanoImageRenderer = undefined;
 
-var _PanoImageRenderer = __webpack_require__(20);
+var _PanoImageRenderer = __webpack_require__(21);
 
 var _PanoImageRenderer2 = _interopRequireDefault(_PanoImageRenderer);
 
@@ -5547,7 +5600,7 @@ exports.PanoImageRenderer = _PanoImageRenderer2["default"];
 exports.WebGLUtils = _WebGLUtils2["default"];
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5555,7 +5608,7 @@ exports.WebGLUtils = _WebGLUtils2["default"];
 
 exports.__esModule = true;
 
-var _agent = __webpack_require__(13);
+var _agent = __webpack_require__(14);
 
 var _agent2 = _interopRequireDefault(_agent);
 
@@ -5768,7 +5821,7 @@ CubeRenderer._VERTEX_POSITION_DATA = null;
 CubeRenderer._INDEX_DATA = null;
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5916,36 +5969,6 @@ SphereRenderer._TEXTURE_COORD_DATA = null;
 SphereRenderer._INDEX_DATA = null;
 
 /***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var ERROR_TYPE = {
-	INVALID_DEVICE: 10,
-	NO_WEBGL: 11,
-	FAIL_IMAGE_LOAD: 12,
-	FAIL_BIND_TEXTURE: 13,
-	INVALID_RESOURCE: 14
-};
-
-var EVENTS = {
-	RESUME: "resume",
-	SUSPEND: "suspend",
-	VIEW_CHANGE: "viewChange",
-	ANIMATION_END: "animationEnd",
-	ERROR: "error",
-	INIT: "init",
-	CONTENT_LOADED: "contentLoaded"
-};
-
-module.exports = {
-	EVENTS: EVENTS,
-	ERROR_TYPE: ERROR_TYPE
-};
-
-/***/ }),
 /* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -5976,7 +5999,9 @@ var _TiltMotionInput2 = _interopRequireDefault(_TiltMotionInput);
 
 var _mathUtil = __webpack_require__(1);
 
-var _consts = __webpack_require__(11);
+var _consts = __webpack_require__(12);
+
+var _consts2 = __webpack_require__(11);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -6008,6 +6033,7 @@ var YawPitchControl = function (_Component) {
   * @param {Boolean} [optiosn.showPolePoint=true] Indicates whether pole is shown
   * @param {Boolean} [options.useZoom=true] Indicates whether zoom is available
   * @param {Boolean} [options.useKeyboard=true] Indicates whether keyboard is enabled
+  * @param {String} [config.useGyro=yawPitch] Enables control through device motion.
   * @param {Number} [options.touchDirection=TOUCH_DIRECTION_ALL] Direction of the touch movement (TOUCH_DIRECTION_ALL: all,  TOUCH_DIRECTION_YAW: horizontal, TOUCH_DIRECTION_PITCH: vertical, TOUCH_DIRECTION_NONE: no move)
   * @param {Array} [options.yawRange=[-180, 180] Range of visible yaw
   * @param {Array} [options.pitchRange=[-90, 90] Range of visible pitch
@@ -6027,6 +6053,7 @@ var YawPitchControl = function (_Component) {
 			showPolePoint: false,
 			useZoom: true,
 			useKeyboard: true,
+			useGyro: _consts2.GYRO_MODE.YAWPITCH,
 			touchDirection: _consts.TOUCH_DIRECTION_ALL,
 			yawRange: DEFAULT_YAW_RANGE,
 			pitchRange: DEFAULT_PITCH_RANGE,
@@ -6204,6 +6231,18 @@ var YawPitchControl = function (_Component) {
 					fov: nextFov
 				}, 0);
 				this._updateControlScale();
+			}
+		}
+
+		if (keys.some(function (key) {
+			return key === "useGyro";
+		}) && this.axesTiltMotionInput) {
+			var useGyro = this.options.useGyro;
+
+			if (useGyro === _consts2.GYRO_MODE.YAWPITCH) {
+				this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
+			}if (useGyro === _consts2.GYRO_MODE.NONE) {
+				this.axes.disconnect(this.axesTiltMotionInput);
 			}
 		}
 
@@ -6430,7 +6469,6 @@ var YawPitchControl = function (_Component) {
 			return this;
 		}
 		this.axes.connect(["yaw", "pitch"], this.axesPanInput);
-		this.axesTiltMotionInput && this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
 		this._applyOptions(Object.keys(this.options), this.options);
 		this._setPanScale(this.getFov());
 
@@ -7008,7 +7046,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _utils = __webpack_require__(12);
+var _utils = __webpack_require__(13);
 
 var _FusionPoseSensor = __webpack_require__(29);
 
@@ -7139,7 +7177,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _utils = __webpack_require__(12);
+var _utils = __webpack_require__(13);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -8463,11 +8501,11 @@ module.exports = SensorSample;
 exports.__esModule = true;
 exports.VERSION = exports.SpriteImage = exports.SpinViewer = exports.PanoViewer = exports.YawPitchControl = undefined;
 
-var _YawPitchControl = __webpack_require__(14);
+var _YawPitchControl = __webpack_require__(15);
 
-var _PanoViewer = __webpack_require__(16);
+var _PanoViewer = __webpack_require__(17);
 
-var _SpinViewer = __webpack_require__(18);
+var _SpinViewer = __webpack_require__(19);
 
 var VERSION = "3.0.0-rc";
 

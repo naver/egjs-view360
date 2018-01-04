@@ -16,6 +16,7 @@ import {
 	YAW_RANGE_HALF,
 	PITCH_RANGE_HALF,
 } from "./consts";
+import {GYRO_MODE} from "../PanoViewer/consts";
 
 const DEFAULT_YAW_RANGE = [-YAW_RANGE_HALF, YAW_RANGE_HALF];
 const DEFAULT_PITCH_RANGE = [-PITCH_RANGE_HALF, PITCH_RANGE_HALF];
@@ -37,6 +38,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 	 * @param {Boolean} [optiosn.showPolePoint=true] Indicates whether pole is shown
 	 * @param {Boolean} [options.useZoom=true] Indicates whether zoom is available
 	 * @param {Boolean} [options.useKeyboard=true] Indicates whether keyboard is enabled
+	 * @param {String} [config.useGyro=yawPitch] Enables control through device motion.
 	 * @param {Number} [options.touchDirection=TOUCH_DIRECTION_ALL] Direction of the touch movement (TOUCH_DIRECTION_ALL: all,  TOUCH_DIRECTION_YAW: horizontal, TOUCH_DIRECTION_PITCH: vertical, TOUCH_DIRECTION_NONE: no move)
 	 * @param {Array} [options.yawRange=[-180, 180] Range of visible yaw
 	 * @param {Array} [options.pitchRange=[-90, 90] Range of visible pitch
@@ -54,6 +56,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 			showPolePoint: false,
 			useZoom: true,
 			useKeyboard: true,
+			useGyro: GYRO_MODE.YAWPITCH,
 			touchDirection: TOUCH_DIRECTION_ALL,
 			yawRange: DEFAULT_YAW_RANGE,
 			pitchRange: DEFAULT_PITCH_RANGE,
@@ -225,6 +228,16 @@ const YawPitchControl = class YawPitchControl extends Component {
 					fov: nextFov
 				}, 0);
 				this._updateControlScale();
+			}
+		}
+
+		if (keys.some(key => key === "useGyro") && this.axesTiltMotionInput) {
+			const useGyro = this.options.useGyro;
+
+			if (useGyro === GYRO_MODE.YAWPITCH) {
+				this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
+			} if (useGyro === GYRO_MODE.NONE) {
+				this.axes.disconnect(this.axesTiltMotionInput);
 			}
 		}
 
@@ -441,7 +454,6 @@ const YawPitchControl = class YawPitchControl extends Component {
 			return this;
 		}
 		this.axes.connect(["yaw", "pitch"], this.axesPanInput);
-		this.axesTiltMotionInput && this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
 		this._applyOptions(Object.keys(this.options), this.options);
 		this._setPanScale(this.getFov());
 

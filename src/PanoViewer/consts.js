@@ -16,7 +16,13 @@ const EVENTS = {
 	CONTENT_LOADED: "contentLoaded"
 };
 
+const GYRO_MODE = {
+	NONE: "none",
+	YAWPITCH: "yawPitch"
+};
+
 module.exports = {
+	GYRO_MODE,
 	EVENTS,
 	ERROR_TYPE
 };

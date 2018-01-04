@@ -82,7 +82,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 18);
+/******/ 	return __webpack_require__(__webpack_require__.s = 19);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -94,7 +94,7 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_0__;
 
 /***/ }),
 
-/***/ 17:
+/***/ 18:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -320,7 +320,7 @@ exports["default"] = SpinViewer;
 
 /***/ }),
 
-/***/ 18:
+/***/ 19:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -329,7 +329,7 @@ exports["default"] = SpinViewer;
 exports.__esModule = true;
 exports.SpriteImage = exports.SpinViewer = undefined;
 
-var _SpinViewer = __webpack_require__(17);
+var _SpinViewer = __webpack_require__(18);
 
 var _SpinViewer2 = _interopRequireDefault(_SpinViewer);
 
