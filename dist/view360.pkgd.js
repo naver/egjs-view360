@@ -2808,6 +2808,78 @@ var SUPPORT_DEVICEMOTION = exports.SUPPORT_DEVICEMOTION = "ondevicemotion" in wi
 /* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
+"use strict";
+
+
+exports.__esModule = true;
+var CONTROL_MODE_VR = 1;
+var CONTROL_MODE_YAWPITCH = 2;
+
+var TOUCH_DIRECTION_NONE = 1;
+var TOUCH_DIRECTION_YAW = 2;
+var TOUCH_DIRECTION_PITCH = 4;
+var TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_YAW | TOUCH_DIRECTION_PITCH;
+
+/* Const for MovableCoord */
+var MC_DECELERATION = 0.0014;
+var MC_MAXIMUM_DURATION = 1000;
+var MC_BIND_SCALE = [0.20, 0.20];
+
+var MIN_FIELD_OF_VIEW = 20;
+var MAX_FIELD_OF_VIEW = 110;
+var PAN_SCALE = 320;
+
+// const DELTA_THRESHOLD = 0.015;
+// const DELTA_THRESHOLD = 0.09; // Note4
+// const DELTA_THRESHOLD = 0.0825;
+// const DELTA_THRESHOLD = 0.075;
+// const DELTA_THRESHOLD = 0.06;
+// const DELTA_THRESHOLD = 0.045;
+var DELTA_THRESHOLD = 0.0375; // Note2
+
+var YAW_RANGE_HALF = 180;
+var PITCH_RANGE_HALF = 90;
+var PINCH_EVENTS = "pinchstart pinchmove pinchend";
+
+var KEYMAP = {
+	LEFT_ARROW: 37,
+	A: 65,
+	UP_ARROW: 38,
+	W: 87,
+	RIGHT_ARROW: 39,
+	D: 68,
+	DOWN_ARROW: 40,
+	S: 83
+};
+
+var GYRO_MODE = {
+	NONE: "none",
+	YAWPITCH: "yawPitch"
+};
+
+exports.GYRO_MODE = GYRO_MODE;
+exports.CONTROL_MODE_VR = CONTROL_MODE_VR;
+exports.CONTROL_MODE_YAWPITCH = CONTROL_MODE_YAWPITCH;
+exports.TOUCH_DIRECTION_NONE = TOUCH_DIRECTION_NONE;
+exports.TOUCH_DIRECTION_YAW = TOUCH_DIRECTION_YAW;
+exports.TOUCH_DIRECTION_PITCH = TOUCH_DIRECTION_PITCH;
+exports.TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_ALL;
+exports.MC_DECELERATION = MC_DECELERATION;
+exports.MC_MAXIMUM_DURATION = MC_MAXIMUM_DURATION;
+exports.MC_BIND_SCALE = MC_BIND_SCALE;
+exports.MIN_FIELD_OF_VIEW = MIN_FIELD_OF_VIEW;
+exports.MAX_FIELD_OF_VIEW = MAX_FIELD_OF_VIEW;
+exports.PAN_SCALE = PAN_SCALE;
+exports.DELTA_THRESHOLD = DELTA_THRESHOLD;
+exports.YAW_RANGE_HALF = YAW_RANGE_HALF;
+exports.PITCH_RANGE_HALF = PITCH_RANGE_HALF;
+exports.PINCH_EVENTS = PINCH_EVENTS;
+exports.KEYMAP = KEYMAP;
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
 /*!
  * Copyright (c) 2017 NAVER Corp.
  * @egjs/axes project is licensed under the MIT license
@@ -2819,7 +2891,7 @@ var SUPPORT_DEVICEMOTION = exports.SUPPORT_DEVICEMOTION = "ondevicemotion" in wi
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(true)
-		module.exports = factory(__webpack_require__(15), __webpack_require__(0));
+		module.exports = factory(__webpack_require__(14), __webpack_require__(0));
 	else if(typeof define === 'function' && define.amd)
 		define(["hammerjs", "@egjs/component"], factory);
 	else if(typeof exports === 'object')
@@ -5216,7 +5288,7 @@ exports.MoveKeyInput = MoveKeyInput;
 //# sourceMappingURL=axes.js.map
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5569,7 +5641,7 @@ var SpriteImage = function (_Component) {
 exports["default"] = SpriteImage;
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5577,7 +5649,7 @@ exports["default"] = SpriteImage;
 
 exports.__esModule = true;
 
-var _agent = __webpack_require__(14);
+var _agent = __webpack_require__(13);
 
 var _agent2 = _interopRequireDefault(_agent);
 
@@ -5761,7 +5833,7 @@ var WebGLUtils = function () {
 exports["default"] = WebGLUtils;
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5778,109 +5850,7 @@ var Renderer = function Renderer() {
 exports["default"] = Renderer;
 
 /***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var ERROR_TYPE = {
-	INVALID_DEVICE: 10,
-	NO_WEBGL: 11,
-	FAIL_IMAGE_LOAD: 12,
-	FAIL_BIND_TEXTURE: 13,
-	INVALID_RESOURCE: 14
-};
-
-var EVENTS = {
-	RESUME: "resume",
-	SUSPEND: "suspend",
-	VIEW_CHANGE: "viewChange",
-	ANIMATION_END: "animationEnd",
-	ERROR: "error",
-	INIT: "init",
-	CONTENT_LOADED: "contentLoaded"
-};
-
-var GYRO_MODE = {
-	NONE: "none",
-	YAWPITCH: "yawPitch"
-};
-
-module.exports = {
-	GYRO_MODE: GYRO_MODE,
-	EVENTS: EVENTS,
-	ERROR_TYPE: ERROR_TYPE
-};
-
-/***/ }),
 /* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-var CONTROL_MODE_VR = 1;
-var CONTROL_MODE_YAWPITCH = 2;
-
-var TOUCH_DIRECTION_NONE = 1;
-var TOUCH_DIRECTION_YAW = 2;
-var TOUCH_DIRECTION_PITCH = 4;
-var TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_YAW | TOUCH_DIRECTION_PITCH;
-
-/* Const for MovableCoord */
-var MC_DECELERATION = 0.0014;
-var MC_MAXIMUM_DURATION = 1000;
-var MC_BIND_SCALE = [0.20, 0.20];
-
-var MIN_FIELD_OF_VIEW = 20;
-var MAX_FIELD_OF_VIEW = 110;
-var PAN_SCALE = 320;
-
-// const DELTA_THRESHOLD = 0.015;
-// const DELTA_THRESHOLD = 0.09; // Note4
-// const DELTA_THRESHOLD = 0.0825;
-// const DELTA_THRESHOLD = 0.075;
-// const DELTA_THRESHOLD = 0.06;
-// const DELTA_THRESHOLD = 0.045;
-var DELTA_THRESHOLD = 0.0375; // Note2
-
-var YAW_RANGE_HALF = 180;
-var PITCH_RANGE_HALF = 90;
-var PINCH_EVENTS = "pinchstart pinchmove pinchend";
-
-var KEYMAP = {
-	LEFT_ARROW: 37,
-	A: 65,
-	UP_ARROW: 38,
-	W: 87,
-	RIGHT_ARROW: 39,
-	D: 68,
-	DOWN_ARROW: 40,
-	S: 83
-};
-
-exports.CONTROL_MODE_VR = CONTROL_MODE_VR;
-exports.CONTROL_MODE_YAWPITCH = CONTROL_MODE_YAWPITCH;
-exports.TOUCH_DIRECTION_NONE = TOUCH_DIRECTION_NONE;
-exports.TOUCH_DIRECTION_YAW = TOUCH_DIRECTION_YAW;
-exports.TOUCH_DIRECTION_PITCH = TOUCH_DIRECTION_PITCH;
-exports.TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_ALL;
-exports.MC_DECELERATION = MC_DECELERATION;
-exports.MC_MAXIMUM_DURATION = MC_MAXIMUM_DURATION;
-exports.MC_BIND_SCALE = MC_BIND_SCALE;
-exports.MIN_FIELD_OF_VIEW = MIN_FIELD_OF_VIEW;
-exports.MAX_FIELD_OF_VIEW = MAX_FIELD_OF_VIEW;
-exports.PAN_SCALE = PAN_SCALE;
-exports.DELTA_THRESHOLD = DELTA_THRESHOLD;
-exports.YAW_RANGE_HALF = YAW_RANGE_HALF;
-exports.PITCH_RANGE_HALF = PITCH_RANGE_HALF;
-exports.PINCH_EVENTS = PINCH_EVENTS;
-exports.KEYMAP = KEYMAP;
-
-/***/ }),
-/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5904,7 +5874,7 @@ exports["default"] = util;
 exports.toAxis = toAxis;
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -6374,7 +6344,7 @@ module.exports = exports["default"];
 });
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;/*! Hammer.JS - v2.0.7 - 2016-04-22
@@ -9024,7 +8994,7 @@ if (true) {
 
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9037,7 +9007,7 @@ var _YawPitchControl = __webpack_require__(27);
 
 var _YawPitchControl2 = _interopRequireDefault(_YawPitchControl);
 
-var _consts = __webpack_require__(12);
+var _consts = __webpack_require__(7);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -9053,7 +9023,7 @@ _YawPitchControl2["default"].TOUCH_DIRECTION_NONE = _consts.TOUCH_DIRECTION_NONE
 exports.YawPitchControl = _YawPitchControl2["default"];
 
 /***/ }),
-/* 17 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9067,11 +9037,11 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _YawPitchControl = __webpack_require__(16);
+var _YawPitchControl = __webpack_require__(15);
 
-var _PanoImageRenderer = __webpack_require__(24);
+var _PanoImageRenderer = __webpack_require__(23);
 
-var _consts = __webpack_require__(11);
+var _consts = __webpack_require__(26);
 
 var _mathUtil = __webpack_require__(1);
 
@@ -9904,7 +9874,7 @@ PanoViewer.EVENTS = _consts.EVENTS;
 PanoViewer.ProjectionType = _PanoImageRenderer.PanoImageRenderer.ImageType;
 
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9913,7 +9883,7 @@ PanoViewer.ProjectionType = _PanoImageRenderer.PanoImageRenderer.ImageType;
 exports.__esModule = true;
 exports.PanoViewer = undefined;
 
-var _PanoViewer = __webpack_require__(17);
+var _PanoViewer = __webpack_require__(16);
 
 var _PanoViewer2 = _interopRequireDefault(_PanoViewer);
 
@@ -9922,7 +9892,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 exports.PanoViewer = _PanoViewer2["default"];
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9934,11 +9904,11 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _axes = __webpack_require__(7);
+var _axes = __webpack_require__(8);
 
 var _axes2 = _interopRequireDefault(_axes);
 
-var _SpriteImage = __webpack_require__(8);
+var _SpriteImage = __webpack_require__(9);
 
 var _SpriteImage2 = _interopRequireDefault(_SpriteImage);
 
@@ -10147,7 +10117,7 @@ var SpinViewer = function (_Component) {
 exports["default"] = SpinViewer;
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10156,11 +10126,11 @@ exports["default"] = SpinViewer;
 exports.__esModule = true;
 exports.SpriteImage = exports.SpinViewer = undefined;
 
-var _SpinViewer = __webpack_require__(19);
+var _SpinViewer = __webpack_require__(18);
 
 var _SpinViewer2 = _interopRequireDefault(_SpinViewer);
 
-var _SpriteImage = __webpack_require__(8);
+var _SpriteImage = __webpack_require__(9);
 
 var _SpriteImage2 = _interopRequireDefault(_SpriteImage);
 
@@ -10173,7 +10143,7 @@ exports.SpriteImage = _SpriteImage2["default"];
 _SpinViewer2["default"].VERSION = "3.0.0-rc";
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10302,7 +10272,7 @@ exports["default"] = ImageLoader;
 ImageLoader.STATUS = STATUS;
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10314,23 +10284,23 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _ImageLoader = __webpack_require__(21);
+var _ImageLoader = __webpack_require__(20);
 
 var _ImageLoader2 = _interopRequireDefault(_ImageLoader);
 
-var _VideoLoader = __webpack_require__(23);
+var _VideoLoader = __webpack_require__(22);
 
 var _VideoLoader2 = _interopRequireDefault(_VideoLoader);
 
-var _WebGLUtils = __webpack_require__(9);
+var _WebGLUtils = __webpack_require__(10);
 
 var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
 
-var _CubeRenderer = __webpack_require__(25);
+var _CubeRenderer = __webpack_require__(24);
 
 var _CubeRenderer2 = _interopRequireDefault(_CubeRenderer);
 
-var _SphereRenderer = __webpack_require__(26);
+var _SphereRenderer = __webpack_require__(25);
 
 var _SphereRenderer2 = _interopRequireDefault(_SphereRenderer);
 
@@ -10862,7 +10832,7 @@ PanoImageRenderer.ERROR_TYPE = ERROR_TYPE;
 PanoImageRenderer.ImageType = ImageType;
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11011,7 +10981,7 @@ var VideoLoader = function () {
 exports["default"] = VideoLoader;
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11020,11 +10990,11 @@ exports["default"] = VideoLoader;
 exports.__esModule = true;
 exports.WebGLUtils = exports.PanoImageRenderer = undefined;
 
-var _PanoImageRenderer = __webpack_require__(22);
+var _PanoImageRenderer = __webpack_require__(21);
 
 var _PanoImageRenderer2 = _interopRequireDefault(_PanoImageRenderer);
 
-var _WebGLUtils = __webpack_require__(9);
+var _WebGLUtils = __webpack_require__(10);
 
 var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
 
@@ -11034,7 +11004,7 @@ exports.PanoImageRenderer = _PanoImageRenderer2["default"];
 exports.WebGLUtils = _WebGLUtils2["default"];
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11042,11 +11012,11 @@ exports.WebGLUtils = _WebGLUtils2["default"];
 
 exports.__esModule = true;
 
-var _agent = __webpack_require__(14);
+var _agent = __webpack_require__(13);
 
 var _agent2 = _interopRequireDefault(_agent);
 
-var _Renderer2 = __webpack_require__(10);
+var _Renderer2 = __webpack_require__(11);
 
 var _Renderer3 = _interopRequireDefault(_Renderer2);
 
@@ -11255,7 +11225,7 @@ CubeRenderer._VERTEX_POSITION_DATA = null;
 CubeRenderer._INDEX_DATA = null;
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11263,7 +11233,7 @@ CubeRenderer._INDEX_DATA = null;
 
 exports.__esModule = true;
 
-var _Renderer2 = __webpack_require__(10);
+var _Renderer2 = __webpack_require__(11);
 
 var _Renderer3 = _interopRequireDefault(_Renderer2);
 
@@ -11403,6 +11373,39 @@ SphereRenderer._TEXTURE_COORD_DATA = null;
 SphereRenderer._INDEX_DATA = null;
 
 /***/ }),
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _consts = __webpack_require__(7);
+
+var ERROR_TYPE = {
+	INVALID_DEVICE: 10,
+	NO_WEBGL: 11,
+	FAIL_IMAGE_LOAD: 12,
+	FAIL_BIND_TEXTURE: 13,
+	INVALID_RESOURCE: 14
+};
+
+var EVENTS = {
+	RESUME: "resume",
+	SUSPEND: "suspend",
+	VIEW_CHANGE: "viewChange",
+	ANIMATION_END: "animationEnd",
+	ERROR: "error",
+	INIT: "init",
+	CONTENT_LOADED: "contentLoaded"
+};
+
+module.exports = {
+	GYRO_MODE: _consts.GYRO_MODE,
+	EVENTS: EVENTS,
+	ERROR_TYPE: ERROR_TYPE
+};
+
+/***/ }),
 /* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -11417,7 +11420,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _axes = __webpack_require__(7);
+var _axes = __webpack_require__(8);
 
 var _axes2 = _interopRequireDefault(_axes);
 
@@ -11433,9 +11436,7 @@ var _TiltMotionInput2 = _interopRequireDefault(_TiltMotionInput);
 
 var _mathUtil = __webpack_require__(1);
 
-var _consts = __webpack_require__(12);
-
-var _consts2 = __webpack_require__(11);
+var _consts = __webpack_require__(7);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -11487,7 +11488,7 @@ var YawPitchControl = function (_Component) {
 			showPolePoint: false,
 			useZoom: true,
 			useKeyboard: true,
-			useGyro: _consts2.GYRO_MODE.YAWPITCH,
+			useGyro: _consts.GYRO_MODE.YAWPITCH,
 			touchDirection: _consts.TOUCH_DIRECTION_ALL,
 			yawRange: DEFAULT_YAW_RANGE,
 			pitchRange: DEFAULT_PITCH_RANGE,
@@ -11673,9 +11674,9 @@ var YawPitchControl = function (_Component) {
 		}) && this.axesTiltMotionInput) {
 			var useGyro = this.options.useGyro;
 
-			if (useGyro === _consts2.GYRO_MODE.YAWPITCH) {
+			if (useGyro === _consts.GYRO_MODE.YAWPITCH) {
 				this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
-			}if (useGyro === _consts2.GYRO_MODE.NONE) {
+			}if (useGyro === _consts.GYRO_MODE.NONE) {
 				this.axes.disconnect(this.axesTiltMotionInput);
 			}
 		}
@@ -12480,7 +12481,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _utils = __webpack_require__(13);
+var _utils = __webpack_require__(12);
 
 var _FusionPoseSensor = __webpack_require__(30);
 
@@ -12611,7 +12612,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _utils = __webpack_require__(13);
+var _utils = __webpack_require__(12);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -13935,11 +13936,11 @@ module.exports = SensorSample;
 exports.__esModule = true;
 exports.VERSION = exports.SpriteImage = exports.SpinViewer = exports.PanoViewer = exports.YawPitchControl = undefined;
 
-var _YawPitchControl = __webpack_require__(16);
+var _YawPitchControl = __webpack_require__(15);
 
-var _PanoViewer = __webpack_require__(18);
+var _PanoViewer = __webpack_require__(17);
 
-var _SpinViewer = __webpack_require__(20);
+var _SpinViewer = __webpack_require__(19);
 
 var VERSION = "3.0.0-rc";
 

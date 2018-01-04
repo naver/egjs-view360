@@ -7,6 +7,7 @@ import {
 	vec2,
 } from "../utils/math-util";
 import {
+	GYRO_MODE,
 	TOUCH_DIRECTION_ALL,
 	MC_DECELERATION,
 	MC_MAXIMUM_DURATION,
@@ -16,7 +17,6 @@ import {
 	YAW_RANGE_HALF,
 	PITCH_RANGE_HALF,
 } from "./consts";
-import {GYRO_MODE} from "../PanoViewer/consts";
 
 const DEFAULT_YAW_RANGE = [-YAW_RANGE_HALF, YAW_RANGE_HALF];
 const DEFAULT_PITCH_RANGE = [-PITCH_RANGE_HALF, PITCH_RANGE_HALF];

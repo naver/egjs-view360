@@ -38,7 +38,14 @@ const KEYMAP = {
 	S: 83,
 };
 
+const GYRO_MODE = {
+	NONE: "none",
+	YAWPITCH: "yawPitch"
+};
+
 export {
+	GYRO_MODE,
+
 	CONTROL_MODE_VR,
 	CONTROL_MODE_YAWPITCH,
 
