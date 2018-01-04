@@ -1,7 +1,7 @@
 import Axes from "@egjs/axes";
 import {window} from "../../../src/YawPitchControl/browser";
 import TiltMotionInput from "../../../src/YawPitchControl/input/TiltMotionInput";
-import TestHeler from "./testHelper";
+import TestHelper from "./testHelper";
 import devicemotionRotateSample from "./devicemotionSampleRotate";
 
 describe("TiltMotionInput", function() {
@@ -55,7 +55,7 @@ describe("TiltMotionInput", function() {
 			it("Delta pitch should stay near 0 when rotating yaw axis", () => {
 				// Given
 				// When
-				return TestHeler.multipleDevicemotion(window, devicemotionRotateSample)
+				return TestHelper.multipleDevicemotion(window, devicemotionRotateSample)
 				.then(() => {
 					// Then
 					expect(Math.abs(deltaPitch)).to.below(10);
@@ -87,8 +87,8 @@ describe("TiltMotionInput", function() {
 			// 	moveKeyInput.options.scale[0] = -1;
 				
 			// 	// When
-			// 	TestHeler.keyDown(document.body, leftKeyCode);
-			// 	TestHeler.keyUp(document.body, leftKeyCode);
+			// 	TestHelper.keyDown(document.body, leftKeyCode);
+			// 	TestHelper.keyUp(document.body, leftKeyCode);
 
 			// 	// Then
 			// 	expect(changed).to.be.true;

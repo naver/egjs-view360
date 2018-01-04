@@ -236,7 +236,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 
 			if (useGyro === GYRO_MODE.YAWPITCH) {
 				this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
-			} if (useGyro === GYRO_MODE.NONE) {
+			} else if (useGyro === GYRO_MODE.NONE) {
 				this.axes.disconnect(this.axesTiltMotionInput);
 			}
 		}

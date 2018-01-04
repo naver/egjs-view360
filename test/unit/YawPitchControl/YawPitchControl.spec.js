@@ -7,11 +7,14 @@ import {
 	TOUCH_DIRECTION_ALL,
 	MC_DECELERATION,
 	MAX_FIELD_OF_VIEW,
-	KEYMAP
+	KEYMAP,
+	GYRO_MODE
 } from "../../../src/YawPitchControl/consts";
 import YawPitchControl from "../../../src/YawPitchControl/YawPitchControl";
 import TestHelper from "./testHelper";
+
 import YawPitchControlrInjector from "inject-loader!../../../src/YawPitchControl/YawPitchControl";
+import devicemotionRotateSample from "./devicemotionSampleRotate";
 
 const INTERVAL = 1000 / 60.0;
 
@@ -57,6 +60,7 @@ describe("YawPitchControl", function() {
 				expect(appliedOption.showPolePoint).to.equal(false);
 				expect(appliedOption.useZoom).to.equal(true);
 				expect(appliedOption.useKeyboard).to.equal(true);
+				expect(appliedOption.useGyro).to.equal(GYRO_MODE.YAWPITCH);
 				expect(appliedOption.touchDirection).to.equal(TOUCH_DIRECTION_ALL);
 				expect(appliedOption.yawRange).to.deep.equal([-180, 180]);
 				expect(appliedOption.pitchRange).to.deep.equal([-90, 90]);
@@ -850,6 +854,7 @@ describe("YawPitchControl", function() {
 				target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
 
 				inst = new YawPitchControl({element: target});
+				inst.enable();
 			});
 
 			afterEach(() => {
@@ -879,6 +884,44 @@ describe("YawPitchControl", function() {
 						expect(res[i]).to.equal(expectedVal);
 					});
 				}
+			});
+		});
+
+		describe.only("useGyro none Test", () => {
+			let results = [];
+			let inst = null;
+			let target;
+
+			beforeEach(() => {
+				target = sandbox();
+				target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+
+				inst = new YawPitchControl({element: target});
+				inst.enable();
+			});
+
+			afterEach(() => {
+				results = [];
+				target.remove();
+				inst.destroy();
+			});
+
+			// allow FOV (Zoom) (Spec for embedding in a document)
+			it("should not change yaw/pitch when useGyro is none", () => {
+				// Given
+				inst.option("useGyro", GYRO_MODE.NONE);
+				let changeTriggered = false;
+				inst.on("change", e => {
+					changeTriggered = true;
+				});
+
+				// When
+				return TestHelper.multipleDevicemotion(window, devicemotionRotateSample)
+				.then(() => {
+					// Then
+					expect(changeTriggered).to.be.false;
+				});
+
 			});
 		});
 

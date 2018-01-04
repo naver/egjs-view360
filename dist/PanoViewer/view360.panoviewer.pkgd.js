@@ -11075,7 +11075,7 @@ var YawPitchControl = function (_Component) {
 
 			if (useGyro === _consts.GYRO_MODE.YAWPITCH) {
 				this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
-			}if (useGyro === _consts.GYRO_MODE.NONE) {
+			} else if (useGyro === _consts.GYRO_MODE.NONE) {
 				this.axes.disconnect(this.axesTiltMotionInput);
 			}
 		}
