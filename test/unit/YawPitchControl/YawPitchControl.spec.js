@@ -887,7 +887,7 @@ describe("YawPitchControl", function() {
 			});
 		});
 
-		describe.only("useGyro none Test", () => {
+		describe("useGyro none Test", () => {
 			let results = [];
 			let inst = null;
 			let target;
