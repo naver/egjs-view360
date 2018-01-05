@@ -3881,6 +3881,10 @@ var PanoViewer = function (_Component) {
 
 		this._photoSphereRenderer.on(_PanoImageRenderer.PanoImageRenderer.EVENTS.RENDERING_CONTEXT_LOST, function (e) {
 			_this3._inactivateInteraction();
+			_this3.trigger(_consts.EVENTS.ERROR, {
+				type: _consts.ERROR_TYPE.RENDERING_CONTEXT_LOST,
+				message: "webgl rendering context lost"
+			});
 		}, false);
 	};
 
@@ -5889,7 +5893,8 @@ var ERROR_TYPE = {
 	NO_WEBGL: 11,
 	FAIL_IMAGE_LOAD: 12,
 	FAIL_BIND_TEXTURE: 13,
-	INVALID_RESOURCE: 14
+	INVALID_RESOURCE: 14,
+	RENDERING_CONTEXT_LOST: 15
 };
 
 var EVENTS = {
