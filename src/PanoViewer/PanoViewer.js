@@ -241,6 +241,10 @@ export default class PanoViewer extends Component {
 
 		this._photoSphereRenderer.on(PanoImageRenderer.EVENTS.RENDERING_CONTEXT_LOST, e => {
 			this._inactivateInteraction();
+			this.trigger(EVENTS.ERROR, {
+				type: ERROR_TYPE.RENDERING_CONTEXT_LOST,
+				message: "webgl rendering context lost"
+			});
 		}, false);
 	}
 
