@@ -109,7 +109,7 @@
 
         var compass;
 
-        panoViewer.on("resume", function(e) {
+        panoViewer.on("ready", function(e) {
             compass = new Compass(compassEl);
             compass.render(0, 65);
         });
@@ -126,7 +126,6 @@
             }, 800);
         });
 
-        panoViewer.resume();
 </script>
 
 </body>

@@ -3725,26 +3725,10 @@ var PanoViewer = function (_Component) {
 			aspectRatio: _this._aspectRatio
 		});
 
-		_this._isResumed = false;
+		_this._isReady = false;
 
-		try {
-			_this._initRenderer(_this._yaw, _this._pitch, _this._fov, _this._projectionType);
-		} catch (e) {
-			var _ret4;
-
-			setTimeout(function () {
-				_this._photoSphereRenderer && _this._photoSphereRenderer.destroy();
-				_this.trigger(_consts.EVENTS.ERROR, {
-					type: _consts.ERROR_TYPE.NO_WEBGL,
-					message: "no webgl support"
-				});
-			}, 0);
-			return _ret4 = _this, _possibleConstructorReturn(_this, _ret4);
-		}
-
-		_this._yawPitchControl = new _YawPitchControl.YawPitchControl(yawPitchConfig);
-
-		_this._initYawPitchControl();
+		_this._initYawPitchControl(yawPitchConfig);
+		_this._initRenderer(_this._yaw, _this._pitch, _this._fov, _this._projectionType);
 		return _this;
 	}
 
@@ -3838,8 +3822,9 @@ var PanoViewer = function (_Component) {
 		this._image = image;
 		this._isVideo = isVideo;
 		this._projectionType = projectionType;
-		this.suspend();
-		this.resume();
+
+		this._inactivateInteraction();
+		this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType);
 
 		return this;
 	};
@@ -3862,9 +3847,7 @@ var PanoViewer = function (_Component) {
 	};
 
 	PanoViewer.prototype._initRenderer = function _initRenderer(yaw, pitch, fov, projectionType) {
-		if (this._photoSphereRenderer) {
-			this._photoSphereRenderer.destroy();
-		}
+		var _this2 = this;
 
 		this._photoSphereRenderer = new _PanoImageRenderer.PanoImageRenderer(this._image, this._width, this._height, this._isVideo, {
 			initialYaw: yaw,
@@ -3872,42 +3855,50 @@ var PanoViewer = function (_Component) {
 			fieldOfView: fov,
 			imageType: projectionType
 		});
+
 		this._bindRendererHandler();
+
+		this._photoSphereRenderer.bindTexture().then(function () {
+			return _this2._activateInteraction();
+		})["catch"](function () {
+			_this2._triggerEvent(_consts.EVENTS.ERROR, {
+				type: _consts.ERROR_TYPE.FAIL_BIND_TEXTURE,
+				message: "failed to bind texture"
+			});
+		});
 	};
 
 	PanoViewer.prototype._bindRendererHandler = function _bindRendererHandler() {
-		var _this2 = this;
+		var _this3 = this;
 
 		this._photoSphereRenderer.on(_PanoImageRenderer.PanoImageRenderer.EVENTS.IMAGE_LOADED, function (e) {
-			_this2.trigger(_consts.EVENTS.CONTENT_LOADED, e);
+			_this3.trigger(_consts.EVENTS.CONTENT_LOADED, e);
 		});
 
 		this._photoSphereRenderer.on(_PanoImageRenderer.PanoImageRenderer.EVENTS.ERROR, function (e) {
-			_this2.trigger(_consts.EVENTS.ERROR, e);
+			_this3.trigger(_consts.EVENTS.ERROR, e);
 		});
 
 		this._photoSphereRenderer.on(_PanoImageRenderer.PanoImageRenderer.EVENTS.RENDERING_CONTEXT_LOST, function (e) {
-			_this2.suspend();
-		});
-
-		this._photoSphereRenderer.on(_PanoImageRenderer.PanoImageRenderer.EVENTS.RENDERING_CONTEXT_RESTORE, function (e) {
-			_this2.resume();
-		});
+			_this3._inactivateInteraction();
+		}, false);
 	};
 
-	PanoViewer.prototype._initYawPitchControl = function _initYawPitchControl() {
-		var _this3 = this;
+	PanoViewer.prototype._initYawPitchControl = function _initYawPitchControl(yawPitchConfig) {
+		var _this4 = this;
+
+		this._yawPitchControl = new _YawPitchControl.YawPitchControl(yawPitchConfig);
 
 		this._yawPitchControl.on(_consts.EVENTS.ANIMATION_END, function (e) {
-			_this3._triggerEvent(_consts.EVENTS.ANIMATION_END, e);
+			_this4._triggerEvent(_consts.EVENTS.ANIMATION_END, e);
 		});
 
 		this._yawPitchControl.on("change", function (e) {
-			_this3._yaw = e.yaw;
-			_this3._pitch = e.pitch;
-			_this3._fov = e.fov;
+			_this4._yaw = e.yaw;
+			_this4._pitch = e.pitch;
+			_this4._fov = e.fov;
 
-			_this3._triggerEvent(_consts.EVENTS.VIEW_CHANGE, e);
+			_this4._triggerEvent(_consts.EVENTS.VIEW_CHANGE, e);
 		});
 	};
 
@@ -3947,27 +3938,13 @@ var PanoViewer = function (_Component) {
 		/**
    * Events that is fired when PanoViewer is ready to go.
    * @ko PanoViewer 가 준비된 상태에 발생하는 이벤트
-   * @name eg.view360.PanoViewer#resume
+   * @name eg.view360.PanoViewer#ready
    * @event
    *
    * @example
    *
    * viwer.on({
-   *	"resume" : function(evt) {
-   *		// PanoViewer is ready to show image and handle user interaction.
-   * });
-   */
-
-		/**
-   * Events that is fired when PanoViewer is suspended
-   * @ko PanoViewer 를 중지했을때 발생하는 이벤트
-   * @name eg.view360.PanoViewer#suspend
-   * @event
-   *
-   * @example
-   *
-   * viwer.on({
-   *	"suspend" : function(evt) {
+   *	"ready" : function(evt) {
    *		// PanoViewer is ready to show image and handle user interaction.
    * });
    */
@@ -4091,7 +4068,7 @@ var PanoViewer = function (_Component) {
 
 
 	PanoViewer.prototype.updateViewportDimensions = function updateViewportDimensions(size) {
-		if (!this._isResumed) {
+		if (!this._isReady) {
 			return;
 		}
 		this._width = size && size.width || parseInt(window.getComputedStyle(this._container).width, 10);
@@ -4221,7 +4198,7 @@ var PanoViewer = function (_Component) {
 
 
 	PanoViewer.prototype.lookAt = function lookAt(orientation, duration) {
-		if (!this._isResumed) {
+		if (!this._isReady) {
 			return;
 		}
 
@@ -4242,50 +4219,27 @@ var PanoViewer = function (_Component) {
 		}
 	};
 
-	/**
-  * Create webgl context and initiate user interaction and rendering
-  * @ko WebGl 컨텍스트 생성 및 사용자 상호 작용과 렌더링 시작
-  * @method eg.view360.PanoViewer#resume
-  */
+	PanoViewer.prototype._bindTexture = function _bindTexture() {
+		var _this5 = this;
 
-
-	PanoViewer.prototype.resume = function resume() {
-		var _this4 = this;
-
-		if (this._isResumed || !this._yawPitchControl) {
-			return;
-		}
-
-		if (!this._photoSphereRenderer) {
-			this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType);
-		}
-
-		// do setTimeout for not blocking UI when resume is called in syncrounos code.
-		setTimeout(function () {
-			if (_this4._isResumed || !_this4._photoSphereRenderer) {
-				return;
-			}
-
-			_this4._photoSphereRenderer.bindTexture().then(function () {
-				return _this4._resume();
-			})["catch"](function () {
-				_this4._triggerEvent(_consts.EVENTS.ERROR, {
-					type: _consts.ERROR_TYPE.FAIL_BIND_TEXTURE,
-					message: "failed to bind texture"
-				});
+		this._photoSphereRenderer.bindTexture().then(function () {
+			return _this5._activateInteraction();
+		})["catch"](function () {
+			_this5._triggerEvent(_consts.EVENTS.ERROR, {
+				type: _consts.ERROR_TYPE.FAIL_BIND_TEXTURE,
+				message: "failed to bind texture"
 			});
-		}, 0);
+		});
 	};
 
-	PanoViewer.prototype._resume = function _resume() {
+	PanoViewer.prototype._activateInteraction = function _activateInteraction() {
 		this._photoSphereRenderer.attachTo(this._container);
 		this._yawPitchControl.enable();
 
-		// Even if the size of the container changes after the suspend, it is detected at the time of resume and is adjusted again.
 		this.updateViewportDimensions();
 
-		this._isResumed = true;
-		this._triggerEvent(_consts.EVENTS.RESUME);
+		this._isReady = true;
+		this._triggerEvent(_consts.EVENTS.READY);
 		this._startRender();
 	};
 
@@ -4315,37 +4269,20 @@ var PanoViewer = function (_Component) {
 
 	/**
   * Destroy webgl context and block user interaction and stop rendering
-  * @ko Webgl 컨텍스트를 삭제하고 사용자 상호 작용을 차단하고 렌더링을 중지합니다.
-  * @method eg.view360.PanoViewer#suspend
-  * @param {Boolean} persistOrientation When true, it persist last yaw, pitch, fov on next resume <ko>true 지정 시, 다음 resume 때 기존의 카메라 설정을 유지합니다.</ko>
   */
 
 
-	PanoViewer.prototype.suspend = function suspend() {
+	PanoViewer.prototype._inactivateInteraction = function _inactivateInteraction() {
 		if (this._photoSphereRenderer) {
 			this._photoSphereRenderer.destroy();
 			this._photoSphereRenderer = null;
 		}
 
-		if (this._isResumed) {
+		if (this._isReady) {
 			this._yawPitchControl.disable();
 			this._stopRender();
-			this._isResumed = false;
+			this._isReady = false;
 		}
-
-		this._triggerEvent(_consts.EVENTS.SUSPEND);
-	};
-
-	/**
-  * Returns whether the viewer is in resumed state.
-  * @ko 뷰어가 resume 된 상태인지 여부를 반환합니다.
-  * @method eg.view360.PanoViewer#isResumed
-  * @return {Boolean}
-  */
-
-
-	PanoViewer.prototype.isResumed = function isResumed() {
-		return this._isResumed;
 	};
 
 	/**
@@ -4356,7 +4293,7 @@ var PanoViewer = function (_Component) {
 
 
 	PanoViewer.prototype.destroy = function destroy() {
-		this.suspend();
+		this._inactivateInteraction();
 
 		if (this._yawPitchControl) {
 			this._yawPitchControl.destroy();
@@ -4368,7 +4305,7 @@ var PanoViewer = function (_Component) {
 			this._photoSphereRenderer = null;
 		}
 
-		this._isResumed = false;
+		this._isReady = false;
 	};
 
 	PanoViewer.isWebGLAvailable = function isWebGLAvailable() {
@@ -5956,12 +5893,10 @@ var ERROR_TYPE = {
 };
 
 var EVENTS = {
-	RESUME: "resume",
-	SUSPEND: "suspend",
+	READY: "ready",
 	VIEW_CHANGE: "viewChange",
 	ANIMATION_END: "animationEnd",
 	ERROR: "error",
-	INIT: "init",
 	CONTENT_LOADED: "contentLoaded"
 };
 

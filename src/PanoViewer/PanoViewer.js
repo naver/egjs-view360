@@ -97,24 +97,10 @@ export default class PanoViewer extends Component {
 			aspectRatio: this._aspectRatio,
 		});
 
-		this._isResumed = false;
+		this._isReady = false;
 
-		try {
-			this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType);
-		} catch (e) {
-			setTimeout(() => {
-				this._photoSphereRenderer && this._photoSphereRenderer.destroy();
-				this.trigger(EVENTS.ERROR, {
-					type: ERROR_TYPE.NO_WEBGL,
-					message: "no webgl support"
-				});
-			}, 0);
-			return this;
-		}
-
-		this._yawPitchControl = new YawPitchControl(yawPitchConfig);
-
-		this._initYawPitchControl();
+		this._initYawPitchControl(yawPitchConfig);
+		this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType);
 	}
 
 	/**
@@ -195,8 +181,9 @@ export default class PanoViewer extends Component {
 		this._image = image;
 		this._isVideo = isVideo;
 		this._projectionType = projectionType;
-		this.suspend();
-		this.resume();
+
+		this._inactivateInteraction();
+		this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType);
 
 		return this;
 	}
@@ -217,10 +204,6 @@ export default class PanoViewer extends Component {
 	}
 
 	_initRenderer(yaw, pitch, fov, projectionType) {
-		if (this._photoSphereRenderer) {
-			this._photoSphereRenderer.destroy();
-		}
-
 		this._photoSphereRenderer = new PanoImageRenderer(
 			this._image,
 			this._width,
@@ -233,7 +216,18 @@ export default class PanoViewer extends Component {
 				imageType: projectionType
 			}
 		);
+
 		this._bindRendererHandler();
+
+		this._photoSphereRenderer
+			.bindTexture()
+			.then(() => this._activateInteraction())
+			.catch(() => {
+				this._triggerEvent(EVENTS.ERROR, {
+					type: ERROR_TYPE.FAIL_BIND_TEXTURE,
+					message: "failed to bind texture"
+				});
+			});
 	}
 
 	_bindRendererHandler() {
@@ -246,15 +240,13 @@ export default class PanoViewer extends Component {
 		});
 
 		this._photoSphereRenderer.on(PanoImageRenderer.EVENTS.RENDERING_CONTEXT_LOST, e => {
-			this.suspend();
-		});
-
-		this._photoSphereRenderer.on(PanoImageRenderer.EVENTS.RENDERING_CONTEXT_RESTORE, e => {
-			this.resume();
-		});
+			this._inactivateInteraction();
+		}, false);
 	}
 
-	_initYawPitchControl() {
+	_initYawPitchControl(yawPitchConfig) {
+		this._yawPitchControl = new YawPitchControl(yawPitchConfig);
+
 		this._yawPitchControl.on(EVENTS.ANIMATION_END, e => {
 			this._triggerEvent(EVENTS.ANIMATION_END, e);
 		});
@@ -304,27 +296,13 @@ export default class PanoViewer extends Component {
 		/**
 		 * Events that is fired when PanoViewer is ready to go.
 		 * @ko PanoViewer 가 준비된 상태에 발생하는 이벤트
-		 * @name eg.view360.PanoViewer#resume
+		 * @name eg.view360.PanoViewer#ready
 		 * @event
 		 *
 		 * @example
 		 *
 		 * viwer.on({
-		 *	"resume" : function(evt) {
-		 *		// PanoViewer is ready to show image and handle user interaction.
-		 * });
-		 */
-
-		/**
-		 * Events that is fired when PanoViewer is suspended
-		 * @ko PanoViewer 를 중지했을때 발생하는 이벤트
-		 * @name eg.view360.PanoViewer#suspend
-		 * @event
-		 *
-		 * @example
-		 *
-		 * viwer.on({
-		 *	"suspend" : function(evt) {
+		 *	"ready" : function(evt) {
 		 *		// PanoViewer is ready to show image and handle user interaction.
 		 * });
 		 */
@@ -436,7 +414,7 @@ export default class PanoViewer extends Component {
 	 * @param {Number} [size.height=height of container]
 	 */
 	updateViewportDimensions(size) {
-		if (!this._isResumed) {
+		if (!this._isReady) {
 			return;
 		}
 		this._width = (size && size.width) ||
@@ -549,7 +527,7 @@ export default class PanoViewer extends Component {
 	 * @param {Number} duration Animation duration in milliseconds <ko>애니메이션 시간 (밀리 초)</ko>
 	 */
 	lookAt(orientation, duration) {
-		if (!this._isResumed) {
+		if (!this._isReady) {
 			return;
 		}
 
@@ -570,47 +548,26 @@ export default class PanoViewer extends Component {
 		}
 	}
 
-	/**
-	 * Create webgl context and initiate user interaction and rendering
-	 * @ko WebGl 컨텍스트 생성 및 사용자 상호 작용과 렌더링 시작
-	 * @method eg.view360.PanoViewer#resume
-	 */
-	resume() {
-		if (this._isResumed || !this._yawPitchControl) {
-			return;
-		}
-
-		if (!this._photoSphereRenderer) {
-			this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType);
-		}
-
-		// do setTimeout for not blocking UI when resume is called in syncrounos code.
-		setTimeout(() => {
-			if (this._isResumed || !this._photoSphereRenderer) {
-				return;
-			}
-
-			this._photoSphereRenderer
-				.bindTexture()
-				.then(() => this._resume())
-				.catch(() => {
-					this._triggerEvent(EVENTS.ERROR, {
-						type: ERROR_TYPE.FAIL_BIND_TEXTURE,
-						message: "failed to bind texture"
-					});
+	_bindTexture() {
+		this._photoSphereRenderer
+			.bindTexture()
+			.then(() => this._activateInteraction())
+			.catch(() => {
+				this._triggerEvent(EVENTS.ERROR, {
+					type: ERROR_TYPE.FAIL_BIND_TEXTURE,
+					message: "failed to bind texture"
 				});
-		}, 0);
+			});
 	}
 
-	_resume() {
+	_activateInteraction() {
 		this._photoSphereRenderer.attachTo(this._container);
 		this._yawPitchControl.enable();
 
-		// Even if the size of the container changes after the suspend, it is detected at the time of resume and is adjusted again.
 		this.updateViewportDimensions();
 
-		this._isResumed = true;
-		this._triggerEvent(EVENTS.RESUME);
+		this._isReady = true;
+		this._triggerEvent(EVENTS.READY);
 		this._startRender();
 	}
 
@@ -638,33 +595,18 @@ export default class PanoViewer extends Component {
 
 	/**
 	 * Destroy webgl context and block user interaction and stop rendering
-	 * @ko Webgl 컨텍스트를 삭제하고 사용자 상호 작용을 차단하고 렌더링을 중지합니다.
-	 * @method eg.view360.PanoViewer#suspend
-	 * @param {Boolean} persistOrientation When true, it persist last yaw, pitch, fov on next resume <ko>true 지정 시, 다음 resume 때 기존의 카메라 설정을 유지합니다.</ko>
 	 */
-	suspend() {
+	_inactivateInteraction() {
 		if (this._photoSphereRenderer) {
 			this._photoSphereRenderer.destroy();
 			this._photoSphereRenderer = null;
 		}
 
-		if (this._isResumed) {
+		if (this._isReady) {
 			this._yawPitchControl.disable();
 			this._stopRender();
-			this._isResumed = false;
+			this._isReady = false;
 		}
-
-		this._triggerEvent(EVENTS.SUSPEND);
-	}
-
-	/**
-	 * Returns whether the viewer is in resumed state.
-	 * @ko 뷰어가 resume 된 상태인지 여부를 반환합니다.
-	 * @method eg.view360.PanoViewer#isResumed
-	 * @return {Boolean}
-	 */
-	isResumed() {
-		return this._isResumed;
 	}
 
 	/**
@@ -673,7 +615,7 @@ export default class PanoViewer extends Component {
 	 * @method eg.view360.PanoViewer#destroy
 	 */
 	destroy() {
-		this.suspend();
+		this._inactivateInteraction();
 
 		if (this._yawPitchControl) {
 			this._yawPitchControl.destroy();
@@ -685,7 +627,7 @@ export default class PanoViewer extends Component {
 			this._photoSphereRenderer = null;
 		}
 
-		this._isResumed = false;
+		this._isReady = false;
 	}
 
 	static isWebGLAvailable() {

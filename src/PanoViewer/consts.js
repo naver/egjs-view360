@@ -9,12 +9,10 @@ const ERROR_TYPE = {
 };
 
 const EVENTS = {
-	RESUME: "resume",
-	SUSPEND: "suspend",
+	READY: "ready",
 	VIEW_CHANGE: "viewChange",
 	ANIMATION_END: "animationEnd",
 	ERROR: "error",
-	INIT: "init",
 	CONTENT_LOADED: "contentLoaded"
 };
 

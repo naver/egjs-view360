@@ -3,7 +3,7 @@ import {ERROR_TYPE, EVENTS} from "../../../src/PanoViewer/consts";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 
 describe("PanoViewer", function() {
-	let It = WebGLUtils.isWebGLAvailable() ? it : it.skip;
+	let IT = WebGLUtils.isWebGLAvailable() ? it : it.skip;
 
 	describe("constructor", function() {
 		let target;
@@ -23,7 +23,7 @@ describe("PanoViewer", function() {
 		});
 
 		/** No more valid test. because we will allow no image/video */
-		// It("should use one resource (image or video) property #1 (no proerpty used)", function(done) {
+		// IT("should use one resource (image or video) property #1 (no proerpty used)", function(done) {
 		// 	panoViewer = new PanoViewer(target);
 		// 	panoViewer.on(EVENTS.ERROR, e => {
 		// 		if (e.type === ERROR_TYPE.INVALID_RESOURCE) {
@@ -32,7 +32,7 @@ describe("PanoViewer", function() {
 		// 	});
 		// });
 
-		It("should use one resource (image or video) property #2 (both property used)", function(done) {
+		IT("should use one resource (image or video) property #2 (both property used)", function(done) {
 			panoViewer = new PanoViewer(target, {
 				image: "imageurl-or-imagetag-or-imageobj",
 				video: "videotag"
@@ -44,7 +44,7 @@ describe("PanoViewer", function() {
 			});
 		});
 
-		It("should recognize image is not video", function() {
+		IT("should recognize image is not video", function() {
 			panoViewer = new PanoViewer(target, {
 				image: "./images/test_equi.png"
 			});
@@ -69,7 +69,7 @@ describe("PanoViewer", function() {
 			panoViewer = null;
 		});
 
-		It("should set video content", function(done) {
+		IT("should set video content", function(done) {
 			// Given
 			panoViewer = new PanoViewer(target);
 
@@ -97,7 +97,7 @@ describe("PanoViewer", function() {
 			});
 		});
 
-		It("should not set different content type and should persist previous status", function(done) {
+		IT("should not set different content type and should persist previous status", function(done) {
 			// Given
 			panoViewer = new PanoViewer(target, {
 				image: "./images/test_equi.png"
@@ -133,7 +133,7 @@ describe("PanoViewer", function() {
 			panoViewer = null;
 		});
 
-		It("should set image content", function(done) {
+		IT("should set image content", function(done) {
 			// Given
 			panoViewer = new PanoViewer(target);
 
@@ -160,7 +160,8 @@ describe("PanoViewer", function() {
 			panoViewer.setImage("./images/test_equi.png");
 		});
 
-		It("should replace image of other projection type", function(done) {
+		// Currently not available
+		IT.skip("should replace image of other projection type", function(done) {
 			// Given
 			panoViewer = new PanoViewer(target, {
 				image: "./images/test_equi.png"
@@ -182,12 +183,12 @@ describe("PanoViewer", function() {
 
 				// When
 				// Change image of other projection type.
-				panoViewer.setImage("./images/glasscity_cube_1024.jpg", {projectionType: PanoViewer.ProjectionType.VERTICAL_CUBESTRIP});
+				panoViewer.setImage("./images/glasscITy_cube_1024.jpg", PanoViewer.ProjectionType.VERTICAL_CUBESTRIP);
 			});
 		});
 	});
 
-	describe.skip("event flow", function() {
+	describe("event flow", function() {
 		let target;
 		let photo360Viewer;
 
@@ -208,16 +209,13 @@ describe("PanoViewer", function() {
 			let orderIndex = 0;
 
 			photo360Viewer = new PanoViewer(target, {
-				image: "/images/book_equi_1.jpg",
-				projectionType: "equirectangular",
-				controlMode: "gallery_yaw_pitch"
+				image: "/images/book_equi_1.jpg"
 			}).on({
-				"resume": eventLogger,
-				"suspend": eventLogger,
+				"ready": eventLogger,
 				"viewChange": eventLogger,
 				"animationEnd": eventLogger,
-				"error": eventLogger,
-				"init": eventLogger
+				"contentLoaded": eventLogger,
+				"error": eventLogger
 			});
 
 			function eventLogger(event) {
@@ -241,48 +239,13 @@ describe("PanoViewer", function() {
 			}
 		}
 
-		It("should follow event order on create", function(done) {
+		IT("should follow event order on create", function(done) {
 			var order = [
-				PanoViewer.EVENTS.VIEW_CHANGE,
-				PanoViewer.EVENTS.IMAGE_LOADED
+				PanoViewer.EVENTS.CONTENT_LOADED,
+				PanoViewer.EVENTS.READY
 			];
 
 			startEventLogTest(order, done);
-		});
-
-		It("should follow event order on resume", function(done) {
-			var order = [
-				PanoViewer.EVENTS.VIEW_CHANGE,
-				PanoViewer.EVENTS.IMAGE_LOADED,
-				PanoViewer.EVENTS.INIT,
-				PanoViewer.EVENTS.RESUMESTART,
-				PanoViewer.EVENTS.RESUME
-			];
-
-			startEventLogTest(order, done, function(event) {
-				if (event.eventType === PanoViewer.EVENTS.IMAGE_LOADED) {
-					photo360Viewer.resume();
-				}
-			});
-		});
-
-		It("should follow event order on suspend", function(done) {
-			var order = [
-				PanoViewer.EVENTS.VIEW_CHANGE,
-				PanoViewer.EVENTS.IMAGE_LOADED,
-				PanoViewer.EVENTS.INIT,
-				PanoViewer.EVENTS.RESUMESTART,
-				PanoViewer.EVENTS.RESUME,
-				PanoViewer.EVENTS.SUSPEND,
-			];
-
-			startEventLogTest(order, done, function(event) {
-				if (event.eventType === PanoViewer.EVENTS.IMAGE_LOADED) {
-					photo360Viewer.resume();
-				} else if (event.eventType === PanoViewer.EVENTS.RESUME) {
-					photo360Viewer.suspend();
-				}
-			});
 		});
 	});
 });

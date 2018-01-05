@@ -65,7 +65,7 @@
 }
 
 .photo360.loading::after {
-	content: '로드중';
+	content: 'Loading...';
 	display: block;
 	color: black;
 	font-size: 60px;
@@ -110,7 +110,6 @@ for(var i =0; i< 30; i++) {
 	viewerFixture += document.querySelector("#viewer_template").innerHTML;
 }
 
-
 document.querySelector("section.container").insertAdjacentHTML("beforeend", viewerFixture);
 
 
@@ -128,7 +127,7 @@ var visible = new eg.Visible(document,{
 	 targetClass : "photo360-container",
 	 expandSize : getExpandSize()
  }).on("change", function(e) {
- 	//console.log("visible", e.visible.length,"invisible", e.invisible.length);
+ 	console.log("visible", e.visible.length,"invisible", e.invisible.length);
 
 	[].forEach.call(e.invisible, function(el) {
 		// 안 보이게 된 엘리먼트에 해당하는 뷰어를 photo360ViewerMap 에서 찾음
@@ -136,7 +135,10 @@ var visible = new eg.Visible(document,{
 		var key = viewerEl["__photo360__"];
 		var instance = photo360ViewerMap[key];
 		if(key && instance) { // 키가 있으면 맵에서 키에 해당하는 인스턴스를 찾아와서 있다면 resume
-			instance.suspend();
+
+			viewerEl.classList.add("inactive");
+			instance.destroy();
+			photo360ViewerMap[key] = null;
 		} 
 	});
 
@@ -147,12 +149,6 @@ var visible = new eg.Visible(document,{
 		var key = viewerEl["__photo360__"];
 		var instance = photo360ViewerMap[key];
 
-		if(key && instance) { // 키가 있으면 맵에서 키에 해당하는 인스턴스를 찾아와서 있다면 resume
-      viewerEl.classList.add("loading");
-			instance.resume();
-			return;
-		} 
-
 		// 인스턴스가 없으면 초기화 후 키 생성
 		if (!instance) { 
 			delete viewerEl["__photo360__"];
@@ -162,7 +158,7 @@ var visible = new eg.Visible(document,{
 					image: viewerEl.getAttribute("data-source"),
 					projectionType: "vertical_cubestrip"
 				}
-			).on("resume", function(evt) {
+			).on("ready", function(evt) {
 				viewerEl.classList.remove("loading");
 				viewerEl.classList.remove("inactive");
 				setTimeout(function() {
@@ -171,9 +167,7 @@ var visible = new eg.Visible(document,{
 			}).on("suspend", function(evt) {
 				viewerEl.classList.add("inactive");
 			});
-      viewerEl.classList.add("loading");
-			instance.resume();
-
+      		viewerEl.classList.add("loading");
 			viewerEl["__photo360__"] = key;
 			photo360ViewerMap[key] = instance;
 		}
@@ -188,30 +182,28 @@ visible.check();
 window.addEventListener("resize", function() {
   Object.keys(photo360ViewerMap).forEach(function(key){
  		var photo360Viewer = photo360ViewerMap[key];
- 		if(photo360Viewer.isResumed) {
+ 		if(photo360Viewer) {
  			photo360Viewer.updateViewportDimensions();
  		}
  	})
 })
 
 // eg scrollEnd 를 사용
-window.addEventListener("scroll", debounce(function() {visible.check()}, 100));
-
+window.addEventListener("scroll", debounce(function() {
+	visible.check()
+}, 100));
 
 function debounce(func, wait, immediate) {
 	var timeout;
 	return function() {
 		var context = this, args = arguments;
 		var later = function() {
-			console.log("later")
-
 			timeout = null;
 			if (!immediate) func.apply(context, args);
 		};
 		var callNow = immediate && !timeout;
 		clearTimeout(timeout);
 		timeout = setTimeout(later, wait);
-		console.log(callNow)
 		if (callNow) {
 			func.apply(context, args);
 		}
