@@ -9257,7 +9257,7 @@ var PanoViewer = function (_Component) {
 		this._isVideo = isVideo;
 		this._projectionType = projectionType;
 
-		this._inactivateInteraction();
+		this._deactivate();
 		this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType);
 
 		return this;
@@ -9293,7 +9293,7 @@ var PanoViewer = function (_Component) {
 		this._bindRendererHandler();
 
 		this._photoSphereRenderer.bindTexture().then(function () {
-			return _this2._activateInteraction();
+			return _this2._activate();
 		})["catch"](function () {
 			_this2._triggerEvent(_consts.EVENTS.ERROR, {
 				type: _consts.ERROR_TYPE.FAIL_BIND_TEXTURE,
@@ -9314,12 +9314,12 @@ var PanoViewer = function (_Component) {
 		});
 
 		this._photoSphereRenderer.on(_PanoImageRenderer.PanoImageRenderer.EVENTS.RENDERING_CONTEXT_LOST, function (e) {
-			_this3._inactivateInteraction();
+			_this3._deactivate();
 			_this3.trigger(_consts.EVENTS.ERROR, {
 				type: _consts.ERROR_TYPE.RENDERING_CONTEXT_LOST,
 				message: "webgl rendering context lost"
 			});
-		}, false);
+		});
 	};
 
 	PanoViewer.prototype._initYawPitchControl = function _initYawPitchControl(yawPitchConfig) {
@@ -9659,20 +9659,7 @@ var PanoViewer = function (_Component) {
 		}
 	};
 
-	PanoViewer.prototype._bindTexture = function _bindTexture() {
-		var _this5 = this;
-
-		this._photoSphereRenderer.bindTexture().then(function () {
-			return _this5._activateInteraction();
-		})["catch"](function () {
-			_this5._triggerEvent(_consts.EVENTS.ERROR, {
-				type: _consts.ERROR_TYPE.FAIL_BIND_TEXTURE,
-				message: "failed to bind texture"
-			});
-		});
-	};
-
-	PanoViewer.prototype._activateInteraction = function _activateInteraction() {
+	PanoViewer.prototype._activate = function _activate() {
 		this._photoSphereRenderer.attachTo(this._container);
 		this._yawPitchControl.enable();
 
@@ -9712,7 +9699,7 @@ var PanoViewer = function (_Component) {
   */
 
 
-	PanoViewer.prototype._inactivateInteraction = function _inactivateInteraction() {
+	PanoViewer.prototype._deactivate = function _deactivate() {
 		if (this._photoSphereRenderer) {
 			this._photoSphereRenderer.destroy();
 			this._photoSphereRenderer = null;
@@ -9733,7 +9720,7 @@ var PanoViewer = function (_Component) {
 
 
 	PanoViewer.prototype.destroy = function destroy() {
-		this._inactivateInteraction();
+		this._deactivate();
 
 		if (this._yawPitchControl) {
 			this._yawPitchControl.destroy();

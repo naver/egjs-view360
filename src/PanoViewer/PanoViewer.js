@@ -182,7 +182,7 @@ export default class PanoViewer extends Component {
 		this._isVideo = isVideo;
 		this._projectionType = projectionType;
 
-		this._inactivateInteraction();
+		this._deactivate();
 		this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType);
 
 		return this;
@@ -221,7 +221,7 @@ export default class PanoViewer extends Component {
 
 		this._photoSphereRenderer
 			.bindTexture()
-			.then(() => this._activateInteraction())
+			.then(() => this._activate())
 			.catch(() => {
 				this._triggerEvent(EVENTS.ERROR, {
 					type: ERROR_TYPE.FAIL_BIND_TEXTURE,
@@ -240,12 +240,12 @@ export default class PanoViewer extends Component {
 		});
 
 		this._photoSphereRenderer.on(PanoImageRenderer.EVENTS.RENDERING_CONTEXT_LOST, e => {
-			this._inactivateInteraction();
+			this._deactivate();
 			this.trigger(EVENTS.ERROR, {
 				type: ERROR_TYPE.RENDERING_CONTEXT_LOST,
 				message: "webgl rendering context lost"
 			});
-		}, false);
+		});
 	}
 
 	_initYawPitchControl(yawPitchConfig) {
@@ -554,19 +554,7 @@ export default class PanoViewer extends Component {
 		}
 	}
 
-	_bindTexture() {
-		this._photoSphereRenderer
-			.bindTexture()
-			.then(() => this._activateInteraction())
-			.catch(() => {
-				this._triggerEvent(EVENTS.ERROR, {
-					type: ERROR_TYPE.FAIL_BIND_TEXTURE,
-					message: "failed to bind texture"
-				});
-			});
-	}
-
-	_activateInteraction() {
+	_activate() {
 		this._photoSphereRenderer.attachTo(this._container);
 		this._yawPitchControl.enable();
 
@@ -602,7 +590,7 @@ export default class PanoViewer extends Component {
 	/**
 	 * Destroy webgl context and block user interaction and stop rendering
 	 */
-	_inactivateInteraction() {
+	_deactivate() {
 		if (this._photoSphereRenderer) {
 			this._photoSphereRenderer.destroy();
 			this._photoSphereRenderer = null;
@@ -621,7 +609,7 @@ export default class PanoViewer extends Component {
 	 * @method eg.view360.PanoViewer#destroy
 	 */
 	destroy() {
-		this._inactivateInteraction();
+		this._deactivate();
 
 		if (this._yawPitchControl) {
 			this._yawPitchControl.destroy();
