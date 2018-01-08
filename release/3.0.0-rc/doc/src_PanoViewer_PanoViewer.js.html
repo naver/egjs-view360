@@ -116,8 +116,6 @@
     
         <li data-name="eg.view360.PanoViewer#hasOn"><a href="eg.view360.PanoViewer.html#hasOn">hasOn</a> <img src="img/i.png" width="14" title="inherited" alt="inherited"></li>
     
-        <li data-name="eg.view360.PanoViewer#isResumed"><a href="eg.view360.PanoViewer.html#isResumed">isResumed</a></li>
-    
         <li data-name="eg.view360.PanoViewer#lookAt"><a href="eg.view360.PanoViewer.html#lookAt">lookAt</a></li>
     
         <li data-name="eg.view360.PanoViewer#off"><a href="eg.view360.PanoViewer.html#off">off</a> <img src="img/i.png" width="14" title="inherited" alt="inherited"></li>
@@ -125,8 +123,6 @@
         <li data-name="eg.view360.PanoViewer#on"><a href="eg.view360.PanoViewer.html#on">on</a> <img src="img/i.png" width="14" title="inherited" alt="inherited"></li>
     
         <li data-name="eg.view360.PanoViewer#once"><a href="eg.view360.PanoViewer.html#once">once</a> <img src="img/i.png" width="14" title="inherited" alt="inherited"></li>
-    
-        <li data-name="eg.view360.PanoViewer#resume"><a href="eg.view360.PanoViewer.html#resume">resume</a></li>
     
         <li data-name="eg.view360.PanoViewer#setFovRange"><a href="eg.view360.PanoViewer.html#setFovRange">setFovRange</a></li>
     
@@ -136,6 +132,8 @@
     
         <li data-name="eg.view360.PanoViewer#setPitchRange"><a href="eg.view360.PanoViewer.html#setPitchRange">setPitchRange</a></li>
     
+        <li data-name="eg.view360.PanoViewer#setUseGyro"><a href="eg.view360.PanoViewer.html#setUseGyro">setUseGyro</a></li>
+    
         <li data-name="eg.view360.PanoViewer#setUseKeyboard"><a href="eg.view360.PanoViewer.html#setUseKeyboard">setUseKeyboard</a></li>
     
         <li data-name="eg.view360.PanoViewer#setUseZoom"><a href="eg.view360.PanoViewer.html#setUseZoom">setUseZoom</a></li>
@@ -143,8 +141,6 @@
         <li data-name="eg.view360.PanoViewer#setVideo"><a href="eg.view360.PanoViewer.html#setVideo">setVideo</a></li>
     
         <li data-name="eg.view360.PanoViewer#setYawRange"><a href="eg.view360.PanoViewer.html#setYawRange">setYawRange</a></li>
-    
-        <li data-name="eg.view360.PanoViewer#suspend"><a href="eg.view360.PanoViewer.html#suspend">suspend</a></li>
     
         <li data-name="eg.view360.PanoViewer#trigger"><a href="eg.view360.PanoViewer.html#trigger">trigger</a> <img src="img/i.png" width="14" title="inherited" alt="inherited"></li>
     
@@ -161,9 +157,7 @@
     
         <li data-name="eg.view360.PanoViewer#event:error"><a href="eg.view360.PanoViewer.html#event:error">error</a></li>
     
-        <li data-name="eg.view360.PanoViewer#event:resume"><a href="eg.view360.PanoViewer.html#event:resume">resume</a></li>
-    
-        <li data-name="eg.view360.PanoViewer#event:suspend"><a href="eg.view360.PanoViewer.html#event:suspend">suspend</a></li>
+        <li data-name="eg.view360.PanoViewer#event:ready"><a href="eg.view360.PanoViewer.html#event:ready">ready</a></li>
     
         <li data-name="eg.view360.PanoViewer#event:viewChange"><a href="eg.view360.PanoViewer.html#event:viewChange">viewChange</a></li>
     
@@ -237,7 +231,7 @@
 
 import {YawPitchControl} from "../YawPitchControl";
 import {PanoImageRenderer, WebGLUtils} from "../PanoImageRenderer";
-import {ERROR_TYPE, EVENTS} from "./consts";
+import {ERROR_TYPE, EVENTS, GYRO_MODE} from "./consts";
 import {glMatrix} from "../utils/math-util.js";
 
 export default class PanoViewer extends Component {
@@ -263,6 +257,7 @@ export default class PanoViewer extends Component {
 	 * @param {Boolean} [config.showPolePoint=false] If false, the pole is not displayed inside the viewport &lt;ko>false 인 경우, 극점은 뷰포트 내부에 표시되지 않습니다&lt;/ko>
 	 * @param {Boolean} [config.useZoom=true] When true, enables zoom with the wheel and Pinch gesture &lt;ko>true 일 때 휠 및 집기 제스춰로 확대 / 축소 할 수 있습니다.&lt;/ko>
 	 * @param {Boolean} [config.useKeyboard=true] When true, enables the keyboard move key control: awsd, arrow keys &lt;ko>true 이면 키보드 이동 키 컨트롤을 활성화합니다: awsd, 화살표 키&lt;/ko>
+	 * @param {String} [config.useGyro=yawPitch] Enables control through device motion. ("none", "yawPitch") &lt;ko>디바이스 움직임을 통한 컨트롤을 활성화 합니다. ("none", "yawPitch") &lt;/ko>
 	 * @param {Array} [config.yawRange=[-180, 180]] Range of controllable Yaw values &lt;ko>제어 가능한 Yaw 값의 범위&lt;/ko>
 	 * @param {Array} [config.pitchRange=[-90, 90]] Range of controllable Pitch values &lt;ko>제어 가능한 Pitch 값의 범위&lt;/ko>
 	 * @param {Array} [config.fovRange=[30, 110]] Range of controllable vertical field of view values &lt;ko>제어 가능한 수직 field of view 값의 범위&lt;/ko>
@@ -315,6 +310,9 @@ export default class PanoViewer extends Component {
 		this._yaw = options.yaw || 0;
 		this._pitch = options.pitch || 0;
 		this._fov = options.fov || 65;
+
+		this._useGyro = options.useGyro || GYRO_MODE.YAWPITCH;
+
 		this._aspectRatio = this._width / this._height;
 		const fovRange = options.fovRange || [30, 110];
 
@@ -323,28 +321,15 @@ export default class PanoViewer extends Component {
 			yaw: this._yaw,
 			pitch: this._pitch,
 			fov: this._fov,
+			useGyro: this._useGyro,
 			fovRange,
 			aspectRatio: this._aspectRatio,
 		});
 
-		this._isResumed = false;
+		this._isReady = false;
 
-		try {
-			this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType);
-		} catch (e) {
-			setTimeout(() => {
-				this._photoSphereRenderer &amp;&amp; this._photoSphereRenderer.destroy();
-				this.trigger(EVENTS.ERROR, {
-					type: ERROR_TYPE.NO_WEBGL,
-					message: "no webgl support"
-				});
-			}, 0);
-			return this;
-		}
-
-		this._yawPitchControl = new YawPitchControl(yawPitchConfig);
-
-		this._initYawPitchControl();
+		this._initYawPitchControl(yawPitchConfig);
+		this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType);
 	}
 
 	/**
@@ -412,7 +397,9 @@ export default class PanoViewer extends Component {
 		const isVideo = param.isVideo || false;
 
 		if (this._image &amp;&amp; isVideo !== this._isVideo) {
+			/* eslint-disable no-console */
 			console.warn("Currently not supporting to change content type(Image &lt;--> Video)");
+			/* eslint-enable no-console */
 			return this;
 		}
 
@@ -423,8 +410,9 @@ export default class PanoViewer extends Component {
 		this._image = image;
 		this._isVideo = isVideo;
 		this._projectionType = projectionType;
-		this.suspend();
-		this.resume();
+
+		this._deactivate();
+		this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType);
 
 		return this;
 	}
@@ -445,10 +433,6 @@ export default class PanoViewer extends Component {
 	}
 
 	_initRenderer(yaw, pitch, fov, projectionType) {
-		if (this._photoSphereRenderer) {
-			this._photoSphereRenderer.destroy();
-		}
-
 		this._photoSphereRenderer = new PanoImageRenderer(
 			this._image,
 			this._width,
@@ -461,7 +445,18 @@ export default class PanoViewer extends Component {
 				imageType: projectionType
 			}
 		);
+
 		this._bindRendererHandler();
+
+		this._photoSphereRenderer
+			.bindTexture()
+			.then(() => this._activate())
+			.catch(() => {
+				this._triggerEvent(EVENTS.ERROR, {
+					type: ERROR_TYPE.FAIL_BIND_TEXTURE,
+					message: "failed to bind texture"
+				});
+			});
 	}
 
 	_bindRendererHandler() {
@@ -474,15 +469,17 @@ export default class PanoViewer extends Component {
 		});
 
 		this._photoSphereRenderer.on(PanoImageRenderer.EVENTS.RENDERING_CONTEXT_LOST, e => {
-			this.suspend();
-		});
-
-		this._photoSphereRenderer.on(PanoImageRenderer.EVENTS.RENDERING_CONTEXT_RESTORE, e => {
-			this.resume();
+			this._deactivate();
+			this.trigger(EVENTS.ERROR, {
+				type: ERROR_TYPE.RENDERING_CONTEXT_LOST,
+				message: "webgl rendering context lost"
+			});
 		});
 	}
 
-	_initYawPitchControl() {
+	_initYawPitchControl(yawPitchConfig) {
+		this._yawPitchControl = new YawPitchControl(yawPitchConfig);
+
 		this._yawPitchControl.on(EVENTS.ANIMATION_END, e => {
 			this._triggerEvent(EVENTS.ANIMATION_END, e);
 		});
@@ -511,12 +508,14 @@ export default class PanoViewer extends Component {
 		 * 		12, FAIL_IMAGE_LOAD: Failed to load image
 		 * 		13: FAIL_BIND_TEXTURE: Failed to bind texture
 		 * 		14: INVALID_RESOURCE: Only one resource(image or video) should be specified
+		 * 		15: RENDERING_CONTEXT_LOST: WebGL context lost occurred
 		 * &lt;ko>에러 종류
 		 * 		10: INVALID_DEVICE: 미지원 기기
 		 * 		11: NO_WEBGL: WEBGL 미지원
 		 * 		12, FAIL_IMAGE_LOAD: 이미지 로드 실패
 		 * 		13: FAIL_BIND_TEXTURE: 텍스쳐 바인딩 실패
 		 * 		14: INVALID_RESOURCE: 리소스 지정 오류 (image 혹은 video 중 하나만 지정되어야 함)
+		 * 		15: RENDERING_CONTEXT_LOST: WebGL context lost 발생
 		 * &lt;/ko>
 		 * @param {String} param.message Error message &lt;ko>에러 메시지&lt;/ko>
 		 *
@@ -532,27 +531,13 @@ export default class PanoViewer extends Component {
 		/**
 		 * Events that is fired when PanoViewer is ready to go.
 		 * @ko PanoViewer 가 준비된 상태에 발생하는 이벤트
-		 * @name eg.view360.PanoViewer#resume
+		 * @name eg.view360.PanoViewer#ready
 		 * @event
 		 *
 		 * @example
 		 *
 		 * viwer.on({
-		 *	"resume" : function(evt) {
-		 *		// PanoViewer is ready to show image and handle user interaction.
-		 * });
-		 */
-
-		/**
-		 * Events that is fired when PanoViewer is suspended
-		 * @ko PanoViewer 를 중지했을때 발생하는 이벤트
-		 * @name eg.view360.PanoViewer#suspend
-		 * @event
-		 *
-		 * @example
-		 *
-		 * viwer.on({
-		 *	"suspend" : function(evt) {
+		 *	"ready" : function(evt) {
 		 *		// PanoViewer is ready to show image and handle user interaction.
 		 * });
 		 */
@@ -626,6 +611,16 @@ export default class PanoViewer extends Component {
 	}
 
 	/**
+	 * Enables control through device motion. ("none", "yawPitch")
+	 * @ko 디바이스 움직임을 통한 컨트롤을 활성화 합니다. ("none", "yawPitch")
+	 * @method eg.view360.PanoViewer#setUseGyro
+	 * @param {String} useGyro
+	 */
+	setUseGyro(useGyro) {
+		this._yawPitchControl.option("useGyro", useGyro);
+	}
+
+	/**
 	 * Setting the range of controllable FOV values
 	 * @ko 제어 가능한 FOV 값의 범위 설정
 	 * @method eg.view360.PanoViewer#setFovRange
@@ -654,7 +649,7 @@ export default class PanoViewer extends Component {
 	 * @param {Number} [size.height=height of container]
 	 */
 	updateViewportDimensions(size) {
-		if (!this._isResumed) {
+		if (!this._isReady) {
 			return;
 		}
 		this._width = (size &amp;&amp; size.width) ||
@@ -767,7 +762,7 @@ export default class PanoViewer extends Component {
 	 * @param {Number} duration Animation duration in milliseconds &lt;ko>애니메이션 시간 (밀리 초)&lt;/ko>
 	 */
 	lookAt(orientation, duration) {
-		if (!this._isResumed) {
+		if (!this._isReady) {
 			return;
 		}
 
@@ -788,47 +783,14 @@ export default class PanoViewer extends Component {
 		}
 	}
 
-	/**
-	 * Create webgl context and initiate user interaction and rendering
-	 * @ko WebGl 컨텍스트 생성 및 사용자 상호 작용과 렌더링 시작
-	 * @method eg.view360.PanoViewer#resume
-	 */
-	resume() {
-		if (this._isResumed || !this._yawPitchControl) {
-			return;
-		}
-
-		if (!this._photoSphereRenderer) {
-			this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType);
-		}
-
-		// do setTimeout for not blocking UI when resume is called in syncrounos code.
-		setTimeout(() => {
-			if (this._isResumed || !this._photoSphereRenderer) {
-				return;
-			}
-
-			this._photoSphereRenderer
-				.bindTexture()
-				.then(() => this._resume())
-				.catch(() => {
-					this._triggerEvent(EVENTS.ERROR, {
-						type: ERROR_TYPE.FAIL_BIND_TEXTURE,
-						message: "failed to bind texture"
-					});
-				});
-		}, 0);
-	}
-
-	_resume() {
+	_activate() {
 		this._photoSphereRenderer.attachTo(this._container);
 		this._yawPitchControl.enable();
 
-		// Even if the size of the container changes after the suspend, it is detected at the time of resume and is adjusted again.
 		this.updateViewportDimensions();
 
-		this._isResumed = true;
-		this._triggerEvent(EVENTS.RESUME);
+		this._isReady = true;
+		this._triggerEvent(EVENTS.READY);
 		this._startRender();
 	}
 
@@ -856,33 +818,18 @@ export default class PanoViewer extends Component {
 
 	/**
 	 * Destroy webgl context and block user interaction and stop rendering
-	 * @ko Webgl 컨텍스트를 삭제하고 사용자 상호 작용을 차단하고 렌더링을 중지합니다.
-	 * @method eg.view360.PanoViewer#suspend
-	 * @param {Boolean} persistOrientation When true, it persist last yaw, pitch, fov on next resume &lt;ko>true 지정 시, 다음 resume 때 기존의 카메라 설정을 유지합니다.&lt;/ko>
 	 */
-	suspend() {
+	_deactivate() {
 		if (this._photoSphereRenderer) {
 			this._photoSphereRenderer.destroy();
 			this._photoSphereRenderer = null;
 		}
 
-		if (this._isResumed) {
+		if (this._isReady) {
 			this._yawPitchControl.disable();
 			this._stopRender();
-			this._isResumed = false;
+			this._isReady = false;
 		}
-
-		this._triggerEvent(EVENTS.SUSPEND);
-	}
-
-	/**
-	 * Returns whether the viewer is in resumed state.
-	 * @ko 뷰어가 resume 된 상태인지 여부를 반환합니다.
-	 * @method eg.view360.PanoViewer#isResumed
-	 * @return {Boolean}
-	 */
-	isResumed() {
-		return this._isResumed;
 	}
 
 	/**
@@ -891,7 +838,7 @@ export default class PanoViewer extends Component {
 	 * @method eg.view360.PanoViewer#destroy
 	 */
 	destroy() {
-		this.suspend();
+		this._deactivate();
 
 		if (this._yawPitchControl) {
 			this._yawPitchControl.destroy();
@@ -903,7 +850,7 @@ export default class PanoViewer extends Component {
 			this._photoSphereRenderer = null;
 		}
 
-		this._isResumed = false;
+		this._isReady = false;
 	}
 
 	static isWebGLAvailable() {
@@ -982,7 +929,7 @@ PanoViewer.ProjectionType = PanoImageRenderer.ImageType;
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Dec 29 2017 13:44:49 GMT+0900 (KST)
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Jan 08 2018 16:09:35 GMT+0900 (KST)
         </footer>
     </div>
 </div>

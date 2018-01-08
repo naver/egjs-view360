@@ -2808,6 +2808,78 @@ var SUPPORT_DEVICEMOTION = exports.SUPPORT_DEVICEMOTION = "ondevicemotion" in wi
 /* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
+"use strict";
+
+
+exports.__esModule = true;
+var CONTROL_MODE_VR = 1;
+var CONTROL_MODE_YAWPITCH = 2;
+
+var TOUCH_DIRECTION_NONE = 1;
+var TOUCH_DIRECTION_YAW = 2;
+var TOUCH_DIRECTION_PITCH = 4;
+var TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_YAW | TOUCH_DIRECTION_PITCH;
+
+/* Const for MovableCoord */
+var MC_DECELERATION = 0.0014;
+var MC_MAXIMUM_DURATION = 1000;
+var MC_BIND_SCALE = [0.20, 0.20];
+
+var MIN_FIELD_OF_VIEW = 20;
+var MAX_FIELD_OF_VIEW = 110;
+var PAN_SCALE = 320;
+
+// const DELTA_THRESHOLD = 0.015;
+// const DELTA_THRESHOLD = 0.09; // Note4
+// const DELTA_THRESHOLD = 0.0825;
+// const DELTA_THRESHOLD = 0.075;
+// const DELTA_THRESHOLD = 0.06;
+// const DELTA_THRESHOLD = 0.045;
+var DELTA_THRESHOLD = 0.0375; // Note2
+
+var YAW_RANGE_HALF = 180;
+var PITCH_RANGE_HALF = 90;
+var PINCH_EVENTS = "pinchstart pinchmove pinchend";
+
+var KEYMAP = {
+	LEFT_ARROW: 37,
+	A: 65,
+	UP_ARROW: 38,
+	W: 87,
+	RIGHT_ARROW: 39,
+	D: 68,
+	DOWN_ARROW: 40,
+	S: 83
+};
+
+var GYRO_MODE = {
+	NONE: "none",
+	YAWPITCH: "yawPitch"
+};
+
+exports.GYRO_MODE = GYRO_MODE;
+exports.CONTROL_MODE_VR = CONTROL_MODE_VR;
+exports.CONTROL_MODE_YAWPITCH = CONTROL_MODE_YAWPITCH;
+exports.TOUCH_DIRECTION_NONE = TOUCH_DIRECTION_NONE;
+exports.TOUCH_DIRECTION_YAW = TOUCH_DIRECTION_YAW;
+exports.TOUCH_DIRECTION_PITCH = TOUCH_DIRECTION_PITCH;
+exports.TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_ALL;
+exports.MC_DECELERATION = MC_DECELERATION;
+exports.MC_MAXIMUM_DURATION = MC_MAXIMUM_DURATION;
+exports.MC_BIND_SCALE = MC_BIND_SCALE;
+exports.MIN_FIELD_OF_VIEW = MIN_FIELD_OF_VIEW;
+exports.MAX_FIELD_OF_VIEW = MAX_FIELD_OF_VIEW;
+exports.PAN_SCALE = PAN_SCALE;
+exports.DELTA_THRESHOLD = DELTA_THRESHOLD;
+exports.YAW_RANGE_HALF = YAW_RANGE_HALF;
+exports.PITCH_RANGE_HALF = PITCH_RANGE_HALF;
+exports.PINCH_EVENTS = PINCH_EVENTS;
+exports.KEYMAP = KEYMAP;
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
 /*!
  * Copyright (c) 2017 NAVER Corp.
  * @egjs/axes project is licensed under the MIT license
@@ -5216,8 +5288,8 @@ exports.MoveKeyInput = MoveKeyInput;
 //# sourceMappingURL=axes.js.map
 
 /***/ }),
-/* 8 */,
-/* 9 */
+/* 9 */,
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5242,6 +5314,8 @@ var WEBGL_ERROR_CODE = {
 	"1286": "INVALID_FRAMEBUFFER_OPERATION",
 	"37442": "CONTEXT_LOST_WEBGL"
 };
+
+var webglAvailability = null;
 
 var WebGLUtils = function () {
 	function WebGLUtils() {
@@ -5319,7 +5393,7 @@ var WebGLUtils = function () {
 
 		for (var i = 0; i < webglIdentifiers.length; i++) {
 			try {
-				// preserveDrawingBuffer: true 면 갤럭시 s6 네이버앱에서 떨림현상 발생
+				// preserveDrawingBuffer: if true, the Galaxy s6 Naver app will experience tremor
 				context = canvas.getContext(webglIdentifiers[i], { preserveDrawingBuffer: false });
 			} catch (t) {}
 			if (context) {
@@ -5346,30 +5420,32 @@ var WebGLUtils = function () {
 	};
 
 	/**
- 	 * 현재 환경의 webgl 지원여부를 확인한다
- 	 * @method Photo360Viewer#isWebGLAvailable
- 	 * @retuen {Boolean} isWebGLAvailable
- 	 */
+  * Returns the webgl availability of the current browser.
+  * @method WebGLUtils#isWebGLAvailable
+  * @retuen {Boolean} isWebGLAvailable
+  */
 
 
 	WebGLUtils.isWebGLAvailable = function isWebGLAvailable() {
-		var canvas = document.createElement("canvas");
-		var webglContext = WebGLUtils.getWebglContext(canvas);
-		var webglAvailability = !!webglContext;
+		if (webglAvailability === null) {
+			var canvas = document.createElement("canvas");
+			var webglContext = WebGLUtils.getWebglContext(canvas);
 
-		// webglContext 자원 강제 회수
-		if (webglContext) {
-			var loseContextExtension = webglContext.getExtension("WEBGL_lose_context");
+			webglAvailability = !!webglContext;
 
-			loseContextExtension && loseContextExtension.loseContext();
+			// webglContext Resource forced collection
+			if (webglContext) {
+				var loseContextExtension = webglContext.getExtension("WEBGL_lose_context");
+
+				loseContextExtension && loseContextExtension.loseContext();
+			}
 		}
-
 		return webglAvailability;
 	};
 
 	/**
-  * 현재 환경의 webgl 이 안정화 된 수준인지 확인한다.
-  * @method Photo360Viewer#isStableWebGL
+  * Returns whether webgl is stable in the current browser.
+  * @method WebGLUtils#isStableWebGL
   * @retuen {Boolean} isStableWebGL
   */
 
@@ -5405,7 +5481,7 @@ var WebGLUtils = function () {
 exports["default"] = WebGLUtils;
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5420,72 +5496,6 @@ var Renderer = function Renderer() {
 };
 
 exports["default"] = Renderer;
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-var CONTROL_MODE_VR = 1;
-var CONTROL_MODE_YAWPITCH = 2;
-
-var TOUCH_DIRECTION_NONE = 1;
-var TOUCH_DIRECTION_YAW = 2;
-var TOUCH_DIRECTION_PITCH = 4;
-var TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_YAW | TOUCH_DIRECTION_PITCH;
-
-/* Const for MovableCoord */
-var MC_DECELERATION = 0.0014;
-var MC_MAXIMUM_DURATION = 1000;
-var MC_BIND_SCALE = [0.20, 0.20];
-
-var MIN_FIELD_OF_VIEW = 20;
-var MAX_FIELD_OF_VIEW = 110;
-var PAN_SCALE = 320;
-
-// const DELTA_THRESHOLD = 0.015;
-// const DELTA_THRESHOLD = 0.09; // Note4
-// const DELTA_THRESHOLD = 0.0825;
-// const DELTA_THRESHOLD = 0.075;
-// const DELTA_THRESHOLD = 0.06;
-// const DELTA_THRESHOLD = 0.045;
-var DELTA_THRESHOLD = 0.0375; // Note2
-
-var YAW_RANGE_HALF = 180;
-var PITCH_RANGE_HALF = 90;
-var PINCH_EVENTS = "pinchstart pinchmove pinchend";
-
-var KEYMAP = {
-	LEFT_ARROW: 37,
-	A: 65,
-	UP_ARROW: 38,
-	W: 87,
-	RIGHT_ARROW: 39,
-	D: 68,
-	DOWN_ARROW: 40,
-	S: 83
-};
-
-exports.CONTROL_MODE_VR = CONTROL_MODE_VR;
-exports.CONTROL_MODE_YAWPITCH = CONTROL_MODE_YAWPITCH;
-exports.TOUCH_DIRECTION_NONE = TOUCH_DIRECTION_NONE;
-exports.TOUCH_DIRECTION_YAW = TOUCH_DIRECTION_YAW;
-exports.TOUCH_DIRECTION_PITCH = TOUCH_DIRECTION_PITCH;
-exports.TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_ALL;
-exports.MC_DECELERATION = MC_DECELERATION;
-exports.MC_MAXIMUM_DURATION = MC_MAXIMUM_DURATION;
-exports.MC_BIND_SCALE = MC_BIND_SCALE;
-exports.MIN_FIELD_OF_VIEW = MIN_FIELD_OF_VIEW;
-exports.MAX_FIELD_OF_VIEW = MAX_FIELD_OF_VIEW;
-exports.PAN_SCALE = PAN_SCALE;
-exports.DELTA_THRESHOLD = DELTA_THRESHOLD;
-exports.YAW_RANGE_HALF = YAW_RANGE_HALF;
-exports.PITCH_RANGE_HALF = PITCH_RANGE_HALF;
-exports.PINCH_EVENTS = PINCH_EVENTS;
-exports.KEYMAP = KEYMAP;
 
 /***/ }),
 /* 12 */
@@ -8645,7 +8655,7 @@ var _YawPitchControl = __webpack_require__(27);
 
 var _YawPitchControl2 = _interopRequireDefault(_YawPitchControl);
 
-var _consts = __webpack_require__(11);
+var _consts = __webpack_require__(7);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -8718,6 +8728,7 @@ var PanoViewer = function (_Component) {
   * @param {Boolean} [config.showPolePoint=false] If false, the pole is not displayed inside the viewport <ko>false 인 경우, 극점은 뷰포트 내부에 표시되지 않습니다</ko>
   * @param {Boolean} [config.useZoom=true] When true, enables zoom with the wheel and Pinch gesture <ko>true 일 때 휠 및 집기 제스춰로 확대 / 축소 할 수 있습니다.</ko>
   * @param {Boolean} [config.useKeyboard=true] When true, enables the keyboard move key control: awsd, arrow keys <ko>true 이면 키보드 이동 키 컨트롤을 활성화합니다: awsd, 화살표 키</ko>
+  * @param {String} [config.useGyro=yawPitch] Enables control through device motion. ("none", "yawPitch") <ko>디바이스 움직임을 통한 컨트롤을 활성화 합니다. ("none", "yawPitch") </ko>
   * @param {Array} [config.yawRange=[-180, 180]] Range of controllable Yaw values <ko>제어 가능한 Yaw 값의 범위</ko>
   * @param {Array} [config.pitchRange=[-90, 90]] Range of controllable Pitch values <ko>제어 가능한 Pitch 값의 범위</ko>
   * @param {Array} [config.fovRange=[30, 110]] Range of controllable vertical field of view values <ko>제어 가능한 수직 field of view 값의 범위</ko>
@@ -8780,6 +8791,9 @@ var PanoViewer = function (_Component) {
 		_this._yaw = options.yaw || 0;
 		_this._pitch = options.pitch || 0;
 		_this._fov = options.fov || 65;
+
+		_this._useGyro = options.useGyro || _consts.GYRO_MODE.YAWPITCH;
+
 		_this._aspectRatio = _this._width / _this._height;
 		var fovRange = options.fovRange || [30, 110];
 
@@ -8788,30 +8802,15 @@ var PanoViewer = function (_Component) {
 			yaw: _this._yaw,
 			pitch: _this._pitch,
 			fov: _this._fov,
+			useGyro: _this._useGyro,
 			fovRange: fovRange,
 			aspectRatio: _this._aspectRatio
 		});
 
-		_this._isResumed = false;
+		_this._isReady = false;
 
-		try {
-			_this._initRenderer(_this._yaw, _this._pitch, _this._fov, _this._projectionType);
-		} catch (e) {
-			var _ret4;
-
-			setTimeout(function () {
-				_this._photoSphereRenderer && _this._photoSphereRenderer.destroy();
-				_this.trigger(_consts.EVENTS.ERROR, {
-					type: _consts.ERROR_TYPE.NO_WEBGL,
-					message: "no webgl support"
-				});
-			}, 0);
-			return _ret4 = _this, _possibleConstructorReturn(_this, _ret4);
-		}
-
-		_this._yawPitchControl = new _YawPitchControl.YawPitchControl(yawPitchConfig);
-
-		_this._initYawPitchControl();
+		_this._initYawPitchControl(yawPitchConfig);
+		_this._initRenderer(_this._yaw, _this._pitch, _this._fov, _this._projectionType);
 		return _this;
 	}
 
@@ -8892,7 +8891,9 @@ var PanoViewer = function (_Component) {
 		var isVideo = param.isVideo || false;
 
 		if (this._image && isVideo !== this._isVideo) {
+			/* eslint-disable no-console */
 			console.warn("Currently not supporting to change content type(Image <--> Video)");
+			/* eslint-enable no-console */
 			return this;
 		}
 
@@ -8903,8 +8904,9 @@ var PanoViewer = function (_Component) {
 		this._image = image;
 		this._isVideo = isVideo;
 		this._projectionType = projectionType;
-		this.suspend();
-		this.resume();
+
+		this._deactivate();
+		this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType);
 
 		return this;
 	};
@@ -8927,9 +8929,7 @@ var PanoViewer = function (_Component) {
 	};
 
 	PanoViewer.prototype._initRenderer = function _initRenderer(yaw, pitch, fov, projectionType) {
-		if (this._photoSphereRenderer) {
-			this._photoSphereRenderer.destroy();
-		}
+		var _this2 = this;
 
 		this._photoSphereRenderer = new _PanoImageRenderer.PanoImageRenderer(this._image, this._width, this._height, this._isVideo, {
 			initialYaw: yaw,
@@ -8937,42 +8937,54 @@ var PanoViewer = function (_Component) {
 			fieldOfView: fov,
 			imageType: projectionType
 		});
+
 		this._bindRendererHandler();
+
+		this._photoSphereRenderer.bindTexture().then(function () {
+			return _this2._activate();
+		})["catch"](function () {
+			_this2._triggerEvent(_consts.EVENTS.ERROR, {
+				type: _consts.ERROR_TYPE.FAIL_BIND_TEXTURE,
+				message: "failed to bind texture"
+			});
+		});
 	};
 
 	PanoViewer.prototype._bindRendererHandler = function _bindRendererHandler() {
-		var _this2 = this;
+		var _this3 = this;
 
 		this._photoSphereRenderer.on(_PanoImageRenderer.PanoImageRenderer.EVENTS.IMAGE_LOADED, function (e) {
-			_this2.trigger(_consts.EVENTS.CONTENT_LOADED, e);
+			_this3.trigger(_consts.EVENTS.CONTENT_LOADED, e);
 		});
 
 		this._photoSphereRenderer.on(_PanoImageRenderer.PanoImageRenderer.EVENTS.ERROR, function (e) {
-			_this2.trigger(_consts.EVENTS.ERROR, e);
+			_this3.trigger(_consts.EVENTS.ERROR, e);
 		});
 
 		this._photoSphereRenderer.on(_PanoImageRenderer.PanoImageRenderer.EVENTS.RENDERING_CONTEXT_LOST, function (e) {
-			_this2.suspend();
-		});
-
-		this._photoSphereRenderer.on(_PanoImageRenderer.PanoImageRenderer.EVENTS.RENDERING_CONTEXT_RESTORE, function (e) {
-			_this2.resume();
+			_this3._deactivate();
+			_this3.trigger(_consts.EVENTS.ERROR, {
+				type: _consts.ERROR_TYPE.RENDERING_CONTEXT_LOST,
+				message: "webgl rendering context lost"
+			});
 		});
 	};
 
-	PanoViewer.prototype._initYawPitchControl = function _initYawPitchControl() {
-		var _this3 = this;
+	PanoViewer.prototype._initYawPitchControl = function _initYawPitchControl(yawPitchConfig) {
+		var _this4 = this;
+
+		this._yawPitchControl = new _YawPitchControl.YawPitchControl(yawPitchConfig);
 
 		this._yawPitchControl.on(_consts.EVENTS.ANIMATION_END, function (e) {
-			_this3._triggerEvent(_consts.EVENTS.ANIMATION_END, e);
+			_this4._triggerEvent(_consts.EVENTS.ANIMATION_END, e);
 		});
 
 		this._yawPitchControl.on("change", function (e) {
-			_this3._yaw = e.yaw;
-			_this3._pitch = e.pitch;
-			_this3._fov = e.fov;
+			_this4._yaw = e.yaw;
+			_this4._pitch = e.pitch;
+			_this4._fov = e.fov;
 
-			_this3._triggerEvent(_consts.EVENTS.VIEW_CHANGE, e);
+			_this4._triggerEvent(_consts.EVENTS.VIEW_CHANGE, e);
 		});
 	};
 
@@ -8991,12 +9003,14 @@ var PanoViewer = function (_Component) {
    * 		12, FAIL_IMAGE_LOAD: Failed to load image
    * 		13: FAIL_BIND_TEXTURE: Failed to bind texture
    * 		14: INVALID_RESOURCE: Only one resource(image or video) should be specified
+   * 		15: RENDERING_CONTEXT_LOST: WebGL context lost occurred
    * <ko>에러 종류
    * 		10: INVALID_DEVICE: 미지원 기기
    * 		11: NO_WEBGL: WEBGL 미지원
    * 		12, FAIL_IMAGE_LOAD: 이미지 로드 실패
    * 		13: FAIL_BIND_TEXTURE: 텍스쳐 바인딩 실패
    * 		14: INVALID_RESOURCE: 리소스 지정 오류 (image 혹은 video 중 하나만 지정되어야 함)
+   * 		15: RENDERING_CONTEXT_LOST: WebGL context lost 발생
    * </ko>
    * @param {String} param.message Error message <ko>에러 메시지</ko>
    *
@@ -9012,27 +9026,13 @@ var PanoViewer = function (_Component) {
 		/**
    * Events that is fired when PanoViewer is ready to go.
    * @ko PanoViewer 가 준비된 상태에 발생하는 이벤트
-   * @name eg.view360.PanoViewer#resume
+   * @name eg.view360.PanoViewer#ready
    * @event
    *
    * @example
    *
    * viwer.on({
-   *	"resume" : function(evt) {
-   *		// PanoViewer is ready to show image and handle user interaction.
-   * });
-   */
-
-		/**
-   * Events that is fired when PanoViewer is suspended
-   * @ko PanoViewer 를 중지했을때 발생하는 이벤트
-   * @name eg.view360.PanoViewer#suspend
-   * @event
-   *
-   * @example
-   *
-   * viwer.on({
-   *	"suspend" : function(evt) {
+   *	"ready" : function(evt) {
    *		// PanoViewer is ready to show image and handle user interaction.
    * });
    */
@@ -9110,6 +9110,18 @@ var PanoViewer = function (_Component) {
 	};
 
 	/**
+  * Enables control through device motion. ("none", "yawPitch")
+  * @ko 디바이스 움직임을 통한 컨트롤을 활성화 합니다. ("none", "yawPitch")
+  * @method eg.view360.PanoViewer#setUseGyro
+  * @param {String} useGyro
+  */
+
+
+	PanoViewer.prototype.setUseGyro = function setUseGyro(useGyro) {
+		this._yawPitchControl.option("useGyro", useGyro);
+	};
+
+	/**
   * Setting the range of controllable FOV values
   * @ko 제어 가능한 FOV 값의 범위 설정
   * @method eg.view360.PanoViewer#setFovRange
@@ -9144,7 +9156,7 @@ var PanoViewer = function (_Component) {
 
 
 	PanoViewer.prototype.updateViewportDimensions = function updateViewportDimensions(size) {
-		if (!this._isResumed) {
+		if (!this._isReady) {
 			return;
 		}
 		this._width = size && size.width || parseInt(window.getComputedStyle(this._container).width, 10);
@@ -9274,7 +9286,7 @@ var PanoViewer = function (_Component) {
 
 
 	PanoViewer.prototype.lookAt = function lookAt(orientation, duration) {
-		if (!this._isResumed) {
+		if (!this._isReady) {
 			return;
 		}
 
@@ -9295,50 +9307,14 @@ var PanoViewer = function (_Component) {
 		}
 	};
 
-	/**
-  * Create webgl context and initiate user interaction and rendering
-  * @ko WebGl 컨텍스트 생성 및 사용자 상호 작용과 렌더링 시작
-  * @method eg.view360.PanoViewer#resume
-  */
-
-
-	PanoViewer.prototype.resume = function resume() {
-		var _this4 = this;
-
-		if (this._isResumed || !this._yawPitchControl) {
-			return;
-		}
-
-		if (!this._photoSphereRenderer) {
-			this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType);
-		}
-
-		// do setTimeout for not blocking UI when resume is called in syncrounos code.
-		setTimeout(function () {
-			if (_this4._isResumed || !_this4._photoSphereRenderer) {
-				return;
-			}
-
-			_this4._photoSphereRenderer.bindTexture().then(function () {
-				return _this4._resume();
-			})["catch"](function () {
-				_this4._triggerEvent(_consts.EVENTS.ERROR, {
-					type: _consts.ERROR_TYPE.FAIL_BIND_TEXTURE,
-					message: "failed to bind texture"
-				});
-			});
-		}, 0);
-	};
-
-	PanoViewer.prototype._resume = function _resume() {
+	PanoViewer.prototype._activate = function _activate() {
 		this._photoSphereRenderer.attachTo(this._container);
 		this._yawPitchControl.enable();
 
-		// Even if the size of the container changes after the suspend, it is detected at the time of resume and is adjusted again.
 		this.updateViewportDimensions();
 
-		this._isResumed = true;
-		this._triggerEvent(_consts.EVENTS.RESUME);
+		this._isReady = true;
+		this._triggerEvent(_consts.EVENTS.READY);
 		this._startRender();
 	};
 
@@ -9368,37 +9344,20 @@ var PanoViewer = function (_Component) {
 
 	/**
   * Destroy webgl context and block user interaction and stop rendering
-  * @ko Webgl 컨텍스트를 삭제하고 사용자 상호 작용을 차단하고 렌더링을 중지합니다.
-  * @method eg.view360.PanoViewer#suspend
-  * @param {Boolean} persistOrientation When true, it persist last yaw, pitch, fov on next resume <ko>true 지정 시, 다음 resume 때 기존의 카메라 설정을 유지합니다.</ko>
   */
 
 
-	PanoViewer.prototype.suspend = function suspend() {
+	PanoViewer.prototype._deactivate = function _deactivate() {
 		if (this._photoSphereRenderer) {
 			this._photoSphereRenderer.destroy();
 			this._photoSphereRenderer = null;
 		}
 
-		if (this._isResumed) {
+		if (this._isReady) {
 			this._yawPitchControl.disable();
 			this._stopRender();
-			this._isResumed = false;
+			this._isReady = false;
 		}
-
-		this._triggerEvent(_consts.EVENTS.SUSPEND);
-	};
-
-	/**
-  * Returns whether the viewer is in resumed state.
-  * @ko 뷰어가 resume 된 상태인지 여부를 반환합니다.
-  * @method eg.view360.PanoViewer#isResumed
-  * @return {Boolean}
-  */
-
-
-	PanoViewer.prototype.isResumed = function isResumed() {
-		return this._isResumed;
 	};
 
 	/**
@@ -9409,7 +9368,7 @@ var PanoViewer = function (_Component) {
 
 
 	PanoViewer.prototype.destroy = function destroy() {
-		this.suspend();
+		this._deactivate();
 
 		if (this._yawPitchControl) {
 			this._yawPitchControl.destroy();
@@ -9421,7 +9380,7 @@ var PanoViewer = function (_Component) {
 			this._photoSphereRenderer = null;
 		}
 
-		this._isResumed = false;
+		this._isReady = false;
 	};
 
 	PanoViewer.isWebGLAvailable = function isWebGLAvailable() {
@@ -9662,7 +9621,7 @@ var _VideoLoader = __webpack_require__(22);
 
 var _VideoLoader2 = _interopRequireDefault(_VideoLoader);
 
-var _WebGLUtils = __webpack_require__(9);
+var _WebGLUtils = __webpack_require__(10);
 
 var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
 
@@ -10364,7 +10323,7 @@ var _PanoImageRenderer = __webpack_require__(21);
 
 var _PanoImageRenderer2 = _interopRequireDefault(_PanoImageRenderer);
 
-var _WebGLUtils = __webpack_require__(9);
+var _WebGLUtils = __webpack_require__(10);
 
 var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
 
@@ -10386,7 +10345,7 @@ var _agent = __webpack_require__(13);
 
 var _agent2 = _interopRequireDefault(_agent);
 
-var _Renderer2 = __webpack_require__(10);
+var _Renderer2 = __webpack_require__(11);
 
 var _Renderer3 = _interopRequireDefault(_Renderer2);
 
@@ -10603,7 +10562,7 @@ CubeRenderer._INDEX_DATA = null;
 
 exports.__esModule = true;
 
-var _Renderer2 = __webpack_require__(10);
+var _Renderer2 = __webpack_require__(11);
 
 var _Renderer3 = _interopRequireDefault(_Renderer2);
 
@@ -10666,7 +10625,9 @@ var SphereRenderer = function (_Renderer) {
 		var maxWidth = gl.getParameter(gl.MAX_TEXTURE_SIZE);
 
 		if (width > maxWidth) {
+			/* eslint-disable no-console */
 			console.warn("Image width(" + width + ") exceeds device limit(" + maxWidth + "))");
+			/* eslint-enable no-console */
 			return;
 		}
 
@@ -10747,25 +10708,27 @@ SphereRenderer._INDEX_DATA = null;
 "use strict";
 
 
+var _consts = __webpack_require__(7);
+
 var ERROR_TYPE = {
 	INVALID_DEVICE: 10,
 	NO_WEBGL: 11,
 	FAIL_IMAGE_LOAD: 12,
 	FAIL_BIND_TEXTURE: 13,
-	INVALID_RESOURCE: 14
+	INVALID_RESOURCE: 14,
+	RENDERING_CONTEXT_LOST: 15
 };
 
 var EVENTS = {
-	RESUME: "resume",
-	SUSPEND: "suspend",
+	READY: "ready",
 	VIEW_CHANGE: "viewChange",
 	ANIMATION_END: "animationEnd",
 	ERROR: "error",
-	INIT: "init",
 	CONTENT_LOADED: "contentLoaded"
 };
 
 module.exports = {
+	GYRO_MODE: _consts.GYRO_MODE,
 	EVENTS: EVENTS,
 	ERROR_TYPE: ERROR_TYPE
 };
@@ -10785,7 +10748,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _axes = __webpack_require__(7);
+var _axes = __webpack_require__(8);
 
 var _axes2 = _interopRequireDefault(_axes);
 
@@ -10801,7 +10764,7 @@ var _TiltMotionInput2 = _interopRequireDefault(_TiltMotionInput);
 
 var _mathUtil = __webpack_require__(1);
 
-var _consts = __webpack_require__(11);
+var _consts = __webpack_require__(7);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -10833,6 +10796,7 @@ var YawPitchControl = function (_Component) {
   * @param {Boolean} [optiosn.showPolePoint=true] Indicates whether pole is shown
   * @param {Boolean} [options.useZoom=true] Indicates whether zoom is available
   * @param {Boolean} [options.useKeyboard=true] Indicates whether keyboard is enabled
+  * @param {String} [config.useGyro=yawPitch] Enables control through device motion.
   * @param {Number} [options.touchDirection=TOUCH_DIRECTION_ALL] Direction of the touch movement (TOUCH_DIRECTION_ALL: all,  TOUCH_DIRECTION_YAW: horizontal, TOUCH_DIRECTION_PITCH: vertical, TOUCH_DIRECTION_NONE: no move)
   * @param {Array} [options.yawRange=[-180, 180] Range of visible yaw
   * @param {Array} [options.pitchRange=[-90, 90] Range of visible pitch
@@ -10852,6 +10816,7 @@ var YawPitchControl = function (_Component) {
 			showPolePoint: false,
 			useZoom: true,
 			useKeyboard: true,
+			useGyro: _consts.GYRO_MODE.YAWPITCH,
 			touchDirection: _consts.TOUCH_DIRECTION_ALL,
 			yawRange: DEFAULT_YAW_RANGE,
 			pitchRange: DEFAULT_PITCH_RANGE,
@@ -11029,6 +10994,18 @@ var YawPitchControl = function (_Component) {
 					fov: nextFov
 				}, 0);
 				this._updateControlScale();
+			}
+		}
+
+		if (keys.some(function (key) {
+			return key === "useGyro";
+		}) && this.axesTiltMotionInput) {
+			var useGyro = this.options.useGyro;
+
+			if (useGyro === _consts.GYRO_MODE.YAWPITCH) {
+				this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
+			} else if (useGyro === _consts.GYRO_MODE.NONE) {
+				this.axes.disconnect(this.axesTiltMotionInput);
 			}
 		}
 
@@ -11255,7 +11232,6 @@ var YawPitchControl = function (_Component) {
 			return this;
 		}
 		this.axes.connect(["yaw", "pitch"], this.axesPanInput);
-		this.axesTiltMotionInput && this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
 		this._applyOptions(Object.keys(this.options), this.options);
 		this._setPanScale(this.getFov());
 
