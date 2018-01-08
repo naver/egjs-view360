@@ -16,12 +16,11 @@
         var panoViewer = new PanoViewer(container, {
             yaw: 90,
             image: "./assets/img/test_equi.png"
-        }).on("resume", function() {
+        }).on("ready", function() {
             panoViewer.lookAt({
                 yaw: 0
             }, 1000);
         });
-        panoViewer.resume();
         window.addEventListener("resize", function() {
             panoViewer.updateViewportDimensions();
         })

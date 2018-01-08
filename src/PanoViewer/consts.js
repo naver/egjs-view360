@@ -5,16 +5,15 @@ const ERROR_TYPE = {
 	NO_WEBGL: 11,
 	FAIL_IMAGE_LOAD: 12,
 	FAIL_BIND_TEXTURE: 13,
-	INVALID_RESOURCE: 14
+	INVALID_RESOURCE: 14,
+	RENDERING_CONTEXT_LOST: 15
 };
 
 const EVENTS = {
-	RESUME: "resume",
-	SUSPEND: "suspend",
+	READY: "ready",
 	VIEW_CHANGE: "viewChange",
 	ANIMATION_END: "animationEnd",
 	ERROR: "error",
-	INIT: "init",
 	CONTENT_LOADED: "contentLoaded"
 };
 

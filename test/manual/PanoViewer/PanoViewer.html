@@ -80,7 +80,6 @@
 
 <script>
 (function() {
-var optionChanged = false;
 var object = {
 };
 
@@ -102,7 +101,6 @@ var presets = {
     "useZoom": true,
     "useKeyboard": true,
     "useGyro": "yawPitch",
-    // "image": "../img/test_cube.png",
     "image": "../img/test_cube.jpg",
     "projectionType": "vertical_cubestrip"
   },
@@ -224,17 +222,11 @@ var json = {
 console.log(presets[INITIAL_PRESET]);
 
 var gridView = new GridView(document.querySelector(".grid-chart"), 0, 0);
-// var threePanoView = new ThreePanoView(document.querySelector( '.pano-viewer' ), object.image, 0, 0, object.pitchRangeSize < 65 ? object.pitchRangeSize : 65, 1);
-
 
 var panoViewer = new eg.view360.PanoViewer(
   document.querySelector( '.pano-viewer' ),
   presets[INITIAL_PRESET]
-).on("resume", function() {
-  if (!optionChanged) {
-    return;
-  }
-
+).on("ready", function() {
   panoViewer.lookAt({
     yaw: object["yaw"],
     pitch: object["pitch"],
@@ -247,7 +239,6 @@ var panoViewer = new eg.view360.PanoViewer(
   panoViewer.setShowPolePoint(object["showPolePoint"]);
   panoViewer.setUseZoom(object["useZoom"]);
   panoViewer.setUseKeyboard(object["useKeyboard"]);
-  optionChanged = false;
 
   render();
 });
@@ -256,9 +247,6 @@ render();
 
 var gui = new dat.GUI(json);
 gui.remember(object);
-
-// object.aspectRatio = 1;
-// object.SIZE = 300;
 
 var params = {
     loadFile : function() { 
@@ -313,11 +301,6 @@ gui.add(object, 'projectionType', { equirectangular: 'equirectangular', vertical
 var f0 = gui.addFolder('Yaw/Pitch/Fov');
 
 f0.add(object, 'yaw').onChange(function(value) {
-  if (!panoViewer.isResumed()) {
-    optionChanged = true;
-    return;
-  }
-
   panoViewer.lookAt({
     "yaw": value
   }, 0);
@@ -325,11 +308,6 @@ f0.add(object, 'yaw').onChange(function(value) {
 });
 
 f0.add(object, 'pitch').onChange(function(value) {
-  if (!panoViewer.isResumed()) {
-    optionChanged = true;
-    return;
-  }
-
   panoViewer.lookAt({
     "pitch": value
   }, 0);
@@ -337,11 +315,6 @@ f0.add(object, 'pitch').onChange(function(value) {
 })
 
 f0.add(object, 'fov').onChange(function(value) {
-  if (!panoViewer.isResumed()) {
-    optionChanged = true;
-    return;
-  }
-
   panoViewer.lookAt({
     "fov": value
   }, 0);
@@ -353,81 +326,41 @@ var f1 = gui.addFolder('Yaw/Pitch/Fov Range');
 var f2 = gui.addFolder('Options');
 
 f1.add(object, 'yawRangeSize', 40, 360).onChange(function(value) {
-  if (!panoViewer.isResumed()) {
-    optionChanged = true;
-    return;
-  }
-
   panoViewer.setYawRange([-value/2, value/2]);
   render();
 });
 
 f1.add(object, 'pitchRangeSize', 33, 180).onChange(function(value) {
-  if (!panoViewer.isResumed()) {
-    optionChanged = true;
-    return;
-  }
-
   panoViewer.setPitchRange([-value/2, value/2]);
   render();
 });
 
 f1.add(object, 'fovMin', 10, 65).onChange(function(value) {
-  if (!panoViewer.isResumed()) {
-    optionChanged = true;
-    return;
-  }
-
   panoViewer.setFovRange([value, panoViewer.getFovRange()[1]]);
   render();
 });
 
 f1.add(object, 'fovMax', 30, 170).onChange(function(value) {
-  if (!panoViewer.isResumed()) {
-    optionChanged = true;
-    return;
-  }
-
   panoViewer.setFovRange([panoViewer.getFovRange()[0], value]);
   render();
 });
 
 f2.add(object, 'showPolePoint').onChange(function(value) {
-  if (!panoViewer.isResumed()) {
-    optionChanged = true;
-    return;
-  }
-
   panoViewer.setShowPolePoint(value);
   render();
 });
 
 f2.add(object, 'useZoom').onChange(function(value) {
-  if (!panoViewer.isResumed()) {
-    optionChanged = true;
-    return;
-  }
-
   panoViewer.setUseZoom(value);
   render();
 });
 
 f2.add(object, 'useKeyboard').onChange(function(value) {
-  if (!panoViewer.isResumed()) {
-    optionChanged = true;
-    return;
-  }
-
   panoViewer.setUseKeyboard(value);
   render();
 });
 
 f2.add(object, 'useGyro', {"none": "none", "yawPitch": "yawPitch"}).onChange(function(value) {
-  if (!panoViewer.isResumed()) {
-    optionChanged = true;
-    return;
-  }
-
   panoViewer.setUseGyro(value);
   render();
 });
@@ -466,8 +399,6 @@ gui.add(params, 'aspectRatio',
   panoViewer.updateViewportDimensions();
   render();
 });
-
-panoViewer.resume();
 
 panoViewer.on("viewChange", function(e) {
   render()

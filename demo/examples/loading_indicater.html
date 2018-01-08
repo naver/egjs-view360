@@ -50,11 +50,9 @@
                 }
             );
 
-            panoViewer.on("resume", function() {
+            panoViewer.on("ready", function() {
                 loadingIcon.style.display = "none";
-            });
-                
-            panoViewer.resume();
+            });                
         });
 </script>
 

@@ -120,7 +120,7 @@ describe("PanoImageRenderer", function () {
 			let inst = this.inst;
 			const sourceImg = new Image();
 
-			sourceImg.src = "./images/test_equi.png";
+			sourceImg.src = "./images/test_equi.jpg";
 			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
 				initialYaw: 0,
 				initialpitch: 0,
@@ -135,6 +135,34 @@ describe("PanoImageRenderer", function () {
 						inst.render(0, 0, 65);
 						// Then
 						compare(`./images/PanoViewer/test_equi_0_0_65${suffix}`, inst.canvas, function(pct) {
+							expect(pct).to.be.below(2);
+							done();
+						});
+					});
+			}
+		});
+	});
+	describe("Cubamap Rendering", function() {
+		IT("yaw: 0, pitch:0, fov:65", function(done) {
+			// Given
+			let inst = this.inst;
+			const sourceImg = new Image();
+
+			sourceImg.src = "./images/test_cube.jpg";
+			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
+				initialYaw: 0,
+				initialpitch: 0,
+				imageType: "vertical_cubestrip",
+				fieldOfView: 65
+			});
+			inst.on("imageLoaded", when);
+			function when() {
+				// When
+				inst.bindTexture()
+					.then(() => {
+						inst.render(0, 0, 65);
+						// Then
+						compare(`./images/PanoViewer/test_cube_0_0_65${suffix}`, inst.canvas, function(pct) {
 							expect(pct).to.be.below(2);
 							done();
 						});

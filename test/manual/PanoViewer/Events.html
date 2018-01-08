@@ -40,8 +40,6 @@
         </div>
       <!--</div>-->
     </section>
-    <button onclick="resume()">Resume</button>
-    <button onclick="suspend()">Suspend</button>
     <button onclick="setInvalidImage()">Invalid Image</button>
     <button onclick="setValidImage()">Valid Image</button>
   </div>
@@ -61,27 +59,15 @@
       projectionType: "equirectangular",
       controlMode: "gallery_yaw_pitch"
     }).on({
-      "resume": eventLogger,
-      "suspend": eventLogger,
-      // "viewChange": eventLogger,
+      "ready": eventLogger,
+      "viewChange": eventLogger,
       "animationEnd": eventLogger,
       "error": eventLogger,
-      "init": eventLogger
     });
     
-    // photo360Viewer.resume();
-
     function eventLogger(evt) {
       console.log(evt);
       log && log(evt.eventType);
-    }
-
-    function resume() {
-      photo360Viewer.resume();
-    }
-
-    function suspend() {
-      photo360Viewer.suspend();
     }
 
     function setInvalidImage() {
