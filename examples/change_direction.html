@@ -21,7 +21,7 @@
 
 <body>
     <header>
-        <a href="./index.html">
+        <a href="./">
             <h1>PanoViewer examples</h1>
         </a>
         <h2>Change direction</h2>  
@@ -47,8 +47,6 @@
         }
     );
         
-    panoViewer.resume();
-
     document.querySelector(".front").addEventListener("click", function() {
         panoViewer.lookAt({
             yaw: 0
