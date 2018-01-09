@@ -1,29 +1,32 @@
 import Agent from "@egjs/agent";
 import Renderer from "./Renderer.js";
-import {
-	util
-} from "../../utils/math-util.js";
+import {util} from "../../utils/math-util.js";
 
 export default class CubeRenderer extends Renderer {
 	static getVertexPositionData() {
 		CubeRenderer._VERTEX_POSITION_DATA =
-			CubeRenderer._VERTEX_POSITION_DATA !== null ? CubeRenderer._VERTEX_POSITION_DATA :
-			[
+			CubeRenderer._VERTEX_POSITION_DATA !== null ? CubeRenderer._VERTEX_POSITION_DATA : [
 				// back
-				1, -1, 1, -1, -1, 1, -1, 1, 1,
+				1, -1, 1,
+				-1, -1, 1,
+				-1, 1, 1,
 				1, 1, 1,
 
 				// front
 				-1, -1, -1,
 				1, -1, -1,
-				1, 1, -1, -1, 1, -1,
+				1, 1, -1,
+				-1, 1, -1,
 
 				// top
 				1, 1, -1,
-				1, 1, 1, -1, 1, 1, -1, 1, -1,
+				1, 1, 1,
+				-1, 1, 1,
+				-1, 1, -1,
 
 				// bottom
-				-1, -1, -1, -1, -1, 1,
+				-1, -1, -1,
+				-1, -1, 1,
 				1, -1, 1,
 				1, -1, -1,
 
@@ -34,7 +37,10 @@ export default class CubeRenderer extends Renderer {
 				1, 1, -1,
 
 				// left
-				-1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, 1
+				-1, -1, 1,
+				-1, -1, -1,
+				-1, 1, -1,
+				-1, 1, 1
 			];
 
 		return CubeRenderer._VERTEX_POSITION_DATA;
@@ -108,8 +114,7 @@ export default class CubeRenderer extends Renderer {
 		const width = image.naturalWidth || image.videoWidth;
 		const height = image.naturalHeight || image.videoHeight;
 		const hasDrawImageBug = CubeRenderer.hasDrawImageBug(agent);
-		const maxCubeMapTextureSize = CubeRenderer.getMaxCubeMapTextureSize(gl,
-			image, agent);
+		const maxCubeMapTextureSize = CubeRenderer.getMaxCubeMapTextureSize(gl, image, agent);
 		const heightScale = CubeRenderer.getHightScale(width, agent);
 
 		if (!hasDrawImageBug) {
@@ -122,9 +127,7 @@ export default class CubeRenderer extends Renderer {
 			for (let surfaceIdx = 0; surfaceIdx < 6; surfaceIdx++) {
 				context.drawImage(
 					image, 0, surfaceIdx * (width * heightScale),
-					width, width * heightScale, 0, 0, maxCubeMapTextureSize,
-					maxCubeMapTextureSize);
-
+					width, width * heightScale, 0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize);
 				gl.texImage2D(
 					gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, 0, gl.RGBA,
 					gl.RGBA, gl.UNSIGNED_BYTE, canvas);
@@ -157,8 +160,7 @@ export default class CubeRenderer extends Renderer {
 					tileContext.translate(maxCubeMapTextureSize, 0);
 					tileContext.rotate(Math.PI / 2);
 					tileContext.drawImage(
-						halfCanvas, j * width, 0, width, width, 0, 0, maxCubeMapTextureSize,
-						maxCubeMapTextureSize);
+						halfCanvas, j * width, 0, width, width, 0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize);
 					tileContext.restore();
 					gl.texImage2D(
 						gl.TEXTURE_CUBE_MAP_POSITIVE_X + i * 3 + j, 0,
@@ -173,8 +175,7 @@ export default class CubeRenderer extends Renderer {
 		const maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
 		let _imageWidth = image.naturalWidth || image.videoWidth;
 
-		if (agent.browser.name === "ie" && parseInt(agent.browser.version, 10) ===
-			11) {
+		if (agent.browser.name === "ie" && parseInt(agent.browser.version, 10) === 11) {
 			if (!util.isPowerOfTwo(_imageWidth)) {
 				for (let i = 1; i < maxCubeMapTextureSize; i *= 2) {
 					if (i < _imageWidth) {
@@ -211,12 +212,10 @@ export default class CubeRenderer extends Renderer {
 				(agent.os.version === "5.1.1" && agent.browser.name === "samsung internet" &&
 					window.navigator.userAgent.indexOf("SM-N920") !== -1 &&
 					// 삼성인터넷 버전 4 미만
-					parseFloat(window.navigator.userAgent.split("SamsungBrowser/")[1].split(
-						" ")[0]) < 4)
+					parseFloat(window.navigator.userAgent.split("SamsungBrowser/")[1].split(" ")[0]) < 4)
 			) {
 				heightScale = 768 / width;
-			} else if (agent.os.version === "5.0" && agent.browser.name ===
-				"samsung internet" &&
+			} else if (agent.os.version === "5.0" && agent.browser.name === "samsung internet" &&
 				window.navigator.userAgent.indexOf("SM-G900") !== -1
 			) {
 				heightScale = 1344 / width;
@@ -231,9 +230,8 @@ export default class CubeRenderer extends Renderer {
 
 		if ((agent.browser.name === "samsung internet" &&
 				// 삼성인터넷 버전 5 미만
-				parseFloat(window.navigator.userAgent.split("SamsungBrowser/")[1].split(
-					" ")[0]) < 5) ||
-			(agent.os.name === "ios" && (parseInt(agent.os.version, 10) <= 9))) {
+				parseFloat(window.navigator.userAgent.split("SamsungBrowser/")[1].split(" ")[0]) < 5) ||
+				(agent.os.name === "ios" && (parseInt(agent.os.version, 10) <= 9))) {
 			hasBug = true;
 		}
 
