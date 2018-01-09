@@ -5616,6 +5616,7 @@ var CubeRenderer = function (_Renderer) {
 
 			for (var surfaceIdx = 0; surfaceIdx < 6; surfaceIdx++) {
 				context.drawImage(image, 0, surfaceIdx * (width * heightScale), width, width * heightScale, 0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize);
+
 				gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
 			}
 		} else {
