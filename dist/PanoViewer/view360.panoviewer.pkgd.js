@@ -9899,10 +9899,6 @@ var PanoImageRenderer = function (_Component) {
 	};
 
 	PanoImageRenderer.prototype.updateFieldOfView = function updateFieldOfView(fieldOfView) {
-		if (this.fieldOfView === fieldOfView) {
-			return;
-		}
-
 		this.fieldOfView = fieldOfView;
 		this._updateViewport();
 	};
@@ -10086,6 +10082,7 @@ var PanoImageRenderer = function (_Component) {
 	};
 
 	PanoImageRenderer.prototype._draw = function _draw() {
+		console.log("_draw!");
 		var gl = this.context;
 
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
