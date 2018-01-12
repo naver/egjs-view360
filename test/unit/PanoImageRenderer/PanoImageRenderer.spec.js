@@ -292,7 +292,9 @@ describe("PanoImageRenderer", function() {
 				imageType: "vertical_cubestrip",
 				fieldOfView: 65
             });
+            console.log("before load");
             inst.on("imageLoaded", () => {
+                console.log("imageLoaded");
                 inst.render(0, 0, 65);
                 inst._draw = function() {
                     isDrawCalled = true;
@@ -301,10 +303,13 @@ describe("PanoImageRenderer", function() {
 
                 // When
                 inst.keepUpdate(false);
+                console.log("brfore render");
                 inst.render(0, 0, 65);
 
+                console.log("render");
 				// Then
                 expect(isDrawCalled).to.be.equal(false);
+                console.log("after assert");
 				done();
 			});
         });
