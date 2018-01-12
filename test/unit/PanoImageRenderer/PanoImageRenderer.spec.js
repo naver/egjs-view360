@@ -280,38 +280,43 @@ describe("PanoImageRenderer", function() {
             // Then
             expect(isDrawCalled).to.be.equal(false);
         });
-        IT("Should not render internaly when calling render when it doesn't need.", function(done) {
+        IT("Should not render internaly when calling render when it doesn't need.", function() {
 			// Given
             let inst = this.inst;
             let isDrawCalled = false;
 			const sourceImg = new Image();
             sourceImg.src = "./images/test_cube.jpg";
-			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-				initialYaw: 0,
-				initialpitch: 0,
-				imageType: "vertical_cubestrip",
-				fieldOfView: 65
-            });
+
             console.log("before load");
-            inst.on("imageLoaded", () => {
-                console.log("imageLoaded");
-                inst.render(0, 0, 65);
-                inst._draw = function() {
-                    isDrawCalled = true;
-                    PanoImageRenderer.prototype._draw.call(inst);
-                };
 
-                // When
-                inst.keepUpdate(false);
-                console.log("brfore render");
-                inst.render(0, 0, 65);
+            return new Promise(resolve => {
+                inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
+                    initialYaw: 0,
+                    initialpitch: 0,
+                    imageType: "vertical_cubestrip",
+                    fieldOfView: 65
+                });
 
-                console.log("render");
-				// Then
-                expect(isDrawCalled).to.be.equal(false);
-                console.log("after assert");
-				done();
-			});
+                inst.on("imageLoaded", () => {
+                    console.log("imageLoaded");
+                    inst.render(0, 0, 65);
+                    inst._draw = function() {
+                        isDrawCalled = true;
+                        PanoImageRenderer.prototype._draw.call(inst);
+                    };
+    
+                    // When
+                    inst.keepUpdate(false);
+                    console.log("brfore render");
+                    inst.render(0, 0, 65);
+    
+                    console.log("render");
+                    // Then
+                    expect(isDrawCalled).to.be.equal(false);
+                    console.log("after assert");
+                    resolve();
+                });
+            });
         });
     });
 
