@@ -4,7 +4,7 @@ import VideoLoader from "./VideoLoader";
 import WebGLUtils from "./WebGLUtils";
 import CubeRenderer from "./renderer/CubeRenderer";
 import SphereRenderer from "./renderer/SphereRenderer";
-import {glMatrix, quat, mat4} from "../utils/math-util.js";
+import {glMatrix, mat4} from "../utils/math-util.js";
 import {devicePixelRatio} from "./browser";
 
 const ImageType = {
@@ -403,46 +403,6 @@ export default class PanoImageRenderer extends Component {
 		this._shouldForceDraw = true;
 
 		this.trigger(EVENTS.BIND_TEXTURE);
-	}
-
-	renderWithQuaternion(quaternion, fieldOfView) {
-		if (!this.isImageLoaded()) {
-			return;
-		}
-
-		// 항상 그려줄려고 강제로 플래그 올림... 원래 이러면 안됨
-		this._shouldForceDraw = true;
-
-		if (this._lastQuaternion && quat.exactEquals(this._lastQuaternion, quaternion) &&
-		this.fieldOfView && this.fieldOfView === fieldOfView && this._shouldForceDraw === false) {
-			return;
-		}
-
-		// fieldOfView 가 존재하면서 기존의 값과 다를 경우에만 업데이트 호출
-		if (fieldOfView !== undefined && fieldOfView !== this.fieldOfView) {
-			this.updateFieldOfView(fieldOfView);
-		}
-
-		let adgustedQ;
-
-		// equirectangular 의 경우 이미지의 중심을 0,0 으로 맞추기 위해 렌더링 시 yaw 축을 조정한다.
-		if (!this._isCubeStrip) {
-			const adjustYaw = quat.rotateY(quat.create(), quat.create(), glMatrix.toRadian(-90));
-
-			adgustedQ = quat.multiply(quat.create(), adjustYaw, quaternion);
-		} else {
-			adgustedQ = quaternion;
-		}
-
-		this.mvMatrix = mat4.fromQuat(mat4.create(), quat.conjugate(quat.create(), adgustedQ));
-
-		this._draw();
-
-		this._lastQuaternion = quat.clone(quaternion);
-
-		if (this._shouldForceDraw) {
-			this._shouldForceDraw = false;
-		}
 	}
 
 	keepUpdate(doUpdate) {

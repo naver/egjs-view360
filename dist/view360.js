@@ -5216,45 +5216,6 @@ var PanoImageRenderer = function (_Component) {
 		this.trigger(EVENTS.BIND_TEXTURE);
 	};
 
-	PanoImageRenderer.prototype.renderWithQuaternion = function renderWithQuaternion(quaternion, fieldOfView) {
-		if (!this.isImageLoaded()) {
-			return;
-		}
-
-		// 항상 그려줄려고 강제로 플래그 올림... 원래 이러면 안됨
-		this._shouldForceDraw = true;
-
-		if (this._lastQuaternion && _mathUtil.quat.exactEquals(this._lastQuaternion, quaternion) && this.fieldOfView && this.fieldOfView === fieldOfView && this._shouldForceDraw === false) {
-			return;
-		}
-
-		// fieldOfView 가 존재하면서 기존의 값과 다를 경우에만 업데이트 호출
-		if (fieldOfView !== undefined && fieldOfView !== this.fieldOfView) {
-			this.updateFieldOfView(fieldOfView);
-		}
-
-		var adgustedQ = void 0;
-
-		// equirectangular 의 경우 이미지의 중심을 0,0 으로 맞추기 위해 렌더링 시 yaw 축을 조정한다.
-		if (!this._isCubeStrip) {
-			var adjustYaw = _mathUtil.quat.rotateY(_mathUtil.quat.create(), _mathUtil.quat.create(), _mathUtil.glMatrix.toRadian(-90));
-
-			adgustedQ = _mathUtil.quat.multiply(_mathUtil.quat.create(), adjustYaw, quaternion);
-		} else {
-			adgustedQ = quaternion;
-		}
-
-		this.mvMatrix = _mathUtil.mat4.fromQuat(_mathUtil.mat4.create(), _mathUtil.quat.conjugate(_mathUtil.quat.create(), adgustedQ));
-
-		this._draw();
-
-		this._lastQuaternion = _mathUtil.quat.clone(quaternion);
-
-		if (this._shouldForceDraw) {
-			this._shouldForceDraw = false;
-		}
-	};
-
 	PanoImageRenderer.prototype.keepUpdate = function keepUpdate(doUpdate) {
 		if (doUpdate && this.isImageLoaded() === false) {
 			// Force to draw a frame after image is loaded on render()

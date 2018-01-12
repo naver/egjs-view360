@@ -199,6 +199,30 @@ describe("PanoImageRenderer", function() {
 		});
     });
 
+    describe("error event", function() {
+        IT("Should trigger error event when invalis image url", function(done) {
+			// Given
+			let inst = this.inst;
+			const sourceImg = new Image();
+            sourceImg.src = "./images/test_cube_not__exist.jpg";
+
+            // When
+			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
+				initialYaw: 0,
+				initialpitch: 0,
+				imageType: "vertical_cubestrip",
+				fieldOfView: 65
+            });
+            inst.on("error", when);
+
+            function when(e) {
+                // Then
+                expect(e.type).to.be.equal(12);
+                done();
+            }
+        });
+    });
+
     describe("renderingcontextlost event", function() { 
         IT("Should trigger renderingcontextlost event when lost context", function(done) {
 			// Given
@@ -364,6 +388,33 @@ describe("PanoImageRenderer", function() {
 						inst.render(0, 0, 65);
 						// Then
 						compare(`./images/PanoViewer/test_equi_0_0_65${suffix}`, inst.canvas, function(pct) {
+								expect(pct).to.be.below(2);
+								done();
+							});
+					});
+			}
+        });
+        IT("yaw: 0, pitch:0, fov:65 -> 30", function(done) {
+			// Given
+			let inst = this.inst;
+			const sourceImg = new Image();
+
+			sourceImg.src = "./images/test_equi.jpg";
+			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
+				initialYaw: 0,
+				initialpitch: 0,
+				imageType: "equirectangular",
+				fieldOfView: 65
+			});
+			inst.on("imageLoaded", when);
+			function when() {
+				// When
+				inst.bindTexture()
+					.then(() => {
+                        inst.render(0, 0, 65);
+						inst.render(0, 0, 30);
+						// Then
+						compare(`./images/PanoViewer/test_equi_0_0_30${suffix}`, inst.canvas, function(pct) {
 								expect(pct).to.be.below(2);
 								done();
 							});
