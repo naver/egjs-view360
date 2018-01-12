@@ -287,35 +287,31 @@ describe("PanoImageRenderer", function() {
 			const sourceImg = new Image();
             sourceImg.src = "./images/test_cube.jpg";
 
-            console.log("before load");
+            inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
+                initialYaw: 0,
+                initialpitch: 0,
+                imageType: "vertical_cubestrip",
+                fieldOfView: 65
+            });
 
-            return new Promise(resolve => {
-                inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-                    initialYaw: 0,
-                    initialpitch: 0,
-                    imageType: "vertical_cubestrip",
-                    fieldOfView: 65
-                });
+            inst.on("imageLoaded", () => {
+                inst.render(0, 0, 65);
+                inst._draw = function() {
+                    isDrawCalled = true;
+                    PanoImageRenderer.prototype._draw.call(inst);
+                };
 
-                inst.on("imageLoaded", () => {
-                    console.log("imageLoaded");
-                    inst.render(0, 0, 65);
-                    inst._draw = function() {
-                        isDrawCalled = true;
-                        PanoImageRenderer.prototype._draw.call(inst);
-                    };
-    
-                    // When
-                    inst.keepUpdate(false);
-                    console.log("brfore render");
-                    inst.render(0, 0, 65);
-    
-                    console.log("render");
-                    // Then
+                // When
+                inst.keepUpdate(false);
+                inst.render(0, 0, 65);
+
+                // Then
+                try {
                     expect(isDrawCalled).to.be.equal(false);
-                    console.log("after assert");
-                    resolve();
-                });
+                    done();
+                } catch (error) {
+                    done(error);
+                }
             });
         });
     });
