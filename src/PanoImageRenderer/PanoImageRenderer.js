@@ -5,13 +5,14 @@ import WebGLUtils from "./WebGLUtils";
 import CubeRenderer from "./renderer/CubeRenderer";
 import SphereRenderer from "./renderer/SphereRenderer";
 import {glMatrix, quat, mat4} from "../utils/math-util.js";
+import {devicePixelRatio} from "./browser";
 
 const ImageType = {
 	EQUIRECTANGULAR: "equirectangular",
 	VERTICAL_CUBESTRIP: "vertical_cubestrip"
 };
 
-let DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
+let DEVICE_PIXEL_RATIO = devicePixelRatio || 1;
 
 // DEVICE_PIXEL_RATIO 가 2를 초과하는 경우는 리소스 낭비이므로 2로 맞춘다.
 if (DEVICE_PIXEL_RATIO > 2) {
@@ -136,8 +137,6 @@ export default class PanoImageRenderer extends Component {
 		canvas.style.outline = "none";
 		canvas.style.position = "absolute";
 
-		// webgl context lost & restore 관련 이벤트 핸들링
-		// TODO : 어떤 상황에서 발생하는 지 더 알아보자
 		this._onWebglcontextlost = this._onWebglcontextlost.bind(this);
 		this._onWebglcontextrestored = this._onWebglcontextrestored.bind(this);
 
@@ -176,10 +175,6 @@ export default class PanoImageRenderer extends Component {
 			(!this._isVideo || this._image.readyState >= 2 /* HAVE_CURRENT_DATA */);
 	}
 
-	cancelLoadImage() {
-		this._contentLoader.destroy();
-	}
-
 	bindTexture() {
 		return new Promise((res, rej) => {
 			if (!this._contentLoader) {
@@ -209,16 +204,11 @@ export default class PanoImageRenderer extends Component {
 		}
 	}
 
-
 	// 부모 엘리먼트에서 canvas 를 제거
 	detach() {
 		if (this.canvas.parentElement) {
 			this.canvas.parentElement.removeChild(this.canvas);
 		}
-	}
-
-	isAttached() {
-		return this._image && this.canvas && this.canvas.parentNode;
 	}
 
 	destroy() {
@@ -236,10 +226,9 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	hasRenderingContext() {
-		if (!this.context) {
+		if (!(this.context && !this.context.isContextLost())) {
 			return false;
-		} else if (!this.context.getProgramParameter(this.shaderProgram, this.context.LINK_STATUS) &&
-		!this.context.isContextLost()) {
+		} else if (!this.context.getProgramParameter(this.shaderProgram, this.context.LINK_STATUS)) {
 			return false;
 		}
 		return true;
@@ -247,12 +236,12 @@ export default class PanoImageRenderer extends Component {
 
 	_onWebglcontextlost(e) {
 		e.preventDefault();
-		this.trigger("renderingContextLost");
+		this.trigger(EVENTS.RENDERING_CONTEXT_LOST);
 	}
 
 	_onWebglcontextrestored(e) {
 		this._initWebGL();
-		this.trigger("renderingContextRestore");
+		this.trigger(EVENTS.RENDERING_CONTEXT_RESTORE);
 	}
 
 	updateFieldOfView(fieldOfView) {

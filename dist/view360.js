@@ -82,7 +82,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 42);
+/******/ 	return __webpack_require__(__webpack_require__.s = 43);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -105,19 +105,19 @@ var _common = __webpack_require__(2);
 
 var _common2 = _interopRequireDefault(_common);
 
-var _vec = __webpack_require__(35);
+var _vec = __webpack_require__(36);
 
 var _vec2 = _interopRequireDefault(_vec);
 
-var _vec3 = __webpack_require__(34);
+var _vec3 = __webpack_require__(35);
 
 var _vec4 = _interopRequireDefault(_vec3);
 
-var _quat = __webpack_require__(33);
+var _quat = __webpack_require__(34);
 
 var _quat2 = _interopRequireDefault(_quat);
 
-var _mat = __webpack_require__(32);
+var _mat = __webpack_require__(33);
 
 var _mat2 = _interopRequireDefault(_mat);
 
@@ -498,7 +498,7 @@ function flush() {
 function attemptVertx() {
   try {
     var r = require;
-    var vertx = __webpack_require__(41);
+    var vertx = __webpack_require__(42);
     vertxNext = vertx.runOnLoop || vertx.runOnContext;
     return useVertxTimer();
   } catch (e) {
@@ -1550,7 +1550,7 @@ return Promise$1;
 
 //# sourceMappingURL=es6-promise.map
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(36), __webpack_require__(37)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(37), __webpack_require__(38)))
 
 /***/ }),
 /* 4 */
@@ -3569,7 +3569,7 @@ module.exports = exports["default"];
 exports.__esModule = true;
 exports.YawPitchControl = undefined;
 
-var _YawPitchControl = __webpack_require__(26);
+var _YawPitchControl = __webpack_require__(27);
 
 var _YawPitchControl2 = _interopRequireDefault(_YawPitchControl);
 
@@ -3605,9 +3605,9 @@ var _component2 = _interopRequireDefault(_component);
 
 var _YawPitchControl = __webpack_require__(14);
 
-var _PanoImageRenderer = __webpack_require__(22);
+var _PanoImageRenderer = __webpack_require__(23);
 
-var _consts = __webpack_require__(25);
+var _consts = __webpack_require__(26);
 
 var _mathUtil = __webpack_require__(1);
 
@@ -4792,15 +4792,17 @@ var _WebGLUtils = __webpack_require__(10);
 
 var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
 
-var _CubeRenderer = __webpack_require__(23);
+var _CubeRenderer = __webpack_require__(24);
 
 var _CubeRenderer2 = _interopRequireDefault(_CubeRenderer);
 
-var _SphereRenderer = __webpack_require__(24);
+var _SphereRenderer = __webpack_require__(25);
 
 var _SphereRenderer2 = _interopRequireDefault(_SphereRenderer);
 
 var _mathUtil = __webpack_require__(1);
+
+var _browser = __webpack_require__(22);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -4817,7 +4819,7 @@ var ImageType = {
 	VERTICAL_CUBESTRIP: "vertical_cubestrip"
 };
 
-var DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
+var DEVICE_PIXEL_RATIO = _browser.devicePixelRatio || 1;
 
 // DEVICE_PIXEL_RATIO 가 2를 초과하는 경우는 리소스 낭비이므로 2로 맞춘다.
 if (DEVICE_PIXEL_RATIO > 2) {
@@ -4951,8 +4953,6 @@ var PanoImageRenderer = function (_Component) {
 		canvas.style.outline = "none";
 		canvas.style.position = "absolute";
 
-		// webgl context lost & restore 관련 이벤트 핸들링
-		// TODO : 어떤 상황에서 발생하는 지 더 알아보자
 		this._onWebglcontextlost = this._onWebglcontextlost.bind(this);
 		this._onWebglcontextrestored = this._onWebglcontextrestored.bind(this);
 
@@ -4988,10 +4988,6 @@ var PanoImageRenderer = function (_Component) {
 
 	PanoImageRenderer.prototype.isImageLoaded = function isImageLoaded() {
 		return !!this._image && this._imageIsReady && (!this._isVideo || this._image.readyState >= 2 /* HAVE_CURRENT_DATA */);
-	};
-
-	PanoImageRenderer.prototype.cancelLoadImage = function cancelLoadImage() {
-		this._contentLoader.destroy();
 	};
 
 	PanoImageRenderer.prototype.bindTexture = function bindTexture() {
@@ -5036,10 +5032,6 @@ var PanoImageRenderer = function (_Component) {
 		}
 	};
 
-	PanoImageRenderer.prototype.isAttached = function isAttached() {
-		return this._image && this.canvas && this.canvas.parentNode;
-	};
-
 	PanoImageRenderer.prototype.destroy = function destroy() {
 		if (this._contentLoader) {
 			this._contentLoader.destroy();
@@ -5055,9 +5047,9 @@ var PanoImageRenderer = function (_Component) {
 	};
 
 	PanoImageRenderer.prototype.hasRenderingContext = function hasRenderingContext() {
-		if (!this.context) {
+		if (!(this.context && !this.context.isContextLost())) {
 			return false;
-		} else if (!this.context.getProgramParameter(this.shaderProgram, this.context.LINK_STATUS) && !this.context.isContextLost()) {
+		} else if (!this.context.getProgramParameter(this.shaderProgram, this.context.LINK_STATUS)) {
 			return false;
 		}
 		return true;
@@ -5065,12 +5057,12 @@ var PanoImageRenderer = function (_Component) {
 
 	PanoImageRenderer.prototype._onWebglcontextlost = function _onWebglcontextlost(e) {
 		e.preventDefault();
-		this.trigger("renderingContextLost");
+		this.trigger(EVENTS.RENDERING_CONTEXT_LOST);
 	};
 
 	PanoImageRenderer.prototype._onWebglcontextrestored = function _onWebglcontextrestored(e) {
 		this._initWebGL();
-		this.trigger("renderingContextRestore");
+		this.trigger(EVENTS.RENDERING_CONTEXT_RESTORE);
 	};
 
 	PanoImageRenderer.prototype.updateFieldOfView = function updateFieldOfView(fieldOfView) {
@@ -5484,6 +5476,16 @@ exports["default"] = VideoLoader;
 
 
 exports.__esModule = true;
+var devicePixelRatio = exports.devicePixelRatio = window.devicePixelRatio;
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
 exports.WebGLUtils = exports.PanoImageRenderer = undefined;
 
 var _PanoImageRenderer = __webpack_require__(20);
@@ -5500,7 +5502,7 @@ exports.PanoImageRenderer = _PanoImageRenderer2["default"];
 exports.WebGLUtils = _WebGLUtils2["default"];
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5721,7 +5723,7 @@ CubeRenderer._VERTEX_POSITION_DATA = null;
 CubeRenderer._INDEX_DATA = null;
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5869,7 +5871,7 @@ SphereRenderer._TEXTURE_COORD_DATA = null;
 SphereRenderer._INDEX_DATA = null;
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5901,7 +5903,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5921,11 +5923,11 @@ var _axes2 = _interopRequireDefault(_axes);
 
 var _browser = __webpack_require__(6);
 
-var _WheelInput = __webpack_require__(31);
+var _WheelInput = __webpack_require__(32);
 
 var _WheelInput2 = _interopRequireDefault(_WheelInput);
 
-var _TiltMotionInput = __webpack_require__(30);
+var _TiltMotionInput = __webpack_require__(31);
 
 var _TiltMotionInput2 = _interopRequireDefault(_TiltMotionInput);
 
@@ -6502,7 +6504,7 @@ YawPitchControl.VERSION = "3.0.0-rc";
 exports["default"] = YawPitchControl;
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6518,7 +6520,7 @@ var _util = __webpack_require__(5);
 
 var _util2 = _interopRequireDefault(_util);
 
-var _complementaryFilter = __webpack_require__(38);
+var _complementaryFilter = __webpack_require__(39);
 
 var _complementaryFilter2 = _interopRequireDefault(_complementaryFilter);
 
@@ -6596,7 +6598,7 @@ _complementaryFilter2["default"].prototype.getOrientation = function () {
 exports["default"] = _complementaryFilter2["default"];
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6706,7 +6708,7 @@ var DeviceMotion = function (_Component) {
 exports["default"] = DeviceMotion;
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6718,7 +6720,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _posePredictor = __webpack_require__(39);
+var _posePredictor = __webpack_require__(40);
 
 var _posePredictor2 = _interopRequireDefault(_posePredictor);
 
@@ -6734,11 +6736,11 @@ var _browser = __webpack_require__(6);
 
 var _mathUtil3 = __webpack_require__(1);
 
-var _DeviceMotion = __webpack_require__(28);
+var _DeviceMotion = __webpack_require__(29);
 
 var _DeviceMotion2 = _interopRequireDefault(_DeviceMotion);
 
-var _ComplementaryFilter = __webpack_require__(27);
+var _ComplementaryFilter = __webpack_require__(28);
 
 var _ComplementaryFilter2 = _interopRequireDefault(_ComplementaryFilter);
 
@@ -6962,7 +6964,7 @@ var FusionPoseSensor = function (_Component) {
 exports["default"] = FusionPoseSensor;
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6978,7 +6980,7 @@ var _component2 = _interopRequireDefault(_component);
 
 var _utils = __webpack_require__(12);
 
-var _FusionPoseSensor = __webpack_require__(29);
+var _FusionPoseSensor = __webpack_require__(30);
 
 var _FusionPoseSensor2 = _interopRequireDefault(_FusionPoseSensor);
 
@@ -7093,7 +7095,7 @@ var TiltMotionInput = function (_Component) {
 exports["default"] = TiltMotionInput;
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7189,7 +7191,7 @@ var WheelInput = function (_Component) {
 exports["default"] = WheelInput;
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7437,7 +7439,7 @@ mat4.perspective = function (out, fovy, aspect, near, far) {
 module.exports = mat4;
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7674,7 +7676,7 @@ quat.exactEquals = function (a, b) {
 module.exports = quat;
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7719,7 +7721,7 @@ vec2.copy = function (out, a) {
 module.exports = vec2;
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7920,7 +7922,7 @@ vec3.transformQuat = function (out, a, q) {
 module.exports = vec3;
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -8110,7 +8112,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports) {
 
 var g;
@@ -8137,7 +8139,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -8155,7 +8157,7 @@ module.exports = g;
  * limitations under the License.
  */
 
-var SensorSample = __webpack_require__(40);
+var SensorSample = __webpack_require__(41);
 var MathUtil = __webpack_require__(4);
 var Util = __webpack_require__(5);
 
@@ -8309,7 +8311,7 @@ module.exports = ComplementaryFilter;
 
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -8396,7 +8398,7 @@ module.exports = PosePredictor;
 
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports) {
 
 function SensorSample(sample, timestampS) {
@@ -8416,13 +8418,13 @@ module.exports = SensorSample;
 
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
