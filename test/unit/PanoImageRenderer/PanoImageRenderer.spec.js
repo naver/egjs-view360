@@ -204,7 +204,7 @@ describe("PanoImageRenderer", function() {
 			// Given
 			let inst = this.inst;
 			const sourceImg = new Image();
-            sourceImg.src = "./images/test_cube_not__exist.jpg";
+            sourceImg.src = "./images/test_cube_not_exist.jpg";
 
             // When
 			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
@@ -257,10 +257,9 @@ describe("PanoImageRenderer", function() {
     });
 
     describe("render without throwing exception", function() { 
-        IT("Should not throwing exception when calling render without image loaded", function() {
+        IT("Should not render internaly when calling render without image loaded", function() {
 			// Given
 			let inst = this.inst;
-			let isExceptionThrowed = false;
             let isDrawCalled = false;
 			const sourceImg = new Image();
             sourceImg.src = "./images/test_cube_not_exist.jpg";
@@ -275,16 +274,11 @@ describe("PanoImageRenderer", function() {
                 PanoImageRenderer.prototype._draw.call(inst);
             };
 
-            try {
-                // When
-                inst.render(0, 0, 65);
-            } catch (e) {
-                isExceptionThrowed = true;
-            }
+            // When
+            inst.render(0, 0, 65);
 
             // Then
             expect(isDrawCalled).to.be.equal(false);
-            expect(isExceptionThrowed).to.be.equal(false);
         });
         IT("Should not render internaly when calling render when it doesn't need.", function(done) {
 			// Given
