@@ -549,36 +549,10 @@ util.isPowerOfTwo = function (n) {
 	return n && (n & n - 1) === 0;
 };
 
-util.extractYawFromQuat = function (quaternion) {
-	var baseV = quatToVec3(quaternion);
-
-	return 1 * Math.atan2(baseV[0], baseV[2]);
-};
-
 util.extractPitchFromQuat = function (quaternion) {
 	var baseV = quatToVec3(quaternion);
 
 	return -1 * Math.atan2(baseV[1], Math.sqrt(Math.pow(baseV[0], 2) + Math.pow(baseV[2], 2)));
-};
-
-util.getQuaternionWithYawPitch = function (yaw, pitch) {
-	var q = _quat2["default"].create();
-
-	_quat2["default"].rotateY(q, q, _common2["default"].toRadian(yaw));
-	_quat2["default"].rotateX(q, q, _common2["default"].toRadian(pitch));
-	return q;
-};
-
-util.quatToYawPitch = function (quaternion) {
-	return {
-		yaw: _common2["default"].toDegree(util.extractYawFromQuat(quaternion)),
-		pitch: _common2["default"].toDegree(util.extractPitchFromQuat(quaternion))
-	};
-};
-
-util.yawPitchToPoint = function (yaw, pitch) {
-	// rad, rad
-	return [Math.tan(yaw) / Math.cos(pitch), Math.tan(pitch)];
 };
 
 // implement reference
@@ -12747,55 +12721,6 @@ mat4.rotateY = function (out, a, rad) {
 };
 
 /**
- * Calculates a 4x4 matrix from the given quaternion
- *
- * @param {mat4} out mat4 receiving operation result
- * @param {quat} q Quaternion to create matrix from
- *
- * @returns {mat4} out
- */
-mat4.fromQuat = function (out, q) {
-    var x = q[0],
-        y = q[1],
-        z = q[2],
-        w = q[3],
-        x2 = x + x,
-        y2 = y + y,
-        z2 = z + z,
-        xx = x * x2,
-        yx = y * x2,
-        yy = y * y2,
-        zx = z * x2,
-        zy = z * y2,
-        zz = z * z2,
-        wx = w * x2,
-        wy = w * y2,
-        wz = w * z2;
-
-    out[0] = 1 - yy - zz;
-    out[1] = yx + wz;
-    out[2] = zx - wy;
-    out[3] = 0;
-
-    out[4] = yx - wz;
-    out[5] = 1 - xx - zz;
-    out[6] = zy + wx;
-    out[7] = 0;
-
-    out[8] = zx + wy;
-    out[9] = zy - wx;
-    out[10] = 1 - xx - yy;
-    out[11] = 0;
-
-    out[12] = 0;
-    out[13] = 0;
-    out[14] = 0;
-    out[15] = 1;
-
-    return out;
-};
-
-/**
  * Generates a perspective projection matrix with the given bounds
  *
  * @param {mat4} out mat4 frustum matrix will be written into
@@ -12849,9 +12774,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 var quat = {};
 
 /**
- * Creates a new identity quat
+ * Creates a new quat initialized with values from an existing quaternion
  *
+ * @param {quat} a quaternion to clone
  * @returns {quat} a new quaternion
+ * @function
  */
 /**
  * Original Code
@@ -12859,29 +12786,13 @@ var quat = {};
  * Quaternion util
  * modified by egjs
  */
-quat.create = function () {
-    var out = new _common2["default"].ARRAY_TYPE(4);
-    out[0] = 0;
-    out[1] = 0;
-    out[2] = 0;
-    out[3] = 1;
-    return out;
-};
-
-/**
- * Creates a new quat initialized with values from an existing quaternion
- *
- * @param {quat} a quaternion to clone
- * @returns {quat} a new quaternion
- * @function
- */
 quat.clone = function (a) {
-    var out = new _common2["default"].ARRAY_TYPE(4);
-    out[0] = a[0];
-    out[1] = a[1];
-    out[2] = a[2];
-    out[3] = a[3];
-    return out;
+  var out = new _common2["default"].ARRAY_TYPE(4);
+  out[0] = a[0];
+  out[1] = a[1];
+  out[2] = a[2];
+  out[3] = a[3];
+  return out;
 };
 
 /**
@@ -12895,12 +12806,12 @@ quat.clone = function (a) {
  * @function
  */
 quat.fromValues = function (x, y, z, w) {
-    var out = new _common2["default"].ARRAY_TYPE(4);
-    out[0] = x;
-    out[1] = y;
-    out[2] = z;
-    out[3] = w;
-    return out;
+  var out = new _common2["default"].ARRAY_TYPE(4);
+  out[0] = x;
+  out[1] = y;
+  out[2] = z;
+  out[3] = w;
+  return out;
 };;
 
 /**
@@ -12912,102 +12823,11 @@ quat.fromValues = function (x, y, z, w) {
  * @function
  */
 quat.copy = function (out, a) {
-    out[0] = a[0];
-    out[1] = a[1];
-    out[2] = a[2];
-    out[3] = a[3];
-    return out;
-};
-
-/**
- * Multiplies two quat's
- *
- * @param {quat} out the receiving quaternion
- * @param {quat} a the first operand
- * @param {quat} b the second operand
- * @returns {quat} out
- */
-quat.multiply = function (out, a, b) {
-    var ax = a[0],
-        ay = a[1],
-        az = a[2],
-        aw = a[3],
-        bx = b[0],
-        by = b[1],
-        bz = b[2],
-        bw = b[3];
-
-    out[0] = ax * bw + aw * bx + ay * bz - az * by;
-    out[1] = ay * bw + aw * by + az * bx - ax * bz;
-    out[2] = az * bw + aw * bz + ax * by - ay * bx;
-    out[3] = aw * bw - ax * bx - ay * by - az * bz;
-    return out;
-};
-
-/**
- * Rotates a quaternion by the given angle about the X axis
- *
- * @param {quat} out quat receiving operation result
- * @param {quat} a quat to rotate
- * @param {number} rad angle (in radians) to rotate
- * @returns {quat} out
- */
-quat.rotateX = function (out, a, rad) {
-    rad *= 0.5;
-
-    var ax = a[0],
-        ay = a[1],
-        az = a[2],
-        aw = a[3],
-        bx = Math.sin(rad),
-        bw = Math.cos(rad);
-
-    out[0] = ax * bw + aw * bx;
-    out[1] = ay * bw + az * bx;
-    out[2] = az * bw - ay * bx;
-    out[3] = aw * bw - ax * bx;
-    return out;
-};
-
-/**
- * Rotates a quaternion by the given angle about the Y axis
- *
- * @param {quat} out quat receiving operation result
- * @param {quat} a quat to rotate
- * @param {number} rad angle (in radians) to rotate
- * @returns {quat} out
- */
-quat.rotateY = function (out, a, rad) {
-    rad *= 0.5;
-
-    var ax = a[0],
-        ay = a[1],
-        az = a[2],
-        aw = a[3],
-        by = Math.sin(rad),
-        bw = Math.cos(rad);
-
-    out[0] = ax * bw - az * by;
-    out[1] = ay * bw + aw * by;
-    out[2] = az * bw + ax * by;
-    out[3] = aw * bw - ay * by;
-    return out;
-};
-
-/**
- * Calculates the conjugate of a quat
- * If the quaternion is normalized, this function is faster than quat.inverse and produces the same result.
- *
- * @param {quat} out the receiving quaternion
- * @param {quat} a quat to calculate conjugate of
- * @returns {quat} out
- */
-quat.conjugate = function (out, a) {
-    out[0] = -a[0];
-    out[1] = -a[1];
-    out[2] = -a[2];
-    out[3] = a[3];
-    return out;
+  out[0] = a[0];
+  out[1] = a[1];
+  out[2] = a[2];
+  out[3] = a[3];
+  return out;
 };
 
 /**
@@ -13019,19 +12839,19 @@ quat.conjugate = function (out, a) {
  * @function
  */
 quat.normalize = function (out, a) {
-    var x = a[0],
-        y = a[1],
-        z = a[2],
-        w = a[3];
-    var len = x * x + y * y + z * z + w * w;
-    if (len > 0) {
-        len = 1 / Math.sqrt(len);
-        out[0] = x * len;
-        out[1] = y * len;
-        out[2] = z * len;
-        out[3] = w * len;
-    }
-    return out;
+  var x = a[0],
+      y = a[1],
+      z = a[2],
+      w = a[3];
+  var len = x * x + y * y + z * z + w * w;
+  if (len > 0) {
+    len = 1 / Math.sqrt(len);
+    out[0] = x * len;
+    out[1] = y * len;
+    out[2] = z * len;
+    out[3] = w * len;
+  }
+  return out;
 };
 
 /**
@@ -13042,26 +12862,15 @@ quat.normalize = function (out, a) {
  * @returns {Boolean} True if the vectors are equal, false otherwise.
  */
 quat.equals = function (a, b) {
-    var a0 = a[0],
-        a1 = a[1],
-        a2 = a[2],
-        a3 = a[3];
-    var b0 = b[0],
-        b1 = b[1],
-        b2 = b[2],
-        b3 = b[3];
-    return Math.abs(a0 - b0) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) && Math.abs(a1 - b1) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) && Math.abs(a2 - b2) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a2), Math.abs(b2)) && Math.abs(a3 - b3) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a3), Math.abs(b3));
-};
-
-/**
- * Returns whether or not the quaternions have exactly the same elements in the same position (when compared with ===)
- *
- * @param {quat} a The first quaternion.
- * @param {quat} b The second quaternion.
- * @returns {Boolean} True if the vectors are equal, false otherwise.
- */
-quat.exactEquals = function (a, b) {
-    return a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3];
+  var a0 = a[0],
+      a1 = a[1],
+      a2 = a[2],
+      a3 = a[3];
+  var b0 = b[0],
+      b1 = b[1],
+      b2 = b[2],
+      b3 = b[3];
+  return Math.abs(a0 - b0) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) && Math.abs(a1 - b1) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) && Math.abs(a2 - b2) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a2), Math.abs(b2)) && Math.abs(a3 - b3) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a3), Math.abs(b3));
 };
 
 module.exports = quat;
@@ -13162,20 +12971,6 @@ vec3.fromValues = function (x, y, z) {
     out[0] = x;
     out[1] = y;
     out[2] = z;
-    return out;
-};
-
-vec3.set = function (out, x, y, z) {
-    out[0] = x;
-    out[1] = y;
-    out[2] = z;
-    return out;
-};
-
-vec3.copy = function (out, a) {
-    out[0] = a[0];
-    out[1] = a[1];
-    out[2] = a[2];
     return out;
 };
 
