@@ -443,7 +443,6 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	_draw() {
-		console.log("_draw!");
 		const gl = this.context;
 
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
