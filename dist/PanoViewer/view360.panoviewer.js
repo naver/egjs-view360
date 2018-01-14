@@ -4077,14 +4077,10 @@ var ImageLoader = function () {
 			if (!_this._image) {
 				rej("ImageLoader: image is not defiend");
 			} else if (_this._loadStatus === STATUS.LOADED) {
-				console.log("get STATUS.LOADED");
 				/* Check isMaybeLoaded() first because there may have posibilities that image already loaded before get is called. for example calling get on external image onload callback.*/
 				res(_this._image);
 			} else if (_this._loadStatus === STATUS.LOADING) {
-				console.log("get STATUS.LOADING");
-
 				_this._once("load", function () {
-					console.log("get STATUS.LOADING load");
 					res(_this._image);
 				});
 				_this._once("error", function () {
@@ -4105,7 +4101,6 @@ var ImageLoader = function () {
 		var _this2 = this;
 
 		this._loadStatus = STATUS.LOADING;
-		console.log("set");
 
 		if (typeof image === "string") {
 			this._image = new Image();
@@ -4116,14 +4111,12 @@ var ImageLoader = function () {
 		}
 
 		if (ImageLoader._isMaybeLoaded(this._image)) {
-			console.log("set _isMaybeLoaded");
 			// Already loaded image
 			this._loadStatus = STATUS.LOADED;
 			return;
 		}
 
 		this._once("load", function () {
-			console.log("set _once load");
 			_this2._loadStatus = STATUS.LOADED;
 		});
 		this._once("error", function () {

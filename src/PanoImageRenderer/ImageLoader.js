@@ -19,14 +19,10 @@ export default class ImageLoader {
 			if (!this._image) {
 				rej("ImageLoader: image is not defiend");
 			} else if (this._loadStatus === STATUS.LOADED) {
-				console.log("get STATUS.LOADED");
 				/* Check isMaybeLoaded() first because there may have posibilities that image already loaded before get is called. for example calling get on external image onload callback.*/
 				res(this._image);
 			} else if (this._loadStatus === STATUS.LOADING) {
-				console.log("get STATUS.LOADING");
-
 				this._once("load", () => {
-					console.log("get STATUS.LOADING load");
 					res(this._image);
 				});
 				this._once("error", () => rej("ImageLoader: failed to load images."));
@@ -41,7 +37,6 @@ export default class ImageLoader {
 	 */
 	set(image) {
 		this._loadStatus = STATUS.LOADING;
-		console.log("set");
 
 		if (typeof image === "string") {
 			this._image = new Image();
@@ -52,14 +47,12 @@ export default class ImageLoader {
 		}
 
 		if (ImageLoader._isMaybeLoaded(this._image)) {
-			console.log("set _isMaybeLoaded");
 			// Already loaded image
 			this._loadStatus = STATUS.LOADED;
 			return;
 		}
 
 		this._once("load", () => {
-			console.log("set _once load");
 			this._loadStatus = STATUS.LOADED;
 		});
 		this._once("error", () => (this._loadStatus = STATUS.ERROR));

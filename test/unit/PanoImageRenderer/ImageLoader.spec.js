@@ -171,16 +171,12 @@ describe("ImageLoader", function() {
 			let inst;
 			const imgObj = new Image();
 			imgObj.src = "./images/PanoViewer/waterpark_preview.jpg";
-			console.log("new ImageLoader(imgObj)");
 			inst = new ImageLoader(imgObj);
 
-			console.log("imgObj.onload()");
 			imgObj.onload = function() {
-				console.log("imgObj.onload triggered");
 				// Then: Image can be obtained although it's been set by image object.
 				inst.get()
 					.then(img => {
-						console.log("then");
 						assert.isOk(img instanceof Image || img instanceof HTMLImageElement);
 						done();
 					})
