@@ -244,6 +244,77 @@ describe("YawPitchControl", function() {
 		});
 	});
 
+	describe("change event", function() {
+		let target;
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+			this.inst = new YawPitchControl({
+				element: target
+			});
+		});
+
+		afterEach(() => {
+			this.inst && this.inst.destroy();
+			target && target.remove();
+			target = null;
+		});
+
+		it("Should have isTruested value true when trigged by user interaction", done => {
+			// Given
+			let isTrustedOnHold = null;
+			let isTrustedOnChange = null;
+			this.inst.enable();
+
+			this.inst.on("hold", e => {
+				isTrustedOnHold = e.isTrusted;
+			});
+			this.inst.on("change", e => {
+				isTrustedOnChange = e.isTrusted;
+			});
+
+			// When
+			Simulator.gestures.pan(target, { // this.el 이 300 * 300 이라고 가정
+				pos: [30, 30],
+				deltaX: 10,
+				deltaY: 10,
+				duration: 1000,
+				easing: "linear"
+			}, () => {
+				// Then
+				expect(isTrustedOnHold).to.be.true;
+				expect(isTrustedOnChange).to.be.true;				
+				done();
+			});
+		});
+
+		it("Should have isTruested value false when trigged by javascript api", done => {
+			// Given
+			let isTrustedOnChange = null;
+			let isTrustedOnAnimationEnd = null;
+
+			this.inst.enable();
+			this.inst.on("change", e => {
+				isTrustedOnChange = e.isTrusted;
+			});
+			this.inst.on("animationEnd", then);
+
+			// When
+			this.inst.lookAt({
+				yaw: 20
+			}, 1000);
+
+			function then(e) {
+				isTrustedOnAnimationEnd = e.isTrusted;
+
+				// Then
+				expect(isTrustedOnChange).to.be.false;
+				expect(isTrustedOnAnimationEnd).to.be.false;
+				done();
+			}
+		});
+	});
+
 	describe("YawPitch Angle Test", function() {
 		describe("Yaw Range Test", function() {
 			let results = [];

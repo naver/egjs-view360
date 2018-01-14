@@ -188,6 +188,78 @@ describe("PanoViewer", function() {
 		});
 	});
 
+	describe("viewChange event", function() {
+		let target;
+		let panoViewer;
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div></div>`;
+		});
+
+		afterEach(() => {
+			if (!panoViewer) {
+				return;
+			}
+			panoViewer.destroy();
+			panoViewer = null;
+		});
+
+		it("Should have isTruested value true when trigged by user interaction", done => {
+			// Given
+			panoViewer = new PanoViewer(target, {
+				image: "./images/test_equi.png"
+			});
+			let isTrustedOnChange = null;
+
+			panoViewer.on("ready", () => {
+				panoViewer.on("viewChange", e => {
+					isTrustedOnChange = e.isTrusted;
+				});
+	
+				// When
+				Simulator.gestures.pan(target, { // this.el 이 300 * 300 이라고 가정
+					pos: [30, 30],
+					deltaX: 10,
+					deltaY: 10,
+					duration: 1000,
+					easing: "linear"
+				}, () => {
+					// Then
+					expect(isTrustedOnChange).to.be.true;
+					done();
+				});
+			});
+		});
+
+		it("Should have isTruested value false when trigged by javascript api", done => {
+			// Given
+			panoViewer = new PanoViewer(target, {
+				image: "./images/test_equi.png"
+			});
+			let isTrustedOnChange = null;
+
+			panoViewer.on("ready", () => {
+				panoViewer.on("viewChange", e => {
+					isTrustedOnChange = e.isTrusted;
+				});
+
+				panoViewer.on("animationEnd", then);
+
+				// When
+				panoViewer.lookAt({
+					yaw: 20
+				}, 1000);
+
+				function then(e) {
+				// Then
+					expect(isTrustedOnChange).to.be.false;
+					done();
+				}
+			});
+		});
+	});
+
 	describe("event flow", function() {
 		let target;
 		let photo360Viewer;

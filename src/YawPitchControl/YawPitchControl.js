@@ -111,22 +111,22 @@ const YawPitchControl = class YawPitchControl extends Component {
 		})
 		.on({
 			hold: evt => {
-				this.trigger("hold");
+				this.trigger("hold", {isTrusted: evt.isTrusted});
 			},
 			change: evt => {
 				if (evt.delta.fov !== 0) {
 					this._setPanScale(evt.pos.fov);
 					this._updateControlScale(evt);
 				}
-				this._triggerChange();
+				this._triggerChange(evt);
 			},
 			release: evt => {
-				this._triggerChange();
+				this._triggerChange(evt);
 			},
 			animationStart: evt => {
 			},
 			animationEnd: evt => {
-				this.trigger("animationEnd");
+				this.trigger("animationEnd", {isTrusted: evt.isTrusted});
 			},
 		});
 	}
@@ -390,11 +390,12 @@ const YawPitchControl = class YawPitchControl extends Component {
 			(yawRange[1] * MAGIC_NUMBER) - halfHorizontalFov].map(v => +v.toFixed(5));
 	}
 
-	_triggerChange() {
+	_triggerChange(evt) {
 		const pos = this.axes.get();
 		const opt = this.options;
 		const event = {
 			targetElement: opt.element,
+			isTrusted: evt.isTrusted,
 		};
 
 		event.yaw = pos.yaw;
