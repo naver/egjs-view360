@@ -38,6 +38,7 @@ export default class ImageLoader {
 
 		if (typeof image === "string") {
 			this._image = new Image();
+			this._image.crossOrigin = "anonymous";
 			this._image.src = image;
 		} else if (typeof image === "object") {
 			this._image = image;

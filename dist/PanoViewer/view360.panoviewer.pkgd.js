@@ -9538,6 +9538,7 @@ var ImageLoader = function () {
 
 		if (typeof image === "string") {
 			this._image = new Image();
+			this._image.crossOrigin = "anonymous";
 			this._image.src = image;
 		} else if ((typeof image === "undefined" ? "undefined" : _typeof(image)) === "object") {
 			this._image = image;
@@ -10236,6 +10237,7 @@ var VideoLoader = function () {
 		} else if (typeof video === "string" || (typeof video === "undefined" ? "undefined" : _typeof(video)) === "object") {
 			// url
 			this._video = document.createElement("video");
+			this._video.crossOrigin = "anonymous";
 
 			if (video instanceof Array) {
 				video.forEach(function (v) {
