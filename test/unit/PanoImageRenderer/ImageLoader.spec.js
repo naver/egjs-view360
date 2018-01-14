@@ -170,8 +170,6 @@ describe("ImageLoader", function() {
 			// When
 			let inst;
 			const imgObj = new Image();
-			imgObj.src = "./images/PanoViewer/waterpark_preview.jpg";
-			inst = new ImageLoader(imgObj);
 
 			imgObj.onload = function() {
 				// Then: Image can be obtained although it's been set by image object.
@@ -185,6 +183,9 @@ describe("ImageLoader", function() {
 						done();
 					});
 			};
+
+			imgObj.src = "./images/PanoViewer/waterpark_preview.jpg";
+			inst = new ImageLoader(imgObj);
 		});
 
 		it("should reject when image is undefined", () => {
