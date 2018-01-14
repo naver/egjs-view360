@@ -4081,7 +4081,7 @@ var ImageLoader = function () {
 				res(_this._image);
 			} else if (_this._loadStatus === STATUS.LOADING) {
 				_this._once("load", function () {
-					res(_this._image);
+					return res(_this._image);
 				});
 				_this._once("error", function () {
 					return rej("ImageLoader: failed to load images.");
@@ -4117,7 +4117,7 @@ var ImageLoader = function () {
 		}
 
 		this._once("load", function () {
-			_this2._loadStatus = STATUS.LOADED;
+			return _this2._loadStatus = STATUS.LOADED;
 		});
 		this._once("error", function () {
 			return _this2._loadStatus = STATUS.ERROR;

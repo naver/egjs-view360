@@ -22,9 +22,7 @@ export default class ImageLoader {
 				/* Check isMaybeLoaded() first because there may have posibilities that image already loaded before get is called. for example calling get on external image onload callback.*/
 				res(this._image);
 			} else if (this._loadStatus === STATUS.LOADING) {
-				this._once("load", () => {
-					res(this._image);
-				});
+				this._once("load", () => res(this._image));
 				this._once("error", () => rej("ImageLoader: failed to load images."));
 			} else {
 				rej("ImageLoader: failed to load images");
@@ -52,9 +50,7 @@ export default class ImageLoader {
 			return;
 		}
 
-		this._once("load", () => {
-			this._loadStatus = STATUS.LOADED;
-		});
+		this._once("load", () => (this._loadStatus = STATUS.LOADED));
 		this._once("error", () => (this._loadStatus = STATUS.ERROR));
 	}
 
