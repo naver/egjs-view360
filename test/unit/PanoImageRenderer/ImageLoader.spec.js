@@ -165,16 +165,22 @@ describe("ImageLoader", function() {
 	});
 
 	describe("#get", function() {
-		it("should accept image object as a parameter", done => {
+		it.only("should accept image object as a parameter", done => {
 			// Given
 			// When
 			let inst;
 			const imgObj = new Image();
+			imgObj.src = "./images/PanoViewer/waterpark_preview.jpg";
+			console.log("new ImageLoader(imgObj)");
+			inst = new ImageLoader(imgObj);
 
+			console.log("imgObj.onload()");
 			imgObj.onload = function() {
+				console.log("imgObj.onload triggered");
 				// Then: Image can be obtained although it's been set by image object.
 				inst.get()
 					.then(img => {
+						console.log("then");
 						assert.isOk(img instanceof Image || img instanceof HTMLImageElement);
 						done();
 					})
@@ -183,8 +189,6 @@ describe("ImageLoader", function() {
 						done();
 					});
 			};
-			imgObj.src = "./images/PanoViewer/waterpark_preview.jpg";
-			inst = new ImageLoader(imgObj);
 		});
 
 		it("should reject when image is undefined", () => {
