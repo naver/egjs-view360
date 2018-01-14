@@ -165,7 +165,7 @@ describe("ImageLoader", function() {
 	});
 
 	describe("#get", function() {
-		it.only("should accept image object as a parameter", done => {
+		it("should accept image object as a parameter", done => {
 			// Given
 			// When
 			let inst;
