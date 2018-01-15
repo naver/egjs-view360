@@ -32,10 +32,10 @@ describe("WebglUtils", function() {
                         }
                     }
                 ).default;
-                
+
                 // When
                 const isStableWebGL = MockWebglUtils.isStableWebGL();
-                
+
                 // Then
                 expect(isStableWebGL).to.be.true;
             });
@@ -55,13 +55,22 @@ describe("WebglUtils", function() {
                         }
                     }
                 ).default;
-                
+
                 // When
                 const isStableWebGL = MockWebglUtils.isStableWebGL();
-                
+
                 // Then
                 expect(isStableWebGL).to.be.false;
             });
         })
-    });
+	});
+
+	describe("#getWebglContext", function() {
+		IT("should have attribute antialias false as a default", () => {
+			const canvas = document.createElement("canvas");
+			const context = WebGLUtils.getWebglContext(canvas);
+
+			expect(context.getContextAttributes().antialias).to.be.equal(false);
+		});
+	});
 });
