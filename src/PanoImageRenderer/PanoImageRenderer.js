@@ -68,6 +68,7 @@ export default class PanoImageRenderer extends Component {
 
 		this._image = null;
 		this._imageIsReady = false;
+		this._shouldForceDraw = false;
 		this._keepUpdate = false; // Flag to specify 'continuous update' on video even when still.
 
 		this._onContentLoad = 	this._onContentLoad.bind(this);

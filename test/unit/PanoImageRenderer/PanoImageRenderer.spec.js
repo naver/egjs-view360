@@ -145,12 +145,12 @@ describe("PanoImageRenderer", function() {
                     }
                 }
             ).default;
-          
+
             let inst = this.inst;
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_equi.jpg";
-            
+
             // When
             inst = new MockedPanoImageRenderer(sourceImg, 200, 200, false, {
 				initialYaw: 0,
@@ -158,8 +158,8 @@ describe("PanoImageRenderer", function() {
 				imageType: "equirectangular",
 				fieldOfView: 65
 			});
-            
-            // Then 
+
+            // Then
             expect(inst.canvas.width).to.be.equal(200);
             expect(inst.canvas.height).to.be.equal(200);
         });
@@ -172,12 +172,12 @@ describe("PanoImageRenderer", function() {
                     }
                 }
             ).default;
-          
+
             let inst = this.inst;
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_equi.jpg";
-            
+
             // When
             inst = new MockedPanoImageRenderer(sourceImg, 200, 200, false, {
 				initialYaw: 0,
@@ -185,8 +185,8 @@ describe("PanoImageRenderer", function() {
 				imageType: "equirectangular",
 				fieldOfView: 65
 			});
-            
-            // Then 
+
+            // Then
             expect(inst.canvas.width).to.be.equal(400);
             expect(inst.canvas.height).to.be.equal(400);
 		});
@@ -199,12 +199,12 @@ describe("PanoImageRenderer", function() {
                     }
                 }
             ).default;
-          
+
             let inst = this.inst;
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_equi.jpg";
-            
+
             // When
             inst = new MockedPanoImageRenderer(sourceImg, 200, 200, false, {
 				initialYaw: 0,
@@ -212,8 +212,8 @@ describe("PanoImageRenderer", function() {
 				imageType: "equirectangular",
 				fieldOfView: 65
 			});
-            
-            // Then 
+
+            // Then
             expect(inst.canvas.width).to.be.equal(400);
             expect(inst.canvas.height).to.be.equal(400);
 		});
@@ -243,7 +243,7 @@ describe("PanoImageRenderer", function() {
         });
     });
 
-    describe("renderingcontextlost event", function() { 
+    describe("renderingcontextlost event", function() {
         IT("Should trigger renderingcontextlost event when lost context", function(done) {
 			// Given
 			let inst = this.inst;
@@ -276,7 +276,7 @@ describe("PanoImageRenderer", function() {
         });
     });
 
-    describe("render without throwing exception", function() { 
+    describe("render without throwing exception", function() {
         IT("Should not render internaly when calling render without image loaded", function() {
 			// Given
 			let inst = this.inst;
@@ -300,44 +300,40 @@ describe("PanoImageRenderer", function() {
             // Then
             expect(isDrawCalled).to.be.equal(false);
         });
-        IT("Should not render internaly when calling render when it doesn't need.", function() {
+		IT("Should not render internaly when calling render when it doesn't need.", function(done) {
 			// Given
-            let inst = this.inst;
-            let isDrawCalled = false;
+			let inst = this.inst;
+			let isDrawCalled = false;
 			const sourceImg = new Image();
-            sourceImg.src = "./images/test_cube.jpg";
+			sourceImg.src = "./images/test_cube.jpg";
 
-            inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-                initialYaw: 0,
-                initialpitch: 0,
-                imageType: "vertical_cubestrip",
-                fieldOfView: 65
-            });
+			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
+				initialYaw: 0,
+				initialpitch: 0,
+				imageType: "vertical_cubestrip",
+				fieldOfView: 65
+			});
 
-            inst.on("imageLoaded", () => {
-                inst.render(0, 0, 65);
-                inst._draw = function() {
-                    isDrawCalled = true;
-                    PanoImageRenderer.prototype._draw.call(inst);
-                };
+			inst.on("imageLoaded", () => {
+				inst.render(0, 0, 65);
+				inst._draw = function() {
+					isDrawCalled = true;
+					PanoImageRenderer.prototype._draw.call(inst);
+				};
 
-                // When
-                inst.keepUpdate(false);
-                inst.render(0, 0, 65);
+				// When
+				inst.keepUpdate(false);
+				inst.render(0, 0, 65);
 
-                // Then
-                try {
-                    expect(isDrawCalled).to.be.equal(false);
-                    done();
-                } catch (error) {
-                    done(error);
-                }
+				// Then
+				expect(isDrawCalled).to.be.equal(false);
+				done();
             });
         });
     });
 
-	describe("Cubamap Rendering", function() { 
-        IT("yaw: 0, pitch:0, fov:65", function(done) {
+	describe("Cubemap Rendering", function() {
+		IT("yaw: 0, pitch:0, fov:65", function(done) {
 			// Given
 			let inst = this.inst;
 			const sourceImg = new Image();
