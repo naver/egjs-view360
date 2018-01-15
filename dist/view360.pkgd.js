@@ -12262,23 +12262,6 @@ var FusionPoseSensor = function (_Component) {
 		return out;
 	};
 
-	FusionPoseSensor.prototype.resetPose = function resetPose() {
-		// Reduce to inverted yaw-only.
-		this.resetQ.copy(this.filter.getOrientation());
-		this.resetQ.x = 0;
-		this.resetQ.y = 0;
-		this.resetQ.z *= -1;
-		this.resetQ.normalize();
-
-		// Take into account extra transformations in landscape mode.
-		if (_util2["default"].isLandscapeMode()) {
-			this.resetQ.multiply(this.inverseWorldToScreenQ);
-		}
-
-		// Take into account original pose.
-		this.resetQ.multiply(this.originalPoseAdjustQ);
-	};
-
 	FusionPoseSensor.prototype._onDeviceMotionChange = function _onDeviceMotionChange(_ref) {
 		var inputEvent = _ref.inputEvent;
 
