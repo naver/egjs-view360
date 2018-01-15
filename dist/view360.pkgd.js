@@ -86,7 +86,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 43);
+/******/ 	return __webpack_require__(__webpack_require__.s = 44);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -484,19 +484,19 @@ var _common = __webpack_require__(2);
 
 var _common2 = _interopRequireDefault(_common);
 
-var _vec = __webpack_require__(36);
+var _vec = __webpack_require__(37);
 
 var _vec2 = _interopRequireDefault(_vec);
 
-var _vec3 = __webpack_require__(35);
+var _vec3 = __webpack_require__(36);
 
 var _vec4 = _interopRequireDefault(_vec3);
 
-var _quat = __webpack_require__(34);
+var _quat = __webpack_require__(35);
 
 var _quat2 = _interopRequireDefault(_quat);
 
-var _mat = __webpack_require__(33);
+var _mat = __webpack_require__(34);
 
 var _mat2 = _interopRequireDefault(_mat);
 
@@ -549,36 +549,10 @@ util.isPowerOfTwo = function (n) {
 	return n && (n & n - 1) === 0;
 };
 
-util.extractYawFromQuat = function (quaternion) {
-	var baseV = quatToVec3(quaternion);
-
-	return 1 * Math.atan2(baseV[0], baseV[2]);
-};
-
 util.extractPitchFromQuat = function (quaternion) {
 	var baseV = quatToVec3(quaternion);
 
 	return -1 * Math.atan2(baseV[1], Math.sqrt(Math.pow(baseV[0], 2) + Math.pow(baseV[2], 2)));
-};
-
-util.getQuaternionWithYawPitch = function (yaw, pitch) {
-	var q = _quat2["default"].create();
-
-	_quat2["default"].rotateY(q, q, _common2["default"].toRadian(yaw));
-	_quat2["default"].rotateX(q, q, _common2["default"].toRadian(pitch));
-	return q;
-};
-
-util.quatToYawPitch = function (quaternion) {
-	return {
-		yaw: _common2["default"].toDegree(util.extractYawFromQuat(quaternion)),
-		pitch: _common2["default"].toDegree(util.extractPitchFromQuat(quaternion))
-	};
-};
-
-util.yawPitchToPoint = function (yaw, pitch) {
-	// rad, rad
-	return [Math.tan(yaw) / Math.cos(pitch), Math.tan(pitch)];
 };
 
 // implement reference
@@ -877,7 +851,7 @@ function flush() {
 function attemptVertx() {
   try {
     var r = require;
-    var vertx = __webpack_require__(42);
+    var vertx = __webpack_require__(43);
     vertxNext = vertx.runOnLoop || vertx.runOnContext;
     return useVertxTimer();
   } catch (e) {
@@ -1929,7 +1903,7 @@ return Promise$1;
 
 //# sourceMappingURL=es6-promise.map
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(37), __webpack_require__(38)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(38), __webpack_require__(39)))
 
 /***/ }),
 /* 4 */
@@ -9003,7 +8977,7 @@ if (true) {
 exports.__esModule = true;
 exports.YawPitchControl = undefined;
 
-var _YawPitchControl = __webpack_require__(27);
+var _YawPitchControl = __webpack_require__(28);
 
 var _YawPitchControl2 = _interopRequireDefault(_YawPitchControl);
 
@@ -9039,9 +9013,9 @@ var _component2 = _interopRequireDefault(_component);
 
 var _YawPitchControl = __webpack_require__(15);
 
-var _PanoImageRenderer = __webpack_require__(23);
+var _PanoImageRenderer = __webpack_require__(24);
 
-var _consts = __webpack_require__(26);
+var _consts = __webpack_require__(27);
 
 var _mathUtil = __webpack_require__(1);
 
@@ -10226,15 +10200,17 @@ var _WebGLUtils = __webpack_require__(10);
 
 var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
 
-var _CubeRenderer = __webpack_require__(24);
+var _CubeRenderer = __webpack_require__(25);
 
 var _CubeRenderer2 = _interopRequireDefault(_CubeRenderer);
 
-var _SphereRenderer = __webpack_require__(25);
+var _SphereRenderer = __webpack_require__(26);
 
 var _SphereRenderer2 = _interopRequireDefault(_SphereRenderer);
 
 var _mathUtil = __webpack_require__(1);
+
+var _browser = __webpack_require__(23);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -10251,7 +10227,7 @@ var ImageType = {
 	VERTICAL_CUBESTRIP: "vertical_cubestrip"
 };
 
-var DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
+var DEVICE_PIXEL_RATIO = _browser.devicePixelRatio || 1;
 
 // DEVICE_PIXEL_RATIO 가 2를 초과하는 경우는 리소스 낭비이므로 2로 맞춘다.
 if (DEVICE_PIXEL_RATIO > 2) {
@@ -10385,8 +10361,6 @@ var PanoImageRenderer = function (_Component) {
 		canvas.style.outline = "none";
 		canvas.style.position = "absolute";
 
-		// webgl context lost & restore 관련 이벤트 핸들링
-		// TODO : 어떤 상황에서 발생하는 지 더 알아보자
 		this._onWebglcontextlost = this._onWebglcontextlost.bind(this);
 		this._onWebglcontextrestored = this._onWebglcontextrestored.bind(this);
 
@@ -10422,10 +10396,6 @@ var PanoImageRenderer = function (_Component) {
 
 	PanoImageRenderer.prototype.isImageLoaded = function isImageLoaded() {
 		return !!this._image && this._imageIsReady && (!this._isVideo || this._image.readyState >= 2 /* HAVE_CURRENT_DATA */);
-	};
-
-	PanoImageRenderer.prototype.cancelLoadImage = function cancelLoadImage() {
-		this._contentLoader.destroy();
 	};
 
 	PanoImageRenderer.prototype.bindTexture = function bindTexture() {
@@ -10470,10 +10440,6 @@ var PanoImageRenderer = function (_Component) {
 		}
 	};
 
-	PanoImageRenderer.prototype.isAttached = function isAttached() {
-		return this._image && this.canvas && this.canvas.parentNode;
-	};
-
 	PanoImageRenderer.prototype.destroy = function destroy() {
 		if (this._contentLoader) {
 			this._contentLoader.destroy();
@@ -10489,9 +10455,9 @@ var PanoImageRenderer = function (_Component) {
 	};
 
 	PanoImageRenderer.prototype.hasRenderingContext = function hasRenderingContext() {
-		if (!this.context) {
+		if (!(this.context && !this.context.isContextLost())) {
 			return false;
-		} else if (!this.context.getProgramParameter(this.shaderProgram, this.context.LINK_STATUS) && !this.context.isContextLost()) {
+		} else if (!this.context.getProgramParameter(this.shaderProgram, this.context.LINK_STATUS)) {
 			return false;
 		}
 		return true;
@@ -10499,19 +10465,15 @@ var PanoImageRenderer = function (_Component) {
 
 	PanoImageRenderer.prototype._onWebglcontextlost = function _onWebglcontextlost(e) {
 		e.preventDefault();
-		this.trigger("renderingContextLost");
+		this.trigger(EVENTS.RENDERING_CONTEXT_LOST);
 	};
 
 	PanoImageRenderer.prototype._onWebglcontextrestored = function _onWebglcontextrestored(e) {
 		this._initWebGL();
-		this.trigger("renderingContextRestore");
+		this.trigger(EVENTS.RENDERING_CONTEXT_RESTORE);
 	};
 
 	PanoImageRenderer.prototype.updateFieldOfView = function updateFieldOfView(fieldOfView) {
-		if (this.fieldOfView === fieldOfView) {
-			return;
-		}
-
 		this.fieldOfView = fieldOfView;
 		this._updateViewport();
 	};
@@ -10656,45 +10618,6 @@ var PanoImageRenderer = function (_Component) {
 		this._shouldForceDraw = true;
 
 		this.trigger(EVENTS.BIND_TEXTURE);
-	};
-
-	PanoImageRenderer.prototype.renderWithQuaternion = function renderWithQuaternion(quaternion, fieldOfView) {
-		if (!this.isImageLoaded()) {
-			return;
-		}
-
-		// 항상 그려줄려고 강제로 플래그 올림... 원래 이러면 안됨
-		this._shouldForceDraw = true;
-
-		if (this._lastQuaternion && _mathUtil.quat.exactEquals(this._lastQuaternion, quaternion) && this.fieldOfView && this.fieldOfView === fieldOfView && this._shouldForceDraw === false) {
-			return;
-		}
-
-		// fieldOfView 가 존재하면서 기존의 값과 다를 경우에만 업데이트 호출
-		if (fieldOfView !== undefined && fieldOfView !== this.fieldOfView) {
-			this.updateFieldOfView(fieldOfView);
-		}
-
-		var adgustedQ = void 0;
-
-		// equirectangular 의 경우 이미지의 중심을 0,0 으로 맞추기 위해 렌더링 시 yaw 축을 조정한다.
-		if (!this._isCubeStrip) {
-			var adjustYaw = _mathUtil.quat.rotateY(_mathUtil.quat.create(), _mathUtil.quat.create(), _mathUtil.glMatrix.toRadian(-90));
-
-			adgustedQ = _mathUtil.quat.multiply(_mathUtil.quat.create(), adjustYaw, quaternion);
-		} else {
-			adgustedQ = quaternion;
-		}
-
-		this.mvMatrix = _mathUtil.mat4.fromQuat(_mathUtil.mat4.create(), _mathUtil.quat.conjugate(_mathUtil.quat.create(), adgustedQ));
-
-		this._draw();
-
-		this._lastQuaternion = _mathUtil.quat.clone(quaternion);
-
-		if (this._shouldForceDraw) {
-			this._shouldForceDraw = false;
-		}
 	};
 
 	PanoImageRenderer.prototype.keepUpdate = function keepUpdate(doUpdate) {
@@ -10918,6 +10841,16 @@ exports["default"] = VideoLoader;
 
 
 exports.__esModule = true;
+var devicePixelRatio = exports.devicePixelRatio = window.devicePixelRatio;
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
 exports.WebGLUtils = exports.PanoImageRenderer = undefined;
 
 var _PanoImageRenderer = __webpack_require__(21);
@@ -10934,7 +10867,7 @@ exports.PanoImageRenderer = _PanoImageRenderer2["default"];
 exports.WebGLUtils = _WebGLUtils2["default"];
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11155,7 +11088,7 @@ CubeRenderer._VERTEX_POSITION_DATA = null;
 CubeRenderer._INDEX_DATA = null;
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11303,7 +11236,7 @@ SphereRenderer._TEXTURE_COORD_DATA = null;
 SphereRenderer._INDEX_DATA = null;
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11335,7 +11268,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11355,11 +11288,11 @@ var _axes2 = _interopRequireDefault(_axes);
 
 var _browser = __webpack_require__(6);
 
-var _WheelInput = __webpack_require__(32);
+var _WheelInput = __webpack_require__(33);
 
 var _WheelInput2 = _interopRequireDefault(_WheelInput);
 
-var _TiltMotionInput = __webpack_require__(31);
+var _TiltMotionInput = __webpack_require__(32);
 
 var _TiltMotionInput2 = _interopRequireDefault(_TiltMotionInput);
 
@@ -11936,7 +11869,7 @@ YawPitchControl.VERSION = "3.0.0-rc";
 exports["default"] = YawPitchControl;
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11952,7 +11885,7 @@ var _util = __webpack_require__(5);
 
 var _util2 = _interopRequireDefault(_util);
 
-var _complementaryFilter = __webpack_require__(39);
+var _complementaryFilter = __webpack_require__(40);
 
 var _complementaryFilter2 = _interopRequireDefault(_complementaryFilter);
 
@@ -12030,7 +11963,7 @@ _complementaryFilter2["default"].prototype.getOrientation = function () {
 exports["default"] = _complementaryFilter2["default"];
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12140,7 +12073,7 @@ var DeviceMotion = function (_Component) {
 exports["default"] = DeviceMotion;
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12152,7 +12085,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _posePredictor = __webpack_require__(40);
+var _posePredictor = __webpack_require__(41);
 
 var _posePredictor2 = _interopRequireDefault(_posePredictor);
 
@@ -12168,11 +12101,11 @@ var _browser = __webpack_require__(6);
 
 var _mathUtil3 = __webpack_require__(1);
 
-var _DeviceMotion = __webpack_require__(29);
+var _DeviceMotion = __webpack_require__(30);
 
 var _DeviceMotion2 = _interopRequireDefault(_DeviceMotion);
 
-var _ComplementaryFilter = __webpack_require__(28);
+var _ComplementaryFilter = __webpack_require__(29);
 
 var _ComplementaryFilter2 = _interopRequireDefault(_ComplementaryFilter);
 
@@ -12396,7 +12329,7 @@ var FusionPoseSensor = function (_Component) {
 exports["default"] = FusionPoseSensor;
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12412,7 +12345,7 @@ var _component2 = _interopRequireDefault(_component);
 
 var _utils = __webpack_require__(12);
 
-var _FusionPoseSensor = __webpack_require__(30);
+var _FusionPoseSensor = __webpack_require__(31);
 
 var _FusionPoseSensor2 = _interopRequireDefault(_FusionPoseSensor);
 
@@ -12527,7 +12460,7 @@ var TiltMotionInput = function (_Component) {
 exports["default"] = TiltMotionInput;
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12623,7 +12556,7 @@ var WheelInput = function (_Component) {
 exports["default"] = WheelInput;
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12788,55 +12721,6 @@ mat4.rotateY = function (out, a, rad) {
 };
 
 /**
- * Calculates a 4x4 matrix from the given quaternion
- *
- * @param {mat4} out mat4 receiving operation result
- * @param {quat} q Quaternion to create matrix from
- *
- * @returns {mat4} out
- */
-mat4.fromQuat = function (out, q) {
-    var x = q[0],
-        y = q[1],
-        z = q[2],
-        w = q[3],
-        x2 = x + x,
-        y2 = y + y,
-        z2 = z + z,
-        xx = x * x2,
-        yx = y * x2,
-        yy = y * y2,
-        zx = z * x2,
-        zy = z * y2,
-        zz = z * z2,
-        wx = w * x2,
-        wy = w * y2,
-        wz = w * z2;
-
-    out[0] = 1 - yy - zz;
-    out[1] = yx + wz;
-    out[2] = zx - wy;
-    out[3] = 0;
-
-    out[4] = yx - wz;
-    out[5] = 1 - xx - zz;
-    out[6] = zy + wx;
-    out[7] = 0;
-
-    out[8] = zx + wy;
-    out[9] = zy - wx;
-    out[10] = 1 - xx - yy;
-    out[11] = 0;
-
-    out[12] = 0;
-    out[13] = 0;
-    out[14] = 0;
-    out[15] = 1;
-
-    return out;
-};
-
-/**
  * Generates a perspective projection matrix with the given bounds
  *
  * @param {mat4} out mat4 frustum matrix will be written into
@@ -12871,7 +12755,7 @@ mat4.perspective = function (out, fovy, aspect, near, far) {
 module.exports = mat4;
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12890,9 +12774,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 var quat = {};
 
 /**
- * Creates a new identity quat
+ * Creates a new quat initialized with values from an existing quaternion
  *
+ * @param {quat} a quaternion to clone
  * @returns {quat} a new quaternion
+ * @function
  */
 /**
  * Original Code
@@ -12900,29 +12786,13 @@ var quat = {};
  * Quaternion util
  * modified by egjs
  */
-quat.create = function () {
-    var out = new _common2["default"].ARRAY_TYPE(4);
-    out[0] = 0;
-    out[1] = 0;
-    out[2] = 0;
-    out[3] = 1;
-    return out;
-};
-
-/**
- * Creates a new quat initialized with values from an existing quaternion
- *
- * @param {quat} a quaternion to clone
- * @returns {quat} a new quaternion
- * @function
- */
 quat.clone = function (a) {
-    var out = new _common2["default"].ARRAY_TYPE(4);
-    out[0] = a[0];
-    out[1] = a[1];
-    out[2] = a[2];
-    out[3] = a[3];
-    return out;
+  var out = new _common2["default"].ARRAY_TYPE(4);
+  out[0] = a[0];
+  out[1] = a[1];
+  out[2] = a[2];
+  out[3] = a[3];
+  return out;
 };
 
 /**
@@ -12936,12 +12806,12 @@ quat.clone = function (a) {
  * @function
  */
 quat.fromValues = function (x, y, z, w) {
-    var out = new _common2["default"].ARRAY_TYPE(4);
-    out[0] = x;
-    out[1] = y;
-    out[2] = z;
-    out[3] = w;
-    return out;
+  var out = new _common2["default"].ARRAY_TYPE(4);
+  out[0] = x;
+  out[1] = y;
+  out[2] = z;
+  out[3] = w;
+  return out;
 };;
 
 /**
@@ -12953,102 +12823,11 @@ quat.fromValues = function (x, y, z, w) {
  * @function
  */
 quat.copy = function (out, a) {
-    out[0] = a[0];
-    out[1] = a[1];
-    out[2] = a[2];
-    out[3] = a[3];
-    return out;
-};
-
-/**
- * Multiplies two quat's
- *
- * @param {quat} out the receiving quaternion
- * @param {quat} a the first operand
- * @param {quat} b the second operand
- * @returns {quat} out
- */
-quat.multiply = function (out, a, b) {
-    var ax = a[0],
-        ay = a[1],
-        az = a[2],
-        aw = a[3],
-        bx = b[0],
-        by = b[1],
-        bz = b[2],
-        bw = b[3];
-
-    out[0] = ax * bw + aw * bx + ay * bz - az * by;
-    out[1] = ay * bw + aw * by + az * bx - ax * bz;
-    out[2] = az * bw + aw * bz + ax * by - ay * bx;
-    out[3] = aw * bw - ax * bx - ay * by - az * bz;
-    return out;
-};
-
-/**
- * Rotates a quaternion by the given angle about the X axis
- *
- * @param {quat} out quat receiving operation result
- * @param {quat} a quat to rotate
- * @param {number} rad angle (in radians) to rotate
- * @returns {quat} out
- */
-quat.rotateX = function (out, a, rad) {
-    rad *= 0.5;
-
-    var ax = a[0],
-        ay = a[1],
-        az = a[2],
-        aw = a[3],
-        bx = Math.sin(rad),
-        bw = Math.cos(rad);
-
-    out[0] = ax * bw + aw * bx;
-    out[1] = ay * bw + az * bx;
-    out[2] = az * bw - ay * bx;
-    out[3] = aw * bw - ax * bx;
-    return out;
-};
-
-/**
- * Rotates a quaternion by the given angle about the Y axis
- *
- * @param {quat} out quat receiving operation result
- * @param {quat} a quat to rotate
- * @param {number} rad angle (in radians) to rotate
- * @returns {quat} out
- */
-quat.rotateY = function (out, a, rad) {
-    rad *= 0.5;
-
-    var ax = a[0],
-        ay = a[1],
-        az = a[2],
-        aw = a[3],
-        by = Math.sin(rad),
-        bw = Math.cos(rad);
-
-    out[0] = ax * bw - az * by;
-    out[1] = ay * bw + aw * by;
-    out[2] = az * bw + ax * by;
-    out[3] = aw * bw - ay * by;
-    return out;
-};
-
-/**
- * Calculates the conjugate of a quat
- * If the quaternion is normalized, this function is faster than quat.inverse and produces the same result.
- *
- * @param {quat} out the receiving quaternion
- * @param {quat} a quat to calculate conjugate of
- * @returns {quat} out
- */
-quat.conjugate = function (out, a) {
-    out[0] = -a[0];
-    out[1] = -a[1];
-    out[2] = -a[2];
-    out[3] = a[3];
-    return out;
+  out[0] = a[0];
+  out[1] = a[1];
+  out[2] = a[2];
+  out[3] = a[3];
+  return out;
 };
 
 /**
@@ -13060,19 +12839,19 @@ quat.conjugate = function (out, a) {
  * @function
  */
 quat.normalize = function (out, a) {
-    var x = a[0],
-        y = a[1],
-        z = a[2],
-        w = a[3];
-    var len = x * x + y * y + z * z + w * w;
-    if (len > 0) {
-        len = 1 / Math.sqrt(len);
-        out[0] = x * len;
-        out[1] = y * len;
-        out[2] = z * len;
-        out[3] = w * len;
-    }
-    return out;
+  var x = a[0],
+      y = a[1],
+      z = a[2],
+      w = a[3];
+  var len = x * x + y * y + z * z + w * w;
+  if (len > 0) {
+    len = 1 / Math.sqrt(len);
+    out[0] = x * len;
+    out[1] = y * len;
+    out[2] = z * len;
+    out[3] = w * len;
+  }
+  return out;
 };
 
 /**
@@ -13083,32 +12862,21 @@ quat.normalize = function (out, a) {
  * @returns {Boolean} True if the vectors are equal, false otherwise.
  */
 quat.equals = function (a, b) {
-    var a0 = a[0],
-        a1 = a[1],
-        a2 = a[2],
-        a3 = a[3];
-    var b0 = b[0],
-        b1 = b[1],
-        b2 = b[2],
-        b3 = b[3];
-    return Math.abs(a0 - b0) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) && Math.abs(a1 - b1) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) && Math.abs(a2 - b2) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a2), Math.abs(b2)) && Math.abs(a3 - b3) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a3), Math.abs(b3));
-};
-
-/**
- * Returns whether or not the quaternions have exactly the same elements in the same position (when compared with ===)
- *
- * @param {quat} a The first quaternion.
- * @param {quat} b The second quaternion.
- * @returns {Boolean} True if the vectors are equal, false otherwise.
- */
-quat.exactEquals = function (a, b) {
-    return a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3];
+  var a0 = a[0],
+      a1 = a[1],
+      a2 = a[2],
+      a3 = a[3];
+  var b0 = b[0],
+      b1 = b[1],
+      b2 = b[2],
+      b3 = b[3];
+  return Math.abs(a0 - b0) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) && Math.abs(a1 - b1) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) && Math.abs(a2 - b2) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a2), Math.abs(b2)) && Math.abs(a3 - b3) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a3), Math.abs(b3));
 };
 
 module.exports = quat;
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13124,25 +12892,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
  * @class 2 Dimensional Vector
  * @name vec2
  */
-var vec2 = {};
+var vec2 = {}; /**
+                * Original Code
+                * https://github.com/toji/gl-matrix/blob/v2.3.2/src/gl-matrix/vec2.js
+                * 2 Dimensional Vector Util
+                * modified by egjs
+                */
 
-/**
- * Creates a new, empty vec2
- *
- * @returns {vec2} a new 2D vector
- */
-/**
- * Original Code
- * https://github.com/toji/gl-matrix/blob/v2.3.2/src/gl-matrix/vec2.js
- * 2 Dimensional Vector Util
- * modified by egjs
- */
-vec2.create = function () {
-  var out = new _common2["default"].ARRAY_TYPE(2);
-  out[0] = 0;
-  out[1] = 0;
-  return out;
-};
 
 vec2.copy = function (out, a) {
   out[0] = a[0];
@@ -13153,7 +12909,7 @@ vec2.copy = function (out, a) {
 module.exports = vec2;
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13203,20 +12959,6 @@ vec3.fromValues = function (x, y, z) {
     out[0] = x;
     out[1] = y;
     out[2] = z;
-    return out;
-};
-
-vec3.set = function (out, x, y, z) {
-    out[0] = x;
-    out[1] = y;
-    out[2] = z;
-    return out;
-};
-
-vec3.copy = function (out, a) {
-    out[0] = a[0];
-    out[1] = a[1];
-    out[2] = a[2];
     return out;
 };
 
@@ -13354,7 +13096,7 @@ vec3.transformQuat = function (out, a, q) {
 module.exports = vec3;
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -13544,7 +13286,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports) {
 
 var g;
@@ -13571,7 +13313,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -13589,7 +13331,7 @@ module.exports = g;
  * limitations under the License.
  */
 
-var SensorSample = __webpack_require__(41);
+var SensorSample = __webpack_require__(42);
 var MathUtil = __webpack_require__(4);
 var Util = __webpack_require__(5);
 
@@ -13743,7 +13485,7 @@ module.exports = ComplementaryFilter;
 
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -13830,7 +13572,7 @@ module.exports = PosePredictor;
 
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports) {
 
 function SensorSample(sample, timestampS) {
@@ -13850,13 +13592,13 @@ module.exports = SensorSample;
 
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
