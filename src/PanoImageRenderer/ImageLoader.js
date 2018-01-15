@@ -19,9 +19,11 @@ export default class ImageLoader {
 			if (!this._image) {
 				rej("ImageLoader: image is not defiend");
 			} else if (this._loadStatus === STATUS.LOADED) {
-				/* Check isMaybeLoaded() first because there may have posibilities that image already loaded before get is called. for example calling get on external image onload callback.*/
 				res(this._image);
 			} else if (this._loadStatus === STATUS.LOADING) {
+				/* Check isMaybeLoaded() first because there may have
+					posibilities that image already loaded before get is called.
+					for example calling get on external image onload callback.*/
 				if (ImageLoader._isMaybeLoaded(this._image)) {
 					this._loadStatus = STATUS.LOADED;
 					res(this._image);
@@ -55,9 +57,7 @@ export default class ImageLoader {
 			return;
 		}
 
-		this._once("load", () => {
-			this._loadStatus = STATUS.LOADED;
-		});
+		this._once("load", () => (this._loadStatus = STATUS.LOADED));
 		this._once("error", () => (this._loadStatus = STATUS.ERROR));
 	}
 
