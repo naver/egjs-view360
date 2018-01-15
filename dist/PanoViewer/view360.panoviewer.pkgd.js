@@ -9485,15 +9485,22 @@ var ImageLoader = function () {
 			if (!_this._image) {
 				rej("ImageLoader: image is not defiend");
 			} else if (_this._loadStatus === STATUS.LOADED) {
-				/* Check isMaybeLoaded() first because there may have posibilities that image already loaded before get is called. for example calling get on external image onload callback.*/
 				res(_this._image);
 			} else if (_this._loadStatus === STATUS.LOADING) {
-				_this._once("load", function () {
-					return res(_this._image);
-				});
-				_this._once("error", function () {
-					return rej("ImageLoader: failed to load images.");
-				});
+				/* Check isMaybeLoaded() first because there may have
+    	posibilities that image already loaded before get is called.
+    	for example calling get on external image onload callback.*/
+				if (ImageLoader._isMaybeLoaded(_this._image)) {
+					_this._loadStatus = STATUS.LOADED;
+					res(_this._image);
+				} else {
+					_this._once("load", function () {
+						return res(_this._image);
+					});
+					_this._once("error", function () {
+						return rej("ImageLoader: failed to load images.");
+					});
+				}
 			} else {
 				rej("ImageLoader: failed to load images");
 			}
@@ -9512,9 +9519,16 @@ var ImageLoader = function () {
 
 		if (typeof image === "string") {
 			this._image = new Image();
+			this._image.crossOrigin = "anonymous";
 			this._image.src = image;
 		} else if ((typeof image === "undefined" ? "undefined" : _typeof(image)) === "object") {
 			this._image = image;
+		}
+
+		if (ImageLoader._isMaybeLoaded(this._image)) {
+			// Already loaded image
+			this._loadStatus = STATUS.LOADED;
+			return;
 		}
 
 		this._once("load", function () {
@@ -9523,11 +9537,6 @@ var ImageLoader = function () {
 		this._once("error", function () {
 			return _this2._loadStatus = STATUS.ERROR;
 		});
-
-		if (ImageLoader._isMaybeLoaded(this._image)) {
-			// Already loaded image
-			this._loadStatus = STATUS.LOADED;
-		}
 	};
 
 	ImageLoader.prototype.getElement = function getElement() {
@@ -10159,6 +10168,7 @@ var VideoLoader = function () {
 		} else if (typeof video === "string" || (typeof video === "undefined" ? "undefined" : _typeof(video)) === "object") {
 			// url
 			this._video = document.createElement("video");
+			this._video.crossOrigin = "anonymous";
 
 			if (video instanceof Array) {
 				video.forEach(function (v) {
@@ -11649,23 +11659,6 @@ var FusionPoseSensor = function (_Component) {
 		out.multiply(this.worldToScreenQ);
 
 		return out;
-	};
-
-	FusionPoseSensor.prototype.resetPose = function resetPose() {
-		// Reduce to inverted yaw-only.
-		this.resetQ.copy(this.filter.getOrientation());
-		this.resetQ.x = 0;
-		this.resetQ.y = 0;
-		this.resetQ.z *= -1;
-		this.resetQ.normalize();
-
-		// Take into account extra transformations in landscape mode.
-		if (_util2["default"].isLandscapeMode()) {
-			this.resetQ.multiply(this.inverseWorldToScreenQ);
-		}
-
-		// Take into account original pose.
-		this.resetQ.multiply(this.originalPoseAdjustQ);
 	};
 
 	FusionPoseSensor.prototype._onDeviceMotionChange = function _onDeviceMotionChange(_ref) {
