@@ -135,22 +135,6 @@ export default class FusionPoseSensor extends Component {
 
 		return out;
 	}
-	resetPose() {
-		// Reduce to inverted yaw-only.
-		this.resetQ.copy(this.filter.getOrientation());
-		this.resetQ.x = 0;
-		this.resetQ.y = 0;
-		this.resetQ.z *= -1;
-		this.resetQ.normalize();
-
-		// Take into account extra transformations in landscape mode.
-		if (Util.isLandscapeMode()) {
-			this.resetQ.multiply(this.inverseWorldToScreenQ);
-		}
-
-		// Take into account original pose.
-		this.resetQ.multiply(this.originalPoseAdjustQ);
-	}
 	_onDeviceMotionChange({inputEvent}) {
 		const deviceMotion = inputEvent;
 		const accGravity = deviceMotion.accelerationIncludingGravity;

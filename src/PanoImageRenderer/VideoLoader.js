@@ -53,6 +53,7 @@ export default class VideoLoader {
 		} else if (typeof video === "string" || typeof video === "object") {
 			// url
 			this._video = document.createElement("video");
+			this._video.crossOrigin = "anonymous";
 
 			if (video instanceof Array) {
 				video.forEach(v => this._appendSourceElement(v));

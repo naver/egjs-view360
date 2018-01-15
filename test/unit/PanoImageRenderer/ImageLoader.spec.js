@@ -122,6 +122,17 @@ describe("ImageLoader", function() {
 			};
 			imgObj.src = "./images/PanoViewer/waterpark_preview.jpg";
 		});
+
+		it("should set image of crossOrigin as anonymous when setting by url", () => {
+			// Given
+			const imgUrl = "./images/PanoViewer/waterpark_preview.jpg";
+
+			// When
+			let inst = new ImageLoader(imgUrl);
+
+			// Then
+			expect(inst.getElement().crossOrigin).to.be.equal("anonymous");
+		});
 	});
 
 	describe("#getElement", function() {
@@ -172,6 +183,7 @@ describe("ImageLoader", function() {
 						done();
 					});
 			};
+
 			imgObj.src = "./images/PanoViewer/waterpark_preview.jpg";
 			inst = new ImageLoader(imgObj);
 		});
