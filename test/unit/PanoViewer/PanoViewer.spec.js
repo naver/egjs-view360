@@ -205,7 +205,7 @@ describe("PanoViewer", function() {
 			panoViewer = null;
 		});
 
-		it("Should have isTruested value true when trigged by user interaction", done => {
+		it("Should have isTrusted value true when trigged by user interaction", done => {
 			// Given
 			panoViewer = new PanoViewer(target, {
 				image: "./images/test_equi.png"
@@ -232,7 +232,7 @@ describe("PanoViewer", function() {
 			});
 		});
 
-		it("Should have isTruested value false when trigged by javascript api", done => {
+		it("Should have isTrusted value false when trigged by javascript api", done => {
 			// Given
 			panoViewer = new PanoViewer(target, {
 				image: "./images/test_equi.png"

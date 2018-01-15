@@ -260,7 +260,7 @@ describe("YawPitchControl", function() {
 			target = null;
 		});
 
-		it("Should have isTruested value true when trigged by user interaction", done => {
+		it("Should have isTrusted value true when trigged by user interaction", done => {
 			// Given
 			let isTrustedOnHold = null;
 			let isTrustedOnChange = null;
@@ -288,7 +288,7 @@ describe("YawPitchControl", function() {
 			});
 		});
 
-		it("Should have isTruested value false when trigged by javascript api", done => {
+		it("Should have isTrusted value false when trigged by javascript api", done => {
 			// Given
 			let isTrustedOnChange = null;
 			let isTrustedOnAnimationEnd = null;
