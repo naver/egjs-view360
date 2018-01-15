@@ -5972,21 +5972,21 @@ var YawPitchControl = function (_Component) {
 			fov: opt.fov
 		}).on({
 			hold: function hold(evt) {
-				_this2.trigger("hold");
+				_this2.trigger("hold", { isTrusted: evt.isTrusted });
 			},
 			change: function change(evt) {
 				if (evt.delta.fov !== 0) {
 					_this2._setPanScale(evt.pos.fov);
 					_this2._updateControlScale(evt);
 				}
-				_this2._triggerChange();
+				_this2._triggerChange(evt);
 			},
 			release: function release(evt) {
-				_this2._triggerChange();
+				_this2._triggerChange(evt);
 			},
 			animationStart: function animationStart(evt) {},
 			animationEnd: function animationEnd(evt) {
-				_this2.trigger("animationEnd");
+				_this2.trigger("animationEnd", { isTrusted: evt.isTrusted });
 			}
 		});
 	};
@@ -6270,11 +6270,12 @@ var YawPitchControl = function (_Component) {
 		});
 	};
 
-	YawPitchControl.prototype._triggerChange = function _triggerChange() {
+	YawPitchControl.prototype._triggerChange = function _triggerChange(evt) {
 		var pos = this.axes.get();
 		var opt = this.options;
 		var event = {
-			targetElement: opt.element
+			targetElement: opt.element,
+			isTrusted: evt.isTrusted
 		};
 
 		event.yaw = pos.yaw;
