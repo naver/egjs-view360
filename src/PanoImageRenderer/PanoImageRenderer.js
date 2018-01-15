@@ -106,8 +106,8 @@ export default class PanoImageRenderer extends Component {
 		this._image = this._contentLoader.getElement();
 
 		return this._contentLoader.get()
-			.then(this._onContentLoad)
-			.catch(this._onContentError);
+			.then(this._onContentLoad, this._onContentError)
+			.catch(e => setTimeout(() => { throw e; }));// Prevent exceptions from being isolated in promise chain.
 	}
 
 	_setImageType(imageType) {

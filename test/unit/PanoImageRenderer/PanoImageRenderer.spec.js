@@ -24,6 +24,26 @@ describe("PanoImageRenderer", function () {
 		});
 	});
 
+	describe("#setImage", function () {
+		IT("should fire error when image is invalid", function(done) {
+			// Given
+			this.inst = new PanoImageRenderer(null, 200, 200, false, {
+				yaw: 0,
+				pitch: 0,
+				imageType: "equirectangular",
+				fieldOfView: 65
+			});
+
+			// When
+			this.inst.setImage({
+				image: "./images/invalid.png"
+			});
+
+			// Then
+			this.inst.on("error", () => done());
+		});
+	});
+
 	describe("#isImageLoaded", function() {
 		IT("should return false before image loaded", () => {
 			// Given

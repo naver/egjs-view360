@@ -161,7 +161,7 @@ describe("PanoViewer", function() {
 		});
 
 		// Currently not available
-		IT.skip("should replace image of other projection type", function(done) {
+		IT("should replace image of other projection type", function(done) {
 			// Given
 			panoViewer = new PanoViewer(target, {
 				image: "./images/test_equi.png"
@@ -174,16 +174,19 @@ describe("PanoViewer", function() {
 				const prevProjectionType = evt1.projectionType;
 
 				panoViewer.once(PanoViewer.EVENTS.CONTENT_LOADED, evt2 => {
-					console.log("contentLoaded #2", evt2.content.src, evt2.projectionType);
+					console.log("contentLoaded #2", evt2.content.src, evt2.projectionType, prevProjectionType);
 					// Then
 					expect(evt2.content.src).to.not.equal(prevContentSrc);
 					expect(evt2.projectionType).to.not.equal(prevProjectionType);
+
 					done();
 				});
 
 				// When
 				// Change image of other projection type.
-				panoViewer.setImage("./images/glasscITy_cube_1024.jpg", PanoViewer.ProjectionType.VERTICAL_CUBESTRIP);
+				panoViewer.setImage("./images/glasscity_cube_1024.jpg", {
+					projectionType: PanoViewer.ProjectionType.VERTICAL_CUBESTRIP
+				});
 			});
 		});
 	});
