@@ -260,7 +260,7 @@ describe("ImageLoader", function() {
 			image.src = "./images/PanoViewer/only-used-for-destroy-test.png";
 
 			// When
-			inst.onceLoaded([image], function (img) {
+			inst.onceLoaded(image, function (img) {
 				// Then
 				const srcToken = img.src.split("/");
 
@@ -278,7 +278,7 @@ describe("ImageLoader", function() {
 			image.src = "./images/PanoViewer/not-exist.png";
 
 
-			inst.onceLoaded([image], function() {}, function(img) {
+			inst.onceLoaded(image, function() {}, function(img) {
 				// Then
 				const srcToken = img.src.split("/");
 				expect(srcToken[srcToken.length - 1]).to.be.equal("not-exist.png");
