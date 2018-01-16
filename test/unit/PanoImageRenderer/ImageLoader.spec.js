@@ -63,12 +63,10 @@ describe("ImageLoader", function() {
 			expect(this.inst).to.be.exist;
 
 			function callback1() {
-				console.log("callback1");
 				countCb1++;
 			}
 
 			function callback2() {
-				console.log("callback2");
 				countCb2++;
 			}
 

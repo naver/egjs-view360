@@ -169,12 +169,10 @@ describe("PanoViewer", function() {
 
 			// first `onContentLoad` event is for image specified in constructor.
 			panoViewer.once(PanoViewer.EVENTS.CONTENT_LOADED, evt1 => {
-				console.log("contentLoaded #1", evt1.content.src, evt1.projectionType);
 				const prevContentSrc = evt1.content.src;
 				const prevProjectionType = evt1.projectionType;
 
 				panoViewer.once(PanoViewer.EVENTS.CONTENT_LOADED, evt2 => {
-					console.log("contentLoaded #2", evt2.content.src, evt2.projectionType, prevProjectionType);
 					// Then
 					expect(evt2.content.src).to.not.equal(prevContentSrc);
 					expect(evt2.projectionType).to.not.equal(prevProjectionType);
