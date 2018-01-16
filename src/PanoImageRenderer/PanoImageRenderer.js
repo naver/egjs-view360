@@ -4,14 +4,15 @@ import VideoLoader from "./VideoLoader";
 import WebGLUtils from "./WebGLUtils";
 import CubeRenderer from "./renderer/CubeRenderer";
 import SphereRenderer from "./renderer/SphereRenderer";
-import {glMatrix, quat, mat4} from "../utils/math-util.js";
+import {glMatrix, mat4} from "../utils/math-util.js";
+import {devicePixelRatio} from "./browser";
 
 const ImageType = {
 	EQUIRECTANGULAR: "equirectangular",
 	VERTICAL_CUBESTRIP: "vertical_cubestrip"
 };
 
-let DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
+let DEVICE_PIXEL_RATIO = devicePixelRatio || 1;
 
 // DEVICE_PIXEL_RATIO 가 2를 초과하는 경우는 리소스 낭비이므로 2로 맞춘다.
 if (DEVICE_PIXEL_RATIO > 2) {
@@ -67,6 +68,7 @@ export default class PanoImageRenderer extends Component {
 
 		this._image = null;
 		this._imageIsReady = false;
+		this._shouldForceDraw = false;
 		this._keepUpdate = false; // Flag to specify 'continuous update' on video even when still.
 
 		this._onContentLoad = 	this._onContentLoad.bind(this);
@@ -106,8 +108,8 @@ export default class PanoImageRenderer extends Component {
 		this._image = this._contentLoader.getElement();
 
 		return this._contentLoader.get()
-			.then(this._onContentLoad)
-			.catch(this._onContentError);
+			.then(this._onContentLoad, this._onContentError)
+			.catch(e => setTimeout(() => { throw e; }));// Prevent exceptions from being isolated in promise chain.
 	}
 
 	_setImageType(imageType) {
@@ -136,8 +138,6 @@ export default class PanoImageRenderer extends Component {
 		canvas.style.outline = "none";
 		canvas.style.position = "absolute";
 
-		// webgl context lost & restore 관련 이벤트 핸들링
-		// TODO : 어떤 상황에서 발생하는 지 더 알아보자
 		this._onWebglcontextlost = this._onWebglcontextlost.bind(this);
 		this._onWebglcontextrestored = this._onWebglcontextrestored.bind(this);
 
@@ -176,10 +176,6 @@ export default class PanoImageRenderer extends Component {
 			(!this._isVideo || this._image.readyState >= 2 /* HAVE_CURRENT_DATA */);
 	}
 
-	cancelLoadImage() {
-		this._contentLoader.destroy();
-	}
-
 	bindTexture() {
 		return new Promise((res, rej) => {
 			if (!this._contentLoader) {
@@ -209,16 +205,11 @@ export default class PanoImageRenderer extends Component {
 		}
 	}
 
-
 	// 부모 엘리먼트에서 canvas 를 제거
 	detach() {
 		if (this.canvas.parentElement) {
 			this.canvas.parentElement.removeChild(this.canvas);
 		}
-	}
-
-	isAttached() {
-		return this._image && this.canvas && this.canvas.parentNode;
 	}
 
 	destroy() {
@@ -236,10 +227,9 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	hasRenderingContext() {
-		if (!this.context) {
+		if (!(this.context && !this.context.isContextLost())) {
 			return false;
-		} else if (!this.context.getProgramParameter(this.shaderProgram, this.context.LINK_STATUS) &&
-		!this.context.isContextLost()) {
+		} else if (!this.context.getProgramParameter(this.shaderProgram, this.context.LINK_STATUS)) {
 			return false;
 		}
 		return true;
@@ -247,19 +237,15 @@ export default class PanoImageRenderer extends Component {
 
 	_onWebglcontextlost(e) {
 		e.preventDefault();
-		this.trigger("renderingContextLost");
+		this.trigger(EVENTS.RENDERING_CONTEXT_LOST);
 	}
 
 	_onWebglcontextrestored(e) {
 		this._initWebGL();
-		this.trigger("renderingContextRestore");
+		this.trigger(EVENTS.RENDERING_CONTEXT_RESTORE);
 	}
 
 	updateFieldOfView(fieldOfView) {
-		if (this.fieldOfView === fieldOfView) {
-			return;
-		}
-
 		this.fieldOfView = fieldOfView;
 		this._updateViewport();
 	}
@@ -386,6 +372,11 @@ export default class PanoImageRenderer extends Component {
 			gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 		}
 
+		// clear buffer
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
+		// Use TEXTURE0
+		gl.uniform1i(shaderProgram.samplerUniform, 0);
+
 		return shaderProgram;
 	}
 
@@ -414,46 +405,6 @@ export default class PanoImageRenderer extends Component {
 		this._shouldForceDraw = true;
 
 		this.trigger(EVENTS.BIND_TEXTURE);
-	}
-
-	renderWithQuaternion(quaternion, fieldOfView) {
-		if (!this.isImageLoaded()) {
-			return;
-		}
-
-		// 항상 그려줄려고 강제로 플래그 올림... 원래 이러면 안됨
-		this._shouldForceDraw = true;
-
-		if (this._lastQuaternion && quat.exactEquals(this._lastQuaternion, quaternion) &&
-		this.fieldOfView && this.fieldOfView === fieldOfView && this._shouldForceDraw === false) {
-			return;
-		}
-
-		// fieldOfView 가 존재하면서 기존의 값과 다를 경우에만 업데이트 호출
-		if (fieldOfView !== undefined && fieldOfView !== this.fieldOfView) {
-			this.updateFieldOfView(fieldOfView);
-		}
-
-		let adgustedQ;
-
-		// equirectangular 의 경우 이미지의 중심을 0,0 으로 맞추기 위해 렌더링 시 yaw 축을 조정한다.
-		if (!this._isCubeStrip) {
-			const adjustYaw = quat.rotateY(quat.create(), quat.create(), glMatrix.toRadian(-90));
-
-			adgustedQ = quat.multiply(quat.create(), adjustYaw, quaternion);
-		} else {
-			adgustedQ = quaternion;
-		}
-
-		this.mvMatrix = mat4.fromQuat(mat4.create(), quat.conjugate(quat.create(), adgustedQ));
-
-		this._draw();
-
-		this._lastQuaternion = quat.clone(quaternion);
-
-		if (this._shouldForceDraw) {
-			this._shouldForceDraw = false;
-		}
 	}
 
 	keepUpdate(doUpdate) {
@@ -500,9 +451,6 @@ export default class PanoImageRenderer extends Component {
 	_draw() {
 		const gl = this.context;
 
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
-
-		gl.uniform1i(this.shaderProgram.samplerUniform, 0);
 		gl.uniformMatrix4fv(this.shaderProgram.pMatrixUniform, false, this.pMatrix);
 		gl.uniformMatrix4fv(this.shaderProgram.mvMatrixUniform, false, this.mvMatrix);
 

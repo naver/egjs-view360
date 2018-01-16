@@ -161,7 +161,7 @@ describe("PanoViewer", function() {
 		});
 
 		// Currently not available
-		IT.skip("should replace image of other projection type", function(done) {
+		IT("should replace image of other projection type", function(done) {
 			// Given
 			panoViewer = new PanoViewer(target, {
 				image: "./images/test_equi.png"
@@ -169,21 +169,94 @@ describe("PanoViewer", function() {
 
 			// first `onContentLoad` event is for image specified in constructor.
 			panoViewer.once(PanoViewer.EVENTS.CONTENT_LOADED, evt1 => {
-				console.log("contentLoaded #1", evt1.content.src, evt1.projectionType);
 				const prevContentSrc = evt1.content.src;
 				const prevProjectionType = evt1.projectionType;
 
 				panoViewer.once(PanoViewer.EVENTS.CONTENT_LOADED, evt2 => {
-					console.log("contentLoaded #2", evt2.content.src, evt2.projectionType);
 					// Then
 					expect(evt2.content.src).to.not.equal(prevContentSrc);
 					expect(evt2.projectionType).to.not.equal(prevProjectionType);
+
 					done();
 				});
 
 				// When
 				// Change image of other projection type.
-				panoViewer.setImage("./images/glasscITy_cube_1024.jpg", PanoViewer.ProjectionType.VERTICAL_CUBESTRIP);
+				panoViewer.setImage("./images/glasscity_cube_1024.jpg", {
+					projectionType: PanoViewer.ProjectionType.VERTICAL_CUBESTRIP
+				});
+			});
+		});
+	});
+
+	describe("viewChange event", function() {
+		let target;
+		let panoViewer;
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div></div>`;
+		});
+
+		afterEach(() => {
+			if (!panoViewer) {
+				return;
+			}
+			panoViewer.destroy();
+			panoViewer = null;
+		});
+
+		it("Should have isTrusted value true when trigged by user interaction", done => {
+			// Given
+			panoViewer = new PanoViewer(target, {
+				image: "./images/test_equi.png"
+			});
+			let isTrustedOnChange = null;
+
+			panoViewer.on("ready", () => {
+				panoViewer.on("viewChange", e => {
+					isTrustedOnChange = e.isTrusted;
+				});
+	
+				// When
+				Simulator.gestures.pan(target, { // this.el 이 300 * 300 이라고 가정
+					pos: [30, 30],
+					deltaX: 10,
+					deltaY: 10,
+					duration: 1000,
+					easing: "linear"
+				}, () => {
+					// Then
+					expect(isTrustedOnChange).to.be.true;
+					done();
+				});
+			});
+		});
+
+		it("Should have isTrusted value false when trigged by javascript api", done => {
+			// Given
+			panoViewer = new PanoViewer(target, {
+				image: "./images/test_equi.png"
+			});
+			let isTrustedOnChange = null;
+
+			panoViewer.on("ready", () => {
+				panoViewer.on("viewChange", e => {
+					isTrustedOnChange = e.isTrusted;
+				});
+
+				panoViewer.on("animationEnd", then);
+
+				// When
+				panoViewer.lookAt({
+					yaw: 20
+				}, 1000);
+
+				function then(e) {
+				// Then
+					expect(isTrustedOnChange).to.be.false;
+					done();
+				}
 			});
 		});
 	});

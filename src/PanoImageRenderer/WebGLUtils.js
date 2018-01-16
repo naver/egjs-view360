@@ -85,7 +85,10 @@ export default class WebGLUtils {
 		for (let i = 0; i < webglIdentifiers.length; i++) {
 			try {
 				// preserveDrawingBuffer: if true, the Galaxy s6 Naver app will experience tremor
-				context = canvas.getContext(webglIdentifiers[i], {preserveDrawingBuffer: false});
+				context = canvas.getContext(webglIdentifiers[i], {
+					preserveDrawingBuffer: false,
+					antialias: false /* TODO: Make it user option for antialiasing */
+				});
 			} catch (t) {}
 			if (context) {
 				break;

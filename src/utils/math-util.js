@@ -47,16 +47,7 @@ function quatToVec3(quaternion) {
 const util = {};
 
 util.isPowerOfTwo = function(n) {
-	if (typeof n !== "number") {
-		return "Not a number";
-	}
 	return n && (n & (n - 1)) === 0;
-};
-
-util.extractYawFromQuat = function(quaternion) {
-	const baseV = quatToVec3(quaternion);
-
-	return 1 * Math.atan2(baseV[0], baseV[2]);
 };
 
 util.extractPitchFromQuat = function(quaternion) {
@@ -65,28 +56,6 @@ util.extractPitchFromQuat = function(quaternion) {
 	return -1 * Math.atan2(
 		baseV[1],
 		Math.sqrt(Math.pow(baseV[0], 2) + Math.pow(baseV[2], 2)));
-};
-
-util.getQuaternionWithYawPitch = function(yaw, pitch) {
-	const q = quat.create();
-
-	quat.rotateY(q, q, glMatrix.toRadian(yaw));
-	quat.rotateX(q, q, glMatrix.toRadian(pitch));
-	return q;
-};
-
-util.quatToYawPitch = function(quaternion) {
-	return {
-		yaw: glMatrix.toDegree(util.extractYawFromQuat(quaternion)),
-		pitch: glMatrix.toDegree(util.extractPitchFromQuat(quaternion)),
-	};
-};
-
-util.yawPitchToPoint = function(yaw, pitch) { // rad, rad
-	return [
-		Math.tan(yaw) / Math.cos(pitch),
-		Math.tan(pitch),
-	];
 };
 
 // implement reference

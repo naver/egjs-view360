@@ -437,6 +437,17 @@ describe("VideoLoader", function() {
 					expect(success).to.be.equal(true);
 				});
 		});
+
+		it("should set video of crossOrigin as anonymous when setting by url", () => {
+			// Given
+			const videoUrl = "./images/PanoViewer/pano.webm";
+
+			// When
+			let inst = new VideoLoader(videoUrl);
+
+			// Then
+			expect(inst.getElement().crossOrigin).to.be.equal("anonymous");
+		});
 	});
 
 	describe("#getElement", function() {

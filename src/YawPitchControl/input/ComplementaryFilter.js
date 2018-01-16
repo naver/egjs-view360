@@ -1,5 +1,4 @@
 import MathUtil from "webvr-polyfill/src/math-util";
-import Util from "webvr-polyfill/src/util";
 import ComplementaryFilter from "webvr-polyfill/src/sensor-fusion/complementary-filter";
 
 ComplementaryFilter.prototype.run_ = function() {
@@ -42,17 +41,6 @@ ComplementaryFilter.prototype.run_ = function() {
 
 	deltaQ.setFromUnitVectors(this.estimatedGravity, this.measuredGravity);
 	deltaQ.inverse();
-
-	if (Util.isDebug()) {
-		console.log("Delta: %d deg, G_est: (%s, %s, %s), G_meas: (%s, %s, %s)",
-		MathUtil.radToDeg * Util.getQuaternionAngle(deltaQ),
-		(this.estimatedGravity.x).toFixed(1),
-		(this.estimatedGravity.y).toFixed(1),
-		(this.estimatedGravity.z).toFixed(1),
-		(this.measuredGravity.x).toFixed(1),
-		(this.measuredGravity.y).toFixed(1),
-		(this.measuredGravity.z).toFixed(1));
-	}
 
 	// Calculate the SLERP target: current orientation plus the measured-estimated
 	// quaternion delta.
