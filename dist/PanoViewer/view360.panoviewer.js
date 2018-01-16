@@ -164,9 +164,6 @@ THE SOFTWARE. */
 var util = {};
 
 util.isPowerOfTwo = function (n) {
-	if (typeof n !== "number") {
-		return "Not a number";
-	}
 	return n && (n & n - 1) === 0;
 };
 
@@ -1891,6 +1888,101 @@ module.exports = MathUtil;
 
 /***/ }),
 /* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+/* eslint-disable no-new-func */
+/* eslint-disable no-nested-ternary */
+var win = typeof window !== "undefined" && window.Math === Math ? window : typeof self !== "undefined" && self.Math === Math ? self : Function("return this")();
+/* eslint-enable no-nested-ternary */
+/* eslint-enable no-new-func */
+
+win.Float32Array = typeof win.Float32Array !== "undefined" ? win.Float32Array : win.Array;
+
+exports.window = win;
+var document = exports.document = win.document;
+var Float32Array = exports.Float32Array = win.Float32Array;
+var getComputedStyle = exports.getComputedStyle = win.getComputedStyle;
+var SUPPORT_TOUCH = exports.SUPPORT_TOUCH = "ontouchstart" in win;
+var SUPPORT_DEVICEMOTION = exports.SUPPORT_DEVICEMOTION = "ondevicemotion" in win;
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+var CONTROL_MODE_VR = 1;
+var CONTROL_MODE_YAWPITCH = 2;
+
+var TOUCH_DIRECTION_NONE = 1;
+var TOUCH_DIRECTION_YAW = 2;
+var TOUCH_DIRECTION_PITCH = 4;
+var TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_YAW | TOUCH_DIRECTION_PITCH;
+
+/* Const for MovableCoord */
+var MC_DECELERATION = 0.0014;
+var MC_MAXIMUM_DURATION = 1000;
+var MC_BIND_SCALE = [0.20, 0.20];
+
+var MIN_FIELD_OF_VIEW = 20;
+var MAX_FIELD_OF_VIEW = 110;
+var PAN_SCALE = 320;
+
+// const DELTA_THRESHOLD = 0.015;
+// const DELTA_THRESHOLD = 0.09; // Note4
+// const DELTA_THRESHOLD = 0.0825;
+// const DELTA_THRESHOLD = 0.075;
+// const DELTA_THRESHOLD = 0.06;
+// const DELTA_THRESHOLD = 0.045;
+var DELTA_THRESHOLD = 0.0375; // Note2
+
+var YAW_RANGE_HALF = 180;
+var PITCH_RANGE_HALF = 90;
+var PINCH_EVENTS = "pinchstart pinchmove pinchend";
+
+var KEYMAP = {
+	LEFT_ARROW: 37,
+	A: 65,
+	UP_ARROW: 38,
+	W: 87,
+	RIGHT_ARROW: 39,
+	D: 68,
+	DOWN_ARROW: 40,
+	S: 83
+};
+
+var GYRO_MODE = {
+	NONE: "none",
+	YAWPITCH: "yawPitch"
+};
+
+exports.GYRO_MODE = GYRO_MODE;
+exports.CONTROL_MODE_VR = CONTROL_MODE_VR;
+exports.CONTROL_MODE_YAWPITCH = CONTROL_MODE_YAWPITCH;
+exports.TOUCH_DIRECTION_NONE = TOUCH_DIRECTION_NONE;
+exports.TOUCH_DIRECTION_YAW = TOUCH_DIRECTION_YAW;
+exports.TOUCH_DIRECTION_PITCH = TOUCH_DIRECTION_PITCH;
+exports.TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_ALL;
+exports.MC_DECELERATION = MC_DECELERATION;
+exports.MC_MAXIMUM_DURATION = MC_MAXIMUM_DURATION;
+exports.MC_BIND_SCALE = MC_BIND_SCALE;
+exports.MIN_FIELD_OF_VIEW = MIN_FIELD_OF_VIEW;
+exports.MAX_FIELD_OF_VIEW = MAX_FIELD_OF_VIEW;
+exports.PAN_SCALE = PAN_SCALE;
+exports.DELTA_THRESHOLD = DELTA_THRESHOLD;
+exports.YAW_RANGE_HALF = YAW_RANGE_HALF;
+exports.PITCH_RANGE_HALF = PITCH_RANGE_HALF;
+exports.PINCH_EVENTS = PINCH_EVENTS;
+exports.KEYMAP = KEYMAP;
+
+/***/ }),
+/* 7 */
 /***/ (function(module, exports) {
 
 /*
@@ -2375,101 +2467,6 @@ Util.getDomainFromUrl = function(url) {
 
 module.exports = Util;
 
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-/* eslint-disable no-new-func */
-/* eslint-disable no-nested-ternary */
-var win = typeof window !== "undefined" && window.Math === Math ? window : typeof self !== "undefined" && self.Math === Math ? self : Function("return this")();
-/* eslint-enable no-nested-ternary */
-/* eslint-enable no-new-func */
-
-win.Float32Array = typeof win.Float32Array !== "undefined" ? win.Float32Array : win.Array;
-
-exports.window = win;
-var document = exports.document = win.document;
-var Float32Array = exports.Float32Array = win.Float32Array;
-var getComputedStyle = exports.getComputedStyle = win.getComputedStyle;
-var SUPPORT_TOUCH = exports.SUPPORT_TOUCH = "ontouchstart" in win;
-var SUPPORT_DEVICEMOTION = exports.SUPPORT_DEVICEMOTION = "ondevicemotion" in win;
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-var CONTROL_MODE_VR = 1;
-var CONTROL_MODE_YAWPITCH = 2;
-
-var TOUCH_DIRECTION_NONE = 1;
-var TOUCH_DIRECTION_YAW = 2;
-var TOUCH_DIRECTION_PITCH = 4;
-var TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_YAW | TOUCH_DIRECTION_PITCH;
-
-/* Const for MovableCoord */
-var MC_DECELERATION = 0.0014;
-var MC_MAXIMUM_DURATION = 1000;
-var MC_BIND_SCALE = [0.20, 0.20];
-
-var MIN_FIELD_OF_VIEW = 20;
-var MAX_FIELD_OF_VIEW = 110;
-var PAN_SCALE = 320;
-
-// const DELTA_THRESHOLD = 0.015;
-// const DELTA_THRESHOLD = 0.09; // Note4
-// const DELTA_THRESHOLD = 0.0825;
-// const DELTA_THRESHOLD = 0.075;
-// const DELTA_THRESHOLD = 0.06;
-// const DELTA_THRESHOLD = 0.045;
-var DELTA_THRESHOLD = 0.0375; // Note2
-
-var YAW_RANGE_HALF = 180;
-var PITCH_RANGE_HALF = 90;
-var PINCH_EVENTS = "pinchstart pinchmove pinchend";
-
-var KEYMAP = {
-	LEFT_ARROW: 37,
-	A: 65,
-	UP_ARROW: 38,
-	W: 87,
-	RIGHT_ARROW: 39,
-	D: 68,
-	DOWN_ARROW: 40,
-	S: 83
-};
-
-var GYRO_MODE = {
-	NONE: "none",
-	YAWPITCH: "yawPitch"
-};
-
-exports.GYRO_MODE = GYRO_MODE;
-exports.CONTROL_MODE_VR = CONTROL_MODE_VR;
-exports.CONTROL_MODE_YAWPITCH = CONTROL_MODE_YAWPITCH;
-exports.TOUCH_DIRECTION_NONE = TOUCH_DIRECTION_NONE;
-exports.TOUCH_DIRECTION_YAW = TOUCH_DIRECTION_YAW;
-exports.TOUCH_DIRECTION_PITCH = TOUCH_DIRECTION_PITCH;
-exports.TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_ALL;
-exports.MC_DECELERATION = MC_DECELERATION;
-exports.MC_MAXIMUM_DURATION = MC_MAXIMUM_DURATION;
-exports.MC_BIND_SCALE = MC_BIND_SCALE;
-exports.MIN_FIELD_OF_VIEW = MIN_FIELD_OF_VIEW;
-exports.MAX_FIELD_OF_VIEW = MAX_FIELD_OF_VIEW;
-exports.PAN_SCALE = PAN_SCALE;
-exports.DELTA_THRESHOLD = DELTA_THRESHOLD;
-exports.YAW_RANGE_HALF = YAW_RANGE_HALF;
-exports.PITCH_RANGE_HALF = PITCH_RANGE_HALF;
-exports.PINCH_EVENTS = PINCH_EVENTS;
-exports.KEYMAP = KEYMAP;
 
 /***/ }),
 /* 8 */
@@ -3198,7 +3195,7 @@ var _YawPitchControl = __webpack_require__(27);
 
 var _YawPitchControl2 = _interopRequireDefault(_YawPitchControl);
 
-var _consts = __webpack_require__(7);
+var _consts = __webpack_require__(6);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -4023,9 +4020,17 @@ exports.PanoViewer = _PanoViewer2["default"];
 
 exports.__esModule = true;
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _component = __webpack_require__(0);
+
+var _component2 = _interopRequireDefault(_component);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _Promise = typeof Promise === 'undefined' ? __webpack_require__(3).Promise : Promise;
 
@@ -4036,38 +4041,50 @@ var STATUS = {
 	"ERROR": 3
 };
 
-var ImageLoader = function () {
+var EVENT = {
+	"READYSTATECHANGE": "readystatechange"
+};
+
+var ImageLoader = function (_Component) {
+	_inherits(ImageLoader, _Component);
+
 	function ImageLoader(image) {
 		_classCallCheck(this, ImageLoader);
 
-		this._image = null;
-		this._onceHandlers = [];
-		this._loadStatus = STATUS.NONE;
+		var _this = _possibleConstructorReturn(this, _Component.call(this));
+		// Super constructor
 
-		image && this.set(image);
+
+		_this._image = null;
+		_this._onceHandlers = [];
+		_this._loadStatus = STATUS.NONE;
+
+		image && _this.set(image);
+		return _this;
 	}
 
 	ImageLoader.prototype.get = function get() {
-		var _this = this;
+		var _this2 = this;
 
 		return new _Promise(function (res, rej) {
-			if (!_this._image) {
+			if (!_this2._image) {
 				rej("ImageLoader: image is not defiend");
-			} else if (_this._loadStatus === STATUS.LOADED) {
-				res(_this._image);
-			} else if (_this._loadStatus === STATUS.LOADING) {
+			} else if (_this2._loadStatus === STATUS.LOADED) {
+				res(_this2.getElement());
+			} else if (_this2._loadStatus === STATUS.LOADING) {
 				/* Check isMaybeLoaded() first because there may have
     	posibilities that image already loaded before get is called.
     	for example calling get on external image onload callback.*/
-				if (ImageLoader._isMaybeLoaded(_this._image)) {
-					_this._loadStatus = STATUS.LOADED;
-					res(_this._image);
+				if (ImageLoader.isMaybeLoaded(_this2._image)) {
+					_this2._loadStatus = STATUS.LOADED;
+					res(_this2.getElement());
 				} else {
-					_this._once("load", function () {
-						return res(_this._image);
-					});
-					_this._once("error", function () {
-						return rej("ImageLoader: failed to load images.");
+					_this2.on(EVENT.READYSTATECHANGE, function (e) {
+						if (e.type === STATUS.LOADED) {
+							res(_this2.getElement());
+						} else {
+							rej("ImageLoader: failed to load images.");
+						}
 					});
 				}
 			} else {
@@ -4077,55 +4094,93 @@ var ImageLoader = function () {
 	};
 
 	/**
-  * @param image img element or img url
+  * @param image img element or img url or array of img element or array of img url
   */
 
 
 	ImageLoader.prototype.set = function set(image) {
-		var _this2 = this;
+		var _this3 = this;
 
 		this._loadStatus = STATUS.LOADING;
 
-		if (typeof image === "string") {
-			this._image = new Image();
-			this._image.crossOrigin = "anonymous";
-			this._image.src = image;
-		} else if ((typeof image === "undefined" ? "undefined" : _typeof(image)) === "object") {
-			this._image = image;
-		}
+		this._image = ImageLoader.createElement(image);
 
-		if (ImageLoader._isMaybeLoaded(this._image)) {
-			// Already loaded image
+		if (ImageLoader.isMaybeLoaded(this._image)) {
 			this._loadStatus = STATUS.LOADED;
 			return;
 		}
 
-		this._once("load", function () {
-			return _this2._loadStatus = STATUS.LOADED;
+		this.onceLoaded(this._image, function () {
+			_this3._loadStatus = STATUS.LOADED;
+			_this3.trigger(EVENT.READYSTATECHANGE, {
+				type: STATUS.LOADED
+			});
+		}, function () {
+			_this3._loadStatus = STATUS.ERROR;
+			_this3.trigger(EVENT.READYSTATECHANGE, {
+				type: STATUS.ERROR
+			});
 		});
-		this._once("error", function () {
-			return _this2._loadStatus = STATUS.ERROR;
+	};
+
+	ImageLoader.createElement = function createElement(image) {
+		var images = image instanceof Array ? image : [image];
+
+		return images.map(function (img) {
+			var _img = img;
+
+			if (typeof img === "string") {
+				_img = new Image();
+				_img.crossOrigin = "anonymous";
+				_img.src = img;
+			}
+			return _img;
 		});
 	};
 
 	ImageLoader.prototype.getElement = function getElement() {
-		return this._image;
+		return this._image.length === 1 ? this._image[0] : this._image;
 	};
 
-	ImageLoader._isMaybeLoaded = function _isMaybeLoaded(image) {
-		return image && image.naturalWidth !== 0;
+	ImageLoader.isMaybeLoaded = function isMaybeLoaded(image) {
+		return image instanceof Image ? image.naturalWidth !== 0 : !image.some(function (img) {
+			return img.naturalWidth === 0;
+		});
 	};
 
-	ImageLoader.prototype._once = function _once(type, listener) {
-		var target = this._image;
+	ImageLoader.prototype.onceLoaded = function onceLoaded(target, onload, onerror) {
+		var _this4 = this;
 
+		var targets = target instanceof Array ? target : [target];
+		var targetsNotLoaded = targets.filter(function (img) {
+			return !ImageLoader.isMaybeLoaded(img);
+		});
+		var loadPromises = targetsNotLoaded.map(function (img) {
+			return new _Promise(function (res, rej) {
+				_this4._once(img, "load", function () {
+					return res(img);
+				});
+				_this4._once(img, "error", function () {
+					return rej(img);
+				});
+			});
+		});
+
+		_Promise.all(loadPromises).then(function (result) {
+			return onload(targets.length === 1 ? targets[0] : targets);
+		}, function (reason) {
+			return onerror(reason);
+		});
+	};
+
+	ImageLoader.prototype._once = function _once(target, type, listener) {
 		var fn = function fn(event) {
 			target.removeEventListener(type, fn);
 			listener(event);
 		};
 
 		target.addEventListener(type, fn);
-		this._onceHandlers.push({ type: type, fn: fn });
+		this._onceHandlers.push({ target: target, type: type, fn: fn });
 	};
 
 	ImageLoader.prototype.getStatus = function getStatus() {
@@ -4133,10 +4188,8 @@ var ImageLoader = function () {
 	};
 
 	ImageLoader.prototype.destroy = function destroy() {
-		var _this3 = this;
-
 		this._onceHandlers.forEach(function (handler) {
-			_this3._image.removeEventListener(handler.type, handler.fn);
+			handler.target.removeEventListener(handler.type, handler.fn);
 		});
 		this._onceHandlers = [];
 		this._image.src = "";
@@ -4145,7 +4198,7 @@ var ImageLoader = function () {
 	};
 
 	return ImageLoader;
-}();
+}(_component2["default"]);
 
 exports["default"] = ImageLoader;
 
@@ -5227,7 +5280,7 @@ SphereRenderer._INDEX_DATA = null;
 "use strict";
 
 
-var _consts = __webpack_require__(7);
+var _consts = __webpack_require__(6);
 
 var ERROR_TYPE = {
 	INVALID_DEVICE: 10,
@@ -5271,7 +5324,7 @@ var _axes = __webpack_require__(8);
 
 var _axes2 = _interopRequireDefault(_axes);
 
-var _browser = __webpack_require__(6);
+var _browser = __webpack_require__(5);
 
 var _WheelInput = __webpack_require__(32);
 
@@ -5283,7 +5336,7 @@ var _TiltMotionInput2 = _interopRequireDefault(_TiltMotionInput);
 
 var _mathUtil = __webpack_require__(1);
 
-var _consts = __webpack_require__(7);
+var _consts = __webpack_require__(6);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -5867,10 +5920,6 @@ var _mathUtil = __webpack_require__(4);
 
 var _mathUtil2 = _interopRequireDefault(_mathUtil);
 
-var _util = __webpack_require__(5);
-
-var _util2 = _interopRequireDefault(_util);
-
 var _complementaryFilter = __webpack_require__(39);
 
 var _complementaryFilter2 = _interopRequireDefault(_complementaryFilter);
@@ -5917,10 +5966,6 @@ _complementaryFilter2["default"].prototype.run_ = function () {
 	deltaQ.setFromUnitVectors(this.estimatedGravity, this.measuredGravity);
 	deltaQ.inverse();
 
-	if (_util2["default"].isDebug()) {
-		console.log("Delta: %d deg, G_est: (%s, %s, %s), G_meas: (%s, %s, %s)", _mathUtil2["default"].radToDeg * _util2["default"].getQuaternionAngle(deltaQ), this.estimatedGravity.x.toFixed(1), this.estimatedGravity.y.toFixed(1), this.estimatedGravity.z.toFixed(1), this.measuredGravity.x.toFixed(1), this.measuredGravity.y.toFixed(1), this.measuredGravity.z.toFixed(1));
-	}
-
 	// Calculate the SLERP target: current orientation plus the measured-estimated
 	// quaternion delta.
 	var targetQ = new _mathUtil2["default"].Quaternion();
@@ -5963,7 +6008,7 @@ var _component2 = _interopRequireDefault(_component);
 
 var _mathUtil = __webpack_require__(1);
 
-var _browser = __webpack_require__(6);
+var _browser = __webpack_require__(5);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -6079,11 +6124,11 @@ var _mathUtil = __webpack_require__(4);
 
 var _mathUtil2 = _interopRequireDefault(_mathUtil);
 
-var _util = __webpack_require__(5);
+var _util = __webpack_require__(7);
 
 var _util2 = _interopRequireDefault(_util);
 
-var _browser = __webpack_require__(6);
+var _browser = __webpack_require__(5);
 
 var _mathUtil3 = __webpack_require__(1);
 
@@ -7302,7 +7347,7 @@ module.exports = g;
 
 var SensorSample = __webpack_require__(41);
 var MathUtil = __webpack_require__(4);
-var Util = __webpack_require__(5);
+var Util = __webpack_require__(7);
 
 /**
  * An implementation of a simple complementary filter, which fuses gyroscope and
@@ -7472,7 +7517,7 @@ module.exports = ComplementaryFilter;
  * limitations under the License.
  */
 var MathUtil = __webpack_require__(4);
-var Util = __webpack_require__(5);
+var Util = __webpack_require__(7);
 
 /**
  * Given an orientation and the gyroscope data, predicts the future orientation

@@ -1,3 +1,5 @@
+import Component from "@egjs/component";
+
 const STATUS = {
 	"NONE": 0,
 	"LOADING": 1,
@@ -5,8 +7,15 @@ const STATUS = {
 	"ERROR": 3
 };
 
-export default class ImageLoader {
+const EVENT = {
+	"READYSTATECHANGE": "readystatechange"
+};
+
+export default class ImageLoader extends Component {
 	constructor(image) {
+		// Super constructor
+		super();
+
 		this._image = null;
 		this._onceHandlers = [];
 		this._loadStatus = STATUS.NONE;
@@ -19,17 +28,22 @@ export default class ImageLoader {
 			if (!this._image) {
 				rej("ImageLoader: image is not defiend");
 			} else if (this._loadStatus === STATUS.LOADED) {
-				res(this._image);
+				res(this.getElement());
 			} else if (this._loadStatus === STATUS.LOADING) {
 				/* Check isMaybeLoaded() first because there may have
 					posibilities that image already loaded before get is called.
 					for example calling get on external image onload callback.*/
-				if (ImageLoader._isMaybeLoaded(this._image)) {
+				if (ImageLoader.isMaybeLoaded(this._image)) {
 					this._loadStatus = STATUS.LOADED;
-					res(this._image);
+					res(this.getElement());
 				} else {
-					this._once("load", () => res(this._image));
-					this._once("error", () => rej("ImageLoader: failed to load images."));
+					this.on(EVENT.READYSTATECHANGE, e => {
+						if (e.type === STATUS.LOADED) {
+							res(this.getElement());
+						} else {
+							rej("ImageLoader: failed to load images.");
+						}
+					});
 				}
 			} else {
 				rej("ImageLoader: failed to load images");
@@ -38,47 +52,82 @@ export default class ImageLoader {
 	}
 
 	/**
-	 * @param image img element or img url
+	 * @param image img element or img url or array of img element or array of img url
 	 */
 	set(image) {
 		this._loadStatus = STATUS.LOADING;
 
-		if (typeof image === "string") {
-			this._image = new Image();
-			this._image.crossOrigin = "anonymous";
-			this._image.src = image;
-		} else if (typeof image === "object") {
-			this._image = image;
-		}
+		this._image = ImageLoader.createElement(image);
 
-		if (ImageLoader._isMaybeLoaded(this._image)) {
-			// Already loaded image
+		if (ImageLoader.isMaybeLoaded(this._image)) {
 			this._loadStatus = STATUS.LOADED;
 			return;
 		}
 
-		this._once("load", () => (this._loadStatus = STATUS.LOADED));
-		this._once("error", () => (this._loadStatus = STATUS.ERROR));
+		this.onceLoaded(
+			this._image,
+			() => {
+				this._loadStatus = STATUS.LOADED;
+				this.trigger(EVENT.READYSTATECHANGE, {
+					type: STATUS.LOADED
+				});
+			},
+			() => {
+				this._loadStatus = STATUS.ERROR;
+				this.trigger(EVENT.READYSTATECHANGE, {
+					type: STATUS.ERROR
+				});
+			}
+		);
+	}
+
+	static createElement(image) {
+		const images = image instanceof Array ? image : [image];
+
+		return images.map(img => {
+			let _img = img;
+
+			if (typeof img === "string") {
+				_img = new Image();
+				_img.crossOrigin = "anonymous";
+				_img.src = img;
+			}
+			return _img;
+		});
 	}
 
 	getElement() {
-		return this._image;
+		return this._image.length === 1 ? this._image[0] : this._image;
 	}
 
-	static _isMaybeLoaded(image) {
-		return image && image.naturalWidth !== 0;
+	static isMaybeLoaded(image) {
+		return image instanceof Image ?
+			image.naturalWidth !== 0 :
+			!image.some(img => img.naturalWidth === 0);
 	}
 
-	_once(type, listener) {
-		const target = this._image;
+	onceLoaded(target, onload, onerror) {
+		const targets = target instanceof Array ? target : [target];
+		const targetsNotLoaded = targets.filter(img => !ImageLoader.isMaybeLoaded(img));
+		const loadPromises = targetsNotLoaded.map(img => new Promise((res, rej) => {
+			this._once(img, "load", () => (res(img)));
+			this._once(img, "error", () => (rej(img)));
+		}));
 
+		Promise.all(loadPromises).then(
+			result => (onload(targets.length === 1 ? targets[0] : targets)),
+			reason => (onerror(reason))
+		);
+	}
+
+	_once(target, type, listener) {
 		const fn = event => {
 			target.removeEventListener(type, fn);
 			listener(event);
 		};
 
 		target.addEventListener(type, fn);
-		this._onceHandlers.push({type, fn});
+		this._onceHandlers.push({target, type, fn});
 	}
 
 	getStatus() {
@@ -87,7 +136,7 @@ export default class ImageLoader {
 
 	destroy() {
 		this._onceHandlers.forEach(handler => {
-			this._image.removeEventListener(handler.type, handler.fn);
+			handler.target.removeEventListener(handler.type, handler.fn);
 		});
 		this._onceHandlers = [];
 		this._image.src = "";
