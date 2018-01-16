@@ -5720,7 +5720,10 @@ var WebGLUtils = function () {
 		for (var i = 0; i < webglIdentifiers.length; i++) {
 			try {
 				// preserveDrawingBuffer: if true, the Galaxy s6 Naver app will experience tremor
-				context = canvas.getContext(webglIdentifiers[i], { preserveDrawingBuffer: false });
+				context = canvas.getContext(webglIdentifiers[i], {
+					preserveDrawingBuffer: false,
+					antialias: false /* TODO: Make it user option for antialiasing */
+				});
 			} catch (t) {}
 			if (context) {
 				break;
@@ -10353,6 +10356,7 @@ var PanoImageRenderer = function (_Component) {
 
 		_this._image = null;
 		_this._imageIsReady = false;
+		_this._shouldForceDraw = false;
 		_this._keepUpdate = false; // Flag to specify 'continuous update' on video even when still.
 
 		_this._onContentLoad = _this._onContentLoad.bind(_this);
@@ -10397,7 +10401,11 @@ var PanoImageRenderer = function (_Component) {
 		// image is reference for content in contentLoader, so it may be not valid if contentLoader is destroyed.
 		this._image = this._contentLoader.getElement();
 
-		return this._contentLoader.get().then(this._onContentLoad)["catch"](this._onContentError);
+		return this._contentLoader.get().then(this._onContentLoad, this._onContentError)["catch"](function (e) {
+			return setTimeout(function () {
+				throw e;
+			});
+		}); // Prevent exceptions from being isolated in promise chain.
 	};
 
 	PanoImageRenderer.prototype._setImageType = function _setImageType(imageType) {
@@ -10660,6 +10668,11 @@ var PanoImageRenderer = function (_Component) {
 			gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 		}
 
+		// clear buffer
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
+		// Use TEXTURE0
+		gl.uniform1i(shaderProgram.samplerUniform, 0);
+
 		return shaderProgram;
 	};
 
@@ -10724,9 +10737,6 @@ var PanoImageRenderer = function (_Component) {
 	PanoImageRenderer.prototype._draw = function _draw() {
 		var gl = this.context;
 
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
-
-		gl.uniform1i(this.shaderProgram.samplerUniform, 0);
 		gl.uniformMatrix4fv(this.shaderProgram.pMatrixUniform, false, this.pMatrix);
 		gl.uniformMatrix4fv(this.shaderProgram.mvMatrixUniform, false, this.mvMatrix);
 
