@@ -10055,9 +10055,17 @@ _SpinViewer2["default"].VERSION = "3.0.0-rc";
 
 exports.__esModule = true;
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _component = __webpack_require__(0);
+
+var _component2 = _interopRequireDefault(_component);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _Promise = typeof Promise === 'undefined' ? __webpack_require__(3).Promise : Promise;
 
@@ -10068,38 +10076,50 @@ var STATUS = {
 	"ERROR": 3
 };
 
-var ImageLoader = function () {
+var EVENT = {
+	"READYSTATECHANGE": "readystatechange"
+};
+
+var ImageLoader = function (_Component) {
+	_inherits(ImageLoader, _Component);
+
 	function ImageLoader(image) {
 		_classCallCheck(this, ImageLoader);
 
-		this._image = null;
-		this._onceHandlers = [];
-		this._loadStatus = STATUS.NONE;
+		var _this = _possibleConstructorReturn(this, _Component.call(this));
+		// Super constructor
 
-		image && this.set(image);
+
+		_this._image = null;
+		_this._onceHandlers = [];
+		_this._loadStatus = STATUS.NONE;
+
+		image && _this.set(image);
+		return _this;
 	}
 
 	ImageLoader.prototype.get = function get() {
-		var _this = this;
+		var _this2 = this;
 
 		return new _Promise(function (res, rej) {
-			if (!_this._image) {
+			if (!_this2._image) {
 				rej("ImageLoader: image is not defiend");
-			} else if (_this._loadStatus === STATUS.LOADED) {
-				res(_this._image);
-			} else if (_this._loadStatus === STATUS.LOADING) {
+			} else if (_this2._loadStatus === STATUS.LOADED) {
+				res(_this2.getElement());
+			} else if (_this2._loadStatus === STATUS.LOADING) {
 				/* Check isMaybeLoaded() first because there may have
     	posibilities that image already loaded before get is called.
     	for example calling get on external image onload callback.*/
-				if (ImageLoader._isMaybeLoaded(_this._image)) {
-					_this._loadStatus = STATUS.LOADED;
-					res(_this._image);
+				if (ImageLoader.isMaybeLoaded(_this2._image)) {
+					_this2._loadStatus = STATUS.LOADED;
+					res(_this2.getElement());
 				} else {
-					_this._once("load", function () {
-						return res(_this._image);
-					});
-					_this._once("error", function () {
-						return rej("ImageLoader: failed to load images.");
+					_this2.on(EVENT.READYSTATECHANGE, function (e) {
+						if (e.type === STATUS.LOADED) {
+							res(_this2.getElement());
+						} else if (e.type === STATUS.ERROR) {
+							rej("ImageLoader: failed to load images.");
+						}
 					});
 				}
 			} else {
@@ -10109,55 +10129,93 @@ var ImageLoader = function () {
 	};
 
 	/**
-  * @param image img element or img url
+  * @param image img element or img url or array of img element or array of img url
   */
 
 
 	ImageLoader.prototype.set = function set(image) {
-		var _this2 = this;
+		var _this3 = this;
 
 		this._loadStatus = STATUS.LOADING;
 
-		if (typeof image === "string") {
-			this._image = new Image();
-			this._image.crossOrigin = "anonymous";
-			this._image.src = image;
-		} else if ((typeof image === "undefined" ? "undefined" : _typeof(image)) === "object") {
-			this._image = image;
-		}
+		this._image = ImageLoader.createElement(image);
 
-		if (ImageLoader._isMaybeLoaded(this._image)) {
-			// Already loaded image
+		if (ImageLoader.isMaybeLoaded(this._image)) {
 			this._loadStatus = STATUS.LOADED;
 			return;
 		}
 
-		this._once("load", function () {
-			return _this2._loadStatus = STATUS.LOADED;
+		this.onceLoaded(this._image, function () {
+			_this3._loadStatus = STATUS.LOADED;
+			_this3.trigger(EVENT.READYSTATECHANGE, {
+				type: STATUS.LOADED
+			});
+		}, function () {
+			_this3._loadStatus = STATUS.ERROR;
+			_this3.trigger(EVENT.READYSTATECHANGE, {
+				type: STATUS.ERROR
+			});
 		});
-		this._once("error", function () {
-			return _this2._loadStatus = STATUS.ERROR;
+	};
+
+	ImageLoader.createElement = function createElement(image) {
+		var images = image instanceof Array ? image : [image];
+
+		return images.map(function (img) {
+			var _img = img;
+
+			if (typeof img === "string") {
+				_img = new Image();
+				_img.crossOrigin = "anonymous";
+				_img.src = img;
+			}
+			return _img;
 		});
 	};
 
 	ImageLoader.prototype.getElement = function getElement() {
-		return this._image;
+		return this._image.length === 1 ? this._image[0] : this._image;
 	};
 
-	ImageLoader._isMaybeLoaded = function _isMaybeLoaded(image) {
-		return image && image.naturalWidth !== 0;
+	ImageLoader.isMaybeLoaded = function isMaybeLoaded(image) {
+		return image instanceof Image ? image.naturalWidth !== 0 : !image.some(function (img) {
+			return img.naturalWidth === 0;
+		});
 	};
 
-	ImageLoader.prototype._once = function _once(type, listener) {
-		var target = this._image;
+	ImageLoader.prototype.onceLoaded = function onceLoaded(target, onload, onerror) {
+		var _this4 = this;
 
+		var targets = target instanceof Array ? target : [target];
+		var targetsNotLoaded = targets.filter(function (img) {
+			return !ImageLoader.isMaybeLoaded(img);
+		});
+		var loadPromises = targetsNotLoaded.map(function (img) {
+			return new _Promise(function (res, rej) {
+				_this4._once(img, "load", function () {
+					return res(img);
+				});
+				_this4._once(img, "error", function () {
+					return rej(img);
+				});
+			});
+		});
+
+		_Promise.all(loadPromises).then(function (result) {
+			return onload(targets.length === 1 ? targets[0] : targets);
+		}, function (reason) {
+			return onerror(reason);
+		});
+	};
+
+	ImageLoader.prototype._once = function _once(target, type, listener) {
 		var fn = function fn(event) {
 			target.removeEventListener(type, fn);
 			listener(event);
 		};
 
 		target.addEventListener(type, fn);
-		this._onceHandlers.push({ type: type, fn: fn });
+		this._onceHandlers.push({ target: target, type: type, fn: fn });
 	};
 
 	ImageLoader.prototype.getStatus = function getStatus() {
@@ -10165,10 +10223,8 @@ var ImageLoader = function () {
 	};
 
 	ImageLoader.prototype.destroy = function destroy() {
-		var _this3 = this;
-
 		this._onceHandlers.forEach(function (handler) {
-			_this3._image.removeEventListener(handler.type, handler.fn);
+			handler.target.removeEventListener(handler.type, handler.fn);
 		});
 		this._onceHandlers = [];
 		this._image.src = "";
@@ -10177,7 +10233,7 @@ var ImageLoader = function () {
 	};
 
 	return ImageLoader;
-}();
+}(_component2["default"]);
 
 exports["default"] = ImageLoader;
 

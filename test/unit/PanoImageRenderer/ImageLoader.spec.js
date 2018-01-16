@@ -98,6 +98,22 @@ describe("ImageLoader", function() {
 			});
 		});
 
+		it("should set multiple images by set()", () => {
+			// Given
+			// When
+			this.inst = new ImageLoader();
+			this.inst.set([
+				"./images/PanoViewer/waterpark_preview.jpg",
+				"./images/PanoViewer/waterpark_cube_1024.jpg"
+			]);
+
+			return this.inst.get().then(imgs => {
+				imgs.forEach(img => {
+					assert.isOk(img.complete);
+				});
+			});
+		});
+
 		it("should set status loading if image is not loaded", () => {
 			// Given && When
 			const imgObj = new Image();
@@ -147,6 +163,7 @@ describe("ImageLoader", function() {
 			// Then
 			expect(element.getAttribute("src")).to.be.equal(imagePath);
 		});
+
 		it("could get image element after set image by element", () => {
 			// Given
 			const imgObj = new Image();
@@ -162,6 +179,25 @@ describe("ImageLoader", function() {
 			expect(element.getAttribute("src")).to.be.equal(imagePath);
 			expect(element).to.be.equal(imgObj);
 		});
+
+		it("could get image elements after set images by url", () => {
+			// Given
+			const imgObj = new Image();
+			const imagePath = "./images/PanoViewer/waterpark_preview.jpg";
+
+			imgObj.src = imagePath;
+			const inst = new ImageLoader([
+				imagePath,
+				imagePath
+			]);
+
+			// When
+			const element = inst.getElement();
+
+			// Then
+			expect(element.length).to.be.equal(2);
+			expect(element[0].getAttribute("src")).to.be.equal(imagePath);
+		});
 	});
 
 	describe("#get", function() {
@@ -170,19 +206,18 @@ describe("ImageLoader", function() {
 			// When
 			let inst;
 			const imgObj = new Image();
-
-			imgObj.onload = function() {
+			imgObj.addEventListener("load", function() {
 				// Then: Image can be obtained although it's been set by image object.
 				inst.get()
 					.then(img => {
-						assert.isOk(img instanceof Image || img instanceof HTMLImageElement);
+						assert.isOk(img instanceof Image);
 						done();
 					})
 					.catch(e => {
 						expect(false, e).to.be.true;
 						done();
 					});
-			};
+			});
 
 			imgObj.src = "./images/PanoViewer/waterpark_preview.jpg";
 			inst = new ImageLoader(imgObj);
@@ -217,6 +252,82 @@ describe("ImageLoader", function() {
 		})
 	});
 
+	describe("#onceLoaded", function() {
+		it("should work with single image", (done) => {
+			// Given
+			const inst = new ImageLoader();
+			const image = new Image();
+			image.src = "./images/PanoViewer/only-used-for-destroy-test.png";
+
+			// When
+			inst.onceLoaded([image], function (img) {
+				// Then
+				const srcToken = img.src.split("/");
+
+				expect(srcToken[srcToken.length - 1]).to.be.equal("only-used-for-destroy-test.png");
+				expect(ImageLoader.isMaybeLoaded(img)).to.be.true;
+				done();
+			});
+		});
+		it("should call error handler when not loaded with single image", (done) => {
+			// Given
+			const inst = new ImageLoader();
+
+			// When
+			const image = new Image();
+			image.src = "./images/PanoViewer/not-exist.png";
+
+
+			inst.onceLoaded([image], function() {}, function(img) {
+				// Then
+				const srcToken = img.src.split("/");
+				expect(srcToken[srcToken.length - 1]).to.be.equal("not-exist.png");
+				expect(ImageLoader.isMaybeLoaded(img)).to.be.false;
+				done();
+			});
+		});
+		it("should work with multiple image", (done) => {
+			// Given
+			const inst = new ImageLoader();
+			const image1 = new Image();
+			const image2 = new Image();
+			image1.src = "./images/PanoViewer/only-used-for-destroy-test.png";
+			image2.src = "./images/PanoViewer/only-used-for-destroy-test.png";
+
+			// When
+			inst.onceLoaded([image1, image2], function(imgs) {
+				// Then
+				let srcToken1 = imgs[0].src.split("/");
+				srcToken1 = srcToken1[srcToken1.length - 1];
+				let srcToken2 = imgs[1].src.split("/");
+				srcToken2 = srcToken2[srcToken2.length - 1];
+				expect(srcToken1).to.be.equal("only-used-for-destroy-test.png");
+				expect(ImageLoader.isMaybeLoaded(imgs[0])).to.be.true;
+				expect(srcToken2).to.be.equal("only-used-for-destroy-test.png");
+				expect(ImageLoader.isMaybeLoaded(imgs[1])).to.be.true;
+				done();
+			});
+		});
+		it("should call error handler when not loaded with multiple image", (done) => {
+			// Given
+			const inst = new ImageLoader();
+			const image1 = new Image();
+			const image2 = new Image();
+			image1.src = "./images/PanoViewer/only-used-for-destroy-test.png";
+			image2.src = "./images/PanoViewer/not-exist.png";
+
+
+			// When
+			inst.onceLoaded([image1, image2], () => {}, function(img2) {
+				// Then
+				let srcToken = img2.src.split("/");
+				srcToken = srcToken[srcToken.length - 1];
+				expect(srcToken).to.be.equal("not-exist.png");
+				expect(ImageLoader.isMaybeLoaded(img2)).to.be.false;
+				done();
+			});
+		});
+	});
 	describe("#destroy", function() {
 		it("should destory ", () => {
 			// Given
@@ -242,8 +353,162 @@ describe("ImageLoader", function() {
 			inst.destroy();
 			const currOnceHandlerCount = inst._onceHandlers.length;
 
-			expect(prevOnceHandlerCount).to.be.equal(4); // 4 = 2(getter) + 2(setter)
+			expect(prevOnceHandlerCount).to.be.equal(2); // 2(setter)
 			expect(currOnceHandlerCount).to.be.equal(0);
+		});
+	});
+
+	describe("static", function() {
+		describe("#isMaybeLoaded", function() {
+			it("should work with single image", (done) => {
+				// Given
+				// When
+				const image = new Image();
+				image.src = "./images/PanoViewer/only-used-for-destroy-test.png";
+
+				image.onload = function() {
+					expect(ImageLoader.isMaybeLoaded([image])).to.be.true;
+					done();
+				};
+			});
+			it("should return false when not loaded with single image", (done) => {
+				// Given
+				// When
+				const image = new Image();
+				image.src = "./images/PanoViewer/not-exist.png";
+
+				image.onerror = function() {
+					expect(ImageLoader.isMaybeLoaded([image])).to.be.false;
+					done();
+				};
+			});
+			it("should work with multiple image", (done) => {
+				// Given
+				const image1 = new Image();
+				const image2 = new Image();				
+
+				const p1 = new Promise((res, rej) => {
+					image1.onload = function() {
+						res();
+					};
+					image1.error = function() {
+						rej();
+					};
+				});
+				const p2 = new Promise((res, rej) => {
+					image2.onload = function() {
+						res();
+					};
+					image2.error = function() {
+						rej();
+					};
+				});
+
+				// When
+				image1.src = "./images/PanoViewer/only-used-for-destroy-test.png";
+				image2.src = "./images/PanoViewer/only-used-for-destroy-test.png";
+				Promise.all([p1, p2]).then(result => {
+					// Then
+					expect(ImageLoader.isMaybeLoaded([image1, image2])).to.be.true;
+					done();
+				});
+			});
+			it("should return false when not loaded with multiple image", done => {
+				// Given
+				const image1 = new Image();
+				const image2 = new Image();
+				const p1 = new Promise((res, rej) => {
+					image1.onload = function() {
+						res();
+					};
+					image1.onerror = function() {
+						rej();
+					};
+				});
+				const p2 = new Promise((res, rej) => {
+					image2.onload = function() {
+						res();
+					};
+					image2.onerror = function() {
+						rej();
+					};
+				});
+
+				// When
+				image1.src = "./images/PanoViewer/only-used-for-destroy-test.png";
+				image2.src = "./images/PanoViewer/not-exist.png";
+				Promise.all([p1, p2]).then(result => {}, reason => {
+					// Then
+					expect(ImageLoader.isMaybeLoaded([image1, image2])).to.be.false;
+					done();
+				});
+			});
+		});
+
+		describe("#createElement", function() {
+			it("should work with single image object", () => {
+				// Given
+				const image = new Image();
+				image.src = "./images/PanoViewer/only-used-for-destroy-test.png";
+
+				// When
+				const element = ImageLoader.createElement(image)[0];
+
+				// Then
+				let srcToken = element.src.split("/");
+				srcToken = srcToken[srcToken.length - 1];
+				expect(element instanceof Image).to.be.true;
+				expect(srcToken).to.be.equal("only-used-for-destroy-test.png");
+			});
+			it("should work with single image url", () => {
+				// Given
+				const imageUrl = "./images/PanoViewer/only-used-for-destroy-test.png";
+
+				// When
+				const element = ImageLoader.createElement(imageUrl)[0];
+
+				// Then
+				let srcToken = element.src.split("/");
+				srcToken = srcToken[srcToken.length - 1];
+				expect(element instanceof Image).to.be.true;
+				expect(srcToken).to.be.equal("only-used-for-destroy-test.png");
+			});
+			it("should work with multiple image object", () => {
+				// Given
+				const image1 = new Image();
+				const image2 = new Image();
+				image1.src = "./images/PanoViewer/only-used-for-destroy-test.png";
+				image2.src = "./images/PanoViewer/only-used-for-destroy-test.png";
+
+				// When
+				const element = ImageLoader.createElement([image1, image2]);
+
+				// Then
+				element.forEach(elm => {
+					let srcToken = elm.src.split("/");
+					srcToken = srcToken[srcToken.length - 1];
+					expect(elm instanceof Image).to.be.true;
+					expect(srcToken).to.be.equal("only-used-for-destroy-test.png");
+				});
+			});
+			it("should work with multiple image url", () => {
+				// Given
+				const image1 = new Image();
+				const image2 = new Image();
+				image1.src = "./images/PanoViewer/only-used-for-destroy-test.png";
+				image2.src = "./images/PanoViewer/only-used-for-destroy-test.png";
+
+				// When
+				const element = ImageLoader.createElement([image1, image2]);
+
+				// Then
+				element.forEach(elm => {
+					let srcToken = elm.src.split("/");
+					srcToken = srcToken[srcToken.length - 1];
+					expect(elm instanceof Image).to.be.true;
+					expect(srcToken).to.be.equal("only-used-for-destroy-test.png");
+				});
+			});
 		});
 	});
 });
