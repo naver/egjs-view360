@@ -223,6 +223,25 @@ describe("ImageLoader", function() {
 			inst = new ImageLoader(imgObj);
 		});
 
+
+		it("should reject image object with a invalid source url", done => {
+			// Given
+			const imgObj = new Image();
+			imgObj.src = "./images/PanoViewer/does_not_exist.jpg";
+			const inst = new ImageLoader(imgObj);
+
+			// When	
+			inst.get()
+				.then(
+					() => {},
+					() => {
+						// Then
+						expect(true).to.be.true;
+						done();
+					}
+				);
+		});
+
 		it("should reject when image is undefined", () => {
 			// Given
 			// When
