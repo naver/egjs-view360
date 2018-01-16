@@ -277,14 +277,14 @@ describe("ImageLoader", function() {
 			// Given
 			const inst = new ImageLoader();
 			const image = new Image();
-			image.src = "./images/PanoViewer/waterpark_preview.png";
+			image.src = "./images/PanoViewer/waterpark_preview.jpg";
 
 			// When
 			inst.onceLoaded(image, function (img) {
 				// Then
 				const srcToken = img.src.split("/");
 
-				expect(srcToken[srcToken.length - 1]).to.be.equal("waterpark_preview.png");
+				expect(srcToken[srcToken.length - 1]).to.be.equal("waterpark_preview.jpg");
 				expect(ImageLoader.isMaybeLoaded(img)).to.be.true;
 				done();
 			});
@@ -311,8 +311,8 @@ describe("ImageLoader", function() {
 			const inst = new ImageLoader();
 			const image1 = new Image();
 			const image2 = new Image();
-			image1.src = "./images/PanoViewer/waterpark_preview.png";
-			image2.src = "./images/PanoViewer/waterpark_preview.png";
+			image1.src = "./images/PanoViewer/waterpark_preview.jpg";
+			image2.src = "./images/PanoViewer/waterpark_preview.jpg";
 
 			// When
 			inst.onceLoaded([image1, image2], function(imgs) {
@@ -321,9 +321,9 @@ describe("ImageLoader", function() {
 				srcToken1 = srcToken1[srcToken1.length - 1];
 				let srcToken2 = imgs[1].src.split("/");
 				srcToken2 = srcToken2[srcToken2.length - 1];
-				expect(srcToken1).to.be.equal("waterpark_preview.png");
+				expect(srcToken1).to.be.equal("waterpark_preview.jpg");
 				expect(ImageLoader.isMaybeLoaded(imgs[0])).to.be.true;
-				expect(srcToken2).to.be.equal("waterpark_preview.png");
+				expect(srcToken2).to.be.equal("waterpark_preview.jpg");
 				expect(ImageLoader.isMaybeLoaded(imgs[1])).to.be.true;
 				done();
 			});
@@ -333,7 +333,7 @@ describe("ImageLoader", function() {
 			const inst = new ImageLoader();
 			const image1 = new Image();
 			const image2 = new Image();
-			image1.src = "./images/PanoViewer/waterpark_preview.png";
+			image1.src = "./images/PanoViewer/waterpark_preview.jpg";
 			image2.src = "./images/PanoViewer/not-exist.png";
 
 
@@ -384,7 +384,7 @@ describe("ImageLoader", function() {
 				// Given
 				// When
 				const image = new Image();
-				image.src = "./images/PanoViewer/waterpark_preview.png";
+				image.src = "./images/PanoViewer/waterpark_preview.jpg";
 
 				image.onload = function() {
 					expect(ImageLoader.isMaybeLoaded([image])).to.be.true;
@@ -425,8 +425,8 @@ describe("ImageLoader", function() {
 				});
 
 				// When
-				image1.src = "./images/PanoViewer/waterpark_preview.png";
-				image2.src = "./images/PanoViewer/waterpark_preview.png";
+				image1.src = "./images/PanoViewer/waterpark_preview.jpg";
+				image2.src = "./images/PanoViewer/waterpark_preview.jpg";
 				Promise.all([p1, p2]).then(result => {
 					// Then
 					expect(ImageLoader.isMaybeLoaded([image1, image2])).to.be.true;
@@ -455,7 +455,7 @@ describe("ImageLoader", function() {
 				});
 
 				// When
-				image1.src = "./images/PanoViewer/waterpark_preview.png";
+				image1.src = "./images/PanoViewer/waterpark_preview.jpg";
 				image2.src = "./images/PanoViewer/not-exist.png";
 				Promise.all([p1, p2]).then(result => {}, reason => {
 					// Then
@@ -469,7 +469,7 @@ describe("ImageLoader", function() {
 			it("should work with single image object", () => {
 				// Given
 				const image = new Image();
-				image.src = "./images/PanoViewer/waterpark_preview.png";
+				image.src = "./images/PanoViewer/waterpark_preview.jpg";
 
 				// When
 				const element = ImageLoader.createElement(image)[0];
@@ -478,11 +478,11 @@ describe("ImageLoader", function() {
 				let srcToken = element.src.split("/");
 				srcToken = srcToken[srcToken.length - 1];
 				expect(element instanceof Image).to.be.true;
-				expect(srcToken).to.be.equal("waterpark_preview.png");
+				expect(srcToken).to.be.equal("waterpark_preview.jpg");
 			});
 			it("should work with single image url", () => {
 				// Given
-				const imageUrl = "./images/PanoViewer/waterpark_preview.png";
+				const imageUrl = "./images/PanoViewer/waterpark_preview.jpg";
 
 				// When
 				const element = ImageLoader.createElement(imageUrl)[0];
@@ -491,14 +491,14 @@ describe("ImageLoader", function() {
 				let srcToken = element.src.split("/");
 				srcToken = srcToken[srcToken.length - 1];
 				expect(element instanceof Image).to.be.true;
-				expect(srcToken).to.be.equal("waterpark_preview.png");
+				expect(srcToken).to.be.equal("waterpark_preview.jpg");
 			});
 			it("should work with multiple image object", () => {
 				// Given
 				const image1 = new Image();
 				const image2 = new Image();
-				image1.src = "./images/PanoViewer/waterpark_preview.png";
-				image2.src = "./images/PanoViewer/waterpark_preview.png";
+				image1.src = "./images/PanoViewer/waterpark_preview.jpg";
+				image2.src = "./images/PanoViewer/waterpark_preview.jpg";
 
 				// When
 				const element = ImageLoader.createElement([image1, image2]);
@@ -508,15 +508,15 @@ describe("ImageLoader", function() {
 					let srcToken = elm.src.split("/");
 					srcToken = srcToken[srcToken.length - 1];
 					expect(elm instanceof Image).to.be.true;
-					expect(srcToken).to.be.equal("waterpark_preview.png");
+					expect(srcToken).to.be.equal("waterpark_preview.jpg");
 				});
 			});
 			it("should work with multiple image url", () => {
 				// Given
 				const image1 = new Image();
 				const image2 = new Image();
-				image1.src = "./images/PanoViewer/waterpark_preview.png";
-				image2.src = "./images/PanoViewer/waterpark_preview.png";
+				image1.src = "./images/PanoViewer/waterpark_preview.jpg";
+				image2.src = "./images/PanoViewer/waterpark_preview.jpg";
 
 				// When
 				const element = ImageLoader.createElement([image1, image2]);
@@ -526,7 +526,7 @@ describe("ImageLoader", function() {
 					let srcToken = elm.src.split("/");
 					srcToken = srcToken[srcToken.length - 1];
 					expect(elm instanceof Image).to.be.true;
-					expect(srcToken).to.be.equal("waterpark_preview.png");
+					expect(srcToken).to.be.equal("waterpark_preview.jpg");
 				});
 			});
 		});
