@@ -40,7 +40,7 @@ export default class ImageLoader extends Component {
 					this.on(EVENT.READYSTATECHANGE, e => {
 						if (e.type === STATUS.LOADED) {
 							res(this.getElement());
-						} else if (e.type === STATUS.ERROR) {
+						} else {
 							rej("ImageLoader: failed to load images.");
 						}
 					});

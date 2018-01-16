@@ -47,9 +47,6 @@ function quatToVec3(quaternion) {
 const util = {};
 
 util.isPowerOfTwo = function(n) {
-	if (typeof n !== "number") {
-		return "Not a number";
-	}
 	return n && (n & (n - 1)) === 0;
 };
 
