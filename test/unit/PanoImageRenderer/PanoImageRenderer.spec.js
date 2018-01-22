@@ -385,12 +385,12 @@ describe("PanoImageRenderer", function() {
 							renderAndCompareSequentially(
 								inst,
 								[
-									[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, 2],
-									[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, 2],
-									[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, 2],
-									[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, 2],
-									[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, 2],
-									[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, 2]
+									[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, 3],
+									[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, 3],
+									[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, 3],
+									[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, 3],
+									[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, 3],
+									[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, 3]
 								]
 							).then(() => {
 								done();
