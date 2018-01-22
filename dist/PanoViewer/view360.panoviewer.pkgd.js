@@ -10571,75 +10571,6 @@ var CubeRenderer = function (_Renderer) {
 		return canvas;
 	};
 
-	CubeRenderer.texImage2D = function texImage2D(gl, image) {
-		var agent = (0, _agent2["default"])();
-		var width = image.naturalWidth || image.videoWidth;
-		var height = image.naturalHeight || image.videoHeight;
-		var hasDrawImageBug = CubeRenderer.hasDrawImageBug(agent);
-		var maxCubeMapTextureSize = CubeRenderer.getMaxCubeMapTextureSize(gl, image, agent);
-		var heightScale = CubeRenderer.getHightScale(width, agent);
-		var aspectRatio = width / height;
-		var tileSize = void 0;
-
-		if (aspectRatio === 1 / 6) {
-			tileSize = width;
-		} else if (aspectRatio === 6) {
-			tileSize = height;
-		} else if (aspectRatio === 2 / 3) {
-			tileSize = width / 2;
-		} else {
-			tileSize = width / 3;
-		}
-
-		if (!hasDrawImageBug) {
-			var canvas = document.createElement("canvas");
-
-			canvas.width = maxCubeMapTextureSize;
-			canvas.height = maxCubeMapTextureSize;
-			var context = canvas.getContext("2d");
-			var tilePerRow = width / tileSize;
-
-			for (var surfaceIdx = 0; surfaceIdx < 6; surfaceIdx++) {
-				var x = tileSize * surfaceIdx % tileSize;
-				var y = parseInt(surfaceIdx / tilePerRow, 10) * (tileSize * heightScale);
-
-				context.drawImage(image, x, y, tileSize, tileSize * heightScale, 0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize);
-
-				gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
-			}
-		} else {
-			// #288, drawImage bug
-			var halfCanvas = document.createElement("canvas");
-			var _context = halfCanvas.getContext("2d");
-
-			halfCanvas.width = maxCubeMapTextureSize * 3;
-			halfCanvas.height = maxCubeMapTextureSize;
-
-			var tileCanvas = document.createElement("canvas");
-			var tileContext = tileCanvas.getContext("2d");
-
-			tileCanvas.width = maxCubeMapTextureSize;
-			tileCanvas.height = maxCubeMapTextureSize;
-
-			for (var i = 0; i < 2; i++) {
-				_context.save();
-				_context.translate(0, maxCubeMapTextureSize);
-				_context.rotate(-Math.PI / 2);
-				_context.scale(1 / 3, 3);
-				_context.drawImage(image, 0, width * 3 * i * heightScale, width, height / 2 * heightScale, 0, 0, halfCanvas.width, halfCanvas.height);
-				_context.restore();
-				for (var j = 0; j < 3; j++) {
-					tileContext.save();
-					tileContext.translate(maxCubeMapTextureSize, 0);
-					tileContext.rotate(Math.PI / 2);
-					tileContext.drawImage(halfCanvas, j * width, 0, width, width, 0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize);
-					tileContext.restore();
-					gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i * 3 + j, 0, gl.RGBA, maxCubeMapTextureSize, maxCubeMapTextureSize, 0, gl.RGBA, gl.UNSIGNED_BYTE, tileCanvas);
-				}
-			}
-		}
-	};
-
 	CubeRenderer.getMaxCubeMapTextureSize = function getMaxCubeMapTextureSize(gl, image) {
 		var agent = (0, _agent2["default"])();
 		var maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
@@ -10667,38 +10598,6 @@ var CubeRenderer = function (_Renderer) {
 		}
 		// maxCubeMapTextureSize 보다는 작고, imageWidth 보다 큰 2의 승수 중 가장 작은 수
 		return Math.min(maxCubeMapTextureSize, _imageWidth);
-	};
-
-	CubeRenderer.getHightScale = function getHightScale(width, agent) {
-		// 안드로이드 4.3 이하 크롬과 안드로이드 5.0.2 삼성브라우저 버그해결을 위해 세로크기에 스케일값 적용
-		// 참고 : https://code.google.com/p/android/issues/detail?id=5141
-		var heightScale = 1;
-
-		// TODO : 갤럭시 S브라우저에서 drawImage 메서드의 이미지, height 값이 일정 비율로 뻥튀기 되는 버그가 있다.
-		// 추후 drawImage 메서드를 사용하지 않는 방식으로 개선하여 해당 버그를 접할 일이 없도록 해야 함.
-		if (agent.os.name === "android") {
-			if (parseFloat(agent.os.version) <= 4.3 && agent.browser.name === "chrome" || agent.os.version === "5.0.2" && agent.browser.name === "samsung internet" || agent.os.version === "5.1.1" && agent.browser.name === "samsung internet" && window.navigator.userAgent.indexOf("SM-N920") !== -1 &&
-			// 삼성인터넷 버전 4 미만
-			parseFloat(window.navigator.userAgent.split("SamsungBrowser/")[1].split(" ")[0]) < 4) {
-				heightScale = 768 / width;
-			} else if (agent.os.version === "5.0" && agent.browser.name === "samsung internet" && window.navigator.userAgent.indexOf("SM-G900") !== -1) {
-				heightScale = 1344 / width;
-			}
-		}
-
-		return heightScale;
-	};
-
-	CubeRenderer.hasDrawImageBug = function hasDrawImageBug(agent) {
-		var hasBug = false;
-
-		if (agent.browser.name === "samsung internet" &&
-		// 삼성인터넷 버전 5 미만
-		parseFloat(window.navigator.userAgent.split("SamsungBrowser/")[1].split(" ")[0]) < 5 || agent.os.name === "ios" && parseInt(agent.os.version, 10) <= 9) {
-			hasBug = true;
-		}
-
-		return hasBug;
 	};
 
 	return CubeRenderer;

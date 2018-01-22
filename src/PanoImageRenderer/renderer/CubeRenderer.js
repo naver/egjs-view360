@@ -232,85 +232,6 @@ export default class CubeRenderer extends Renderer {
 		return canvas;
 	}
 
-	static texImage2D(gl, image) {
-		const agent = Agent();
-		const width = image.naturalWidth || image.videoWidth;
-		const height = image.naturalHeight || image.videoHeight;
-		const hasDrawImageBug = CubeRenderer.hasDrawImageBug(agent);
-		const maxCubeMapTextureSize = CubeRenderer.getMaxCubeMapTextureSize(gl, image, agent);
-		const heightScale = CubeRenderer.getHightScale(width, agent);
-		const aspectRatio = width / height;
-		let tileSize;
-
-		if (aspectRatio === 1 / 6) {
-			tileSize = width;
-		} else if (aspectRatio === 6) {
-			tileSize = height;
-		} else if (aspectRatio === 2 / 3) {
-			tileSize = width / 2;
-		} else {
-			tileSize = width / 3;
-		}
-
-		if (!hasDrawImageBug) {
-			const canvas = document.createElement("canvas");
-
-			canvas.width = maxCubeMapTextureSize;
-			canvas.height = maxCubeMapTextureSize;
-			const context = canvas.getContext("2d");
-			const tilePerRow = width / tileSize;
-
-			for (let surfaceIdx = 0; surfaceIdx < 6; surfaceIdx++) {
-				const x = (tileSize * surfaceIdx) % tileSize;
-				const y = parseInt(surfaceIdx / tilePerRow, 10) * (tileSize * heightScale);
-
-				context.drawImage(
-					image, x, y,
-					tileSize, tileSize * heightScale, 0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize);
-
-				gl.texImage2D(
-					gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, 0, gl.RGBA,
-					gl.RGBA, gl.UNSIGNED_BYTE, canvas);
-			}
-		} else {
-			// #288, drawImage bug
-			const halfCanvas = document.createElement("canvas");
-			const context = halfCanvas.getContext("2d");
-
-			halfCanvas.width = maxCubeMapTextureSize * 3;
-			halfCanvas.height = maxCubeMapTextureSize;
-
-			const tileCanvas = document.createElement("canvas");
-			const tileContext = tileCanvas.getContext("2d");
-
-			tileCanvas.width = maxCubeMapTextureSize;
-			tileCanvas.height = maxCubeMapTextureSize;
-
-			for (let i = 0; i < 2; i++) {
-				context.save();
-				context.translate(0, maxCubeMapTextureSize);
-				context.rotate(-Math.PI / 2);
-				context.scale(1 / 3, 3);
-				context.drawImage(
-					image, 0, width * 3 * i * heightScale, width, height / 2 * heightScale,
-					0, 0, halfCanvas.width, halfCanvas.height);
-				context.restore();
-				for (let j = 0; j < 3; j++) {
-					tileContext.save();
-					tileContext.translate(maxCubeMapTextureSize, 0);
-					tileContext.rotate(Math.PI / 2);
-					tileContext.drawImage(
-						halfCanvas, j * width, 0, width, width, 0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize);
-					tileContext.restore();
-					gl.texImage2D(
-						gl.TEXTURE_CUBE_MAP_POSITIVE_X + i * 3 + j, 0,
-						gl.RGBA, maxCubeMapTextureSize, maxCubeMapTextureSize, 0,
-						gl.RGBA, gl.UNSIGNED_BYTE, tileCanvas);
-				}
-			}
-		}
-	}
-
 	static getMaxCubeMapTextureSize(gl, image) {
 		const agent = Agent();
 		const maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
@@ -338,45 +259,6 @@ export default class CubeRenderer extends Renderer {
 		}
 		// maxCubeMapTextureSize 보다는 작고, imageWidth 보다 큰 2의 승수 중 가장 작은 수
 		return Math.min(maxCubeMapTextureSize, _imageWidth);
-	}
-
-	static getHightScale(width, agent) {
-		// 안드로이드 4.3 이하 크롬과 안드로이드 5.0.2 삼성브라우저 버그해결을 위해 세로크기에 스케일값 적용
-		// 참고 : https://code.google.com/p/android/issues/detail?id=5141
-		let heightScale = 1;
-
-		// TODO : 갤럭시 S브라우저에서 drawImage 메서드의 이미지, height 값이 일정 비율로 뻥튀기 되는 버그가 있다.
-		// 추후 drawImage 메서드를 사용하지 않는 방식으로 개선하여 해당 버그를 접할 일이 없도록 해야 함.
-		if (agent.os.name === "android") {
-			if ((parseFloat(agent.os.version) <= 4.3 && agent.browser.name === "chrome") ||
-				(agent.os.version === "5.0.2" && agent.browser.name === "samsung internet") ||
-				(agent.os.version === "5.1.1" && agent.browser.name === "samsung internet" &&
-					window.navigator.userAgent.indexOf("SM-N920") !== -1 &&
-					// 삼성인터넷 버전 4 미만
-					parseFloat(window.navigator.userAgent.split("SamsungBrowser/")[1].split(" ")[0]) < 4)
-			) {
-				heightScale = 768 / width;
-			} else if (agent.os.version === "5.0" && agent.browser.name === "samsung internet" &&
-				window.navigator.userAgent.indexOf("SM-G900") !== -1
-			) {
-				heightScale = 1344 / width;
-			}
-		}
-
-		return heightScale;
-	}
-
-	static hasDrawImageBug(agent) {
-		let hasBug = false;
-
-		if ((agent.browser.name === "samsung internet" &&
-				// 삼성인터넷 버전 5 미만
-				parseFloat(window.navigator.userAgent.split("SamsungBrowser/")[1].split(" ")[0]) < 5) ||
-				(agent.os.name === "ios" && (parseInt(agent.os.version, 10) <= 9))) {
-			hasBug = true;
-		}
-
-		return hasBug;
 	}
 }
 
