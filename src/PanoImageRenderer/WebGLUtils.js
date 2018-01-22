@@ -1,4 +1,5 @@
 import agent from "@egjs/agent";
+import {userAgent} from "./browser";
 
 const WEBGL_ERROR_CODE = {
 	"0": "NO_ERROR",
@@ -75,6 +76,9 @@ export default class WebGLUtils {
 	static getWebglContext(canvas) {
 		const webglIdentifiers = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
 		let context = null;
+		const shouldPreserveDrawingBuffer =
+			!(userAgent.indexOf("NAVER") !== -1 && userAgent.indexOf("SM-G925S") !== -1);
+
 
 		function onWebglcontextcreationerror(e) {
 			return e.statusMessage;
@@ -86,7 +90,7 @@ export default class WebGLUtils {
 			try {
 				// preserveDrawingBuffer: if true, the Galaxy s6 Naver app will experience tremor
 				context = canvas.getContext(webglIdentifiers[i], {
-					preserveDrawingBuffer: false,
+					preserveDrawingBuffer: shouldPreserveDrawingBuffer,
 					antialias: false /* TODO: Make it user option for antialiasing */
 				});
 			} catch (t) {}

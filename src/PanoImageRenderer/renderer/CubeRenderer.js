@@ -19,16 +19,16 @@ export default class CubeRenderer extends Renderer {
 				-1, 1, -1,
 
 				// top
+				-1, 1, -1,
 				1, 1, -1,
 				1, 1, 1,
 				-1, 1, 1,
-				-1, 1, -1,
 
 				// bottom
+				1, -1, -1,
 				-1, -1, -1,
 				-1, -1, 1,
 				1, -1, 1,
-				1, -1, -1,
 
 				// right
 				1, -1, -1,
@@ -69,19 +69,74 @@ export default class CubeRenderer extends Renderer {
 		return indexData;
 	}
 
-	static getTextureCoordData() {
-		return null;
+	static extractTileConfig(imageConfig) {
+		let tileConfig =
+			Array.isArray(imageConfig.tileConfig) ?
+				imageConfig.tileConfig : Array(...Array(6)).map(() => imageConfig.tileConfig);
+
+		tileConfig = tileConfig.map(
+			config => Object.assign({
+				flipHorizontal: false,
+				rotation: 0
+			}, config)
+		);
+
+		return tileConfig;
+	}
+
+	static extractOrder(imageConfig) {
+		return imageConfig.order || "RLUDBF";
+	}
+
+	static getTextureCoordData(imageConfig) {
+		const vertexOrder = "BFUDRL";
+		const order = CubeRenderer.extractOrder(imageConfig);
+		const base = CubeRenderer.getVertexPositionData();
+		const tileConfig = CubeRenderer.extractTileConfig(imageConfig);
+		const elemSize = 3;
+		const vertexPerTile = 4;
+		const textureCoordData =
+		vertexOrder.split("")
+		.map(face => tileConfig[order.indexOf(face)])
+		.map((config, i) => {
+			const rotation = parseInt(config.rotation / 90, 10);
+			const ordermap_ = config.flipHorizontal ? [0, 1, 2, 3] : [1, 0, 3, 2];
+
+			for (let r = 0; r < Math.abs(rotation); r++) {
+				if ((config.flipHorizontal && rotation > 0) ||
+					(!config.flipHorizontal && rotation < 0)) {
+					ordermap_.push(ordermap_.shift());
+				} else {
+					ordermap_.unshift(ordermap_.pop());
+				}
+			}
+
+			const elemPerTile = elemSize * vertexPerTile;
+			const tileVertex = base.slice(i * elemPerTile, i * elemPerTile + elemPerTile);
+			const tileTemp = [];
+
+			for (let j = 0; j < vertexPerTile; j++) {
+				tileTemp[ordermap_[j]] = tileVertex.splice(0, elemSize);
+			}
+			return tileTemp;
+		})
+		.join()
+		.split(",")
+		.map(v => parseInt(v, 10));
+
+		return textureCoordData;
 	}
 
 	static getVertexShaderSource() {
 		return `
 			attribute vec3 aVertexPosition;
+			attribute vec3 aTextureCoord;
 			uniform mat4 uMVMatrix;
 			uniform mat4 uPMatrix;
 			varying highp vec3 vVertexDirectionVector;
 			void main(void) {
 				gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-				vVertexDirectionVector = aVertexPosition;
+				vVertexDirectionVector = aTextureCoord;
 			}`;
 	}
 
@@ -94,19 +149,87 @@ export default class CubeRenderer extends Renderer {
 			}`;
 	}
 
-	static bindTexture(gl, texture, image) {
+	static bindTexture(gl, texture, image, imageConfig) {
+		const baseOrder = "RLUDBF";
+		const order = CubeRenderer.extractOrder(imageConfig);
+		const orderMap = {};
+
+		order.split("").forEach((v, i) => {
+			orderMap[v] = i;
+		});
+
 		if (!image) {
 			return;
 		}
 
 		try {
-			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
 			gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
 
-			this.texImage2D(gl, image);
+			if (image instanceof Array) {
+				for (let surfaceIdx = 0; surfaceIdx < 6; surfaceIdx++) {
+					const tileIdx = orderMap[baseOrder[surfaceIdx]];
+
+					gl.texImage2D(
+						gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, 0, gl.RGBA,
+						gl.RGBA, gl.UNSIGNED_BYTE, image[tileIdx]);
+				}
+			} else {
+				const maxCubeMapTextureSize = CubeRenderer.getMaxCubeMapTextureSize(gl, image);
+
+				for (let surfaceIdx = 0; surfaceIdx < 6; surfaceIdx++) {
+					const tileIdx = orderMap[baseOrder[surfaceIdx]];
+					const tile = CubeRenderer.extractTileFromImage(
+						image, tileIdx, maxCubeMapTextureSize
+					);
+
+					gl.texImage2D(
+						gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, 0, gl.RGBA,
+						gl.RGBA, gl.UNSIGNED_BYTE, tile
+					);
+				}
+			}
 		} catch (e) {
 
 		}
+	}
+
+	static getSourceTileSize(image) {
+		const width = image.naturalWidth || image.videoWidth;
+		const height = image.naturalHeight || image.videoHeight;
+		const aspectRatio = width / height;
+		let inputTextureSize;
+
+		if (aspectRatio === 1 / 6) {
+			inputTextureSize = width;
+		} else if (aspectRatio === 6) {
+			inputTextureSize = height;
+		} else if (aspectRatio === 2 / 3) {
+			inputTextureSize = width / 2;
+		} else {
+			inputTextureSize = width / 3;
+		}
+		return inputTextureSize;
+	}
+
+	static extractTileFromImage(image, tileIdx, outputTextureSize) {
+		const width = image.naturalWidth || image.videoWidth;
+		const inputTextureSize = CubeRenderer.getSourceTileSize(image);
+
+		const canvas = document.createElement("canvas");
+
+		canvas.width = outputTextureSize;
+		canvas.height = outputTextureSize;
+		const context = canvas.getContext("2d");
+		const tilePerRow = width / inputTextureSize;
+
+		const x = inputTextureSize * tileIdx % (inputTextureSize * tilePerRow);
+		const y = parseInt(tileIdx / tilePerRow, 10) * (inputTextureSize);
+
+		context.drawImage(
+			image, x, y,
+			inputTextureSize, inputTextureSize, 0, 0, outputTextureSize, outputTextureSize
+		);
+		return canvas;
 	}
 
 	static texImage2D(gl, image) {
@@ -116,6 +239,18 @@ export default class CubeRenderer extends Renderer {
 		const hasDrawImageBug = CubeRenderer.hasDrawImageBug(agent);
 		const maxCubeMapTextureSize = CubeRenderer.getMaxCubeMapTextureSize(gl, image, agent);
 		const heightScale = CubeRenderer.getHightScale(width, agent);
+		const aspectRatio = width / height;
+		let tileSize;
+
+		if (aspectRatio === 1 / 6) {
+			tileSize = width;
+		} else if (aspectRatio === 6) {
+			tileSize = height;
+		} else if (aspectRatio === 2 / 3) {
+			tileSize = width / 2;
+		} else {
+			tileSize = width / 3;
+		}
 
 		if (!hasDrawImageBug) {
 			const canvas = document.createElement("canvas");
@@ -123,11 +258,16 @@ export default class CubeRenderer extends Renderer {
 			canvas.width = maxCubeMapTextureSize;
 			canvas.height = maxCubeMapTextureSize;
 			const context = canvas.getContext("2d");
+			const tilePerRow = width / tileSize;
 
 			for (let surfaceIdx = 0; surfaceIdx < 6; surfaceIdx++) {
+				const x = (tileSize * surfaceIdx) % tileSize;
+				const y = parseInt(surfaceIdx / tilePerRow, 10) * (tileSize * heightScale);
+
 				context.drawImage(
-					image, 0, surfaceIdx * (width * heightScale),
-					width, width * heightScale, 0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize);
+					image, x, y,
+					tileSize, tileSize * heightScale, 0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize);
+
 				gl.texImage2D(
 					gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, 0, gl.RGBA,
 					gl.RGBA, gl.UNSIGNED_BYTE, canvas);
@@ -171,9 +311,10 @@ export default class CubeRenderer extends Renderer {
 		}
 	}
 
-	static getMaxCubeMapTextureSize(gl, image, agent) {
+	static getMaxCubeMapTextureSize(gl, image) {
+		const agent = Agent();
 		const maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
-		let _imageWidth = image.naturalWidth || image.videoWidth;
+		let _imageWidth = CubeRenderer.getSourceTileSize(image);
 
 		if (agent.browser.name === "ie" && parseInt(agent.browser.version, 10) === 11) {
 			if (!util.isPowerOfTwo(_imageWidth)) {

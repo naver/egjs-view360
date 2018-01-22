@@ -2836,9 +2836,11 @@ exports["default"] = SpriteImage;
 
 exports.__esModule = true;
 
-var _agent = __webpack_require__(13);
+var _agent = __webpack_require__(14);
 
 var _agent2 = _interopRequireDefault(_agent);
+
+var _browser = __webpack_require__(11);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -2923,6 +2925,7 @@ var WebGLUtils = function () {
 	WebGLUtils.getWebglContext = function getWebglContext(canvas) {
 		var webglIdentifiers = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
 		var context = null;
+		var shouldPreserveDrawingBuffer = !(_browser.userAgent.indexOf("NAVER") !== -1 && _browser.userAgent.indexOf("SM-G925S") !== -1);
 
 		function onWebglcontextcreationerror(e) {
 			return e.statusMessage;
@@ -2934,7 +2937,7 @@ var WebGLUtils = function () {
 			try {
 				// preserveDrawingBuffer: if true, the Galaxy s6 Naver app will experience tremor
 				context = canvas.getContext(webglIdentifiers[i], {
-					preserveDrawingBuffer: false,
+					preserveDrawingBuffer: shouldPreserveDrawingBuffer,
 					antialias: false /* TODO: Make it user option for antialiasing */
 				});
 			} catch (t) {}
@@ -3030,6 +3033,17 @@ exports["default"] = WebGLUtils;
 
 
 exports.__esModule = true;
+var userAgent = exports.userAgent = navigator.userAgent;
+var devicePixelRatio = exports.devicePixelRatio = window.devicePixelRatio;
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -3040,7 +3054,7 @@ var Renderer = function Renderer() {
 exports["default"] = Renderer;
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3064,7 +3078,7 @@ exports["default"] = util;
 exports.toAxis = toAxis;
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -3534,7 +3548,7 @@ module.exports = exports["default"];
 });
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3563,7 +3577,7 @@ _YawPitchControl2["default"].TOUCH_DIRECTION_NONE = _consts.TOUCH_DIRECTION_NONE
 exports.YawPitchControl = _YawPitchControl2["default"];
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3577,7 +3591,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _YawPitchControl = __webpack_require__(14);
+var _YawPitchControl = __webpack_require__(15);
 
 var _PanoImageRenderer = __webpack_require__(23);
 
@@ -3608,9 +3622,9 @@ var PanoViewer = function (_Component) {
   * @param {HTMLElement} container The container element for the renderer. <ko>렌더러의 컨테이너 엘리먼트</ko>
   * @param {Object} config
   *
-  * @param {String|Image} config.image Input image url or image object<ko>입력 이미지 URL 혹은 이미지 객체(image 와 video 둘 중 하나만 설정한다.)</ko>
-  * @param {String|HTMLVideoElement} config.video Input video url or tag<ko>입력 비디오 URL 혹은 video 태그(image 와 video 둘 중 하나만 설정한다.)</ko>
-  * @param {String} [config.projectionType=equirectangular] The type of projection: equirectangular, vertival_cubestrip <ko>Projection 유형 : equirectangular, vertival_cubestrip</ko>
+  * @param {String|Image|Object} config.image Input image url or element or config object<ko>입력 이미지 URL 혹은 엘리먼트 혹은 설정객체를 활용(image 와 video 둘 중 하나만 설정한다.)</ko>
+  * @param {String|HTMLVideoElement|Object} config.video Input video url or element or config object<ko>입력 비디오 URL 혹은 엘리먼트 혹은 설정객체를 활용(image 와 video 둘 중 하나만 설정한다.)</ko>
+  * @param {String} [config.projectionType=equirectangular] The type of projection: equirectangular, cubemap <ko>Projection 유형 : equirectangular, cubemap</ko>
   * @param {Number} [config.width=width of container] the viewer's width. (in px) <ko>뷰어의 너비 (px 단위)</ko>
   * @param {Number} [config.height=height of container] the viewer's height.(in px) <ko>뷰어의 높이 (px 단위)</ko>
   *
@@ -3726,7 +3740,7 @@ var PanoViewer = function (_Component) {
   * Setting the video information to be used by the viewer.
   * @ko 뷰어가 사용할 이미지 정보를 설정 합니다.
   * @method eg.view360.PanoViewer#setVideo
-  * @param {String|HTMLVideoElement} video Video URL or Video Tag<ko>비디오 URL 혹은 비디오 태그</ko>
+  * @param {String|HTMLVideoElement|Object} video Input video url or element or config object<ko>입력 비디오 URL 혹은 엘리먼트 혹은 설정객체를 활용(image 와 video 둘 중 하나만 설정한다.)</ko>
   * @param {Object} param
   * @param {String} [param.projectionType="equirectangular"] Projection Type<ko>프로젝션 타입</ko>
   *
@@ -3765,7 +3779,7 @@ var PanoViewer = function (_Component) {
   * Setting the image information to be used by the viewer.
   * @ko 뷰어가 사용할 이미지 정보를 설정 합니다.
   * @method eg.view360.PanoViewer#setImage
-  * @param {String|Image} image ImageURL or Image Object<ko>이미지 URL 혹은 Image 객체</ko>
+  * @param {String|Image|Object} image Input image url or element or config object<ko>입력 이미지 URL 혹은 엘리먼트 혹은 설정객체를 활용(image 와 video 둘 중 하나만 설정한다.)</ko>
   * @param {Object} param Additional information<ko>이미지 추가 정보</ko>
   * @param {String} [param.projectionType="equirectangular"] Projection Type<ko>프로젝션 타입</ko>
   *
@@ -4344,7 +4358,7 @@ PanoViewer.EVENTS = _consts.EVENTS;
 PanoViewer.ProjectionType = _PanoImageRenderer.PanoImageRenderer.ImageType;
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4353,7 +4367,7 @@ PanoViewer.ProjectionType = _PanoImageRenderer.PanoImageRenderer.ImageType;
 exports.__esModule = true;
 exports.PanoViewer = undefined;
 
-var _PanoViewer = __webpack_require__(15);
+var _PanoViewer = __webpack_require__(16);
 
 var _PanoViewer2 = _interopRequireDefault(_PanoViewer);
 
@@ -4362,7 +4376,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 exports.PanoViewer = _PanoViewer2["default"];
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4587,7 +4601,7 @@ var SpinViewer = function (_Component) {
 exports["default"] = SpinViewer;
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4596,7 +4610,7 @@ exports["default"] = SpinViewer;
 exports.__esModule = true;
 exports.SpriteImage = exports.SpinViewer = undefined;
 
-var _SpinViewer = __webpack_require__(17);
+var _SpinViewer = __webpack_require__(18);
 
 var _SpinViewer2 = _interopRequireDefault(_SpinViewer);
 
@@ -4613,7 +4627,7 @@ exports.SpriteImage = _SpriteImage2["default"];
 _SpinViewer2["default"].VERSION = "3.0.0-rc";
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4807,7 +4821,7 @@ exports["default"] = ImageLoader;
 ImageLoader.STATUS = STATUS;
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4815,15 +4829,17 @@ ImageLoader.STATUS = STATUS;
 
 exports.__esModule = true;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _ImageLoader = __webpack_require__(19);
+var _ImageLoader = __webpack_require__(20);
 
 var _ImageLoader2 = _interopRequireDefault(_ImageLoader);
 
-var _VideoLoader = __webpack_require__(21);
+var _VideoLoader = __webpack_require__(22);
 
 var _VideoLoader2 = _interopRequireDefault(_VideoLoader);
 
@@ -4841,7 +4857,7 @@ var _SphereRenderer2 = _interopRequireDefault(_SphereRenderer);
 
 var _mathUtil = __webpack_require__(1);
 
-var _browser = __webpack_require__(22);
+var _browser = __webpack_require__(11);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -4855,7 +4871,7 @@ var _Promise = typeof Promise === 'undefined' ? __webpack_require__(3).Promise :
 
 var ImageType = {
 	EQUIRECTANGULAR: "equirectangular",
-	VERTICAL_CUBESTRIP: "vertical_cubestrip"
+	CUBEMAP: "cubemap"
 };
 
 var DEVICE_PIXEL_RATIO = _browser.devicePixelRatio || 1;
@@ -4918,6 +4934,8 @@ var PanoImageRenderer = function (_Component) {
 		_this.canvas = _this._initCanvas(width, height);
 
 		_this._image = null;
+		_this._imageConfig = image && PanoImageRenderer.extractImageConfig(image);
+		_this._imageOrder = image && image.order;
 		_this._imageIsReady = false;
 		_this._shouldForceDraw = false;
 		_this._keepUpdate = false; // Flag to specify 'continuous update' on video even when still.
@@ -4958,7 +4976,7 @@ var PanoImageRenderer = function (_Component) {
 		}
 
 		// img element or img url
-		this._contentLoader.set(image);
+		this._contentLoader.set(PanoImageRenderer.extractImageSource(image));
 
 		// 이미지의 사이즈를 캐시한다.
 		// image is reference for content in contentLoader, so it may be not valid if contentLoader is destroyed.
@@ -4971,14 +4989,32 @@ var PanoImageRenderer = function (_Component) {
 		}); // Prevent exceptions from being isolated in promise chain.
 	};
 
+	PanoImageRenderer.extractImageSource = function extractImageSource(imgParam) {
+		if (typeof imgParam === "string" || imgParam instanceof Array || imgParam.tagName === "IMG" || imgParam.tagName === "VIDEO") {
+			return imgParam;
+		}
+		return imgParam.src;
+	};
+
+	PanoImageRenderer.extractImageConfig = function extractImageConfig(imgParam) {
+		if (typeof imgParam === "string" || imgParam instanceof Array || imgParam.tagName === "IMG" || imgParam.tagName === "VIDEO") {
+			return {};
+		}
+
+		var imageConfig = _extends({}, imgParam);
+
+		delete imageConfig.src;
+		return imageConfig;
+	};
+
 	PanoImageRenderer.prototype._setImageType = function _setImageType(imageType) {
 		if (!imageType || this._imageType === imageType) {
 			return;
 		}
 
 		this._imageType = imageType;
-		this._isCubeStrip = imageType === ImageType.VERTICAL_CUBESTRIP;
-		this._renderer = this._isCubeStrip ? _CubeRenderer2["default"] : _SphereRenderer2["default"];
+		this._isCubeMap = imageType === ImageType.CUBEMAP;
+		this._renderer = this._isCubeMap ? _CubeRenderer2["default"] : _SphereRenderer2["default"];
 		this._initWebGL();
 	};
 
@@ -5093,7 +5129,7 @@ var PanoImageRenderer = function (_Component) {
 	PanoImageRenderer.prototype.hasRenderingContext = function hasRenderingContext() {
 		if (!(this.context && !this.context.isContextLost())) {
 			return false;
-		} else if (!this.context.getProgramParameter(this.shaderProgram, this.context.LINK_STATUS)) {
+		} else if (this.context && !this.context.getProgramParameter(this.shaderProgram, this.context.LINK_STATUS)) {
 			return false;
 		}
 		return true;
@@ -5174,7 +5210,7 @@ var PanoImageRenderer = function (_Component) {
 		}
 		// 캔버스를 투명으로 채운다.
 		this.context.clearColor(0, 0, 0, 0);
-		var textureTarget = this._isCubeStrip ? this.context.TEXTURE_CUBE_MAP : this.context.TEXTURE_2D;
+		var textureTarget = this._isCubeMap ? this.context.TEXTURE_CUBE_MAP : this.context.TEXTURE_2D;
 
 		if (this.texture) {
 			this.context.deleteTexture(this.texture);
@@ -5226,10 +5262,8 @@ var PanoImageRenderer = function (_Component) {
 		shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
 		shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
 		shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
-		if (!this._isCubeStrip) {
-			shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
-			gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
-		}
+		shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
+		gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 
 		// clear buffer
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
@@ -5242,20 +5276,18 @@ var PanoImageRenderer = function (_Component) {
 	PanoImageRenderer.prototype._initBuffers = function _initBuffers() {
 		var vertexPositionData = this._renderer.getVertexPositionData();
 		var indexData = this._renderer.getIndexData();
-		var textureCoordData = this._renderer.getTextureCoordData();
+		var textureCoordData = this._renderer.getTextureCoordData(this._imageConfig);
 		var gl = this.context;
 
 		this.vertexBuffer = _WebGLUtils2["default"].initBuffer(gl, gl.ARRAY_BUFFER, new Float32Array(vertexPositionData), 3, this.shaderProgram.vertexPositionAttribute);
 
 		this.indexBuffer = _WebGLUtils2["default"].initBuffer(gl, gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexData), 1);
 
-		if (textureCoordData !== null) {
-			this.textureCoordBuffer = _WebGLUtils2["default"].initBuffer(gl, gl.ARRAY_BUFFER, new Float32Array(textureCoordData), 2, this.shaderProgram.textureCoordAttribute);
-		}
+		this.textureCoordBuffer = _WebGLUtils2["default"].initBuffer(gl, gl.ARRAY_BUFFER, new Float32Array(textureCoordData), this._isCubeMap ? 3 : 2, this.shaderProgram.textureCoordAttribute);
 	};
 
 	PanoImageRenderer.prototype._bindTexture = function _bindTexture() {
-		this._renderer.bindTexture(this.context, this.texture, this._image);
+		this._renderer.bindTexture(this.context, this.texture, this._image, this._imageConfig);
 		this._shouldForceDraw = true;
 
 		this.trigger(EVENTS.BIND_TEXTURE);
@@ -5286,7 +5318,7 @@ var PanoImageRenderer = function (_Component) {
 
 		_mathUtil.mat4.identity(this.mvMatrix);
 		_mathUtil.mat4.rotateX(this.mvMatrix, this.mvMatrix, -_mathUtil.glMatrix.toRadian(pitch));
-		_mathUtil.mat4.rotateY(this.mvMatrix, this.mvMatrix, -_mathUtil.glMatrix.toRadian(yaw - (this._isCubeStrip ? 0 : 90)));
+		_mathUtil.mat4.rotateY(this.mvMatrix, this.mvMatrix, -_mathUtil.glMatrix.toRadian(yaw - (this._isCubeMap ? 0 : 90)));
 
 		this._draw();
 
@@ -5304,7 +5336,7 @@ var PanoImageRenderer = function (_Component) {
 		gl.uniformMatrix4fv(this.shaderProgram.mvMatrixUniform, false, this.mvMatrix);
 
 		if (this._isVideo) {
-			this._renderer.texImage2D(this.context, this._image);
+			this._bindTexture();
 		}
 
 		if (this.indexBuffer) {
@@ -5323,7 +5355,7 @@ PanoImageRenderer.ERROR_TYPE = ERROR_TYPE;
 PanoImageRenderer.ImageType = ImageType;
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5473,16 +5505,6 @@ var VideoLoader = function () {
 exports["default"] = VideoLoader;
 
 /***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-var devicePixelRatio = exports.devicePixelRatio = window.devicePixelRatio;
-
-/***/ }),
 /* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -5492,7 +5514,7 @@ var devicePixelRatio = exports.devicePixelRatio = window.devicePixelRatio;
 exports.__esModule = true;
 exports.WebGLUtils = exports.PanoImageRenderer = undefined;
 
-var _PanoImageRenderer = __webpack_require__(20);
+var _PanoImageRenderer = __webpack_require__(21);
 
 var _PanoImageRenderer2 = _interopRequireDefault(_PanoImageRenderer);
 
@@ -5514,11 +5536,13 @@ exports.WebGLUtils = _WebGLUtils2["default"];
 
 exports.__esModule = true;
 
-var _agent = __webpack_require__(13);
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _agent = __webpack_require__(14);
 
 var _agent2 = _interopRequireDefault(_agent);
 
-var _Renderer2 = __webpack_require__(11);
+var _Renderer2 = __webpack_require__(12);
 
 var _Renderer3 = _interopRequireDefault(_Renderer2);
 
@@ -5550,10 +5574,10 @@ var CubeRenderer = function (_Renderer) {
 		-1, -1, -1, 1, -1, -1, 1, 1, -1, -1, 1, -1,
 
 		// top
-		1, 1, -1, 1, 1, 1, -1, 1, 1, -1, 1, -1,
+		-1, 1, -1, 1, 1, -1, 1, 1, 1, -1, 1, 1,
 
 		// bottom
-		-1, -1, -1, -1, -1, 1, 1, -1, 1, 1, -1, -1,
+		1, -1, -1, -1, -1, -1, -1, -1, 1, 1, -1, 1,
 
 		// right
 		1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, -1,
@@ -5580,29 +5604,138 @@ var CubeRenderer = function (_Renderer) {
 		return indexData;
 	};
 
-	CubeRenderer.getTextureCoordData = function getTextureCoordData() {
-		return null;
+	CubeRenderer.extractTileConfig = function extractTileConfig(imageConfig) {
+		var tileConfig = Array.isArray(imageConfig.tileConfig) ? imageConfig.tileConfig : Array.apply(undefined, Array(6)).map(function () {
+			return imageConfig.tileConfig;
+		});
+
+		tileConfig = tileConfig.map(function (config) {
+			return _extends({
+				flipHorizontal: false,
+				rotation: 0
+			}, config);
+		});
+
+		return tileConfig;
+	};
+
+	CubeRenderer.extractOrder = function extractOrder(imageConfig) {
+		return imageConfig.order || "RLUDBF";
+	};
+
+	CubeRenderer.getTextureCoordData = function getTextureCoordData(imageConfig) {
+		var vertexOrder = "BFUDRL";
+		var order = CubeRenderer.extractOrder(imageConfig);
+		var base = CubeRenderer.getVertexPositionData();
+		var tileConfig = CubeRenderer.extractTileConfig(imageConfig);
+		var elemSize = 3;
+		var vertexPerTile = 4;
+		var textureCoordData = vertexOrder.split("").map(function (face) {
+			return tileConfig[order.indexOf(face)];
+		}).map(function (config, i) {
+			var rotation = parseInt(config.rotation / 90, 10);
+			var ordermap_ = config.flipHorizontal ? [0, 1, 2, 3] : [1, 0, 3, 2];
+
+			for (var r = 0; r < Math.abs(rotation); r++) {
+				if (config.flipHorizontal && rotation > 0 || !config.flipHorizontal && rotation < 0) {
+					ordermap_.push(ordermap_.shift());
+				} else {
+					ordermap_.unshift(ordermap_.pop());
+				}
+			}
+
+			var elemPerTile = elemSize * vertexPerTile;
+			var tileVertex = base.slice(i * elemPerTile, i * elemPerTile + elemPerTile);
+			var tileTemp = [];
+
+			for (var j = 0; j < vertexPerTile; j++) {
+				tileTemp[ordermap_[j]] = tileVertex.splice(0, elemSize);
+			}
+			return tileTemp;
+		}).join().split(",").map(function (v) {
+			return parseInt(v, 10);
+		});
+
+		return textureCoordData;
 	};
 
 	CubeRenderer.getVertexShaderSource = function getVertexShaderSource() {
-		return "\n\t\t\tattribute vec3 aVertexPosition;\n\t\t\tuniform mat4 uMVMatrix;\n\t\t\tuniform mat4 uPMatrix;\n\t\t\tvarying highp vec3 vVertexDirectionVector;\n\t\t\tvoid main(void) {\n\t\t\t\tgl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n\t\t\t\tvVertexDirectionVector = aVertexPosition;\n\t\t\t}";
+		return "\n\t\t\tattribute vec3 aVertexPosition;\n\t\t\tattribute vec3 aTextureCoord;\n\t\t\tuniform mat4 uMVMatrix;\n\t\t\tuniform mat4 uPMatrix;\n\t\t\tvarying highp vec3 vVertexDirectionVector;\n\t\t\tvoid main(void) {\n\t\t\t\tgl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n\t\t\t\tvVertexDirectionVector = aTextureCoord;\n\t\t\t}";
 	};
 
 	CubeRenderer.getFragmentShaderSource = function getFragmentShaderSource() {
 		return "\n\t\t\tvarying highp vec3 vVertexDirectionVector;\n\t\t\tuniform samplerCube uSampler;\n\t\t\tvoid main(void) {\n\t\t\t\tgl_FragColor = textureCube(uSampler, vVertexDirectionVector);\n\t\t\t}";
 	};
 
-	CubeRenderer.bindTexture = function bindTexture(gl, texture, image) {
+	CubeRenderer.bindTexture = function bindTexture(gl, texture, image, imageConfig) {
+		var baseOrder = "RLUDBF";
+		var order = CubeRenderer.extractOrder(imageConfig);
+		var orderMap = {};
+
+		order.split("").forEach(function (v, i) {
+			orderMap[v] = i;
+		});
+
 		if (!image) {
 			return;
 		}
 
 		try {
-			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
 			gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
 
-			this.texImage2D(gl, image);
+			if (image instanceof Array) {
+				for (var surfaceIdx = 0; surfaceIdx < 6; surfaceIdx++) {
+					var tileIdx = orderMap[baseOrder[surfaceIdx]];
+
+					gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image[tileIdx]);
+				}
+			} else {
+				var maxCubeMapTextureSize = CubeRenderer.getMaxCubeMapTextureSize(gl, image);
+
+				for (var _surfaceIdx = 0; _surfaceIdx < 6; _surfaceIdx++) {
+					var _tileIdx = orderMap[baseOrder[_surfaceIdx]];
+					var tile = CubeRenderer.extractTileFromImage(image, _tileIdx, maxCubeMapTextureSize);
+
+					gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + _surfaceIdx, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tile);
+				}
+			}
 		} catch (e) {}
+	};
+
+	CubeRenderer.getSourceTileSize = function getSourceTileSize(image) {
+		var width = image.naturalWidth || image.videoWidth;
+		var height = image.naturalHeight || image.videoHeight;
+		var aspectRatio = width / height;
+		var inputTextureSize = void 0;
+
+		if (aspectRatio === 1 / 6) {
+			inputTextureSize = width;
+		} else if (aspectRatio === 6) {
+			inputTextureSize = height;
+		} else if (aspectRatio === 2 / 3) {
+			inputTextureSize = width / 2;
+		} else {
+			inputTextureSize = width / 3;
+		}
+		return inputTextureSize;
+	};
+
+	CubeRenderer.extractTileFromImage = function extractTileFromImage(image, tileIdx, outputTextureSize) {
+		var width = image.naturalWidth || image.videoWidth;
+		var inputTextureSize = CubeRenderer.getSourceTileSize(image);
+
+		var canvas = document.createElement("canvas");
+
+		canvas.width = outputTextureSize;
+		canvas.height = outputTextureSize;
+		var context = canvas.getContext("2d");
+		var tilePerRow = width / inputTextureSize;
+
+		var x = inputTextureSize * tileIdx % (inputTextureSize * tilePerRow);
+		var y = parseInt(tileIdx / tilePerRow, 10) * inputTextureSize;
+
+		context.drawImage(image, x, y, inputTextureSize, inputTextureSize, 0, 0, outputTextureSize, outputTextureSize);
+		return canvas;
 	};
 
 	CubeRenderer.texImage2D = function texImage2D(gl, image) {
@@ -5612,6 +5745,18 @@ var CubeRenderer = function (_Renderer) {
 		var hasDrawImageBug = CubeRenderer.hasDrawImageBug(agent);
 		var maxCubeMapTextureSize = CubeRenderer.getMaxCubeMapTextureSize(gl, image, agent);
 		var heightScale = CubeRenderer.getHightScale(width, agent);
+		var aspectRatio = width / height;
+		var tileSize = void 0;
+
+		if (aspectRatio === 1 / 6) {
+			tileSize = width;
+		} else if (aspectRatio === 6) {
+			tileSize = height;
+		} else if (aspectRatio === 2 / 3) {
+			tileSize = width / 2;
+		} else {
+			tileSize = width / 3;
+		}
 
 		if (!hasDrawImageBug) {
 			var canvas = document.createElement("canvas");
@@ -5619,9 +5764,14 @@ var CubeRenderer = function (_Renderer) {
 			canvas.width = maxCubeMapTextureSize;
 			canvas.height = maxCubeMapTextureSize;
 			var context = canvas.getContext("2d");
+			var tilePerRow = width / tileSize;
 
 			for (var surfaceIdx = 0; surfaceIdx < 6; surfaceIdx++) {
-				context.drawImage(image, 0, surfaceIdx * (width * heightScale), width, width * heightScale, 0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize);
+				var x = tileSize * surfaceIdx % tileSize;
+				var y = parseInt(surfaceIdx / tilePerRow, 10) * (tileSize * heightScale);
+
+				context.drawImage(image, x, y, tileSize, tileSize * heightScale, 0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize);
+
 				gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
 			}
 		} else {
@@ -5657,9 +5807,10 @@ var CubeRenderer = function (_Renderer) {
 		}
 	};
 
-	CubeRenderer.getMaxCubeMapTextureSize = function getMaxCubeMapTextureSize(gl, image, agent) {
+	CubeRenderer.getMaxCubeMapTextureSize = function getMaxCubeMapTextureSize(gl, image) {
+		var agent = (0, _agent2["default"])();
 		var maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
-		var _imageWidth = image.naturalWidth || image.videoWidth;
+		var _imageWidth = CubeRenderer.getSourceTileSize(image);
 
 		if (agent.browser.name === "ie" && parseInt(agent.browser.version, 10) === 11) {
 			if (!_mathUtil.util.isPowerOfTwo(_imageWidth)) {
@@ -5735,7 +5886,7 @@ CubeRenderer._INDEX_DATA = null;
 
 exports.__esModule = true;
 
-var _Renderer2 = __webpack_require__(11);
+var _Renderer2 = __webpack_require__(12);
 
 var _Renderer3 = _interopRequireDefault(_Renderer2);
 
@@ -6958,7 +7109,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _utils = __webpack_require__(12);
+var _utils = __webpack_require__(13);
 
 var _FusionPoseSensor = __webpack_require__(30);
 
@@ -7089,7 +7240,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _utils = __webpack_require__(12);
+var _utils = __webpack_require__(13);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -8222,11 +8373,11 @@ module.exports = SensorSample;
 exports.__esModule = true;
 exports.VERSION = exports.SpriteImage = exports.SpinViewer = exports.PanoViewer = exports.YawPitchControl = undefined;
 
-var _YawPitchControl = __webpack_require__(14);
+var _YawPitchControl = __webpack_require__(15);
 
-var _PanoViewer = __webpack_require__(16);
+var _PanoViewer = __webpack_require__(17);
 
-var _SpinViewer = __webpack_require__(18);
+var _SpinViewer = __webpack_require__(19);
 
 var VERSION = "3.0.0-rc";
 
