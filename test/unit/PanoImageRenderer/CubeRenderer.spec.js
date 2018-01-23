@@ -1,5 +1,6 @@
 import CubeRenderer from "../../../src/PanoImageRenderer/renderer/CubeRenderer";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
+import CubeRendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/CubeRenderer";
 
 const WEBGL_AVAILABILITY = WebGLUtils.isWebGLAvailable();
 const IT = WEBGL_AVAILABILITY ? it : it.skip;
@@ -29,6 +30,156 @@ describe("CubeRenderer", () => {
 	const suffix = `_${deviceRatio}x.png`;
 
 	describe("static", () => {
+
+		describe("getMaxCubeMapTextureSize", () => {
+			let canvas = null;
+			let gl = null;
+
+			beforeEach(() => {
+				canvas = document.createElement("canvas");
+				gl = WebGLUtils.getWebglContext(canvas);
+			});
+
+			afterEach(() => {
+				canvas = null;
+				gl = null;
+			});
+
+			IT("should return 1536 on chrome when input size is 1536", done => {
+				// Given
+				const img = new Image();
+				img.src = "./images/test_cube_2x3_LRUDBF.jpg";
+				img.onload = function() {
+					// When
+					const textureSize = CubeRenderer.getMaxCubeMapTextureSize(gl, img);
+
+					// Then
+					expect(textureSize).to.be.equal(1536);
+					done();
+				};
+			});
+
+			IT("should return 512 on ios 8 when input size is 1536", done => {
+				// Given
+				let MockedCubeRenderer = CubeRendererInjector(
+					{
+						"@egjs/agent": function() {
+							return {
+								browser: {
+									name: "safari"
+								},
+								os: {
+									name: "ios",
+									version: "8"
+								}
+							};
+						}
+					}
+				).default;
+				const img = new Image();
+
+				img.src = "./images/test_cube_2x3_LRUDBF.jpg";
+				img.onload = function() {
+					// When
+					const textureSize = MockedCubeRenderer.getMaxCubeMapTextureSize(gl, img);
+
+					// Then
+					expect(textureSize).to.be.equal(512);
+					done();
+				};
+			});
+			IT("should return 1024 on ios 9 when input size is 1536", done => {
+				// Given
+				let MockedCubeRenderer = CubeRendererInjector(
+					{
+						"@egjs/agent": function() {
+							return {
+								browser: {
+									name: "safari"
+								},
+								os: {
+									name: "ios",
+									version: "9"
+								}
+							};
+						}
+					}
+				).default;
+				const img = new Image();
+
+				img.src = "./images/test_cube_2x3_LRUDBF.jpg";
+				img.onload = function() {
+					// When
+					const textureSize = MockedCubeRenderer.getMaxCubeMapTextureSize(gl, img);
+
+					// Then
+					expect(textureSize).to.be.equal(1024);
+					done();
+				};
+			});
+			IT("should return 2048 on ie11 when input size is 1536", done => {
+				// Given
+				let MockedCubeRenderer = CubeRendererInjector(
+					{
+						"@egjs/agent": function() {
+							return {
+								browser: {
+									name: "ie",
+									version: "11"
+								},
+								os: {
+									name: "windows",
+									version: "10"
+								}
+							};
+						}
+					}
+				).default;
+				const img = new Image();
+
+				img.src = "./images/test_cube_2x3_LRUDBF.jpg";
+				img.onload = function() {
+					// When
+					const textureSize = MockedCubeRenderer.getMaxCubeMapTextureSize(gl, img);
+
+					// Then
+					expect(textureSize).to.be.equal(2048);
+					done();
+				};
+			});
+			IT("should return 1024 on ie11 when input size is 1024", done => {
+				// Given
+				let MockedCubeRenderer = CubeRendererInjector(
+					{
+						"@egjs/agent": function() {
+							return {
+								browser: {
+									name: "ie",
+									version: "11"
+								},
+								os: {
+									name: "windows",
+									version: "10"
+								}
+							};
+						}
+					}
+				).default;
+				const img = new Image();
+
+				img.src = "./images/test_cube_2x3_LRUDBF_1024.jpg";
+				img.onload = function() {
+					// When
+					const textureSize = MockedCubeRenderer.getMaxCubeMapTextureSize(gl, img);
+
+					// Then
+					expect(textureSize).to.be.equal(1024);
+					done();
+				};
+			});
+		});
+
+
 		describe("extractTileFromImage", () => {
 			IT("1x6 LRUDBF", done => {
 				// Given

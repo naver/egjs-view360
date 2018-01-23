@@ -158,10 +158,6 @@ export default class CubeRenderer extends Renderer {
 			orderMap[v] = i;
 		});
 
-		if (!image) {
-			return;
-		}
-
 		try {
 			gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
 

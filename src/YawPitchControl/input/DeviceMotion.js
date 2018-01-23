@@ -1,4 +1,5 @@
 import Component from "@egjs/component";
+import Agent from "@egjs/agent";
 import {vec3} from "../../utils/math-util";
 import {window} from "../browser";
 
@@ -10,7 +11,7 @@ export default class DeviceMotion extends Component {
 		this._onDeviceMotion = this._onDeviceMotion.bind(this);
 		this._onDeviceOrientation = this._onDeviceOrientation.bind(this);
 
-		this.isAndroid = window.navigator.userAgent.indexOf("Android") !== -1;
+		this.isAndroid = Agent().os.name === "android";
 
 		this.stillGyroVec = vec3.create();
 		this.rawGyroVec = vec3.create();
