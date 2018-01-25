@@ -128,26 +128,6 @@ export default class PanoImageRenderer extends Component {
 			.catch(e => setTimeout(() => { throw e; }));// Prevent exceptions from being isolated in promise chain.
 	}
 
-	static extractImageSource(imgParam) {
-		if (typeof imgParam === "string" || imgParam instanceof Array ||
-			imgParam.tagName === "IMG" || imgParam.tagName === "VIDEO") {
-			return imgParam;
-		}
-		return imgParam.src;
-	}
-
-	static extractImageConfig(imgParam) {
-		if (typeof imgParam === "string" || imgParam instanceof Array ||
-			imgParam.tagName === "IMG" || imgParam.tagName === "VIDEO") {
-			return {};
-		}
-
-		const imageConfig = Object.assign({}, imgParam);
-
-		delete imageConfig.src;
-		return imageConfig;
-	}
-
 	_setImageType(imageType) {
 		if (!imageType || this._imageType === imageType) {
 			return;

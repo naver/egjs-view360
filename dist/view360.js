@@ -5021,24 +5021,6 @@ var PanoImageRenderer = function (_Component) {
 		}); // Prevent exceptions from being isolated in promise chain.
 	};
 
-	PanoImageRenderer.extractImageSource = function extractImageSource(imgParam) {
-		if (typeof imgParam === "string" || imgParam instanceof Array || imgParam.tagName === "IMG" || imgParam.tagName === "VIDEO") {
-			return imgParam;
-		}
-		return imgParam.src;
-	};
-
-	PanoImageRenderer.extractImageConfig = function extractImageConfig(imgParam) {
-		if (typeof imgParam === "string" || imgParam instanceof Array || imgParam.tagName === "IMG" || imgParam.tagName === "VIDEO") {
-			return {};
-		}
-
-		var imageConfig = _extends({}, imgParam);
-
-		delete imageConfig.src;
-		return imageConfig;
-	};
-
 	PanoImageRenderer.prototype._setImageType = function _setImageType(imageType) {
 		if (!imageType || this._imageType === imageType) {
 			return;

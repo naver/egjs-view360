@@ -56,10 +56,9 @@
         container,
         {
             projectionType: "cubemap",
-            video: {
-                src: videoEl,
-                showPolePoint: true,
-               // order: "LRUDBF"
+            video: videoEl,
+            showPolePoint: true,
+            cubemapConfig: {
                 order: "RLUDFB",
                 tileConfig: [
                     {flipHorizontal:false, rotation:0},
