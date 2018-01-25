@@ -149,7 +149,7 @@ export default class CubeRenderer extends Renderer {
 			}`;
 	}
 
-	static bindTexture(gl, texture, image, imageConfig) {
+	static updateTexture(gl, texture, image, imageConfig) {
 		const baseOrder = "RLUDBF";
 		const order = CubeRenderer.extractOrder(imageConfig);
 		const orderMap = {};
@@ -159,8 +159,6 @@ export default class CubeRenderer extends Renderer {
 		});
 
 		try {
-			gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-
 			if (image instanceof Array) {
 				for (let surfaceIdx = 0; surfaceIdx < 6; surfaceIdx++) {
 					const tileIdx = orderMap[baseOrder[surfaceIdx]];
@@ -187,6 +185,11 @@ export default class CubeRenderer extends Renderer {
 		} catch (e) {
 
 		}
+	}
+
+	static bindTexture(gl, texture, image, imageConfig) {
+		gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+		CubeRenderer.updateTexture(gl, texture, image, imageConfig);
 	}
 
 	static getSourceTileSize(image) {

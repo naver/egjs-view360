@@ -3623,9 +3623,10 @@ var PanoViewer = function (_Component) {
   * @param {HTMLElement} container The container element for the renderer. <ko>렌더러의 컨테이너 엘리먼트</ko>
   * @param {Object} config
   *
-  * @param {String|Image|Object} config.image Input image url or element or config object<ko>입력 이미지 URL 혹은 엘리먼트 혹은 설정객체를 활용(image 와 video 둘 중 하나만 설정한다.)</ko>
-  * @param {String|HTMLVideoElement|Object} config.video Input video url or element or config object<ko>입력 비디오 URL 혹은 엘리먼트 혹은 설정객체를 활용(image 와 video 둘 중 하나만 설정한다.)</ko>
+  * @param {String|Image} config.image Input image url or element<ko>입력 이미지 URL 혹은 엘리먼트(image 와 video 둘 중 하나만 설정한다.)</ko>
+  * @param {String|HTMLVideoElement} config.video Input video url or element<ko>입력 비디오 URL 혹은 엘리먼트(image 와 video 둘 중 하나만 설정한다.)</ko>
   * @param {String} [config.projectionType=equirectangular] The type of projection: equirectangular, cubemap <ko>Projection 유형 : equirectangular, cubemap</ko>
+  * @param {Object} config.cubemapConfig config cubemap projection layout. <ko>cubemap projection type 의 레이아웃을 설정한다.</ko>
   * @param {Number} [config.width=width of container] the viewer's width. (in px) <ko>뷰어의 너비 (px 단위)</ko>
   * @param {Number} [config.height=height of container] the viewer's height.(in px) <ko>뷰어의 높이 (px 단위)</ko>
   *
@@ -3690,6 +3691,13 @@ var PanoViewer = function (_Component) {
 		_this._image = options.image || options.video;
 		_this._isVideo = !!options.video;
 		_this._projectionType = options.projectionType || _PanoImageRenderer.PanoImageRenderer.ImageType.EQUIRECTANGULAR;
+		_this._cubemapConfig = _extends({
+			order: "RLUDBF",
+			tileConfig: {
+				flipHirozontal: false,
+				rotation: 0
+			}
+		}, options.cubemapConfig);
 
 		// If the width and height are not provided, will use the size of the container.
 		_this._width = options.width || parseInt(window.getComputedStyle(container).width, 10);
@@ -3717,7 +3725,7 @@ var PanoViewer = function (_Component) {
 		_this._isReady = false;
 
 		_this._initYawPitchControl(yawPitchConfig);
-		_this._initRenderer(_this._yaw, _this._pitch, _this._fov, _this._projectionType);
+		_this._initRenderer(_this._yaw, _this._pitch, _this._fov, _this._projectionType, _this._cubemapConfig);
 		return _this;
 	}
 
@@ -3744,19 +3752,24 @@ var PanoViewer = function (_Component) {
   * @param {String|HTMLVideoElement|Object} video Input video url or element or config object<ko>입력 비디오 URL 혹은 엘리먼트 혹은 설정객체를 활용(image 와 video 둘 중 하나만 설정한다.)</ko>
   * @param {Object} param
   * @param {String} [param.projectionType="equirectangular"] Projection Type<ko>프로젝션 타입</ko>
+  * @param {Object} param.cubemapConfig config cubemap projection layout. <ko>cubemap projection type 의 레이아웃을 설정한다.</ko>
   *
   * @return {PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
   */
 
 
 	PanoViewer.prototype.setVideo = function setVideo(video) {
-		var param = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : { projectionType: _PanoImageRenderer.PanoImageRenderer.ImageType.EQUIRECTANGULAR };
+		var param = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
 		if (!video) {
 			return this;
 		}
 
-		this.setImage(video, { projectionType: param.projectionType, isVideo: true });
+		this.setImage(video, {
+			projectionType: param.projectionType,
+			isVideo: true,
+			cubemapConfig: param.cubemapConfig
+		});
 		return this;
 	};
 
@@ -3783,21 +3796,25 @@ var PanoViewer = function (_Component) {
   * @param {String|Image|Object} image Input image url or element or config object<ko>입력 이미지 URL 혹은 엘리먼트 혹은 설정객체를 활용(image 와 video 둘 중 하나만 설정한다.)</ko>
   * @param {Object} param Additional information<ko>이미지 추가 정보</ko>
   * @param {String} [param.projectionType="equirectangular"] Projection Type<ko>프로젝션 타입</ko>
+  * @param {Object} param.cubemapConfig config cubemap projection layout. <ko>cubemap projection type 의 레이아웃을 설정한다.</ko>
   *
   * @return {PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
   */
 
 
 	PanoViewer.prototype.setImage = function setImage(image) {
-		var param = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
-			projectionType: _PanoImageRenderer.PanoImageRenderer.ImageType.EQUIRECTANGULAR,
-			isVideo: false
-		};
+		var param = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-		var projectionType = param.projectionType || _PanoImageRenderer.PanoImageRenderer.ImageType.EQUIRECTANGULAR;
-		var isVideo = param.isVideo || false;
+		var cubemapConfig = _extends({
+			order: "RLUDBF",
+			tileConfig: {
+				flipHirozontal: false,
+				rotation: 0
+			}
+		}, param.cubemapConfig);
+		var isVideo = !!param.isVideo;
 
-		if (this._image && isVideo !== this._isVideo) {
+		if (this._image && this._isVideo !== isVideo) {
 			/* eslint-disable no-console */
 			console.warn("Currently not supporting to change content type(Image <--> Video)");
 			/* eslint-enable no-console */
@@ -3810,10 +3827,11 @@ var PanoViewer = function (_Component) {
 
 		this._image = image;
 		this._isVideo = isVideo;
-		this._projectionType = projectionType;
+		this._projectionType = param.projectionType || _PanoImageRenderer.PanoImageRenderer.ImageType.EQUIRECTANGULAR;
+		this._cubemapConfig = cubemapConfig;
 
 		this._deactivate();
-		this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType);
+		this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType, this._cubemapConfig);
 
 		return this;
 	};
@@ -3835,14 +3853,15 @@ var PanoViewer = function (_Component) {
 		return this._projectionType;
 	};
 
-	PanoViewer.prototype._initRenderer = function _initRenderer(yaw, pitch, fov, projectionType) {
+	PanoViewer.prototype._initRenderer = function _initRenderer(yaw, pitch, fov, projectionType, cubemapConfig) {
 		var _this2 = this;
 
 		this._photoSphereRenderer = new _PanoImageRenderer.PanoImageRenderer(this._image, this._width, this._height, this._isVideo, {
 			initialYaw: yaw,
 			initialPitch: pitch,
 			fieldOfView: fov,
-			imageType: projectionType
+			imageType: projectionType,
+			cubemapConfig: cubemapConfig
 		});
 
 		this._bindRendererHandler();
@@ -4935,8 +4954,7 @@ var PanoImageRenderer = function (_Component) {
 		_this.canvas = _this._initCanvas(width, height);
 
 		_this._image = null;
-		_this._imageConfig = image && PanoImageRenderer.extractImageConfig(image);
-		_this._imageOrder = image && image.order;
+		_this._imageConfig = null;
 		_this._imageIsReady = false;
 		_this._shouldForceDraw = false;
 		_this._keepUpdate = false; // Flag to specify 'continuous update' on video even when still.
@@ -4945,7 +4963,12 @@ var PanoImageRenderer = function (_Component) {
 		_this._onContentError = _this._onContentError.bind(_this);
 
 		if (image) {
-			_this.setImage({ image: image, imageType: sphericalConfig.imageType, isVideo: isVideo });
+			_this.setImage({
+				image: image,
+				imageType: sphericalConfig.imageType,
+				isVideo: isVideo,
+				cubemapConfig: sphericalConfig.cubemapConfig
+			});
 		}
 		return _this;
 	}
@@ -4958,10 +4981,18 @@ var PanoImageRenderer = function (_Component) {
 		var image = _ref.image,
 		    imageType = _ref.imageType,
 		    _ref$isVideo = _ref.isVideo,
-		    isVideo = _ref$isVideo === undefined ? false : _ref$isVideo;
+		    isVideo = _ref$isVideo === undefined ? false : _ref$isVideo,
+		    cubemapConfig = _ref.cubemapConfig;
 
 		this._imageIsReady = false;
 		this._isVideo = isVideo;
+		this._imageConfig = _extends({
+			order: "RLUDBF",
+			tileConfig: {
+				flipHirozontal: false,
+				rotation: 0
+			}
+		}, cubemapConfig);
 		this._setImageType(imageType);
 
 		if (this._contentLoader) {
@@ -4977,7 +5008,7 @@ var PanoImageRenderer = function (_Component) {
 		}
 
 		// img element or img url
-		this._contentLoader.set(PanoImageRenderer.extractImageSource(image));
+		this._contentLoader.set(image);
 
 		// 이미지의 사이즈를 캐시한다.
 		// image is reference for content in contentLoader, so it may be not valid if contentLoader is destroyed.
@@ -5046,7 +5077,6 @@ var PanoImageRenderer = function (_Component) {
 	PanoImageRenderer.prototype._onContentError = function _onContentError(error) {
 		this._imageIsReady = false;
 		this._image = null;
-
 		this.trigger(EVENTS.ERROR, {
 			type: ERROR_TYPE.FAIL_IMAGE_LOAD,
 			message: "failed to load image"
@@ -5294,6 +5324,11 @@ var PanoImageRenderer = function (_Component) {
 		this.trigger(EVENTS.BIND_TEXTURE);
 	};
 
+	PanoImageRenderer.prototype._updateTexture = function _updateTexture() {
+		this._renderer.updateTexture(this.context, this.texture, this._image, this._imageConfig);
+		this._shouldForceDraw = true;
+	};
+
 	PanoImageRenderer.prototype.keepUpdate = function keepUpdate(doUpdate) {
 		if (doUpdate && this.isImageLoaded() === false) {
 			// Force to draw a frame after image is loaded on render()
@@ -5337,7 +5372,7 @@ var PanoImageRenderer = function (_Component) {
 		gl.uniformMatrix4fv(this.shaderProgram.mvMatrixUniform, false, this.mvMatrix);
 
 		if (this._isVideo) {
-			this._bindTexture();
+			this._updateTexture();
 		}
 
 		if (this.indexBuffer) {
@@ -5668,7 +5703,7 @@ var CubeRenderer = function (_Renderer) {
 		return "\n\t\t\tvarying highp vec3 vVertexDirectionVector;\n\t\t\tuniform samplerCube uSampler;\n\t\t\tvoid main(void) {\n\t\t\t\tgl_FragColor = textureCube(uSampler, vVertexDirectionVector);\n\t\t\t}";
 	};
 
-	CubeRenderer.bindTexture = function bindTexture(gl, texture, image, imageConfig) {
+	CubeRenderer.updateTexture = function updateTexture(gl, texture, image, imageConfig) {
 		var baseOrder = "RLUDBF";
 		var order = CubeRenderer.extractOrder(imageConfig);
 		var orderMap = {};
@@ -5678,8 +5713,6 @@ var CubeRenderer = function (_Renderer) {
 		});
 
 		try {
-			gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-
 			if (image instanceof Array) {
 				for (var surfaceIdx = 0; surfaceIdx < 6; surfaceIdx++) {
 					var tileIdx = orderMap[baseOrder[surfaceIdx]];
@@ -5697,6 +5730,11 @@ var CubeRenderer = function (_Renderer) {
 				}
 			}
 		} catch (e) {}
+	};
+
+	CubeRenderer.bindTexture = function bindTexture(gl, texture, image, imageConfig) {
+		gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+		CubeRenderer.updateTexture(gl, texture, image, imageConfig);
 	};
 
 	CubeRenderer.getSourceTileSize = function getSourceTileSize(image) {
@@ -5835,7 +5873,7 @@ var SphereRenderer = function (_Renderer) {
 		return "\n\t\t\tvarying highp vec2 vTextureCoord;\n\t\t\tuniform sampler2D uSampler;\n\t\t\tvoid main(void) {\n\t\t\t\tgl_FragColor = texture2D(\n\t\t\t\t\tuSampler,\n\t\t\t\t\tvec2(vTextureCoord.s, vTextureCoord.t)\n\t\t\t\t);\n\t\t\t}";
 	};
 
-	SphereRenderer.bindTexture = function bindTexture(gl, texture, image) {
+	SphereRenderer.updateTexture = function updateTexture(gl, texture, image) {
 		if (!image) {
 			return;
 		}
@@ -5851,12 +5889,16 @@ var SphereRenderer = function (_Renderer) {
 			return;
 		}
 
+		// Draw first frame
+		this.texImage2D(gl, image);
+	};
+
+	SphereRenderer.bindTexture = function bindTexture(gl, texture, image) {
 		gl.activeTexture(gl.TEXTURE0);
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 
-		// Draw first frame
-		this.texImage2D(gl, image);
+		SphereRenderer.updateTexture(gl, texture, image);
 	};
 
 	/**

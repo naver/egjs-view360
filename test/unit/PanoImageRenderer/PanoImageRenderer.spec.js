@@ -450,29 +450,29 @@ describe("PanoImageRenderer", function() {
 
 			IT("multiple img url: order", function(done) {
 				// Given
-				const inst = new PanoImageRenderer({
-					src: [
-						"./images/test_cube_l.png",
-						"./images/test_cube_r.png",
-						"./images/test_cube_u.png",
-						"./images/test_cube_b.png",
-						"./images/test_cube_d.png",
-						"./images/test_cube_f.png"
-					],
-					order: "LRUBDF", // RLUDBF,
-					tileConfig: [
-						{flipHorizontal: false, rotation: 0},
-						{flipHorizontal: false, rotation: 0},
-						{flipHorizontal: false, rotation: 0},
-						{flipHorizontal: false, rotation: 0},
-						{flipHorizontal: false, rotation: 0},
-						{flipHorizontal: false, rotation: 0}
-					]
-				}, 200, 200, false, {
+				const inst = new PanoImageRenderer([
+					"./images/test_cube_l.png",
+					"./images/test_cube_r.png",
+					"./images/test_cube_u.png",
+					"./images/test_cube_b.png",
+					"./images/test_cube_d.png",
+					"./images/test_cube_f.png"
+				], 200, 200, false, {
 					initialYaw: 0,
 					initialpitch: 0,
 					imageType: "cubemap",
-					fieldOfView: 65
+					fieldOfView: 65,
+					cubemapConfig: {
+						order: "LRUBDF", // RLUDBF,
+						tileConfig: [
+							{flipHorizontal: false, rotation: 0},
+							{flipHorizontal: false, rotation: 0},
+							{flipHorizontal: false, rotation: 0},
+							{flipHorizontal: false, rotation: 0},
+							{flipHorizontal: false, rotation: 0},
+							{flipHorizontal: false, rotation: 0}
+						]
+					}
 				});
 
 				inst.on("imageLoaded", when);
@@ -501,28 +501,28 @@ describe("PanoImageRenderer", function() {
 
 			IT("multiple img url: flip", function(done) {
 				// Given
-				const inst = new PanoImageRenderer({
-					src: [
-						"./images/test_cube_r.png",
-						"./images/test_cube_l.png",
-						"./images/test_cube_u.png",
-						"./images/test_cube_d.png",
-						"./images/test_cube_b.png",
-						"./images/test_cube_f_hflip.png"
-					],
-					tileConfig: [
-						{flipHorizontal: false, rotation: 0},
-						{flipHorizontal: false, rotation: 0},
-						{flipHorizontal: false, rotation: 0},
-						{flipHorizontal: false, rotation: 0},
-						{flipHorizontal: false, rotation: 0},
-						{flipHorizontal: true, rotation: 0}
-					]
-				}, 200, 200, false, {
+				const inst = new PanoImageRenderer([
+					"./images/test_cube_r.png",
+					"./images/test_cube_l.png",
+					"./images/test_cube_u.png",
+					"./images/test_cube_d.png",
+					"./images/test_cube_b.png",
+					"./images/test_cube_f_hflip.png"
+				], 200, 200, false, {
 					initialYaw: 0,
 					initialpitch: 0,
 					imageType: "cubemap",
-					fieldOfView: 65
+					fieldOfView: 65,
+					cubemapConfig: {
+						tileConfig: [
+							{flipHorizontal: false, rotation: 0},
+							{flipHorizontal: false, rotation: 0},
+							{flipHorizontal: false, rotation: 0},
+							{flipHorizontal: false, rotation: 0},
+							{flipHorizontal: false, rotation: 0},
+							{flipHorizontal: true, rotation: 0}
+						]
+					}
 				});
 
 				inst.on("imageLoaded", when);
@@ -551,28 +551,28 @@ describe("PanoImageRenderer", function() {
 
 			IT("multiple img url: flip rotation", function(done) {
 				// Given
-				const inst = new PanoImageRenderer({
-					src: [
-						"./images/test_cube_r_hflip.png",
-						"./images/test_cube_l_hflip.png",
-						"./images/test_cube_u_hflip_180.png",
-						"./images/test_cube_d_hflip_180.png",
-						"./images/test_cube_b_hflip.png",
-						"./images/test_cube_f_hflip.png"
-					],
-					tileConfig: [
-						{flipHorizontal: true, rotation: 0},
-						{flipHorizontal: true, rotation: 0},
-						{flipHorizontal: true, rotation: 180},
-						{flipHorizontal: true, rotation: 180},
-						{flipHorizontal: true, rotation: 0},
-						{flipHorizontal: true, rotation: 0}
-					]
-				}, 200, 200, false, {
+				const inst = new PanoImageRenderer([
+					"./images/test_cube_r_hflip.png",
+					"./images/test_cube_l_hflip.png",
+					"./images/test_cube_u_hflip_180.png",
+					"./images/test_cube_d_hflip_180.png",
+					"./images/test_cube_b_hflip.png",
+					"./images/test_cube_f_hflip.png"
+				], 200, 200, false, {
 					initialYaw: 0,
 					initialpitch: 0,
 					imageType: "cubemap",
-					fieldOfView: 65
+					fieldOfView: 65,
+					cubemapConfig: {
+						tileConfig: [
+							{flipHorizontal: true, rotation: 0},
+							{flipHorizontal: true, rotation: 0},
+							{flipHorizontal: true, rotation: 180},
+							{flipHorizontal: true, rotation: 180},
+							{flipHorizontal: true, rotation: 0},
+							{flipHorizontal: true, rotation: 0}
+						]
+					}
 				});
 
 				inst.on("imageLoaded", when);
@@ -607,9 +607,7 @@ describe("PanoImageRenderer", function() {
 				const sourceImg = new Image();
 
 				sourceImg.src = "./images/test_cube_1x6_LRUDBF.jpg";
-				inst = new PanoImageRenderer({
-					src: sourceImg
-				}, 200, 200, false, {
+				inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
 					initialYaw: 0,
 					initialpitch: 0,
 					imageType: "cubemap",
@@ -646,14 +644,14 @@ describe("PanoImageRenderer", function() {
 				const sourceImg = new Image();
 
 				sourceImg.src = "./images/test_cube_1x6_naver.jpg";
-				inst = new PanoImageRenderer({
-					src: sourceImg,
-					tileConfig: tileConfigForCubestrip
-				}, 200, 200, false, {
+				inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
 					initialYaw: 0,
 					initialpitch: 0,
 					imageType: "cubemap",
-					fieldOfView: 65
+					fieldOfView: 65,
+					cubemapConfig: {
+						tileConfig: tileConfigForCubestrip
+					}
 				});
 				inst.on("imageLoaded", when);
 
@@ -693,15 +691,15 @@ describe("PanoImageRenderer", function() {
 				const sourceImg = new Image();
 
 				sourceImg.src = "./images/test_cube_1x6_krpano.jpg";
-				inst = new PanoImageRenderer({
-					src: sourceImg,
-					tileConfig: tileConfigForCubestrip,
-					order: "LFRBUD"
-				}, 200, 200, false, {
+				inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
 					initialYaw: 0,
 					initialpitch: 0,
 					imageType: "cubemap",
-					fieldOfView: 65
+					fieldOfView: 65,
+					cubemapConfig: {
+						order: "LFRBUD",
+						tileConfig: tileConfigForCubestrip
+					}
 				});
 				inst.on("imageLoaded", when);
 
@@ -733,9 +731,7 @@ describe("PanoImageRenderer", function() {
 				const sourceImg = new Image();
 
 				sourceImg.src = "./images/test_cube_3x2_LRUDBF.jpg";
-				inst = new PanoImageRenderer({
-					src: sourceImg
-				}, 200, 200, false, {
+				inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
 					initialYaw: 0,
 					initialpitch: 0,
 					imageType: "cubemap",
@@ -770,9 +766,7 @@ describe("PanoImageRenderer", function() {
 				let inst = this.inst;
 				const isVideo = true;
 
-				inst = new PanoImageRenderer({
-					src: "./images/test_cube_3x2_LRUDBF.mp4"
-				}, 200, 200, isVideo, {
+				inst = new PanoImageRenderer("./images/test_cube_3x2_LRUDBF.mp4", 200, 200, isVideo, {
 					initialYaw: 0,
 					initialpitch: 0,
 					imageType: "cubemap",
@@ -808,9 +802,7 @@ describe("PanoImageRenderer", function() {
 				const sourceImg = new Image();
 
 				sourceImg.src = "./images/test_cube_2x3_LRUDBF.jpg";
-				inst = new PanoImageRenderer({
-					src: sourceImg
-				}, 200, 200, false, {
+				inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
 					initialYaw: 0,
 					initialpitch: 0,
 					imageType: "cubemap",
@@ -846,9 +838,7 @@ describe("PanoImageRenderer", function() {
 				const sourceImg = new Image();
 
 				sourceImg.src = "./images/test_cube_6x1_LRUDBF.jpg";
-				inst = new PanoImageRenderer({
-					src: sourceImg
-				}, 200, 200, false, {
+				inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
 					initialYaw: 0,
 					initialpitch: 0,
 					imageType: "cubemap",
@@ -892,15 +882,15 @@ describe("PanoImageRenderer", function() {
 				const sourceImg = new Image();
 
 				sourceImg.src = "./images/test_cube_6x1_krpano.jpg";
-				inst = new PanoImageRenderer({
-					src: sourceImg,
-					tileConfig: tileConfigForCubestrip,
-					order: "LFRBUD"
-				}, 200, 200, false, {
+				inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
 					initialYaw: 0,
 					initialpitch: 0,
 					imageType: "cubemap",
-					fieldOfView: 65
+					fieldOfView: 65,
+					cubemapConfig: {
+						tileConfig: tileConfigForCubestrip,
+						order: "LFRBUD"
+					}
 				});
 				inst.on("imageLoaded", when);
 

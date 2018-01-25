@@ -7,6 +7,7 @@ function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2) {
 		inst.lookAt({
 			yaw, pitch, fov
 		}, 0);
+
 		// Then
 		compare(answerFile, inst._photoSphereRenderer.canvas, (pct, data) => {
 			expect(pct).to.be.below(threshold);
@@ -84,16 +85,9 @@ describe("PanoViewer", function() {
 				width: 200,
 				height: 200,
 				showPolePoint: true,
-				image: {
-					src: "./images/test_cube_1x6_naver.jpg",
-					tileConfig: [
-						{flipHorizontal:true, rotation:0},
-						{flipHorizontal:true, rotation:0},
-						{flipHorizontal:true, rotation:0},
-						{flipHorizontal:true, rotation:0},
-						{flipHorizontal:true, rotation:0},
-						{flipHorizontal:true, rotation:0},
-					]
+				image: "./images/test_cube_1x6_naver.jpg",
+				cubemapConfig: {
+					tileConfig: {flipHorizontal: true, rotation: 0}
 				}
 			});
 
@@ -150,11 +144,6 @@ describe("PanoViewer", function() {
 
 				expect(video).to.not.be.null;
 				expect(projectionType).to.equal(PanoViewer.ProjectionType.EQUIRECTANGULAR);
-				done();
-			});
-
-			panoViewer.on(PanoViewer.EVENTS.ERROR, e => {
-				assert.isOk(false, "Error event occurs");
 				done();
 			});
 

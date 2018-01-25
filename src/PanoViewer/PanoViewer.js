@@ -16,9 +16,10 @@ export default class PanoViewer extends Component {
 	 * @param {HTMLElement} container The container element for the renderer. <ko>렌더러의 컨테이너 엘리먼트</ko>
 	 * @param {Object} config
 	 *
-	 * @param {String|Image|Object} config.image Input image url or element or config object<ko>입력 이미지 URL 혹은 엘리먼트 혹은 설정객체를 활용(image 와 video 둘 중 하나만 설정한다.)</ko>
-	 * @param {String|HTMLVideoElement|Object} config.video Input video url or element or config object<ko>입력 비디오 URL 혹은 엘리먼트 혹은 설정객체를 활용(image 와 video 둘 중 하나만 설정한다.)</ko>
+	 * @param {String|Image} config.image Input image url or element<ko>입력 이미지 URL 혹은 엘리먼트(image 와 video 둘 중 하나만 설정한다.)</ko>
+	 * @param {String|HTMLVideoElement} config.video Input video url or element<ko>입력 비디오 URL 혹은 엘리먼트(image 와 video 둘 중 하나만 설정한다.)</ko>
 	 * @param {String} [config.projectionType=equirectangular] The type of projection: equirectangular, cubemap <ko>Projection 유형 : equirectangular, cubemap</ko>
+	 * @param {Object} config.cubemapConfig config cubemap projection layout. <ko>cubemap projection type 의 레이아웃을 설정한다.</ko>
 	 * @param {Number} [config.width=width of container] the viewer's width. (in px) <ko>뷰어의 너비 (px 단위)</ko>
 	 * @param {Number} [config.height=height of container] the viewer's height.(in px) <ko>뷰어의 높이 (px 단위)</ko>
 	 *
@@ -73,6 +74,13 @@ export default class PanoViewer extends Component {
 		this._image = options.image || options.video;
 		this._isVideo = !!options.video;
 		this._projectionType = options.projectionType || PanoImageRenderer.ImageType.EQUIRECTANGULAR;
+		this._cubemapConfig = Object.assign({
+			order: "RLUDBF",
+			tileConfig: {
+				flipHirozontal: false,
+				rotation: 0
+			}
+		}, options.cubemapConfig);
 
 		// If the width and height are not provided, will use the size of the container.
 		this._width = options.width || parseInt(window.getComputedStyle(container).width, 10);
@@ -100,7 +108,7 @@ export default class PanoViewer extends Component {
 		this._isReady = false;
 
 		this._initYawPitchControl(yawPitchConfig);
-		this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType);
+		this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType, this._cubemapConfig);
 	}
 
 	/**
@@ -124,15 +132,23 @@ export default class PanoViewer extends Component {
 	 * @param {String|HTMLVideoElement|Object} video Input video url or element or config object<ko>입력 비디오 URL 혹은 엘리먼트 혹은 설정객체를 활용(image 와 video 둘 중 하나만 설정한다.)</ko>
 	 * @param {Object} param
 	 * @param {String} [param.projectionType="equirectangular"] Projection Type<ko>프로젝션 타입</ko>
+	 * @param {Object} param.cubemapConfig config cubemap projection layout. <ko>cubemap projection type 의 레이아웃을 설정한다.</ko>
 	 *
 	 * @return {PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
 	 */
-	setVideo(video, param = {projectionType: PanoImageRenderer.ImageType.EQUIRECTANGULAR}) {
+	setVideo(video, param = {}) {
 		if (!video) {
 			return this;
 		}
 
-		this.setImage(video, {projectionType: param.projectionType, isVideo: true});
+		this.setImage(
+			video,
+			{
+				projectionType: param.projectionType,
+				isVideo: true,
+				cubemapConfig: param.cubemapConfig
+			}
+		);
 		return this;
 	}
 
@@ -157,17 +173,21 @@ export default class PanoViewer extends Component {
 	 * @param {String|Image|Object} image Input image url or element or config object<ko>입력 이미지 URL 혹은 엘리먼트 혹은 설정객체를 활용(image 와 video 둘 중 하나만 설정한다.)</ko>
 	 * @param {Object} param Additional information<ko>이미지 추가 정보</ko>
 	 * @param {String} [param.projectionType="equirectangular"] Projection Type<ko>프로젝션 타입</ko>
+	 * @param {Object} param.cubemapConfig config cubemap projection layout. <ko>cubemap projection type 의 레이아웃을 설정한다.</ko>
 	 *
 	 * @return {PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
 	 */
-	setImage(image, param = {
-		projectionType: PanoImageRenderer.ImageType.EQUIRECTANGULAR,
-		isVideo: false
-	}) {
-		const projectionType = param.projectionType || PanoImageRenderer.ImageType.EQUIRECTANGULAR;
-		const isVideo = param.isVideo || false;
+	setImage(image, param = {}) {
+		const cubemapConfig = Object.assign({
+			order: "RLUDBF",
+			tileConfig: {
+				flipHirozontal: false,
+				rotation: 0
+			}
+		}, param.cubemapConfig);
+		const isVideo = !!(param.isVideo);
 
-		if (this._image && isVideo !== this._isVideo) {
+		if (this._image && this._isVideo !== isVideo) {
 			/* eslint-disable no-console */
 			console.warn("Currently not supporting to change content type(Image <--> Video)");
 			/* eslint-enable no-console */
@@ -180,10 +200,11 @@ export default class PanoViewer extends Component {
 
 		this._image = image;
 		this._isVideo = isVideo;
-		this._projectionType = projectionType;
+		this._projectionType = param.projectionType || PanoImageRenderer.ImageType.EQUIRECTANGULAR;
+		this._cubemapConfig = cubemapConfig;
 
 		this._deactivate();
-		this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType);
+		this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType, this._cubemapConfig);
 
 		return this;
 	}
@@ -203,7 +224,7 @@ export default class PanoViewer extends Component {
 		return this._projectionType;
 	}
 
-	_initRenderer(yaw, pitch, fov, projectionType) {
+	_initRenderer(yaw, pitch, fov, projectionType, cubemapConfig) {
 		this._photoSphereRenderer = new PanoImageRenderer(
 			this._image,
 			this._width,
@@ -213,7 +234,8 @@ export default class PanoViewer extends Component {
 				initialYaw: yaw,
 				initialPitch: pitch,
 				fieldOfView: fov,
-				imageType: projectionType
+				imageType: projectionType,
+				cubemapConfig
 			}
 		);
 

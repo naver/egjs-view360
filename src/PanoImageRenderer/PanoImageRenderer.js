@@ -67,8 +67,7 @@ export default class PanoImageRenderer extends Component {
 		this.canvas = this._initCanvas(width, height);
 
 		this._image = null;
-		this._imageConfig = image && PanoImageRenderer.extractImageConfig(image);
-		this._imageOrder = image && image.order;
+		this._imageConfig = null;
 		this._imageIsReady = false;
 		this._shouldForceDraw = false;
 		this._keepUpdate = false; // Flag to specify 'continuous update' on video even when still.
@@ -77,7 +76,12 @@ export default class PanoImageRenderer extends Component {
 		this._onContentError = 	this._onContentError.bind(this);
 
 		if (image) {
-			this.setImage({image, imageType: sphericalConfig.imageType, isVideo});
+			this.setImage({
+				image,
+				imageType: sphericalConfig.imageType,
+				isVideo,
+				cubemapConfig: sphericalConfig.cubemapConfig
+			});
 		}
 	}
 
@@ -85,9 +89,19 @@ export default class PanoImageRenderer extends Component {
 		return this._image;
 	}
 
-	setImage({image, imageType, isVideo = false}) {
+	setImage({image, imageType, isVideo = false, cubemapConfig}) {
 		this._imageIsReady = false;
 		this._isVideo = isVideo;
+		this._imageConfig = Object.assign(
+			{
+				order: "RLUDBF",
+				tileConfig: {
+					flipHirozontal: false,
+					rotation: 0
+				}
+			},
+			cubemapConfig
+		);
 		this._setImageType(imageType);
 
 		if (this._contentLoader) {
@@ -103,7 +117,7 @@ export default class PanoImageRenderer extends Component {
 		}
 
 		// img element or img url
-		this._contentLoader.set(PanoImageRenderer.extractImageSource(image));
+		this._contentLoader.set(image);
 
 		// 이미지의 사이즈를 캐시한다.
 		// image is reference for content in contentLoader, so it may be not valid if contentLoader is destroyed.
@@ -172,7 +186,6 @@ export default class PanoImageRenderer extends Component {
 	_onContentError(error) {
 		this._imageIsReady = false;
 		this._image = null;
-
 		this.trigger(EVENTS.ERROR, {
 			type: ERROR_TYPE.FAIL_IMAGE_LOAD,
 			message: "failed to load image"
@@ -432,6 +445,16 @@ export default class PanoImageRenderer extends Component {
 		this.trigger(EVENTS.BIND_TEXTURE);
 	}
 
+	_updateTexture() {
+		this._renderer.updateTexture(
+			this.context,
+			this.texture,
+			this._image,
+			this._imageConfig,
+		);
+		this._shouldForceDraw = true;
+	}
+
 	keepUpdate(doUpdate) {
 		if (doUpdate && this.isImageLoaded() === false) {
 			// Force to draw a frame after image is loaded on render()
@@ -480,7 +503,7 @@ export default class PanoImageRenderer extends Component {
 		gl.uniformMatrix4fv(this.shaderProgram.mvMatrixUniform, false, this.mvMatrix);
 
 		if (this._isVideo) {
-			this._bindTexture();
+			this._updateTexture();
 		}
 
 		if (this.indexBuffer) {
