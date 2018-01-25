@@ -33,12 +33,11 @@ export default class PanoViewer extends Component {
 	 * @param {Array} [config.yawRange=[-180, 180]] Range of controllable Yaw values <ko>제어 가능한 Yaw 값의 범위</ko>
 	 * @param {Array} [config.pitchRange=[-90, 90]] Range of controllable Pitch values <ko>제어 가능한 Pitch 값의 범위</ko>
 	 * @param {Array} [config.fovRange=[30, 110]] Range of controllable vertical field of view values <ko>제어 가능한 수직 field of view 값의 범위</ko>
-	 * @param {Function} [config.checkSupport] A function that returns a boolean value that determines whether the component is working. <ko>뷰어가 작동할 지 여부를 결정하는 부울 값을 반환하는 함수입니다.</ko>
 	 */
 	constructor(container, options = {}) {
 		super();
 
-		if (options.checkSupport && !options.checkSupport()) {
+		if (!WebGLUtils.isStableWebGL()) {
 			setTimeout(() => {
 				this.trigger(EVENTS.ERROR, {
 					type: ERROR_TYPE.INVALID_DEVICE,

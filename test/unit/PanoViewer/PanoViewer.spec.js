@@ -245,6 +245,24 @@ describe("PanoViewer", function() {
 		});
 	});
 
+	describe("#setter/getter", function() {
+		let target;
+		let panoViewer;
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div></div>`;
+		});
+
+		afterEach(() => {
+			if (!panoViewer) {
+				return;
+			}
+			panoViewer.destroy();
+			panoViewer = null;
+		});
+	});
+
 	describe("viewChange event", function() {
 		let target;
 		let panoViewer;

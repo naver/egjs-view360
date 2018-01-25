@@ -5899,19 +5899,19 @@ var WebGLUtils = function () {
 
 
 	WebGLUtils.isStableWebGL = function isStableWebGL() {
-		var isStableWebgl = true;
+		var isWebGLAvailable = WebGLUtils.isWebGLAvailable();
 		var agentInfo = (0, _agent2["default"])();
+		var isStableWebgl = true;
 
-		if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) <= 4.3) {
+		if (!isWebGLAvailable) {
+			isStableWebgl = false;
+		} else if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) <= 4.3) {
 			isStableWebgl = false;
 		} else if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) === 4.4) {
 			if (agentInfo.browser.name !== "chrome") {
 				isStableWebgl = false;
 			}
-		} else if (agentInfo.os.name === "ios" && parseInt(agentInfo.os.version, 10) <= 7) {
-			isStableWebgl = false;
 		}
-
 		return isStableWebgl;
 	};
 
@@ -8722,7 +8722,6 @@ var PanoViewer = function (_Component) {
   * @param {Array} [config.yawRange=[-180, 180]] Range of controllable Yaw values <ko>제어 가능한 Yaw 값의 범위</ko>
   * @param {Array} [config.pitchRange=[-90, 90]] Range of controllable Pitch values <ko>제어 가능한 Pitch 값의 범위</ko>
   * @param {Array} [config.fovRange=[30, 110]] Range of controllable vertical field of view values <ko>제어 가능한 수직 field of view 값의 범위</ko>
-  * @param {Function} [config.checkSupport] A function that returns a boolean value that determines whether the component is working. <ko>뷰어가 작동할 지 여부를 결정하는 부울 값을 반환하는 함수입니다.</ko>
   */
 	function PanoViewer(container) {
 		var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -8731,7 +8730,7 @@ var PanoViewer = function (_Component) {
 
 		var _this = _possibleConstructorReturn(this, _Component.call(this));
 
-		if (options.checkSupport && !options.checkSupport()) {
+		if (!_PanoImageRenderer.WebGLUtils.isStableWebGL()) {
 			var _ret;
 
 			setTimeout(function () {
