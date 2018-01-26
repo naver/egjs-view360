@@ -145,13 +145,10 @@ export default class WebGLUtils {
 	 * @retuen {Boolean} isStableWebGL
 	 */
 	static isStableWebGL() {
-		const isWebGLAvailable = WebGLUtils.isWebGLAvailable();
 		const agentInfo = agent();
 		let isStableWebgl = true;
 
-		if (!isWebGLAvailable) {
-			isStableWebgl = false;
-		} else if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) <= 4.3) {
+		if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) <= 4.3) {
 			isStableWebgl = false;
 		} else if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) === 4.4) {
 			if (agentInfo.browser.name !== "chrome") {

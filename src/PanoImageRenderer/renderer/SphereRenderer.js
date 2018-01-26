@@ -51,6 +51,11 @@ export default class SphereRenderer extends Renderer {
 	}
 
 	static updateTexture(gl, texture, image) {
+		// Draw first frame
+		this.texImage2D(gl, image);
+	}
+
+	static bindTexture(gl, texture, image) {
 		if (!image) {
 			return;
 		}
@@ -66,11 +71,6 @@ export default class SphereRenderer extends Renderer {
 			return;
 		}
 
-		// Draw first frame
-		this.texImage2D(gl, image);
-	}
-
-	static bindTexture(gl, texture, image) {
 		gl.activeTexture(gl.TEXTURE0);
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 		gl.bindTexture(gl.TEXTURE_2D, texture);

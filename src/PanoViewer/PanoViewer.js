@@ -37,17 +37,6 @@ export default class PanoViewer extends Component {
 	constructor(container, options = {}) {
 		super();
 
-		if (!WebGLUtils.isStableWebGL()) {
-			setTimeout(() => {
-				this.trigger(EVENTS.ERROR, {
-					type: ERROR_TYPE.INVALID_DEVICE,
-					message: "invalid device"
-				});
-			}, 0);
-
-			return this;
-		}
-
 		// Raises the error event if webgl is not supported.
 		if (!WebGLUtils.isWebGLAvailable()) {
 			setTimeout(() => {
@@ -56,6 +45,17 @@ export default class PanoViewer extends Component {
 					message: "no webgl support"
 				});
 			}, 0);
+			return this;
+		}
+
+		if (!WebGLUtils.isStableWebGL()) {
+			setTimeout(() => {
+				this.trigger(EVENTS.ERROR, {
+					type: ERROR_TYPE.INVALID_DEVICE,
+					message: "blacklisted browser"
+				});
+			}, 0);
+
 			return this;
 		}
 
@@ -647,10 +647,6 @@ export default class PanoViewer extends Component {
 
 	static isWebGLAvailable() {
 		return WebGLUtils.isWebGLAvailable();
-	}
-
-	static isStableWebGL() {
-		return WebGLUtils.isStableWebGL();
 	}
 
 	/**

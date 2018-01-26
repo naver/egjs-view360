@@ -3467,13 +3467,10 @@ var WebGLUtils = function () {
 
 
 	WebGLUtils.isStableWebGL = function isStableWebGL() {
-		var isWebGLAvailable = WebGLUtils.isWebGLAvailable();
 		var agentInfo = (0, _agent2["default"])();
 		var isStableWebgl = true;
 
-		if (!isWebGLAvailable) {
-			isStableWebgl = false;
-		} else if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) <= 4.3) {
+		if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) <= 4.3) {
 			isStableWebgl = false;
 		} else if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) === 4.4) {
 			if (agentInfo.browser.name !== "chrome") {
@@ -3646,24 +3643,11 @@ var PanoViewer = function (_Component) {
 
 		_classCallCheck(this, PanoViewer);
 
+		// Raises the error event if webgl is not supported.
 		var _this = _possibleConstructorReturn(this, _Component.call(this));
 
-		if (!_PanoImageRenderer.WebGLUtils.isStableWebGL()) {
-			var _ret;
-
-			setTimeout(function () {
-				_this.trigger(_consts.EVENTS.ERROR, {
-					type: _consts.ERROR_TYPE.INVALID_DEVICE,
-					message: "invalid device"
-				});
-			}, 0);
-
-			return _ret = _this, _possibleConstructorReturn(_this, _ret);
-		}
-
-		// Raises the error event if webgl is not supported.
 		if (!_PanoImageRenderer.WebGLUtils.isWebGLAvailable()) {
-			var _ret2;
+			var _ret;
 
 			setTimeout(function () {
 				_this.trigger(_consts.EVENTS.ERROR, {
@@ -3671,6 +3655,19 @@ var PanoViewer = function (_Component) {
 					message: "no webgl support"
 				});
 			}, 0);
+			return _ret = _this, _possibleConstructorReturn(_this, _ret);
+		}
+
+		if (!_PanoImageRenderer.WebGLUtils.isStableWebGL()) {
+			var _ret2;
+
+			setTimeout(function () {
+				_this.trigger(_consts.EVENTS.ERROR, {
+					type: _consts.ERROR_TYPE.INVALID_DEVICE,
+					message: "blacklisted browser"
+				});
+			}, 0);
+
 			return _ret2 = _this, _possibleConstructorReturn(_this, _ret2);
 		}
 
@@ -4310,10 +4307,6 @@ var PanoViewer = function (_Component) {
 
 	PanoViewer.isWebGLAvailable = function isWebGLAvailable() {
 		return _PanoImageRenderer.WebGLUtils.isWebGLAvailable();
-	};
-
-	PanoViewer.isStableWebGL = function isStableWebGL() {
-		return _PanoImageRenderer.WebGLUtils.isStableWebGL();
 	};
 
 	/**
@@ -5307,7 +5300,6 @@ var PanoImageRenderer = function (_Component) {
 
 	PanoImageRenderer.prototype._updateTexture = function _updateTexture() {
 		this._renderer.updateTexture(this.context, this.texture, this._image, this._imageConfig);
-		this._shouldForceDraw = true;
 	};
 
 	PanoImageRenderer.prototype.keepUpdate = function keepUpdate(doUpdate) {
@@ -5855,6 +5847,11 @@ var SphereRenderer = function (_Renderer) {
 	};
 
 	SphereRenderer.updateTexture = function updateTexture(gl, texture, image) {
+		// Draw first frame
+		this.texImage2D(gl, image);
+	};
+
+	SphereRenderer.bindTexture = function bindTexture(gl, texture, image) {
 		if (!image) {
 			return;
 		}
@@ -5870,11 +5867,6 @@ var SphereRenderer = function (_Renderer) {
 			return;
 		}
 
-		// Draw first frame
-		this.texImage2D(gl, image);
-	};
-
-	SphereRenderer.bindTexture = function bindTexture(gl, texture, image) {
 		gl.activeTexture(gl.TEXTURE0);
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 		gl.bindTexture(gl.TEXTURE_2D, texture);
