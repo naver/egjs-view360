@@ -1,257 +1,85 @@
-import SpriteImage from "../../../src/SpinViewer/SpriteImage";
+import SpinViewer from "../../../src/SpinViewer/SpinViewer";
 
-describe("SpriteImage", function() {
-	describe("create", function() {
-		var target;
+describe("SpinViewer", function() {
+	describe("event", function() {
+		var target
 		beforeEach(() => {
 			target = sandbox();
 			target.innerHTML = `<div"></div>`;
 		});
-
-		it("should make instance", () => {
-			let o = new SpriteImage(target);
-
-			assert(o !== null, "instance is created");
-		});
-
-		it("should fire imageError event when image is undefined", (done) => {
-			let o = new SpriteImage(target);
-
-			o.on("imageError", e => {
-				assert(e.imageUrl === undefined);
-				done();
-			})
-		});
-
-		it("should not fire load event if imageUrl is undefined", (done) => {
-			let o = new SpriteImage(target);
-
-			const callback = sinon.spy();
-			o.on("load", callback);
-
-			setTimeout(() => {
-				assert(callback.called === false, "callback should not be called");
-				done();
-			}, 50);
-		});
-
-		it("should fire load event if imageUrl is valid", (done) => {
-			let o = new SpriteImage(target, {
-				imageUrl: "./images/SpinViewer/bag360.jpg"
-			});
-
-			const callback = sinon.spy();
-			o.on("load", callback);
-
-			setTimeout(() => {
-				assert(callback.called === true, "callback should not be called");
-				done();
-			}, 500);
-		});
-	});
-
-	describe("toColRow", function() {
-		let target;
-
-		beforeEach(() => {
-			target = sandbox();
-			target.innerHTML = `<div"></div>`;
-		});
-
-		it("should returns col, row array by index", () => {
+		it("should fire load event when image is vaild", (done) => {
 			const COL = 4;
 			const ROW = 3;
-
-			const o = new SpriteImage(target, {
+			let inst = new SpinViewer(target, {
 				colCount: COL,
-				rowCount: ROW
+				rowCount: ROW,
+				imageUrl: "images/SpinViewer/bag360.jpg"
 			});
-
-			const list = [
-				{index: 0, expected:[0, 0]},
-				{index: 1, expected:[1, 0]},
-				{index: 2, expected:[2, 0]},
-				{index: 3, expected:[3, 0]},
-				{index: 4, expected:[0, 1]},
-				{index: 5, expected:[1, 1]},
-				{index: 6, expected:[2, 1]},
-				{index: 7, expected:[3, 1]},
-				{index: 8, expected:[0, 2]},
-				{index: 9, expected:[1, 2]},
-				{index: 10, expected:[2, 2]},
-				{index: 11, expected:[3, 2]}
-			];
-
-			list.forEach(testItem => {
-				const result = o.toColRow(testItem.index, COL, ROW);
-				assert(result[0] === testItem.expected[0] && result[1] === testItem.expected[1]);
+			inst.on("load", e => {
+				assert(e.target !== null && e.bgElement !== null);
+				done();
 			});
 		});
-
-		it("should returns first or last col, row array by invalid index", () => {
+		it("should fire error event when image is not valid", (done) => {
 			const COL = 4;
 			const ROW = 3;
-
-			const o = new SpriteImage(target, {
+			const invalidUrl = "images/SpinViewer/bag360.invalid";
+			let inst = new SpinViewer(target, {
 				colCount: COL,
-				rowCount: ROW
+				rowCount: ROW,
+				imageUrl: invalidUrl
 			});
-
-			const list = [
-				{index: -1, expected:[0, 0]},
-				{index: 12, expected:[3, 2]}
-			];
-
-			list.forEach(testItem => {
-				const result = o.toColRow(testItem.index, COL, ROW);
-				assert(result[0] === testItem.expected[0] && result[1] === testItem.expected[1]);
+			inst.on("imageError", e => {
+				assert(e.imageUrl === invalidUrl);
+				done();
+			});
+		});
+		it("should fire change event when spin", (done) => {
+			const COL = 4;
+			const ROW = 3;
+			let inst = new SpinViewer(target, {
+				colCount: COL,
+				rowCount: ROW,
+				imageUrl: "images/SpinViewer/bag360.jpg"
+			});
+			inst.on({
+				"load": e => {
+					inst.spinBy({angle: 30, duration: 0})
+				},
+				"change": e => {
+					assert(e.angle === 30);
+					done();
+				}
+			});
+			inst.on("change", e => {
+				assert(e.target !== null && e.bgElement !== null);
+				done();
 			});
 		});
 	});
-
-	describe("setColRow", function() {
+	describe("setScale", function() {
 		var target
 		beforeEach(() => {
 			target = sandbox();
 			target.innerHTML = `<div"></div>`;
 		});
 
-		it("should set background position correctly", (done) => {
-			let o = new SpriteImage(target, {
-				imageUrl: "./images/SpinViewer/whale.png",
-				colCount: 10,
-				rowCount: 10
+		it("should update input's scale array", () => {
+			// Given
+			let inst = new SpinViewer(target, {
+				colCount: 3,
+				rowCount: 3
 			});
 
-			o.on("load", e => {
-				for (let y = 0; y < 10; y++) {
-					for (let x = 0; x < 10; x++) {
-						o.setColRow(x, y);
-						assert(e.bgElement.style.backgroundPosition === `${-x * 100}% ${-y * 100}%`);
-						assert(o.getFrameIndex() === (y * 10 + x));
-					}
-				}
-				done();
-			});
-		});
+			const prevScale = inst._panInput.options.scale;
 
-		it("should not change background position if col or row is out of range", (done) => {
-			let o = new SpriteImage(target, {
-				imageUrl: "./images/SpinViewer/whale.png",
-				colCount: 1,
-				rowCount: 1
-			});
+			// When
+			inst.setScale(3);
 
-			o.on("load", e => {
-				o.setColRow(1, 1);
-				assert(e.bgElement.style.backgroundPosition === "0% 0%");
-				done();
-			});
-		});
-	});
+			// Then
+			const currScale = inst._panInput.options.scale;
 
-	describe("frameIndex in constructor", function() {
-			let target;
-
-		beforeEach(() => {
-			target = sandbox();
-			target.innerHTML = `<div"></div>`;
-		});
-
-		it("should returns col, row array by index", () => {
-			const COL = 4;
-			const ROW = 3;
-
-			const o = new SpriteImage(target, {
-				colCount: COL,
-				rowCount: ROW,
-				frameIndex: 0
-			});
-
-			assert(o.getFrameIndex() === 0);
-
-			const resultColRow = o.getColRow();
-			assert(resultColRow[0] === 0 && resultColRow[1] === 0);
-		});
-
-		it("should not change background position if col or row is out of range", (done) => {
-			let o = new SpriteImage(target, {
-				imageUrl: "./images/SpinViewer/whale.png",
-				colCount: 10,
-				rowCount: 10,
-				frameIndex: 10
-			});
-
-			o.on("load", e => {
-				const cr = o.getColRow();
-				const fi = o.getFrameIndex();
-
-				assert(fi === 10);
-				assert(cr[0] === 0 && cr[1] === 1);
-				done();
-			});
-		});
-	});
-
-	describe("setFrameIndex", function() {
-		let target;
-
-		beforeEach(() => {
-			target = sandbox();
-			target.innerHTML = `<div"></div>`;
-		});
-
-		it("should returns col, row array by index", () => {
-			const COL = 4;
-			const ROW = 3;
-
-			const o = new SpriteImage(target, {
-				colCount: COL,
-				rowCount: ROW
-			});
-
-			const list = [
-				{index: 0, expected:[0, 0]},
-				{index: 1, expected:[1, 0]},
-				{index: 2, expected:[2, 0]},
-				{index: 3, expected:[3, 0]},
-				{index: 4, expected:[0, 1]},
-				{index: 5, expected:[1, 1]},
-				{index: 6, expected:[2, 1]},
-				{index: 7, expected:[3, 1]},
-				{index: 8, expected:[0, 2]},
-				{index: 9, expected:[1, 2]},
-				{index: 10, expected:[2, 2]},
-				{index: 11, expected:[3, 2]}
-			];
-
-			list.forEach(testItem => {
-				o.setFrameIndex(testItem.index);
-				const result = o.getColRow();
-
-				assert(result[0] === testItem.expected[0] && result[1] === testItem.expected[1]);
-			});
-		});
-
-		it("should set background position correctly", (done) => {
-			let o = new SpriteImage(target, {
-				imageUrl: "./images/SpinViewer/whale.png",
-				colCount: 10,
-				rowCount: 10
-			});
-
-			o.on("load", e => {
-				for (let y = 0; y < 10; y++) {
-					for (let x = 0; x < 10; x++) {
-						const frameIndex = y * 10 + x;
-
-						o.setFrameIndex(frameIndex);
-						assert(e.bgElement.style.backgroundPosition === `${-x * 100}% ${-y * 100}%`);
-						assert(o.getFrameIndex() === frameIndex);
-					}
-				}
-				done();
-			});
+			assert(prevScale[0] * 3 === currScale[0] && prevScale[1] * 3 === currScale[1]);
 		});
 	});
 });
