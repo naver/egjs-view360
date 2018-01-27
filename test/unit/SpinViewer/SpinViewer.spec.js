@@ -1,6 +1,6 @@
 import SpriteImage from "../../../src/SpinViewer/SpriteImage";
 
-describe.only("SpriteImage", function() {
+describe("SpriteImage", function() {
 	describe("create", function() {
 		var target;
 		beforeEach(() => {
