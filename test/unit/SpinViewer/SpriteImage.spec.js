@@ -92,4 +92,29 @@ describe("SpriteImage", function() {
 			});
 		});
 	});
+
+	describe("play", function() {
+		var target
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div"></div>`;
+		});
+		it("should update frame after play()", (done) => {
+			let o = new SpriteImage(target, {
+				imageUrl: "./images/SpinViewer/whale.png",
+				colCount: 10,
+				rowCount: 10
+			});
+
+			const prev = o.getFrameIndex();
+			const timeout = 1000 / 100 * 3;
+
+			o.play();
+			setTimeout(() => {
+				assert(o.getFrameIndex() !== prev);
+				o.stop();
+				done();
+			}, timeout);
+		});
+	});
 });
