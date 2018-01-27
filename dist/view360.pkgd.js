@@ -10178,8 +10178,8 @@ var ImageLoader = function (_Component) {
 	};
 
 	ImageLoader.isMaybeLoaded = function isMaybeLoaded(image) {
-		return image instanceof Image ? image.naturalWidth !== 0 : !image.some(function (img) {
-			return img.naturalWidth === 0;
+		return image instanceof Image ? image.complete && image.naturalWidth !== 0 : !image.some(function (img) {
+			return !img.complete || img.naturalWidth === 0;
 		});
 	};
 
