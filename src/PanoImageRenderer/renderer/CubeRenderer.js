@@ -149,7 +149,7 @@ export default class CubeRenderer extends Renderer {
 			}`;
 	}
 
-	static updateTexture(gl, texture, image, imageConfig) {
+	static updateTexture(gl, image, imageConfig) {
 		const baseOrder = "RLUDBF";
 		const order = CubeRenderer.extractOrder(imageConfig);
 		const orderMap = {};

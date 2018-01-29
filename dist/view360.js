@@ -5299,7 +5299,7 @@ var PanoImageRenderer = function (_Component) {
 	};
 
 	PanoImageRenderer.prototype._updateTexture = function _updateTexture() {
-		this._renderer.updateTexture(this.context, this.texture, this._image, this._imageConfig);
+		this._renderer.updateTexture(this.context, this._image, this._imageConfig);
 	};
 
 	PanoImageRenderer.prototype.keepUpdate = function keepUpdate(doUpdate) {
@@ -5676,7 +5676,7 @@ var CubeRenderer = function (_Renderer) {
 		return "\n\t\t\tvarying highp vec3 vVertexDirectionVector;\n\t\t\tuniform samplerCube uSampler;\n\t\t\tvoid main(void) {\n\t\t\t\tgl_FragColor = textureCube(uSampler, vVertexDirectionVector);\n\t\t\t}";
 	};
 
-	CubeRenderer.updateTexture = function updateTexture(gl, texture, image, imageConfig) {
+	CubeRenderer.updateTexture = function updateTexture(gl, image, imageConfig) {
 		var baseOrder = "RLUDBF";
 		var order = CubeRenderer.extractOrder(imageConfig);
 		var orderMap = {};
@@ -5846,9 +5846,9 @@ var SphereRenderer = function (_Renderer) {
 		return "\n\t\t\tvarying highp vec2 vTextureCoord;\n\t\t\tuniform sampler2D uSampler;\n\t\t\tvoid main(void) {\n\t\t\t\tgl_FragColor = texture2D(\n\t\t\t\t\tuSampler,\n\t\t\t\t\tvec2(vTextureCoord.s, vTextureCoord.t)\n\t\t\t\t);\n\t\t\t}";
 	};
 
-	SphereRenderer.updateTexture = function updateTexture(gl, texture, image) {
+	SphereRenderer.updateTexture = function updateTexture(gl, image) {
 		// Draw first frame
-		this.texImage2D(gl, image);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 	};
 
 	SphereRenderer.bindTexture = function bindTexture(gl, texture, image) {
@@ -5872,15 +5872,6 @@ var SphereRenderer = function (_Renderer) {
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 
 		SphereRenderer.updateTexture(gl, texture, image);
-	};
-
-	/**
-  * https://www.khronos.org/registry/OpenGL-Refpages/es2.0/xhtml/glTexImage2D.xml
-  */
-
-
-	SphereRenderer.texImage2D = function texImage2D(gl, image) {
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 	};
 
 	SphereRenderer._initData = function _initData() {

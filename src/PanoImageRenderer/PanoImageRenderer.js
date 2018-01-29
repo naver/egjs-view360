@@ -428,7 +428,6 @@ export default class PanoImageRenderer extends Component {
 	_updateTexture() {
 		this._renderer.updateTexture(
 			this.context,
-			this.texture,
 			this._image,
 			this._imageConfig,
 		);
