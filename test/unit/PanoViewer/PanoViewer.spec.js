@@ -1,6 +1,7 @@
 import PanoViewer from "../../../src/PanoViewer/PanoViewer";
 import {ERROR_TYPE, EVENTS} from "../../../src/PanoViewer/consts";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
+
 function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2) {
 	return new Promise(res => {
 		// When

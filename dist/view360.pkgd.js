@@ -11141,7 +11141,7 @@ var CubeRenderer = function (_Renderer) {
 
 	CubeRenderer.bindTexture = function bindTexture(gl, texture, image, imageConfig) {
 		gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-		CubeRenderer.updateTexture(gl, texture, image, imageConfig);
+		CubeRenderer.updateTexture(gl, image, imageConfig);
 	};
 
 	CubeRenderer.getSourceTileSize = function getSourceTileSize(image) {
@@ -11305,7 +11305,7 @@ var SphereRenderer = function (_Renderer) {
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 
-		SphereRenderer.updateTexture(gl, texture, image);
+		SphereRenderer.updateTexture(gl, image);
 	};
 
 	SphereRenderer._initData = function _initData() {

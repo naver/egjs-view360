@@ -189,7 +189,7 @@ export default class CubeRenderer extends Renderer {
 
 	static bindTexture(gl, texture, image, imageConfig) {
 		gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-		CubeRenderer.updateTexture(gl, texture, image, imageConfig);
+		CubeRenderer.updateTexture(gl, image, imageConfig);
 	}
 
 	static getSourceTileSize(image) {

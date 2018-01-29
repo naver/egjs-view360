@@ -75,7 +75,7 @@ export default class SphereRenderer extends Renderer {
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 
-		SphereRenderer.updateTexture(gl, texture, image);
+		SphereRenderer.updateTexture(gl, image);
 	}
 
 	static _initData() {
