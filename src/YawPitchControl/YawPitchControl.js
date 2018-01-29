@@ -1,5 +1,5 @@
 import Component from "@egjs/component";
-import Axes from "@egjs/axes";
+import Axes, {PanInput, PinchInput} from "@egjs/axes";
 import {getComputedStyle, SUPPORT_TOUCH, SUPPORT_DEVICEMOTION} from "./browser";
 import MoveKeyInput from "./input/MoveKeyInput";
 import WheelInput from "./input/WheelInput";
@@ -77,10 +77,10 @@ const YawPitchControl = class YawPitchControl extends Component {
 		const circular = yRange[1] - yRange[0] < 360 ?
 			[false, false] : [true, true];
 
-		this.axesPanInput = new Axes.PanInput(this._element);
+		this.axesPanInput = new PanInput(this._element);
 		this.axesWheelInput = new WheelInput(this._element, {scale: 4});
 		this.axesTiltMotionInput = SUPPORT_DEVICEMOTION ? new TiltMotionInput(this._element) : null;
-		this.axesPinchInput = SUPPORT_TOUCH ? new Axes.PinchInput(this._element, {scale: -1}) : null;
+		this.axesPinchInput = SUPPORT_TOUCH ? new PinchInput(this._element, {scale: -1}) : null;
 		this.axesMoveKeyInput = new MoveKeyInput(this._element, {scale: [-6, 6]});
 
 		this.axes = new Axes({
