@@ -43,8 +43,7 @@ describe("WebglUtils", function() {
 
         [
             {os: {name: "android", version: "4.3"}, browser: {name: "chrome"}},
-            {os: {name: "android", version: "4.4"}, browser: {name: "samsung internet"}},
-            {os: {name: "ios", version: "7"}, browser: {name: "safari"}}
+            {os: {name: "android", version: "4.4"}, browser: {name: "samsung internet"}}
         ].forEach(agentInfo => {
             it("on unstable browser: " + JSON.stringify(agentInfo), () => {
                 // Given

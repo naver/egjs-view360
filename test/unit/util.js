@@ -26,7 +26,7 @@ function compare(path, canvas, callback) {
 				.onComplete(data => {
 					const pct = parseFloat(data.misMatchPercentage);
 
-					callback(pct);
+					callback(pct, data);
 				}
 			);		
 		}, "image/png");

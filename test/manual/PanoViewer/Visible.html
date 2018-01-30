@@ -156,7 +156,10 @@ var visible = new eg.Visible(document,{
 
 			instance = new eg.view360.PanoViewer(viewerEl,{
 					image: viewerEl.getAttribute("data-source"),
-					projectionType: "vertical_cubestrip"
+					projectionType: "cubemap",
+					cubemapConfig: {
+						tileConfig: {flipHorizontal:true, rotation:0}
+					}
 				}
 			).on("ready", function(evt) {
 				viewerEl.classList.remove("loading");

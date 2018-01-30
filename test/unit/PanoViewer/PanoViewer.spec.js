@@ -2,8 +2,36 @@ import PanoViewer from "../../../src/PanoViewer/PanoViewer";
 import {ERROR_TYPE, EVENTS} from "../../../src/PanoViewer/consts";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 
+function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2) {
+	return new Promise(res => {
+		// When
+		inst.lookAt({
+			yaw, pitch, fov
+		}, 0);
+
+		// Then
+		compare(answerFile, inst._photoSphereRenderer.canvas, (pct, data) => {
+			expect(pct).to.be.below(threshold);
+			res();
+		});
+	});
+}
+
+function renderAndCompareSequentially(inst, tests) {
+	return new Promise(res => {
+		tests.reduce(
+			(promiseChain, currentTask) => promiseChain.then(() => promiseFactory(inst, ...currentTask)
+		)
+		, Promise.resolve([])).then(() => {
+			res();
+		});
+	});
+}
+
 describe("PanoViewer", function() {
 	let IT = WebGLUtils.isWebGLAvailable() ? it : it.skip;
+	const deviceRatio = window.devicePixelRatio;
+	const suffix = `_${deviceRatio}x.png`;
 
 	describe("constructor", function() {
 		let target;
@@ -50,6 +78,40 @@ describe("PanoViewer", function() {
 			});
 			expect(panoViewer.getVideo()).to.be.null;
 		});
+
+		IT("should config cubemap layout", done => {
+			// Given
+			panoViewer = new PanoViewer(target, {
+				projectionType: "cubemap",
+				width: 200,
+				height: 200,
+				showPolePoint: true,
+				image: "./images/test_cube_1x6_naver.jpg",
+				cubemapConfig: {
+					tileConfig: {flipHorizontal: true, rotation: 0}
+				}
+			});
+
+			// When
+			panoViewer.on("ready", when);
+
+			function when() {
+				// Then
+				renderAndCompareSequentially(
+					panoViewer,
+					[
+						[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, 2],
+						[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, 2],
+						[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, 2],
+						[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, 2],
+						[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, 2],
+						[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, 2]
+					]
+				).then(() => {
+					done();
+				});
+			}
+		});
 	});
 
 	describe("#setVideo/getVideo", function() {
@@ -83,11 +145,6 @@ describe("PanoViewer", function() {
 
 				expect(video).to.not.be.null;
 				expect(projectionType).to.equal(PanoViewer.ProjectionType.EQUIRECTANGULAR);
-				done();
-			});
-
-			panoViewer.on(PanoViewer.EVENTS.ERROR, e => {
-				assert.isOk(false, "Error event occurs");
 				done();
 			});
 
@@ -183,7 +240,7 @@ describe("PanoViewer", function() {
 				// When
 				// Change image of other projection type.
 				panoViewer.setImage("./images/glasscity_cube_1024.jpg", {
-					projectionType: PanoViewer.ProjectionType.VERTICAL_CUBESTRIP
+					projectionType: PanoViewer.ProjectionType.CUBEMAP
 				});
 			});
 		});

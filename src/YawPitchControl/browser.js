@@ -10,5 +10,6 @@ export {win as window};
 export const document = win.document;
 export const Float32Array = win.Float32Array;
 export const getComputedStyle = win.getComputedStyle;
+export const userAgent = win.navigator.userAgent;
 export const SUPPORT_TOUCH = "ontouchstart" in win;
 export const SUPPORT_DEVICEMOTION = "ondevicemotion" in win;
