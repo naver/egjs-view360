@@ -107,8 +107,8 @@ var presets = {
     "useZoom": true,
     "useKeyboard": true,
     "useGyro": "yawPitch",
-    "image": "../img/test_cube.jpg",
-    "projectionType": "vertical_cubestrip"
+    "image": "../img/test_cube_1x6_LRUDBF.jpg",
+    "projectionType": "cubemap"
   },
   "360_equi": {
     "yaw": 0,
@@ -298,7 +298,7 @@ var imageController = gui.add(object, 'image', 40, 360).onChange(function(value)
   render();
 });
 
-gui.add(object, 'projectionType', { equirectangular: 'equirectangular', vertical_cubestrip: 'vertical_cubestrip' } ).onChange(function(value) {
+gui.add(object, 'projectionType', { equirectangular: 'equirectangular', cubemap: 'cubemap' } ).onChange(function(value) {
   panoViewer.setImage(imageController.object.image, {
     projectionType: value
   });

@@ -1,5 +1,5 @@
 import Component from "@egjs/component";
-import Axes from "@egjs/axes";
+import Axes, {PanInput} from "@egjs/axes";
 import SpriteImage from "./SpriteImage";
 
 const DEFAULT_PAN_SCALE = 0.21;
@@ -91,7 +91,7 @@ export default class SpinViewer extends Component {
 		});
 
 		// Init Axes
-		this._panInput = new Axes.PanInput(this._el, {
+		this._panInput = new PanInput(this._el, {
 			scale: [this._scale, this._scale]
 		});
 		this._axes = new Axes({

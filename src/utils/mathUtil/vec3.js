@@ -41,6 +41,20 @@ vec3.fromValues = function(x, y, z) {
     return out;
 };
 
+vec3.set = function(out, x, y, z) {
+    out[0] = x;
+    out[1] = y;
+    out[2] = z;
+    return out;
+};
+
+vec3.copy = function(out, a) {
+    out[0] = a[0];
+    out[1] = a[1];
+    out[2] = a[2];
+    return out;
+};
+
 /**
  * Scales a vec3 by a scalar number
  *

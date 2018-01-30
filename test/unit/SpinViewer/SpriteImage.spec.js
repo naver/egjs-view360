@@ -36,9 +36,9 @@ describe("SpriteImage", function() {
 		});
 
 		// TODO: remote image fails on CI
-		it.skip("should fire load event if imageUrl is valid", (done) => {
+		it("should fire load event if imageUrl is valid", (done) => {
 			let o = new SpriteImage(target, {
-				imageUrl: "http://static.whale.naver.net/pc/header-wordmark.png"
+				imageUrl: "./images/SpinViewer/whale.png"
 			});
 
 			const callback = sinon.spy();
@@ -59,9 +59,9 @@ describe("SpriteImage", function() {
 			target.innerHTML = `<div"></div>`;
 		});
 
-		it.skip("should set background position correctly", (done) => {
+		it("should set background position correctly", (done) => {
 			let o = new SpriteImage(target, {
-				imageUrl: "http://static.whale.naver.net/58rebrand/whale.png",
+				imageUrl: "./images/SpinViewer/whale.png",
 				colCount: 10,
 				rowCount: 10
 			});
@@ -78,9 +78,9 @@ describe("SpriteImage", function() {
 		});
 
 		// TODO: remote image fails on CI
-		it.skip("should not change background position if col or row is out of range", (done) => {
+		it("should not change background position if col or row is out of range", (done) => {
 			let o = new SpriteImage(target, {
-				imageUrl: "http://static.whale.naver.net/58rebrand/whale.png",
+				imageUrl: "./images/SpinViewer/whale.png",
 				colCount: 1,
 				rowCount: 1
 			});
@@ -90,6 +90,31 @@ describe("SpriteImage", function() {
 				assert(e.bgElement.style.backgroundPosition === "0% 0%");
 				done();
 			});
+		});
+	});
+
+	describe("play", function() {
+		var target
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div"></div>`;
+		});
+		it("should update frame after play()", (done) => {
+			let o = new SpriteImage(target, {
+				imageUrl: "./images/SpinViewer/whale.png",
+				colCount: 10,
+				rowCount: 10
+			});
+
+			const prev = o.getFrameIndex();
+			const timeout = 1000 / 100 * 3;
+
+			o.play();
+			setTimeout(() => {
+				assert(o.getFrameIndex() !== prev);
+				o.stop();
+				done();
+			}, timeout);
 		});
 	});
 });

@@ -102,8 +102,8 @@ export default class ImageLoader extends Component {
 
 	static isMaybeLoaded(image) {
 		return image instanceof Image ?
-			image.naturalWidth !== 0 :
-			!image.some(img => img.naturalWidth === 0);
+			image.complete && image.naturalWidth !== 0 :
+			!image.some(img => !img.complete || img.naturalWidth === 0);
 	}
 
 	onceLoaded(target, onload, onerror) {

@@ -9,7 +9,7 @@ import {devicePixelRatio} from "./browser";
 
 const ImageType = {
 	EQUIRECTANGULAR: "equirectangular",
-	VERTICAL_CUBESTRIP: "vertical_cubestrip"
+	CUBEMAP: "cubemap"
 };
 
 let DEVICE_PIXEL_RATIO = devicePixelRatio || 1;
@@ -67,6 +67,7 @@ export default class PanoImageRenderer extends Component {
 		this.canvas = this._initCanvas(width, height);
 
 		this._image = null;
+		this._imageConfig = null;
 		this._imageIsReady = false;
 		this._shouldForceDraw = false;
 		this._keepUpdate = false; // Flag to specify 'continuous update' on video even when still.
@@ -75,7 +76,12 @@ export default class PanoImageRenderer extends Component {
 		this._onContentError = 	this._onContentError.bind(this);
 
 		if (image) {
-			this.setImage({image, imageType: sphericalConfig.imageType, isVideo});
+			this.setImage({
+				image,
+				imageType: sphericalConfig.imageType,
+				isVideo,
+				cubemapConfig: sphericalConfig.cubemapConfig
+			});
 		}
 	}
 
@@ -83,9 +89,19 @@ export default class PanoImageRenderer extends Component {
 		return this._image;
 	}
 
-	setImage({image, imageType, isVideo = false}) {
+	setImage({image, imageType, isVideo = false, cubemapConfig}) {
 		this._imageIsReady = false;
 		this._isVideo = isVideo;
+		this._imageConfig = Object.assign(
+			{
+				order: "RLUDBF",
+				tileConfig: {
+					flipHirozontal: false,
+					rotation: 0
+				}
+			},
+			cubemapConfig
+		);
 		this._setImageType(imageType);
 
 		if (this._contentLoader) {
@@ -118,8 +134,8 @@ export default class PanoImageRenderer extends Component {
 		}
 
 		this._imageType = imageType;
-		this._isCubeStrip = imageType === ImageType.VERTICAL_CUBESTRIP;
-		this._renderer = this._isCubeStrip ? CubeRenderer : SphereRenderer;
+		this._isCubeMap = imageType === ImageType.CUBEMAP;
+		this._renderer = this._isCubeMap ? CubeRenderer : SphereRenderer;
 		this._initWebGL();
 	}
 
@@ -150,7 +166,6 @@ export default class PanoImageRenderer extends Component {
 	_onContentError(error) {
 		this._imageIsReady = false;
 		this._image = null;
-
 		this.trigger(EVENTS.ERROR, {
 			type: ERROR_TYPE.FAIL_IMAGE_LOAD,
 			message: "failed to load image"
@@ -229,7 +244,9 @@ export default class PanoImageRenderer extends Component {
 	hasRenderingContext() {
 		if (!(this.context && !this.context.isContextLost())) {
 			return false;
-		} else if (!this.context.getProgramParameter(this.shaderProgram, this.context.LINK_STATUS)) {
+		} else if (
+			this.context &&
+			!this.context.getProgramParameter(this.shaderProgram, this.context.LINK_STATUS)) {
 			return false;
 		}
 		return true;
@@ -315,7 +332,7 @@ export default class PanoImageRenderer extends Component {
 		}
 		// 캔버스를 투명으로 채운다.
 		this.context.clearColor(0, 0, 0, 0);
-		const textureTarget = this._isCubeStrip ? this.context.TEXTURE_CUBE_MAP : this.context.TEXTURE_2D;
+		const textureTarget = this._isCubeMap ? this.context.TEXTURE_CUBE_MAP : this.context.TEXTURE_2D;
 
 		if (this.texture) {
 			this.context.deleteTexture(this.texture);
@@ -367,10 +384,8 @@ export default class PanoImageRenderer extends Component {
 		shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
 		shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
 		shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
-		if (!this._isCubeStrip) {
-			shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
-			gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
-		}
+		shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
+		gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 
 		// clear buffer
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
@@ -383,7 +398,7 @@ export default class PanoImageRenderer extends Component {
 	_initBuffers() {
 		const vertexPositionData = this._renderer.getVertexPositionData();
 		const indexData = this._renderer.getIndexData();
-		const textureCoordData = this._renderer.getTextureCoordData();
+		const textureCoordData = this._renderer.getTextureCoordData(this._imageConfig);
 		const gl = this.context;
 
 		this.vertexBuffer = WebGLUtils.initBuffer(
@@ -393,18 +408,29 @@ export default class PanoImageRenderer extends Component {
 		this.indexBuffer = WebGLUtils.initBuffer(
 			gl, gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexData), 1);
 
-		if (textureCoordData !== null) {
-			this.textureCoordBuffer = WebGLUtils.initBuffer(
-				gl, gl.ARRAY_BUFFER, new Float32Array(textureCoordData), 2,
-				this.shaderProgram.textureCoordAttribute);
-		}
+		this.textureCoordBuffer = WebGLUtils.initBuffer(
+			gl, gl.ARRAY_BUFFER, new Float32Array(textureCoordData), this._isCubeMap ? 3 : 2,
+			this.shaderProgram.textureCoordAttribute);
 	}
 
 	_bindTexture() {
-		this._renderer.bindTexture(this.context, this.texture, this._image);
+		this._renderer.bindTexture(
+			this.context,
+			this.texture,
+			this._image,
+			this._imageConfig,
+		);
 		this._shouldForceDraw = true;
 
 		this.trigger(EVENTS.BIND_TEXTURE);
+	}
+
+	_updateTexture() {
+		this._renderer.updateTexture(
+			this.context,
+			this._image,
+			this._imageConfig,
+		);
 	}
 
 	keepUpdate(doUpdate) {
@@ -437,7 +463,7 @@ export default class PanoImageRenderer extends Component {
 		mat4.identity(this.mvMatrix);
 		mat4.rotateX(this.mvMatrix, this.mvMatrix, -glMatrix.toRadian(pitch));
 		mat4.rotateY(this.mvMatrix, this.mvMatrix,
-		-glMatrix.toRadian(yaw - (this._isCubeStrip ? 0 : 90)));
+		-glMatrix.toRadian(yaw - (this._isCubeMap ? 0 : 90)));
 
 		this._draw();
 
@@ -455,7 +481,7 @@ export default class PanoImageRenderer extends Component {
 		gl.uniformMatrix4fv(this.shaderProgram.mvMatrixUniform, false, this.mvMatrix);
 
 		if (this._isVideo) {
-			this._renderer.texImage2D(this.context, this._image);
+			this._updateTexture();
 		}
 
 		if (this.indexBuffer) {

@@ -229,7 +229,7 @@ describe("ImageLoader", function() {
 			imgObj.src = "./images/PanoViewer/does_not_exist.jpg";
 			const inst = new ImageLoader(imgObj);
 
-			// When	
+			// When
 			inst.get()
 				.then(
 					() => {},
@@ -389,6 +389,25 @@ describe("ImageLoader", function() {
 					done();
 				};
 			});
+
+			/**
+			 * This situation(naturalWidth=exist/complete=false) is occurs when loading cached image on page reload.
+			 * So use mockImage because relaod page test cannot be available on mocha.
+			 */
+			it("should return false although image has naturalWidth (cached image is loaded on page reload)", () => {
+				// Given
+				// When
+				const mockImage = {
+					naturalWidth: 1024,
+					naturalHeight: 728,
+					complete: false
+				};
+
+				// Then
+				expect(mockImage.naturalWidth).to.be.not.equal(0);
+				expect(ImageLoader.isMaybeLoaded([mockImage])).to.be.false;
+			});
+
 			it("should return false when not loaded with single image", (done) => {
 				// Given
 				// When
@@ -403,7 +422,7 @@ describe("ImageLoader", function() {
 			it("should work with multiple image", (done) => {
 				// Given
 				const image1 = new Image();
-				const image2 = new Image();				
+				const image2 = new Image();
 
 				const p1 = new Promise((res, rej) => {
 					image1.onload = function() {

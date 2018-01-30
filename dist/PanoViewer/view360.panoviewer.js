@@ -16,7 +16,7 @@
 		exports["view360"] = factory(require("@egjs/component"), require("@egjs/axes"));
 	else
 		root["eg"] = root["eg"] || {}, root["eg"]["view360"] = factory(root["eg"]["Component"], root["eg"]["Axes"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_0__, __WEBPACK_EXTERNAL_MODULE_8__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_0__, __WEBPACK_EXTERNAL_MODULE_9__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -82,7 +82,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 16);
+/******/ 	return __webpack_require__(__webpack_require__.s = 17);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -330,12 +330,12 @@ module.exports = glMatrix;
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(process, global) {var require;/*!
+/* WEBPACK VAR INJECTION */(function(process, global) {/*!
  * @overview es6-promise - a tiny implementation of Promises/A+.
  * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/stefanpenner/es6-promise/master/LICENSE
- * @version   v4.2.2+97478eb6
+ * @version   v4.2.4+314e4831
  */
 
 (function (global, factory) {
@@ -468,8 +468,7 @@ function flush() {
 
 function attemptVertx() {
   try {
-    var r = require;
-    var vertx = __webpack_require__(42);
+    var vertx = Function('return this')().require('vertx');
     vertxNext = vertx.runOnLoop || vertx.runOnContext;
     return useVertxTimer();
   } catch (e) {
@@ -559,7 +558,7 @@ function resolve$1(object) {
   return promise;
 }
 
-var PROMISE_ID = Math.random().toString(36).substring(16);
+var PROMISE_ID = Math.random().toString(36).substring(2);
 
 function noop() {}
 
@@ -567,7 +566,7 @@ var PENDING = void 0;
 var FULFILLED = 1;
 var REJECTED = 2;
 
-var GET_THEN_ERROR = new ErrorObject();
+var TRY_CATCH_ERROR = { error: null };
 
 function selfFulfillment() {
   return new TypeError("You cannot resolve a promise with itself");
@@ -581,8 +580,8 @@ function getThen(promise) {
   try {
     return promise.then;
   } catch (error) {
-    GET_THEN_ERROR.error = error;
-    return GET_THEN_ERROR;
+    TRY_CATCH_ERROR.error = error;
+    return TRY_CATCH_ERROR;
   }
 }
 
@@ -641,9 +640,9 @@ function handleMaybeThenable(promise, maybeThenable, then$$1) {
   if (maybeThenable.constructor === promise.constructor && then$$1 === then && maybeThenable.constructor.resolve === resolve$1) {
     handleOwnThenable(promise, maybeThenable);
   } else {
-    if (then$$1 === GET_THEN_ERROR) {
-      reject(promise, GET_THEN_ERROR.error);
-      GET_THEN_ERROR.error = null;
+    if (then$$1 === TRY_CATCH_ERROR) {
+      reject(promise, TRY_CATCH_ERROR.error);
+      TRY_CATCH_ERROR.error = null;
     } else if (then$$1 === undefined) {
       fulfill(promise, maybeThenable);
     } else if (isFunction(then$$1)) {
@@ -737,12 +736,6 @@ function publish(promise) {
   promise._subscribers.length = 0;
 }
 
-function ErrorObject() {
-  this.error = null;
-}
-
-var TRY_CATCH_ERROR = new ErrorObject();
-
 function tryCatch(callback, detail) {
   try {
     return callback(detail);
@@ -814,10 +807,6 @@ function makePromise(promise) {
   promise._state = undefined;
   promise._result = undefined;
   promise._subscribers = [];
-}
-
-function validationError() {
-  return new Error('Array Methods must be provided an Array');
 }
 
 function validationError() {
@@ -1477,36 +1466,36 @@ Promise$1._asap = asap;
 
 /*global self*/
 function polyfill() {
-    var local = void 0;
+  var local = void 0;
 
-    if (typeof global !== 'undefined') {
-        local = global;
-    } else if (typeof self !== 'undefined') {
-        local = self;
-    } else {
-        try {
-            local = Function('return this')();
-        } catch (e) {
-            throw new Error('polyfill failed because global object is unavailable in this environment');
-        }
+  if (typeof global !== 'undefined') {
+    local = global;
+  } else if (typeof self !== 'undefined') {
+    local = self;
+  } else {
+    try {
+      local = Function('return this')();
+    } catch (e) {
+      throw new Error('polyfill failed because global object is unavailable in this environment');
+    }
+  }
+
+  var P = local.Promise;
+
+  if (P) {
+    var promiseToString = null;
+    try {
+      promiseToString = Object.prototype.toString.call(P.resolve());
+    } catch (e) {
+      // silently ignored
     }
 
-    var P = local.Promise;
-
-    if (P) {
-        var promiseToString = null;
-        try {
-            promiseToString = Object.prototype.toString.call(P.resolve());
-        } catch (e) {
-            // silently ignored
-        }
-
-        if (promiseToString === '[object Promise]' && !P.cast) {
-            return;
-        }
+    if (promiseToString === '[object Promise]' && !P.cast) {
+      return;
     }
+  }
 
-    local.Promise = Promise$1;
+  local.Promise = Promise$1;
 }
 
 // Strange compat..
@@ -1906,6 +1895,7 @@ exports.window = win;
 var document = exports.document = win.document;
 var Float32Array = exports.Float32Array = win.Float32Array;
 var getComputedStyle = exports.getComputedStyle = win.getComputedStyle;
+var userAgent = exports.userAgent = win.navigator.userAgent;
 var SUPPORT_TOUCH = exports.SUPPORT_TOUCH = "ontouchstart" in win;
 var SUPPORT_DEVICEMOTION = exports.SUPPORT_DEVICEMOTION = "ondevicemotion" in win;
 
@@ -1983,6 +1973,476 @@ exports.KEYMAP = KEYMAP;
 
 /***/ }),
 /* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*!
+ * Copyright (c) 2017 NAVER Corp.
+ * @egjs/agent project is licensed under the MIT license
+ * 
+ * @egjs/agent JavaScript library
+ * 
+ * 
+ * @version 2.1.2
+ */
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(true)
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else if(typeof exports === 'object')
+		exports["agent"] = factory();
+	else
+		root["eg"] = root["eg"] || {}, root["eg"]["agent"] = factory();
+})(this, function() {
+return /******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _agent = __webpack_require__(1);
+
+var _agent2 = _interopRequireDefault(_agent);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+module.exports = _agent2["default"]; /**
+                                      * Copyright (c) NAVER Corp.
+                                      * egjs-agent projects are licensed under the MIT license
+                                      */
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _browser = __webpack_require__(2);
+
+var _Parser = __webpack_require__(3);
+
+var _Parser2 = _interopRequireDefault(_Parser);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+/**
+ * @namespace eg
+ */
+
+/**
+ * Extracts browser and operating system information from the user agent string.
+ * @ko 유저 에이전트 문자열에서 브라우저와 운영체제 정보를 추출한다.
+ * @function eg#agent
+ * @param {String} [userAgent=navigator.userAgent] user agent string to parse <ko>파싱할 유저에이전트 문자열</ko>
+ * @return {Object} agentInfo
+ * @return {Object} agentInfo.os os Operating system information <ko>운영체제 정보</ko>
+ * @return {String} agentInfo.os.name Operating system name (android, ios, window, mac, unknown) <ko>운영체제 이름 (android, ios, window, mac, unknown)</ko>
+ * @return {String} agentInfo.os.version Operating system version <ko>운영체제 버전</ko>
+ * @return {String} agentInfo.browser Browser information <ko>브라우저 정보</ko>
+ * @return {String} agentInfo.browser.name Browser name (safari, chrome, sbrowser, ie, firefox, unknown) <ko>브라우저 이름 (safari, chrome, sbrowser, ie, firefox, unknown)</ko>
+ * @return {String} agentInfo.browser.version Browser version <ko>브라우저 버전 </ko>
+ * @return {Boolean} agentInfo.browser.webview Indicates whether the browser is inapp<ko>웹뷰 브라우저 여부</ko>
+ * @return {Boolean} agentInfo.isMobile Indicates whether the browser is for mobile<ko>모바일 브라우저 여부</ko>
+ */
+/**
+ * Copyright (c) NAVER Corp.
+ * egjs-agent projects are licensed under the MIT license
+ */
+function agent() {
+  var ua = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _browser.navigator.userAgent;
+
+  _Parser2["default"].setUa(ua);
+
+  var agentInfo = {
+    os: _Parser2["default"].getOs(),
+    browser: _Parser2["default"].getBrowser(),
+    isMobile: _Parser2["default"].getIsMobile()
+  };
+
+  agentInfo.browser.name = agentInfo.browser.name.toLowerCase();
+  agentInfo.os.name = agentInfo.os.name.toLowerCase();
+  agentInfo.os.version = agentInfo.os.version.toLowerCase();
+
+  if (agentInfo.os.name === "ios" && agentInfo.browser.webview) {
+    agentInfo.browser.version = "-1";
+  }
+
+  return agentInfo;
+}
+agent.VERSION = "2.1.2";
+exports["default"] = agent;
+module.exports = exports["default"];
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+var win = typeof window !== "undefined" && window || {};
+
+var RegExp = exports.RegExp = win.RegExp;
+var navigator = exports.navigator = win.navigator;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _parseRules = __webpack_require__(4);
+
+var _parseRules2 = _interopRequireDefault(_parseRules);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+var UA = void 0;
+
+function setUa(ua) {
+	UA = ua;
+}
+
+function isMatched(base, target) {
+	return target && target.test ? !!target.test(base) : base.indexOf(target) > -1;
+}
+
+function getIdentityStringFromArray(rules, defaultStrings) {
+	var matchedRule = rules.filter(function (rule) {
+		return isMatched(UA, rule.criteria);
+	})[0];
+
+	return matchedRule && matchedRule.identity || defaultStrings.name;
+}
+
+function getRule(rules, targetIdentity) {
+	return rules.filter(function (rule) {
+		var criteria = rule.criteria;
+		var identityMatched = new RegExp(rule.identity, "i").test(targetIdentity);
+
+		if (criteria ? identityMatched && isMatched(UA, criteria) : identityMatched) {
+			return true;
+		} else {
+			return false;
+		}
+	})[0];
+}
+
+function getBrowserName() {
+	return getIdentityStringFromArray(_parseRules2["default"].browser, _parseRules2["default"].defaultString.browser);
+}
+
+function getBrowserRule(browserName) {
+	var rule = getRule(_parseRules2["default"].browser, browserName);
+
+	if (!rule) {
+		rule = {
+			criteria: browserName,
+			versionSearch: browserName,
+			identity: browserName
+		};
+	}
+
+	return rule;
+}
+
+function extractBrowserVersion(versionToken, ua) {
+	var browserVersion = _parseRules2["default"].defaultString.browser.version;
+	var versionRegexResult = new RegExp("(" + versionToken + ")", "i").exec(ua);
+
+	if (!versionRegexResult) {
+		return browserVersion;
+	}
+
+	var versionTokenIndex = versionRegexResult.index;
+	var verTkn = versionRegexResult[0];
+
+	if (versionTokenIndex > -1) {
+		var versionIndex = versionTokenIndex + verTkn.length + 1;
+
+		browserVersion = ua.substring(versionIndex).split(" ")[0].replace(/_/g, ".").replace(/;|\)/g, "");
+	}
+	return browserVersion;
+}
+
+function getBrowserVersion(browserName) {
+	if (!browserName) {
+		return undefined;
+	}
+
+	// console.log(browserRule);
+	// const versionToken = browserRule ? browserRule.versionSearch : browserName;
+	var browserRule = getBrowserRule(browserName);
+	var versionToken = browserRule.versionSearch || browserName;
+	var browserVersion = extractBrowserVersion(versionToken, UA);
+
+	return browserVersion;
+}
+
+function isWebview() {
+	var webviewRules = _parseRules2["default"].webview;
+	var browserVersion = void 0;
+
+	return webviewRules.filter(function (rule) {
+		return isMatched(UA, rule.criteria);
+	}).some(function (rule) {
+		browserVersion = extractBrowserVersion(rule.browserVersionSearch, UA);
+		if (isMatched(UA, rule.webviewToken) || isMatched(browserVersion, rule.webviewBrowserVersion)) {
+			return true;
+		} else {
+			return false;
+		}
+	});
+}
+
+function getOSRule(osName) {
+	return getRule(_parseRules2["default"].os, osName);
+}
+
+function getOsName() {
+	return getIdentityStringFromArray(_parseRules2["default"].os, _parseRules2["default"].defaultString.os);
+}
+
+function getOsVersion(osName) {
+	var osRule = getOSRule(osName) || {};
+	var defaultOSVersion = _parseRules2["default"].defaultString.os.version;
+	var osVersion = void 0;
+
+	if (!osName) {
+		return undefined;
+	}
+	if (osRule.versionAlias) {
+		return osRule.versionAlias;
+	}
+	var osVersionToken = osRule.versionSearch || osName;
+	var osVersionRegex = new RegExp("(" + osVersionToken + ")\\s([\\d_\\.]+|\\d_0)", "i");
+	var osVersionRegexResult = osVersionRegex.exec(UA);
+
+	if (osVersionRegexResult) {
+		osVersion = osVersionRegex.exec(UA)[2].replace(/_/g, ".").replace(/;|\)/g, "");
+	}
+	return osVersion || defaultOSVersion;
+}
+
+function getOs() {
+	var name = getOsName();
+	var version = getOsVersion(name);
+
+	return { name: name, version: version };
+}
+
+function getBrowser() {
+	var name = getBrowserName();
+	var version = getBrowserVersion(name);
+
+	return { name: name, version: version, webview: isWebview() };
+}
+
+function getIsMobile() {
+	return UA.indexOf("Mobi") !== -1;
+}
+
+exports["default"] = {
+	getOs: getOs,
+	getBrowser: getBrowser,
+	getIsMobile: getIsMobile,
+	setUa: setUa
+};
+module.exports = exports["default"];
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+var parseRules = {
+	browser: [{
+		criteria: "PhantomJS",
+		identity: "PhantomJS"
+	}, {
+		criteria: /Whale/,
+		identity: "Whale",
+		versionSearch: "Whale"
+	}, {
+		criteria: /Edge/,
+		identity: "Edge",
+		versionSearch: "Edge"
+	}, {
+		criteria: /MSIE|Trident|Windows Phone/,
+		identity: "IE",
+		versionSearch: "IEMobile|MSIE|rv"
+	}, {
+		criteria: /MiuiBrowser/,
+		identity: "MIUI Browser",
+		versionSearch: "MiuiBrowser"
+	}, {
+		criteria: /SamsungBrowser/,
+		identity: "Samsung Internet",
+		versionSearch: "SamsungBrowser"
+	}, {
+		criteria: /SAMSUNG /,
+		identity: "Samsung Internet",
+		versionSearch: "Version"
+	}, {
+		criteria: /Chrome|CriOS/,
+		identity: "Chrome"
+	}, {
+		criteria: /Android/,
+		identity: "Android Browser",
+		versionSearch: "Version"
+	}, {
+		criteria: /iPhone|iPad/,
+		identity: "Safari",
+		versionSearch: "Version"
+	}, {
+		criteria: "Apple",
+		identity: "Safari",
+		versionSearch: "Version"
+	}, {
+		criteria: "Firefox",
+		identity: "Firefox"
+	}],
+	os: [{
+		criteria: /Windows Phone/,
+		identity: "Windows Phone",
+		versionSearch: "Windows Phone"
+	}, {
+		criteria: "Windows 2000",
+		identity: "Window",
+		versionAlias: "5.0"
+	}, {
+		criteria: /Windows NT/,
+		identity: "Window",
+		versionSearch: "Windows NT"
+	}, {
+		criteria: /iPhone|iPad/,
+		identity: "iOS",
+		versionSearch: "iPhone OS|CPU OS"
+	}, {
+		criteria: "Mac",
+		versionSearch: "OS X",
+		identity: "MAC"
+	}, {
+		criteria: /Android/,
+		identity: "Android"
+	}, {
+		criteria: /Tizen/,
+		identity: "Tizen"
+	}, {
+		criteria: /Web0S/,
+		identity: "WebOS"
+	}],
+
+	// Webview check condition
+	// ios: If has no version information
+	// Android 5.0 && chrome 40+: Presence of "; wv" in userAgent
+	// Under android 5.0: Presence of "NAVER" or "Daum" in userAgent
+	webview: [{
+		criteria: /iPhone|iPad/,
+		browserVersionSearch: "Version",
+		webviewBrowserVersion: /-1/
+	}, {
+		criteria: /iPhone|iPad|Android/,
+		webviewToken: /NAVER|DAUM|; wv/
+
+	}],
+	defaultString: {
+		browser: {
+			version: "-1",
+			name: "unknown"
+		},
+		os: {
+			version: "-1",
+			name: "unknown"
+		}
+	}
+};
+
+exports["default"] = parseRules;
+module.exports = exports["default"];
+
+/***/ })
+/******/ ]);
+});
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports) {
 
 /*
@@ -2469,14 +2929,14 @@ module.exports = Util;
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE_8__;
+module.exports = __WEBPACK_EXTERNAL_MODULE_9__;
 
 /***/ }),
-/* 9 */,
-/* 10 */
+/* 10 */,
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2484,9 +2944,11 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_8__;
 
 exports.__esModule = true;
 
-var _agent = __webpack_require__(13);
+var _agent = __webpack_require__(7);
 
 var _agent2 = _interopRequireDefault(_agent);
+
+var _browser = __webpack_require__(12);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -2571,6 +3033,7 @@ var WebGLUtils = function () {
 	WebGLUtils.getWebglContext = function getWebglContext(canvas) {
 		var webglIdentifiers = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
 		var context = null;
+		var shouldPreserveDrawingBuffer = !(_browser.userAgent.indexOf("NAVER") !== -1 && _browser.userAgent.indexOf("SM-G925S") !== -1);
 
 		function onWebglcontextcreationerror(e) {
 			return e.statusMessage;
@@ -2582,7 +3045,7 @@ var WebGLUtils = function () {
 			try {
 				// preserveDrawingBuffer: if true, the Galaxy s6 Naver app will experience tremor
 				context = canvas.getContext(webglIdentifiers[i], {
-					preserveDrawingBuffer: false,
+					preserveDrawingBuffer: shouldPreserveDrawingBuffer,
 					antialias: false /* TODO: Make it user option for antialiasing */
 				});
 			} catch (t) {}
@@ -2641,8 +3104,8 @@ var WebGLUtils = function () {
 
 
 	WebGLUtils.isStableWebGL = function isStableWebGL() {
-		var isStableWebgl = true;
 		var agentInfo = (0, _agent2["default"])();
+		var isStableWebgl = true;
 
 		if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) <= 4.3) {
 			isStableWebgl = false;
@@ -2650,10 +3113,7 @@ var WebGLUtils = function () {
 			if (agentInfo.browser.name !== "chrome") {
 				isStableWebgl = false;
 			}
-		} else if (agentInfo.os.name === "ios" && parseInt(agentInfo.os.version, 10) <= 7) {
-			isStableWebgl = false;
 		}
-
 		return isStableWebgl;
 	};
 
@@ -2671,7 +3131,18 @@ var WebGLUtils = function () {
 exports["default"] = WebGLUtils;
 
 /***/ }),
-/* 11 */
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+var userAgent = exports.userAgent = window.navigator.userAgent;
+var devicePixelRatio = exports.devicePixelRatio = window.devicePixelRatio;
+
+/***/ }),
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2688,7 +3159,7 @@ var Renderer = function Renderer() {
 exports["default"] = Renderer;
 
 /***/ }),
-/* 12 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2712,477 +3183,7 @@ exports["default"] = util;
 exports.toAxis = toAxis;
 
 /***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*!
- * Copyright (c) 2017 NAVER Corp.
- * @egjs/agent project is licensed under the MIT license
- * 
- * @egjs/agent JavaScript library
- * 
- * 
- * @version 2.1.2
- */
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(true)
-		module.exports = factory();
-	else if(typeof define === 'function' && define.amd)
-		define([], factory);
-	else if(typeof exports === 'object')
-		exports["agent"] = factory();
-	else
-		root["eg"] = root["eg"] || {}, root["eg"]["agent"] = factory();
-})(this, function() {
-return /******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
-/******/ })
-/************************************************************************/
-/******/ ([
-/* 0 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _agent = __webpack_require__(1);
-
-var _agent2 = _interopRequireDefault(_agent);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-module.exports = _agent2["default"]; /**
-                                      * Copyright (c) NAVER Corp.
-                                      * egjs-agent projects are licensed under the MIT license
-                                      */
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-
-var _browser = __webpack_require__(2);
-
-var _Parser = __webpack_require__(3);
-
-var _Parser2 = _interopRequireDefault(_Parser);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-/**
- * @namespace eg
- */
-
-/**
- * Extracts browser and operating system information from the user agent string.
- * @ko 유저 에이전트 문자열에서 브라우저와 운영체제 정보를 추출한다.
- * @function eg#agent
- * @param {String} [userAgent=navigator.userAgent] user agent string to parse <ko>파싱할 유저에이전트 문자열</ko>
- * @return {Object} agentInfo
- * @return {Object} agentInfo.os os Operating system information <ko>운영체제 정보</ko>
- * @return {String} agentInfo.os.name Operating system name (android, ios, window, mac, unknown) <ko>운영체제 이름 (android, ios, window, mac, unknown)</ko>
- * @return {String} agentInfo.os.version Operating system version <ko>운영체제 버전</ko>
- * @return {String} agentInfo.browser Browser information <ko>브라우저 정보</ko>
- * @return {String} agentInfo.browser.name Browser name (safari, chrome, sbrowser, ie, firefox, unknown) <ko>브라우저 이름 (safari, chrome, sbrowser, ie, firefox, unknown)</ko>
- * @return {String} agentInfo.browser.version Browser version <ko>브라우저 버전 </ko>
- * @return {Boolean} agentInfo.browser.webview Indicates whether the browser is inapp<ko>웹뷰 브라우저 여부</ko>
- * @return {Boolean} agentInfo.isMobile Indicates whether the browser is for mobile<ko>모바일 브라우저 여부</ko>
- */
-/**
- * Copyright (c) NAVER Corp.
- * egjs-agent projects are licensed under the MIT license
- */
-function agent() {
-  var ua = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _browser.navigator.userAgent;
-
-  _Parser2["default"].setUa(ua);
-
-  var agentInfo = {
-    os: _Parser2["default"].getOs(),
-    browser: _Parser2["default"].getBrowser(),
-    isMobile: _Parser2["default"].getIsMobile()
-  };
-
-  agentInfo.browser.name = agentInfo.browser.name.toLowerCase();
-  agentInfo.os.name = agentInfo.os.name.toLowerCase();
-  agentInfo.os.version = agentInfo.os.version.toLowerCase();
-
-  if (agentInfo.os.name === "ios" && agentInfo.browser.webview) {
-    agentInfo.browser.version = "-1";
-  }
-
-  return agentInfo;
-}
-agent.VERSION = "2.1.2";
-exports["default"] = agent;
-module.exports = exports["default"];
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-var win = typeof window !== "undefined" && window || {};
-
-var RegExp = exports.RegExp = win.RegExp;
-var navigator = exports.navigator = win.navigator;
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-
-var _parseRules = __webpack_require__(4);
-
-var _parseRules2 = _interopRequireDefault(_parseRules);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-var UA = void 0;
-
-function setUa(ua) {
-	UA = ua;
-}
-
-function isMatched(base, target) {
-	return target && target.test ? !!target.test(base) : base.indexOf(target) > -1;
-}
-
-function getIdentityStringFromArray(rules, defaultStrings) {
-	var matchedRule = rules.filter(function (rule) {
-		return isMatched(UA, rule.criteria);
-	})[0];
-
-	return matchedRule && matchedRule.identity || defaultStrings.name;
-}
-
-function getRule(rules, targetIdentity) {
-	return rules.filter(function (rule) {
-		var criteria = rule.criteria;
-		var identityMatched = new RegExp(rule.identity, "i").test(targetIdentity);
-
-		if (criteria ? identityMatched && isMatched(UA, criteria) : identityMatched) {
-			return true;
-		} else {
-			return false;
-		}
-	})[0];
-}
-
-function getBrowserName() {
-	return getIdentityStringFromArray(_parseRules2["default"].browser, _parseRules2["default"].defaultString.browser);
-}
-
-function getBrowserRule(browserName) {
-	var rule = getRule(_parseRules2["default"].browser, browserName);
-
-	if (!rule) {
-		rule = {
-			criteria: browserName,
-			versionSearch: browserName,
-			identity: browserName
-		};
-	}
-
-	return rule;
-}
-
-function extractBrowserVersion(versionToken, ua) {
-	var browserVersion = _parseRules2["default"].defaultString.browser.version;
-	var versionRegexResult = new RegExp("(" + versionToken + ")", "i").exec(ua);
-
-	if (!versionRegexResult) {
-		return browserVersion;
-	}
-
-	var versionTokenIndex = versionRegexResult.index;
-	var verTkn = versionRegexResult[0];
-
-	if (versionTokenIndex > -1) {
-		var versionIndex = versionTokenIndex + verTkn.length + 1;
-
-		browserVersion = ua.substring(versionIndex).split(" ")[0].replace(/_/g, ".").replace(/;|\)/g, "");
-	}
-	return browserVersion;
-}
-
-function getBrowserVersion(browserName) {
-	if (!browserName) {
-		return undefined;
-	}
-
-	// console.log(browserRule);
-	// const versionToken = browserRule ? browserRule.versionSearch : browserName;
-	var browserRule = getBrowserRule(browserName);
-	var versionToken = browserRule.versionSearch || browserName;
-	var browserVersion = extractBrowserVersion(versionToken, UA);
-
-	return browserVersion;
-}
-
-function isWebview() {
-	var webviewRules = _parseRules2["default"].webview;
-	var browserVersion = void 0;
-
-	return webviewRules.filter(function (rule) {
-		return isMatched(UA, rule.criteria);
-	}).some(function (rule) {
-		browserVersion = extractBrowserVersion(rule.browserVersionSearch, UA);
-		if (isMatched(UA, rule.webviewToken) || isMatched(browserVersion, rule.webviewBrowserVersion)) {
-			return true;
-		} else {
-			return false;
-		}
-	});
-}
-
-function getOSRule(osName) {
-	return getRule(_parseRules2["default"].os, osName);
-}
-
-function getOsName() {
-	return getIdentityStringFromArray(_parseRules2["default"].os, _parseRules2["default"].defaultString.os);
-}
-
-function getOsVersion(osName) {
-	var osRule = getOSRule(osName) || {};
-	var defaultOSVersion = _parseRules2["default"].defaultString.os.version;
-	var osVersion = void 0;
-
-	if (!osName) {
-		return undefined;
-	}
-	if (osRule.versionAlias) {
-		return osRule.versionAlias;
-	}
-	var osVersionToken = osRule.versionSearch || osName;
-	var osVersionRegex = new RegExp("(" + osVersionToken + ")\\s([\\d_\\.]+|\\d_0)", "i");
-	var osVersionRegexResult = osVersionRegex.exec(UA);
-
-	if (osVersionRegexResult) {
-		osVersion = osVersionRegex.exec(UA)[2].replace(/_/g, ".").replace(/;|\)/g, "");
-	}
-	return osVersion || defaultOSVersion;
-}
-
-function getOs() {
-	var name = getOsName();
-	var version = getOsVersion(name);
-
-	return { name: name, version: version };
-}
-
-function getBrowser() {
-	var name = getBrowserName();
-	var version = getBrowserVersion(name);
-
-	return { name: name, version: version, webview: isWebview() };
-}
-
-function getIsMobile() {
-	return UA.indexOf("Mobi") !== -1;
-}
-
-exports["default"] = {
-	getOs: getOs,
-	getBrowser: getBrowser,
-	getIsMobile: getIsMobile,
-	setUa: setUa
-};
-module.exports = exports["default"];
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-var parseRules = {
-	browser: [{
-		criteria: "PhantomJS",
-		identity: "PhantomJS"
-	}, {
-		criteria: /Whale/,
-		identity: "Whale",
-		versionSearch: "Whale"
-	}, {
-		criteria: /Edge/,
-		identity: "Edge",
-		versionSearch: "Edge"
-	}, {
-		criteria: /MSIE|Trident|Windows Phone/,
-		identity: "IE",
-		versionSearch: "IEMobile|MSIE|rv"
-	}, {
-		criteria: /MiuiBrowser/,
-		identity: "MIUI Browser",
-		versionSearch: "MiuiBrowser"
-	}, {
-		criteria: /SamsungBrowser/,
-		identity: "Samsung Internet",
-		versionSearch: "SamsungBrowser"
-	}, {
-		criteria: /SAMSUNG /,
-		identity: "Samsung Internet",
-		versionSearch: "Version"
-	}, {
-		criteria: /Chrome|CriOS/,
-		identity: "Chrome"
-	}, {
-		criteria: /Android/,
-		identity: "Android Browser",
-		versionSearch: "Version"
-	}, {
-		criteria: /iPhone|iPad/,
-		identity: "Safari",
-		versionSearch: "Version"
-	}, {
-		criteria: "Apple",
-		identity: "Safari",
-		versionSearch: "Version"
-	}, {
-		criteria: "Firefox",
-		identity: "Firefox"
-	}],
-	os: [{
-		criteria: /Windows Phone/,
-		identity: "Windows Phone",
-		versionSearch: "Windows Phone"
-	}, {
-		criteria: "Windows 2000",
-		identity: "Window",
-		versionAlias: "5.0"
-	}, {
-		criteria: /Windows NT/,
-		identity: "Window",
-		versionSearch: "Windows NT"
-	}, {
-		criteria: /iPhone|iPad/,
-		identity: "iOS",
-		versionSearch: "iPhone OS|CPU OS"
-	}, {
-		criteria: "Mac",
-		versionSearch: "OS X",
-		identity: "MAC"
-	}, {
-		criteria: /Android/,
-		identity: "Android"
-	}, {
-		criteria: /Tizen/,
-		identity: "Tizen"
-	}, {
-		criteria: /Web0S/,
-		identity: "WebOS"
-	}],
-
-	// Webview check condition
-	// ios: If has no version information
-	// Android 5.0 && chrome 40+: Presence of "; wv" in userAgent
-	// Under android 5.0: Presence of "NAVER" or "Daum" in userAgent
-	webview: [{
-		criteria: /iPhone|iPad/,
-		browserVersionSearch: "Version",
-		webviewBrowserVersion: /-1/
-	}, {
-		criteria: /iPhone|iPad|Android/,
-		webviewToken: /NAVER|DAUM|; wv/
-
-	}],
-	defaultString: {
-		browser: {
-			version: "-1",
-			name: "unknown"
-		},
-		os: {
-			version: "-1",
-			name: "unknown"
-		}
-	}
-};
-
-exports["default"] = parseRules;
-module.exports = exports["default"];
-
-/***/ })
-/******/ ]);
-});
-
-/***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3211,7 +3212,7 @@ _YawPitchControl2["default"].TOUCH_DIRECTION_NONE = _consts.TOUCH_DIRECTION_NONE
 exports.YawPitchControl = _YawPitchControl2["default"];
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3225,7 +3226,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _YawPitchControl = __webpack_require__(14);
+var _YawPitchControl = __webpack_require__(15);
 
 var _PanoImageRenderer = __webpack_require__(23);
 
@@ -3256,9 +3257,10 @@ var PanoViewer = function (_Component) {
   * @param {HTMLElement} container The container element for the renderer. <ko>렌더러의 컨테이너 엘리먼트</ko>
   * @param {Object} config
   *
-  * @param {String|Image} config.image Input image url or image object<ko>입력 이미지 URL 혹은 이미지 객체(image 와 video 둘 중 하나만 설정한다.)</ko>
-  * @param {String|HTMLVideoElement} config.video Input video url or tag<ko>입력 비디오 URL 혹은 video 태그(image 와 video 둘 중 하나만 설정한다.)</ko>
-  * @param {String} [config.projectionType=equirectangular] The type of projection: equirectangular, vertival_cubestrip <ko>Projection 유형 : equirectangular, vertival_cubestrip</ko>
+  * @param {String|Image} config.image Input image url or element<ko>입력 이미지 URL 혹은 엘리먼트(image 와 video 둘 중 하나만 설정한다.)</ko>
+  * @param {String|HTMLVideoElement} config.video Input video url or element<ko>입력 비디오 URL 혹은 엘리먼트(image 와 video 둘 중 하나만 설정한다.)</ko>
+  * @param {String} [config.projectionType=equirectangular] The type of projection: equirectangular, cubemap <ko>Projection 유형 : equirectangular, cubemap</ko>
+  * @param {Object} config.cubemapConfig config cubemap projection layout. <ko>cubemap projection type 의 레이아웃을 설정한다.</ko>
   * @param {Number} [config.width=width of container] the viewer's width. (in px) <ko>뷰어의 너비 (px 단위)</ko>
   * @param {Number} [config.height=height of container] the viewer's height.(in px) <ko>뷰어의 높이 (px 단위)</ko>
   *
@@ -3272,31 +3274,17 @@ var PanoViewer = function (_Component) {
   * @param {Array} [config.yawRange=[-180, 180]] Range of controllable Yaw values <ko>제어 가능한 Yaw 값의 범위</ko>
   * @param {Array} [config.pitchRange=[-90, 90]] Range of controllable Pitch values <ko>제어 가능한 Pitch 값의 범위</ko>
   * @param {Array} [config.fovRange=[30, 110]] Range of controllable vertical field of view values <ko>제어 가능한 수직 field of view 값의 범위</ko>
-  * @param {Function} [config.checkSupport] A function that returns a boolean value that determines whether the component is working. <ko>뷰어가 작동할 지 여부를 결정하는 부울 값을 반환하는 함수입니다.</ko>
   */
 	function PanoViewer(container) {
 		var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
 		_classCallCheck(this, PanoViewer);
 
+		// Raises the error event if webgl is not supported.
 		var _this = _possibleConstructorReturn(this, _Component.call(this));
 
-		if (options.checkSupport && !options.checkSupport()) {
-			var _ret;
-
-			setTimeout(function () {
-				_this.trigger(_consts.EVENTS.ERROR, {
-					type: _consts.ERROR_TYPE.INVALID_DEVICE,
-					message: "invalid device"
-				});
-			}, 0);
-
-			return _ret = _this, _possibleConstructorReturn(_this, _ret);
-		}
-
-		// Raises the error event if webgl is not supported.
 		if (!_PanoImageRenderer.WebGLUtils.isWebGLAvailable()) {
-			var _ret2;
+			var _ret;
 
 			setTimeout(function () {
 				_this.trigger(_consts.EVENTS.ERROR, {
@@ -3304,6 +3292,19 @@ var PanoViewer = function (_Component) {
 					message: "no webgl support"
 				});
 			}, 0);
+			return _ret = _this, _possibleConstructorReturn(_this, _ret);
+		}
+
+		if (!_PanoImageRenderer.WebGLUtils.isStableWebGL()) {
+			var _ret2;
+
+			setTimeout(function () {
+				_this.trigger(_consts.EVENTS.ERROR, {
+					type: _consts.ERROR_TYPE.INVALID_DEVICE,
+					message: "blacklisted browser"
+				});
+			}, 0);
+
 			return _ret2 = _this, _possibleConstructorReturn(_this, _ret2);
 		}
 
@@ -3323,6 +3324,13 @@ var PanoViewer = function (_Component) {
 		_this._image = options.image || options.video;
 		_this._isVideo = !!options.video;
 		_this._projectionType = options.projectionType || _PanoImageRenderer.PanoImageRenderer.ImageType.EQUIRECTANGULAR;
+		_this._cubemapConfig = _extends({
+			order: "RLUDBF",
+			tileConfig: {
+				flipHirozontal: false,
+				rotation: 0
+			}
+		}, options.cubemapConfig);
 
 		// If the width and height are not provided, will use the size of the container.
 		_this._width = options.width || parseInt(window.getComputedStyle(container).width, 10);
@@ -3350,7 +3358,7 @@ var PanoViewer = function (_Component) {
 		_this._isReady = false;
 
 		_this._initYawPitchControl(yawPitchConfig);
-		_this._initRenderer(_this._yaw, _this._pitch, _this._fov, _this._projectionType);
+		_this._initRenderer(_this._yaw, _this._pitch, _this._fov, _this._projectionType, _this._cubemapConfig);
 		return _this;
 	}
 
@@ -3374,22 +3382,27 @@ var PanoViewer = function (_Component) {
   * Setting the video information to be used by the viewer.
   * @ko 뷰어가 사용할 이미지 정보를 설정 합니다.
   * @method eg.view360.PanoViewer#setVideo
-  * @param {String|HTMLVideoElement} video Video URL or Video Tag<ko>비디오 URL 혹은 비디오 태그</ko>
+  * @param {String|HTMLVideoElement|Object} video Input video url or element or config object<ko>입력 비디오 URL 혹은 엘리먼트 혹은 설정객체를 활용(image 와 video 둘 중 하나만 설정한다.)</ko>
   * @param {Object} param
   * @param {String} [param.projectionType="equirectangular"] Projection Type<ko>프로젝션 타입</ko>
+  * @param {Object} param.cubemapConfig config cubemap projection layout. <ko>cubemap projection type 의 레이아웃을 설정한다.</ko>
   *
   * @return {PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
   */
 
 
 	PanoViewer.prototype.setVideo = function setVideo(video) {
-		var param = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : { projectionType: _PanoImageRenderer.PanoImageRenderer.ImageType.EQUIRECTANGULAR };
+		var param = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
 		if (!video) {
 			return this;
 		}
 
-		this.setImage(video, { projectionType: param.projectionType, isVideo: true });
+		this.setImage(video, {
+			projectionType: param.projectionType,
+			isVideo: true,
+			cubemapConfig: param.cubemapConfig
+		});
 		return this;
 	};
 
@@ -3413,24 +3426,28 @@ var PanoViewer = function (_Component) {
   * Setting the image information to be used by the viewer.
   * @ko 뷰어가 사용할 이미지 정보를 설정 합니다.
   * @method eg.view360.PanoViewer#setImage
-  * @param {String|Image} image ImageURL or Image Object<ko>이미지 URL 혹은 Image 객체</ko>
+  * @param {String|Image|Object} image Input image url or element or config object<ko>입력 이미지 URL 혹은 엘리먼트 혹은 설정객체를 활용(image 와 video 둘 중 하나만 설정한다.)</ko>
   * @param {Object} param Additional information<ko>이미지 추가 정보</ko>
   * @param {String} [param.projectionType="equirectangular"] Projection Type<ko>프로젝션 타입</ko>
+  * @param {Object} param.cubemapConfig config cubemap projection layout. <ko>cubemap projection type 의 레이아웃을 설정한다.</ko>
   *
   * @return {PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
   */
 
 
 	PanoViewer.prototype.setImage = function setImage(image) {
-		var param = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
-			projectionType: _PanoImageRenderer.PanoImageRenderer.ImageType.EQUIRECTANGULAR,
-			isVideo: false
-		};
+		var param = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-		var projectionType = param.projectionType || _PanoImageRenderer.PanoImageRenderer.ImageType.EQUIRECTANGULAR;
-		var isVideo = param.isVideo || false;
+		var cubemapConfig = _extends({
+			order: "RLUDBF",
+			tileConfig: {
+				flipHirozontal: false,
+				rotation: 0
+			}
+		}, param.cubemapConfig);
+		var isVideo = !!param.isVideo;
 
-		if (this._image && isVideo !== this._isVideo) {
+		if (this._image && this._isVideo !== isVideo) {
 			/* eslint-disable no-console */
 			console.warn("Currently not supporting to change content type(Image <--> Video)");
 			/* eslint-enable no-console */
@@ -3443,10 +3460,11 @@ var PanoViewer = function (_Component) {
 
 		this._image = image;
 		this._isVideo = isVideo;
-		this._projectionType = projectionType;
+		this._projectionType = param.projectionType || _PanoImageRenderer.PanoImageRenderer.ImageType.EQUIRECTANGULAR;
+		this._cubemapConfig = cubemapConfig;
 
 		this._deactivate();
-		this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType);
+		this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType, this._cubemapConfig);
 
 		return this;
 	};
@@ -3468,14 +3486,15 @@ var PanoViewer = function (_Component) {
 		return this._projectionType;
 	};
 
-	PanoViewer.prototype._initRenderer = function _initRenderer(yaw, pitch, fov, projectionType) {
+	PanoViewer.prototype._initRenderer = function _initRenderer(yaw, pitch, fov, projectionType, cubemapConfig) {
 		var _this2 = this;
 
 		this._photoSphereRenderer = new _PanoImageRenderer.PanoImageRenderer(this._image, this._width, this._height, this._isVideo, {
 			initialYaw: yaw,
 			initialPitch: pitch,
 			fieldOfView: fov,
-			imageType: projectionType
+			imageType: projectionType,
+			cubemapConfig: cubemapConfig
 		});
 
 		this._bindRendererHandler();
@@ -3927,10 +3946,6 @@ var PanoViewer = function (_Component) {
 		return _PanoImageRenderer.WebGLUtils.isWebGLAvailable();
 	};
 
-	PanoViewer.isStableWebGL = function isStableWebGL() {
-		return _PanoImageRenderer.WebGLUtils.isStableWebGL();
-	};
-
 	/**
   * Check whether the current environment supports the gyro sensor.
   * @ko 현재 브라우저 환경이 자이로 센서를 지원하는지 여부를 확인합니다.
@@ -3992,7 +4007,7 @@ PanoViewer.EVENTS = _consts.EVENTS;
 PanoViewer.ProjectionType = _PanoImageRenderer.PanoImageRenderer.ImageType;
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4001,7 +4016,7 @@ PanoViewer.ProjectionType = _PanoImageRenderer.PanoImageRenderer.ImageType;
 exports.__esModule = true;
 exports.PanoViewer = undefined;
 
-var _PanoViewer = __webpack_require__(15);
+var _PanoViewer = __webpack_require__(16);
 
 var _PanoViewer2 = _interopRequireDefault(_PanoViewer);
 
@@ -4010,9 +4025,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 exports.PanoViewer = _PanoViewer2["default"];
 
 /***/ }),
-/* 17 */,
 /* 18 */,
-/* 19 */
+/* 19 */,
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4143,8 +4158,8 @@ var ImageLoader = function (_Component) {
 	};
 
 	ImageLoader.isMaybeLoaded = function isMaybeLoaded(image) {
-		return image instanceof Image ? image.naturalWidth !== 0 : !image.some(function (img) {
-			return img.naturalWidth === 0;
+		return image instanceof Image ? image.complete && image.naturalWidth !== 0 : !image.some(function (img) {
+			return !img.complete || img.naturalWidth === 0;
 		});
 	};
 
@@ -4206,7 +4221,7 @@ exports["default"] = ImageLoader;
 ImageLoader.STATUS = STATUS;
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4214,19 +4229,21 @@ ImageLoader.STATUS = STATUS;
 
 exports.__esModule = true;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _ImageLoader = __webpack_require__(19);
+var _ImageLoader = __webpack_require__(20);
 
 var _ImageLoader2 = _interopRequireDefault(_ImageLoader);
 
-var _VideoLoader = __webpack_require__(21);
+var _VideoLoader = __webpack_require__(22);
 
 var _VideoLoader2 = _interopRequireDefault(_VideoLoader);
 
-var _WebGLUtils = __webpack_require__(10);
+var _WebGLUtils = __webpack_require__(11);
 
 var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
 
@@ -4240,7 +4257,7 @@ var _SphereRenderer2 = _interopRequireDefault(_SphereRenderer);
 
 var _mathUtil = __webpack_require__(1);
 
-var _browser = __webpack_require__(22);
+var _browser = __webpack_require__(12);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -4254,7 +4271,7 @@ var _Promise = typeof Promise === 'undefined' ? __webpack_require__(3).Promise :
 
 var ImageType = {
 	EQUIRECTANGULAR: "equirectangular",
-	VERTICAL_CUBESTRIP: "vertical_cubestrip"
+	CUBEMAP: "cubemap"
 };
 
 var DEVICE_PIXEL_RATIO = _browser.devicePixelRatio || 1;
@@ -4317,6 +4334,7 @@ var PanoImageRenderer = function (_Component) {
 		_this.canvas = _this._initCanvas(width, height);
 
 		_this._image = null;
+		_this._imageConfig = null;
 		_this._imageIsReady = false;
 		_this._shouldForceDraw = false;
 		_this._keepUpdate = false; // Flag to specify 'continuous update' on video even when still.
@@ -4325,7 +4343,12 @@ var PanoImageRenderer = function (_Component) {
 		_this._onContentError = _this._onContentError.bind(_this);
 
 		if (image) {
-			_this.setImage({ image: image, imageType: sphericalConfig.imageType, isVideo: isVideo });
+			_this.setImage({
+				image: image,
+				imageType: sphericalConfig.imageType,
+				isVideo: isVideo,
+				cubemapConfig: sphericalConfig.cubemapConfig
+			});
 		}
 		return _this;
 	}
@@ -4338,10 +4361,18 @@ var PanoImageRenderer = function (_Component) {
 		var image = _ref.image,
 		    imageType = _ref.imageType,
 		    _ref$isVideo = _ref.isVideo,
-		    isVideo = _ref$isVideo === undefined ? false : _ref$isVideo;
+		    isVideo = _ref$isVideo === undefined ? false : _ref$isVideo,
+		    cubemapConfig = _ref.cubemapConfig;
 
 		this._imageIsReady = false;
 		this._isVideo = isVideo;
+		this._imageConfig = _extends({
+			order: "RLUDBF",
+			tileConfig: {
+				flipHirozontal: false,
+				rotation: 0
+			}
+		}, cubemapConfig);
 		this._setImageType(imageType);
 
 		if (this._contentLoader) {
@@ -4376,8 +4407,8 @@ var PanoImageRenderer = function (_Component) {
 		}
 
 		this._imageType = imageType;
-		this._isCubeStrip = imageType === ImageType.VERTICAL_CUBESTRIP;
-		this._renderer = this._isCubeStrip ? _CubeRenderer2["default"] : _SphereRenderer2["default"];
+		this._isCubeMap = imageType === ImageType.CUBEMAP;
+		this._renderer = this._isCubeMap ? _CubeRenderer2["default"] : _SphereRenderer2["default"];
 		this._initWebGL();
 	};
 
@@ -4408,7 +4439,6 @@ var PanoImageRenderer = function (_Component) {
 	PanoImageRenderer.prototype._onContentError = function _onContentError(error) {
 		this._imageIsReady = false;
 		this._image = null;
-
 		this.trigger(EVENTS.ERROR, {
 			type: ERROR_TYPE.FAIL_IMAGE_LOAD,
 			message: "failed to load image"
@@ -4492,7 +4522,7 @@ var PanoImageRenderer = function (_Component) {
 	PanoImageRenderer.prototype.hasRenderingContext = function hasRenderingContext() {
 		if (!(this.context && !this.context.isContextLost())) {
 			return false;
-		} else if (!this.context.getProgramParameter(this.shaderProgram, this.context.LINK_STATUS)) {
+		} else if (this.context && !this.context.getProgramParameter(this.shaderProgram, this.context.LINK_STATUS)) {
 			return false;
 		}
 		return true;
@@ -4573,7 +4603,7 @@ var PanoImageRenderer = function (_Component) {
 		}
 		// 캔버스를 투명으로 채운다.
 		this.context.clearColor(0, 0, 0, 0);
-		var textureTarget = this._isCubeStrip ? this.context.TEXTURE_CUBE_MAP : this.context.TEXTURE_2D;
+		var textureTarget = this._isCubeMap ? this.context.TEXTURE_CUBE_MAP : this.context.TEXTURE_2D;
 
 		if (this.texture) {
 			this.context.deleteTexture(this.texture);
@@ -4625,10 +4655,8 @@ var PanoImageRenderer = function (_Component) {
 		shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
 		shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
 		shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
-		if (!this._isCubeStrip) {
-			shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
-			gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
-		}
+		shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
+		gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 
 		// clear buffer
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
@@ -4641,23 +4669,25 @@ var PanoImageRenderer = function (_Component) {
 	PanoImageRenderer.prototype._initBuffers = function _initBuffers() {
 		var vertexPositionData = this._renderer.getVertexPositionData();
 		var indexData = this._renderer.getIndexData();
-		var textureCoordData = this._renderer.getTextureCoordData();
+		var textureCoordData = this._renderer.getTextureCoordData(this._imageConfig);
 		var gl = this.context;
 
 		this.vertexBuffer = _WebGLUtils2["default"].initBuffer(gl, gl.ARRAY_BUFFER, new Float32Array(vertexPositionData), 3, this.shaderProgram.vertexPositionAttribute);
 
 		this.indexBuffer = _WebGLUtils2["default"].initBuffer(gl, gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexData), 1);
 
-		if (textureCoordData !== null) {
-			this.textureCoordBuffer = _WebGLUtils2["default"].initBuffer(gl, gl.ARRAY_BUFFER, new Float32Array(textureCoordData), 2, this.shaderProgram.textureCoordAttribute);
-		}
+		this.textureCoordBuffer = _WebGLUtils2["default"].initBuffer(gl, gl.ARRAY_BUFFER, new Float32Array(textureCoordData), this._isCubeMap ? 3 : 2, this.shaderProgram.textureCoordAttribute);
 	};
 
 	PanoImageRenderer.prototype._bindTexture = function _bindTexture() {
-		this._renderer.bindTexture(this.context, this.texture, this._image);
+		this._renderer.bindTexture(this.context, this.texture, this._image, this._imageConfig);
 		this._shouldForceDraw = true;
 
 		this.trigger(EVENTS.BIND_TEXTURE);
+	};
+
+	PanoImageRenderer.prototype._updateTexture = function _updateTexture() {
+		this._renderer.updateTexture(this.context, this._image, this._imageConfig);
 	};
 
 	PanoImageRenderer.prototype.keepUpdate = function keepUpdate(doUpdate) {
@@ -4685,7 +4715,7 @@ var PanoImageRenderer = function (_Component) {
 
 		_mathUtil.mat4.identity(this.mvMatrix);
 		_mathUtil.mat4.rotateX(this.mvMatrix, this.mvMatrix, -_mathUtil.glMatrix.toRadian(pitch));
-		_mathUtil.mat4.rotateY(this.mvMatrix, this.mvMatrix, -_mathUtil.glMatrix.toRadian(yaw - (this._isCubeStrip ? 0 : 90)));
+		_mathUtil.mat4.rotateY(this.mvMatrix, this.mvMatrix, -_mathUtil.glMatrix.toRadian(yaw - (this._isCubeMap ? 0 : 90)));
 
 		this._draw();
 
@@ -4703,7 +4733,7 @@ var PanoImageRenderer = function (_Component) {
 		gl.uniformMatrix4fv(this.shaderProgram.mvMatrixUniform, false, this.mvMatrix);
 
 		if (this._isVideo) {
-			this._renderer.texImage2D(this.context, this._image);
+			this._updateTexture();
 		}
 
 		if (this.indexBuffer) {
@@ -4722,7 +4752,7 @@ PanoImageRenderer.ERROR_TYPE = ERROR_TYPE;
 PanoImageRenderer.ImageType = ImageType;
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4872,16 +4902,6 @@ var VideoLoader = function () {
 exports["default"] = VideoLoader;
 
 /***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-var devicePixelRatio = exports.devicePixelRatio = window.devicePixelRatio;
-
-/***/ }),
 /* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -4891,11 +4911,11 @@ var devicePixelRatio = exports.devicePixelRatio = window.devicePixelRatio;
 exports.__esModule = true;
 exports.WebGLUtils = exports.PanoImageRenderer = undefined;
 
-var _PanoImageRenderer = __webpack_require__(20);
+var _PanoImageRenderer = __webpack_require__(21);
 
 var _PanoImageRenderer2 = _interopRequireDefault(_PanoImageRenderer);
 
-var _WebGLUtils = __webpack_require__(10);
+var _WebGLUtils = __webpack_require__(11);
 
 var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
 
@@ -4913,11 +4933,13 @@ exports.WebGLUtils = _WebGLUtils2["default"];
 
 exports.__esModule = true;
 
-var _agent = __webpack_require__(13);
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _agent = __webpack_require__(7);
 
 var _agent2 = _interopRequireDefault(_agent);
 
-var _Renderer2 = __webpack_require__(11);
+var _Renderer2 = __webpack_require__(13);
 
 var _Renderer3 = _interopRequireDefault(_Renderer2);
 
@@ -4949,10 +4971,10 @@ var CubeRenderer = function (_Renderer) {
 		-1, -1, -1, 1, -1, -1, 1, 1, -1, -1, 1, -1,
 
 		// top
-		1, 1, -1, 1, 1, 1, -1, 1, 1, -1, 1, -1,
+		-1, 1, -1, 1, 1, -1, 1, 1, 1, -1, 1, 1,
 
 		// bottom
-		-1, -1, -1, -1, -1, 1, 1, -1, 1, 1, -1, -1,
+		1, -1, -1, -1, -1, -1, -1, -1, 1, 1, -1, 1,
 
 		// right
 		1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, -1,
@@ -4979,86 +5001,143 @@ var CubeRenderer = function (_Renderer) {
 		return indexData;
 	};
 
-	CubeRenderer.getTextureCoordData = function getTextureCoordData() {
-		return null;
+	CubeRenderer.extractTileConfig = function extractTileConfig(imageConfig) {
+		var tileConfig = Array.isArray(imageConfig.tileConfig) ? imageConfig.tileConfig : Array.apply(undefined, Array(6)).map(function () {
+			return imageConfig.tileConfig;
+		});
+
+		tileConfig = tileConfig.map(function (config) {
+			return _extends({
+				flipHorizontal: false,
+				rotation: 0
+			}, config);
+		});
+
+		return tileConfig;
+	};
+
+	CubeRenderer.extractOrder = function extractOrder(imageConfig) {
+		return imageConfig.order || "RLUDBF";
+	};
+
+	CubeRenderer.getTextureCoordData = function getTextureCoordData(imageConfig) {
+		var vertexOrder = "BFUDRL";
+		var order = CubeRenderer.extractOrder(imageConfig);
+		var base = CubeRenderer.getVertexPositionData();
+		var tileConfig = CubeRenderer.extractTileConfig(imageConfig);
+		var elemSize = 3;
+		var vertexPerTile = 4;
+		var textureCoordData = vertexOrder.split("").map(function (face) {
+			return tileConfig[order.indexOf(face)];
+		}).map(function (config, i) {
+			var rotation = parseInt(config.rotation / 90, 10);
+			var ordermap_ = config.flipHorizontal ? [0, 1, 2, 3] : [1, 0, 3, 2];
+
+			for (var r = 0; r < Math.abs(rotation); r++) {
+				if (config.flipHorizontal && rotation > 0 || !config.flipHorizontal && rotation < 0) {
+					ordermap_.push(ordermap_.shift());
+				} else {
+					ordermap_.unshift(ordermap_.pop());
+				}
+			}
+
+			var elemPerTile = elemSize * vertexPerTile;
+			var tileVertex = base.slice(i * elemPerTile, i * elemPerTile + elemPerTile);
+			var tileTemp = [];
+
+			for (var j = 0; j < vertexPerTile; j++) {
+				tileTemp[ordermap_[j]] = tileVertex.splice(0, elemSize);
+			}
+			return tileTemp;
+		}).join().split(",").map(function (v) {
+			return parseInt(v, 10);
+		});
+
+		return textureCoordData;
 	};
 
 	CubeRenderer.getVertexShaderSource = function getVertexShaderSource() {
-		return "\n\t\t\tattribute vec3 aVertexPosition;\n\t\t\tuniform mat4 uMVMatrix;\n\t\t\tuniform mat4 uPMatrix;\n\t\t\tvarying highp vec3 vVertexDirectionVector;\n\t\t\tvoid main(void) {\n\t\t\t\tgl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n\t\t\t\tvVertexDirectionVector = aVertexPosition;\n\t\t\t}";
+		return "\n\t\t\tattribute vec3 aVertexPosition;\n\t\t\tattribute vec3 aTextureCoord;\n\t\t\tuniform mat4 uMVMatrix;\n\t\t\tuniform mat4 uPMatrix;\n\t\t\tvarying highp vec3 vVertexDirectionVector;\n\t\t\tvoid main(void) {\n\t\t\t\tgl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n\t\t\t\tvVertexDirectionVector = aTextureCoord;\n\t\t\t}";
 	};
 
 	CubeRenderer.getFragmentShaderSource = function getFragmentShaderSource() {
 		return "\n\t\t\tvarying highp vec3 vVertexDirectionVector;\n\t\t\tuniform samplerCube uSampler;\n\t\t\tvoid main(void) {\n\t\t\t\tgl_FragColor = textureCube(uSampler, vVertexDirectionVector);\n\t\t\t}";
 	};
 
-	CubeRenderer.bindTexture = function bindTexture(gl, texture, image) {
-		if (!image) {
-			return;
-		}
+	CubeRenderer.updateTexture = function updateTexture(gl, image, imageConfig) {
+		var baseOrder = "RLUDBF";
+		var order = CubeRenderer.extractOrder(imageConfig);
+		var orderMap = {};
+
+		order.split("").forEach(function (v, i) {
+			orderMap[v] = i;
+		});
 
 		try {
-			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-			gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+			if (image instanceof Array) {
+				for (var surfaceIdx = 0; surfaceIdx < 6; surfaceIdx++) {
+					var tileIdx = orderMap[baseOrder[surfaceIdx]];
 
-			this.texImage2D(gl, image);
+					gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image[tileIdx]);
+				}
+			} else {
+				var maxCubeMapTextureSize = CubeRenderer.getMaxCubeMapTextureSize(gl, image);
+
+				for (var _surfaceIdx = 0; _surfaceIdx < 6; _surfaceIdx++) {
+					var _tileIdx = orderMap[baseOrder[_surfaceIdx]];
+					var tile = CubeRenderer.extractTileFromImage(image, _tileIdx, maxCubeMapTextureSize);
+
+					gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + _surfaceIdx, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tile);
+				}
+			}
 		} catch (e) {}
 	};
 
-	CubeRenderer.texImage2D = function texImage2D(gl, image) {
-		var agent = (0, _agent2["default"])();
-		var width = image.naturalWidth || image.videoWidth;
-		var height = image.naturalHeight || image.videoHeight;
-		var hasDrawImageBug = CubeRenderer.hasDrawImageBug(agent);
-		var maxCubeMapTextureSize = CubeRenderer.getMaxCubeMapTextureSize(gl, image, agent);
-		var heightScale = CubeRenderer.getHightScale(width, agent);
-
-		if (!hasDrawImageBug) {
-			var canvas = document.createElement("canvas");
-
-			canvas.width = maxCubeMapTextureSize;
-			canvas.height = maxCubeMapTextureSize;
-			var context = canvas.getContext("2d");
-
-			for (var surfaceIdx = 0; surfaceIdx < 6; surfaceIdx++) {
-				context.drawImage(image, 0, surfaceIdx * (width * heightScale), width, width * heightScale, 0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize);
-				gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
-			}
-		} else {
-			// #288, drawImage bug
-			var halfCanvas = document.createElement("canvas");
-			var _context = halfCanvas.getContext("2d");
-
-			halfCanvas.width = maxCubeMapTextureSize * 3;
-			halfCanvas.height = maxCubeMapTextureSize;
-
-			var tileCanvas = document.createElement("canvas");
-			var tileContext = tileCanvas.getContext("2d");
-
-			tileCanvas.width = maxCubeMapTextureSize;
-			tileCanvas.height = maxCubeMapTextureSize;
-
-			for (var i = 0; i < 2; i++) {
-				_context.save();
-				_context.translate(0, maxCubeMapTextureSize);
-				_context.rotate(-Math.PI / 2);
-				_context.scale(1 / 3, 3);
-				_context.drawImage(image, 0, width * 3 * i * heightScale, width, height / 2 * heightScale, 0, 0, halfCanvas.width, halfCanvas.height);
-				_context.restore();
-				for (var j = 0; j < 3; j++) {
-					tileContext.save();
-					tileContext.translate(maxCubeMapTextureSize, 0);
-					tileContext.rotate(Math.PI / 2);
-					tileContext.drawImage(halfCanvas, j * width, 0, width, width, 0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize);
-					tileContext.restore();
-					gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i * 3 + j, 0, gl.RGBA, maxCubeMapTextureSize, maxCubeMapTextureSize, 0, gl.RGBA, gl.UNSIGNED_BYTE, tileCanvas);
-				}
-			}
-		}
+	CubeRenderer.bindTexture = function bindTexture(gl, texture, image, imageConfig) {
+		gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+		CubeRenderer.updateTexture(gl, image, imageConfig);
 	};
 
-	CubeRenderer.getMaxCubeMapTextureSize = function getMaxCubeMapTextureSize(gl, image, agent) {
+	CubeRenderer.getSourceTileSize = function getSourceTileSize(image) {
+		var width = image.naturalWidth || image.videoWidth;
+		var height = image.naturalHeight || image.videoHeight;
+		var aspectRatio = width / height;
+		var inputTextureSize = void 0;
+
+		if (aspectRatio === 1 / 6) {
+			inputTextureSize = width;
+		} else if (aspectRatio === 6) {
+			inputTextureSize = height;
+		} else if (aspectRatio === 2 / 3) {
+			inputTextureSize = width / 2;
+		} else {
+			inputTextureSize = width / 3;
+		}
+		return inputTextureSize;
+	};
+
+	CubeRenderer.extractTileFromImage = function extractTileFromImage(image, tileIdx, outputTextureSize) {
+		var width = image.naturalWidth || image.videoWidth;
+		var inputTextureSize = CubeRenderer.getSourceTileSize(image);
+
+		var canvas = document.createElement("canvas");
+
+		canvas.width = outputTextureSize;
+		canvas.height = outputTextureSize;
+		var context = canvas.getContext("2d");
+		var tilePerRow = width / inputTextureSize;
+
+		var x = inputTextureSize * tileIdx % (inputTextureSize * tilePerRow);
+		var y = parseInt(tileIdx / tilePerRow, 10) * inputTextureSize;
+
+		context.drawImage(image, x, y, inputTextureSize, inputTextureSize, 0, 0, outputTextureSize, outputTextureSize);
+		return canvas;
+	};
+
+	CubeRenderer.getMaxCubeMapTextureSize = function getMaxCubeMapTextureSize(gl, image) {
+		var agent = (0, _agent2["default"])();
 		var maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
-		var _imageWidth = image.naturalWidth || image.videoWidth;
+		var _imageWidth = CubeRenderer.getSourceTileSize(image);
 
 		if (agent.browser.name === "ie" && parseInt(agent.browser.version, 10) === 11) {
 			if (!_mathUtil.util.isPowerOfTwo(_imageWidth)) {
@@ -5084,38 +5163,6 @@ var CubeRenderer = function (_Renderer) {
 		return Math.min(maxCubeMapTextureSize, _imageWidth);
 	};
 
-	CubeRenderer.getHightScale = function getHightScale(width, agent) {
-		// 안드로이드 4.3 이하 크롬과 안드로이드 5.0.2 삼성브라우저 버그해결을 위해 세로크기에 스케일값 적용
-		// 참고 : https://code.google.com/p/android/issues/detail?id=5141
-		var heightScale = 1;
-
-		// TODO : 갤럭시 S브라우저에서 drawImage 메서드의 이미지, height 값이 일정 비율로 뻥튀기 되는 버그가 있다.
-		// 추후 drawImage 메서드를 사용하지 않는 방식으로 개선하여 해당 버그를 접할 일이 없도록 해야 함.
-		if (agent.os.name === "android") {
-			if (parseFloat(agent.os.version) <= 4.3 && agent.browser.name === "chrome" || agent.os.version === "5.0.2" && agent.browser.name === "samsung internet" || agent.os.version === "5.1.1" && agent.browser.name === "samsung internet" && window.navigator.userAgent.indexOf("SM-N920") !== -1 &&
-			// 삼성인터넷 버전 4 미만
-			parseFloat(window.navigator.userAgent.split("SamsungBrowser/")[1].split(" ")[0]) < 4) {
-				heightScale = 768 / width;
-			} else if (agent.os.version === "5.0" && agent.browser.name === "samsung internet" && window.navigator.userAgent.indexOf("SM-G900") !== -1) {
-				heightScale = 1344 / width;
-			}
-		}
-
-		return heightScale;
-	};
-
-	CubeRenderer.hasDrawImageBug = function hasDrawImageBug(agent) {
-		var hasBug = false;
-
-		if (agent.browser.name === "samsung internet" &&
-		// 삼성인터넷 버전 5 미만
-		parseFloat(window.navigator.userAgent.split("SamsungBrowser/")[1].split(" ")[0]) < 5 || agent.os.name === "ios" && parseInt(agent.os.version, 10) <= 9) {
-			hasBug = true;
-		}
-
-		return hasBug;
-	};
-
 	return CubeRenderer;
 }(_Renderer3["default"]);
 
@@ -5134,7 +5181,7 @@ CubeRenderer._INDEX_DATA = null;
 
 exports.__esModule = true;
 
-var _Renderer2 = __webpack_require__(11);
+var _Renderer2 = __webpack_require__(13);
 
 var _Renderer3 = _interopRequireDefault(_Renderer2);
 
@@ -5187,6 +5234,11 @@ var SphereRenderer = function (_Renderer) {
 		return "\n\t\t\tvarying highp vec2 vTextureCoord;\n\t\t\tuniform sampler2D uSampler;\n\t\t\tvoid main(void) {\n\t\t\t\tgl_FragColor = texture2D(\n\t\t\t\t\tuSampler,\n\t\t\t\t\tvec2(vTextureCoord.s, vTextureCoord.t)\n\t\t\t\t);\n\t\t\t}";
 	};
 
+	SphereRenderer.updateTexture = function updateTexture(gl, image) {
+		// Draw first frame
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+	};
+
 	SphereRenderer.bindTexture = function bindTexture(gl, texture, image) {
 		if (!image) {
 			return;
@@ -5207,17 +5259,7 @@ var SphereRenderer = function (_Renderer) {
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 
-		// Draw first frame
-		this.texImage2D(gl, image);
-	};
-
-	/**
-  * https://www.khronos.org/registry/OpenGL-Refpages/es2.0/xhtml/glTexImage2D.xml
-  */
-
-
-	SphereRenderer.texImage2D = function texImage2D(gl, image) {
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+		SphereRenderer.updateTexture(gl, image);
 	};
 
 	SphereRenderer._initData = function _initData() {
@@ -5320,7 +5362,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _axes = __webpack_require__(8);
+var _axes = __webpack_require__(9);
 
 var _axes2 = _interopRequireDefault(_axes);
 
@@ -5413,11 +5455,11 @@ var YawPitchControl = function (_Component) {
 		var pRange = YawPitchControl._updatePitchRange(opt.pitchRange, opt.fov, opt.showPolePoint);
 		var circular = yRange[1] - yRange[0] < 360 ? [false, false] : [true, true];
 
-		this.axesPanInput = new _axes2["default"].PanInput(this._element);
+		this.axesPanInput = new _axes.PanInput(this._element);
 		this.axesWheelInput = new _WheelInput2["default"](this._element, { scale: 4 });
 		this.axesTiltMotionInput = _browser.SUPPORT_DEVICEMOTION ? new _TiltMotionInput2["default"](this._element) : null;
-		this.axesPinchInput = _browser.SUPPORT_TOUCH ? new _axes2["default"].PinchInput(this._element, { scale: -1 }) : null;
-		this.axesMoveKeyInput = new _axes2["default"].MoveKeyInput(this._element, { scale: [-6, 6] });
+		this.axesPinchInput = _browser.SUPPORT_TOUCH ? new _axes.PinchInput(this._element, { scale: -1 }) : null;
+		this.axesMoveKeyInput = new _axes.MoveKeyInput(this._element, { scale: [-6, 6] });
 
 		this.axes = new _axes2["default"]({
 			yaw: {
@@ -6006,6 +6048,10 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
+var _agent = __webpack_require__(7);
+
+var _agent2 = _interopRequireDefault(_agent);
+
 var _mathUtil = __webpack_require__(1);
 
 var _browser = __webpack_require__(5);
@@ -6031,7 +6077,7 @@ var DeviceMotion = function (_Component) {
 		_this._onDeviceMotion = _this._onDeviceMotion.bind(_this);
 		_this._onDeviceOrientation = _this._onDeviceOrientation.bind(_this);
 
-		_this.isAndroid = _browser.window.navigator.userAgent.indexOf("Android") !== -1;
+		_this.isAndroid = (0, _agent2["default"])().os.name === "android";
 
 		_this.stillGyroVec = _mathUtil.vec3.create();
 		_this.rawGyroVec = _mathUtil.vec3.create();
@@ -6124,7 +6170,7 @@ var _mathUtil = __webpack_require__(4);
 
 var _mathUtil2 = _interopRequireDefault(_mathUtil);
 
-var _util = __webpack_require__(7);
+var _util = __webpack_require__(8);
 
 var _util2 = _interopRequireDefault(_util);
 
@@ -6357,7 +6403,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _utils = __webpack_require__(12);
+var _utils = __webpack_require__(14);
 
 var _FusionPoseSensor = __webpack_require__(30);
 
@@ -6488,7 +6534,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _utils = __webpack_require__(12);
+var _utils = __webpack_require__(14);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -6976,6 +7022,20 @@ vec3.fromValues = function (x, y, z) {
     return out;
 };
 
+vec3.set = function (out, x, y, z) {
+    out[0] = x;
+    out[1] = y;
+    out[2] = z;
+    return out;
+};
+
+vec3.copy = function (out, a) {
+    out[0] = a[0];
+    out[1] = a[1];
+    out[2] = a[2];
+    return out;
+};
+
 /**
  * Scales a vec3 by a scalar number
  *
@@ -7347,7 +7407,7 @@ module.exports = g;
 
 var SensorSample = __webpack_require__(41);
 var MathUtil = __webpack_require__(4);
-var Util = __webpack_require__(7);
+var Util = __webpack_require__(8);
 
 /**
  * An implementation of a simple complementary filter, which fuses gyroscope and
@@ -7517,7 +7577,7 @@ module.exports = ComplementaryFilter;
  * limitations under the License.
  */
 var MathUtil = __webpack_require__(4);
-var Util = __webpack_require__(7);
+var Util = __webpack_require__(8);
 
 /**
  * Given an orientation and the gyroscope data, predicts the future orientation
@@ -7604,12 +7664,6 @@ SensorSample.prototype.copy = function(sensorSample) {
 
 module.exports = SensorSample;
 
-
-/***/ }),
-/* 42 */
-/***/ (function(module, exports) {
-
-/* (ignored) */
 
 /***/ })
 /******/ ]);

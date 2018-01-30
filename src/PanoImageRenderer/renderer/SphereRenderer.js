@@ -50,6 +50,11 @@ export default class SphereRenderer extends Renderer {
 			}`;
 	}
 
+	static updateTexture(gl, image) {
+		// Draw first frame
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+	}
+
 	static bindTexture(gl, texture, image) {
 		if (!image) {
 			return;
@@ -70,15 +75,7 @@ export default class SphereRenderer extends Renderer {
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 
-		// Draw first frame
-		this.texImage2D(gl, image);
-	}
-
-	/**
-	 * https://www.khronos.org/registry/OpenGL-Refpages/es2.0/xhtml/glTexImage2D.xml
-	 */
-	static texImage2D(gl, image) {
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+		SphereRenderer.updateTexture(gl, image);
 	}
 
 	static _initData() {
