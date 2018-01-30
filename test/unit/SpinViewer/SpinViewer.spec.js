@@ -47,13 +47,10 @@ describe("SpinViewer", function() {
 					inst.spinBy({angle: 30, duration: 0})
 				},
 				"change": e => {
+					assert(e.target !== null && e.bgElement !== null);
 					assert(e.angle === 30);
 					done();
 				}
-			});
-			inst.on("change", e => {
-				assert(e.target !== null && e.bgElement !== null);
-				done();
 			});
 		});
 	});
