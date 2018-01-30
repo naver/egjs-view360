@@ -106,13 +106,15 @@
     
         <li data-name="eg.view360.PanoViewer#getPitchRange"><a href="eg.view360.PanoViewer.html#getPitchRange">getPitchRange</a></li>
     
+        <li data-name="eg.view360.PanoViewer#getProjectionType"><a href="eg.view360.PanoViewer.html#getProjectionType">getProjectionType</a></li>
+    
+        <li data-name="eg.view360.PanoViewer#getVideo"><a href="eg.view360.PanoViewer.html#getVideo">getVideo</a></li>
+    
         <li data-name="eg.view360.PanoViewer#getYaw"><a href="eg.view360.PanoViewer.html#getYaw">getYaw</a></li>
     
         <li data-name="eg.view360.PanoViewer#getYawRange"><a href="eg.view360.PanoViewer.html#getYawRange">getYawRange</a></li>
     
         <li data-name="eg.view360.PanoViewer#hasOn"><a href="eg.view360.PanoViewer.html#hasOn">hasOn</a> <img src="img/i.png" width="14" title="inherited" alt="inherited"></li>
-    
-        <li data-name="eg.view360.PanoViewer#isResumed"><a href="eg.view360.PanoViewer.html#isResumed">isResumed</a></li>
     
         <li data-name="eg.view360.PanoViewer#lookAt"><a href="eg.view360.PanoViewer.html#lookAt">lookAt</a></li>
     
@@ -122,8 +124,6 @@
     
         <li data-name="eg.view360.PanoViewer#once"><a href="eg.view360.PanoViewer.html#once">once</a> <img src="img/i.png" width="14" title="inherited" alt="inherited"></li>
     
-        <li data-name="eg.view360.PanoViewer#resume"><a href="eg.view360.PanoViewer.html#resume">resume</a></li>
-    
         <li data-name="eg.view360.PanoViewer#setFovRange"><a href="eg.view360.PanoViewer.html#setFovRange">setFovRange</a></li>
     
         <li data-name="eg.view360.PanoViewer#setImage"><a href="eg.view360.PanoViewer.html#setImage">setImage</a></li>
@@ -132,13 +132,15 @@
     
         <li data-name="eg.view360.PanoViewer#setPitchRange"><a href="eg.view360.PanoViewer.html#setPitchRange">setPitchRange</a></li>
     
+        <li data-name="eg.view360.PanoViewer#setUseGyro"><a href="eg.view360.PanoViewer.html#setUseGyro">setUseGyro</a></li>
+    
         <li data-name="eg.view360.PanoViewer#setUseKeyboard"><a href="eg.view360.PanoViewer.html#setUseKeyboard">setUseKeyboard</a></li>
     
         <li data-name="eg.view360.PanoViewer#setUseZoom"><a href="eg.view360.PanoViewer.html#setUseZoom">setUseZoom</a></li>
     
-        <li data-name="eg.view360.PanoViewer#setYawRange"><a href="eg.view360.PanoViewer.html#setYawRange">setYawRange</a></li>
+        <li data-name="eg.view360.PanoViewer#setVideo"><a href="eg.view360.PanoViewer.html#setVideo">setVideo</a></li>
     
-        <li data-name="eg.view360.PanoViewer#suspend"><a href="eg.view360.PanoViewer.html#suspend">suspend</a></li>
+        <li data-name="eg.view360.PanoViewer#setYawRange"><a href="eg.view360.PanoViewer.html#setYawRange">setYawRange</a></li>
     
         <li data-name="eg.view360.PanoViewer#trigger"><a href="eg.view360.PanoViewer.html#trigger">trigger</a> <img src="img/i.png" width="14" title="inherited" alt="inherited"></li>
     
@@ -151,11 +153,11 @@
     
         <li data-name="eg.view360.PanoViewer#event:animationEnd"><a href="eg.view360.PanoViewer.html#event:animationEnd">animationEnd</a></li>
     
+        <li data-name="eg.view360.PanoViewer#event:contentLoaded"><a href="eg.view360.PanoViewer.html#event:contentLoaded">contentLoaded</a></li>
+    
         <li data-name="eg.view360.PanoViewer#event:error"><a href="eg.view360.PanoViewer.html#event:error">error</a></li>
     
-        <li data-name="eg.view360.PanoViewer#event:resume"><a href="eg.view360.PanoViewer.html#event:resume">resume</a></li>
-    
-        <li data-name="eg.view360.PanoViewer#event:suspend"><a href="eg.view360.PanoViewer.html#event:suspend">suspend</a></li>
+        <li data-name="eg.view360.PanoViewer#event:ready"><a href="eg.view360.PanoViewer.html#event:ready">ready</a></li>
     
         <li data-name="eg.view360.PanoViewer#event:viewChange"><a href="eg.view360.PanoViewer.html#event:viewChange">viewChange</a></li>
     
@@ -294,6 +296,81 @@
             
 <dt>
     <div class="nameContainer">
+        <h4 class="name" id="_deactivate">
+            
+            _deactivate<span class="signature">()</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line614">line 614</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+	<div class="description en">
+		<p>Destroy webgl context and block user interaction and stop rendering</p>
+	</div>
+	
+	
+
+    
+    
+    
+    
+    
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+    
+<dl class="details">
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+    <!-- if data.codepen -->
+</dl>
+
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
         <h4 class="name" id="_getHFov">
             
             _getHFov<span class="signature">()</span>
@@ -301,7 +378,7 @@
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line367">line 367</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line471">line 471</a>
         </div>
         
     </div>
@@ -376,7 +453,7 @@
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line521">line 521</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line592">line 592</a>
         </div>
         
     </div>
@@ -444,143 +521,6 @@
     
 
     
-        <h3 class="subsection-title">Type Definitions</h3>
-
-        <dl>
-                
-
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="ImageInfo">ImageInfo<span class="type-signature type object">Object</span> </h4>
-    </div>
-    
-</dt>
-<dd>
-    
-    
-
-    
-<dl class="details">
-    
-        <h5 class="subsection-title">Properties:</h5>
-
-        <dl>
-
-<table class="props">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>image</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-|
-
-<span class="param-type">Image</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last">
-                
-                <div class="en"><p>Input image url or Image object or Image element </p></div>
-                <div class="ko"><p>입력 이미지 URL 이나 이미지 객체 나 엘리먼트</p></div>
-                
-
-                </td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>imageType</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last">
-                
-                <div class="en"><p>The type of the image: equirectangular, vertival_cubestrip </p></div>
-                <div class="ko"><p>이미지 유형 : equirectangular, vertival_cubestrip</p></div>
-                
-
-                </td>
-        </tr>
-	
-	
-	</tbody>
-</table></dl>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-    <!-- if data.codepen -->
-</dl>
-
-
-    
-</dd>
-
-            </dl>
-    
 
     
 
@@ -602,7 +542,7 @@
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Jan 30 2018 13:32:51 GMT+0900 (KST)
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Jan 30 2018 16:45:28 GMT+0900 (KST)
         </footer>
     </div>
 </div>
