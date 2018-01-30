@@ -86,7 +86,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 18);
+/******/ 	return __webpack_require__(__webpack_require__.s = 32);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -476,27 +476,133 @@ module.exports = exports["default"];
 
 "use strict";
 
+exports.__esModule = true;
+function toArray(nodes) {
+    // const el = Array.prototype.slice.call(nodes);
+    // for IE8
+    var el = [];
+    for (var i = 0, len = nodes.length; i < len; i++) {
+        el.push(nodes[i]);
+    }
+    return el;
+}
+exports.toArray = toArray;
+function $(param, multi) {
+    if (multi === void 0) { multi = false; }
+    var el;
+    if (typeof param === "string") {
+        // check if string is HTML tag format
+        var match = param.match(/^<([a-z]+)\s*([^>]*)>/);
+        // creating element
+        if (match) {
+            var dummy = document.createElement("div");
+            dummy.innerHTML = param;
+            el = toArray(dummy.childNodes);
+        }
+        else {
+            el = toArray(document.querySelectorAll(param));
+        }
+        if (!multi) {
+            el = el.length >= 1 ? el[0] : undefined;
+        }
+    }
+    else if (param === window) {
+        el = param;
+    }
+    else if (param.nodeName &&
+        (param.nodeType === 1 || param.nodeType === 9)) {
+        el = param;
+    }
+    else if (("jQuery" in window && param instanceof jQuery) ||
+        param.constructor.prototype.jquery) {
+        el = multi ? param.toArray() : param.get(0);
+    }
+    else if (Array.isArray(param)) {
+        el = param.map(function (v) { return $(v); });
+        if (!multi) {
+            el = el.length >= 1 ? el[0] : undefined;
+        }
+    }
+    return el;
+}
+exports.$ = $;
+var raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame;
+var caf = window.cancelAnimationFrame || window.webkitCancelAnimationFrame;
+if (raf && !caf) {
+    var keyInfo_1 = {};
+    var oldraf_1 = raf;
+    raf = function (callback) {
+        function wrapCallback(timestamp) {
+            if (keyInfo_1[key]) {
+                callback(timestamp);
+            }
+        }
+        var key = oldraf_1(wrapCallback);
+        keyInfo_1[key] = true;
+        return key;
+    };
+    caf = function (key) {
+        delete keyInfo_1[key];
+    };
+}
+else if (!(raf && caf)) {
+    raf = function (callback) {
+        return window.setTimeout(function () {
+            callback(window.performance && window.performance.now && window.performance.now() || new Date().getTime());
+        }, 16);
+    };
+    caf = window.clearTimeout;
+}
+/**
+ * A polyfill for the window.requestAnimationFrame() method.
+ * @see  https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
+ * @private
+ */
+function requestAnimationFrame(fp) {
+    return raf(fp);
+}
+exports.requestAnimationFrame = requestAnimationFrame;
+;
+/**
+* A polyfill for the window.cancelAnimationFrame() method. It cancels an animation executed through a call to the requestAnimationFrame() method.
+* @param {Number} key −	The ID value returned through a call to the requestAnimationFrame() method. <ko>requestAnimationFrame() 메서드가 반환한 아이디 값</ko>
+* @see  https://developer.mozilla.org/en-US/docs/Web/API/Window/cancelAnimationFrame
+* @private
+*/
+function cancelAnimationFrame(key) {
+    caf(key);
+}
+exports.cancelAnimationFrame = cancelAnimationFrame;
+;
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
 
 exports.__esModule = true;
 exports.ROTATE_CONSTANT = exports.vec3 = exports.vec2 = exports.quat = exports.mat4 = exports.glMatrix = exports.util = undefined;
 
-var _common = __webpack_require__(2);
+var _common = __webpack_require__(4);
 
 var _common2 = _interopRequireDefault(_common);
 
-var _vec = __webpack_require__(37);
+var _vec = __webpack_require__(51);
 
 var _vec2 = _interopRequireDefault(_vec);
 
-var _vec3 = __webpack_require__(36);
+var _vec3 = __webpack_require__(50);
 
 var _vec4 = _interopRequireDefault(_vec3);
 
-var _quat = __webpack_require__(35);
+var _quat = __webpack_require__(49);
 
 var _quat2 = _interopRequireDefault(_quat);
 
-var _mat = __webpack_require__(34);
+var _mat = __webpack_require__(48);
 
 var _mat2 = _interopRequireDefault(_mat);
 
@@ -674,7 +780,80 @@ exports.vec3 = _vec2["default"];
 exports.ROTATE_CONSTANT = ROTATE_CONSTANT;
 
 /***/ }),
-/* 2 */
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+exports.__esModule = true;
+var Hammer = __webpack_require__(7);
+exports.SUPPORT_POINTER_EVENTS = "PointerEvent" in window || "MSPointerEvent" in window;
+exports.SUPPORT_TOUCH = "ontouchstart" in window;
+exports.UNIQUEKEY = "_EGJS_AXES_INPUTTYPE_";
+function toAxis(source, offset) {
+    return offset.reduce(function (acc, v, i) {
+        if (source[i]) {
+            acc[source[i]] = v;
+        }
+        return acc;
+    }, {});
+}
+exports.toAxis = toAxis;
+;
+function createHammer(element, options) {
+    try {
+        // create Hammer
+        return new Hammer.Manager(element, __assign({}, options));
+    }
+    catch (e) {
+        return null;
+    }
+}
+exports.createHammer = createHammer;
+;
+function convertInputType(inputType) {
+    if (inputType === void 0) { inputType = []; }
+    var hasTouch = false;
+    var hasMouse = false;
+    var hasPointer = false;
+    inputType.forEach(function (v) {
+        switch (v) {
+            case "mouse":
+                hasMouse = true;
+                break;
+            case "touch":
+                hasTouch = exports.SUPPORT_TOUCH;
+                break;
+            case "pointer": hasPointer = exports.SUPPORT_POINTER_EVENTS;
+        }
+    });
+    if (hasPointer) {
+        return Hammer.PointerEventInput;
+    }
+    else if (hasTouch && hasMouse) {
+        return Hammer.TouchMouseInput;
+    }
+    else if (hasTouch) {
+        return Hammer.TouchInput;
+    }
+    else if (hasMouse) {
+        return Hammer.MouseInput;
+    }
+    return null;
+}
+exports.convertInputType = convertInputType;
+
+
+/***/ }),
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -706,2818 +885,11 @@ glMatrix.EPSILON = 0.0001;
 module.exports = glMatrix;
 
 /***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(process, global) {var require;/*!
- * @overview es6-promise - a tiny implementation of Promises/A+.
- * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
- * @license   Licensed under MIT license
- *            See https://raw.githubusercontent.com/stefanpenner/es6-promise/master/LICENSE
- * @version   v4.2.2+97478eb6
- */
-
-(function (global, factory) {
-	 true ? module.exports = factory() :
-	typeof define === 'function' && define.amd ? define(factory) :
-	(global.ES6Promise = factory());
-}(this, (function () { 'use strict';
-
-function objectOrFunction(x) {
-  var type = typeof x;
-  return x !== null && (type === 'object' || type === 'function');
-}
-
-function isFunction(x) {
-  return typeof x === 'function';
-}
-
-
-
-var _isArray = void 0;
-if (Array.isArray) {
-  _isArray = Array.isArray;
-} else {
-  _isArray = function (x) {
-    return Object.prototype.toString.call(x) === '[object Array]';
-  };
-}
-
-var isArray = _isArray;
-
-var len = 0;
-var vertxNext = void 0;
-var customSchedulerFn = void 0;
-
-var asap = function asap(callback, arg) {
-  queue[len] = callback;
-  queue[len + 1] = arg;
-  len += 2;
-  if (len === 2) {
-    // If len is 2, that means that we need to schedule an async flush.
-    // If additional callbacks are queued before the queue is flushed, they
-    // will be processed by this flush that we are scheduling.
-    if (customSchedulerFn) {
-      customSchedulerFn(flush);
-    } else {
-      scheduleFlush();
-    }
-  }
-};
-
-function setScheduler(scheduleFn) {
-  customSchedulerFn = scheduleFn;
-}
-
-function setAsap(asapFn) {
-  asap = asapFn;
-}
-
-var browserWindow = typeof window !== 'undefined' ? window : undefined;
-var browserGlobal = browserWindow || {};
-var BrowserMutationObserver = browserGlobal.MutationObserver || browserGlobal.WebKitMutationObserver;
-var isNode = typeof self === 'undefined' && typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
-
-// test for web worker but not in IE10
-var isWorker = typeof Uint8ClampedArray !== 'undefined' && typeof importScripts !== 'undefined' && typeof MessageChannel !== 'undefined';
-
-// node
-function useNextTick() {
-  // node version 0.10.x displays a deprecation warning when nextTick is used recursively
-  // see https://github.com/cujojs/when/issues/410 for details
-  return function () {
-    return process.nextTick(flush);
-  };
-}
-
-// vertx
-function useVertxTimer() {
-  if (typeof vertxNext !== 'undefined') {
-    return function () {
-      vertxNext(flush);
-    };
-  }
-
-  return useSetTimeout();
-}
-
-function useMutationObserver() {
-  var iterations = 0;
-  var observer = new BrowserMutationObserver(flush);
-  var node = document.createTextNode('');
-  observer.observe(node, { characterData: true });
-
-  return function () {
-    node.data = iterations = ++iterations % 2;
-  };
-}
-
-// web worker
-function useMessageChannel() {
-  var channel = new MessageChannel();
-  channel.port1.onmessage = flush;
-  return function () {
-    return channel.port2.postMessage(0);
-  };
-}
-
-function useSetTimeout() {
-  // Store setTimeout reference so es6-promise will be unaffected by
-  // other code modifying setTimeout (like sinon.useFakeTimers())
-  var globalSetTimeout = setTimeout;
-  return function () {
-    return globalSetTimeout(flush, 1);
-  };
-}
-
-var queue = new Array(1000);
-function flush() {
-  for (var i = 0; i < len; i += 2) {
-    var callback = queue[i];
-    var arg = queue[i + 1];
-
-    callback(arg);
-
-    queue[i] = undefined;
-    queue[i + 1] = undefined;
-  }
-
-  len = 0;
-}
-
-function attemptVertx() {
-  try {
-    var r = require;
-    var vertx = __webpack_require__(43);
-    vertxNext = vertx.runOnLoop || vertx.runOnContext;
-    return useVertxTimer();
-  } catch (e) {
-    return useSetTimeout();
-  }
-}
-
-var scheduleFlush = void 0;
-// Decide what async method to use to triggering processing of queued callbacks:
-if (isNode) {
-  scheduleFlush = useNextTick();
-} else if (BrowserMutationObserver) {
-  scheduleFlush = useMutationObserver();
-} else if (isWorker) {
-  scheduleFlush = useMessageChannel();
-} else if (browserWindow === undefined && "function" === 'function') {
-  scheduleFlush = attemptVertx();
-} else {
-  scheduleFlush = useSetTimeout();
-}
-
-function then(onFulfillment, onRejection) {
-  var parent = this;
-
-  var child = new this.constructor(noop);
-
-  if (child[PROMISE_ID] === undefined) {
-    makePromise(child);
-  }
-
-  var _state = parent._state;
-
-
-  if (_state) {
-    var callback = arguments[_state - 1];
-    asap(function () {
-      return invokeCallback(_state, child, callback, parent._result);
-    });
-  } else {
-    subscribe(parent, child, onFulfillment, onRejection);
-  }
-
-  return child;
-}
-
-/**
-  `Promise.resolve` returns a promise that will become resolved with the
-  passed `value`. It is shorthand for the following:
-
-  ```javascript
-  let promise = new Promise(function(resolve, reject){
-    resolve(1);
-  });
-
-  promise.then(function(value){
-    // value === 1
-  });
-  ```
-
-  Instead of writing the above, your code now simply becomes the following:
-
-  ```javascript
-  let promise = Promise.resolve(1);
-
-  promise.then(function(value){
-    // value === 1
-  });
-  ```
-
-  @method resolve
-  @static
-  @param {Any} value value that the returned promise will be resolved with
-  Useful for tooling.
-  @return {Promise} a promise that will become fulfilled with the given
-  `value`
-*/
-function resolve$1(object) {
-  /*jshint validthis:true */
-  var Constructor = this;
-
-  if (object && typeof object === 'object' && object.constructor === Constructor) {
-    return object;
-  }
-
-  var promise = new Constructor(noop);
-  resolve(promise, object);
-  return promise;
-}
-
-var PROMISE_ID = Math.random().toString(36).substring(16);
-
-function noop() {}
-
-var PENDING = void 0;
-var FULFILLED = 1;
-var REJECTED = 2;
-
-var GET_THEN_ERROR = new ErrorObject();
-
-function selfFulfillment() {
-  return new TypeError("You cannot resolve a promise with itself");
-}
-
-function cannotReturnOwn() {
-  return new TypeError('A promises callback cannot return that same promise.');
-}
-
-function getThen(promise) {
-  try {
-    return promise.then;
-  } catch (error) {
-    GET_THEN_ERROR.error = error;
-    return GET_THEN_ERROR;
-  }
-}
-
-function tryThen(then$$1, value, fulfillmentHandler, rejectionHandler) {
-  try {
-    then$$1.call(value, fulfillmentHandler, rejectionHandler);
-  } catch (e) {
-    return e;
-  }
-}
-
-function handleForeignThenable(promise, thenable, then$$1) {
-  asap(function (promise) {
-    var sealed = false;
-    var error = tryThen(then$$1, thenable, function (value) {
-      if (sealed) {
-        return;
-      }
-      sealed = true;
-      if (thenable !== value) {
-        resolve(promise, value);
-      } else {
-        fulfill(promise, value);
-      }
-    }, function (reason) {
-      if (sealed) {
-        return;
-      }
-      sealed = true;
-
-      reject(promise, reason);
-    }, 'Settle: ' + (promise._label || ' unknown promise'));
-
-    if (!sealed && error) {
-      sealed = true;
-      reject(promise, error);
-    }
-  }, promise);
-}
-
-function handleOwnThenable(promise, thenable) {
-  if (thenable._state === FULFILLED) {
-    fulfill(promise, thenable._result);
-  } else if (thenable._state === REJECTED) {
-    reject(promise, thenable._result);
-  } else {
-    subscribe(thenable, undefined, function (value) {
-      return resolve(promise, value);
-    }, function (reason) {
-      return reject(promise, reason);
-    });
-  }
-}
-
-function handleMaybeThenable(promise, maybeThenable, then$$1) {
-  if (maybeThenable.constructor === promise.constructor && then$$1 === then && maybeThenable.constructor.resolve === resolve$1) {
-    handleOwnThenable(promise, maybeThenable);
-  } else {
-    if (then$$1 === GET_THEN_ERROR) {
-      reject(promise, GET_THEN_ERROR.error);
-      GET_THEN_ERROR.error = null;
-    } else if (then$$1 === undefined) {
-      fulfill(promise, maybeThenable);
-    } else if (isFunction(then$$1)) {
-      handleForeignThenable(promise, maybeThenable, then$$1);
-    } else {
-      fulfill(promise, maybeThenable);
-    }
-  }
-}
-
-function resolve(promise, value) {
-  if (promise === value) {
-    reject(promise, selfFulfillment());
-  } else if (objectOrFunction(value)) {
-    handleMaybeThenable(promise, value, getThen(value));
-  } else {
-    fulfill(promise, value);
-  }
-}
-
-function publishRejection(promise) {
-  if (promise._onerror) {
-    promise._onerror(promise._result);
-  }
-
-  publish(promise);
-}
-
-function fulfill(promise, value) {
-  if (promise._state !== PENDING) {
-    return;
-  }
-
-  promise._result = value;
-  promise._state = FULFILLED;
-
-  if (promise._subscribers.length !== 0) {
-    asap(publish, promise);
-  }
-}
-
-function reject(promise, reason) {
-  if (promise._state !== PENDING) {
-    return;
-  }
-  promise._state = REJECTED;
-  promise._result = reason;
-
-  asap(publishRejection, promise);
-}
-
-function subscribe(parent, child, onFulfillment, onRejection) {
-  var _subscribers = parent._subscribers;
-  var length = _subscribers.length;
-
-
-  parent._onerror = null;
-
-  _subscribers[length] = child;
-  _subscribers[length + FULFILLED] = onFulfillment;
-  _subscribers[length + REJECTED] = onRejection;
-
-  if (length === 0 && parent._state) {
-    asap(publish, parent);
-  }
-}
-
-function publish(promise) {
-  var subscribers = promise._subscribers;
-  var settled = promise._state;
-
-  if (subscribers.length === 0) {
-    return;
-  }
-
-  var child = void 0,
-      callback = void 0,
-      detail = promise._result;
-
-  for (var i = 0; i < subscribers.length; i += 3) {
-    child = subscribers[i];
-    callback = subscribers[i + settled];
-
-    if (child) {
-      invokeCallback(settled, child, callback, detail);
-    } else {
-      callback(detail);
-    }
-  }
-
-  promise._subscribers.length = 0;
-}
-
-function ErrorObject() {
-  this.error = null;
-}
-
-var TRY_CATCH_ERROR = new ErrorObject();
-
-function tryCatch(callback, detail) {
-  try {
-    return callback(detail);
-  } catch (e) {
-    TRY_CATCH_ERROR.error = e;
-    return TRY_CATCH_ERROR;
-  }
-}
-
-function invokeCallback(settled, promise, callback, detail) {
-  var hasCallback = isFunction(callback),
-      value = void 0,
-      error = void 0,
-      succeeded = void 0,
-      failed = void 0;
-
-  if (hasCallback) {
-    value = tryCatch(callback, detail);
-
-    if (value === TRY_CATCH_ERROR) {
-      failed = true;
-      error = value.error;
-      value.error = null;
-    } else {
-      succeeded = true;
-    }
-
-    if (promise === value) {
-      reject(promise, cannotReturnOwn());
-      return;
-    }
-  } else {
-    value = detail;
-    succeeded = true;
-  }
-
-  if (promise._state !== PENDING) {
-    // noop
-  } else if (hasCallback && succeeded) {
-    resolve(promise, value);
-  } else if (failed) {
-    reject(promise, error);
-  } else if (settled === FULFILLED) {
-    fulfill(promise, value);
-  } else if (settled === REJECTED) {
-    reject(promise, value);
-  }
-}
-
-function initializePromise(promise, resolver) {
-  try {
-    resolver(function resolvePromise(value) {
-      resolve(promise, value);
-    }, function rejectPromise(reason) {
-      reject(promise, reason);
-    });
-  } catch (e) {
-    reject(promise, e);
-  }
-}
-
-var id = 0;
-function nextId() {
-  return id++;
-}
-
-function makePromise(promise) {
-  promise[PROMISE_ID] = id++;
-  promise._state = undefined;
-  promise._result = undefined;
-  promise._subscribers = [];
-}
-
-function validationError() {
-  return new Error('Array Methods must be provided an Array');
-}
-
-function validationError() {
-  return new Error('Array Methods must be provided an Array');
-}
-
-var Enumerator = function () {
-  function Enumerator(Constructor, input) {
-    this._instanceConstructor = Constructor;
-    this.promise = new Constructor(noop);
-
-    if (!this.promise[PROMISE_ID]) {
-      makePromise(this.promise);
-    }
-
-    if (isArray(input)) {
-      this.length = input.length;
-      this._remaining = input.length;
-
-      this._result = new Array(this.length);
-
-      if (this.length === 0) {
-        fulfill(this.promise, this._result);
-      } else {
-        this.length = this.length || 0;
-        this._enumerate(input);
-        if (this._remaining === 0) {
-          fulfill(this.promise, this._result);
-        }
-      }
-    } else {
-      reject(this.promise, validationError());
-    }
-  }
-
-  Enumerator.prototype._enumerate = function _enumerate(input) {
-    for (var i = 0; this._state === PENDING && i < input.length; i++) {
-      this._eachEntry(input[i], i);
-    }
-  };
-
-  Enumerator.prototype._eachEntry = function _eachEntry(entry, i) {
-    var c = this._instanceConstructor;
-    var resolve$$1 = c.resolve;
-
-
-    if (resolve$$1 === resolve$1) {
-      var _then = getThen(entry);
-
-      if (_then === then && entry._state !== PENDING) {
-        this._settledAt(entry._state, i, entry._result);
-      } else if (typeof _then !== 'function') {
-        this._remaining--;
-        this._result[i] = entry;
-      } else if (c === Promise$1) {
-        var promise = new c(noop);
-        handleMaybeThenable(promise, entry, _then);
-        this._willSettleAt(promise, i);
-      } else {
-        this._willSettleAt(new c(function (resolve$$1) {
-          return resolve$$1(entry);
-        }), i);
-      }
-    } else {
-      this._willSettleAt(resolve$$1(entry), i);
-    }
-  };
-
-  Enumerator.prototype._settledAt = function _settledAt(state, i, value) {
-    var promise = this.promise;
-
-
-    if (promise._state === PENDING) {
-      this._remaining--;
-
-      if (state === REJECTED) {
-        reject(promise, value);
-      } else {
-        this._result[i] = value;
-      }
-    }
-
-    if (this._remaining === 0) {
-      fulfill(promise, this._result);
-    }
-  };
-
-  Enumerator.prototype._willSettleAt = function _willSettleAt(promise, i) {
-    var enumerator = this;
-
-    subscribe(promise, undefined, function (value) {
-      return enumerator._settledAt(FULFILLED, i, value);
-    }, function (reason) {
-      return enumerator._settledAt(REJECTED, i, reason);
-    });
-  };
-
-  return Enumerator;
-}();
-
-/**
-  `Promise.all` accepts an array of promises, and returns a new promise which
-  is fulfilled with an array of fulfillment values for the passed promises, or
-  rejected with the reason of the first passed promise to be rejected. It casts all
-  elements of the passed iterable to promises as it runs this algorithm.
-
-  Example:
-
-  ```javascript
-  let promise1 = resolve(1);
-  let promise2 = resolve(2);
-  let promise3 = resolve(3);
-  let promises = [ promise1, promise2, promise3 ];
-
-  Promise.all(promises).then(function(array){
-    // The array here would be [ 1, 2, 3 ];
-  });
-  ```
-
-  If any of the `promises` given to `all` are rejected, the first promise
-  that is rejected will be given as an argument to the returned promises's
-  rejection handler. For example:
-
-  Example:
-
-  ```javascript
-  let promise1 = resolve(1);
-  let promise2 = reject(new Error("2"));
-  let promise3 = reject(new Error("3"));
-  let promises = [ promise1, promise2, promise3 ];
-
-  Promise.all(promises).then(function(array){
-    // Code here never runs because there are rejected promises!
-  }, function(error) {
-    // error.message === "2"
-  });
-  ```
-
-  @method all
-  @static
-  @param {Array} entries array of promises
-  @param {String} label optional string for labeling the promise.
-  Useful for tooling.
-  @return {Promise} promise that is fulfilled when all `promises` have been
-  fulfilled, or rejected if any of them become rejected.
-  @static
-*/
-function all(entries) {
-  return new Enumerator(this, entries).promise;
-}
-
-/**
-  `Promise.race` returns a new promise which is settled in the same way as the
-  first passed promise to settle.
-
-  Example:
-
-  ```javascript
-  let promise1 = new Promise(function(resolve, reject){
-    setTimeout(function(){
-      resolve('promise 1');
-    }, 200);
-  });
-
-  let promise2 = new Promise(function(resolve, reject){
-    setTimeout(function(){
-      resolve('promise 2');
-    }, 100);
-  });
-
-  Promise.race([promise1, promise2]).then(function(result){
-    // result === 'promise 2' because it was resolved before promise1
-    // was resolved.
-  });
-  ```
-
-  `Promise.race` is deterministic in that only the state of the first
-  settled promise matters. For example, even if other promises given to the
-  `promises` array argument are resolved, but the first settled promise has
-  become rejected before the other promises became fulfilled, the returned
-  promise will become rejected:
-
-  ```javascript
-  let promise1 = new Promise(function(resolve, reject){
-    setTimeout(function(){
-      resolve('promise 1');
-    }, 200);
-  });
-
-  let promise2 = new Promise(function(resolve, reject){
-    setTimeout(function(){
-      reject(new Error('promise 2'));
-    }, 100);
-  });
-
-  Promise.race([promise1, promise2]).then(function(result){
-    // Code here never runs
-  }, function(reason){
-    // reason.message === 'promise 2' because promise 2 became rejected before
-    // promise 1 became fulfilled
-  });
-  ```
-
-  An example real-world use case is implementing timeouts:
-
-  ```javascript
-  Promise.race([ajax('foo.json'), timeout(5000)])
-  ```
-
-  @method race
-  @static
-  @param {Array} promises array of promises to observe
-  Useful for tooling.
-  @return {Promise} a promise which settles in the same way as the first passed
-  promise to settle.
-*/
-function race(entries) {
-  /*jshint validthis:true */
-  var Constructor = this;
-
-  if (!isArray(entries)) {
-    return new Constructor(function (_, reject) {
-      return reject(new TypeError('You must pass an array to race.'));
-    });
-  } else {
-    return new Constructor(function (resolve, reject) {
-      var length = entries.length;
-      for (var i = 0; i < length; i++) {
-        Constructor.resolve(entries[i]).then(resolve, reject);
-      }
-    });
-  }
-}
-
-/**
-  `Promise.reject` returns a promise rejected with the passed `reason`.
-  It is shorthand for the following:
-
-  ```javascript
-  let promise = new Promise(function(resolve, reject){
-    reject(new Error('WHOOPS'));
-  });
-
-  promise.then(function(value){
-    // Code here doesn't run because the promise is rejected!
-  }, function(reason){
-    // reason.message === 'WHOOPS'
-  });
-  ```
-
-  Instead of writing the above, your code now simply becomes the following:
-
-  ```javascript
-  let promise = Promise.reject(new Error('WHOOPS'));
-
-  promise.then(function(value){
-    // Code here doesn't run because the promise is rejected!
-  }, function(reason){
-    // reason.message === 'WHOOPS'
-  });
-  ```
-
-  @method reject
-  @static
-  @param {Any} reason value that the returned promise will be rejected with.
-  Useful for tooling.
-  @return {Promise} a promise rejected with the given `reason`.
-*/
-function reject$1(reason) {
-  /*jshint validthis:true */
-  var Constructor = this;
-  var promise = new Constructor(noop);
-  reject(promise, reason);
-  return promise;
-}
-
-function needsResolver() {
-  throw new TypeError('You must pass a resolver function as the first argument to the promise constructor');
-}
-
-function needsNew() {
-  throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
-}
-
-/**
-  Promise objects represent the eventual result of an asynchronous operation. The
-  primary way of interacting with a promise is through its `then` method, which
-  registers callbacks to receive either a promise's eventual value or the reason
-  why the promise cannot be fulfilled.
-
-  Terminology
-  -----------
-
-  - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
-  - `thenable` is an object or function that defines a `then` method.
-  - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
-  - `exception` is a value that is thrown using the throw statement.
-  - `reason` is a value that indicates why a promise was rejected.
-  - `settled` the final resting state of a promise, fulfilled or rejected.
-
-  A promise can be in one of three states: pending, fulfilled, or rejected.
-
-  Promises that are fulfilled have a fulfillment value and are in the fulfilled
-  state.  Promises that are rejected have a rejection reason and are in the
-  rejected state.  A fulfillment value is never a thenable.
-
-  Promises can also be said to *resolve* a value.  If this value is also a
-  promise, then the original promise's settled state will match the value's
-  settled state.  So a promise that *resolves* a promise that rejects will
-  itself reject, and a promise that *resolves* a promise that fulfills will
-  itself fulfill.
-
-
-  Basic Usage:
-  ------------
-
-  ```js
-  let promise = new Promise(function(resolve, reject) {
-    // on success
-    resolve(value);
-
-    // on failure
-    reject(reason);
-  });
-
-  promise.then(function(value) {
-    // on fulfillment
-  }, function(reason) {
-    // on rejection
-  });
-  ```
-
-  Advanced Usage:
-  ---------------
-
-  Promises shine when abstracting away asynchronous interactions such as
-  `XMLHttpRequest`s.
-
-  ```js
-  function getJSON(url) {
-    return new Promise(function(resolve, reject){
-      let xhr = new XMLHttpRequest();
-
-      xhr.open('GET', url);
-      xhr.onreadystatechange = handler;
-      xhr.responseType = 'json';
-      xhr.setRequestHeader('Accept', 'application/json');
-      xhr.send();
-
-      function handler() {
-        if (this.readyState === this.DONE) {
-          if (this.status === 200) {
-            resolve(this.response);
-          } else {
-            reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));
-          }
-        }
-      };
-    });
-  }
-
-  getJSON('/posts.json').then(function(json) {
-    // on fulfillment
-  }, function(reason) {
-    // on rejection
-  });
-  ```
-
-  Unlike callbacks, promises are great composable primitives.
-
-  ```js
-  Promise.all([
-    getJSON('/posts'),
-    getJSON('/comments')
-  ]).then(function(values){
-    values[0] // => postsJSON
-    values[1] // => commentsJSON
-
-    return values;
-  });
-  ```
-
-  @class Promise
-  @param {Function} resolver
-  Useful for tooling.
-  @constructor
-*/
-
-var Promise$1 = function () {
-  function Promise(resolver) {
-    this[PROMISE_ID] = nextId();
-    this._result = this._state = undefined;
-    this._subscribers = [];
-
-    if (noop !== resolver) {
-      typeof resolver !== 'function' && needsResolver();
-      this instanceof Promise ? initializePromise(this, resolver) : needsNew();
-    }
-  }
-
-  /**
-  The primary way of interacting with a promise is through its `then` method,
-  which registers callbacks to receive either a promise's eventual value or the
-  reason why the promise cannot be fulfilled.
-   ```js
-  findUser().then(function(user){
-    // user is available
-  }, function(reason){
-    // user is unavailable, and you are given the reason why
-  });
-  ```
-   Chaining
-  --------
-   The return value of `then` is itself a promise.  This second, 'downstream'
-  promise is resolved with the return value of the first promise's fulfillment
-  or rejection handler, or rejected if the handler throws an exception.
-   ```js
-  findUser().then(function (user) {
-    return user.name;
-  }, function (reason) {
-    return 'default name';
-  }).then(function (userName) {
-    // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
-    // will be `'default name'`
-  });
-   findUser().then(function (user) {
-    throw new Error('Found user, but still unhappy');
-  }, function (reason) {
-    throw new Error('`findUser` rejected and we're unhappy');
-  }).then(function (value) {
-    // never reached
-  }, function (reason) {
-    // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.
-    // If `findUser` rejected, `reason` will be '`findUser` rejected and we're unhappy'.
-  });
-  ```
-  If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
-   ```js
-  findUser().then(function (user) {
-    throw new PedagogicalException('Upstream error');
-  }).then(function (value) {
-    // never reached
-  }).then(function (value) {
-    // never reached
-  }, function (reason) {
-    // The `PedgagocialException` is propagated all the way down to here
-  });
-  ```
-   Assimilation
-  ------------
-   Sometimes the value you want to propagate to a downstream promise can only be
-  retrieved asynchronously. This can be achieved by returning a promise in the
-  fulfillment or rejection handler. The downstream promise will then be pending
-  until the returned promise is settled. This is called *assimilation*.
-   ```js
-  findUser().then(function (user) {
-    return findCommentsByAuthor(user);
-  }).then(function (comments) {
-    // The user's comments are now available
-  });
-  ```
-   If the assimliated promise rejects, then the downstream promise will also reject.
-   ```js
-  findUser().then(function (user) {
-    return findCommentsByAuthor(user);
-  }).then(function (comments) {
-    // If `findCommentsByAuthor` fulfills, we'll have the value here
-  }, function (reason) {
-    // If `findCommentsByAuthor` rejects, we'll have the reason here
-  });
-  ```
-   Simple Example
-  --------------
-   Synchronous Example
-   ```javascript
-  let result;
-   try {
-    result = findResult();
-    // success
-  } catch(reason) {
-    // failure
-  }
-  ```
-   Errback Example
-   ```js
-  findResult(function(result, err){
-    if (err) {
-      // failure
-    } else {
-      // success
-    }
-  });
-  ```
-   Promise Example;
-   ```javascript
-  findResult().then(function(result){
-    // success
-  }, function(reason){
-    // failure
-  });
-  ```
-   Advanced Example
-  --------------
-   Synchronous Example
-   ```javascript
-  let author, books;
-   try {
-    author = findAuthor();
-    books  = findBooksByAuthor(author);
-    // success
-  } catch(reason) {
-    // failure
-  }
-  ```
-   Errback Example
-   ```js
-   function foundBooks(books) {
-   }
-   function failure(reason) {
-   }
-   findAuthor(function(author, err){
-    if (err) {
-      failure(err);
-      // failure
-    } else {
-      try {
-        findBoooksByAuthor(author, function(books, err) {
-          if (err) {
-            failure(err);
-          } else {
-            try {
-              foundBooks(books);
-            } catch(reason) {
-              failure(reason);
-            }
-          }
-        });
-      } catch(error) {
-        failure(err);
-      }
-      // success
-    }
-  });
-  ```
-   Promise Example;
-   ```javascript
-  findAuthor().
-    then(findBooksByAuthor).
-    then(function(books){
-      // found books
-  }).catch(function(reason){
-    // something went wrong
-  });
-  ```
-   @method then
-  @param {Function} onFulfilled
-  @param {Function} onRejected
-  Useful for tooling.
-  @return {Promise}
-  */
-
-  /**
-  `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
-  as the catch block of a try/catch statement.
-  ```js
-  function findAuthor(){
-  throw new Error('couldn't find that author');
-  }
-  // synchronous
-  try {
-  findAuthor();
-  } catch(reason) {
-  // something went wrong
-  }
-  // async with promises
-  findAuthor().catch(function(reason){
-  // something went wrong
-  });
-  ```
-  @method catch
-  @param {Function} onRejection
-  Useful for tooling.
-  @return {Promise}
-  */
-
-
-  Promise.prototype.catch = function _catch(onRejection) {
-    return this.then(null, onRejection);
-  };
-
-  /**
-    `finally` will be invoked regardless of the promise's fate just as native
-    try/catch/finally behaves
-  
-    Synchronous example:
-  
-    ```js
-    findAuthor() {
-      if (Math.random() > 0.5) {
-        throw new Error();
-      }
-      return new Author();
-    }
-  
-    try {
-      return findAuthor(); // succeed or fail
-    } catch(error) {
-      return findOtherAuther();
-    } finally {
-      // always runs
-      // doesn't affect the return value
-    }
-    ```
-  
-    Asynchronous example:
-  
-    ```js
-    findAuthor().catch(function(reason){
-      return findOtherAuther();
-    }).finally(function(){
-      // author was either found, or not
-    });
-    ```
-  
-    @method finally
-    @param {Function} callback
-    @return {Promise}
-  */
-
-
-  Promise.prototype.finally = function _finally(callback) {
-    var promise = this;
-    var constructor = promise.constructor;
-
-    return promise.then(function (value) {
-      return constructor.resolve(callback()).then(function () {
-        return value;
-      });
-    }, function (reason) {
-      return constructor.resolve(callback()).then(function () {
-        throw reason;
-      });
-    });
-  };
-
-  return Promise;
-}();
-
-Promise$1.prototype.then = then;
-Promise$1.all = all;
-Promise$1.race = race;
-Promise$1.resolve = resolve$1;
-Promise$1.reject = reject$1;
-Promise$1._setScheduler = setScheduler;
-Promise$1._setAsap = setAsap;
-Promise$1._asap = asap;
-
-/*global self*/
-function polyfill() {
-    var local = void 0;
-
-    if (typeof global !== 'undefined') {
-        local = global;
-    } else if (typeof self !== 'undefined') {
-        local = self;
-    } else {
-        try {
-            local = Function('return this')();
-        } catch (e) {
-            throw new Error('polyfill failed because global object is unavailable in this environment');
-        }
-    }
-
-    var P = local.Promise;
-
-    if (P) {
-        var promiseToString = null;
-        try {
-            promiseToString = Object.prototype.toString.call(P.resolve());
-        } catch (e) {
-            // silently ignored
-        }
-
-        if (promiseToString === '[object Promise]' && !P.cast) {
-            return;
-        }
-    }
-
-    local.Promise = Promise$1;
-}
-
-// Strange compat..
-Promise$1.polyfill = polyfill;
-Promise$1.Promise = Promise$1;
-
-return Promise$1;
-
-})));
-
-
-
-//# sourceMappingURL=es6-promise.map
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(38), __webpack_require__(39)))
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports) {
-
-/*
- * Copyright 2016 Google Inc. All Rights Reserved.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-var MathUtil = window.MathUtil || {};
-
-MathUtil.degToRad = Math.PI / 180;
-MathUtil.radToDeg = 180 / Math.PI;
-
-// Some minimal math functionality borrowed from THREE.Math and stripped down
-// for the purposes of this library.
-
-
-MathUtil.Vector2 = function ( x, y ) {
-  this.x = x || 0;
-  this.y = y || 0;
-};
-
-MathUtil.Vector2.prototype = {
-  constructor: MathUtil.Vector2,
-
-  set: function ( x, y ) {
-    this.x = x;
-    this.y = y;
-
-    return this;
-  },
-
-  copy: function ( v ) {
-    this.x = v.x;
-    this.y = v.y;
-
-    return this;
-  },
-
-  subVectors: function ( a, b ) {
-    this.x = a.x - b.x;
-    this.y = a.y - b.y;
-
-    return this;
-  },
-};
-
-MathUtil.Vector3 = function ( x, y, z ) {
-  this.x = x || 0;
-  this.y = y || 0;
-  this.z = z || 0;
-};
-
-MathUtil.Vector3.prototype = {
-  constructor: MathUtil.Vector3,
-
-  set: function ( x, y, z ) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
-
-    return this;
-  },
-
-  copy: function ( v ) {
-    this.x = v.x;
-    this.y = v.y;
-    this.z = v.z;
-
-    return this;
-  },
-
-  length: function () {
-    return Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z );
-  },
-
-  normalize: function () {
-    var scalar = this.length();
-
-    if ( scalar !== 0 ) {
-      var invScalar = 1 / scalar;
-
-      this.multiplyScalar(invScalar);
-    } else {
-      this.x = 0;
-      this.y = 0;
-      this.z = 0;
-    }
-
-    return this;
-  },
-
-  multiplyScalar: function ( scalar ) {
-    this.x *= scalar;
-    this.y *= scalar;
-    this.z *= scalar;
-  },
-
-  applyQuaternion: function ( q ) {
-    var x = this.x;
-    var y = this.y;
-    var z = this.z;
-
-    var qx = q.x;
-    var qy = q.y;
-    var qz = q.z;
-    var qw = q.w;
-
-    // calculate quat * vector
-    var ix =  qw * x + qy * z - qz * y;
-    var iy =  qw * y + qz * x - qx * z;
-    var iz =  qw * z + qx * y - qy * x;
-    var iw = - qx * x - qy * y - qz * z;
-
-    // calculate result * inverse quat
-    this.x = ix * qw + iw * - qx + iy * - qz - iz * - qy;
-    this.y = iy * qw + iw * - qy + iz * - qx - ix * - qz;
-    this.z = iz * qw + iw * - qz + ix * - qy - iy * - qx;
-
-    return this;
-  },
-
-  dot: function ( v ) {
-    return this.x * v.x + this.y * v.y + this.z * v.z;
-  },
-
-  crossVectors: function ( a, b ) {
-    var ax = a.x, ay = a.y, az = a.z;
-    var bx = b.x, by = b.y, bz = b.z;
-
-    this.x = ay * bz - az * by;
-    this.y = az * bx - ax * bz;
-    this.z = ax * by - ay * bx;
-
-    return this;
-  },
-};
-
-MathUtil.Quaternion = function ( x, y, z, w ) {
-  this.x = x || 0;
-  this.y = y || 0;
-  this.z = z || 0;
-  this.w = ( w !== undefined ) ? w : 1;
-};
-
-MathUtil.Quaternion.prototype = {
-  constructor: MathUtil.Quaternion,
-
-  set: function ( x, y, z, w ) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
-    this.w = w;
-
-    return this;
-  },
-
-  copy: function ( quaternion ) {
-    this.x = quaternion.x;
-    this.y = quaternion.y;
-    this.z = quaternion.z;
-    this.w = quaternion.w;
-
-    return this;
-  },
-
-  setFromEulerXYZ: function( x, y, z ) {
-    var c1 = Math.cos( x / 2 );
-    var c2 = Math.cos( y / 2 );
-    var c3 = Math.cos( z / 2 );
-    var s1 = Math.sin( x / 2 );
-    var s2 = Math.sin( y / 2 );
-    var s3 = Math.sin( z / 2 );
-
-    this.x = s1 * c2 * c3 + c1 * s2 * s3;
-    this.y = c1 * s2 * c3 - s1 * c2 * s3;
-    this.z = c1 * c2 * s3 + s1 * s2 * c3;
-    this.w = c1 * c2 * c3 - s1 * s2 * s3;
-
-    return this;
-  },
-
-  setFromEulerYXZ: function( x, y, z ) {
-    var c1 = Math.cos( x / 2 );
-    var c2 = Math.cos( y / 2 );
-    var c3 = Math.cos( z / 2 );
-    var s1 = Math.sin( x / 2 );
-    var s2 = Math.sin( y / 2 );
-    var s3 = Math.sin( z / 2 );
-
-    this.x = s1 * c2 * c3 + c1 * s2 * s3;
-    this.y = c1 * s2 * c3 - s1 * c2 * s3;
-    this.z = c1 * c2 * s3 - s1 * s2 * c3;
-    this.w = c1 * c2 * c3 + s1 * s2 * s3;
-
-    return this;
-  },
-
-  setFromAxisAngle: function ( axis, angle ) {
-    // http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/index.htm
-    // assumes axis is normalized
-
-    var halfAngle = angle / 2, s = Math.sin( halfAngle );
-
-    this.x = axis.x * s;
-    this.y = axis.y * s;
-    this.z = axis.z * s;
-    this.w = Math.cos( halfAngle );
-
-    return this;
-  },
-
-  multiply: function ( q ) {
-    return this.multiplyQuaternions( this, q );
-  },
-
-  multiplyQuaternions: function ( a, b ) {
-    // from http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/code/index.htm
-
-    var qax = a.x, qay = a.y, qaz = a.z, qaw = a.w;
-    var qbx = b.x, qby = b.y, qbz = b.z, qbw = b.w;
-
-    this.x = qax * qbw + qaw * qbx + qay * qbz - qaz * qby;
-    this.y = qay * qbw + qaw * qby + qaz * qbx - qax * qbz;
-    this.z = qaz * qbw + qaw * qbz + qax * qby - qay * qbx;
-    this.w = qaw * qbw - qax * qbx - qay * qby - qaz * qbz;
-
-    return this;
-  },
-
-  inverse: function () {
-    this.x *= -1;
-    this.y *= -1;
-    this.z *= -1;
-
-    this.normalize();
-
-    return this;
-  },
-
-  normalize: function () {
-    var l = Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w );
-
-    if ( l === 0 ) {
-      this.x = 0;
-      this.y = 0;
-      this.z = 0;
-      this.w = 1;
-    } else {
-      l = 1 / l;
-
-      this.x = this.x * l;
-      this.y = this.y * l;
-      this.z = this.z * l;
-      this.w = this.w * l;
-    }
-
-    return this;
-  },
-
-  slerp: function ( qb, t ) {
-    if ( t === 0 ) return this;
-    if ( t === 1 ) return this.copy( qb );
-
-    var x = this.x, y = this.y, z = this.z, w = this.w;
-
-    // http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
-
-    var cosHalfTheta = w * qb.w + x * qb.x + y * qb.y + z * qb.z;
-
-    if ( cosHalfTheta < 0 ) {
-      this.w = - qb.w;
-      this.x = - qb.x;
-      this.y = - qb.y;
-      this.z = - qb.z;
-
-      cosHalfTheta = - cosHalfTheta;
-    } else {
-      this.copy( qb );
-    }
-
-    if ( cosHalfTheta >= 1.0 ) {
-      this.w = w;
-      this.x = x;
-      this.y = y;
-      this.z = z;
-
-      return this;
-    }
-
-    var halfTheta = Math.acos( cosHalfTheta );
-    var sinHalfTheta = Math.sqrt( 1.0 - cosHalfTheta * cosHalfTheta );
-
-    if ( Math.abs( sinHalfTheta ) < 0.001 ) {
-      this.w = 0.5 * ( w + this.w );
-      this.x = 0.5 * ( x + this.x );
-      this.y = 0.5 * ( y + this.y );
-      this.z = 0.5 * ( z + this.z );
-
-      return this;
-    }
-
-    var ratioA = Math.sin( ( 1 - t ) * halfTheta ) / sinHalfTheta,
-    ratioB = Math.sin( t * halfTheta ) / sinHalfTheta;
-
-    this.w = ( w * ratioA + this.w * ratioB );
-    this.x = ( x * ratioA + this.x * ratioB );
-    this.y = ( y * ratioA + this.y * ratioB );
-    this.z = ( z * ratioA + this.z * ratioB );
-
-    return this;
-  },
-
-  setFromUnitVectors: function () {
-    // http://lolengine.net/blog/2014/02/24/quaternion-from-two-vectors-final
-    // assumes direction vectors vFrom and vTo are normalized
-
-    var v1, r;
-    var EPS = 0.000001;
-
-    return function ( vFrom, vTo ) {
-      if ( v1 === undefined ) v1 = new MathUtil.Vector3();
-
-      r = vFrom.dot( vTo ) + 1;
-
-      if ( r < EPS ) {
-        r = 0;
-
-        if ( Math.abs( vFrom.x ) > Math.abs( vFrom.z ) ) {
-          v1.set( - vFrom.y, vFrom.x, 0 );
-        } else {
-          v1.set( 0, - vFrom.z, vFrom.y );
-        }
-      } else {
-        v1.crossVectors( vFrom, vTo );
-      }
-
-      this.x = v1.x;
-      this.y = v1.y;
-      this.z = v1.z;
-      this.w = r;
-
-      this.normalize();
-
-      return this;
-    }
-  }(),
-};
-
-module.exports = MathUtil;
-
-
-/***/ }),
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-
-exports.__esModule = true;
-/* eslint-disable no-new-func */
-/* eslint-disable no-nested-ternary */
-var win = typeof window !== "undefined" && window.Math === Math ? window : typeof self !== "undefined" && self.Math === Math ? self : Function("return this")();
-/* eslint-enable no-nested-ternary */
-/* eslint-enable no-new-func */
-
-win.Float32Array = typeof win.Float32Array !== "undefined" ? win.Float32Array : win.Array;
-
-exports.window = win;
-var document = exports.document = win.document;
-var Float32Array = exports.Float32Array = win.Float32Array;
-var getComputedStyle = exports.getComputedStyle = win.getComputedStyle;
-var userAgent = exports.userAgent = win.navigator.userAgent;
-var SUPPORT_TOUCH = exports.SUPPORT_TOUCH = "ontouchstart" in win;
-var SUPPORT_DEVICEMOTION = exports.SUPPORT_DEVICEMOTION = "ondevicemotion" in win;
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-var CONTROL_MODE_VR = 1;
-var CONTROL_MODE_YAWPITCH = 2;
-
-var TOUCH_DIRECTION_NONE = 1;
-var TOUCH_DIRECTION_YAW = 2;
-var TOUCH_DIRECTION_PITCH = 4;
-var TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_YAW | TOUCH_DIRECTION_PITCH;
-
-/* Const for MovableCoord */
-var MC_DECELERATION = 0.0014;
-var MC_MAXIMUM_DURATION = 1000;
-var MC_BIND_SCALE = [0.20, 0.20];
-
-var MIN_FIELD_OF_VIEW = 20;
-var MAX_FIELD_OF_VIEW = 110;
-var PAN_SCALE = 320;
-
-// const DELTA_THRESHOLD = 0.015;
-// const DELTA_THRESHOLD = 0.09; // Note4
-// const DELTA_THRESHOLD = 0.0825;
-// const DELTA_THRESHOLD = 0.075;
-// const DELTA_THRESHOLD = 0.06;
-// const DELTA_THRESHOLD = 0.045;
-var DELTA_THRESHOLD = 0.0375; // Note2
-
-var YAW_RANGE_HALF = 180;
-var PITCH_RANGE_HALF = 90;
-var PINCH_EVENTS = "pinchstart pinchmove pinchend";
-
-var KEYMAP = {
-	LEFT_ARROW: 37,
-	A: 65,
-	UP_ARROW: 38,
-	W: 87,
-	RIGHT_ARROW: 39,
-	D: 68,
-	DOWN_ARROW: 40,
-	S: 83
-};
-
-var GYRO_MODE = {
-	NONE: "none",
-	YAWPITCH: "yawPitch"
-};
-
-exports.GYRO_MODE = GYRO_MODE;
-exports.CONTROL_MODE_VR = CONTROL_MODE_VR;
-exports.CONTROL_MODE_YAWPITCH = CONTROL_MODE_YAWPITCH;
-exports.TOUCH_DIRECTION_NONE = TOUCH_DIRECTION_NONE;
-exports.TOUCH_DIRECTION_YAW = TOUCH_DIRECTION_YAW;
-exports.TOUCH_DIRECTION_PITCH = TOUCH_DIRECTION_PITCH;
-exports.TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_ALL;
-exports.MC_DECELERATION = MC_DECELERATION;
-exports.MC_MAXIMUM_DURATION = MC_MAXIMUM_DURATION;
-exports.MC_BIND_SCALE = MC_BIND_SCALE;
-exports.MIN_FIELD_OF_VIEW = MIN_FIELD_OF_VIEW;
-exports.MAX_FIELD_OF_VIEW = MAX_FIELD_OF_VIEW;
-exports.PAN_SCALE = PAN_SCALE;
-exports.DELTA_THRESHOLD = DELTA_THRESHOLD;
-exports.YAW_RANGE_HALF = YAW_RANGE_HALF;
-exports.PITCH_RANGE_HALF = PITCH_RANGE_HALF;
-exports.PINCH_EVENTS = PINCH_EVENTS;
-exports.KEYMAP = KEYMAP;
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*!
- * Copyright (c) 2017 NAVER Corp.
- * @egjs/agent project is licensed under the MIT license
- * 
- * @egjs/agent JavaScript library
- * 
- * 
- * @version 2.1.2
- */
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(true)
-		module.exports = factory();
-	else if(typeof define === 'function' && define.amd)
-		define([], factory);
-	else if(typeof exports === 'object')
-		exports["agent"] = factory();
-	else
-		root["eg"] = root["eg"] || {}, root["eg"]["agent"] = factory();
-})(this, function() {
-return /******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
-/******/ })
-/************************************************************************/
-/******/ ([
-/* 0 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _agent = __webpack_require__(1);
-
-var _agent2 = _interopRequireDefault(_agent);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-module.exports = _agent2["default"]; /**
-                                      * Copyright (c) NAVER Corp.
-                                      * egjs-agent projects are licensed under the MIT license
-                                      */
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-
-var _browser = __webpack_require__(2);
-
-var _Parser = __webpack_require__(3);
-
-var _Parser2 = _interopRequireDefault(_Parser);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-/**
- * @namespace eg
- */
-
-/**
- * Extracts browser and operating system information from the user agent string.
- * @ko 유저 에이전트 문자열에서 브라우저와 운영체제 정보를 추출한다.
- * @function eg#agent
- * @param {String} [userAgent=navigator.userAgent] user agent string to parse <ko>파싱할 유저에이전트 문자열</ko>
- * @return {Object} agentInfo
- * @return {Object} agentInfo.os os Operating system information <ko>운영체제 정보</ko>
- * @return {String} agentInfo.os.name Operating system name (android, ios, window, mac, unknown) <ko>운영체제 이름 (android, ios, window, mac, unknown)</ko>
- * @return {String} agentInfo.os.version Operating system version <ko>운영체제 버전</ko>
- * @return {String} agentInfo.browser Browser information <ko>브라우저 정보</ko>
- * @return {String} agentInfo.browser.name Browser name (safari, chrome, sbrowser, ie, firefox, unknown) <ko>브라우저 이름 (safari, chrome, sbrowser, ie, firefox, unknown)</ko>
- * @return {String} agentInfo.browser.version Browser version <ko>브라우저 버전 </ko>
- * @return {Boolean} agentInfo.browser.webview Indicates whether the browser is inapp<ko>웹뷰 브라우저 여부</ko>
- * @return {Boolean} agentInfo.isMobile Indicates whether the browser is for mobile<ko>모바일 브라우저 여부</ko>
- */
-/**
- * Copyright (c) NAVER Corp.
- * egjs-agent projects are licensed under the MIT license
- */
-function agent() {
-  var ua = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _browser.navigator.userAgent;
-
-  _Parser2["default"].setUa(ua);
-
-  var agentInfo = {
-    os: _Parser2["default"].getOs(),
-    browser: _Parser2["default"].getBrowser(),
-    isMobile: _Parser2["default"].getIsMobile()
-  };
-
-  agentInfo.browser.name = agentInfo.browser.name.toLowerCase();
-  agentInfo.os.name = agentInfo.os.name.toLowerCase();
-  agentInfo.os.version = agentInfo.os.version.toLowerCase();
-
-  if (agentInfo.os.name === "ios" && agentInfo.browser.webview) {
-    agentInfo.browser.version = "-1";
-  }
-
-  return agentInfo;
-}
-agent.VERSION = "2.1.2";
-exports["default"] = agent;
-module.exports = exports["default"];
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-var win = typeof window !== "undefined" && window || {};
-
-var RegExp = exports.RegExp = win.RegExp;
-var navigator = exports.navigator = win.navigator;
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-
-var _parseRules = __webpack_require__(4);
-
-var _parseRules2 = _interopRequireDefault(_parseRules);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-var UA = void 0;
-
-function setUa(ua) {
-	UA = ua;
-}
-
-function isMatched(base, target) {
-	return target && target.test ? !!target.test(base) : base.indexOf(target) > -1;
-}
-
-function getIdentityStringFromArray(rules, defaultStrings) {
-	var matchedRule = rules.filter(function (rule) {
-		return isMatched(UA, rule.criteria);
-	})[0];
-
-	return matchedRule && matchedRule.identity || defaultStrings.name;
-}
-
-function getRule(rules, targetIdentity) {
-	return rules.filter(function (rule) {
-		var criteria = rule.criteria;
-		var identityMatched = new RegExp(rule.identity, "i").test(targetIdentity);
-
-		if (criteria ? identityMatched && isMatched(UA, criteria) : identityMatched) {
-			return true;
-		} else {
-			return false;
-		}
-	})[0];
-}
-
-function getBrowserName() {
-	return getIdentityStringFromArray(_parseRules2["default"].browser, _parseRules2["default"].defaultString.browser);
-}
-
-function getBrowserRule(browserName) {
-	var rule = getRule(_parseRules2["default"].browser, browserName);
-
-	if (!rule) {
-		rule = {
-			criteria: browserName,
-			versionSearch: browserName,
-			identity: browserName
-		};
-	}
-
-	return rule;
-}
-
-function extractBrowserVersion(versionToken, ua) {
-	var browserVersion = _parseRules2["default"].defaultString.browser.version;
-	var versionRegexResult = new RegExp("(" + versionToken + ")", "i").exec(ua);
-
-	if (!versionRegexResult) {
-		return browserVersion;
-	}
-
-	var versionTokenIndex = versionRegexResult.index;
-	var verTkn = versionRegexResult[0];
-
-	if (versionTokenIndex > -1) {
-		var versionIndex = versionTokenIndex + verTkn.length + 1;
-
-		browserVersion = ua.substring(versionIndex).split(" ")[0].replace(/_/g, ".").replace(/;|\)/g, "");
-	}
-	return browserVersion;
-}
-
-function getBrowserVersion(browserName) {
-	if (!browserName) {
-		return undefined;
-	}
-
-	// console.log(browserRule);
-	// const versionToken = browserRule ? browserRule.versionSearch : browserName;
-	var browserRule = getBrowserRule(browserName);
-	var versionToken = browserRule.versionSearch || browserName;
-	var browserVersion = extractBrowserVersion(versionToken, UA);
-
-	return browserVersion;
-}
-
-function isWebview() {
-	var webviewRules = _parseRules2["default"].webview;
-	var browserVersion = void 0;
-
-	return webviewRules.filter(function (rule) {
-		return isMatched(UA, rule.criteria);
-	}).some(function (rule) {
-		browserVersion = extractBrowserVersion(rule.browserVersionSearch, UA);
-		if (isMatched(UA, rule.webviewToken) || isMatched(browserVersion, rule.webviewBrowserVersion)) {
-			return true;
-		} else {
-			return false;
-		}
-	});
-}
-
-function getOSRule(osName) {
-	return getRule(_parseRules2["default"].os, osName);
-}
-
-function getOsName() {
-	return getIdentityStringFromArray(_parseRules2["default"].os, _parseRules2["default"].defaultString.os);
-}
-
-function getOsVersion(osName) {
-	var osRule = getOSRule(osName) || {};
-	var defaultOSVersion = _parseRules2["default"].defaultString.os.version;
-	var osVersion = void 0;
-
-	if (!osName) {
-		return undefined;
-	}
-	if (osRule.versionAlias) {
-		return osRule.versionAlias;
-	}
-	var osVersionToken = osRule.versionSearch || osName;
-	var osVersionRegex = new RegExp("(" + osVersionToken + ")\\s([\\d_\\.]+|\\d_0)", "i");
-	var osVersionRegexResult = osVersionRegex.exec(UA);
-
-	if (osVersionRegexResult) {
-		osVersion = osVersionRegex.exec(UA)[2].replace(/_/g, ".").replace(/;|\)/g, "");
-	}
-	return osVersion || defaultOSVersion;
-}
-
-function getOs() {
-	var name = getOsName();
-	var version = getOsVersion(name);
-
-	return { name: name, version: version };
-}
-
-function getBrowser() {
-	var name = getBrowserName();
-	var version = getBrowserVersion(name);
-
-	return { name: name, version: version, webview: isWebview() };
-}
-
-function getIsMobile() {
-	return UA.indexOf("Mobi") !== -1;
-}
-
-exports["default"] = {
-	getOs: getOs,
-	getBrowser: getBrowser,
-	getIsMobile: getIsMobile,
-	setUa: setUa
-};
-module.exports = exports["default"];
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-var parseRules = {
-	browser: [{
-		criteria: "PhantomJS",
-		identity: "PhantomJS"
-	}, {
-		criteria: /Whale/,
-		identity: "Whale",
-		versionSearch: "Whale"
-	}, {
-		criteria: /Edge/,
-		identity: "Edge",
-		versionSearch: "Edge"
-	}, {
-		criteria: /MSIE|Trident|Windows Phone/,
-		identity: "IE",
-		versionSearch: "IEMobile|MSIE|rv"
-	}, {
-		criteria: /MiuiBrowser/,
-		identity: "MIUI Browser",
-		versionSearch: "MiuiBrowser"
-	}, {
-		criteria: /SamsungBrowser/,
-		identity: "Samsung Internet",
-		versionSearch: "SamsungBrowser"
-	}, {
-		criteria: /SAMSUNG /,
-		identity: "Samsung Internet",
-		versionSearch: "Version"
-	}, {
-		criteria: /Chrome|CriOS/,
-		identity: "Chrome"
-	}, {
-		criteria: /Android/,
-		identity: "Android Browser",
-		versionSearch: "Version"
-	}, {
-		criteria: /iPhone|iPad/,
-		identity: "Safari",
-		versionSearch: "Version"
-	}, {
-		criteria: "Apple",
-		identity: "Safari",
-		versionSearch: "Version"
-	}, {
-		criteria: "Firefox",
-		identity: "Firefox"
-	}],
-	os: [{
-		criteria: /Windows Phone/,
-		identity: "Windows Phone",
-		versionSearch: "Windows Phone"
-	}, {
-		criteria: "Windows 2000",
-		identity: "Window",
-		versionAlias: "5.0"
-	}, {
-		criteria: /Windows NT/,
-		identity: "Window",
-		versionSearch: "Windows NT"
-	}, {
-		criteria: /iPhone|iPad/,
-		identity: "iOS",
-		versionSearch: "iPhone OS|CPU OS"
-	}, {
-		criteria: "Mac",
-		versionSearch: "OS X",
-		identity: "MAC"
-	}, {
-		criteria: /Android/,
-		identity: "Android"
-	}, {
-		criteria: /Tizen/,
-		identity: "Tizen"
-	}, {
-		criteria: /Web0S/,
-		identity: "WebOS"
-	}],
-
-	// Webview check condition
-	// ios: If has no version information
-	// Android 5.0 && chrome 40+: Presence of "; wv" in userAgent
-	// Under android 5.0: Presence of "NAVER" or "Daum" in userAgent
-	webview: [{
-		criteria: /iPhone|iPad/,
-		browserVersionSearch: "Version",
-		webviewBrowserVersion: /-1/
-	}, {
-		criteria: /iPhone|iPad|Android/,
-		webviewToken: /NAVER|DAUM|; wv/
-
-	}],
-	defaultString: {
-		browser: {
-			version: "-1",
-			name: "unknown"
-		},
-		os: {
-			version: "-1",
-			name: "unknown"
-		}
-	}
-};
-
-exports["default"] = parseRules;
-module.exports = exports["default"];
-
-/***/ })
-/******/ ]);
-});
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports) {
-
-/*
- * Copyright 2015 Google Inc. All Rights Reserved.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-var Util = window.Util || {};
-
-Util.MIN_TIMESTEP = 0.001;
-Util.MAX_TIMESTEP = 1;
-
-Util.base64 = function(mimeType, base64) {
-  return 'data:' + mimeType + ';base64,' + base64;
-};
-
-Util.clamp = function(value, min, max) {
-  return Math.min(Math.max(min, value), max);
-};
-
-Util.lerp = function(a, b, t) {
-  return a + ((b - a) * t);
-};
-
-/**
- * Light polyfill for `Promise.race`. Returns
- * a promise that resolves when the first promise
- * provided resolves.
- *
- * @param {Array<Promise>} promises
- */
-Util.race = function(promises) {
-  if (Promise.race) {
-    return Promise.race(promises);
-  }
-
-  return new Promise(function (resolve, reject) {
-    for (var i = 0; i < promises.length; i++) {
-      promises[i].then(resolve, reject);
-    }
-  });
-};
-
-Util.isIOS = (function() {
-  var isIOS = /iPad|iPhone|iPod/.test(navigator.platform);
-  return function() {
-    return isIOS;
-  };
-})();
-
-Util.isWebViewAndroid = (function() {
-  var isWebViewAndroid = navigator.userAgent.indexOf('Version') !== -1 &&
-      navigator.userAgent.indexOf('Android') !== -1 &&
-      navigator.userAgent.indexOf('Chrome') !== -1;
-  return function() {
-    return isWebViewAndroid;
-  };
-})();
-
-Util.isSafari = (function() {
-  var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-  return function() {
-    return isSafari;
-  };
-})();
-
-Util.isFirefoxAndroid = (function() {
-  var isFirefoxAndroid = navigator.userAgent.indexOf('Firefox') !== -1 &&
-      navigator.userAgent.indexOf('Android') !== -1;
-  return function() {
-    return isFirefoxAndroid;
-  };
-})();
-
-Util.isR7 = (function() {
-  var isR7 = navigator.userAgent.indexOf('R7 Build') !== -1;
-  return function() {
-    return isR7;
-  };
-})();
-
-Util.isLandscapeMode = function() {
-  var rtn = (window.orientation == 90 || window.orientation == -90);
-  return Util.isR7() ? !rtn : rtn;
-};
-
-// Helper method to validate the time steps of sensor timestamps.
-Util.isTimestampDeltaValid = function(timestampDeltaS) {
-  if (isNaN(timestampDeltaS)) {
-    return false;
-  }
-  if (timestampDeltaS <= Util.MIN_TIMESTEP) {
-    return false;
-  }
-  if (timestampDeltaS > Util.MAX_TIMESTEP) {
-    return false;
-  }
-  return true;
-};
-
-Util.getScreenWidth = function() {
-  return Math.max(window.screen.width, window.screen.height) *
-      window.devicePixelRatio;
-};
-
-Util.getScreenHeight = function() {
-  return Math.min(window.screen.width, window.screen.height) *
-      window.devicePixelRatio;
-};
-
-Util.requestFullscreen = function(element) {
-  if (Util.isWebViewAndroid()) {
-      return false;
-  }
-  if (element.requestFullscreen) {
-    element.requestFullscreen();
-  } else if (element.webkitRequestFullscreen) {
-    element.webkitRequestFullscreen();
-  } else if (element.mozRequestFullScreen) {
-    element.mozRequestFullScreen();
-  } else if (element.msRequestFullscreen) {
-    element.msRequestFullscreen();
-  } else {
-    return false;
-  }
-
-  return true;
-};
-
-Util.exitFullscreen = function() {
-  if (document.exitFullscreen) {
-    document.exitFullscreen();
-  } else if (document.webkitExitFullscreen) {
-    document.webkitExitFullscreen();
-  } else if (document.mozCancelFullScreen) {
-    document.mozCancelFullScreen();
-  } else if (document.msExitFullscreen) {
-    document.msExitFullscreen();
-  } else {
-    return false;
-  }
-
-  return true;
-};
-
-Util.getFullscreenElement = function() {
-  return document.fullscreenElement ||
-      document.webkitFullscreenElement ||
-      document.mozFullScreenElement ||
-      document.msFullscreenElement;
-};
-
-Util.linkProgram = function(gl, vertexSource, fragmentSource, attribLocationMap) {
-  // No error checking for brevity.
-  var vertexShader = gl.createShader(gl.VERTEX_SHADER);
-  gl.shaderSource(vertexShader, vertexSource);
-  gl.compileShader(vertexShader);
-
-  var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-  gl.shaderSource(fragmentShader, fragmentSource);
-  gl.compileShader(fragmentShader);
-
-  var program = gl.createProgram();
-  gl.attachShader(program, vertexShader);
-  gl.attachShader(program, fragmentShader);
-
-  for (var attribName in attribLocationMap)
-    gl.bindAttribLocation(program, attribLocationMap[attribName], attribName);
-
-  gl.linkProgram(program);
-
-  gl.deleteShader(vertexShader);
-  gl.deleteShader(fragmentShader);
-
-  return program;
-};
-
-Util.getProgramUniforms = function(gl, program) {
-  var uniforms = {};
-  var uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
-  var uniformName = '';
-  for (var i = 0; i < uniformCount; i++) {
-    var uniformInfo = gl.getActiveUniform(program, i);
-    uniformName = uniformInfo.name.replace('[0]', '');
-    uniforms[uniformName] = gl.getUniformLocation(program, uniformName);
-  }
-  return uniforms;
-};
-
-Util.orthoMatrix = function (out, left, right, bottom, top, near, far) {
-  var lr = 1 / (left - right),
-      bt = 1 / (bottom - top),
-      nf = 1 / (near - far);
-  out[0] = -2 * lr;
-  out[1] = 0;
-  out[2] = 0;
-  out[3] = 0;
-  out[4] = 0;
-  out[5] = -2 * bt;
-  out[6] = 0;
-  out[7] = 0;
-  out[8] = 0;
-  out[9] = 0;
-  out[10] = 2 * nf;
-  out[11] = 0;
-  out[12] = (left + right) * lr;
-  out[13] = (top + bottom) * bt;
-  out[14] = (far + near) * nf;
-  out[15] = 1;
-  return out;
-};
-
-Util.copyArray = function (source, dest) {
-  for (var i = 0, n = source.length; i < n; i++) {
-    dest[i] = source[i];
-  }
-};
-
-Util.isMobile = function() {
-  var check = false;
-  (function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4)))check = true})(navigator.userAgent||navigator.vendor||window.opera);
-  return check;
-};
-
-Util.extend = function(dest, src) {
-  for (var key in src) {
-    if (src.hasOwnProperty(key)) {
-      dest[key] = src[key];
-    }
-  }
-
-  return dest;
-}
-
-Util.safariCssSizeWorkaround = function(canvas) {
-  // TODO(smus): Remove this workaround when Safari for iOS is fixed.
-  // iOS only workaround (for https://bugs.webkit.org/show_bug.cgi?id=152556).
-  //
-  // "To the last I grapple with thee;
-  //  from hell's heart I stab at thee;
-  //  for hate's sake I spit my last breath at thee."
-  // -- Moby Dick, by Herman Melville
-  if (Util.isIOS()) {
-    var width = canvas.style.width;
-    var height = canvas.style.height;
-    canvas.style.width = (parseInt(width) + 1) + 'px';
-    canvas.style.height = (parseInt(height)) + 'px';
-    setTimeout(function() {
-      canvas.style.width = width;
-      canvas.style.height = height;
-    }, 100);
-  }
-
-  // Debug only.
-  window.Util = Util;
-  window.canvas = canvas;
-};
-
-Util.isDebug = function() {
-  return Util.getQueryParameter('debug');
-};
-
-Util.getQueryParameter = function(name) {
-  var name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-  var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-      results = regex.exec(location.search);
-  return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-};
-
-Util.frameDataFromPose = (function() {
-  var piOver180 = Math.PI / 180.0;
-  var rad45 = Math.PI * 0.25;
-
-  // Borrowed from glMatrix.
-  function mat4_perspectiveFromFieldOfView(out, fov, near, far) {
-    var upTan = Math.tan(fov ? (fov.upDegrees * piOver180) : rad45),
-    downTan = Math.tan(fov ? (fov.downDegrees * piOver180) : rad45),
-    leftTan = Math.tan(fov ? (fov.leftDegrees * piOver180) : rad45),
-    rightTan = Math.tan(fov ? (fov.rightDegrees * piOver180) : rad45),
-    xScale = 2.0 / (leftTan + rightTan),
-    yScale = 2.0 / (upTan + downTan);
-
-    out[0] = xScale;
-    out[1] = 0.0;
-    out[2] = 0.0;
-    out[3] = 0.0;
-    out[4] = 0.0;
-    out[5] = yScale;
-    out[6] = 0.0;
-    out[7] = 0.0;
-    out[8] = -((leftTan - rightTan) * xScale * 0.5);
-    out[9] = ((upTan - downTan) * yScale * 0.5);
-    out[10] = far / (near - far);
-    out[11] = -1.0;
-    out[12] = 0.0;
-    out[13] = 0.0;
-    out[14] = (far * near) / (near - far);
-    out[15] = 0.0;
-    return out;
-  }
-
-  function mat4_fromRotationTranslation(out, q, v) {
-    // Quaternion math
-    var x = q[0], y = q[1], z = q[2], w = q[3],
-        x2 = x + x,
-        y2 = y + y,
-        z2 = z + z,
-
-        xx = x * x2,
-        xy = x * y2,
-        xz = x * z2,
-        yy = y * y2,
-        yz = y * z2,
-        zz = z * z2,
-        wx = w * x2,
-        wy = w * y2,
-        wz = w * z2;
-
-    out[0] = 1 - (yy + zz);
-    out[1] = xy + wz;
-    out[2] = xz - wy;
-    out[3] = 0;
-    out[4] = xy - wz;
-    out[5] = 1 - (xx + zz);
-    out[6] = yz + wx;
-    out[7] = 0;
-    out[8] = xz + wy;
-    out[9] = yz - wx;
-    out[10] = 1 - (xx + yy);
-    out[11] = 0;
-    out[12] = v[0];
-    out[13] = v[1];
-    out[14] = v[2];
-    out[15] = 1;
-
-    return out;
-  };
-
-  function mat4_translate(out, a, v) {
-    var x = v[0], y = v[1], z = v[2],
-        a00, a01, a02, a03,
-        a10, a11, a12, a13,
-        a20, a21, a22, a23;
-
-    if (a === out) {
-      out[12] = a[0] * x + a[4] * y + a[8] * z + a[12];
-      out[13] = a[1] * x + a[5] * y + a[9] * z + a[13];
-      out[14] = a[2] * x + a[6] * y + a[10] * z + a[14];
-      out[15] = a[3] * x + a[7] * y + a[11] * z + a[15];
-    } else {
-      a00 = a[0]; a01 = a[1]; a02 = a[2]; a03 = a[3];
-      a10 = a[4]; a11 = a[5]; a12 = a[6]; a13 = a[7];
-      a20 = a[8]; a21 = a[9]; a22 = a[10]; a23 = a[11];
-
-      out[0] = a00; out[1] = a01; out[2] = a02; out[3] = a03;
-      out[4] = a10; out[5] = a11; out[6] = a12; out[7] = a13;
-      out[8] = a20; out[9] = a21; out[10] = a22; out[11] = a23;
-
-      out[12] = a00 * x + a10 * y + a20 * z + a[12];
-      out[13] = a01 * x + a11 * y + a21 * z + a[13];
-      out[14] = a02 * x + a12 * y + a22 * z + a[14];
-      out[15] = a03 * x + a13 * y + a23 * z + a[15];
-    }
-
-    return out;
-  };
-
-  function mat4_invert(out, a) {
-    var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3],
-        a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7],
-        a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11],
-        a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15],
-
-        b00 = a00 * a11 - a01 * a10,
-        b01 = a00 * a12 - a02 * a10,
-        b02 = a00 * a13 - a03 * a10,
-        b03 = a01 * a12 - a02 * a11,
-        b04 = a01 * a13 - a03 * a11,
-        b05 = a02 * a13 - a03 * a12,
-        b06 = a20 * a31 - a21 * a30,
-        b07 = a20 * a32 - a22 * a30,
-        b08 = a20 * a33 - a23 * a30,
-        b09 = a21 * a32 - a22 * a31,
-        b10 = a21 * a33 - a23 * a31,
-        b11 = a22 * a33 - a23 * a32,
-
-        // Calculate the determinant
-        det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
-
-    if (!det) {
-      return null;
-    }
-    det = 1.0 / det;
-
-    out[0] = (a11 * b11 - a12 * b10 + a13 * b09) * det;
-    out[1] = (a02 * b10 - a01 * b11 - a03 * b09) * det;
-    out[2] = (a31 * b05 - a32 * b04 + a33 * b03) * det;
-    out[3] = (a22 * b04 - a21 * b05 - a23 * b03) * det;
-    out[4] = (a12 * b08 - a10 * b11 - a13 * b07) * det;
-    out[5] = (a00 * b11 - a02 * b08 + a03 * b07) * det;
-    out[6] = (a32 * b02 - a30 * b05 - a33 * b01) * det;
-    out[7] = (a20 * b05 - a22 * b02 + a23 * b01) * det;
-    out[8] = (a10 * b10 - a11 * b08 + a13 * b06) * det;
-    out[9] = (a01 * b08 - a00 * b10 - a03 * b06) * det;
-    out[10] = (a30 * b04 - a31 * b02 + a33 * b00) * det;
-    out[11] = (a21 * b02 - a20 * b04 - a23 * b00) * det;
-    out[12] = (a11 * b07 - a10 * b09 - a12 * b06) * det;
-    out[13] = (a00 * b09 - a01 * b07 + a02 * b06) * det;
-    out[14] = (a31 * b01 - a30 * b03 - a32 * b00) * det;
-    out[15] = (a20 * b03 - a21 * b01 + a22 * b00) * det;
-
-    return out;
-  };
-
-  var defaultOrientation = new Float32Array([0, 0, 0, 1]);
-  var defaultPosition = new Float32Array([0, 0, 0]);
-
-  function updateEyeMatrices(projection, view, pose, parameters, vrDisplay) {
-    mat4_perspectiveFromFieldOfView(projection, parameters ? parameters.fieldOfView : null, vrDisplay.depthNear, vrDisplay.depthFar);
-
-    var orientation = pose.orientation || defaultOrientation;
-    var position = pose.position || defaultPosition;
-
-    mat4_fromRotationTranslation(view, orientation, position);
-    if (parameters)
-      mat4_translate(view, view, parameters.offset);
-    mat4_invert(view, view);
-  }
-
-  return function(frameData, pose, vrDisplay) {
-    if (!frameData || !pose)
-      return false;
-
-    frameData.pose = pose;
-    frameData.timestamp = pose.timestamp;
-
-    updateEyeMatrices(
-        frameData.leftProjectionMatrix, frameData.leftViewMatrix,
-        pose, vrDisplay.getEyeParameters("left"), vrDisplay);
-    updateEyeMatrices(
-        frameData.rightProjectionMatrix, frameData.rightViewMatrix,
-        pose, vrDisplay.getEyeParameters("right"), vrDisplay);
-
-    return true;
-  };
-})();
-
-Util.isInsideCrossDomainIFrame = function() {
-  var isFramed = (window.self !== window.top);
-  var refDomain = Util.getDomainFromUrl(document.referrer);
-  var thisDomain = Util.getDomainFromUrl(window.location.href);
-
-  return isFramed && (refDomain !== thisDomain);
-};
-
-// From http://stackoverflow.com/a/23945027.
-Util.getDomainFromUrl = function(url) {
-  var domain;
-  // Find & remove protocol (http, ftp, etc.) and get domain.
-  if (url.indexOf("://") > -1) {
-    domain = url.split('/')[2];
-  }
-  else {
-    domain = url.split('/')[0];
-  }
-
-  //find & remove port number
-  domain = domain.split(':')[0];
-
-  return domain;
-}
-
-module.exports = Util;
-
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*!
- * Copyright (c) 2017 NAVER Corp.
- * @egjs/axes project is licensed under the MIT license
- * 
- * @egjs/axes JavaScript library
- * https://github.com/naver/egjs-axes
- * 
- * @version 2.3.3
- */
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(true)
-		module.exports = factory(__webpack_require__(15), __webpack_require__(0));
-	else if(typeof define === 'function' && define.amd)
-		define(["hammerjs", "@egjs/component"], factory);
-	else if(typeof exports === 'object')
-		exports["Axes"] = factory(require("hammerjs"), require("@egjs/component"));
-	else
-		root["eg"] = root["eg"] || {}, root["eg"]["Axes"] = factory(root["Hammer"], root["eg"]["Component"]);
-})(typeof self !== 'undefined' ? self : this, function(__WEBPACK_EXTERNAL_MODULE_4__, __WEBPACK_EXTERNAL_MODULE_8__) {
-return /******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 6);
-/******/ })
-/************************************************************************/
-/******/ ([
-/* 0 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-exports.__esModule = true;
-function toArray(nodes) {
-    // const el = Array.prototype.slice.call(nodes);
-    // for IE8
-    var el = [];
-    for (var i = 0, len = nodes.length; i < len; i++) {
-        el.push(nodes[i]);
-    }
-    return el;
-}
-exports.toArray = toArray;
-function $(param, multi) {
-    if (multi === void 0) { multi = false; }
-    var el;
-    if (typeof param === "string") {
-        // check if string is HTML tag format
-        var match = param.match(/^<([a-z]+)\s*([^>]*)>/);
-        // creating element
-        if (match) {
-            var dummy = document.createElement("div");
-            dummy.innerHTML = param;
-            el = toArray(dummy.childNodes);
-        }
-        else {
-            el = toArray(document.querySelectorAll(param));
-        }
-        if (!multi) {
-            el = el.length >= 1 ? el[0] : undefined;
-        }
-    }
-    else if (param === window) {
-        el = param;
-    }
-    else if (param.nodeName &&
-        (param.nodeType === 1 || param.nodeType === 9)) {
-        el = param;
-    }
-    else if (("jQuery" in window && param instanceof jQuery) ||
-        param.constructor.prototype.jquery) {
-        el = multi ? param.toArray() : param.get(0);
-    }
-    else if (Array.isArray(param)) {
-        el = param.map(function (v) { return $(v); });
-        if (!multi) {
-            el = el.length >= 1 ? el[0] : undefined;
-        }
-    }
-    return el;
-}
-exports.$ = $;
-var raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame;
-var caf = window.cancelAnimationFrame || window.webkitCancelAnimationFrame;
-if (raf && !caf) {
-    var keyInfo_1 = {};
-    var oldraf_1 = raf;
-    raf = function (callback) {
-        function wrapCallback(timestamp) {
-            if (keyInfo_1[key]) {
-                callback(timestamp);
-            }
-        }
-        var key = oldraf_1(wrapCallback);
-        keyInfo_1[key] = true;
-        return key;
-    };
-    caf = function (key) {
-        delete keyInfo_1[key];
-    };
-}
-else if (!(raf && caf)) {
-    raf = function (callback) {
-        return window.setTimeout(function () {
-            callback(window.performance && window.performance.now && window.performance.now() || new Date().getTime());
-        }, 16);
-    };
-    caf = window.clearTimeout;
-}
-/**
- * A polyfill for the window.requestAnimationFrame() method.
- * @see  https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
- * @private
- */
-function requestAnimationFrame(fp) {
-    return raf(fp);
-}
-exports.requestAnimationFrame = requestAnimationFrame;
-;
-/**
-* A polyfill for the window.cancelAnimationFrame() method. It cancels an animation executed through a call to the requestAnimationFrame() method.
-* @param {Number} key −	The ID value returned through a call to the requestAnimationFrame() method. <ko>requestAnimationFrame() 메서드가 반환한 아이디 값</ko>
-* @see  https://developer.mozilla.org/en-US/docs/Web/API/Window/cancelAnimationFrame
-* @private
-*/
-function cancelAnimationFrame(key) {
-    caf(key);
-}
-exports.cancelAnimationFrame = cancelAnimationFrame;
-;
-
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
 var __assign = (this && this.__assign) || Object.assign || function(t) {
     for (var s, i = 1, n = arguments.length; i < n; i++) {
         s = arguments[i];
@@ -3527,112 +899,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 exports.__esModule = true;
-var Hammer = __webpack_require__(4);
-exports.SUPPORT_TOUCH = "ontouchstart" in window;
-exports.UNIQUEKEY = "_EGJS_AXES_INPUTTYPE_";
-function toAxis(source, offset) {
-    return offset.reduce(function (acc, v, i) {
-        if (source[i]) {
-            acc[source[i]] = v;
-        }
-        return acc;
-    }, {});
-}
-exports.toAxis = toAxis;
-;
-function createHammer(element, options) {
-    try {
-        // create Hammer
-        return new Hammer.Manager(element, __assign({}, options));
-    }
-    catch (e) {
-        return null;
-    }
-}
-exports.createHammer = createHammer;
-;
-function convertInputType(inputType) {
-    if (inputType === void 0) { inputType = []; }
-    var hasTouch = false;
-    var hasMouse = false;
-    inputType.forEach(function (v) {
-        switch (v) {
-            case "mouse":
-                hasMouse = true;
-                break;
-            case "touch": hasTouch = exports.SUPPORT_TOUCH;
-        }
-    });
-    return (hasTouch && Hammer.TouchInput) ||
-        (hasMouse && Hammer.MouseInput) || null;
-}
-exports.convertInputType = convertInputType;
-
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-exports.__esModule = true;
-var Coordinate = {
-    getInsidePosition: function (destPos, range, circular, bounce) {
-        var toDestPos = destPos;
-        var targetRange = [
-            circular[0] ? range[0] : (bounce ? range[0] - bounce[0] : range[0]),
-            circular[1] ? range[1] : (bounce ? range[1] + bounce[1] : range[1])
-        ];
-        toDestPos = Math.max(targetRange[0], toDestPos);
-        toDestPos = Math.min(targetRange[1], toDestPos);
-        return +toDestPos.toFixed(5);
-    },
-    // determine outside
-    isOutside: function (pos, range) {
-        return pos < range[0] || pos > range[1];
-    },
-    getDuration: function (distance, deceleration) {
-        var duration = Math.sqrt(distance / deceleration * 2);
-        // when duration is under 100, then value is zero
-        return duration < 100 ? 0 : duration;
-    },
-    isCircularable: function (destPos, range, circular) {
-        return (circular[1] && destPos > range[1]) ||
-            (circular[0] && destPos < range[0]);
-    },
-    getCirculatedPos: function (pos, range, circular) {
-        var toPos = pos;
-        var min = range[0];
-        var max = range[1];
-        var length = max - min;
-        if (circular[1] && pos > max) {
-            toPos = (toPos - max) % length + min;
-        }
-        if (circular[0] && pos < min) {
-            toPos = (toPos - min) % length + max;
-        }
-        return +toPos.toFixed(5);
-    }
-};
-exports["default"] = Coordinate;
-
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
-exports.__esModule = true;
-var Coordinate_1 = __webpack_require__(2);
+var Coordinate_1 = __webpack_require__(6);
 ;
 var AxisManager = /** @class */ (function () {
     function AxisManager(axis, options) {
@@ -3751,2234 +1018,55 @@ exports.AxisManager = AxisManager;
 
 
 /***/ }),
-/* 4 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-exports.__esModule = true;
-var DIRECTION;
-(function (DIRECTION) {
-    DIRECTION[DIRECTION["DIRECTION_NONE"] = 1] = "DIRECTION_NONE";
-    DIRECTION[DIRECTION["DIRECTION_LEFT"] = 2] = "DIRECTION_LEFT";
-    DIRECTION[DIRECTION["DIRECTION_RIGHT"] = 4] = "DIRECTION_RIGHT";
-    DIRECTION[DIRECTION["DIRECTION_HORIZONTAL"] = 6] = "DIRECTION_HORIZONTAL";
-    DIRECTION[DIRECTION["DIRECTION_UP"] = 8] = "DIRECTION_UP";
-    DIRECTION[DIRECTION["DIRECTION_DOWN"] = 16] = "DIRECTION_DOWN";
-    DIRECTION[DIRECTION["DIRECTION_VERTICAL"] = 24] = "DIRECTION_VERTICAL";
-    DIRECTION[DIRECTION["DIRECTION_ALL"] = 30] = "DIRECTION_ALL";
-})(DIRECTION = exports.DIRECTION || (exports.DIRECTION = {}));
-exports.TRANSFORM = (function () {
-    var bodyStyle = (document.head || document.getElementsByTagName("head")[0]).style;
-    var target = ["transform", "webkitTransform", "msTransform", "mozTransform"];
-    for (var i = 0, len = target.length; i < len; i++) {
-        if (target[i] in bodyStyle) {
-            return target[i];
-        }
-    }
-    return "";
-})();
-
-
-/***/ }),
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var Axes_1 = __webpack_require__(7);
-var PanInput_1 = __webpack_require__(13);
-var PinchInput_1 = __webpack_require__(14);
-var WheelInput_1 = __webpack_require__(15);
-var MoveKeyInput_1 = __webpack_require__(16);
-Axes_1["default"].PanInput = PanInput_1.PanInput;
-Axes_1["default"].PinchInput = PinchInput_1.PinchInput;
-Axes_1["default"].WheelInput = WheelInput_1.WheelInput;
-Axes_1["default"].MoveKeyInput = MoveKeyInput_1.MoveKeyInput;
-module.exports = Axes_1["default"];
+exports.__esModule = true;
+var Coordinate = {
+    getInsidePosition: function (destPos, range, circular, bounce) {
+        var toDestPos = destPos;
+        var targetRange = [
+            circular[0] ? range[0] : (bounce ? range[0] - bounce[0] : range[0]),
+            circular[1] ? range[1] : (bounce ? range[1] + bounce[1] : range[1])
+        ];
+        toDestPos = Math.max(targetRange[0], toDestPos);
+        toDestPos = Math.min(targetRange[1], toDestPos);
+        return +toDestPos.toFixed(5);
+    },
+    // determine outside
+    isOutside: function (pos, range) {
+        return pos < range[0] || pos > range[1];
+    },
+    getDuration: function (distance, deceleration) {
+        var duration = Math.sqrt(distance / deceleration * 2);
+        // when duration is under 100, then value is zero
+        return duration < 100 ? 0 : duration;
+    },
+    isCircularable: function (destPos, range, circular) {
+        return (circular[1] && destPos > range[1]) ||
+            (circular[0] && destPos < range[0]);
+    },
+    getCirculatedPos: function (pos, range, circular) {
+        var toPos = pos;
+        var min = range[0];
+        var max = range[1];
+        var length = max - min;
+        if (circular[1] && pos > max) {
+            toPos = (toPos - max) % length + min;
+        }
+        if (circular[0] && pos < min) {
+            toPos = (toPos - min) % length + max;
+        }
+        return +toPos.toFixed(5);
+    }
+};
+exports["default"] = Coordinate;
 
 
 /***/ }),
 /* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
-exports.__esModule = true;
-var Component = __webpack_require__(8);
-var AnimationManager_1 = __webpack_require__(9);
-var EventManager_1 = __webpack_require__(10);
-var InterruptManager_1 = __webpack_require__(11);
-var AxisManager_1 = __webpack_require__(3);
-var InputObserver_1 = __webpack_require__(12);
-var const_1 = __webpack_require__(5);
-/**
- * @typedef {Object} AxisOption The Axis information. The key of the axis specifies the name to use as the logical virtual coordinate system.
- * @ko 축 정보. 축의 키는 논리적인 가상 좌표계로 사용할 이름을 지정한다.
- * @property {Number[]} [range] The coordinate of range <ko>좌표 범위</ko>
- * @property {Number} [range.0=0] The coordinate of the minimum <ko>최소 좌표</ko>
- * @property {Number} [range.1=0] The coordinate of the maximum <ko>최대 좌표</ko>
- * @property {Number[]} [bounce] The size of bouncing area. The coordinates can exceed the coordinate area as much as the bouncing area based on user action. If the coordinates does not exceed the bouncing area when an element is dragged, the coordinates where bouncing effects are applied are retuned back into the coordinate area<ko>바운스 영역의 크기. 사용자의 동작에 따라 좌표가 좌표 영역을 넘어 바운스 영역의 크기만큼 더 이동할 수 있다. 사용자가 끌어다 놓는 동작을 했을 때 좌표가 바운스 영역에 있으면, 바운스 효과가 적용된 좌표가 다시 좌표 영역 안으로 들어온다</ko>
- * @property {Number} [bounce.0=0] The size of coordinate of the minimum area <ko>최소 좌표 바운스 영역의 크기</ko>
- * @property {Number} [bounce.1=0] The size of coordinate of the maximum area <ko>최대 좌표 바운스 영역의 크기</ko>
- * @property {Boolean[]} [circular] Indicates whether a circular element is available. If it is set to "true" and an element is dragged outside the coordinate area, the element will appear on the other side.<ko>순환 여부. 'true'로 설정한 방향의 좌표 영역 밖으로 엘리먼트가 이동하면 반대 방향에서 엘리먼트가 나타난다</ko>
- * @property {Boolean} [circular.0=false] Indicates whether to circulate to the coordinate of the minimum <ko>최소 좌표 방향의 순환 여부</ko>
- * @property {Boolean} [circular.1=false] Indicates whether to circulate to the coordinate of the maximum <ko>최대 좌표 방향의 순환 여부</ko>
-**/
-/**
- * @typedef {Object} AxesOption The option object of the eg.Axes module
- * @ko eg.Axes 모듈의 옵션 객체
- * @property {Function} [easing=easing.easeOutCubic] The easing function to apply to an animation <ko>애니메이션에 적용할 easing 함수</ko>
- * @property {Number} [maximumDuration=Infinity] Maximum duration of the animation <ko>가속도에 의해 애니메이션이 동작할 때의 최대 좌표 이동 시간</ko>
- * @property {Number} [minimumDuration=0] Minimum duration of the animation <ko>가속도에 의해 애니메이션이 동작할 때의 최소 좌표 이동 시간</ko>
- * @property {Number} [deceleration=0.0006] Deceleration of the animation where acceleration is manually enabled by user. A higher value indicates shorter running time. <ko>사용자의 동작으로 가속도가 적용된 애니메이션의 감속도. 값이 높을수록 애니메이션 실행 시간이 짧아진다</ko>
- * @property {Boolean} [interruptable=true] Indicates whether an animation is interruptible.<br>- true: It can be paused or stopped by user action or the API.<br>- false: It cannot be paused or stopped by user action or the API while it is running.<ko>진행 중인 애니메이션 중지 가능 여부.<br>- true: 사용자의 동작이나 API로 애니메이션을 중지할 수 있다.<br>- false: 애니메이션이 진행 중일 때는 사용자의 동작이나 API가 적용되지 않는다</ko>
-**/
-/**
- * @class eg.Axes
- * @classdesc A module used to change the information of user action entered by various input devices such as touch screen or mouse into the logical virtual coordinates. You can easily create a UI that responds to user actions.
- * @ko 터치 입력 장치나 마우스와 같은 다양한 입력 장치를 통해 전달 받은 사용자의 동작을 논리적인 가상 좌표로 변경하는 모듈이다. 사용자 동작에 반응하는 UI를 손쉽게 만들수 있다.
- * @extends eg.Component
- *
- * @param {Object.<string, AxisOption>} axis Axis information managed by eg.Axes. The key of the axis specifies the name to use as the logical virtual coordinate system.  <ko>eg.Axes가 관리하는 축 정보. 축의 키는 논리적인 가상 좌표계로 사용할 이름을 지정한다.</ko>
- * @param {AxesOption} [options] The option object of the eg.Axes module<ko>eg.Axes 모듈의 옵션 객체</ko>
- * @param {Object.<string, number>} [startPos] The coordinates to be moved when creating an instance. not triggering change event.<ko>인스턴스 생성시 이동할 좌표, change 이벤트는 발생하지 않음.</ko>
- *
- * @support {"ie": "10+", "ch" : "latest", "ff" : "latest",  "sf" : "latest", "edge" : "latest", "ios" : "7+", "an" : "2.3+ (except 3.x)"}
- * @example
- *
- * // 1. Initialize eg.Axes
- * const axes = new eg.Axes({
- *	something1: {
- *		range: [0, 150],
- *		bounce: 50
- *	},
- *	something2: {
- *		range: [0, 200],
- *		bounce: 100
- *	},
- *	somethingN: {
- *		range: [1, 10],
- *	}
- * }, {
- *  deceleration : 0.0024
- * });
- *
- * // 2. attach event handler
- * axes.on({
- *	"hold" : function(evt) {
- *	},
- *	"release" : function(evt) {
- *	},
- *	"animationStart" : function(evt) {
- *	},
- *	"animationEnd" : function(evt) {
- *	},
- *	"change" : function(evt) {
- *	}
- * });
- *
- * // 3. Initialize inputTypes
- * const panInputArea = new eg.Axes.PanInput("#area", {
- *	scale: [0.5, 1]
- * });
- * const panInputHmove = new eg.Axes.PanInput("#hmove");
- * const panInputVmove = new eg.Axes.PanInput("#vmove");
- * const pinchInputArea = new eg.Axes.PinchInput("#area", {
- *	scale: 1.5
- * });
- *
- * // 4. Connect eg.Axes and InputTypes
- * // [PanInput] When the mouse or touchscreen is down and moved.
- * // Connect the 'something2' axis to the mouse or touchscreen x position and
- * // connect the 'somethingN' axis to the mouse or touchscreen y position.
- * axes.connect(["something2", "somethingN"], panInputArea); // or axes.connect("something2 somethingN", panInputArea);
- *
- * // Connect only one 'something1' axis to the mouse or touchscreen x position.
- * axes.connect(["something1"], panInputHmove); // or axes.connect("something1", panInputHmove);
- *
- * // Connect only one 'something2' axis to the mouse or touchscreen y position.
- * axes.connect(["", "something2"], panInputVmove); // or axes.connect(" something2", panInputVmove);
- *
- * // [PinchInput] Connect 'something2' axis when two pointers are moving toward (zoom-in) or away from each other (zoom-out).
- * axes.connect("something2", pinchInputArea);
- */
-var Axes = /** @class */ (function (_super) {
-    __extends(Axes, _super);
-    function Axes(axis, options, startPos) {
-        if (axis === void 0) { axis = {}; }
-        var _this = _super.call(this) || this;
-        _this.axis = axis;
-        _this._inputs = [];
-        _this.options = __assign({
-            easing: function easeOutCubic(x) {
-                return 1 - Math.pow(1 - x, 3);
-            },
-            interruptable: true,
-            maximumDuration: Infinity,
-            minimumDuration: 0,
-            deceleration: 0.0006
-        }, options);
-        _this.itm = new InterruptManager_1.InterruptManager(_this.options);
-        _this.axm = new AxisManager_1.AxisManager(_this.axis, _this.options);
-        _this.em = new EventManager_1.EventManager(_this);
-        _this.am = new AnimationManager_1.AnimationManager(_this);
-        _this.io = new InputObserver_1.InputObserver(_this);
-        _this.em.setAnimationManager(_this.am);
-        startPos && _this.em.triggerChange(startPos);
-        return _this;
-    }
-    /**
-     * Connect the axis of eg.Axes to the inputType.
-     * @ko eg.Axes의 축과 inputType을 연결한다
-     * @method eg.Axes#connect
-     * @param {(String[]|String)} axes The name of the axis to associate with inputType <ko>inputType과 연결할 축의 이름</ko>
-     * @param {Object} inputType The inputType instance to associate with the axis of eg.Axes <ko>eg.Axes의 축과 연결할 inputType 인스턴스<ko>
-     * @return {eg.Axes} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
-     * @example
-     * const axes = new eg.Axes({
-     *   "x": {
-     *      range: [0, 100]
-     *   },
-     *   "xOther": {
-     *      range: [-100, 100]
-     *   }
-     * });
-     *
-     * axes.connect("x", new eg.Axes.PanInput("#area1"))
-     *    .connect("x xOther", new eg.Axes.PanInput("#area2"))
-     *    .connect(" xOther", new eg.Axes.PanInput("#area3"))
-     *    .connect(["x"], new eg.Axes.PanInput("#area4"))
-     *    .connect(["xOther", "x"], new eg.Axes.PanInput("#area5"))
-     *    .connect(["", "xOther"], new eg.Axes.PanInput("#area6"));
-     */
-    Axes.prototype.connect = function (axes, inputType) {
-        var mapped;
-        if (typeof axes === "string") {
-            mapped = axes.split(" ");
-        }
-        else {
-            mapped = axes.concat();
-        }
-        // check same instance
-        if (~this._inputs.indexOf(inputType)) {
-            this.disconnect(inputType);
-        }
-        // check same element in hammer type for share
-        if ("hammer" in inputType) {
-            var targets = this._inputs.filter(function (v) { return v.hammer && v.element === inputType.element; });
-            if (targets.length) {
-                inputType.hammer = targets[0].hammer;
-            }
-        }
-        inputType.mapAxes(mapped);
-        inputType.connect(this.io);
-        this._inputs.push(inputType);
-        return this;
-    };
-    /**
-     * Disconnect the axis of eg.Axes from the inputType.
-     * @ko eg.Axes의 축과 inputType의 연결을 끊는다.
-     * @method eg.Axes#disconnect
-     * @param {Object} [inputType] An inputType instance associated with the axis of eg.Axes <ko>eg.Axes의 축과 연결한 inputType 인스턴스<ko>
-     * @return {eg.Axes} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
-     * @example
-     * const axes = new eg.Axes({
-     *   "x": {
-     *      range: [0, 100]
-     *   },
-     *   "xOther": {
-     *      range: [-100, 100]
-     *   }
-     * });
-     *
-     * const input1 = new eg.Axes.PanInput("#area1");
-     * const input2 = new eg.Axes.PanInput("#area2");
-     * const input3 = new eg.Axes.PanInput("#area3");
-     *
-     * axes.connect("x", input1);
-     *    .connect("x xOther", input2)
-     *    .connect(["xOther", "x"], input3);
-     *
-     * axes.disconnect(input1); // disconnects input1
-     * axes.disconnect(); // disconnects all of them
-     */
-    Axes.prototype.disconnect = function (inputType) {
-        if (inputType) {
-            var index = this._inputs.indexOf(inputType);
-            if (index >= 0) {
-                this._inputs[index].disconnect();
-                this._inputs.splice(index, 1);
-            }
-        }
-        else {
-            this._inputs.forEach(function (v) { return v.disconnect(); });
-            this._inputs = [];
-        }
-        return this;
-    };
-    /**
-     * Returns the current position of the coordinates.
-     * @ko 좌표의 현재 위치를 반환한다
-     * @method eg.Axes#get
-     * @param {Object} [axes] The names of the axis <ko>축 이름들</ko>
-     * @return {Object.<string, number>} Axis coordinate information <ko>축 좌표 정보</ko>
-     * @example
-     * const axes = new eg.Axes({
-     *   "x": {
-     *      range: [0, 100]
-     *   },
-     *   "xOther": {
-     *      range: [-100, 100]
-     *   },
-     * 	 "zoom": {
-     *      range: [50, 30]
-     *   }
-     * });
-     *
-     * axes.get(); // {"x": 0, "xOther": -100, "zoom": 50}
-     * axes.get(["x", "zoom"]); // {"x": 0, "zoom": 50}
-     */
-    Axes.prototype.get = function (axes) {
-        return this.axm.get(axes);
-    };
-    /**
-     * Moves an axis to specific coordinates.
-     * @ko 좌표를 이동한다.
-     * @method eg.Axes#setTo
-     * @param {Object.<string, number>} pos The coordinate to move to <ko>이동할 좌표</ko>
-     * @param {Number} [duration=0] Duration of the animation (unit: ms) <ko>애니메이션 진행 시간(단위: ms)</ko>
-     * @return {eg.Axes} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
-     * @example
-     * const axes = new eg.Axes({
-     *   "x": {
-     *      range: [0, 100]
-     *   },
-     *   "xOther": {
-     *      range: [-100, 100]
-     *   },
-     * 	 "zoom": {
-     *      range: [50, 30]
-     *   }
-     * });
-     *
-     * axes.setTo({"x": 30, "zoom": 60});
-     * axes.get(); // {"x": 30, "xOther": -100, "zoom": 60}
-     *
-     * axes.setTo({"x": 100, "xOther": 60}, 1000); // animatation
-     *
-     * // after 1000 ms
-     * axes.get(); // {"x": 100, "xOther": 60, "zoom": 60}
-     */
-    Axes.prototype.setTo = function (pos, duration) {
-        if (duration === void 0) { duration = 0; }
-        this.am.setTo(pos, duration);
-        return this;
-    };
-    /**
-     * Moves an axis from the current coordinates to specific coordinates.
-     * @ko 현재 좌표를 기준으로 좌표를 이동한다.
-     * @method eg.Axes#setBy
-     * @param {Object.<string, number>} pos The coordinate to move to <ko>이동할 좌표</ko>
-     * @param {Number} [duration=0] Duration of the animation (unit: ms) <ko>애니메이션 진행 시간(단위: ms)</ko>
-     * @return {eg.Axes} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
-     * @example
-     * const axes = new eg.Axes({
-     *   "x": {
-     *      range: [0, 100]
-     *   },
-     *   "xOther": {
-     *      range: [-100, 100]
-     *   },
-     * 	 "zoom": {
-     *      range: [50, 30]
-     *   }
-     * });
-     *
-     * axes.setBy({"x": 30, "zoom": 10});
-     * axes.get(); // {"x": 30, "xOther": -100, "zoom": 60}
-     *
-     * axes.setBy({"x": 70, "xOther": 60}, 1000); // animatation
-     *
-     * // after 1000 ms
-     * axes.get(); // {"x": 100, "xOther": -40, "zoom": 60}
-     */
-    Axes.prototype.setBy = function (pos, duration) {
-        if (duration === void 0) { duration = 0; }
-        this.am.setBy(pos, duration);
-        return this;
-    };
-    /**
-     * Returns whether there is a coordinate in the bounce area of ​​the target axis.
-     * @ko 대상 축 중 bounce영역에 좌표가 존재하는지를 반환한다
-     * @method eg.Axes#isBounceArea
-     * @param {Object} [axes] The names of the axis <ko>축 이름들</ko>
-     * @return {Boolen} Whether the bounce area exists. <ko>bounce 영역 존재 여부</ko>
-     * @example
-     * const axes = new eg.Axes({
-     *   "x": {
-     *      range: [0, 100]
-     *   },
-     *   "xOther": {
-     *      range: [-100, 100]
-     *   },
-     * 	 "zoom": {
-     *      range: [50, 30]
-     *   }
-     * });
-     *
-     * axes.isBounceArea(["x"]);
-     * axes.isBounceArea(["x", "zoom"]);
-     * axes.isBounceArea();
-     */
-    Axes.prototype.isBounceArea = function (axes) {
-        return this.axm.isOutside(axes);
-    };
-    /**
-    * Destroys properties, and events used in a module and disconnect all connections to inputTypes.
-    * @ko 모듈에 사용한 속성, 이벤트를 해제한다. 모든 inputType과의 연결을 끊는다.
-    * @method eg.Axes#destroy
-    */
-    Axes.prototype.destroy = function () {
-        this.disconnect();
-        this.em.destroy();
-    };
-    Axes.VERSION = "3.0.0-rc";
-    /**
-     * @name eg.Axes.TRANSFORM
-     * @desc Returns the transform attribute with CSS vendor prefixes.
-     * @ko CSS vendor prefixes를 붙인 transform 속성을 반환한다.
-     *
-     * @constant
-     * @type {String}
-     * @example
-     * eg.Axes.TRANSFORM; // "transform" or "webkitTransform"
-     */
-    Axes.TRANSFORM = const_1.TRANSFORM;
-    /**
-     * @name eg.Axes.DIRECTION_NONE
-     * @constant
-     * @type {Number}
-     */
-    Axes.DIRECTION_NONE = const_1.DIRECTION.DIRECTION_NONE;
-    /**
-     * @name eg.Axes.DIRECTION_LEFT
-     * @constant
-     * @type {Number}
-    */
-    Axes.DIRECTION_LEFT = const_1.DIRECTION.DIRECTION_LEFT;
-    /**
-     * @name eg.Axes.DIRECTION_RIGHT
-     * @constant
-     * @type {Number}
-    */
-    Axes.DIRECTION_RIGHT = const_1.DIRECTION.DIRECTION_RIGHT;
-    /**
-     * @name eg.Axes.DIRECTION_UP
-     * @constant
-     * @type {Number}
-    */
-    Axes.DIRECTION_UP = const_1.DIRECTION.DIRECTION_UP;
-    /**
-     * @name eg.Axes.DIRECTION_DOWN
-     * @constant
-     * @type {Number}
-    */
-    Axes.DIRECTION_DOWN = const_1.DIRECTION.DIRECTION_DOWN;
-    /**
-     * @name eg.Axes.DIRECTION_HORIZONTAL
-     * @constant
-     * @type {Number}
-    */
-    Axes.DIRECTION_HORIZONTAL = const_1.DIRECTION.DIRECTION_HORIZONTAL;
-    /**
-     * @name eg.Axes.DIRECTION_VERTICAL
-     * @constant
-     * @type {Number}
-    */
-    Axes.DIRECTION_VERTICAL = const_1.DIRECTION.DIRECTION_VERTICAL;
-    /**
-     * @name eg.Axes.DIRECTION_ALL
-     * @constant
-     * @type {Number}
-    */
-    Axes.DIRECTION_ALL = const_1.DIRECTION.DIRECTION_ALL;
-    return Axes;
-}(Component));
-exports["default"] = Axes;
-;
-
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_8__;
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
-exports.__esModule = true;
-var Coordinate_1 = __webpack_require__(2);
-var AxisManager_1 = __webpack_require__(3);
-var utils_1 = __webpack_require__(0);
-var AnimationManager = /** @class */ (function () {
-    function AnimationManager(_a) {
-        var options = _a.options, itm = _a.itm, em = _a.em, axm = _a.axm;
-        this.options = options;
-        this.itm = itm;
-        this.em = em;
-        this.axm = axm;
-        this.animationEnd = this.animationEnd.bind(this);
-    }
-    AnimationManager.getDuration = function (duration, min, max) {
-        return Math.max(Math.min(duration, max), min);
-    };
-    AnimationManager.prototype.getDuration = function (depaPos, destPos, wishDuration) {
-        var _this = this;
-        var duration;
-        if (typeof wishDuration !== "undefined") {
-            duration = wishDuration;
-        }
-        else {
-            var durations_1 = this.axm.map(destPos, function (v, k) { return Coordinate_1["default"].getDuration(Math.abs(Math.abs(v) - Math.abs(depaPos[k])), _this.options.deceleration); });
-            duration = Object.keys(durations_1).reduce(function (max, v) { return Math.max(max, durations_1[v]); }, -Infinity);
-        }
-        return AnimationManager.getDuration(duration, this.options.minimumDuration, this.options.maximumDuration);
-    };
-    AnimationManager.prototype.createAnimationParam = function (pos, duration, option) {
-        var depaPos = this.axm.get();
-        var destPos = pos;
-        var inputEvent = option && option.event || null;
-        return {
-            depaPos: depaPos,
-            destPos: destPos,
-            duration: AnimationManager.getDuration(duration, this.options.minimumDuration, this.options.maximumDuration),
-            delta: this.axm.getDelta(depaPos, destPos),
-            inputEvent: inputEvent,
-            input: option && option.input || null,
-            isTrusted: !!inputEvent,
-            done: this.animationEnd
-        };
-    };
-    AnimationManager.prototype.grab = function (axes, option) {
-        if (this._animateParam && axes.length) {
-            var orgPos_1 = this.axm.get(axes);
-            var pos = this.axm.map(orgPos_1, function (v, k, opt) { return Coordinate_1["default"].getCirculatedPos(v, opt.range, opt.circular); });
-            if (!this.axm.every(pos, function (v, k) { return orgPos_1[k] === v; })) {
-                this.em.triggerChange(pos, option, !!option);
-            }
-            this._animateParam = null;
-            this._raf && utils_1.cancelAnimationFrame(this._raf);
-            this._raf = null;
-            this.em.triggerAnimationEnd(!!(option && option.event));
-        }
-    };
-    AnimationManager.prototype.getEventInfo = function () {
-        if (this._animateParam && this._animateParam.input && this._animateParam.inputEvent) {
-            return {
-                input: this._animateParam.input,
-                event: this._animateParam.inputEvent
-            };
-        }
-        else {
-            return null;
-        }
-    };
-    AnimationManager.prototype.restore = function (option) {
-        var pos = this.axm.get();
-        var destPos = this.axm.map(pos, function (v, k, opt) { return Math.min(opt.range[1], Math.max(opt.range[0], v)); });
-        this.animateTo(destPos, this.getDuration(pos, destPos), option);
-    };
-    AnimationManager.prototype.animationEnd = function () {
-        var beforeParam = this.getEventInfo();
-        this._animateParam = null;
-        // for Circular
-        var circularTargets = this.axm.filter(this.axm.get(), function (v, k, opt) { return Coordinate_1["default"].isCircularable(v, opt.range, opt.circular); });
-        Object.keys(circularTargets).length > 0 && this.setTo(this.axm.map(circularTargets, function (v, k, opt) { return Coordinate_1["default"].getCirculatedPos(v, opt.range, opt.circular); }));
-        this.itm.setInterrupt(false);
-        this.em.triggerAnimationEnd(!!beforeParam);
-        if (this.axm.isOutside()) {
-            this.restore(beforeParam);
-        }
-        else {
-            this.em.triggerFinish(!!beforeParam);
-        }
-    };
-    AnimationManager.prototype.animateLoop = function (param, complete) {
-        this._animateParam = __assign({}, param);
-        this._animateParam.startTime = new Date().getTime();
-        if (param.duration) {
-            var info_1 = this._animateParam;
-            var self_1 = this;
-            (function loop() {
-                self_1._raf = null;
-                if (self_1.frame(info_1) >= 1) {
-                    if (!AxisManager_1.AxisManager.equal(param.destPos, self_1.axm.get(Object.keys(param.destPos)))) {
-                        self_1.em.triggerChange(param.destPos);
-                    }
-                    complete();
-                    return;
-                } // animationEnd
-                self_1._raf = utils_1.requestAnimationFrame(loop);
-            })();
-        }
-        else {
-            this.em.triggerChange(param.destPos);
-            complete();
-        }
-    };
-    AnimationManager.prototype.getUserControll = function (param) {
-        var userWish = param.setTo();
-        userWish.destPos = this.axm.get(userWish.destPos);
-        userWish.duration = AnimationManager.getDuration(userWish.duration, this.options.minimumDuration, this.options.maximumDuration);
-        return userWish;
-    };
-    AnimationManager.prototype.animateTo = function (destPos, duration, option) {
-        var _this = this;
-        var param = this.createAnimationParam(destPos, duration, option);
-        var depaPos = __assign({}, param.depaPos);
-        var retTrigger = this.em.triggerAnimationStart(param);
-        // to control
-        var userWish = this.getUserControll(param);
-        // You can't stop the 'animationStart' event when 'circular' is true.
-        if (!retTrigger && this.axm.every(userWish.destPos, function (v, k, opt) { return Coordinate_1["default"].isCircularable(v, opt.range, opt.circular); })) {
-            console.warn("You can't stop the 'animation' event when 'circular' is true.");
-        }
-        if (retTrigger && !AxisManager_1.AxisManager.equal(userWish.destPos, depaPos)) {
-            var inputEvent = option && option.event || null;
-            this.animateLoop({
-                depaPos: depaPos,
-                destPos: userWish.destPos,
-                duration: userWish.duration,
-                delta: this.axm.getDelta(depaPos, userWish.destPos),
-                isTrusted: !!inputEvent,
-                inputEvent: inputEvent,
-                input: option && option.input || null
-            }, function () { return _this.animationEnd(); });
-        }
-    };
-    // animation frame (0~1)
-    AnimationManager.prototype.frame = function (param) {
-        var curTime = new Date().getTime() - param.startTime;
-        var easingPer = this.easing(curTime / param.duration);
-        var toPos = param.depaPos;
-        toPos = this.axm.map(toPos, function (v, k, opt) {
-            v += param.delta[k] * easingPer;
-            return Coordinate_1["default"].getCirculatedPos(v, opt.range, opt.circular);
-        });
-        this.em.triggerChange(toPos);
-        return easingPer;
-    };
-    AnimationManager.prototype.easing = function (p) {
-        return p > 1 ? 1 : this.options.easing(p);
-    };
-    AnimationManager.prototype.setTo = function (pos, duration) {
-        if (duration === void 0) { duration = 0; }
-        var axes = Object.keys(pos);
-        this.grab(axes);
-        var orgPos = this.axm.get(axes);
-        if (AxisManager_1.AxisManager.equal(pos, orgPos)) {
-            return this;
-        }
-        this.itm.setInterrupt(true);
-        var movedPos = this.axm.filter(pos, function (v, k) { return orgPos[k] !== v; });
-        if (!Object.keys(movedPos).length) {
-            return this;
-        }
-        movedPos = this.axm.map(movedPos, function (v, k, opt) {
-            if (opt.circular && (opt.circular[0] || opt.circular[1])) {
-                return duration > 0 ? v : Coordinate_1["default"].getCirculatedPos(v, opt.range, opt.circular);
-            }
-            else {
-                return Coordinate_1["default"].getInsidePosition(v, opt.range, opt.circular);
-            }
-        });
-        if (AxisManager_1.AxisManager.equal(movedPos, orgPos)) {
-            return this;
-        }
-        if (duration > 0) {
-            this.animateTo(movedPos, duration);
-        }
-        else {
-            this.em.triggerChange(movedPos);
-            this.itm.setInterrupt(false);
-        }
-        return this;
-    };
-    AnimationManager.prototype.setBy = function (pos, duration) {
-        if (duration === void 0) { duration = 0; }
-        return this.setTo(this.axm.map(this.axm.get(Object.keys(pos)), function (v, k) { return v + pos[k]; }), duration);
-    };
-    return AnimationManager;
-}());
-exports.AnimationManager = AnimationManager;
-;
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
-exports.__esModule = true;
-var EventManager = /** @class */ (function () {
-    function EventManager(axes) {
-        this.axes = axes;
-    }
-    /**
-     * This event is fired when a user holds an element on the screen of the device.
-     * @ko 사용자가 기기의 화면에 손을 대고 있을 때 발생하는 이벤트
-     * @name eg.Axes#hold
-     * @event
-     * @type {object} The object of data to be sent when the event is fired<ko>이벤트가 발생할 때 전달되는 데이터 객체</ko>
-     * @property {Object.<string, number>} pos coordinate <ko>좌표 정보</ko>
-     * @property {Object} input The instance of inputType where the event occurred<ko>이벤트가 발생한 inputType 인스턴스</ko>
-     * @property {Object} inputEvent The event object received from inputType <ko>inputType으로 부터 받은 이벤트 객체</ko>
-     * @property {Boolean} isTrusted Returns true if an event was generated by the user action, or false if it was caused by a script or API call <ko>사용자의 액션에 의해 이벤트가 발생하였으면 true, 스크립트나 API호출에 의해 발생하였을 경우에는 false를 반환한다.</ko>
-     *
-     * @example
-     * const axes = new eg.Axes({
-     *   "x": {
-     *      range: [0, 100]
-     *   },
-     *   "zoom": {
-     *      range: [50, 30]
-     *   }
-     * }).on("hold", function(event) {
-     *   // event.pos
-     *   // event.input
-     *   // event.inputEvent
-     *   // isTrusted
-     * });
-     */
-    EventManager.prototype.triggerHold = function (pos, option) {
-        this.axes.trigger("hold", {
-            pos: pos,
-            input: option.input || null,
-            inputEvent: option.event || null,
-            isTrusted: true
-        });
-    };
-    /** Specifies the coordinates to move after the 'change' event. It works when the holding value of the change event is true.
-     * @ko 'change' 이벤트 이후 이동할 좌표를 지정한다. change이벤트의 holding 값이 true일 경우에 동작한다
-     * @name set
-   * @function
-     * @param {Object.<string, number>} pos The coordinate to move to <ko>이동할 좌표</ko>
-     * @example
-     * const axes = new eg.Axes({
-     *   "x": {
-     *      range: [0, 100]
-     *   },
-     *   "zoom": {
-     *      range: [50, 30]
-     *   }
-     * }).on("change", function(event) {
-     *   event.holding && event.set({x: 10});
-     * });
-     */
-    /** Specifies the animation coordinates to move after the 'release' or 'animationStart' events.
-     * @ko 'release' 또는 'animationStart' 이벤트 이후 이동할 좌표를 지정한다.
-     * @name setTo
-   * @function
-     * @param {Object.<string, number>} pos The coordinate to move to <ko>이동할 좌표</ko>
-     * @param {Number} [duration] Duration of the animation (unit: ms) <ko>애니메이션 진행 시간(단위: ms)</ko>
-     * @example
-     * const axes = new eg.Axes({
-     *   "x": {
-     *      range: [0, 100]
-     *   },
-     *   "zoom": {
-     *      range: [50, 30]
-     *   }
-     * }).on("animationStart", function(event) {
-     *   event.setTo({x: 10}, 2000);
-     * });
-     */
-    /**
-     * This event is fired when a user release an element on the screen of the device.
-     * @ko 사용자가 기기의 화면에서 손을 뗐을 때 발생하는 이벤트
-     * @name eg.Axes#release
-     * @event
-     * @type {object} The object of data to be sent when the event is fired<ko>이벤트가 발생할 때 전달되는 데이터 객체</ko>
-     * @property {Object.<string, number>} depaPos The coordinates when releasing an element<ko>손을 뗐을 때의 좌표 </ko>
-     * @property {Object.<string, number>} destPos The coordinates to move to after releasing an element<ko>손을 뗀 뒤에 이동할 좌표</ko>
-     * @property {Object.<string, number>} delta  The movement variation of coordinate <ko>좌표의 변화량</ko>
-     * @property {Object} inputEvent The event object received from inputType <ko>inputType으로 부터 받은 이벤트 객체</ko>
-     * @property {Object} input The instance of inputType where the event occurred<ko>이벤트가 발생한 inputType 인스턴스</ko>
-     * @property {setTo} setTo Specifies the animation coordinates to move after the event <ko>이벤트 이후 이동할 애니메이션 좌표를 지정한다</ko>
-     * @property {Boolean} isTrusted Returns true if an event was generated by the user action, or false if it was caused by a script or API call <ko>사용자의 액션에 의해 이벤트가 발생하였으면 true, 스크립트나 API호출에 의해 발생하였을 경우에는 false를 반환한다.</ko>
-     *
-     * @example
-     * const axes = new eg.Axes({
-     *   "x": {
-     *      range: [0, 100]
-     *   },
-     *   "zoom": {
-     *      range: [50, 30]
-     *   }
-     * }).on("release", function(event) {
-     *   // event.depaPos
-     *   // event.destPos
-     *   // event.delta
-     *   // event.input
-     *   // event.inputEvent
-     *   // event.setTo
-     *   // event.isTrusted
-     *
-     *   // if you want to change the animation coordinates to move after the 'release' event.
-     *   event.setTo({x: 10}, 2000);
-     * });
-     */
-    EventManager.prototype.triggerRelease = function (param) {
-        param.setTo = this.createUserControll(param.destPos, param.duration);
-        this.axes.trigger("release", param);
-    };
-    /**
-     * This event is fired when coordinate changes.
-     * @ko 좌표가 변경됐을 때 발생하는 이벤트
-     * @name eg.Axes#change
-     * @event
-     * @type {object} The object of data to be sent when the event is fired <ko>이벤트가 발생할 때 전달되는 데이터 객체</ko>
-     * @property {Object.<string, number>} pos  The coordinate <ko>좌표</ko>
-     * @property {Object.<string, number>} delta  The movement variation of coordinate <ko>좌표의 변화량</ko>
-     * @property {Boolean} holding Indicates whether a user holds an element on the screen of the device.<ko>사용자가 기기의 화면을 누르고 있는지 여부</ko>
-     * @property {Object} input The instance of inputType where the event occurred. If the value is changed by animation, it returns 'null'.<ko>이벤트가 발생한 inputType 인스턴스. 애니메이션에 의해 값이 변경될 경우에는 'null'을 반환한다.</ko>
-     * @property {Object} inputEvent The event object received from inputType. If the value is changed by animation, it returns 'null'.<ko>inputType으로 부터 받은 이벤트 객체. 애니메이션에 의해 값이 변경될 경우에는 'null'을 반환한다.</ko>
-     * @property {set} set Specifies the coordinates to move after the event. It works when the holding value is true <ko>이벤트 이후 이동할 좌표를 지정한다. holding 값이 true일 경우에 동작한다.</ko>
-     * @property {Boolean} isTrusted Returns true if an event was generated by the user action, or false if it was caused by a script or API call <ko>사용자의 액션에 의해 이벤트가 발생하였으면 true, 스크립트나 API호출에 의해 발생하였을 경우에는 false를 반환한다.</ko>
-     *
-     * @example
-     * const axes = new eg.Axes({
-     *   "x": {
-     *      range: [0, 100]
-     *   },
-     *   "zoom": {
-     *      range: [50, 30]
-     *   }
-     * }).on("change", function(event) {
-     *   // event.pos
-     *   // event.delta
-     *   // event.input
-     *   // event.inputEvent
-     *   // event.holding
-     *   // event.set
-     *   // event.isTrusted
-     *
-     *   // if you want to change the coordinates to move after the 'change' event.
-     *   // it works when the holding value of the change event is true.
-     *   event.holding && event.set({x: 10});
-     * });
-     */
-    EventManager.prototype.triggerChange = function (pos, option, holding) {
-        if (option === void 0) { option = null; }
-        if (holding === void 0) { holding = false; }
-        var eventInfo = this.am.getEventInfo();
-        var moveTo = this.am.axm.moveTo(pos);
-        var inputEvent = option && option.event || eventInfo && eventInfo.event || null;
-        var param = {
-            pos: moveTo.pos,
-            delta: moveTo.delta,
-            holding: holding,
-            inputEvent: inputEvent,
-            isTrusted: !!inputEvent,
-            input: option && option.input || eventInfo && eventInfo.input || null,
-            set: inputEvent ? this.createUserControll(moveTo.pos) : function () { }
-        };
-        this.axes.trigger("change", param);
-        inputEvent && this.am.axm.set(param.set()["destPos"]);
-    };
-    /**
-     * This event is fired when animation starts.
-     * @ko 에니메이션이 시작할 때 발생한다.
-     * @name eg.Axes#animationStart
-     * @event
-     * @type {object} The object of data to be sent when the event is fired<ko>이벤트가 발생할 때 전달되는 데이터 객체</ko>
-     * @property {Object.<string, number>} depaPos The coordinates when animation starts<ko>애니메이션이 시작 되었을 때의 좌표 </ko>
-     * @property {Object.<string, number>} destPos The coordinates to move to. If you change this value, you can run the animation<ko>이동할 좌표. 이값을 변경하여 애니메이션을 동작시킬수 있다</ko>
-     * @property {Object.<string, number>} delta  The movement variation of coordinate <ko>좌표의 변화량</ko>
-     * @property {Number} duration Duration of the animation (unit: ms). If you change this value, you can control the animation duration time.<ko>애니메이션 진행 시간(단위: ms). 이값을 변경하여 애니메이션의 이동시간을 조절할 수 있다.</ko>
-     * @property {Object} input The instance of inputType where the event occurred. If the value is changed by animation, it returns 'null'.<ko>이벤트가 발생한 inputType 인스턴스. 애니메이션에 의해 값이 변경될 경우에는 'null'을 반환한다.</ko>
-     * @property {Object} inputEvent The event object received from inputType <ko>inputType으로 부터 받은 이벤트 객체</ko>
-     * @property {setTo} setTo Specifies the animation coordinates to move after the event <ko>이벤트 이후 이동할 애니메이션 좌표를 지정한다</ko>
-     * @property {Boolean} isTrusted Returns true if an event was generated by the user action, or false if it was caused by a script or API call <ko>사용자의 액션에 의해 이벤트가 발생하였으면 true, 스크립트나 API호출에 의해 발생하였을 경우에는 false를 반환한다.</ko>
-     *
-     * @example
-     * const axes = new eg.Axes({
-     *   "x": {
-     *      range: [0, 100]
-     *   },
-     *   "zoom": {
-     *      range: [50, 30]
-     *   }
-     * }).on("release", function(event) {
-     *   // event.depaPos
-     *   // event.destPos
-     *   // event.delta
-     *   // event.input
-     *   // event.inputEvent
-     *   // event.setTo
-     *   // event.isTrusted
-     *
-     *   // if you want to change the animation coordinates to move after the 'animationStart' event.
-     *   event.setTo({x: 10}, 2000);
-     * });
-     */
-    EventManager.prototype.triggerAnimationStart = function (param) {
-        param.setTo = this.createUserControll(param.destPos, param.duration);
-        return this.axes.trigger("animationStart", param);
-    };
-    /**
-     * This event is fired when animation ends.
-     * @ko 에니메이션이 끝났을 때 발생한다.
-     * @name eg.Axes#animationEnd
-     * @event
-     * @type {object} The object of data to be sent when the event is fired<ko>이벤트가 발생할 때 전달되는 데이터 객체</ko>
-     * @property {Boolean} isTrusted Returns true if an event was generated by the user action, or false if it was caused by a script or API call <ko>사용자의 액션에 의해 이벤트가 발생하였으면 true, 스크립트나 API호출에 의해 발생하였을 경우에는 false를 반환한다.</ko>
-     *
-     * @example
-     * const axes = new eg.Axes({
-     *   "x": {
-     *      range: [0, 100]
-     *   },
-     *   "zoom": {
-     *      range: [50, 30]
-     *   }
-     * }).on("animationEnd", function(event) {
-     *   // event.isTrusted
-     * });
-     */
-    EventManager.prototype.triggerAnimationEnd = function (isTrusted) {
-        if (isTrusted === void 0) { isTrusted = false; }
-        this.axes.trigger("animationEnd", {
-            isTrusted: isTrusted
-        });
-    };
-    /**
-     * This event is fired when all actions have been completed.
-     * @ko 에니메이션이 끝났을 때 발생한다.
-     * @name eg.Axes#finish
-     * @event
-     * @type {object} The object of data to be sent when the event is fired<ko>이벤트가 발생할 때 전달되는 데이터 객체</ko>
-     * @property {Boolean} isTrusted Returns true if an event was generated by the user action, or false if it was caused by a script or API call <ko>사용자의 액션에 의해 이벤트가 발생하였으면 true, 스크립트나 API호출에 의해 발생하였을 경우에는 false를 반환한다.</ko>
-     *
-     * @example
-     * const axes = new eg.Axes({
-     *   "x": {
-     *      range: [0, 100]
-     *   },
-     *   "zoom": {
-     *      range: [50, 30]
-     *   }
-     * }).on("finish", function(event) {
-     *   // event.isTrusted
-     * });
-     */
-    EventManager.prototype.triggerFinish = function (isTrusted) {
-        if (isTrusted === void 0) { isTrusted = false; }
-        this.axes.trigger("finish", {
-            isTrusted: isTrusted
-        });
-    };
-    EventManager.prototype.createUserControll = function (pos, duration) {
-        if (duration === void 0) { duration = 0; }
-        // to controll
-        var userControl = {
-            destPos: __assign({}, pos),
-            duration: duration
-        };
-        return function (toPos, userDuration) {
-            toPos && (userControl.destPos = __assign({}, toPos));
-            (userDuration !== undefined) && (userControl.duration = userDuration);
-            return userControl;
-        };
-    };
-    EventManager.prototype.setAnimationManager = function (am) {
-        this.am = am;
-    };
-    EventManager.prototype.destroy = function () {
-        this.axes.off();
-    };
-    return EventManager;
-}());
-exports.EventManager = EventManager;
-;
-
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-exports.__esModule = true;
-var InterruptManager = /** @class */ (function () {
-    function InterruptManager(options) {
-        this.options = options;
-        this._prevented = false; //  check whether the animation event was prevented
-    }
-    InterruptManager.prototype.isInterrupting = function () {
-        // when interruptable is 'true', return value is always 'true'.
-        return this.options.interruptable || this._prevented;
-    };
-    InterruptManager.prototype.isInterrupted = function () {
-        return !this.options.interruptable && this._prevented;
-    };
-    InterruptManager.prototype.setInterrupt = function (prevented) {
-        !this.options.interruptable && (this._prevented = prevented);
-    };
-    return InterruptManager;
-}());
-exports.InterruptManager = InterruptManager;
-;
-
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
-exports.__esModule = true;
-var AxisManager_1 = __webpack_require__(3);
-var Coordinate_1 = __webpack_require__(2);
-var InputObserver = /** @class */ (function () {
-    function InputObserver(_a) {
-        var options = _a.options, itm = _a.itm, em = _a.em, axm = _a.axm, am = _a.am;
-        this.isOutside = false;
-        this.moveDistance = null;
-        this.options = options;
-        this.itm = itm;
-        this.em = em;
-        this.axm = axm;
-        this.am = am;
-    }
-    // when move pointer is held in outside
-    InputObserver.prototype.atOutside = function (pos) {
-        var _this = this;
-        if (this.isOutside) {
-            return this.axm.map(pos, function (v, k, opt) {
-                var tn = opt.range[0] - opt.bounce[0];
-                var tx = opt.range[1] + opt.bounce[1];
-                return v > tx ? tx : (v < tn ? tn : v);
-            });
-        }
-        else {
-            // when start pointer is held in inside
-            // get a initialization slope value to prevent smooth animation.
-            var initSlope_1 = this.am.easing(0.00001) / 0.00001;
-            return this.axm.map(pos, function (v, k, opt) {
-                var min = opt.range[0];
-                var max = opt.range[1];
-                var out = opt.bounce;
-                if (v < min) {
-                    return min - _this.am.easing((min - v) / (out[0] * initSlope_1)) * out[0];
-                }
-                else if (v > max) {
-                    return max + _this.am.easing((v - max) / (out[1] * initSlope_1)) * out[1];
-                }
-                return v;
-            });
-        }
-    };
-    InputObserver.prototype.get = function (input) {
-        return this.axm.get(input.axes);
-    };
-    InputObserver.prototype.hold = function (input, event) {
-        if (this.itm.isInterrupted() || !input.axes.length) {
-            return;
-        }
-        var changeOption = {
-            input: input,
-            event: event
-        };
-        this.itm.setInterrupt(true);
-        this.am.grab(input.axes, changeOption);
-        !this.moveDistance && this.em.triggerHold(this.axm.get(), changeOption);
-        this.isOutside = this.axm.isOutside(input.axes);
-        this.moveDistance = this.axm.get(input.axes);
-    };
-    InputObserver.prototype.change = function (input, event, offset) {
-        if (!this.itm.isInterrupting() || this.axm.every(offset, function (v) { return v === 0; })) {
-            return;
-        }
-        var depaPos = this.axm.get(input.axes);
-        var destPos;
-        // for outside logic
-        destPos = this.axm.map(this.moveDistance || depaPos, function (v, k) { return v + (offset[k] || 0); });
-        this.moveDistance && (this.moveDistance = destPos);
-        destPos = this.axm.map(destPos, function (v, k, opt) { return Coordinate_1["default"].getCirculatedPos(v, opt.range, opt.circular); });
-        // from outside to inside
-        if (this.isOutside &&
-            this.axm.every(depaPos, function (v, k, opt) { return !Coordinate_1["default"].isOutside(v, opt.range); })) {
-            this.isOutside = false;
-        }
-        destPos = this.atOutside(destPos);
-        this.em.triggerChange(destPos, {
-            input: input,
-            event: event
-        }, true);
-    };
-    InputObserver.prototype.release = function (input, event, offset, inputDuration) {
-        if (!this.itm.isInterrupting()) {
-            return;
-        }
-        if (!this.moveDistance) {
-            return;
-        }
-        var pos = this.axm.get(input.axes);
-        var depaPos = this.axm.get();
-        var destPos = this.axm.get(this.axm.map(offset, function (v, k, opt) {
-            if (opt.circular && (opt.circular[0] || opt.circular[1])) {
-                return pos[k] + v;
-            }
-            else {
-                return Coordinate_1["default"].getInsidePosition(pos[k] + v, opt.range, opt.circular, opt.bounce);
-            }
-        }));
-        var duration = this.am.getDuration(destPos, pos, inputDuration);
-        if (duration === 0) {
-            destPos = __assign({}, depaPos);
-        }
-        // prepare params
-        var param = {
-            depaPos: depaPos,
-            destPos: destPos,
-            duration: duration,
-            delta: this.axm.getDelta(depaPos, destPos),
-            inputEvent: event,
-            input: input,
-            isTrusted: true
-        };
-        this.em.triggerRelease(param);
-        this.moveDistance = null;
-        // to contol
-        var userWish = this.am.getUserControll(param);
-        var isEqual = AxisManager_1.AxisManager.equal(userWish.destPos, depaPos);
-        var changeOption = {
-            input: input,
-            event: event
-        };
-        if (isEqual || userWish.duration === 0) {
-            !isEqual && this.em.triggerChange(userWish.destPos, changeOption, true);
-            this.itm.setInterrupt(false);
-            if (this.axm.isOutside()) {
-                this.am.restore(changeOption);
-            }
-            else {
-                this.em.triggerFinish(true);
-            }
-        }
-        else {
-            this.am.animateTo(userWish.destPos, userWish.duration, changeOption);
-        }
-    };
-    return InputObserver;
-}());
-exports.InputObserver = InputObserver;
-;
-
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
-exports.__esModule = true;
-var Hammer = __webpack_require__(4);
-var const_1 = __webpack_require__(5);
-var utils_1 = __webpack_require__(0);
-var InputType_1 = __webpack_require__(1);
-/**
- * @typedef {Object} PanInputOption The option object of the eg.Axes.PanInput module.
- * @ko eg.Axes.PanInput 모듈의 옵션 객체
- * @property {String[]} [inputType=["touch","mouse"]] Types of input devices.<br>- touch: Touch screen<br>- mouse: Mouse <ko>입력 장치 종류.<br>- touch: 터치 입력 장치<br>- mouse: 마우스</ko>
- * @property {Number[]} [scale] Coordinate scale that a user can move<ko>사용자의 동작으로 이동하는 좌표의 배율</ko>
- * @property {Number} [scale.0=1] horizontal axis scale <ko>수평축 배율</ko>
- * @property {Number} [scale.1=1] vertical axis scale <ko>수직축 배율</ko>
- * @property {Number} [thresholdAngle=45] The threshold value that determines whether user action is horizontal or vertical (0~90) <ko>사용자의 동작이 가로 방향인지 세로 방향인지 판단하는 기준 각도(0~90)</ko>
- * @property {Number} [threshold=0] Minimal pan distance required before recognizing <ko>사용자의 Pan 동작을 인식하기 위해산 최소한의 거리</ko>
- * @property {Object} [hammerManagerOptions={cssProps: {userSelect: "none",touchSelect: "none",touchCallout: "none",userDrag: "none"}] Options of Hammer.Manager <ko>Hammer.Manager의 옵션</ko>
-**/
-/**
- * @class eg.Axes.PanInput
- * @classdesc A module that passes the amount of change to eg.Axes when the mouse or touchscreen is down and moved. use less than two axes.
- * @ko 마우스나 터치 스크린을 누르고 움직일때의 변화량을 eg.Axes에 전달하는 모듈. 두개 이하의 축을 사용한다.
- *
- * @example
- * const pan = new eg.Axes.PanInput("#area", {
- * 		inputType: ["touch"],
- * 		scale: [1, 1.3],
- * });
- *
- * // Connect the 'something2' axis to the mouse or touchscreen x position when the mouse or touchscreen is down and moved.
- * // Connect the 'somethingN' axis to the mouse or touchscreen y position when the mouse or touchscreen is down and moved.
- * axes.connect(["something2", "somethingN"], pan); // or axes.connect("something2 somethingN", pan);
- *
- * // Connect only one 'something1' axis to the mouse or touchscreen x position when the mouse or touchscreen is down and moved.
- * axes.connect(["something1"], pan); // or axes.connect("something1", pan);
- *
- * // Connect only one 'something2' axis to the mouse or touchscreen y position when the mouse or touchscreen is down and moved.
- * axes.connect(["", "something2"], pan); // or axes.connect(" something2", pan);
- *
- * @param {HTMLElement|String|jQuery} element An element to use the eg.Axes.PanInput module <ko>eg.Axes.PanInput 모듈을 사용할 엘리먼트</ko>
- * @param {PanInputOption} [options] The option object of the eg.Axes.PanInput module<ko>eg.Axes.PanInput 모듈의 옵션 객체</ko>
- */
-var PanInput = /** @class */ (function () {
-    function PanInput(el, options) {
-        this.axes = [];
-        this.hammer = null;
-        this.element = null;
-        /**
-         * Hammer helps you add support for touch gestures to your page
-         *
-         * @external Hammer
-         * @see {@link http://hammerjs.github.io|Hammer.JS}
-         * @see {@link http://hammerjs.github.io/jsdoc/Hammer.html|Hammer.JS API documents}
-         * @see Hammer.JS applies specific CSS properties by {@link http://hammerjs.github.io/jsdoc/Hammer.defaults.cssProps.html|default} when creating an instance. The eg.Axes module removes all default CSS properties provided by Hammer.JS
-         */
-        if (typeof Hammer === "undefined") {
-            throw new Error("The Hammerjs must be loaded before eg.Axes.PanInput.\nhttp://hammerjs.github.io/");
-        }
-        this.element = utils_1.$(el);
-        this.options = __assign({
-            inputType: ["touch", "mouse"],
-            scale: [1, 1],
-            thresholdAngle: 45,
-            threshold: 0,
-            hammerManagerOptions: {
-                // css properties were removed due to usablility issue
-                // http://hammerjs.github.io/jsdoc/Hammer.defaults.cssProps.html
-                cssProps: {
-                    userSelect: "none",
-                    touchSelect: "none",
-                    touchCallout: "none",
-                    userDrag: "none"
-                }
-            }
-        }, options);
-        this.onHammerInput = this.onHammerInput.bind(this);
-        this.onPanmove = this.onPanmove.bind(this);
-        this.onPanend = this.onPanend.bind(this);
-    }
-    // get user's direction
-    PanInput.getDirectionByAngle = function (angle, thresholdAngle) {
-        if (thresholdAngle < 0 || thresholdAngle > 90) {
-            return const_1.DIRECTION.DIRECTION_NONE;
-        }
-        var toAngle = Math.abs(angle);
-        return toAngle > thresholdAngle && toAngle < 180 - thresholdAngle ?
-            const_1.DIRECTION.DIRECTION_VERTICAL : const_1.DIRECTION.DIRECTION_HORIZONTAL;
-    };
-    PanInput.getNextOffset = function (speeds, deceleration) {
-        var normalSpeed = Math.sqrt(speeds[0] * speeds[0] + speeds[1] * speeds[1]);
-        var duration = Math.abs(normalSpeed / -deceleration);
-        return [
-            speeds[0] / 2 * duration,
-            speeds[1] / 2 * duration
-        ];
-    };
-    PanInput.useDirection = function (checkType, direction, userDirection) {
-        if (userDirection) {
-            return !!((direction === const_1.DIRECTION.DIRECTION_ALL) ||
-                ((direction & checkType) && (userDirection & checkType)));
-        }
-        else {
-            return !!(direction & checkType);
-        }
-    };
-    PanInput.prototype.mapAxes = function (axes) {
-        var useHorizontal = !!axes[0];
-        var useVertical = !!axes[1];
-        if (useHorizontal && useVertical) {
-            this._direction = const_1.DIRECTION.DIRECTION_ALL;
-        }
-        else if (useHorizontal) {
-            this._direction = const_1.DIRECTION.DIRECTION_HORIZONTAL;
-        }
-        else if (useVertical) {
-            this._direction = const_1.DIRECTION.DIRECTION_VERTICAL;
-        }
-        else {
-            this._direction = const_1.DIRECTION.DIRECTION_NONE;
-        }
-        this.axes = axes;
-    };
-    PanInput.prototype.connect = function (observer) {
-        var hammerOption = {
-            direction: this._direction,
-            threshold: this.options.threshold
-        };
-        if (this.hammer) {
-            this.dettachEvent();
-            // hammer remove previous PanRecognizer.
-            this.hammer.add(new Hammer.Pan(hammerOption));
-        }
-        else {
-            var keyValue = this.element[InputType_1.UNIQUEKEY];
-            if (keyValue) {
-                this.hammer && this.hammer.destroy();
-            }
-            else {
-                keyValue = String(Math.round(Math.random() * new Date().getTime()));
-            }
-            var inputClass = InputType_1.convertInputType(this.options.inputType);
-            if (!inputClass) {
-                throw new Error("Wrong inputType parameter!");
-            }
-            this.hammer = InputType_1.createHammer(this.element, __assign({
-                recognizers: [
-                    [Hammer.Pan, hammerOption],
-                ],
-                inputClass: inputClass
-            }, this.options.hammerManagerOptions));
-            this.element[InputType_1.UNIQUEKEY] = keyValue;
-        }
-        this.attachEvent(observer);
-        return this;
-    };
-    PanInput.prototype.disconnect = function () {
-        if (this.hammer) {
-            this.dettachEvent();
-        }
-        this._direction = const_1.DIRECTION.DIRECTION_NONE;
-        return this;
-    };
-    /**
-    * Destroys elements, properties, and events used in a module.
-    * @ko 모듈에 사용한 엘리먼트와 속성, 이벤트를 해제한다.
-    * @method eg.Axes.PanInput#destroy
-    */
-    PanInput.prototype.destroy = function () {
-        this.disconnect();
-        if (this.hammer) {
-            this.hammer.destroy();
-        }
-        delete this.element[InputType_1.UNIQUEKEY];
-        this.element = null;
-        this.hammer = null;
-    };
-    /**
-     * Enables input devices
-     * @ko 입력 장치를 사용할 수 있게 한다
-     * @method eg.Axes.PanInput#enable
-     * @return {eg.Axes.PanInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
-     */
-    PanInput.prototype.enable = function () {
-        this.hammer && (this.hammer.get("pan").options.enable = true);
-        return this;
-    };
-    /**
-     * Disables input devices
-     * @ko 입력 장치를 사용할 수 없게 한다.
-     * @method eg.Axes.PanInput#disable
-     * @return {eg.Axes.PanInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
-     */
-    PanInput.prototype.disable = function () {
-        this.hammer && (this.hammer.get("pan").options.enable = false);
-        return this;
-    };
-    /**
-     * Returns whether to use an input device
-     * @ko 입력 장치를 사용 여부를 반환한다.
-     * @method eg.Axes.PanInput#isEnable
-     * @return {Boolean} Whether to use an input device <ko>입력장치 사용여부</ko>
-     */
-    PanInput.prototype.isEnable = function () {
-        return !!(this.hammer && this.hammer.get("pan").options.enable);
-    };
-    PanInput.prototype.onHammerInput = function (event) {
-        if (this.isEnable()) {
-            if (event.isFirst) {
-                this.observer.hold(this, event);
-            }
-            else if (event.isFinal) {
-                this.onPanend(event);
-            }
-        }
-    };
-    PanInput.prototype.onPanmove = function (event) {
-        var userDirection = PanInput.getDirectionByAngle(event.angle, this.options.thresholdAngle);
-        // not support offset properties in Hammerjs - start
-        var prevInput = this.hammer.session.prevInput;
-        /* eslint-disable no-param-reassign */
-        if (prevInput) {
-            event.offsetX = event.deltaX - prevInput.deltaX;
-            event.offsetY = event.deltaY - prevInput.deltaY;
-        }
-        else {
-            event.offsetX = 0;
-            event.offsetY = 0;
-        }
-        var offset = this.getOffset([event.offsetX, event.offsetY], [
-            PanInput.useDirection(const_1.DIRECTION.DIRECTION_HORIZONTAL, this._direction, userDirection),
-            PanInput.useDirection(const_1.DIRECTION.DIRECTION_VERTICAL, this._direction, userDirection)
-        ]);
-        var prevent = offset.some(function (v) { return v !== 0; });
-        if (prevent) {
-            event.srcEvent.preventDefault();
-            event.srcEvent.stopPropagation();
-        }
-        event.preventSystemEvent = prevent;
-        prevent && this.observer.change(this, event, InputType_1.toAxis(this.axes, offset));
-    };
-    PanInput.prototype.onPanend = function (event) {
-        var offset = this.getOffset([
-            Math.abs(event.velocityX) * (event.deltaX < 0 ? -1 : 1),
-            Math.abs(event.velocityY) * (event.deltaY < 0 ? -1 : 1)
-        ], [
-            PanInput.useDirection(const_1.DIRECTION.DIRECTION_HORIZONTAL, this._direction),
-            PanInput.useDirection(const_1.DIRECTION.DIRECTION_VERTICAL, this._direction)
-        ]);
-        offset = PanInput.getNextOffset(offset, this.observer.options.deceleration);
-        this.observer.release(this, event, InputType_1.toAxis(this.axes, offset));
-    };
-    PanInput.prototype.attachEvent = function (observer) {
-        this.observer = observer;
-        this.hammer.on("hammer.input", this.onHammerInput)
-            .on("panstart panmove", this.onPanmove);
-    };
-    PanInput.prototype.dettachEvent = function () {
-        this.hammer.off("hammer.input", this.onHammerInput)
-            .off("panstart panmove", this.onPanmove);
-        this.observer = null;
-    };
-    PanInput.prototype.getOffset = function (properties, useDirection) {
-        var offset = [0, 0];
-        var scale = this.options.scale;
-        if (useDirection[0]) {
-            offset[0] = (properties[0] * scale[0]);
-        }
-        if (useDirection[1]) {
-            offset[1] = (properties[1] * scale[1]);
-        }
-        return offset;
-    };
-    return PanInput;
-}());
-exports.PanInput = PanInput;
-
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
-exports.__esModule = true;
-var Hammer = __webpack_require__(4);
-var utils_1 = __webpack_require__(0);
-var InputType_1 = __webpack_require__(1);
-/**
- * @typedef {Object} PinchInputOption The option object of the eg.Axes.PinchInput module
- * @ko eg.Axes.PinchInput 모듈의 옵션 객체
- * @property {Number} [scale=1] Coordinate scale that a user can move<ko>사용자의 동작으로 이동하는 좌표의 배율</ko>
- * @property {Number} [threshold=0] Minimal scale before recognizing <ko>사용자의 Pinch 동작을 인식하기 위해산 최소한의 배율</ko>
- * @property {Object} [hammerManagerOptions={cssProps: {userSelect: "none",touchSelect: "none",touchCallout: "none",userDrag: "none"}] Options of Hammer.Manager <ko>Hammer.Manager의 옵션</ko>
-**/
-/**
- * @class eg.Axes.PinchInput
- * @classdesc A module that passes the amount of change to eg.Axes when two pointers are moving toward (zoom-in) or away from each other (zoom-out). use one axis.
- * @ko 2개의 pointer를 이용하여 zoom-in하거나 zoom-out 하는 동작의 변화량을 eg.Axes에 전달하는 모듈. 한 개 의 축을 사용한다.
- * @example
- * const pinch = new eg.Axes.PinchInput("#area", {
- * 		scale: 1
- * });
- *
- * // Connect 'something' axis when two pointers are moving toward (zoom-in) or away from each other (zoom-out).
- * axes.connect("something", pinch);
- *
- * @param {HTMLElement|String|jQuery} element An element to use the eg.Axes.PinchInput module <ko>eg.Axes.PinchInput 모듈을 사용할 엘리먼트</ko>
- * @param {PinchInputOption} [options] The option object of the eg.Axes.PinchInput module<ko>eg.Axes.PinchInput 모듈의 옵션 객체</ko>
- */
-var PinchInput = /** @class */ (function () {
-    function PinchInput(el, options) {
-        this.axes = [];
-        this.hammer = null;
-        this.element = null;
-        this._base = null;
-        this._prev = null;
-        /**
-         * Hammer helps you add support for touch gestures to your page
-         *
-         * @external Hammer
-         * @see {@link http://hammerjs.github.io|Hammer.JS}
-         * @see {@link http://hammerjs.github.io/jsdoc/Hammer.html|Hammer.JS API documents}
-         * @see Hammer.JS applies specific CSS properties by {@link http://hammerjs.github.io/jsdoc/Hammer.defaults.cssProps.html|default} when creating an instance. The eg.Axes module removes all default CSS properties provided by Hammer.JS
-         */
-        if (typeof Hammer === "undefined") {
-            throw new Error("The Hammerjs must be loaded before eg.Axes.PinchInput.\nhttp://hammerjs.github.io/");
-        }
-        this.element = utils_1.$(el);
-        this.options = __assign({
-            scale: 1,
-            threshold: 0,
-            hammerManagerOptions: {
-                // css properties were removed due to usablility issue
-                // http://hammerjs.github.io/jsdoc/Hammer.defaults.cssProps.html
-                cssProps: {
-                    userSelect: "none",
-                    touchSelect: "none",
-                    touchCallout: "none",
-                    userDrag: "none"
-                }
-            }
-        }, options);
-        this.onPinchStart = this.onPinchStart.bind(this);
-        this.onPinchMove = this.onPinchMove.bind(this);
-        this.onPinchEnd = this.onPinchEnd.bind(this);
-    }
-    PinchInput.prototype.mapAxes = function (axes) {
-        this.axes = axes;
-    };
-    PinchInput.prototype.connect = function (observer) {
-        var hammerOption = {
-            threshold: this.options.threshold
-        };
-        if (this.hammer) {
-            this.dettachEvent();
-            // hammer remove previous PinchRecognizer.
-            this.hammer.add(new Hammer.Pinch(hammerOption));
-        }
-        else {
-            var keyValue = this.element[InputType_1.UNIQUEKEY];
-            if (keyValue) {
-                this.hammer.destroy();
-            }
-            else {
-                keyValue = String(Math.round(Math.random() * new Date().getTime()));
-            }
-            this.hammer = InputType_1.createHammer(this.element, __assign({
-                recognizers: [
-                    [Hammer.Pinch, hammerOption],
-                ],
-                inputClass: Hammer.TouchInput
-            }, this.options.hammerManagerOptions));
-            this.element[InputType_1.UNIQUEKEY] = keyValue;
-        }
-        this.attachEvent(observer);
-        return this;
-    };
-    PinchInput.prototype.disconnect = function () {
-        if (this.hammer) {
-            this.dettachEvent();
-        }
-        return this;
-    };
-    /**
-    * Destroys elements, properties, and events used in a module.
-    * @ko 모듈에 사용한 엘리먼트와 속성, 이벤트를 해제한다.
-    * @method eg.Axes.PinchInput#destroy
-    */
-    PinchInput.prototype.destroy = function () {
-        this.disconnect();
-        if (this.hammer) {
-            this.hammer.destroy();
-        }
-        delete this.element[InputType_1.UNIQUEKEY];
-        this.element = null;
-        this.hammer = null;
-    };
-    PinchInput.prototype.onPinchStart = function (event) {
-        this._base = this.observer.get(this)[this.axes[0]];
-        var offset = this.getOffset(event.scale);
-        this.observer.hold(this, event);
-        this.observer.change(this, event, InputType_1.toAxis(this.axes, [offset]));
-        this._prev = event.scale;
-    };
-    PinchInput.prototype.onPinchMove = function (event) {
-        var offset = this.getOffset(event.scale, this._prev);
-        this.observer.change(this, event, InputType_1.toAxis(this.axes, [offset]));
-        this._prev = event.scale;
-    };
-    PinchInput.prototype.onPinchEnd = function (event) {
-        var offset = this.getOffset(event.scale, this._prev);
-        this.observer.change(this, event, InputType_1.toAxis(this.axes, [offset]));
-        this.observer.release(this, event, InputType_1.toAxis(this.axes, [0]), 0);
-        this._base = null;
-        this._prev = null;
-    };
-    PinchInput.prototype.getOffset = function (pinchScale, prev) {
-        if (prev === void 0) { prev = 1; }
-        return this._base * (pinchScale - prev) * this.options.scale;
-    };
-    PinchInput.prototype.attachEvent = function (observer) {
-        this.observer = observer;
-        this.hammer.on("pinchstart", this.onPinchStart)
-            .on("pinchmove", this.onPinchMove)
-            .on("pinchend", this.onPinchEnd);
-    };
-    PinchInput.prototype.dettachEvent = function () {
-        this.hammer.off("pinchstart", this.onPinchStart)
-            .off("pinchmove", this.onPinchMove)
-            .off("pinchend", this.onPinchEnd);
-        this.observer = null;
-        this._prev = null;
-    };
-    /**
-     * Enables input devices
-     * @ko 입력 장치를 사용할 수 있게 한다
-     * @method eg.Axes.PinchInput#enable
-     * @return {eg.Axes.PinchInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
-     */
-    PinchInput.prototype.enable = function () {
-        this.hammer && (this.hammer.get("pinch").options.enable = true);
-        return this;
-    };
-    /**
-     * Disables input devices
-     * @ko 입력 장치를 사용할 수 없게 한다.
-     * @method eg.Axes.PinchInput#disable
-     * @return {eg.Axes.PinchInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
-     */
-    PinchInput.prototype.disable = function () {
-        this.hammer && (this.hammer.get("pinch").options.enable = false);
-        return this;
-    };
-    /**
-     * Returns whether to use an input device
-     * @ko 입력 장치를 사용 여부를 반환한다.
-     * @method eg.Axes.PinchInput#isEnable
-     * @return {Boolean} Whether to use an input device <ko>입력장치 사용여부</ko>
-     */
-    PinchInput.prototype.isEnable = function () {
-        return !!(this.hammer && this.hammer.get("pinch").options.enable);
-    };
-    return PinchInput;
-}());
-exports.PinchInput = PinchInput;
-
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
-exports.__esModule = true;
-var utils_1 = __webpack_require__(0);
-var InputType_1 = __webpack_require__(1);
-/**
- * @typedef {Object} WheelInputOption The option object of the eg.Axes.WheelInput module
- * @ko eg.Axes.WheelInput 모듈의 옵션 객체
- * @property {Number} [scale=1] Coordinate scale that a user can move<ko>사용자의 동작으로 이동하는 좌표의 배율</ko>
-**/
-/**
- * @class eg.Axes.WheelInput
- * @classdesc A module that passes the amount of change to eg.Axes when the mouse wheel is moved. use one axis.
- * @ko 마우스 휠이 움직일때의 변화량을 eg.Axes에 전달하는 모듈. 한 개 의 축을 사용한다.
- *
- * @example
- * const wheel = new eg.Axes.WheelInput("#area", {
- * 		scale: 1
- * });
- *
- * // Connect 'something' axis when the mousewheel is moved.
- * axes.connect("something", wheel);
- *
- * @param {HTMLElement|String|jQuery} element An element to use the eg.Axes.WheelInput module <ko>eg.Axes.WheelInput 모듈을 사용할 엘리먼트</ko>
- * @param {WheelInputOption} [options] The option object of the eg.Axes.WheelInput module<ko>eg.Axes.WheelInput 모듈의 옵션 객체</ko>
- */
-var WheelInput = /** @class */ (function () {
-    function WheelInput(el, options) {
-        this.axes = [];
-        this.element = null;
-        this._isEnabled = false;
-        this._isHolded = false;
-        this._timer = null;
-        this.element = utils_1.$(el);
-        this.options = __assign({
-            scale: 1
-        }, options);
-        this.onWheel = this.onWheel.bind(this);
-    }
-    WheelInput.prototype.mapAxes = function (axes) {
-        this.axes = axes;
-    };
-    WheelInput.prototype.connect = function (observer) {
-        this.dettachEvent();
-        this.attachEvent(observer);
-        return this;
-    };
-    WheelInput.prototype.disconnect = function () {
-        this.dettachEvent();
-        return this;
-    };
-    /**
-    * Destroys elements, properties, and events used in a module.
-    * @ko 모듈에 사용한 엘리먼트와 속성, 이벤트를 해제한다.
-    * @method eg.Axes.WheelInput#destroy
-    */
-    WheelInput.prototype.destroy = function () {
-        this.disconnect();
-        this.element = null;
-    };
-    WheelInput.prototype.onWheel = function (event) {
-        var _this = this;
-        if (!this._isEnabled) {
-            return;
-        }
-        event.preventDefault();
-        if (event.deltaY === 0) {
-            return;
-        }
-        if (!this._isHolded) {
-            this.observer.hold(this, event);
-            this._isHolded = true;
-        }
-        var offset = (event.deltaY > 0 ? -1 : 1) * this.options.scale;
-        this.observer.change(this, event, InputType_1.toAxis(this.axes, [offset]));
-        clearTimeout(this._timer);
-        this._timer = setTimeout(function () {
-            if (_this._isHolded) {
-                _this.observer.release(_this, event, InputType_1.toAxis(_this.axes, [0]));
-                _this._isHolded = false;
-            }
-        }, 50);
-    };
-    WheelInput.prototype.attachEvent = function (observer) {
-        this.observer = observer;
-        this.element.addEventListener("wheel", this.onWheel);
-        this._isEnabled = true;
-    };
-    WheelInput.prototype.dettachEvent = function () {
-        this.element.removeEventListener("wheel", this.onWheel);
-        this._isEnabled = false;
-        this.observer = null;
-    };
-    /**
-     * Enables input devices
-     * @ko 입력 장치를 사용할 수 있게 한다
-     * @method eg.Axes.WheelInput#enable
-     * @return {eg.Axes.WheelInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
-     */
-    WheelInput.prototype.enable = function () {
-        this._isEnabled = true;
-        return this;
-    };
-    /**
-     * Disables input devices
-     * @ko 입력 장치를 사용할 수 없게 한다.
-     * @method eg.Axes.WheelInput#disable
-     * @return {eg.Axes.WheelInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
-     */
-    WheelInput.prototype.disable = function () {
-        this._isEnabled = false;
-        return this;
-    };
-    /**
-     * Returns whether to use an input device
-     * @ko 입력 장치를 사용 여부를 반환한다.
-     * @method eg.Axes.WheelInput#isEnable
-     * @return {Boolean} Whether to use an input device <ko>입력장치 사용여부</ko>
-     */
-    WheelInput.prototype.isEnable = function () {
-        return this._isEnabled;
-    };
-    return WheelInput;
-}());
-exports.WheelInput = WheelInput;
-;
-
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
-exports.__esModule = true;
-var utils_1 = __webpack_require__(0);
-var InputType_1 = __webpack_require__(1);
-exports.KEYMAP = {
-    LEFT_ARROW: 37,
-    A: 65,
-    UP_ARROW: 38,
-    W: 87,
-    RIGHT_ARROW: 39,
-    D: 68,
-    DOWN_ARROW: 40,
-    S: 83
-};
-/**
- * @typedef {Object} MoveKeyInputOption The option object of the eg.Axes.MoveKeyInput module
- * @ko eg.Axes.MoveKeyInput 모듈의 옵션 객체
- * @property {Array<Number>} [scale] Coordinate scale that a user can move<ko>사용자의 동작으로 이동하는 좌표의 배율</ko>
- * @property {Number} [scale[0]=1] Coordinate scale for the first axis<ko>첫번째 축의 배율</ko>
- * @property {Number} [scale[1]=1] Coordinate scale for the decond axis<ko>두번째 축의 배율</ko>
-**/
-/**
- * @class eg.Axes.MoveKeyInput
- * @classdesc A module that passes the amount of change to eg.Axes when the move key stroke is occured. use two axis.
- * @ko 이동키 입력이 발생했을 때의 변화량을 eg.Axes에 전달하는 모듈. 두 개 의 축을 사용한다.
- *
- * @example
- * const moveKey = new eg.Axes.MoveKeyInput("#area", {
- * 		scale: [1, 1]
- * });
- *
- * // Connect 'x', 'y' axes when the moveKey is pressed.
- * axes.connect(["x", "y"], moveKey);
- *
- * @param {HTMLElement|String|jQuery} element An element to use the eg.Axes.MoveKeyInput module <ko>eg.Axes.MoveKeyInput 모듈을 사용할 엘리먼트</ko>
- * @param {MoveKeyInputOption} [options] The option object of the eg.Axes.MoveKeyInput module<ko>eg.Axes.MoveKeyInput 모듈의 옵션 객체</ko>
- */
-var MoveKeyInput = /** @class */ (function () {
-    function MoveKeyInput(el, options) {
-        this.axes = [];
-        this.element = null;
-        this._isEnabled = false;
-        this._isHolded = false;
-        this.element = utils_1.$(el);
-        this.options = __assign({
-            scale: [1, 1]
-        }, options);
-        this.onKeydown = this.onKeydown.bind(this);
-    }
-    MoveKeyInput.prototype.mapAxes = function (axes) {
-        this.axes = axes;
-    };
-    MoveKeyInput.prototype.connect = function (observer) {
-        this.dettachEvent();
-        // add tabindex="0" to the container for making it focusable
-        if (this.element.getAttribute("tabindex") !== "0") {
-            this.element.setAttribute("tabindex", "0");
-        }
-        this.attachEvent(observer);
-        return this;
-    };
-    MoveKeyInput.prototype.disconnect = function () {
-        this.dettachEvent();
-        return this;
-    };
-    /**
-    * Destroys elements, properties, and events used in a module.
-    * @ko 모듈에 사용한 엘리먼트와 속성, 이벤트를 해제한다.
-    * @method eg.Axes.MoveKeyInput#destroy
-    */
-    MoveKeyInput.prototype.destroy = function () {
-        this.disconnect();
-        this.element = null;
-    };
-    MoveKeyInput.prototype.onKeydown = function (event) {
-        if (!this._isEnabled) {
-            return;
-        }
-        event.preventDefault();
-        var isMoveKey = true;
-        var offsets;
-        var e = event;
-        switch (e.keyCode) {
-            case exports.KEYMAP.LEFT_ARROW:
-            case exports.KEYMAP.A:
-                offsets = [-this.options.scale[0], 0];
-                break;
-            case exports.KEYMAP.RIGHT_ARROW:
-            case exports.KEYMAP.D:
-                offsets = [this.options.scale[0], 0];
-                break;
-            case exports.KEYMAP.UP_ARROW:
-            case exports.KEYMAP.W:
-                offsets = [0, this.options.scale[1]];
-                break;
-            case exports.KEYMAP.DOWN_ARROW:
-            case exports.KEYMAP.S:
-                offsets = [0, -this.options.scale[1]];
-                break;
-            default:
-                isMoveKey = false;
-        }
-        if (isMoveKey) {
-            this.observer.change(this, event, InputType_1.toAxis(this.axes, offsets));
-            // Suppress "double action" if event handled
-            e.preventDefault();
-        }
-    };
-    MoveKeyInput.prototype.attachEvent = function (observer) {
-        this.observer = observer;
-        this.element.addEventListener("keydown", this.onKeydown, false);
-        this._isEnabled = true;
-    };
-    MoveKeyInput.prototype.dettachEvent = function () {
-        this.element.removeEventListener("keydown", this.onKeydown, false);
-        this._isEnabled = false;
-        this.observer = null;
-    };
-    /**
-     * Enables input devices
-     * @ko 입력 장치를 사용할 수 있게 한다
-     * @method eg.Axes.MoveKeyInput#enable
-     * @return {eg.Axes.MoveKeyInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
-     */
-    MoveKeyInput.prototype.enable = function () {
-        this._isEnabled = true;
-        return this;
-    };
-    /**
-     * Disables input devices
-     * @ko 입력 장치를 사용할 수 없게 한다.
-     * @method eg.Axes.MoveKeyInput#disable
-     * @return {eg.Axes.MoveKeyInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
-     */
-    MoveKeyInput.prototype.disable = function () {
-        this._isEnabled = false;
-        return this;
-    };
-    /**
-     * Returns whether to use an input device
-     * @ko 입력 장치를 사용 여부를 반환한다.
-     * @method eg.Axes.MoveKeyInput#isEnable
-     * @return {Boolean} Whether to use an input device <ko>입력장치 사용여부</ko>
-     */
-    MoveKeyInput.prototype.isEnable = function () {
-        return this._isEnabled;
-    };
-    return MoveKeyInput;
-}());
-exports.MoveKeyInput = MoveKeyInput;
-;
-
-
-/***/ })
-/******/ ]);
-});
-//# sourceMappingURL=axes.js.map
-
-/***/ }),
-/* 10 */,
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-
-var _agent = __webpack_require__(7);
-
-var _agent2 = _interopRequireDefault(_agent);
-
-var _browser = __webpack_require__(12);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var WEBGL_ERROR_CODE = {
-	"0": "NO_ERROR",
-	"1280": "INVALID_ENUM",
-	"1281": "INVALID_VALUE",
-	"1282": "INVALID_OPERATION",
-	"1285": "OUT_OF_MEMORY",
-	"1286": "INVALID_FRAMEBUFFER_OPERATION",
-	"37442": "CONTEXT_LOST_WEBGL"
-};
-
-var webglAvailability = null;
-
-var WebGLUtils = function () {
-	function WebGLUtils() {
-		_classCallCheck(this, WebGLUtils);
-	}
-
-	WebGLUtils.createShader = function createShader(gl, type, source) {
-		var shader = gl.createShader(type);
-
-		gl.shaderSource(shader, source);
-		gl.compileShader(shader);
-		var success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-
-		if (success) {
-			return shader;
-		}
-
-		gl.deleteShader(shader);
-		return null;
-	};
-
-	WebGLUtils.createProgram = function createProgram(gl, vertexShader, fragmentShader) {
-		var program = gl.createProgram();
-
-		gl.attachShader(program, vertexShader);
-		gl.attachShader(program, fragmentShader);
-		gl.linkProgram(program);
-		var success = gl.getProgramParameter(program, gl.LINK_STATUS);
-
-		if (success) {
-			return program;
-		}
-
-		gl.deleteProgram(program);
-		return null;
-	};
-
-	WebGLUtils.initBuffer = function initBuffer(gl, target /* bind point */, data, itemSize, attr) {
-		var buffer = gl.createBuffer();
-
-		gl.bindBuffer(target, buffer);
-		gl.bufferData(target, data, gl.STATIC_DRAW);
-
-		if (buffer) {
-			buffer.itemSize = itemSize;
-			buffer.numItems = data.length / itemSize;
-		}
-
-		if (attr !== undefined) {
-			gl.enableVertexAttribArray(attr);
-			gl.vertexAttribPointer(attr, buffer.itemSize, gl.FLOAT, false, 0, 0);
-		}
-
-		return buffer;
-	};
-
-	WebGLUtils.bindBufferToAttribute = function bindBufferToAttribute(gl, buffer, attr) {
-		if (buffer === null || attr === null) {
-			return;
-		}
-
-		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-		gl.vertexAttribPointer(attr, buffer.itemSize, gl.FLOAT, false, 0, 0);
-	};
-
-	WebGLUtils.getWebglContext = function getWebglContext(canvas) {
-		var webglIdentifiers = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
-		var context = null;
-		var shouldPreserveDrawingBuffer = !(_browser.userAgent.indexOf("NAVER") !== -1 && _browser.userAgent.indexOf("SM-G925S") !== -1);
-
-		function onWebglcontextcreationerror(e) {
-			return e.statusMessage;
-		}
-
-		canvas.addEventListener("webglcontextcreationerror", onWebglcontextcreationerror);
-
-		for (var i = 0; i < webglIdentifiers.length; i++) {
-			try {
-				// preserveDrawingBuffer: if true, the Galaxy s6 Naver app will experience tremor
-				context = canvas.getContext(webglIdentifiers[i], {
-					preserveDrawingBuffer: shouldPreserveDrawingBuffer,
-					antialias: false /* TODO: Make it user option for antialiasing */
-				});
-			} catch (t) {}
-			if (context) {
-				break;
-			}
-		}
-
-		canvas.removeEventListener("webglcontextcreationerror", onWebglcontextcreationerror);
-
-		return context;
-	};
-
-	WebGLUtils.createTexture = function createTexture(gl, textureTarget) {
-		var texture = gl.createTexture();
-
-		gl.bindTexture(textureTarget, texture);
-		gl.texParameteri(textureTarget, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.texParameteri(textureTarget, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.texParameteri(textureTarget, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(textureTarget, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-		gl.bindTexture(textureTarget, null);
-
-		return texture;
-	};
-
-	/**
-  * Returns the webgl availability of the current browser.
-  * @method WebGLUtils#isWebGLAvailable
-  * @retuen {Boolean} isWebGLAvailable
-  */
-
-
-	WebGLUtils.isWebGLAvailable = function isWebGLAvailable() {
-		if (webglAvailability === null) {
-			var canvas = document.createElement("canvas");
-			var webglContext = WebGLUtils.getWebglContext(canvas);
-
-			webglAvailability = !!webglContext;
-
-			// webglContext Resource forced collection
-			if (webglContext) {
-				var loseContextExtension = webglContext.getExtension("WEBGL_lose_context");
-
-				loseContextExtension && loseContextExtension.loseContext();
-			}
-		}
-		return webglAvailability;
-	};
-
-	/**
-  * Returns whether webgl is stable in the current browser.
-  * @method WebGLUtils#isStableWebGL
-  * @retuen {Boolean} isStableWebGL
-  */
-
-
-	WebGLUtils.isStableWebGL = function isStableWebGL() {
-		var agentInfo = (0, _agent2["default"])();
-		var isStableWebgl = true;
-
-		if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) <= 4.3) {
-			isStableWebgl = false;
-		} else if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) === 4.4) {
-			if (agentInfo.browser.name !== "chrome") {
-				isStableWebgl = false;
-			}
-		}
-		return isStableWebgl;
-	};
-
-	WebGLUtils.getErrorNameFromWebGLErrorCode = function getErrorNameFromWebGLErrorCode(code) {
-		if (!(code in WEBGL_ERROR_CODE)) {
-			return "UNKNOWN_ERROR";
-		}
-
-		return WEBGL_ERROR_CODE[code];
-	};
-
-	return WebGLUtils;
-}();
-
-exports["default"] = WebGLUtils;
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-var userAgent = exports.userAgent = window.navigator.userAgent;
-var devicePixelRatio = exports.devicePixelRatio = window.devicePixelRatio;
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Renderer = function Renderer() {
-	_classCallCheck(this, Renderer);
-};
-
-exports["default"] = Renderer;
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-var util = {};
-
-function toAxis(source, offset) {
-	return offset.reduce(function (acc, v, i) {
-		if (source[i]) {
-			acc[source[i]] = v;
-		}
-		return acc;
-	}, {});
-}
-
-util.toAxis = toAxis;
-
-exports["default"] = util;
-exports.toAxis = toAxis;
-
-/***/ }),
-/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;/*! Hammer.JS - v2.0.7 - 2016-04-22
@@ -8628,7 +3716,4851 @@ if (true) {
 
 
 /***/ }),
-/* 16 */
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(process, global) {/*!
+ * @overview es6-promise - a tiny implementation of Promises/A+.
+ * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
+ * @license   Licensed under MIT license
+ *            See https://raw.githubusercontent.com/stefanpenner/es6-promise/master/LICENSE
+ * @version   v4.2.4+314e4831
+ */
+
+(function (global, factory) {
+	 true ? module.exports = factory() :
+	typeof define === 'function' && define.amd ? define(factory) :
+	(global.ES6Promise = factory());
+}(this, (function () { 'use strict';
+
+function objectOrFunction(x) {
+  var type = typeof x;
+  return x !== null && (type === 'object' || type === 'function');
+}
+
+function isFunction(x) {
+  return typeof x === 'function';
+}
+
+
+
+var _isArray = void 0;
+if (Array.isArray) {
+  _isArray = Array.isArray;
+} else {
+  _isArray = function (x) {
+    return Object.prototype.toString.call(x) === '[object Array]';
+  };
+}
+
+var isArray = _isArray;
+
+var len = 0;
+var vertxNext = void 0;
+var customSchedulerFn = void 0;
+
+var asap = function asap(callback, arg) {
+  queue[len] = callback;
+  queue[len + 1] = arg;
+  len += 2;
+  if (len === 2) {
+    // If len is 2, that means that we need to schedule an async flush.
+    // If additional callbacks are queued before the queue is flushed, they
+    // will be processed by this flush that we are scheduling.
+    if (customSchedulerFn) {
+      customSchedulerFn(flush);
+    } else {
+      scheduleFlush();
+    }
+  }
+};
+
+function setScheduler(scheduleFn) {
+  customSchedulerFn = scheduleFn;
+}
+
+function setAsap(asapFn) {
+  asap = asapFn;
+}
+
+var browserWindow = typeof window !== 'undefined' ? window : undefined;
+var browserGlobal = browserWindow || {};
+var BrowserMutationObserver = browserGlobal.MutationObserver || browserGlobal.WebKitMutationObserver;
+var isNode = typeof self === 'undefined' && typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
+
+// test for web worker but not in IE10
+var isWorker = typeof Uint8ClampedArray !== 'undefined' && typeof importScripts !== 'undefined' && typeof MessageChannel !== 'undefined';
+
+// node
+function useNextTick() {
+  // node version 0.10.x displays a deprecation warning when nextTick is used recursively
+  // see https://github.com/cujojs/when/issues/410 for details
+  return function () {
+    return process.nextTick(flush);
+  };
+}
+
+// vertx
+function useVertxTimer() {
+  if (typeof vertxNext !== 'undefined') {
+    return function () {
+      vertxNext(flush);
+    };
+  }
+
+  return useSetTimeout();
+}
+
+function useMutationObserver() {
+  var iterations = 0;
+  var observer = new BrowserMutationObserver(flush);
+  var node = document.createTextNode('');
+  observer.observe(node, { characterData: true });
+
+  return function () {
+    node.data = iterations = ++iterations % 2;
+  };
+}
+
+// web worker
+function useMessageChannel() {
+  var channel = new MessageChannel();
+  channel.port1.onmessage = flush;
+  return function () {
+    return channel.port2.postMessage(0);
+  };
+}
+
+function useSetTimeout() {
+  // Store setTimeout reference so es6-promise will be unaffected by
+  // other code modifying setTimeout (like sinon.useFakeTimers())
+  var globalSetTimeout = setTimeout;
+  return function () {
+    return globalSetTimeout(flush, 1);
+  };
+}
+
+var queue = new Array(1000);
+function flush() {
+  for (var i = 0; i < len; i += 2) {
+    var callback = queue[i];
+    var arg = queue[i + 1];
+
+    callback(arg);
+
+    queue[i] = undefined;
+    queue[i + 1] = undefined;
+  }
+
+  len = 0;
+}
+
+function attemptVertx() {
+  try {
+    var vertx = Function('return this')().require('vertx');
+    vertxNext = vertx.runOnLoop || vertx.runOnContext;
+    return useVertxTimer();
+  } catch (e) {
+    return useSetTimeout();
+  }
+}
+
+var scheduleFlush = void 0;
+// Decide what async method to use to triggering processing of queued callbacks:
+if (isNode) {
+  scheduleFlush = useNextTick();
+} else if (BrowserMutationObserver) {
+  scheduleFlush = useMutationObserver();
+} else if (isWorker) {
+  scheduleFlush = useMessageChannel();
+} else if (browserWindow === undefined && "function" === 'function') {
+  scheduleFlush = attemptVertx();
+} else {
+  scheduleFlush = useSetTimeout();
+}
+
+function then(onFulfillment, onRejection) {
+  var parent = this;
+
+  var child = new this.constructor(noop);
+
+  if (child[PROMISE_ID] === undefined) {
+    makePromise(child);
+  }
+
+  var _state = parent._state;
+
+
+  if (_state) {
+    var callback = arguments[_state - 1];
+    asap(function () {
+      return invokeCallback(_state, child, callback, parent._result);
+    });
+  } else {
+    subscribe(parent, child, onFulfillment, onRejection);
+  }
+
+  return child;
+}
+
+/**
+  `Promise.resolve` returns a promise that will become resolved with the
+  passed `value`. It is shorthand for the following:
+
+  ```javascript
+  let promise = new Promise(function(resolve, reject){
+    resolve(1);
+  });
+
+  promise.then(function(value){
+    // value === 1
+  });
+  ```
+
+  Instead of writing the above, your code now simply becomes the following:
+
+  ```javascript
+  let promise = Promise.resolve(1);
+
+  promise.then(function(value){
+    // value === 1
+  });
+  ```
+
+  @method resolve
+  @static
+  @param {Any} value value that the returned promise will be resolved with
+  Useful for tooling.
+  @return {Promise} a promise that will become fulfilled with the given
+  `value`
+*/
+function resolve$1(object) {
+  /*jshint validthis:true */
+  var Constructor = this;
+
+  if (object && typeof object === 'object' && object.constructor === Constructor) {
+    return object;
+  }
+
+  var promise = new Constructor(noop);
+  resolve(promise, object);
+  return promise;
+}
+
+var PROMISE_ID = Math.random().toString(36).substring(2);
+
+function noop() {}
+
+var PENDING = void 0;
+var FULFILLED = 1;
+var REJECTED = 2;
+
+var TRY_CATCH_ERROR = { error: null };
+
+function selfFulfillment() {
+  return new TypeError("You cannot resolve a promise with itself");
+}
+
+function cannotReturnOwn() {
+  return new TypeError('A promises callback cannot return that same promise.');
+}
+
+function getThen(promise) {
+  try {
+    return promise.then;
+  } catch (error) {
+    TRY_CATCH_ERROR.error = error;
+    return TRY_CATCH_ERROR;
+  }
+}
+
+function tryThen(then$$1, value, fulfillmentHandler, rejectionHandler) {
+  try {
+    then$$1.call(value, fulfillmentHandler, rejectionHandler);
+  } catch (e) {
+    return e;
+  }
+}
+
+function handleForeignThenable(promise, thenable, then$$1) {
+  asap(function (promise) {
+    var sealed = false;
+    var error = tryThen(then$$1, thenable, function (value) {
+      if (sealed) {
+        return;
+      }
+      sealed = true;
+      if (thenable !== value) {
+        resolve(promise, value);
+      } else {
+        fulfill(promise, value);
+      }
+    }, function (reason) {
+      if (sealed) {
+        return;
+      }
+      sealed = true;
+
+      reject(promise, reason);
+    }, 'Settle: ' + (promise._label || ' unknown promise'));
+
+    if (!sealed && error) {
+      sealed = true;
+      reject(promise, error);
+    }
+  }, promise);
+}
+
+function handleOwnThenable(promise, thenable) {
+  if (thenable._state === FULFILLED) {
+    fulfill(promise, thenable._result);
+  } else if (thenable._state === REJECTED) {
+    reject(promise, thenable._result);
+  } else {
+    subscribe(thenable, undefined, function (value) {
+      return resolve(promise, value);
+    }, function (reason) {
+      return reject(promise, reason);
+    });
+  }
+}
+
+function handleMaybeThenable(promise, maybeThenable, then$$1) {
+  if (maybeThenable.constructor === promise.constructor && then$$1 === then && maybeThenable.constructor.resolve === resolve$1) {
+    handleOwnThenable(promise, maybeThenable);
+  } else {
+    if (then$$1 === TRY_CATCH_ERROR) {
+      reject(promise, TRY_CATCH_ERROR.error);
+      TRY_CATCH_ERROR.error = null;
+    } else if (then$$1 === undefined) {
+      fulfill(promise, maybeThenable);
+    } else if (isFunction(then$$1)) {
+      handleForeignThenable(promise, maybeThenable, then$$1);
+    } else {
+      fulfill(promise, maybeThenable);
+    }
+  }
+}
+
+function resolve(promise, value) {
+  if (promise === value) {
+    reject(promise, selfFulfillment());
+  } else if (objectOrFunction(value)) {
+    handleMaybeThenable(promise, value, getThen(value));
+  } else {
+    fulfill(promise, value);
+  }
+}
+
+function publishRejection(promise) {
+  if (promise._onerror) {
+    promise._onerror(promise._result);
+  }
+
+  publish(promise);
+}
+
+function fulfill(promise, value) {
+  if (promise._state !== PENDING) {
+    return;
+  }
+
+  promise._result = value;
+  promise._state = FULFILLED;
+
+  if (promise._subscribers.length !== 0) {
+    asap(publish, promise);
+  }
+}
+
+function reject(promise, reason) {
+  if (promise._state !== PENDING) {
+    return;
+  }
+  promise._state = REJECTED;
+  promise._result = reason;
+
+  asap(publishRejection, promise);
+}
+
+function subscribe(parent, child, onFulfillment, onRejection) {
+  var _subscribers = parent._subscribers;
+  var length = _subscribers.length;
+
+
+  parent._onerror = null;
+
+  _subscribers[length] = child;
+  _subscribers[length + FULFILLED] = onFulfillment;
+  _subscribers[length + REJECTED] = onRejection;
+
+  if (length === 0 && parent._state) {
+    asap(publish, parent);
+  }
+}
+
+function publish(promise) {
+  var subscribers = promise._subscribers;
+  var settled = promise._state;
+
+  if (subscribers.length === 0) {
+    return;
+  }
+
+  var child = void 0,
+      callback = void 0,
+      detail = promise._result;
+
+  for (var i = 0; i < subscribers.length; i += 3) {
+    child = subscribers[i];
+    callback = subscribers[i + settled];
+
+    if (child) {
+      invokeCallback(settled, child, callback, detail);
+    } else {
+      callback(detail);
+    }
+  }
+
+  promise._subscribers.length = 0;
+}
+
+function tryCatch(callback, detail) {
+  try {
+    return callback(detail);
+  } catch (e) {
+    TRY_CATCH_ERROR.error = e;
+    return TRY_CATCH_ERROR;
+  }
+}
+
+function invokeCallback(settled, promise, callback, detail) {
+  var hasCallback = isFunction(callback),
+      value = void 0,
+      error = void 0,
+      succeeded = void 0,
+      failed = void 0;
+
+  if (hasCallback) {
+    value = tryCatch(callback, detail);
+
+    if (value === TRY_CATCH_ERROR) {
+      failed = true;
+      error = value.error;
+      value.error = null;
+    } else {
+      succeeded = true;
+    }
+
+    if (promise === value) {
+      reject(promise, cannotReturnOwn());
+      return;
+    }
+  } else {
+    value = detail;
+    succeeded = true;
+  }
+
+  if (promise._state !== PENDING) {
+    // noop
+  } else if (hasCallback && succeeded) {
+    resolve(promise, value);
+  } else if (failed) {
+    reject(promise, error);
+  } else if (settled === FULFILLED) {
+    fulfill(promise, value);
+  } else if (settled === REJECTED) {
+    reject(promise, value);
+  }
+}
+
+function initializePromise(promise, resolver) {
+  try {
+    resolver(function resolvePromise(value) {
+      resolve(promise, value);
+    }, function rejectPromise(reason) {
+      reject(promise, reason);
+    });
+  } catch (e) {
+    reject(promise, e);
+  }
+}
+
+var id = 0;
+function nextId() {
+  return id++;
+}
+
+function makePromise(promise) {
+  promise[PROMISE_ID] = id++;
+  promise._state = undefined;
+  promise._result = undefined;
+  promise._subscribers = [];
+}
+
+function validationError() {
+  return new Error('Array Methods must be provided an Array');
+}
+
+var Enumerator = function () {
+  function Enumerator(Constructor, input) {
+    this._instanceConstructor = Constructor;
+    this.promise = new Constructor(noop);
+
+    if (!this.promise[PROMISE_ID]) {
+      makePromise(this.promise);
+    }
+
+    if (isArray(input)) {
+      this.length = input.length;
+      this._remaining = input.length;
+
+      this._result = new Array(this.length);
+
+      if (this.length === 0) {
+        fulfill(this.promise, this._result);
+      } else {
+        this.length = this.length || 0;
+        this._enumerate(input);
+        if (this._remaining === 0) {
+          fulfill(this.promise, this._result);
+        }
+      }
+    } else {
+      reject(this.promise, validationError());
+    }
+  }
+
+  Enumerator.prototype._enumerate = function _enumerate(input) {
+    for (var i = 0; this._state === PENDING && i < input.length; i++) {
+      this._eachEntry(input[i], i);
+    }
+  };
+
+  Enumerator.prototype._eachEntry = function _eachEntry(entry, i) {
+    var c = this._instanceConstructor;
+    var resolve$$1 = c.resolve;
+
+
+    if (resolve$$1 === resolve$1) {
+      var _then = getThen(entry);
+
+      if (_then === then && entry._state !== PENDING) {
+        this._settledAt(entry._state, i, entry._result);
+      } else if (typeof _then !== 'function') {
+        this._remaining--;
+        this._result[i] = entry;
+      } else if (c === Promise$1) {
+        var promise = new c(noop);
+        handleMaybeThenable(promise, entry, _then);
+        this._willSettleAt(promise, i);
+      } else {
+        this._willSettleAt(new c(function (resolve$$1) {
+          return resolve$$1(entry);
+        }), i);
+      }
+    } else {
+      this._willSettleAt(resolve$$1(entry), i);
+    }
+  };
+
+  Enumerator.prototype._settledAt = function _settledAt(state, i, value) {
+    var promise = this.promise;
+
+
+    if (promise._state === PENDING) {
+      this._remaining--;
+
+      if (state === REJECTED) {
+        reject(promise, value);
+      } else {
+        this._result[i] = value;
+      }
+    }
+
+    if (this._remaining === 0) {
+      fulfill(promise, this._result);
+    }
+  };
+
+  Enumerator.prototype._willSettleAt = function _willSettleAt(promise, i) {
+    var enumerator = this;
+
+    subscribe(promise, undefined, function (value) {
+      return enumerator._settledAt(FULFILLED, i, value);
+    }, function (reason) {
+      return enumerator._settledAt(REJECTED, i, reason);
+    });
+  };
+
+  return Enumerator;
+}();
+
+/**
+  `Promise.all` accepts an array of promises, and returns a new promise which
+  is fulfilled with an array of fulfillment values for the passed promises, or
+  rejected with the reason of the first passed promise to be rejected. It casts all
+  elements of the passed iterable to promises as it runs this algorithm.
+
+  Example:
+
+  ```javascript
+  let promise1 = resolve(1);
+  let promise2 = resolve(2);
+  let promise3 = resolve(3);
+  let promises = [ promise1, promise2, promise3 ];
+
+  Promise.all(promises).then(function(array){
+    // The array here would be [ 1, 2, 3 ];
+  });
+  ```
+
+  If any of the `promises` given to `all` are rejected, the first promise
+  that is rejected will be given as an argument to the returned promises's
+  rejection handler. For example:
+
+  Example:
+
+  ```javascript
+  let promise1 = resolve(1);
+  let promise2 = reject(new Error("2"));
+  let promise3 = reject(new Error("3"));
+  let promises = [ promise1, promise2, promise3 ];
+
+  Promise.all(promises).then(function(array){
+    // Code here never runs because there are rejected promises!
+  }, function(error) {
+    // error.message === "2"
+  });
+  ```
+
+  @method all
+  @static
+  @param {Array} entries array of promises
+  @param {String} label optional string for labeling the promise.
+  Useful for tooling.
+  @return {Promise} promise that is fulfilled when all `promises` have been
+  fulfilled, or rejected if any of them become rejected.
+  @static
+*/
+function all(entries) {
+  return new Enumerator(this, entries).promise;
+}
+
+/**
+  `Promise.race` returns a new promise which is settled in the same way as the
+  first passed promise to settle.
+
+  Example:
+
+  ```javascript
+  let promise1 = new Promise(function(resolve, reject){
+    setTimeout(function(){
+      resolve('promise 1');
+    }, 200);
+  });
+
+  let promise2 = new Promise(function(resolve, reject){
+    setTimeout(function(){
+      resolve('promise 2');
+    }, 100);
+  });
+
+  Promise.race([promise1, promise2]).then(function(result){
+    // result === 'promise 2' because it was resolved before promise1
+    // was resolved.
+  });
+  ```
+
+  `Promise.race` is deterministic in that only the state of the first
+  settled promise matters. For example, even if other promises given to the
+  `promises` array argument are resolved, but the first settled promise has
+  become rejected before the other promises became fulfilled, the returned
+  promise will become rejected:
+
+  ```javascript
+  let promise1 = new Promise(function(resolve, reject){
+    setTimeout(function(){
+      resolve('promise 1');
+    }, 200);
+  });
+
+  let promise2 = new Promise(function(resolve, reject){
+    setTimeout(function(){
+      reject(new Error('promise 2'));
+    }, 100);
+  });
+
+  Promise.race([promise1, promise2]).then(function(result){
+    // Code here never runs
+  }, function(reason){
+    // reason.message === 'promise 2' because promise 2 became rejected before
+    // promise 1 became fulfilled
+  });
+  ```
+
+  An example real-world use case is implementing timeouts:
+
+  ```javascript
+  Promise.race([ajax('foo.json'), timeout(5000)])
+  ```
+
+  @method race
+  @static
+  @param {Array} promises array of promises to observe
+  Useful for tooling.
+  @return {Promise} a promise which settles in the same way as the first passed
+  promise to settle.
+*/
+function race(entries) {
+  /*jshint validthis:true */
+  var Constructor = this;
+
+  if (!isArray(entries)) {
+    return new Constructor(function (_, reject) {
+      return reject(new TypeError('You must pass an array to race.'));
+    });
+  } else {
+    return new Constructor(function (resolve, reject) {
+      var length = entries.length;
+      for (var i = 0; i < length; i++) {
+        Constructor.resolve(entries[i]).then(resolve, reject);
+      }
+    });
+  }
+}
+
+/**
+  `Promise.reject` returns a promise rejected with the passed `reason`.
+  It is shorthand for the following:
+
+  ```javascript
+  let promise = new Promise(function(resolve, reject){
+    reject(new Error('WHOOPS'));
+  });
+
+  promise.then(function(value){
+    // Code here doesn't run because the promise is rejected!
+  }, function(reason){
+    // reason.message === 'WHOOPS'
+  });
+  ```
+
+  Instead of writing the above, your code now simply becomes the following:
+
+  ```javascript
+  let promise = Promise.reject(new Error('WHOOPS'));
+
+  promise.then(function(value){
+    // Code here doesn't run because the promise is rejected!
+  }, function(reason){
+    // reason.message === 'WHOOPS'
+  });
+  ```
+
+  @method reject
+  @static
+  @param {Any} reason value that the returned promise will be rejected with.
+  Useful for tooling.
+  @return {Promise} a promise rejected with the given `reason`.
+*/
+function reject$1(reason) {
+  /*jshint validthis:true */
+  var Constructor = this;
+  var promise = new Constructor(noop);
+  reject(promise, reason);
+  return promise;
+}
+
+function needsResolver() {
+  throw new TypeError('You must pass a resolver function as the first argument to the promise constructor');
+}
+
+function needsNew() {
+  throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
+}
+
+/**
+  Promise objects represent the eventual result of an asynchronous operation. The
+  primary way of interacting with a promise is through its `then` method, which
+  registers callbacks to receive either a promise's eventual value or the reason
+  why the promise cannot be fulfilled.
+
+  Terminology
+  -----------
+
+  - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
+  - `thenable` is an object or function that defines a `then` method.
+  - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
+  - `exception` is a value that is thrown using the throw statement.
+  - `reason` is a value that indicates why a promise was rejected.
+  - `settled` the final resting state of a promise, fulfilled or rejected.
+
+  A promise can be in one of three states: pending, fulfilled, or rejected.
+
+  Promises that are fulfilled have a fulfillment value and are in the fulfilled
+  state.  Promises that are rejected have a rejection reason and are in the
+  rejected state.  A fulfillment value is never a thenable.
+
+  Promises can also be said to *resolve* a value.  If this value is also a
+  promise, then the original promise's settled state will match the value's
+  settled state.  So a promise that *resolves* a promise that rejects will
+  itself reject, and a promise that *resolves* a promise that fulfills will
+  itself fulfill.
+
+
+  Basic Usage:
+  ------------
+
+  ```js
+  let promise = new Promise(function(resolve, reject) {
+    // on success
+    resolve(value);
+
+    // on failure
+    reject(reason);
+  });
+
+  promise.then(function(value) {
+    // on fulfillment
+  }, function(reason) {
+    // on rejection
+  });
+  ```
+
+  Advanced Usage:
+  ---------------
+
+  Promises shine when abstracting away asynchronous interactions such as
+  `XMLHttpRequest`s.
+
+  ```js
+  function getJSON(url) {
+    return new Promise(function(resolve, reject){
+      let xhr = new XMLHttpRequest();
+
+      xhr.open('GET', url);
+      xhr.onreadystatechange = handler;
+      xhr.responseType = 'json';
+      xhr.setRequestHeader('Accept', 'application/json');
+      xhr.send();
+
+      function handler() {
+        if (this.readyState === this.DONE) {
+          if (this.status === 200) {
+            resolve(this.response);
+          } else {
+            reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));
+          }
+        }
+      };
+    });
+  }
+
+  getJSON('/posts.json').then(function(json) {
+    // on fulfillment
+  }, function(reason) {
+    // on rejection
+  });
+  ```
+
+  Unlike callbacks, promises are great composable primitives.
+
+  ```js
+  Promise.all([
+    getJSON('/posts'),
+    getJSON('/comments')
+  ]).then(function(values){
+    values[0] // => postsJSON
+    values[1] // => commentsJSON
+
+    return values;
+  });
+  ```
+
+  @class Promise
+  @param {Function} resolver
+  Useful for tooling.
+  @constructor
+*/
+
+var Promise$1 = function () {
+  function Promise(resolver) {
+    this[PROMISE_ID] = nextId();
+    this._result = this._state = undefined;
+    this._subscribers = [];
+
+    if (noop !== resolver) {
+      typeof resolver !== 'function' && needsResolver();
+      this instanceof Promise ? initializePromise(this, resolver) : needsNew();
+    }
+  }
+
+  /**
+  The primary way of interacting with a promise is through its `then` method,
+  which registers callbacks to receive either a promise's eventual value or the
+  reason why the promise cannot be fulfilled.
+   ```js
+  findUser().then(function(user){
+    // user is available
+  }, function(reason){
+    // user is unavailable, and you are given the reason why
+  });
+  ```
+   Chaining
+  --------
+   The return value of `then` is itself a promise.  This second, 'downstream'
+  promise is resolved with the return value of the first promise's fulfillment
+  or rejection handler, or rejected if the handler throws an exception.
+   ```js
+  findUser().then(function (user) {
+    return user.name;
+  }, function (reason) {
+    return 'default name';
+  }).then(function (userName) {
+    // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
+    // will be `'default name'`
+  });
+   findUser().then(function (user) {
+    throw new Error('Found user, but still unhappy');
+  }, function (reason) {
+    throw new Error('`findUser` rejected and we're unhappy');
+  }).then(function (value) {
+    // never reached
+  }, function (reason) {
+    // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.
+    // If `findUser` rejected, `reason` will be '`findUser` rejected and we're unhappy'.
+  });
+  ```
+  If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
+   ```js
+  findUser().then(function (user) {
+    throw new PedagogicalException('Upstream error');
+  }).then(function (value) {
+    // never reached
+  }).then(function (value) {
+    // never reached
+  }, function (reason) {
+    // The `PedgagocialException` is propagated all the way down to here
+  });
+  ```
+   Assimilation
+  ------------
+   Sometimes the value you want to propagate to a downstream promise can only be
+  retrieved asynchronously. This can be achieved by returning a promise in the
+  fulfillment or rejection handler. The downstream promise will then be pending
+  until the returned promise is settled. This is called *assimilation*.
+   ```js
+  findUser().then(function (user) {
+    return findCommentsByAuthor(user);
+  }).then(function (comments) {
+    // The user's comments are now available
+  });
+  ```
+   If the assimliated promise rejects, then the downstream promise will also reject.
+   ```js
+  findUser().then(function (user) {
+    return findCommentsByAuthor(user);
+  }).then(function (comments) {
+    // If `findCommentsByAuthor` fulfills, we'll have the value here
+  }, function (reason) {
+    // If `findCommentsByAuthor` rejects, we'll have the reason here
+  });
+  ```
+   Simple Example
+  --------------
+   Synchronous Example
+   ```javascript
+  let result;
+   try {
+    result = findResult();
+    // success
+  } catch(reason) {
+    // failure
+  }
+  ```
+   Errback Example
+   ```js
+  findResult(function(result, err){
+    if (err) {
+      // failure
+    } else {
+      // success
+    }
+  });
+  ```
+   Promise Example;
+   ```javascript
+  findResult().then(function(result){
+    // success
+  }, function(reason){
+    // failure
+  });
+  ```
+   Advanced Example
+  --------------
+   Synchronous Example
+   ```javascript
+  let author, books;
+   try {
+    author = findAuthor();
+    books  = findBooksByAuthor(author);
+    // success
+  } catch(reason) {
+    // failure
+  }
+  ```
+   Errback Example
+   ```js
+   function foundBooks(books) {
+   }
+   function failure(reason) {
+   }
+   findAuthor(function(author, err){
+    if (err) {
+      failure(err);
+      // failure
+    } else {
+      try {
+        findBoooksByAuthor(author, function(books, err) {
+          if (err) {
+            failure(err);
+          } else {
+            try {
+              foundBooks(books);
+            } catch(reason) {
+              failure(reason);
+            }
+          }
+        });
+      } catch(error) {
+        failure(err);
+      }
+      // success
+    }
+  });
+  ```
+   Promise Example;
+   ```javascript
+  findAuthor().
+    then(findBooksByAuthor).
+    then(function(books){
+      // found books
+  }).catch(function(reason){
+    // something went wrong
+  });
+  ```
+   @method then
+  @param {Function} onFulfilled
+  @param {Function} onRejected
+  Useful for tooling.
+  @return {Promise}
+  */
+
+  /**
+  `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
+  as the catch block of a try/catch statement.
+  ```js
+  function findAuthor(){
+  throw new Error('couldn't find that author');
+  }
+  // synchronous
+  try {
+  findAuthor();
+  } catch(reason) {
+  // something went wrong
+  }
+  // async with promises
+  findAuthor().catch(function(reason){
+  // something went wrong
+  });
+  ```
+  @method catch
+  @param {Function} onRejection
+  Useful for tooling.
+  @return {Promise}
+  */
+
+
+  Promise.prototype.catch = function _catch(onRejection) {
+    return this.then(null, onRejection);
+  };
+
+  /**
+    `finally` will be invoked regardless of the promise's fate just as native
+    try/catch/finally behaves
+  
+    Synchronous example:
+  
+    ```js
+    findAuthor() {
+      if (Math.random() > 0.5) {
+        throw new Error();
+      }
+      return new Author();
+    }
+  
+    try {
+      return findAuthor(); // succeed or fail
+    } catch(error) {
+      return findOtherAuther();
+    } finally {
+      // always runs
+      // doesn't affect the return value
+    }
+    ```
+  
+    Asynchronous example:
+  
+    ```js
+    findAuthor().catch(function(reason){
+      return findOtherAuther();
+    }).finally(function(){
+      // author was either found, or not
+    });
+    ```
+  
+    @method finally
+    @param {Function} callback
+    @return {Promise}
+  */
+
+
+  Promise.prototype.finally = function _finally(callback) {
+    var promise = this;
+    var constructor = promise.constructor;
+
+    return promise.then(function (value) {
+      return constructor.resolve(callback()).then(function () {
+        return value;
+      });
+    }, function (reason) {
+      return constructor.resolve(callback()).then(function () {
+        throw reason;
+      });
+    });
+  };
+
+  return Promise;
+}();
+
+Promise$1.prototype.then = then;
+Promise$1.all = all;
+Promise$1.race = race;
+Promise$1.resolve = resolve$1;
+Promise$1.reject = reject$1;
+Promise$1._setScheduler = setScheduler;
+Promise$1._setAsap = setAsap;
+Promise$1._asap = asap;
+
+/*global self*/
+function polyfill() {
+  var local = void 0;
+
+  if (typeof global !== 'undefined') {
+    local = global;
+  } else if (typeof self !== 'undefined') {
+    local = self;
+  } else {
+    try {
+      local = Function('return this')();
+    } catch (e) {
+      throw new Error('polyfill failed because global object is unavailable in this environment');
+    }
+  }
+
+  var P = local.Promise;
+
+  if (P) {
+    var promiseToString = null;
+    try {
+      promiseToString = Object.prototype.toString.call(P.resolve());
+    } catch (e) {
+      // silently ignored
+    }
+
+    if (promiseToString === '[object Promise]' && !P.cast) {
+      return;
+    }
+  }
+
+  local.Promise = Promise$1;
+}
+
+// Strange compat..
+Promise$1.polyfill = polyfill;
+Promise$1.Promise = Promise$1;
+
+return Promise$1;
+
+})));
+
+
+
+//# sourceMappingURL=es6-promise.map
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(52), __webpack_require__(53)))
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports) {
+
+/*
+ * Copyright 2016 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var MathUtil = window.MathUtil || {};
+
+MathUtil.degToRad = Math.PI / 180;
+MathUtil.radToDeg = 180 / Math.PI;
+
+// Some minimal math functionality borrowed from THREE.Math and stripped down
+// for the purposes of this library.
+
+
+MathUtil.Vector2 = function ( x, y ) {
+  this.x = x || 0;
+  this.y = y || 0;
+};
+
+MathUtil.Vector2.prototype = {
+  constructor: MathUtil.Vector2,
+
+  set: function ( x, y ) {
+    this.x = x;
+    this.y = y;
+
+    return this;
+  },
+
+  copy: function ( v ) {
+    this.x = v.x;
+    this.y = v.y;
+
+    return this;
+  },
+
+  subVectors: function ( a, b ) {
+    this.x = a.x - b.x;
+    this.y = a.y - b.y;
+
+    return this;
+  },
+};
+
+MathUtil.Vector3 = function ( x, y, z ) {
+  this.x = x || 0;
+  this.y = y || 0;
+  this.z = z || 0;
+};
+
+MathUtil.Vector3.prototype = {
+  constructor: MathUtil.Vector3,
+
+  set: function ( x, y, z ) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+
+    return this;
+  },
+
+  copy: function ( v ) {
+    this.x = v.x;
+    this.y = v.y;
+    this.z = v.z;
+
+    return this;
+  },
+
+  length: function () {
+    return Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z );
+  },
+
+  normalize: function () {
+    var scalar = this.length();
+
+    if ( scalar !== 0 ) {
+      var invScalar = 1 / scalar;
+
+      this.multiplyScalar(invScalar);
+    } else {
+      this.x = 0;
+      this.y = 0;
+      this.z = 0;
+    }
+
+    return this;
+  },
+
+  multiplyScalar: function ( scalar ) {
+    this.x *= scalar;
+    this.y *= scalar;
+    this.z *= scalar;
+  },
+
+  applyQuaternion: function ( q ) {
+    var x = this.x;
+    var y = this.y;
+    var z = this.z;
+
+    var qx = q.x;
+    var qy = q.y;
+    var qz = q.z;
+    var qw = q.w;
+
+    // calculate quat * vector
+    var ix =  qw * x + qy * z - qz * y;
+    var iy =  qw * y + qz * x - qx * z;
+    var iz =  qw * z + qx * y - qy * x;
+    var iw = - qx * x - qy * y - qz * z;
+
+    // calculate result * inverse quat
+    this.x = ix * qw + iw * - qx + iy * - qz - iz * - qy;
+    this.y = iy * qw + iw * - qy + iz * - qx - ix * - qz;
+    this.z = iz * qw + iw * - qz + ix * - qy - iy * - qx;
+
+    return this;
+  },
+
+  dot: function ( v ) {
+    return this.x * v.x + this.y * v.y + this.z * v.z;
+  },
+
+  crossVectors: function ( a, b ) {
+    var ax = a.x, ay = a.y, az = a.z;
+    var bx = b.x, by = b.y, bz = b.z;
+
+    this.x = ay * bz - az * by;
+    this.y = az * bx - ax * bz;
+    this.z = ax * by - ay * bx;
+
+    return this;
+  },
+};
+
+MathUtil.Quaternion = function ( x, y, z, w ) {
+  this.x = x || 0;
+  this.y = y || 0;
+  this.z = z || 0;
+  this.w = ( w !== undefined ) ? w : 1;
+};
+
+MathUtil.Quaternion.prototype = {
+  constructor: MathUtil.Quaternion,
+
+  set: function ( x, y, z, w ) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+    this.w = w;
+
+    return this;
+  },
+
+  copy: function ( quaternion ) {
+    this.x = quaternion.x;
+    this.y = quaternion.y;
+    this.z = quaternion.z;
+    this.w = quaternion.w;
+
+    return this;
+  },
+
+  setFromEulerXYZ: function( x, y, z ) {
+    var c1 = Math.cos( x / 2 );
+    var c2 = Math.cos( y / 2 );
+    var c3 = Math.cos( z / 2 );
+    var s1 = Math.sin( x / 2 );
+    var s2 = Math.sin( y / 2 );
+    var s3 = Math.sin( z / 2 );
+
+    this.x = s1 * c2 * c3 + c1 * s2 * s3;
+    this.y = c1 * s2 * c3 - s1 * c2 * s3;
+    this.z = c1 * c2 * s3 + s1 * s2 * c3;
+    this.w = c1 * c2 * c3 - s1 * s2 * s3;
+
+    return this;
+  },
+
+  setFromEulerYXZ: function( x, y, z ) {
+    var c1 = Math.cos( x / 2 );
+    var c2 = Math.cos( y / 2 );
+    var c3 = Math.cos( z / 2 );
+    var s1 = Math.sin( x / 2 );
+    var s2 = Math.sin( y / 2 );
+    var s3 = Math.sin( z / 2 );
+
+    this.x = s1 * c2 * c3 + c1 * s2 * s3;
+    this.y = c1 * s2 * c3 - s1 * c2 * s3;
+    this.z = c1 * c2 * s3 - s1 * s2 * c3;
+    this.w = c1 * c2 * c3 + s1 * s2 * s3;
+
+    return this;
+  },
+
+  setFromAxisAngle: function ( axis, angle ) {
+    // http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/index.htm
+    // assumes axis is normalized
+
+    var halfAngle = angle / 2, s = Math.sin( halfAngle );
+
+    this.x = axis.x * s;
+    this.y = axis.y * s;
+    this.z = axis.z * s;
+    this.w = Math.cos( halfAngle );
+
+    return this;
+  },
+
+  multiply: function ( q ) {
+    return this.multiplyQuaternions( this, q );
+  },
+
+  multiplyQuaternions: function ( a, b ) {
+    // from http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/code/index.htm
+
+    var qax = a.x, qay = a.y, qaz = a.z, qaw = a.w;
+    var qbx = b.x, qby = b.y, qbz = b.z, qbw = b.w;
+
+    this.x = qax * qbw + qaw * qbx + qay * qbz - qaz * qby;
+    this.y = qay * qbw + qaw * qby + qaz * qbx - qax * qbz;
+    this.z = qaz * qbw + qaw * qbz + qax * qby - qay * qbx;
+    this.w = qaw * qbw - qax * qbx - qay * qby - qaz * qbz;
+
+    return this;
+  },
+
+  inverse: function () {
+    this.x *= -1;
+    this.y *= -1;
+    this.z *= -1;
+
+    this.normalize();
+
+    return this;
+  },
+
+  normalize: function () {
+    var l = Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w );
+
+    if ( l === 0 ) {
+      this.x = 0;
+      this.y = 0;
+      this.z = 0;
+      this.w = 1;
+    } else {
+      l = 1 / l;
+
+      this.x = this.x * l;
+      this.y = this.y * l;
+      this.z = this.z * l;
+      this.w = this.w * l;
+    }
+
+    return this;
+  },
+
+  slerp: function ( qb, t ) {
+    if ( t === 0 ) return this;
+    if ( t === 1 ) return this.copy( qb );
+
+    var x = this.x, y = this.y, z = this.z, w = this.w;
+
+    // http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
+
+    var cosHalfTheta = w * qb.w + x * qb.x + y * qb.y + z * qb.z;
+
+    if ( cosHalfTheta < 0 ) {
+      this.w = - qb.w;
+      this.x = - qb.x;
+      this.y = - qb.y;
+      this.z = - qb.z;
+
+      cosHalfTheta = - cosHalfTheta;
+    } else {
+      this.copy( qb );
+    }
+
+    if ( cosHalfTheta >= 1.0 ) {
+      this.w = w;
+      this.x = x;
+      this.y = y;
+      this.z = z;
+
+      return this;
+    }
+
+    var halfTheta = Math.acos( cosHalfTheta );
+    var sinHalfTheta = Math.sqrt( 1.0 - cosHalfTheta * cosHalfTheta );
+
+    if ( Math.abs( sinHalfTheta ) < 0.001 ) {
+      this.w = 0.5 * ( w + this.w );
+      this.x = 0.5 * ( x + this.x );
+      this.y = 0.5 * ( y + this.y );
+      this.z = 0.5 * ( z + this.z );
+
+      return this;
+    }
+
+    var ratioA = Math.sin( ( 1 - t ) * halfTheta ) / sinHalfTheta,
+    ratioB = Math.sin( t * halfTheta ) / sinHalfTheta;
+
+    this.w = ( w * ratioA + this.w * ratioB );
+    this.x = ( x * ratioA + this.x * ratioB );
+    this.y = ( y * ratioA + this.y * ratioB );
+    this.z = ( z * ratioA + this.z * ratioB );
+
+    return this;
+  },
+
+  setFromUnitVectors: function () {
+    // http://lolengine.net/blog/2014/02/24/quaternion-from-two-vectors-final
+    // assumes direction vectors vFrom and vTo are normalized
+
+    var v1, r;
+    var EPS = 0.000001;
+
+    return function ( vFrom, vTo ) {
+      if ( v1 === undefined ) v1 = new MathUtil.Vector3();
+
+      r = vFrom.dot( vTo ) + 1;
+
+      if ( r < EPS ) {
+        r = 0;
+
+        if ( Math.abs( vFrom.x ) > Math.abs( vFrom.z ) ) {
+          v1.set( - vFrom.y, vFrom.x, 0 );
+        } else {
+          v1.set( 0, - vFrom.z, vFrom.y );
+        }
+      } else {
+        v1.crossVectors( vFrom, vTo );
+      }
+
+      this.x = v1.x;
+      this.y = v1.y;
+      this.z = v1.z;
+      this.w = r;
+
+      this.normalize();
+
+      return this;
+    }
+  }(),
+};
+
+module.exports = MathUtil;
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+var DIRECTION;
+(function (DIRECTION) {
+    DIRECTION[DIRECTION["DIRECTION_NONE"] = 1] = "DIRECTION_NONE";
+    DIRECTION[DIRECTION["DIRECTION_LEFT"] = 2] = "DIRECTION_LEFT";
+    DIRECTION[DIRECTION["DIRECTION_RIGHT"] = 4] = "DIRECTION_RIGHT";
+    DIRECTION[DIRECTION["DIRECTION_HORIZONTAL"] = 6] = "DIRECTION_HORIZONTAL";
+    DIRECTION[DIRECTION["DIRECTION_UP"] = 8] = "DIRECTION_UP";
+    DIRECTION[DIRECTION["DIRECTION_DOWN"] = 16] = "DIRECTION_DOWN";
+    DIRECTION[DIRECTION["DIRECTION_VERTICAL"] = 24] = "DIRECTION_VERTICAL";
+    DIRECTION[DIRECTION["DIRECTION_ALL"] = 30] = "DIRECTION_ALL";
+})(DIRECTION = exports.DIRECTION || (exports.DIRECTION = {}));
+exports.TRANSFORM = (function () {
+    var bodyStyle = (document.head || document.getElementsByTagName("head")[0]).style;
+    var target = ["transform", "webkitTransform", "msTransform", "mozTransform"];
+    for (var i = 0, len = target.length; i < len; i++) {
+        if (target[i] in bodyStyle) {
+            return target[i];
+        }
+    }
+    return "";
+})();
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+/* eslint-disable no-new-func */
+/* eslint-disable no-nested-ternary */
+var win = typeof window !== "undefined" && window.Math === Math ? window : typeof self !== "undefined" && self.Math === Math ? self : Function("return this")();
+/* eslint-enable no-nested-ternary */
+/* eslint-enable no-new-func */
+
+win.Float32Array = typeof win.Float32Array !== "undefined" ? win.Float32Array : win.Array;
+
+exports.window = win;
+var document = exports.document = win.document;
+var Float32Array = exports.Float32Array = win.Float32Array;
+var getComputedStyle = exports.getComputedStyle = win.getComputedStyle;
+var userAgent = exports.userAgent = win.navigator.userAgent;
+var SUPPORT_TOUCH = exports.SUPPORT_TOUCH = "ontouchstart" in win;
+var SUPPORT_DEVICEMOTION = exports.SUPPORT_DEVICEMOTION = "ondevicemotion" in win;
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+var CONTROL_MODE_VR = 1;
+var CONTROL_MODE_YAWPITCH = 2;
+
+var TOUCH_DIRECTION_NONE = 1;
+var TOUCH_DIRECTION_YAW = 2;
+var TOUCH_DIRECTION_PITCH = 4;
+var TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_YAW | TOUCH_DIRECTION_PITCH;
+
+/* Const for MovableCoord */
+var MC_DECELERATION = 0.0014;
+var MC_MAXIMUM_DURATION = 1000;
+var MC_BIND_SCALE = [0.20, 0.20];
+
+var MIN_FIELD_OF_VIEW = 20;
+var MAX_FIELD_OF_VIEW = 110;
+var PAN_SCALE = 320;
+
+// const DELTA_THRESHOLD = 0.015;
+// const DELTA_THRESHOLD = 0.09; // Note4
+// const DELTA_THRESHOLD = 0.0825;
+// const DELTA_THRESHOLD = 0.075;
+// const DELTA_THRESHOLD = 0.06;
+// const DELTA_THRESHOLD = 0.045;
+var DELTA_THRESHOLD = 0.0375; // Note2
+
+var YAW_RANGE_HALF = 180;
+var PITCH_RANGE_HALF = 90;
+var PINCH_EVENTS = "pinchstart pinchmove pinchend";
+
+var KEYMAP = {
+	LEFT_ARROW: 37,
+	A: 65,
+	UP_ARROW: 38,
+	W: 87,
+	RIGHT_ARROW: 39,
+	D: 68,
+	DOWN_ARROW: 40,
+	S: 83
+};
+
+var GYRO_MODE = {
+	NONE: "none",
+	YAWPITCH: "yawPitch"
+};
+
+exports.GYRO_MODE = GYRO_MODE;
+exports.CONTROL_MODE_VR = CONTROL_MODE_VR;
+exports.CONTROL_MODE_YAWPITCH = CONTROL_MODE_YAWPITCH;
+exports.TOUCH_DIRECTION_NONE = TOUCH_DIRECTION_NONE;
+exports.TOUCH_DIRECTION_YAW = TOUCH_DIRECTION_YAW;
+exports.TOUCH_DIRECTION_PITCH = TOUCH_DIRECTION_PITCH;
+exports.TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_ALL;
+exports.MC_DECELERATION = MC_DECELERATION;
+exports.MC_MAXIMUM_DURATION = MC_MAXIMUM_DURATION;
+exports.MC_BIND_SCALE = MC_BIND_SCALE;
+exports.MIN_FIELD_OF_VIEW = MIN_FIELD_OF_VIEW;
+exports.MAX_FIELD_OF_VIEW = MAX_FIELD_OF_VIEW;
+exports.PAN_SCALE = PAN_SCALE;
+exports.DELTA_THRESHOLD = DELTA_THRESHOLD;
+exports.YAW_RANGE_HALF = YAW_RANGE_HALF;
+exports.PITCH_RANGE_HALF = PITCH_RANGE_HALF;
+exports.PINCH_EVENTS = PINCH_EVENTS;
+exports.KEYMAP = KEYMAP;
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*!
+ * Copyright (c) 2017 NAVER Corp.
+ * @egjs/agent project is licensed under the MIT license
+ * 
+ * @egjs/agent JavaScript library
+ * 
+ * 
+ * @version 2.1.2
+ */
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(true)
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else if(typeof exports === 'object')
+		exports["agent"] = factory();
+	else
+		root["eg"] = root["eg"] || {}, root["eg"]["agent"] = factory();
+})(this, function() {
+return /******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _agent = __webpack_require__(1);
+
+var _agent2 = _interopRequireDefault(_agent);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+module.exports = _agent2["default"]; /**
+                                      * Copyright (c) NAVER Corp.
+                                      * egjs-agent projects are licensed under the MIT license
+                                      */
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _browser = __webpack_require__(2);
+
+var _Parser = __webpack_require__(3);
+
+var _Parser2 = _interopRequireDefault(_Parser);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+/**
+ * @namespace eg
+ */
+
+/**
+ * Extracts browser and operating system information from the user agent string.
+ * @ko 유저 에이전트 문자열에서 브라우저와 운영체제 정보를 추출한다.
+ * @function eg#agent
+ * @param {String} [userAgent=navigator.userAgent] user agent string to parse <ko>파싱할 유저에이전트 문자열</ko>
+ * @return {Object} agentInfo
+ * @return {Object} agentInfo.os os Operating system information <ko>운영체제 정보</ko>
+ * @return {String} agentInfo.os.name Operating system name (android, ios, window, mac, unknown) <ko>운영체제 이름 (android, ios, window, mac, unknown)</ko>
+ * @return {String} agentInfo.os.version Operating system version <ko>운영체제 버전</ko>
+ * @return {String} agentInfo.browser Browser information <ko>브라우저 정보</ko>
+ * @return {String} agentInfo.browser.name Browser name (safari, chrome, sbrowser, ie, firefox, unknown) <ko>브라우저 이름 (safari, chrome, sbrowser, ie, firefox, unknown)</ko>
+ * @return {String} agentInfo.browser.version Browser version <ko>브라우저 버전 </ko>
+ * @return {Boolean} agentInfo.browser.webview Indicates whether the browser is inapp<ko>웹뷰 브라우저 여부</ko>
+ * @return {Boolean} agentInfo.isMobile Indicates whether the browser is for mobile<ko>모바일 브라우저 여부</ko>
+ */
+/**
+ * Copyright (c) NAVER Corp.
+ * egjs-agent projects are licensed under the MIT license
+ */
+function agent() {
+  var ua = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _browser.navigator.userAgent;
+
+  _Parser2["default"].setUa(ua);
+
+  var agentInfo = {
+    os: _Parser2["default"].getOs(),
+    browser: _Parser2["default"].getBrowser(),
+    isMobile: _Parser2["default"].getIsMobile()
+  };
+
+  agentInfo.browser.name = agentInfo.browser.name.toLowerCase();
+  agentInfo.os.name = agentInfo.os.name.toLowerCase();
+  agentInfo.os.version = agentInfo.os.version.toLowerCase();
+
+  if (agentInfo.os.name === "ios" && agentInfo.browser.webview) {
+    agentInfo.browser.version = "-1";
+  }
+
+  return agentInfo;
+}
+agent.VERSION = "2.1.2";
+exports["default"] = agent;
+module.exports = exports["default"];
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+var win = typeof window !== "undefined" && window || {};
+
+var RegExp = exports.RegExp = win.RegExp;
+var navigator = exports.navigator = win.navigator;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _parseRules = __webpack_require__(4);
+
+var _parseRules2 = _interopRequireDefault(_parseRules);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+var UA = void 0;
+
+function setUa(ua) {
+	UA = ua;
+}
+
+function isMatched(base, target) {
+	return target && target.test ? !!target.test(base) : base.indexOf(target) > -1;
+}
+
+function getIdentityStringFromArray(rules, defaultStrings) {
+	var matchedRule = rules.filter(function (rule) {
+		return isMatched(UA, rule.criteria);
+	})[0];
+
+	return matchedRule && matchedRule.identity || defaultStrings.name;
+}
+
+function getRule(rules, targetIdentity) {
+	return rules.filter(function (rule) {
+		var criteria = rule.criteria;
+		var identityMatched = new RegExp(rule.identity, "i").test(targetIdentity);
+
+		if (criteria ? identityMatched && isMatched(UA, criteria) : identityMatched) {
+			return true;
+		} else {
+			return false;
+		}
+	})[0];
+}
+
+function getBrowserName() {
+	return getIdentityStringFromArray(_parseRules2["default"].browser, _parseRules2["default"].defaultString.browser);
+}
+
+function getBrowserRule(browserName) {
+	var rule = getRule(_parseRules2["default"].browser, browserName);
+
+	if (!rule) {
+		rule = {
+			criteria: browserName,
+			versionSearch: browserName,
+			identity: browserName
+		};
+	}
+
+	return rule;
+}
+
+function extractBrowserVersion(versionToken, ua) {
+	var browserVersion = _parseRules2["default"].defaultString.browser.version;
+	var versionRegexResult = new RegExp("(" + versionToken + ")", "i").exec(ua);
+
+	if (!versionRegexResult) {
+		return browserVersion;
+	}
+
+	var versionTokenIndex = versionRegexResult.index;
+	var verTkn = versionRegexResult[0];
+
+	if (versionTokenIndex > -1) {
+		var versionIndex = versionTokenIndex + verTkn.length + 1;
+
+		browserVersion = ua.substring(versionIndex).split(" ")[0].replace(/_/g, ".").replace(/;|\)/g, "");
+	}
+	return browserVersion;
+}
+
+function getBrowserVersion(browserName) {
+	if (!browserName) {
+		return undefined;
+	}
+
+	// console.log(browserRule);
+	// const versionToken = browserRule ? browserRule.versionSearch : browserName;
+	var browserRule = getBrowserRule(browserName);
+	var versionToken = browserRule.versionSearch || browserName;
+	var browserVersion = extractBrowserVersion(versionToken, UA);
+
+	return browserVersion;
+}
+
+function isWebview() {
+	var webviewRules = _parseRules2["default"].webview;
+	var browserVersion = void 0;
+
+	return webviewRules.filter(function (rule) {
+		return isMatched(UA, rule.criteria);
+	}).some(function (rule) {
+		browserVersion = extractBrowserVersion(rule.browserVersionSearch, UA);
+		if (isMatched(UA, rule.webviewToken) || isMatched(browserVersion, rule.webviewBrowserVersion)) {
+			return true;
+		} else {
+			return false;
+		}
+	});
+}
+
+function getOSRule(osName) {
+	return getRule(_parseRules2["default"].os, osName);
+}
+
+function getOsName() {
+	return getIdentityStringFromArray(_parseRules2["default"].os, _parseRules2["default"].defaultString.os);
+}
+
+function getOsVersion(osName) {
+	var osRule = getOSRule(osName) || {};
+	var defaultOSVersion = _parseRules2["default"].defaultString.os.version;
+	var osVersion = void 0;
+
+	if (!osName) {
+		return undefined;
+	}
+	if (osRule.versionAlias) {
+		return osRule.versionAlias;
+	}
+	var osVersionToken = osRule.versionSearch || osName;
+	var osVersionRegex = new RegExp("(" + osVersionToken + ")\\s([\\d_\\.]+|\\d_0)", "i");
+	var osVersionRegexResult = osVersionRegex.exec(UA);
+
+	if (osVersionRegexResult) {
+		osVersion = osVersionRegex.exec(UA)[2].replace(/_/g, ".").replace(/;|\)/g, "");
+	}
+	return osVersion || defaultOSVersion;
+}
+
+function getOs() {
+	var name = getOsName();
+	var version = getOsVersion(name);
+
+	return { name: name, version: version };
+}
+
+function getBrowser() {
+	var name = getBrowserName();
+	var version = getBrowserVersion(name);
+
+	return { name: name, version: version, webview: isWebview() };
+}
+
+function getIsMobile() {
+	return UA.indexOf("Mobi") !== -1;
+}
+
+exports["default"] = {
+	getOs: getOs,
+	getBrowser: getBrowser,
+	getIsMobile: getIsMobile,
+	setUa: setUa
+};
+module.exports = exports["default"];
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+var parseRules = {
+	browser: [{
+		criteria: "PhantomJS",
+		identity: "PhantomJS"
+	}, {
+		criteria: /Whale/,
+		identity: "Whale",
+		versionSearch: "Whale"
+	}, {
+		criteria: /Edge/,
+		identity: "Edge",
+		versionSearch: "Edge"
+	}, {
+		criteria: /MSIE|Trident|Windows Phone/,
+		identity: "IE",
+		versionSearch: "IEMobile|MSIE|rv"
+	}, {
+		criteria: /MiuiBrowser/,
+		identity: "MIUI Browser",
+		versionSearch: "MiuiBrowser"
+	}, {
+		criteria: /SamsungBrowser/,
+		identity: "Samsung Internet",
+		versionSearch: "SamsungBrowser"
+	}, {
+		criteria: /SAMSUNG /,
+		identity: "Samsung Internet",
+		versionSearch: "Version"
+	}, {
+		criteria: /Chrome|CriOS/,
+		identity: "Chrome"
+	}, {
+		criteria: /Android/,
+		identity: "Android Browser",
+		versionSearch: "Version"
+	}, {
+		criteria: /iPhone|iPad/,
+		identity: "Safari",
+		versionSearch: "Version"
+	}, {
+		criteria: "Apple",
+		identity: "Safari",
+		versionSearch: "Version"
+	}, {
+		criteria: "Firefox",
+		identity: "Firefox"
+	}],
+	os: [{
+		criteria: /Windows Phone/,
+		identity: "Windows Phone",
+		versionSearch: "Windows Phone"
+	}, {
+		criteria: "Windows 2000",
+		identity: "Window",
+		versionAlias: "5.0"
+	}, {
+		criteria: /Windows NT/,
+		identity: "Window",
+		versionSearch: "Windows NT"
+	}, {
+		criteria: /iPhone|iPad/,
+		identity: "iOS",
+		versionSearch: "iPhone OS|CPU OS"
+	}, {
+		criteria: "Mac",
+		versionSearch: "OS X",
+		identity: "MAC"
+	}, {
+		criteria: /Android/,
+		identity: "Android"
+	}, {
+		criteria: /Tizen/,
+		identity: "Tizen"
+	}, {
+		criteria: /Web0S/,
+		identity: "WebOS"
+	}],
+
+	// Webview check condition
+	// ios: If has no version information
+	// Android 5.0 && chrome 40+: Presence of "; wv" in userAgent
+	// Under android 5.0: Presence of "NAVER" or "Daum" in userAgent
+	webview: [{
+		criteria: /iPhone|iPad/,
+		browserVersionSearch: "Version",
+		webviewBrowserVersion: /-1/
+	}, {
+		criteria: /iPhone|iPad|Android/,
+		webviewToken: /NAVER|DAUM|; wv/
+
+	}],
+	defaultString: {
+		browser: {
+			version: "-1",
+			name: "unknown"
+		},
+		os: {
+			version: "-1",
+			name: "unknown"
+		}
+	}
+};
+
+exports["default"] = parseRules;
+module.exports = exports["default"];
+
+/***/ })
+/******/ ]);
+});
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports) {
+
+/*
+ * Copyright 2015 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var Util = window.Util || {};
+
+Util.MIN_TIMESTEP = 0.001;
+Util.MAX_TIMESTEP = 1;
+
+Util.base64 = function(mimeType, base64) {
+  return 'data:' + mimeType + ';base64,' + base64;
+};
+
+Util.clamp = function(value, min, max) {
+  return Math.min(Math.max(min, value), max);
+};
+
+Util.lerp = function(a, b, t) {
+  return a + ((b - a) * t);
+};
+
+/**
+ * Light polyfill for `Promise.race`. Returns
+ * a promise that resolves when the first promise
+ * provided resolves.
+ *
+ * @param {Array<Promise>} promises
+ */
+Util.race = function(promises) {
+  if (Promise.race) {
+    return Promise.race(promises);
+  }
+
+  return new Promise(function (resolve, reject) {
+    for (var i = 0; i < promises.length; i++) {
+      promises[i].then(resolve, reject);
+    }
+  });
+};
+
+Util.isIOS = (function() {
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.platform);
+  return function() {
+    return isIOS;
+  };
+})();
+
+Util.isWebViewAndroid = (function() {
+  var isWebViewAndroid = navigator.userAgent.indexOf('Version') !== -1 &&
+      navigator.userAgent.indexOf('Android') !== -1 &&
+      navigator.userAgent.indexOf('Chrome') !== -1;
+  return function() {
+    return isWebViewAndroid;
+  };
+})();
+
+Util.isSafari = (function() {
+  var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  return function() {
+    return isSafari;
+  };
+})();
+
+Util.isFirefoxAndroid = (function() {
+  var isFirefoxAndroid = navigator.userAgent.indexOf('Firefox') !== -1 &&
+      navigator.userAgent.indexOf('Android') !== -1;
+  return function() {
+    return isFirefoxAndroid;
+  };
+})();
+
+Util.isR7 = (function() {
+  var isR7 = navigator.userAgent.indexOf('R7 Build') !== -1;
+  return function() {
+    return isR7;
+  };
+})();
+
+Util.isLandscapeMode = function() {
+  var rtn = (window.orientation == 90 || window.orientation == -90);
+  return Util.isR7() ? !rtn : rtn;
+};
+
+// Helper method to validate the time steps of sensor timestamps.
+Util.isTimestampDeltaValid = function(timestampDeltaS) {
+  if (isNaN(timestampDeltaS)) {
+    return false;
+  }
+  if (timestampDeltaS <= Util.MIN_TIMESTEP) {
+    return false;
+  }
+  if (timestampDeltaS > Util.MAX_TIMESTEP) {
+    return false;
+  }
+  return true;
+};
+
+Util.getScreenWidth = function() {
+  return Math.max(window.screen.width, window.screen.height) *
+      window.devicePixelRatio;
+};
+
+Util.getScreenHeight = function() {
+  return Math.min(window.screen.width, window.screen.height) *
+      window.devicePixelRatio;
+};
+
+Util.requestFullscreen = function(element) {
+  if (Util.isWebViewAndroid()) {
+      return false;
+  }
+  if (element.requestFullscreen) {
+    element.requestFullscreen();
+  } else if (element.webkitRequestFullscreen) {
+    element.webkitRequestFullscreen();
+  } else if (element.mozRequestFullScreen) {
+    element.mozRequestFullScreen();
+  } else if (element.msRequestFullscreen) {
+    element.msRequestFullscreen();
+  } else {
+    return false;
+  }
+
+  return true;
+};
+
+Util.exitFullscreen = function() {
+  if (document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if (document.webkitExitFullscreen) {
+    document.webkitExitFullscreen();
+  } else if (document.mozCancelFullScreen) {
+    document.mozCancelFullScreen();
+  } else if (document.msExitFullscreen) {
+    document.msExitFullscreen();
+  } else {
+    return false;
+  }
+
+  return true;
+};
+
+Util.getFullscreenElement = function() {
+  return document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.mozFullScreenElement ||
+      document.msFullscreenElement;
+};
+
+Util.linkProgram = function(gl, vertexSource, fragmentSource, attribLocationMap) {
+  // No error checking for brevity.
+  var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+  gl.shaderSource(vertexShader, vertexSource);
+  gl.compileShader(vertexShader);
+
+  var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+  gl.shaderSource(fragmentShader, fragmentSource);
+  gl.compileShader(fragmentShader);
+
+  var program = gl.createProgram();
+  gl.attachShader(program, vertexShader);
+  gl.attachShader(program, fragmentShader);
+
+  for (var attribName in attribLocationMap)
+    gl.bindAttribLocation(program, attribLocationMap[attribName], attribName);
+
+  gl.linkProgram(program);
+
+  gl.deleteShader(vertexShader);
+  gl.deleteShader(fragmentShader);
+
+  return program;
+};
+
+Util.getProgramUniforms = function(gl, program) {
+  var uniforms = {};
+  var uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+  var uniformName = '';
+  for (var i = 0; i < uniformCount; i++) {
+    var uniformInfo = gl.getActiveUniform(program, i);
+    uniformName = uniformInfo.name.replace('[0]', '');
+    uniforms[uniformName] = gl.getUniformLocation(program, uniformName);
+  }
+  return uniforms;
+};
+
+Util.orthoMatrix = function (out, left, right, bottom, top, near, far) {
+  var lr = 1 / (left - right),
+      bt = 1 / (bottom - top),
+      nf = 1 / (near - far);
+  out[0] = -2 * lr;
+  out[1] = 0;
+  out[2] = 0;
+  out[3] = 0;
+  out[4] = 0;
+  out[5] = -2 * bt;
+  out[6] = 0;
+  out[7] = 0;
+  out[8] = 0;
+  out[9] = 0;
+  out[10] = 2 * nf;
+  out[11] = 0;
+  out[12] = (left + right) * lr;
+  out[13] = (top + bottom) * bt;
+  out[14] = (far + near) * nf;
+  out[15] = 1;
+  return out;
+};
+
+Util.copyArray = function (source, dest) {
+  for (var i = 0, n = source.length; i < n; i++) {
+    dest[i] = source[i];
+  }
+};
+
+Util.isMobile = function() {
+  var check = false;
+  (function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4)))check = true})(navigator.userAgent||navigator.vendor||window.opera);
+  return check;
+};
+
+Util.extend = function(dest, src) {
+  for (var key in src) {
+    if (src.hasOwnProperty(key)) {
+      dest[key] = src[key];
+    }
+  }
+
+  return dest;
+}
+
+Util.safariCssSizeWorkaround = function(canvas) {
+  // TODO(smus): Remove this workaround when Safari for iOS is fixed.
+  // iOS only workaround (for https://bugs.webkit.org/show_bug.cgi?id=152556).
+  //
+  // "To the last I grapple with thee;
+  //  from hell's heart I stab at thee;
+  //  for hate's sake I spit my last breath at thee."
+  // -- Moby Dick, by Herman Melville
+  if (Util.isIOS()) {
+    var width = canvas.style.width;
+    var height = canvas.style.height;
+    canvas.style.width = (parseInt(width) + 1) + 'px';
+    canvas.style.height = (parseInt(height)) + 'px';
+    setTimeout(function() {
+      canvas.style.width = width;
+      canvas.style.height = height;
+    }, 100);
+  }
+
+  // Debug only.
+  window.Util = Util;
+  window.canvas = canvas;
+};
+
+Util.isDebug = function() {
+  return Util.getQueryParameter('debug');
+};
+
+Util.getQueryParameter = function(name) {
+  var name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+  var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+      results = regex.exec(location.search);
+  return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+};
+
+Util.frameDataFromPose = (function() {
+  var piOver180 = Math.PI / 180.0;
+  var rad45 = Math.PI * 0.25;
+
+  // Borrowed from glMatrix.
+  function mat4_perspectiveFromFieldOfView(out, fov, near, far) {
+    var upTan = Math.tan(fov ? (fov.upDegrees * piOver180) : rad45),
+    downTan = Math.tan(fov ? (fov.downDegrees * piOver180) : rad45),
+    leftTan = Math.tan(fov ? (fov.leftDegrees * piOver180) : rad45),
+    rightTan = Math.tan(fov ? (fov.rightDegrees * piOver180) : rad45),
+    xScale = 2.0 / (leftTan + rightTan),
+    yScale = 2.0 / (upTan + downTan);
+
+    out[0] = xScale;
+    out[1] = 0.0;
+    out[2] = 0.0;
+    out[3] = 0.0;
+    out[4] = 0.0;
+    out[5] = yScale;
+    out[6] = 0.0;
+    out[7] = 0.0;
+    out[8] = -((leftTan - rightTan) * xScale * 0.5);
+    out[9] = ((upTan - downTan) * yScale * 0.5);
+    out[10] = far / (near - far);
+    out[11] = -1.0;
+    out[12] = 0.0;
+    out[13] = 0.0;
+    out[14] = (far * near) / (near - far);
+    out[15] = 0.0;
+    return out;
+  }
+
+  function mat4_fromRotationTranslation(out, q, v) {
+    // Quaternion math
+    var x = q[0], y = q[1], z = q[2], w = q[3],
+        x2 = x + x,
+        y2 = y + y,
+        z2 = z + z,
+
+        xx = x * x2,
+        xy = x * y2,
+        xz = x * z2,
+        yy = y * y2,
+        yz = y * z2,
+        zz = z * z2,
+        wx = w * x2,
+        wy = w * y2,
+        wz = w * z2;
+
+    out[0] = 1 - (yy + zz);
+    out[1] = xy + wz;
+    out[2] = xz - wy;
+    out[3] = 0;
+    out[4] = xy - wz;
+    out[5] = 1 - (xx + zz);
+    out[6] = yz + wx;
+    out[7] = 0;
+    out[8] = xz + wy;
+    out[9] = yz - wx;
+    out[10] = 1 - (xx + yy);
+    out[11] = 0;
+    out[12] = v[0];
+    out[13] = v[1];
+    out[14] = v[2];
+    out[15] = 1;
+
+    return out;
+  };
+
+  function mat4_translate(out, a, v) {
+    var x = v[0], y = v[1], z = v[2],
+        a00, a01, a02, a03,
+        a10, a11, a12, a13,
+        a20, a21, a22, a23;
+
+    if (a === out) {
+      out[12] = a[0] * x + a[4] * y + a[8] * z + a[12];
+      out[13] = a[1] * x + a[5] * y + a[9] * z + a[13];
+      out[14] = a[2] * x + a[6] * y + a[10] * z + a[14];
+      out[15] = a[3] * x + a[7] * y + a[11] * z + a[15];
+    } else {
+      a00 = a[0]; a01 = a[1]; a02 = a[2]; a03 = a[3];
+      a10 = a[4]; a11 = a[5]; a12 = a[6]; a13 = a[7];
+      a20 = a[8]; a21 = a[9]; a22 = a[10]; a23 = a[11];
+
+      out[0] = a00; out[1] = a01; out[2] = a02; out[3] = a03;
+      out[4] = a10; out[5] = a11; out[6] = a12; out[7] = a13;
+      out[8] = a20; out[9] = a21; out[10] = a22; out[11] = a23;
+
+      out[12] = a00 * x + a10 * y + a20 * z + a[12];
+      out[13] = a01 * x + a11 * y + a21 * z + a[13];
+      out[14] = a02 * x + a12 * y + a22 * z + a[14];
+      out[15] = a03 * x + a13 * y + a23 * z + a[15];
+    }
+
+    return out;
+  };
+
+  function mat4_invert(out, a) {
+    var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3],
+        a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7],
+        a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11],
+        a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15],
+
+        b00 = a00 * a11 - a01 * a10,
+        b01 = a00 * a12 - a02 * a10,
+        b02 = a00 * a13 - a03 * a10,
+        b03 = a01 * a12 - a02 * a11,
+        b04 = a01 * a13 - a03 * a11,
+        b05 = a02 * a13 - a03 * a12,
+        b06 = a20 * a31 - a21 * a30,
+        b07 = a20 * a32 - a22 * a30,
+        b08 = a20 * a33 - a23 * a30,
+        b09 = a21 * a32 - a22 * a31,
+        b10 = a21 * a33 - a23 * a31,
+        b11 = a22 * a33 - a23 * a32,
+
+        // Calculate the determinant
+        det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+
+    if (!det) {
+      return null;
+    }
+    det = 1.0 / det;
+
+    out[0] = (a11 * b11 - a12 * b10 + a13 * b09) * det;
+    out[1] = (a02 * b10 - a01 * b11 - a03 * b09) * det;
+    out[2] = (a31 * b05 - a32 * b04 + a33 * b03) * det;
+    out[3] = (a22 * b04 - a21 * b05 - a23 * b03) * det;
+    out[4] = (a12 * b08 - a10 * b11 - a13 * b07) * det;
+    out[5] = (a00 * b11 - a02 * b08 + a03 * b07) * det;
+    out[6] = (a32 * b02 - a30 * b05 - a33 * b01) * det;
+    out[7] = (a20 * b05 - a22 * b02 + a23 * b01) * det;
+    out[8] = (a10 * b10 - a11 * b08 + a13 * b06) * det;
+    out[9] = (a01 * b08 - a00 * b10 - a03 * b06) * det;
+    out[10] = (a30 * b04 - a31 * b02 + a33 * b00) * det;
+    out[11] = (a21 * b02 - a20 * b04 - a23 * b00) * det;
+    out[12] = (a11 * b07 - a10 * b09 - a12 * b06) * det;
+    out[13] = (a00 * b09 - a01 * b07 + a02 * b06) * det;
+    out[14] = (a31 * b01 - a30 * b03 - a32 * b00) * det;
+    out[15] = (a20 * b03 - a21 * b01 + a22 * b00) * det;
+
+    return out;
+  };
+
+  var defaultOrientation = new Float32Array([0, 0, 0, 1]);
+  var defaultPosition = new Float32Array([0, 0, 0]);
+
+  function updateEyeMatrices(projection, view, pose, parameters, vrDisplay) {
+    mat4_perspectiveFromFieldOfView(projection, parameters ? parameters.fieldOfView : null, vrDisplay.depthNear, vrDisplay.depthFar);
+
+    var orientation = pose.orientation || defaultOrientation;
+    var position = pose.position || defaultPosition;
+
+    mat4_fromRotationTranslation(view, orientation, position);
+    if (parameters)
+      mat4_translate(view, view, parameters.offset);
+    mat4_invert(view, view);
+  }
+
+  return function(frameData, pose, vrDisplay) {
+    if (!frameData || !pose)
+      return false;
+
+    frameData.pose = pose;
+    frameData.timestamp = pose.timestamp;
+
+    updateEyeMatrices(
+        frameData.leftProjectionMatrix, frameData.leftViewMatrix,
+        pose, vrDisplay.getEyeParameters("left"), vrDisplay);
+    updateEyeMatrices(
+        frameData.rightProjectionMatrix, frameData.rightViewMatrix,
+        pose, vrDisplay.getEyeParameters("right"), vrDisplay);
+
+    return true;
+  };
+})();
+
+Util.isInsideCrossDomainIFrame = function() {
+  var isFramed = (window.self !== window.top);
+  var refDomain = Util.getDomainFromUrl(document.referrer);
+  var thisDomain = Util.getDomainFromUrl(window.location.href);
+
+  return isFramed && (refDomain !== thisDomain);
+};
+
+// From http://stackoverflow.com/a/23945027.
+Util.getDomainFromUrl = function(url) {
+  var domain;
+  // Find & remove protocol (http, ftp, etc.) and get domain.
+  if (url.indexOf("://") > -1) {
+    domain = url.split('/')[2];
+  }
+  else {
+    domain = url.split('/')[0];
+  }
+
+  //find & remove port number
+  domain = domain.split(':')[0];
+
+  return domain;
+}
+
+module.exports = Util;
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+var Axes_1 = __webpack_require__(22);
+var PanInput_1 = __webpack_require__(27);
+exports.PanInput = PanInput_1.PanInput;
+var PinchInput_1 = __webpack_require__(28);
+exports.PinchInput = PinchInput_1.PinchInput;
+var WheelInput_1 = __webpack_require__(29);
+exports.WheelInput = WheelInput_1.WheelInput;
+var MoveKeyInput_1 = __webpack_require__(26);
+exports.MoveKeyInput = MoveKeyInput_1.MoveKeyInput;
+exports["default"] = Axes_1["default"];
+
+
+/***/ }),
+/* 16 */,
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _agent = __webpack_require__(13);
+
+var _agent2 = _interopRequireDefault(_agent);
+
+var _browser = __webpack_require__(18);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var WEBGL_ERROR_CODE = {
+	"0": "NO_ERROR",
+	"1280": "INVALID_ENUM",
+	"1281": "INVALID_VALUE",
+	"1282": "INVALID_OPERATION",
+	"1285": "OUT_OF_MEMORY",
+	"1286": "INVALID_FRAMEBUFFER_OPERATION",
+	"37442": "CONTEXT_LOST_WEBGL"
+};
+
+var webglAvailability = null;
+
+var WebGLUtils = function () {
+	function WebGLUtils() {
+		_classCallCheck(this, WebGLUtils);
+	}
+
+	WebGLUtils.createShader = function createShader(gl, type, source) {
+		var shader = gl.createShader(type);
+
+		gl.shaderSource(shader, source);
+		gl.compileShader(shader);
+		var success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+
+		if (success) {
+			return shader;
+		}
+
+		gl.deleteShader(shader);
+		return null;
+	};
+
+	WebGLUtils.createProgram = function createProgram(gl, vertexShader, fragmentShader) {
+		var program = gl.createProgram();
+
+		gl.attachShader(program, vertexShader);
+		gl.attachShader(program, fragmentShader);
+		gl.linkProgram(program);
+		var success = gl.getProgramParameter(program, gl.LINK_STATUS);
+
+		if (success) {
+			return program;
+		}
+
+		gl.deleteProgram(program);
+		return null;
+	};
+
+	WebGLUtils.initBuffer = function initBuffer(gl, target /* bind point */, data, itemSize, attr) {
+		var buffer = gl.createBuffer();
+
+		gl.bindBuffer(target, buffer);
+		gl.bufferData(target, data, gl.STATIC_DRAW);
+
+		if (buffer) {
+			buffer.itemSize = itemSize;
+			buffer.numItems = data.length / itemSize;
+		}
+
+		if (attr !== undefined) {
+			gl.enableVertexAttribArray(attr);
+			gl.vertexAttribPointer(attr, buffer.itemSize, gl.FLOAT, false, 0, 0);
+		}
+
+		return buffer;
+	};
+
+	WebGLUtils.bindBufferToAttribute = function bindBufferToAttribute(gl, buffer, attr) {
+		if (buffer === null || attr === null) {
+			return;
+		}
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+		gl.vertexAttribPointer(attr, buffer.itemSize, gl.FLOAT, false, 0, 0);
+	};
+
+	WebGLUtils.getWebglContext = function getWebglContext(canvas) {
+		var webglIdentifiers = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
+		var context = null;
+		var shouldPreserveDrawingBuffer = !(_browser.userAgent.indexOf("NAVER") !== -1 && _browser.userAgent.indexOf("SM-G925S") !== -1);
+
+		function onWebglcontextcreationerror(e) {
+			return e.statusMessage;
+		}
+
+		canvas.addEventListener("webglcontextcreationerror", onWebglcontextcreationerror);
+
+		for (var i = 0; i < webglIdentifiers.length; i++) {
+			try {
+				// preserveDrawingBuffer: if true, the Galaxy s6 Naver app will experience tremor
+				context = canvas.getContext(webglIdentifiers[i], {
+					preserveDrawingBuffer: shouldPreserveDrawingBuffer,
+					antialias: false /* TODO: Make it user option for antialiasing */
+				});
+			} catch (t) {}
+			if (context) {
+				break;
+			}
+		}
+
+		canvas.removeEventListener("webglcontextcreationerror", onWebglcontextcreationerror);
+
+		return context;
+	};
+
+	WebGLUtils.createTexture = function createTexture(gl, textureTarget) {
+		var texture = gl.createTexture();
+
+		gl.bindTexture(textureTarget, texture);
+		gl.texParameteri(textureTarget, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.texParameteri(textureTarget, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.texParameteri(textureTarget, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(textureTarget, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		gl.bindTexture(textureTarget, null);
+
+		return texture;
+	};
+
+	/**
+  * Returns the webgl availability of the current browser.
+  * @method WebGLUtils#isWebGLAvailable
+  * @retuen {Boolean} isWebGLAvailable
+  */
+
+
+	WebGLUtils.isWebGLAvailable = function isWebGLAvailable() {
+		if (webglAvailability === null) {
+			var canvas = document.createElement("canvas");
+			var webglContext = WebGLUtils.getWebglContext(canvas);
+
+			webglAvailability = !!webglContext;
+
+			// webglContext Resource forced collection
+			if (webglContext) {
+				var loseContextExtension = webglContext.getExtension("WEBGL_lose_context");
+
+				loseContextExtension && loseContextExtension.loseContext();
+			}
+		}
+		return webglAvailability;
+	};
+
+	/**
+  * Returns whether webgl is stable in the current browser.
+  * @method WebGLUtils#isStableWebGL
+  * @retuen {Boolean} isStableWebGL
+  */
+
+
+	WebGLUtils.isStableWebGL = function isStableWebGL() {
+		var agentInfo = (0, _agent2["default"])();
+		var isStableWebgl = true;
+
+		if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) <= 4.3) {
+			isStableWebgl = false;
+		} else if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) === 4.4) {
+			if (agentInfo.browser.name !== "chrome") {
+				isStableWebgl = false;
+			}
+		}
+		return isStableWebgl;
+	};
+
+	WebGLUtils.getErrorNameFromWebGLErrorCode = function getErrorNameFromWebGLErrorCode(code) {
+		if (!(code in WEBGL_ERROR_CODE)) {
+			return "UNKNOWN_ERROR";
+		}
+
+		return WEBGL_ERROR_CODE[code];
+	};
+
+	return WebGLUtils;
+}();
+
+exports["default"] = WebGLUtils;
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+var userAgent = exports.userAgent = window.navigator.userAgent;
+var devicePixelRatio = exports.devicePixelRatio = window.devicePixelRatio;
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Renderer = function Renderer() {
+	_classCallCheck(this, Renderer);
+};
+
+exports["default"] = Renderer;
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+var util = {};
+
+function toAxis(source, offset) {
+	return offset.reduce(function (acc, v, i) {
+		if (source[i]) {
+			acc[source[i]] = v;
+		}
+		return acc;
+	}, {});
+}
+
+util.toAxis = toAxis;
+
+exports["default"] = util;
+exports.toAxis = toAxis;
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+exports.__esModule = true;
+var Coordinate_1 = __webpack_require__(6);
+var AxisManager_1 = __webpack_require__(5);
+var utils_1 = __webpack_require__(1);
+var AnimationManager = /** @class */ (function () {
+    function AnimationManager(_a) {
+        var options = _a.options, itm = _a.itm, em = _a.em, axm = _a.axm;
+        this.options = options;
+        this.itm = itm;
+        this.em = em;
+        this.axm = axm;
+        this.animationEnd = this.animationEnd.bind(this);
+    }
+    AnimationManager.getDuration = function (duration, min, max) {
+        return Math.max(Math.min(duration, max), min);
+    };
+    AnimationManager.prototype.getDuration = function (depaPos, destPos, wishDuration) {
+        var _this = this;
+        var duration;
+        if (typeof wishDuration !== "undefined") {
+            duration = wishDuration;
+        }
+        else {
+            var durations_1 = this.axm.map(destPos, function (v, k) { return Coordinate_1["default"].getDuration(Math.abs(Math.abs(v) - Math.abs(depaPos[k])), _this.options.deceleration); });
+            duration = Object.keys(durations_1).reduce(function (max, v) { return Math.max(max, durations_1[v]); }, -Infinity);
+        }
+        return AnimationManager.getDuration(duration, this.options.minimumDuration, this.options.maximumDuration);
+    };
+    AnimationManager.prototype.createAnimationParam = function (pos, duration, option) {
+        var depaPos = this.axm.get();
+        var destPos = pos;
+        var inputEvent = option && option.event || null;
+        return {
+            depaPos: depaPos,
+            destPos: destPos,
+            duration: AnimationManager.getDuration(duration, this.options.minimumDuration, this.options.maximumDuration),
+            delta: this.axm.getDelta(depaPos, destPos),
+            inputEvent: inputEvent,
+            input: option && option.input || null,
+            isTrusted: !!inputEvent,
+            done: this.animationEnd
+        };
+    };
+    AnimationManager.prototype.grab = function (axes, option) {
+        if (this._animateParam && axes.length) {
+            var orgPos_1 = this.axm.get(axes);
+            var pos = this.axm.map(orgPos_1, function (v, k, opt) { return Coordinate_1["default"].getCirculatedPos(v, opt.range, opt.circular); });
+            if (!this.axm.every(pos, function (v, k) { return orgPos_1[k] === v; })) {
+                this.em.triggerChange(pos, option, !!option);
+            }
+            this._animateParam = null;
+            this._raf && utils_1.cancelAnimationFrame(this._raf);
+            this._raf = null;
+            this.em.triggerAnimationEnd(!!(option && option.event));
+        }
+    };
+    AnimationManager.prototype.getEventInfo = function () {
+        if (this._animateParam && this._animateParam.input && this._animateParam.inputEvent) {
+            return {
+                input: this._animateParam.input,
+                event: this._animateParam.inputEvent
+            };
+        }
+        else {
+            return null;
+        }
+    };
+    AnimationManager.prototype.restore = function (option) {
+        var pos = this.axm.get();
+        var destPos = this.axm.map(pos, function (v, k, opt) { return Math.min(opt.range[1], Math.max(opt.range[0], v)); });
+        this.animateTo(destPos, this.getDuration(pos, destPos), option);
+    };
+    AnimationManager.prototype.animationEnd = function () {
+        var beforeParam = this.getEventInfo();
+        this._animateParam = null;
+        // for Circular
+        var circularTargets = this.axm.filter(this.axm.get(), function (v, k, opt) { return Coordinate_1["default"].isCircularable(v, opt.range, opt.circular); });
+        Object.keys(circularTargets).length > 0 && this.setTo(this.axm.map(circularTargets, function (v, k, opt) { return Coordinate_1["default"].getCirculatedPos(v, opt.range, opt.circular); }));
+        this.itm.setInterrupt(false);
+        this.em.triggerAnimationEnd(!!beforeParam);
+        if (this.axm.isOutside()) {
+            this.restore(beforeParam);
+        }
+        else {
+            this.em.triggerFinish(!!beforeParam);
+        }
+    };
+    AnimationManager.prototype.animateLoop = function (param, complete) {
+        this._animateParam = __assign({}, param);
+        this._animateParam.startTime = new Date().getTime();
+        if (param.duration) {
+            var info_1 = this._animateParam;
+            var self_1 = this;
+            (function loop() {
+                self_1._raf = null;
+                if (self_1.frame(info_1) >= 1) {
+                    if (!AxisManager_1.AxisManager.equal(param.destPos, self_1.axm.get(Object.keys(param.destPos)))) {
+                        self_1.em.triggerChange(param.destPos);
+                    }
+                    complete();
+                    return;
+                } // animationEnd
+                self_1._raf = utils_1.requestAnimationFrame(loop);
+            })();
+        }
+        else {
+            this.em.triggerChange(param.destPos);
+            complete();
+        }
+    };
+    AnimationManager.prototype.getUserControll = function (param) {
+        var userWish = param.setTo();
+        userWish.destPos = this.axm.get(userWish.destPos);
+        userWish.duration = AnimationManager.getDuration(userWish.duration, this.options.minimumDuration, this.options.maximumDuration);
+        return userWish;
+    };
+    AnimationManager.prototype.animateTo = function (destPos, duration, option) {
+        var _this = this;
+        var param = this.createAnimationParam(destPos, duration, option);
+        var depaPos = __assign({}, param.depaPos);
+        var retTrigger = this.em.triggerAnimationStart(param);
+        // to control
+        var userWish = this.getUserControll(param);
+        // You can't stop the 'animationStart' event when 'circular' is true.
+        if (!retTrigger && this.axm.every(userWish.destPos, function (v, k, opt) { return Coordinate_1["default"].isCircularable(v, opt.range, opt.circular); })) {
+            console.warn("You can't stop the 'animation' event when 'circular' is true.");
+        }
+        if (retTrigger && !AxisManager_1.AxisManager.equal(userWish.destPos, depaPos)) {
+            var inputEvent = option && option.event || null;
+            this.animateLoop({
+                depaPos: depaPos,
+                destPos: userWish.destPos,
+                duration: userWish.duration,
+                delta: this.axm.getDelta(depaPos, userWish.destPos),
+                isTrusted: !!inputEvent,
+                inputEvent: inputEvent,
+                input: option && option.input || null
+            }, function () { return _this.animationEnd(); });
+        }
+    };
+    // animation frame (0~1)
+    AnimationManager.prototype.frame = function (param) {
+        var curTime = new Date().getTime() - param.startTime;
+        var easingPer = this.easing(curTime / param.duration);
+        var toPos = param.depaPos;
+        toPos = this.axm.map(toPos, function (v, k, opt) {
+            v += param.delta[k] * easingPer;
+            return Coordinate_1["default"].getCirculatedPos(v, opt.range, opt.circular);
+        });
+        this.em.triggerChange(toPos);
+        return easingPer;
+    };
+    AnimationManager.prototype.easing = function (p) {
+        return p > 1 ? 1 : this.options.easing(p);
+    };
+    AnimationManager.prototype.setTo = function (pos, duration) {
+        if (duration === void 0) { duration = 0; }
+        var axes = Object.keys(pos);
+        this.grab(axes);
+        var orgPos = this.axm.get(axes);
+        if (AxisManager_1.AxisManager.equal(pos, orgPos)) {
+            return this;
+        }
+        this.itm.setInterrupt(true);
+        var movedPos = this.axm.filter(pos, function (v, k) { return orgPos[k] !== v; });
+        if (!Object.keys(movedPos).length) {
+            return this;
+        }
+        movedPos = this.axm.map(movedPos, function (v, k, opt) {
+            if (opt.circular && (opt.circular[0] || opt.circular[1])) {
+                return duration > 0 ? v : Coordinate_1["default"].getCirculatedPos(v, opt.range, opt.circular);
+            }
+            else {
+                return Coordinate_1["default"].getInsidePosition(v, opt.range, opt.circular);
+            }
+        });
+        if (AxisManager_1.AxisManager.equal(movedPos, orgPos)) {
+            return this;
+        }
+        if (duration > 0) {
+            this.animateTo(movedPos, duration);
+        }
+        else {
+            this.em.triggerChange(movedPos);
+            this.itm.setInterrupt(false);
+        }
+        return this;
+    };
+    AnimationManager.prototype.setBy = function (pos, duration) {
+        if (duration === void 0) { duration = 0; }
+        return this.setTo(this.axm.map(this.axm.get(Object.keys(pos)), function (v, k) { return v + pos[k]; }), duration);
+    };
+    return AnimationManager;
+}());
+exports.AnimationManager = AnimationManager;
+;
+
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+exports.__esModule = true;
+var Component = __webpack_require__(0);
+var AnimationManager_1 = __webpack_require__(21);
+var EventManager_1 = __webpack_require__(23);
+var InterruptManager_1 = __webpack_require__(25);
+var AxisManager_1 = __webpack_require__(5);
+var InputObserver_1 = __webpack_require__(24);
+var const_1 = __webpack_require__(10);
+/**
+ * @typedef {Object} AxisOption The Axis information. The key of the axis specifies the name to use as the logical virtual coordinate system.
+ * @ko 축 정보. 축의 키는 논리적인 가상 좌표계로 사용할 이름을 지정한다.
+ * @property {Number[]} [range] The coordinate of range <ko>좌표 범위</ko>
+ * @property {Number} [range.0=0] The coordinate of the minimum <ko>최소 좌표</ko>
+ * @property {Number} [range.1=0] The coordinate of the maximum <ko>최대 좌표</ko>
+ * @property {Number[]} [bounce] The size of bouncing area. The coordinates can exceed the coordinate area as much as the bouncing area based on user action. If the coordinates does not exceed the bouncing area when an element is dragged, the coordinates where bouncing effects are applied are retuned back into the coordinate area<ko>바운스 영역의 크기. 사용자의 동작에 따라 좌표가 좌표 영역을 넘어 바운스 영역의 크기만큼 더 이동할 수 있다. 사용자가 끌어다 놓는 동작을 했을 때 좌표가 바운스 영역에 있으면, 바운스 효과가 적용된 좌표가 다시 좌표 영역 안으로 들어온다</ko>
+ * @property {Number} [bounce.0=0] The size of coordinate of the minimum area <ko>최소 좌표 바운스 영역의 크기</ko>
+ * @property {Number} [bounce.1=0] The size of coordinate of the maximum area <ko>최대 좌표 바운스 영역의 크기</ko>
+ * @property {Boolean[]} [circular] Indicates whether a circular element is available. If it is set to "true" and an element is dragged outside the coordinate area, the element will appear on the other side.<ko>순환 여부. 'true'로 설정한 방향의 좌표 영역 밖으로 엘리먼트가 이동하면 반대 방향에서 엘리먼트가 나타난다</ko>
+ * @property {Boolean} [circular.0=false] Indicates whether to circulate to the coordinate of the minimum <ko>최소 좌표 방향의 순환 여부</ko>
+ * @property {Boolean} [circular.1=false] Indicates whether to circulate to the coordinate of the maximum <ko>최대 좌표 방향의 순환 여부</ko>
+**/
+/**
+ * @typedef {Object} AxesOption The option object of the eg.Axes module
+ * @ko eg.Axes 모듈의 옵션 객체
+ * @property {Function} [easing=easing.easeOutCubic] The easing function to apply to an animation <ko>애니메이션에 적용할 easing 함수</ko>
+ * @property {Number} [maximumDuration=Infinity] Maximum duration of the animation <ko>가속도에 의해 애니메이션이 동작할 때의 최대 좌표 이동 시간</ko>
+ * @property {Number} [minimumDuration=0] Minimum duration of the animation <ko>가속도에 의해 애니메이션이 동작할 때의 최소 좌표 이동 시간</ko>
+ * @property {Number} [deceleration=0.0006] Deceleration of the animation where acceleration is manually enabled by user. A higher value indicates shorter running time. <ko>사용자의 동작으로 가속도가 적용된 애니메이션의 감속도. 값이 높을수록 애니메이션 실행 시간이 짧아진다</ko>
+ * @property {Boolean} [interruptable=true] Indicates whether an animation is interruptible.<br>- true: It can be paused or stopped by user action or the API.<br>- false: It cannot be paused or stopped by user action or the API while it is running.<ko>진행 중인 애니메이션 중지 가능 여부.<br>- true: 사용자의 동작이나 API로 애니메이션을 중지할 수 있다.<br>- false: 애니메이션이 진행 중일 때는 사용자의 동작이나 API가 적용되지 않는다</ko>
+**/
+/**
+ * @class eg.Axes
+ * @classdesc A module used to change the information of user action entered by various input devices such as touch screen or mouse into the logical virtual coordinates. You can easily create a UI that responds to user actions.
+ * @ko 터치 입력 장치나 마우스와 같은 다양한 입력 장치를 통해 전달 받은 사용자의 동작을 논리적인 가상 좌표로 변경하는 모듈이다. 사용자 동작에 반응하는 UI를 손쉽게 만들수 있다.
+ * @extends eg.Component
+ *
+ * @param {Object.<string, AxisOption>} axis Axis information managed by eg.Axes. The key of the axis specifies the name to use as the logical virtual coordinate system.  <ko>eg.Axes가 관리하는 축 정보. 축의 키는 논리적인 가상 좌표계로 사용할 이름을 지정한다.</ko>
+ * @param {AxesOption} [options] The option object of the eg.Axes module<ko>eg.Axes 모듈의 옵션 객체</ko>
+ * @param {Object.<string, number>} [startPos] The coordinates to be moved when creating an instance. not triggering change event.<ko>인스턴스 생성시 이동할 좌표, change 이벤트는 발생하지 않음.</ko>
+ *
+ * @support {"ie": "10+", "ch" : "latest", "ff" : "latest",  "sf" : "latest", "edge" : "latest", "ios" : "7+", "an" : "2.3+ (except 3.x)"}
+ * @example
+ *
+ * // 1. Initialize eg.Axes
+ * const axes = new eg.Axes({
+ *	something1: {
+ *		range: [0, 150],
+ *		bounce: 50
+ *	},
+ *	something2: {
+ *		range: [0, 200],
+ *		bounce: 100
+ *	},
+ *	somethingN: {
+ *		range: [1, 10],
+ *	}
+ * }, {
+ *  deceleration : 0.0024
+ * });
+ *
+ * // 2. attach event handler
+ * axes.on({
+ *	"hold" : function(evt) {
+ *	},
+ *	"release" : function(evt) {
+ *	},
+ *	"animationStart" : function(evt) {
+ *	},
+ *	"animationEnd" : function(evt) {
+ *	},
+ *	"change" : function(evt) {
+ *	}
+ * });
+ *
+ * // 3. Initialize inputTypes
+ * const panInputArea = new eg.Axes.PanInput("#area", {
+ *	scale: [0.5, 1]
+ * });
+ * const panInputHmove = new eg.Axes.PanInput("#hmove");
+ * const panInputVmove = new eg.Axes.PanInput("#vmove");
+ * const pinchInputArea = new eg.Axes.PinchInput("#area", {
+ *	scale: 1.5
+ * });
+ *
+ * // 4. Connect eg.Axes and InputTypes
+ * // [PanInput] When the mouse or touchscreen is down and moved.
+ * // Connect the 'something2' axis to the mouse or touchscreen x position and
+ * // connect the 'somethingN' axis to the mouse or touchscreen y position.
+ * axes.connect(["something2", "somethingN"], panInputArea); // or axes.connect("something2 somethingN", panInputArea);
+ *
+ * // Connect only one 'something1' axis to the mouse or touchscreen x position.
+ * axes.connect(["something1"], panInputHmove); // or axes.connect("something1", panInputHmove);
+ *
+ * // Connect only one 'something2' axis to the mouse or touchscreen y position.
+ * axes.connect(["", "something2"], panInputVmove); // or axes.connect(" something2", panInputVmove);
+ *
+ * // [PinchInput] Connect 'something2' axis when two pointers are moving toward (zoom-in) or away from each other (zoom-out).
+ * axes.connect("something2", pinchInputArea);
+ */
+var Axes = /** @class */ (function (_super) {
+    __extends(Axes, _super);
+    function Axes(axis, options, startPos) {
+        if (axis === void 0) { axis = {}; }
+        var _this = _super.call(this) || this;
+        _this.axis = axis;
+        _this._inputs = [];
+        _this.options = __assign({
+            easing: function easeOutCubic(x) {
+                return 1 - Math.pow(1 - x, 3);
+            },
+            interruptable: true,
+            maximumDuration: Infinity,
+            minimumDuration: 0,
+            deceleration: 0.0006
+        }, options);
+        _this.itm = new InterruptManager_1.InterruptManager(_this.options);
+        _this.axm = new AxisManager_1.AxisManager(_this.axis, _this.options);
+        _this.em = new EventManager_1.EventManager(_this);
+        _this.am = new AnimationManager_1.AnimationManager(_this);
+        _this.io = new InputObserver_1.InputObserver(_this);
+        _this.em.setAnimationManager(_this.am);
+        startPos && _this.em.triggerChange(startPos);
+        return _this;
+    }
+    /**
+     * Connect the axis of eg.Axes to the inputType.
+     * @ko eg.Axes의 축과 inputType을 연결한다
+     * @method eg.Axes#connect
+     * @param {(String[]|String)} axes The name of the axis to associate with inputType <ko>inputType과 연결할 축의 이름</ko>
+     * @param {Object} inputType The inputType instance to associate with the axis of eg.Axes <ko>eg.Axes의 축과 연결할 inputType 인스턴스<ko>
+     * @return {eg.Axes} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
+     * @example
+     * const axes = new eg.Axes({
+     *   "x": {
+     *      range: [0, 100]
+     *   },
+     *   "xOther": {
+     *      range: [-100, 100]
+     *   }
+     * });
+     *
+     * axes.connect("x", new eg.Axes.PanInput("#area1"))
+     *    .connect("x xOther", new eg.Axes.PanInput("#area2"))
+     *    .connect(" xOther", new eg.Axes.PanInput("#area3"))
+     *    .connect(["x"], new eg.Axes.PanInput("#area4"))
+     *    .connect(["xOther", "x"], new eg.Axes.PanInput("#area5"))
+     *    .connect(["", "xOther"], new eg.Axes.PanInput("#area6"));
+     */
+    Axes.prototype.connect = function (axes, inputType) {
+        var mapped;
+        if (typeof axes === "string") {
+            mapped = axes.split(" ");
+        }
+        else {
+            mapped = axes.concat();
+        }
+        // check same instance
+        if (~this._inputs.indexOf(inputType)) {
+            this.disconnect(inputType);
+        }
+        // check same element in hammer type for share
+        if ("hammer" in inputType) {
+            var targets = this._inputs.filter(function (v) { return v.hammer && v.element === inputType.element; });
+            if (targets.length) {
+                inputType.hammer = targets[0].hammer;
+            }
+        }
+        inputType.mapAxes(mapped);
+        inputType.connect(this.io);
+        this._inputs.push(inputType);
+        return this;
+    };
+    /**
+     * Disconnect the axis of eg.Axes from the inputType.
+     * @ko eg.Axes의 축과 inputType의 연결을 끊는다.
+     * @method eg.Axes#disconnect
+     * @param {Object} [inputType] An inputType instance associated with the axis of eg.Axes <ko>eg.Axes의 축과 연결한 inputType 인스턴스<ko>
+     * @return {eg.Axes} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
+     * @example
+     * const axes = new eg.Axes({
+     *   "x": {
+     *      range: [0, 100]
+     *   },
+     *   "xOther": {
+     *      range: [-100, 100]
+     *   }
+     * });
+     *
+     * const input1 = new eg.Axes.PanInput("#area1");
+     * const input2 = new eg.Axes.PanInput("#area2");
+     * const input3 = new eg.Axes.PanInput("#area3");
+     *
+     * axes.connect("x", input1);
+     *    .connect("x xOther", input2)
+     *    .connect(["xOther", "x"], input3);
+     *
+     * axes.disconnect(input1); // disconnects input1
+     * axes.disconnect(); // disconnects all of them
+     */
+    Axes.prototype.disconnect = function (inputType) {
+        if (inputType) {
+            var index = this._inputs.indexOf(inputType);
+            if (index >= 0) {
+                this._inputs[index].disconnect();
+                this._inputs.splice(index, 1);
+            }
+        }
+        else {
+            this._inputs.forEach(function (v) { return v.disconnect(); });
+            this._inputs = [];
+        }
+        return this;
+    };
+    /**
+     * Returns the current position of the coordinates.
+     * @ko 좌표의 현재 위치를 반환한다
+     * @method eg.Axes#get
+     * @param {Object} [axes] The names of the axis <ko>축 이름들</ko>
+     * @return {Object.<string, number>} Axis coordinate information <ko>축 좌표 정보</ko>
+     * @example
+     * const axes = new eg.Axes({
+     *   "x": {
+     *      range: [0, 100]
+     *   },
+     *   "xOther": {
+     *      range: [-100, 100]
+     *   },
+     * 	 "zoom": {
+     *      range: [50, 30]
+     *   }
+     * });
+     *
+     * axes.get(); // {"x": 0, "xOther": -100, "zoom": 50}
+     * axes.get(["x", "zoom"]); // {"x": 0, "zoom": 50}
+     */
+    Axes.prototype.get = function (axes) {
+        return this.axm.get(axes);
+    };
+    /**
+     * Moves an axis to specific coordinates.
+     * @ko 좌표를 이동한다.
+     * @method eg.Axes#setTo
+     * @param {Object.<string, number>} pos The coordinate to move to <ko>이동할 좌표</ko>
+     * @param {Number} [duration=0] Duration of the animation (unit: ms) <ko>애니메이션 진행 시간(단위: ms)</ko>
+     * @return {eg.Axes} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
+     * @example
+     * const axes = new eg.Axes({
+     *   "x": {
+     *      range: [0, 100]
+     *   },
+     *   "xOther": {
+     *      range: [-100, 100]
+     *   },
+     * 	 "zoom": {
+     *      range: [50, 30]
+     *   }
+     * });
+     *
+     * axes.setTo({"x": 30, "zoom": 60});
+     * axes.get(); // {"x": 30, "xOther": -100, "zoom": 60}
+     *
+     * axes.setTo({"x": 100, "xOther": 60}, 1000); // animatation
+     *
+     * // after 1000 ms
+     * axes.get(); // {"x": 100, "xOther": 60, "zoom": 60}
+     */
+    Axes.prototype.setTo = function (pos, duration) {
+        if (duration === void 0) { duration = 0; }
+        this.am.setTo(pos, duration);
+        return this;
+    };
+    /**
+     * Moves an axis from the current coordinates to specific coordinates.
+     * @ko 현재 좌표를 기준으로 좌표를 이동한다.
+     * @method eg.Axes#setBy
+     * @param {Object.<string, number>} pos The coordinate to move to <ko>이동할 좌표</ko>
+     * @param {Number} [duration=0] Duration of the animation (unit: ms) <ko>애니메이션 진행 시간(단위: ms)</ko>
+     * @return {eg.Axes} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
+     * @example
+     * const axes = new eg.Axes({
+     *   "x": {
+     *      range: [0, 100]
+     *   },
+     *   "xOther": {
+     *      range: [-100, 100]
+     *   },
+     * 	 "zoom": {
+     *      range: [50, 30]
+     *   }
+     * });
+     *
+     * axes.setBy({"x": 30, "zoom": 10});
+     * axes.get(); // {"x": 30, "xOther": -100, "zoom": 60}
+     *
+     * axes.setBy({"x": 70, "xOther": 60}, 1000); // animatation
+     *
+     * // after 1000 ms
+     * axes.get(); // {"x": 100, "xOther": -40, "zoom": 60}
+     */
+    Axes.prototype.setBy = function (pos, duration) {
+        if (duration === void 0) { duration = 0; }
+        this.am.setBy(pos, duration);
+        return this;
+    };
+    /**
+     * Returns whether there is a coordinate in the bounce area of ​​the target axis.
+     * @ko 대상 축 중 bounce영역에 좌표가 존재하는지를 반환한다
+     * @method eg.Axes#isBounceArea
+     * @param {Object} [axes] The names of the axis <ko>축 이름들</ko>
+     * @return {Boolen} Whether the bounce area exists. <ko>bounce 영역 존재 여부</ko>
+     * @example
+     * const axes = new eg.Axes({
+     *   "x": {
+     *      range: [0, 100]
+     *   },
+     *   "xOther": {
+     *      range: [-100, 100]
+     *   },
+     * 	 "zoom": {
+     *      range: [50, 30]
+     *   }
+     * });
+     *
+     * axes.isBounceArea(["x"]);
+     * axes.isBounceArea(["x", "zoom"]);
+     * axes.isBounceArea();
+     */
+    Axes.prototype.isBounceArea = function (axes) {
+        return this.axm.isOutside(axes);
+    };
+    /**
+    * Destroys properties, and events used in a module and disconnect all connections to inputTypes.
+    * @ko 모듈에 사용한 속성, 이벤트를 해제한다. 모든 inputType과의 연결을 끊는다.
+    * @method eg.Axes#destroy
+    */
+    Axes.prototype.destroy = function () {
+        this.disconnect();
+        this.em.destroy();
+    };
+    Axes.VERSION = "3.0.0-rc";
+    /**
+     * @name eg.Axes.TRANSFORM
+     * @desc Returns the transform attribute with CSS vendor prefixes.
+     * @ko CSS vendor prefixes를 붙인 transform 속성을 반환한다.
+     *
+     * @constant
+     * @type {String}
+     * @example
+     * eg.Axes.TRANSFORM; // "transform" or "webkitTransform"
+     */
+    Axes.TRANSFORM = const_1.TRANSFORM;
+    /**
+     * @name eg.Axes.DIRECTION_NONE
+     * @constant
+     * @type {Number}
+     */
+    Axes.DIRECTION_NONE = const_1.DIRECTION.DIRECTION_NONE;
+    /**
+     * @name eg.Axes.DIRECTION_LEFT
+     * @constant
+     * @type {Number}
+    */
+    Axes.DIRECTION_LEFT = const_1.DIRECTION.DIRECTION_LEFT;
+    /**
+     * @name eg.Axes.DIRECTION_RIGHT
+     * @constant
+     * @type {Number}
+    */
+    Axes.DIRECTION_RIGHT = const_1.DIRECTION.DIRECTION_RIGHT;
+    /**
+     * @name eg.Axes.DIRECTION_UP
+     * @constant
+     * @type {Number}
+    */
+    Axes.DIRECTION_UP = const_1.DIRECTION.DIRECTION_UP;
+    /**
+     * @name eg.Axes.DIRECTION_DOWN
+     * @constant
+     * @type {Number}
+    */
+    Axes.DIRECTION_DOWN = const_1.DIRECTION.DIRECTION_DOWN;
+    /**
+     * @name eg.Axes.DIRECTION_HORIZONTAL
+     * @constant
+     * @type {Number}
+    */
+    Axes.DIRECTION_HORIZONTAL = const_1.DIRECTION.DIRECTION_HORIZONTAL;
+    /**
+     * @name eg.Axes.DIRECTION_VERTICAL
+     * @constant
+     * @type {Number}
+    */
+    Axes.DIRECTION_VERTICAL = const_1.DIRECTION.DIRECTION_VERTICAL;
+    /**
+     * @name eg.Axes.DIRECTION_ALL
+     * @constant
+     * @type {Number}
+    */
+    Axes.DIRECTION_ALL = const_1.DIRECTION.DIRECTION_ALL;
+    return Axes;
+}(Component));
+exports["default"] = Axes;
+;
+
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+exports.__esModule = true;
+var EventManager = /** @class */ (function () {
+    function EventManager(axes) {
+        this.axes = axes;
+    }
+    /**
+     * This event is fired when a user holds an element on the screen of the device.
+     * @ko 사용자가 기기의 화면에 손을 대고 있을 때 발생하는 이벤트
+     * @name eg.Axes#hold
+     * @event
+     * @type {object} The object of data to be sent when the event is fired<ko>이벤트가 발생할 때 전달되는 데이터 객체</ko>
+     * @property {Object.<string, number>} pos coordinate <ko>좌표 정보</ko>
+     * @property {Object} input The instance of inputType where the event occurred<ko>이벤트가 발생한 inputType 인스턴스</ko>
+     * @property {Object} inputEvent The event object received from inputType <ko>inputType으로 부터 받은 이벤트 객체</ko>
+     * @property {Boolean} isTrusted Returns true if an event was generated by the user action, or false if it was caused by a script or API call <ko>사용자의 액션에 의해 이벤트가 발생하였으면 true, 스크립트나 API호출에 의해 발생하였을 경우에는 false를 반환한다.</ko>
+     *
+     * @example
+     * const axes = new eg.Axes({
+     *   "x": {
+     *      range: [0, 100]
+     *   },
+     *   "zoom": {
+     *      range: [50, 30]
+     *   }
+     * }).on("hold", function(event) {
+     *   // event.pos
+     *   // event.input
+     *   // event.inputEvent
+     *   // isTrusted
+     * });
+     */
+    EventManager.prototype.triggerHold = function (pos, option) {
+        this.axes.trigger("hold", {
+            pos: pos,
+            input: option.input || null,
+            inputEvent: option.event || null,
+            isTrusted: true
+        });
+    };
+    /** Specifies the coordinates to move after the 'change' event. It works when the holding value of the change event is true.
+     * @ko 'change' 이벤트 이후 이동할 좌표를 지정한다. change이벤트의 holding 값이 true일 경우에 동작한다
+     * @name set
+   * @function
+     * @param {Object.<string, number>} pos The coordinate to move to <ko>이동할 좌표</ko>
+     * @example
+     * const axes = new eg.Axes({
+     *   "x": {
+     *      range: [0, 100]
+     *   },
+     *   "zoom": {
+     *      range: [50, 30]
+     *   }
+     * }).on("change", function(event) {
+     *   event.holding && event.set({x: 10});
+     * });
+     */
+    /** Specifies the animation coordinates to move after the 'release' or 'animationStart' events.
+     * @ko 'release' 또는 'animationStart' 이벤트 이후 이동할 좌표를 지정한다.
+     * @name setTo
+   * @function
+     * @param {Object.<string, number>} pos The coordinate to move to <ko>이동할 좌표</ko>
+     * @param {Number} [duration] Duration of the animation (unit: ms) <ko>애니메이션 진행 시간(단위: ms)</ko>
+     * @example
+     * const axes = new eg.Axes({
+     *   "x": {
+     *      range: [0, 100]
+     *   },
+     *   "zoom": {
+     *      range: [50, 30]
+     *   }
+     * }).on("animationStart", function(event) {
+     *   event.setTo({x: 10}, 2000);
+     * });
+     */
+    /**
+     * This event is fired when a user release an element on the screen of the device.
+     * @ko 사용자가 기기의 화면에서 손을 뗐을 때 발생하는 이벤트
+     * @name eg.Axes#release
+     * @event
+     * @type {object} The object of data to be sent when the event is fired<ko>이벤트가 발생할 때 전달되는 데이터 객체</ko>
+     * @property {Object.<string, number>} depaPos The coordinates when releasing an element<ko>손을 뗐을 때의 좌표 </ko>
+     * @property {Object.<string, number>} destPos The coordinates to move to after releasing an element<ko>손을 뗀 뒤에 이동할 좌표</ko>
+     * @property {Object.<string, number>} delta  The movement variation of coordinate <ko>좌표의 변화량</ko>
+     * @property {Object} inputEvent The event object received from inputType <ko>inputType으로 부터 받은 이벤트 객체</ko>
+     * @property {Object} input The instance of inputType where the event occurred<ko>이벤트가 발생한 inputType 인스턴스</ko>
+     * @property {setTo} setTo Specifies the animation coordinates to move after the event <ko>이벤트 이후 이동할 애니메이션 좌표를 지정한다</ko>
+     * @property {Boolean} isTrusted Returns true if an event was generated by the user action, or false if it was caused by a script or API call <ko>사용자의 액션에 의해 이벤트가 발생하였으면 true, 스크립트나 API호출에 의해 발생하였을 경우에는 false를 반환한다.</ko>
+     *
+     * @example
+     * const axes = new eg.Axes({
+     *   "x": {
+     *      range: [0, 100]
+     *   },
+     *   "zoom": {
+     *      range: [50, 30]
+     *   }
+     * }).on("release", function(event) {
+     *   // event.depaPos
+     *   // event.destPos
+     *   // event.delta
+     *   // event.input
+     *   // event.inputEvent
+     *   // event.setTo
+     *   // event.isTrusted
+     *
+     *   // if you want to change the animation coordinates to move after the 'release' event.
+     *   event.setTo({x: 10}, 2000);
+     * });
+     */
+    EventManager.prototype.triggerRelease = function (param) {
+        param.setTo = this.createUserControll(param.destPos, param.duration);
+        this.axes.trigger("release", param);
+    };
+    /**
+     * This event is fired when coordinate changes.
+     * @ko 좌표가 변경됐을 때 발생하는 이벤트
+     * @name eg.Axes#change
+     * @event
+     * @type {object} The object of data to be sent when the event is fired <ko>이벤트가 발생할 때 전달되는 데이터 객체</ko>
+     * @property {Object.<string, number>} pos  The coordinate <ko>좌표</ko>
+     * @property {Object.<string, number>} delta  The movement variation of coordinate <ko>좌표의 변화량</ko>
+     * @property {Boolean} holding Indicates whether a user holds an element on the screen of the device.<ko>사용자가 기기의 화면을 누르고 있는지 여부</ko>
+     * @property {Object} input The instance of inputType where the event occurred. If the value is changed by animation, it returns 'null'.<ko>이벤트가 발생한 inputType 인스턴스. 애니메이션에 의해 값이 변경될 경우에는 'null'을 반환한다.</ko>
+     * @property {Object} inputEvent The event object received from inputType. If the value is changed by animation, it returns 'null'.<ko>inputType으로 부터 받은 이벤트 객체. 애니메이션에 의해 값이 변경될 경우에는 'null'을 반환한다.</ko>
+     * @property {set} set Specifies the coordinates to move after the event. It works when the holding value is true <ko>이벤트 이후 이동할 좌표를 지정한다. holding 값이 true일 경우에 동작한다.</ko>
+     * @property {Boolean} isTrusted Returns true if an event was generated by the user action, or false if it was caused by a script or API call <ko>사용자의 액션에 의해 이벤트가 발생하였으면 true, 스크립트나 API호출에 의해 발생하였을 경우에는 false를 반환한다.</ko>
+     *
+     * @example
+     * const axes = new eg.Axes({
+     *   "x": {
+     *      range: [0, 100]
+     *   },
+     *   "zoom": {
+     *      range: [50, 30]
+     *   }
+     * }).on("change", function(event) {
+     *   // event.pos
+     *   // event.delta
+     *   // event.input
+     *   // event.inputEvent
+     *   // event.holding
+     *   // event.set
+     *   // event.isTrusted
+     *
+     *   // if you want to change the coordinates to move after the 'change' event.
+     *   // it works when the holding value of the change event is true.
+     *   event.holding && event.set({x: 10});
+     * });
+     */
+    EventManager.prototype.triggerChange = function (pos, option, holding) {
+        if (option === void 0) { option = null; }
+        if (holding === void 0) { holding = false; }
+        var eventInfo = this.am.getEventInfo();
+        var moveTo = this.am.axm.moveTo(pos);
+        var inputEvent = option && option.event || eventInfo && eventInfo.event || null;
+        var param = {
+            pos: moveTo.pos,
+            delta: moveTo.delta,
+            holding: holding,
+            inputEvent: inputEvent,
+            isTrusted: !!inputEvent,
+            input: option && option.input || eventInfo && eventInfo.input || null,
+            set: inputEvent ? this.createUserControll(moveTo.pos) : function () { }
+        };
+        this.axes.trigger("change", param);
+        inputEvent && this.am.axm.set(param.set()["destPos"]);
+    };
+    /**
+     * This event is fired when animation starts.
+     * @ko 에니메이션이 시작할 때 발생한다.
+     * @name eg.Axes#animationStart
+     * @event
+     * @type {object} The object of data to be sent when the event is fired<ko>이벤트가 발생할 때 전달되는 데이터 객체</ko>
+     * @property {Object.<string, number>} depaPos The coordinates when animation starts<ko>애니메이션이 시작 되었을 때의 좌표 </ko>
+     * @property {Object.<string, number>} destPos The coordinates to move to. If you change this value, you can run the animation<ko>이동할 좌표. 이값을 변경하여 애니메이션을 동작시킬수 있다</ko>
+     * @property {Object.<string, number>} delta  The movement variation of coordinate <ko>좌표의 변화량</ko>
+     * @property {Number} duration Duration of the animation (unit: ms). If you change this value, you can control the animation duration time.<ko>애니메이션 진행 시간(단위: ms). 이값을 변경하여 애니메이션의 이동시간을 조절할 수 있다.</ko>
+     * @property {Object} input The instance of inputType where the event occurred. If the value is changed by animation, it returns 'null'.<ko>이벤트가 발생한 inputType 인스턴스. 애니메이션에 의해 값이 변경될 경우에는 'null'을 반환한다.</ko>
+     * @property {Object} inputEvent The event object received from inputType <ko>inputType으로 부터 받은 이벤트 객체</ko>
+     * @property {setTo} setTo Specifies the animation coordinates to move after the event <ko>이벤트 이후 이동할 애니메이션 좌표를 지정한다</ko>
+     * @property {Boolean} isTrusted Returns true if an event was generated by the user action, or false if it was caused by a script or API call <ko>사용자의 액션에 의해 이벤트가 발생하였으면 true, 스크립트나 API호출에 의해 발생하였을 경우에는 false를 반환한다.</ko>
+     *
+     * @example
+     * const axes = new eg.Axes({
+     *   "x": {
+     *      range: [0, 100]
+     *   },
+     *   "zoom": {
+     *      range: [50, 30]
+     *   }
+     * }).on("release", function(event) {
+     *   // event.depaPos
+     *   // event.destPos
+     *   // event.delta
+     *   // event.input
+     *   // event.inputEvent
+     *   // event.setTo
+     *   // event.isTrusted
+     *
+     *   // if you want to change the animation coordinates to move after the 'animationStart' event.
+     *   event.setTo({x: 10}, 2000);
+     * });
+     */
+    EventManager.prototype.triggerAnimationStart = function (param) {
+        param.setTo = this.createUserControll(param.destPos, param.duration);
+        return this.axes.trigger("animationStart", param);
+    };
+    /**
+     * This event is fired when animation ends.
+     * @ko 에니메이션이 끝났을 때 발생한다.
+     * @name eg.Axes#animationEnd
+     * @event
+     * @type {object} The object of data to be sent when the event is fired<ko>이벤트가 발생할 때 전달되는 데이터 객체</ko>
+     * @property {Boolean} isTrusted Returns true if an event was generated by the user action, or false if it was caused by a script or API call <ko>사용자의 액션에 의해 이벤트가 발생하였으면 true, 스크립트나 API호출에 의해 발생하였을 경우에는 false를 반환한다.</ko>
+     *
+     * @example
+     * const axes = new eg.Axes({
+     *   "x": {
+     *      range: [0, 100]
+     *   },
+     *   "zoom": {
+     *      range: [50, 30]
+     *   }
+     * }).on("animationEnd", function(event) {
+     *   // event.isTrusted
+     * });
+     */
+    EventManager.prototype.triggerAnimationEnd = function (isTrusted) {
+        if (isTrusted === void 0) { isTrusted = false; }
+        this.axes.trigger("animationEnd", {
+            isTrusted: isTrusted
+        });
+    };
+    /**
+     * This event is fired when all actions have been completed.
+     * @ko 에니메이션이 끝났을 때 발생한다.
+     * @name eg.Axes#finish
+     * @event
+     * @type {object} The object of data to be sent when the event is fired<ko>이벤트가 발생할 때 전달되는 데이터 객체</ko>
+     * @property {Boolean} isTrusted Returns true if an event was generated by the user action, or false if it was caused by a script or API call <ko>사용자의 액션에 의해 이벤트가 발생하였으면 true, 스크립트나 API호출에 의해 발생하였을 경우에는 false를 반환한다.</ko>
+     *
+     * @example
+     * const axes = new eg.Axes({
+     *   "x": {
+     *      range: [0, 100]
+     *   },
+     *   "zoom": {
+     *      range: [50, 30]
+     *   }
+     * }).on("finish", function(event) {
+     *   // event.isTrusted
+     * });
+     */
+    EventManager.prototype.triggerFinish = function (isTrusted) {
+        if (isTrusted === void 0) { isTrusted = false; }
+        this.axes.trigger("finish", {
+            isTrusted: isTrusted
+        });
+    };
+    EventManager.prototype.createUserControll = function (pos, duration) {
+        if (duration === void 0) { duration = 0; }
+        // to controll
+        var userControl = {
+            destPos: __assign({}, pos),
+            duration: duration
+        };
+        return function (toPos, userDuration) {
+            toPos && (userControl.destPos = __assign({}, toPos));
+            (userDuration !== undefined) && (userControl.duration = userDuration);
+            return userControl;
+        };
+    };
+    EventManager.prototype.setAnimationManager = function (am) {
+        this.am = am;
+    };
+    EventManager.prototype.destroy = function () {
+        this.axes.off();
+    };
+    return EventManager;
+}());
+exports.EventManager = EventManager;
+;
+
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+exports.__esModule = true;
+var AxisManager_1 = __webpack_require__(5);
+var Coordinate_1 = __webpack_require__(6);
+var InputObserver = /** @class */ (function () {
+    function InputObserver(_a) {
+        var options = _a.options, itm = _a.itm, em = _a.em, axm = _a.axm, am = _a.am;
+        this.isOutside = false;
+        this.moveDistance = null;
+        this.options = options;
+        this.itm = itm;
+        this.em = em;
+        this.axm = axm;
+        this.am = am;
+    }
+    // when move pointer is held in outside
+    InputObserver.prototype.atOutside = function (pos) {
+        var _this = this;
+        if (this.isOutside) {
+            return this.axm.map(pos, function (v, k, opt) {
+                var tn = opt.range[0] - opt.bounce[0];
+                var tx = opt.range[1] + opt.bounce[1];
+                return v > tx ? tx : (v < tn ? tn : v);
+            });
+        }
+        else {
+            // when start pointer is held in inside
+            // get a initialization slope value to prevent smooth animation.
+            var initSlope_1 = this.am.easing(0.00001) / 0.00001;
+            return this.axm.map(pos, function (v, k, opt) {
+                var min = opt.range[0];
+                var max = opt.range[1];
+                var out = opt.bounce;
+                if (v < min) {
+                    return min - _this.am.easing((min - v) / (out[0] * initSlope_1)) * out[0];
+                }
+                else if (v > max) {
+                    return max + _this.am.easing((v - max) / (out[1] * initSlope_1)) * out[1];
+                }
+                return v;
+            });
+        }
+    };
+    InputObserver.prototype.get = function (input) {
+        return this.axm.get(input.axes);
+    };
+    InputObserver.prototype.hold = function (input, event) {
+        if (this.itm.isInterrupted() || !input.axes.length) {
+            return;
+        }
+        var changeOption = {
+            input: input,
+            event: event
+        };
+        this.itm.setInterrupt(true);
+        this.am.grab(input.axes, changeOption);
+        !this.moveDistance && this.em.triggerHold(this.axm.get(), changeOption);
+        this.isOutside = this.axm.isOutside(input.axes);
+        this.moveDistance = this.axm.get(input.axes);
+    };
+    InputObserver.prototype.change = function (input, event, offset) {
+        if (!this.itm.isInterrupting() || this.axm.every(offset, function (v) { return v === 0; })) {
+            return;
+        }
+        var depaPos = this.axm.get(input.axes);
+        var destPos;
+        // for outside logic
+        destPos = this.axm.map(this.moveDistance || depaPos, function (v, k) { return v + (offset[k] || 0); });
+        this.moveDistance && (this.moveDistance = destPos);
+        destPos = this.axm.map(destPos, function (v, k, opt) { return Coordinate_1["default"].getCirculatedPos(v, opt.range, opt.circular); });
+        // from outside to inside
+        if (this.isOutside &&
+            this.axm.every(depaPos, function (v, k, opt) { return !Coordinate_1["default"].isOutside(v, opt.range); })) {
+            this.isOutside = false;
+        }
+        destPos = this.atOutside(destPos);
+        this.em.triggerChange(destPos, {
+            input: input,
+            event: event
+        }, true);
+    };
+    InputObserver.prototype.release = function (input, event, offset, inputDuration) {
+        if (!this.itm.isInterrupting()) {
+            return;
+        }
+        if (!this.moveDistance) {
+            return;
+        }
+        var pos = this.axm.get(input.axes);
+        var depaPos = this.axm.get();
+        var destPos = this.axm.get(this.axm.map(offset, function (v, k, opt) {
+            if (opt.circular && (opt.circular[0] || opt.circular[1])) {
+                return pos[k] + v;
+            }
+            else {
+                return Coordinate_1["default"].getInsidePosition(pos[k] + v, opt.range, opt.circular, opt.bounce);
+            }
+        }));
+        var duration = this.am.getDuration(destPos, pos, inputDuration);
+        if (duration === 0) {
+            destPos = __assign({}, depaPos);
+        }
+        // prepare params
+        var param = {
+            depaPos: depaPos,
+            destPos: destPos,
+            duration: duration,
+            delta: this.axm.getDelta(depaPos, destPos),
+            inputEvent: event,
+            input: input,
+            isTrusted: true
+        };
+        this.em.triggerRelease(param);
+        this.moveDistance = null;
+        // to contol
+        var userWish = this.am.getUserControll(param);
+        var isEqual = AxisManager_1.AxisManager.equal(userWish.destPos, depaPos);
+        var changeOption = {
+            input: input,
+            event: event
+        };
+        if (isEqual || userWish.duration === 0) {
+            !isEqual && this.em.triggerChange(userWish.destPos, changeOption, true);
+            this.itm.setInterrupt(false);
+            if (this.axm.isOutside()) {
+                this.am.restore(changeOption);
+            }
+            else {
+                this.em.triggerFinish(true);
+            }
+        }
+        else {
+            this.am.animateTo(userWish.destPos, userWish.duration, changeOption);
+        }
+    };
+    return InputObserver;
+}());
+exports.InputObserver = InputObserver;
+;
+
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+var InterruptManager = /** @class */ (function () {
+    function InterruptManager(options) {
+        this.options = options;
+        this._prevented = false; //  check whether the animation event was prevented
+    }
+    InterruptManager.prototype.isInterrupting = function () {
+        // when interruptable is 'true', return value is always 'true'.
+        return this.options.interruptable || this._prevented;
+    };
+    InterruptManager.prototype.isInterrupted = function () {
+        return !this.options.interruptable && this._prevented;
+    };
+    InterruptManager.prototype.setInterrupt = function (prevented) {
+        !this.options.interruptable && (this._prevented = prevented);
+    };
+    return InterruptManager;
+}());
+exports.InterruptManager = InterruptManager;
+;
+
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+exports.__esModule = true;
+var utils_1 = __webpack_require__(1);
+var InputType_1 = __webpack_require__(3);
+exports.KEYMAP = {
+    LEFT_ARROW: 37,
+    A: 65,
+    UP_ARROW: 38,
+    W: 87,
+    RIGHT_ARROW: 39,
+    D: 68,
+    DOWN_ARROW: 40,
+    S: 83
+};
+var DIRECTION_REVERSE = -1;
+var DIRECTION_FORWARD = 1;
+var DELAY = 80;
+/**
+ * @typedef {Object} MoveKeyInputOption The option object of the eg.Axes.MoveKeyInput module
+ * @ko eg.Axes.MoveKeyInput 모듈의 옵션 객체
+ * @property {Array<Number>} [scale] Coordinate scale that a user can move<ko>사용자의 동작으로 이동하는 좌표의 배율</ko>
+ * @property {Number} [scale[0]=1] Coordinate scale for the first axis<ko>첫번째 축의 배율</ko>
+ * @property {Number} [scale[1]=1] Coordinate scale for the decond axis<ko>두번째 축의 배율</ko>
+**/
+/**
+ * @class eg.Axes.MoveKeyInput
+ * @classdesc A module that passes the amount of change to eg.Axes when the move key stroke is occured. use two axis.
+ * @ko 이동키 입력이 발생했을 때의 변화량을 eg.Axes에 전달하는 모듈. 두 개 의 축을 사용한다.
+ *
+ * @example
+ * const moveKey = new eg.Axes.MoveKeyInput("#area", {
+ * 		scale: [1, 1]
+ * });
+ *
+ * // Connect 'x', 'y' axes when the moveKey is pressed.
+ * axes.connect(["x", "y"], moveKey);
+ *
+ * @param {HTMLElement|String|jQuery} element An element to use the eg.Axes.MoveKeyInput module <ko>eg.Axes.MoveKeyInput 모듈을 사용할 엘리먼트</ko>
+ * @param {MoveKeyInputOption} [options] The option object of the eg.Axes.MoveKeyInput module<ko>eg.Axes.MoveKeyInput 모듈의 옵션 객체</ko>
+ */
+var MoveKeyInput = /** @class */ (function () {
+    function MoveKeyInput(el, options) {
+        this.axes = [];
+        this.element = null;
+        this._isEnabled = false;
+        this._isHolded = false;
+        this._timer = null;
+        this.element = utils_1.$(el);
+        this.options = __assign({
+            scale: [1, 1]
+        }, options);
+        this.onKeydown = this.onKeydown.bind(this);
+        this.onKeyup = this.onKeyup.bind(this);
+    }
+    MoveKeyInput.prototype.mapAxes = function (axes) {
+        this.axes = axes;
+    };
+    MoveKeyInput.prototype.connect = function (observer) {
+        this.dettachEvent();
+        // add tabindex="0" to the container for making it focusable
+        if (this.element.getAttribute("tabindex") !== "0") {
+            this.element.setAttribute("tabindex", "0");
+        }
+        this.attachEvent(observer);
+        return this;
+    };
+    MoveKeyInput.prototype.disconnect = function () {
+        this.dettachEvent();
+        return this;
+    };
+    /**
+    * Destroys elements, properties, and events used in a module.
+    * @ko 모듈에 사용한 엘리먼트와 속성, 이벤트를 해제한다.
+    * @method eg.Axes.MoveKeyInput#destroy
+    */
+    MoveKeyInput.prototype.destroy = function () {
+        this.disconnect();
+        this.element = null;
+    };
+    MoveKeyInput.prototype.onKeydown = function (e) {
+        if (!this._isEnabled) {
+            return;
+        }
+        var isMoveKey = true;
+        var direction = DIRECTION_FORWARD;
+        var offsets;
+        switch (e.keyCode) {
+            case exports.KEYMAP.LEFT_ARROW:
+            case exports.KEYMAP.A:
+                direction = DIRECTION_REVERSE;
+            case exports.KEYMAP.RIGHT_ARROW:
+            case exports.KEYMAP.D:
+                if (!this.axes[0]) {
+                    isMoveKey = false;
+                    break;
+                }
+                offsets = [+this.options.scale[0] * direction, 0];
+                break;
+            case exports.KEYMAP.DOWN_ARROW:
+            case exports.KEYMAP.S:
+                direction = DIRECTION_REVERSE;
+            case exports.KEYMAP.UP_ARROW:
+            case exports.KEYMAP.W:
+                if (!this.axes[1]) {
+                    isMoveKey = false;
+                    break;
+                }
+                offsets = [0, +this.options.scale[1] * direction];
+                break;
+            default:
+                isMoveKey = false;
+        }
+        if (!isMoveKey) {
+            return;
+        }
+        if (!this._isHolded) {
+            this.observer.hold(this, event);
+            this._isHolded = true;
+        }
+        clearTimeout(this._timer);
+        this.observer.change(this, event, InputType_1.toAxis(this.axes, offsets));
+    };
+    MoveKeyInput.prototype.onKeyup = function (e) {
+        var _this = this;
+        if (!this._isHolded) {
+            return;
+        }
+        clearTimeout(this._timer);
+        this._timer = setTimeout(function () {
+            _this.observer.release(_this, e, InputType_1.toAxis(_this.axes, [0, 0]));
+            _this._isHolded = false;
+        }, DELAY);
+    };
+    MoveKeyInput.prototype.attachEvent = function (observer) {
+        this.observer = observer;
+        this.element.addEventListener("keydown", this.onKeydown, false);
+        this.element.addEventListener("keypress", this.onKeydown, false);
+        this.element.addEventListener("keyup", this.onKeyup, false);
+        this._isEnabled = true;
+    };
+    MoveKeyInput.prototype.dettachEvent = function () {
+        this.element.removeEventListener("keydown", this.onKeydown, false);
+        this.element.removeEventListener("keypress", this.onKeydown, false);
+        this.element.removeEventListener("keyup", this.onKeyup, false);
+        this._isEnabled = false;
+        this.observer = null;
+    };
+    /**
+     * Enables input devices
+     * @ko 입력 장치를 사용할 수 있게 한다
+     * @method eg.Axes.MoveKeyInput#enable
+     * @return {eg.Axes.MoveKeyInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
+     */
+    MoveKeyInput.prototype.enable = function () {
+        this._isEnabled = true;
+        return this;
+    };
+    /**
+     * Disables input devices
+     * @ko 입력 장치를 사용할 수 없게 한다.
+     * @method eg.Axes.MoveKeyInput#disable
+     * @return {eg.Axes.MoveKeyInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
+     */
+    MoveKeyInput.prototype.disable = function () {
+        this._isEnabled = false;
+        return this;
+    };
+    /**
+     * Returns whether to use an input device
+     * @ko 입력 장치를 사용 여부를 반환한다.
+     * @method eg.Axes.MoveKeyInput#isEnable
+     * @return {Boolean} Whether to use an input device <ko>입력장치 사용여부</ko>
+     */
+    MoveKeyInput.prototype.isEnable = function () {
+        return this._isEnabled;
+    };
+    return MoveKeyInput;
+}());
+exports.MoveKeyInput = MoveKeyInput;
+;
+
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+exports.__esModule = true;
+var Hammer = __webpack_require__(7);
+var const_1 = __webpack_require__(10);
+var utils_1 = __webpack_require__(1);
+var InputType_1 = __webpack_require__(3);
+/**
+ * @typedef {Object} PanInputOption The option object of the eg.Axes.PanInput module.
+ * @ko eg.Axes.PanInput 모듈의 옵션 객체
+ * @property {String[]} [inputType=["touch","mouse", "pointer"]] Types of input devices.<br>- touch: Touch screen<br>- mouse: Mouse <ko>입력 장치 종류.<br>- touch: 터치 입력 장치<br>- mouse: 마우스</ko>
+ * @property {Number[]} [scale] Coordinate scale that a user can move<ko>사용자의 동작으로 이동하는 좌표의 배율</ko>
+ * @property {Number} [scale.0=1] horizontal axis scale <ko>수평축 배율</ko>
+ * @property {Number} [scale.1=1] vertical axis scale <ko>수직축 배율</ko>
+ * @property {Number} [thresholdAngle=45] The threshold value that determines whether user action is horizontal or vertical (0~90) <ko>사용자의 동작이 가로 방향인지 세로 방향인지 판단하는 기준 각도(0~90)</ko>
+ * @property {Number} [threshold=0] Minimal pan distance required before recognizing <ko>사용자의 Pan 동작을 인식하기 위해산 최소한의 거리</ko>
+ * @property {Object} [hammerManagerOptions={cssProps: {userSelect: "none",touchSelect: "none",touchCallout: "none",userDrag: "none"}] Options of Hammer.Manager <ko>Hammer.Manager의 옵션</ko>
+**/
+/**
+ * @class eg.Axes.PanInput
+ * @classdesc A module that passes the amount of change to eg.Axes when the mouse or touchscreen is down and moved. use less than two axes.
+ * @ko 마우스나 터치 스크린을 누르고 움직일때의 변화량을 eg.Axes에 전달하는 모듈. 두개 이하의 축을 사용한다.
+ *
+ * @example
+ * const pan = new eg.Axes.PanInput("#area", {
+ * 		inputType: ["touch"],
+ * 		scale: [1, 1.3],
+ * });
+ *
+ * // Connect the 'something2' axis to the mouse or touchscreen x position when the mouse or touchscreen is down and moved.
+ * // Connect the 'somethingN' axis to the mouse or touchscreen y position when the mouse or touchscreen is down and moved.
+ * axes.connect(["something2", "somethingN"], pan); // or axes.connect("something2 somethingN", pan);
+ *
+ * // Connect only one 'something1' axis to the mouse or touchscreen x position when the mouse or touchscreen is down and moved.
+ * axes.connect(["something1"], pan); // or axes.connect("something1", pan);
+ *
+ * // Connect only one 'something2' axis to the mouse or touchscreen y position when the mouse or touchscreen is down and moved.
+ * axes.connect(["", "something2"], pan); // or axes.connect(" something2", pan);
+ *
+ * @param {HTMLElement|String|jQuery} element An element to use the eg.Axes.PanInput module <ko>eg.Axes.PanInput 모듈을 사용할 엘리먼트</ko>
+ * @param {PanInputOption} [options] The option object of the eg.Axes.PanInput module<ko>eg.Axes.PanInput 모듈의 옵션 객체</ko>
+ */
+var PanInput = /** @class */ (function () {
+    function PanInput(el, options) {
+        this.axes = [];
+        this.hammer = null;
+        this.element = null;
+        /**
+         * Hammer helps you add support for touch gestures to your page
+         *
+         * @external Hammer
+         * @see {@link http://hammerjs.github.io|Hammer.JS}
+         * @see {@link http://hammerjs.github.io/jsdoc/Hammer.html|Hammer.JS API documents}
+         * @see Hammer.JS applies specific CSS properties by {@link http://hammerjs.github.io/jsdoc/Hammer.defaults.cssProps.html|default} when creating an instance. The eg.Axes module removes all default CSS properties provided by Hammer.JS
+         */
+        if (typeof Hammer === "undefined") {
+            throw new Error("The Hammerjs must be loaded before eg.Axes.PanInput.\nhttp://hammerjs.github.io/");
+        }
+        this.element = utils_1.$(el);
+        this.options = __assign({
+            inputType: ["touch", "mouse", "pointer"],
+            scale: [1, 1],
+            thresholdAngle: 45,
+            threshold: 0,
+            hammerManagerOptions: {
+                // css properties were removed due to usablility issue
+                // http://hammerjs.github.io/jsdoc/Hammer.defaults.cssProps.html
+                cssProps: {
+                    userSelect: "none",
+                    touchSelect: "none",
+                    touchCallout: "none",
+                    userDrag: "none"
+                }
+            }
+        }, options);
+        this.onHammerInput = this.onHammerInput.bind(this);
+        this.onPanmove = this.onPanmove.bind(this);
+        this.onPanend = this.onPanend.bind(this);
+    }
+    // get user's direction
+    PanInput.getDirectionByAngle = function (angle, thresholdAngle) {
+        if (thresholdAngle < 0 || thresholdAngle > 90) {
+            return const_1.DIRECTION.DIRECTION_NONE;
+        }
+        var toAngle = Math.abs(angle);
+        return toAngle > thresholdAngle && toAngle < 180 - thresholdAngle ?
+            const_1.DIRECTION.DIRECTION_VERTICAL : const_1.DIRECTION.DIRECTION_HORIZONTAL;
+    };
+    PanInput.getNextOffset = function (speeds, deceleration) {
+        var normalSpeed = Math.sqrt(speeds[0] * speeds[0] + speeds[1] * speeds[1]);
+        var duration = Math.abs(normalSpeed / -deceleration);
+        return [
+            speeds[0] / 2 * duration,
+            speeds[1] / 2 * duration
+        ];
+    };
+    PanInput.useDirection = function (checkType, direction, userDirection) {
+        if (userDirection) {
+            return !!((direction === const_1.DIRECTION.DIRECTION_ALL) ||
+                ((direction & checkType) && (userDirection & checkType)));
+        }
+        else {
+            return !!(direction & checkType);
+        }
+    };
+    PanInput.prototype.mapAxes = function (axes) {
+        var useHorizontal = !!axes[0];
+        var useVertical = !!axes[1];
+        if (useHorizontal && useVertical) {
+            this._direction = const_1.DIRECTION.DIRECTION_ALL;
+        }
+        else if (useHorizontal) {
+            this._direction = const_1.DIRECTION.DIRECTION_HORIZONTAL;
+        }
+        else if (useVertical) {
+            this._direction = const_1.DIRECTION.DIRECTION_VERTICAL;
+        }
+        else {
+            this._direction = const_1.DIRECTION.DIRECTION_NONE;
+        }
+        this.axes = axes;
+    };
+    PanInput.prototype.connect = function (observer) {
+        var hammerOption = {
+            direction: this._direction,
+            threshold: this.options.threshold
+        };
+        if (this.hammer) {
+            this.dettachEvent();
+            // hammer remove previous PanRecognizer.
+            this.hammer.add(new Hammer.Pan(hammerOption));
+        }
+        else {
+            var keyValue = this.element[InputType_1.UNIQUEKEY];
+            if (keyValue) {
+                this.hammer && this.hammer.destroy();
+            }
+            else {
+                keyValue = String(Math.round(Math.random() * new Date().getTime()));
+            }
+            var inputClass = InputType_1.convertInputType(this.options.inputType);
+            if (!inputClass) {
+                throw new Error("Wrong inputType parameter!");
+            }
+            this.hammer = InputType_1.createHammer(this.element, __assign({
+                recognizers: [
+                    [Hammer.Pan, hammerOption],
+                ],
+                inputClass: inputClass
+            }, this.options.hammerManagerOptions));
+            this.element[InputType_1.UNIQUEKEY] = keyValue;
+        }
+        this.attachEvent(observer);
+        return this;
+    };
+    PanInput.prototype.disconnect = function () {
+        if (this.hammer) {
+            this.dettachEvent();
+        }
+        this._direction = const_1.DIRECTION.DIRECTION_NONE;
+        return this;
+    };
+    /**
+    * Destroys elements, properties, and events used in a module.
+    * @ko 모듈에 사용한 엘리먼트와 속성, 이벤트를 해제한다.
+    * @method eg.Axes.PanInput#destroy
+    */
+    PanInput.prototype.destroy = function () {
+        this.disconnect();
+        if (this.hammer) {
+            this.hammer.destroy();
+        }
+        delete this.element[InputType_1.UNIQUEKEY];
+        this.element = null;
+        this.hammer = null;
+    };
+    /**
+     * Enables input devices
+     * @ko 입력 장치를 사용할 수 있게 한다
+     * @method eg.Axes.PanInput#enable
+     * @return {eg.Axes.PanInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
+     */
+    PanInput.prototype.enable = function () {
+        this.hammer && (this.hammer.get("pan").options.enable = true);
+        return this;
+    };
+    /**
+     * Disables input devices
+     * @ko 입력 장치를 사용할 수 없게 한다.
+     * @method eg.Axes.PanInput#disable
+     * @return {eg.Axes.PanInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
+     */
+    PanInput.prototype.disable = function () {
+        this.hammer && (this.hammer.get("pan").options.enable = false);
+        return this;
+    };
+    /**
+     * Returns whether to use an input device
+     * @ko 입력 장치를 사용 여부를 반환한다.
+     * @method eg.Axes.PanInput#isEnable
+     * @return {Boolean} Whether to use an input device <ko>입력장치 사용여부</ko>
+     */
+    PanInput.prototype.isEnable = function () {
+        return !!(this.hammer && this.hammer.get("pan").options.enable);
+    };
+    PanInput.prototype.onHammerInput = function (event) {
+        if (this.isEnable()) {
+            if (event.isFirst) {
+                this.observer.hold(this, event);
+            }
+            else if (event.isFinal) {
+                this.onPanend(event);
+            }
+        }
+    };
+    PanInput.prototype.onPanmove = function (event) {
+        var userDirection = PanInput.getDirectionByAngle(event.angle, this.options.thresholdAngle);
+        // not support offset properties in Hammerjs - start
+        var prevInput = this.hammer.session.prevInput;
+        /* eslint-disable no-param-reassign */
+        if (prevInput) {
+            event.offsetX = event.deltaX - prevInput.deltaX;
+            event.offsetY = event.deltaY - prevInput.deltaY;
+        }
+        else {
+            event.offsetX = 0;
+            event.offsetY = 0;
+        }
+        var offset = this.getOffset([event.offsetX, event.offsetY], [
+            PanInput.useDirection(const_1.DIRECTION.DIRECTION_HORIZONTAL, this._direction, userDirection),
+            PanInput.useDirection(const_1.DIRECTION.DIRECTION_VERTICAL, this._direction, userDirection)
+        ]);
+        var prevent = offset.some(function (v) { return v !== 0; });
+        if (prevent) {
+            event.srcEvent.preventDefault();
+            event.srcEvent.stopPropagation();
+        }
+        event.preventSystemEvent = prevent;
+        prevent && this.observer.change(this, event, InputType_1.toAxis(this.axes, offset));
+    };
+    PanInput.prototype.onPanend = function (event) {
+        var offset = this.getOffset([
+            Math.abs(event.velocityX) * (event.deltaX < 0 ? -1 : 1),
+            Math.abs(event.velocityY) * (event.deltaY < 0 ? -1 : 1)
+        ], [
+            PanInput.useDirection(const_1.DIRECTION.DIRECTION_HORIZONTAL, this._direction),
+            PanInput.useDirection(const_1.DIRECTION.DIRECTION_VERTICAL, this._direction)
+        ]);
+        offset = PanInput.getNextOffset(offset, this.observer.options.deceleration);
+        this.observer.release(this, event, InputType_1.toAxis(this.axes, offset));
+    };
+    PanInput.prototype.attachEvent = function (observer) {
+        this.observer = observer;
+        this.hammer.on("hammer.input", this.onHammerInput)
+            .on("panstart panmove", this.onPanmove);
+    };
+    PanInput.prototype.dettachEvent = function () {
+        this.hammer.off("hammer.input", this.onHammerInput)
+            .off("panstart panmove", this.onPanmove);
+        this.observer = null;
+    };
+    PanInput.prototype.getOffset = function (properties, useDirection) {
+        var offset = [0, 0];
+        var scale = this.options.scale;
+        if (useDirection[0]) {
+            offset[0] = (properties[0] * scale[0]);
+        }
+        if (useDirection[1]) {
+            offset[1] = (properties[1] * scale[1]);
+        }
+        return offset;
+    };
+    return PanInput;
+}());
+exports.PanInput = PanInput;
+
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+exports.__esModule = true;
+var Hammer = __webpack_require__(7);
+var utils_1 = __webpack_require__(1);
+var InputType_1 = __webpack_require__(3);
+/**
+ * @typedef {Object} PinchInputOption The option object of the eg.Axes.PinchInput module
+ * @ko eg.Axes.PinchInput 모듈의 옵션 객체
+ * @property {Number} [scale=1] Coordinate scale that a user can move<ko>사용자의 동작으로 이동하는 좌표의 배율</ko>
+ * @property {Number} [threshold=0] Minimal scale before recognizing <ko>사용자의 Pinch 동작을 인식하기 위해산 최소한의 배율</ko>
+ * @property {Object} [hammerManagerOptions={cssProps: {userSelect: "none",touchSelect: "none",touchCallout: "none",userDrag: "none"}] Options of Hammer.Manager <ko>Hammer.Manager의 옵션</ko>
+**/
+/**
+ * @class eg.Axes.PinchInput
+ * @classdesc A module that passes the amount of change to eg.Axes when two pointers are moving toward (zoom-in) or away from each other (zoom-out). use one axis.
+ * @ko 2개의 pointer를 이용하여 zoom-in하거나 zoom-out 하는 동작의 변화량을 eg.Axes에 전달하는 모듈. 한 개 의 축을 사용한다.
+ * @example
+ * const pinch = new eg.Axes.PinchInput("#area", {
+ * 		scale: 1
+ * });
+ *
+ * // Connect 'something' axis when two pointers are moving toward (zoom-in) or away from each other (zoom-out).
+ * axes.connect("something", pinch);
+ *
+ * @param {HTMLElement|String|jQuery} element An element to use the eg.Axes.PinchInput module <ko>eg.Axes.PinchInput 모듈을 사용할 엘리먼트</ko>
+ * @param {PinchInputOption} [options] The option object of the eg.Axes.PinchInput module<ko>eg.Axes.PinchInput 모듈의 옵션 객체</ko>
+ */
+var PinchInput = /** @class */ (function () {
+    function PinchInput(el, options) {
+        this.axes = [];
+        this.hammer = null;
+        this.element = null;
+        this._base = null;
+        this._prev = null;
+        /**
+         * Hammer helps you add support for touch gestures to your page
+         *
+         * @external Hammer
+         * @see {@link http://hammerjs.github.io|Hammer.JS}
+         * @see {@link http://hammerjs.github.io/jsdoc/Hammer.html|Hammer.JS API documents}
+         * @see Hammer.JS applies specific CSS properties by {@link http://hammerjs.github.io/jsdoc/Hammer.defaults.cssProps.html|default} when creating an instance. The eg.Axes module removes all default CSS properties provided by Hammer.JS
+         */
+        if (typeof Hammer === "undefined") {
+            throw new Error("The Hammerjs must be loaded before eg.Axes.PinchInput.\nhttp://hammerjs.github.io/");
+        }
+        this.element = utils_1.$(el);
+        this.options = __assign({
+            scale: 1,
+            threshold: 0,
+            hammerManagerOptions: {
+                // css properties were removed due to usablility issue
+                // http://hammerjs.github.io/jsdoc/Hammer.defaults.cssProps.html
+                cssProps: {
+                    userSelect: "none",
+                    touchSelect: "none",
+                    touchCallout: "none",
+                    userDrag: "none"
+                }
+            }
+        }, options);
+        this.onPinchStart = this.onPinchStart.bind(this);
+        this.onPinchMove = this.onPinchMove.bind(this);
+        this.onPinchEnd = this.onPinchEnd.bind(this);
+    }
+    PinchInput.prototype.mapAxes = function (axes) {
+        this.axes = axes;
+    };
+    PinchInput.prototype.connect = function (observer) {
+        var hammerOption = {
+            threshold: this.options.threshold
+        };
+        if (this.hammer) {
+            this.dettachEvent();
+            // hammer remove previous PinchRecognizer.
+            this.hammer.add(new Hammer.Pinch(hammerOption));
+        }
+        else {
+            var keyValue = this.element[InputType_1.UNIQUEKEY];
+            if (keyValue) {
+                this.hammer.destroy();
+            }
+            else {
+                keyValue = String(Math.round(Math.random() * new Date().getTime()));
+            }
+            this.hammer = InputType_1.createHammer(this.element, __assign({
+                recognizers: [
+                    [Hammer.Pinch, hammerOption],
+                ],
+                inputClass: Hammer.TouchInput
+            }, this.options.hammerManagerOptions));
+            this.element[InputType_1.UNIQUEKEY] = keyValue;
+        }
+        this.attachEvent(observer);
+        return this;
+    };
+    PinchInput.prototype.disconnect = function () {
+        if (this.hammer) {
+            this.dettachEvent();
+        }
+        return this;
+    };
+    /**
+    * Destroys elements, properties, and events used in a module.
+    * @ko 모듈에 사용한 엘리먼트와 속성, 이벤트를 해제한다.
+    * @method eg.Axes.PinchInput#destroy
+    */
+    PinchInput.prototype.destroy = function () {
+        this.disconnect();
+        if (this.hammer) {
+            this.hammer.destroy();
+        }
+        delete this.element[InputType_1.UNIQUEKEY];
+        this.element = null;
+        this.hammer = null;
+    };
+    PinchInput.prototype.onPinchStart = function (event) {
+        this._base = this.observer.get(this)[this.axes[0]];
+        var offset = this.getOffset(event.scale);
+        this.observer.hold(this, event);
+        this.observer.change(this, event, InputType_1.toAxis(this.axes, [offset]));
+        this._prev = event.scale;
+    };
+    PinchInput.prototype.onPinchMove = function (event) {
+        var offset = this.getOffset(event.scale, this._prev);
+        this.observer.change(this, event, InputType_1.toAxis(this.axes, [offset]));
+        this._prev = event.scale;
+    };
+    PinchInput.prototype.onPinchEnd = function (event) {
+        var offset = this.getOffset(event.scale, this._prev);
+        this.observer.change(this, event, InputType_1.toAxis(this.axes, [offset]));
+        this.observer.release(this, event, InputType_1.toAxis(this.axes, [0]), 0);
+        this._base = null;
+        this._prev = null;
+    };
+    PinchInput.prototype.getOffset = function (pinchScale, prev) {
+        if (prev === void 0) { prev = 1; }
+        return this._base * (pinchScale - prev) * this.options.scale;
+    };
+    PinchInput.prototype.attachEvent = function (observer) {
+        this.observer = observer;
+        this.hammer.on("pinchstart", this.onPinchStart)
+            .on("pinchmove", this.onPinchMove)
+            .on("pinchend", this.onPinchEnd);
+    };
+    PinchInput.prototype.dettachEvent = function () {
+        this.hammer.off("pinchstart", this.onPinchStart)
+            .off("pinchmove", this.onPinchMove)
+            .off("pinchend", this.onPinchEnd);
+        this.observer = null;
+        this._prev = null;
+    };
+    /**
+     * Enables input devices
+     * @ko 입력 장치를 사용할 수 있게 한다
+     * @method eg.Axes.PinchInput#enable
+     * @return {eg.Axes.PinchInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
+     */
+    PinchInput.prototype.enable = function () {
+        this.hammer && (this.hammer.get("pinch").options.enable = true);
+        return this;
+    };
+    /**
+     * Disables input devices
+     * @ko 입력 장치를 사용할 수 없게 한다.
+     * @method eg.Axes.PinchInput#disable
+     * @return {eg.Axes.PinchInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
+     */
+    PinchInput.prototype.disable = function () {
+        this.hammer && (this.hammer.get("pinch").options.enable = false);
+        return this;
+    };
+    /**
+     * Returns whether to use an input device
+     * @ko 입력 장치를 사용 여부를 반환한다.
+     * @method eg.Axes.PinchInput#isEnable
+     * @return {Boolean} Whether to use an input device <ko>입력장치 사용여부</ko>
+     */
+    PinchInput.prototype.isEnable = function () {
+        return !!(this.hammer && this.hammer.get("pinch").options.enable);
+    };
+    return PinchInput;
+}());
+exports.PinchInput = PinchInput;
+
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+exports.__esModule = true;
+var utils_1 = __webpack_require__(1);
+var InputType_1 = __webpack_require__(3);
+/**
+ * @typedef {Object} WheelInputOption The option object of the eg.Axes.WheelInput module
+ * @ko eg.Axes.WheelInput 모듈의 옵션 객체
+ * @property {Number} [scale=1] Coordinate scale that a user can move<ko>사용자의 동작으로 이동하는 좌표의 배율</ko>
+**/
+/**
+ * @class eg.Axes.WheelInput
+ * @classdesc A module that passes the amount of change to eg.Axes when the mouse wheel is moved. use one axis.
+ * @ko 마우스 휠이 움직일때의 변화량을 eg.Axes에 전달하는 모듈. 한 개 의 축을 사용한다.
+ *
+ * @example
+ * const wheel = new eg.Axes.WheelInput("#area", {
+ * 		scale: 1
+ * });
+ *
+ * // Connect 'something' axis when the mousewheel is moved.
+ * axes.connect("something", wheel);
+ *
+ * @param {HTMLElement|String|jQuery} element An element to use the eg.Axes.WheelInput module <ko>eg.Axes.WheelInput 모듈을 사용할 엘리먼트</ko>
+ * @param {WheelInputOption} [options] The option object of the eg.Axes.WheelInput module<ko>eg.Axes.WheelInput 모듈의 옵션 객체</ko>
+ */
+var WheelInput = /** @class */ (function () {
+    function WheelInput(el, options) {
+        this.axes = [];
+        this.element = null;
+        this._isEnabled = false;
+        this._isHolded = false;
+        this._timer = null;
+        this.element = utils_1.$(el);
+        this.options = __assign({
+            scale: 1,
+            useNormalized: true
+        }, options);
+        this.onWheel = this.onWheel.bind(this);
+    }
+    WheelInput.prototype.mapAxes = function (axes) {
+        this.axes = axes;
+    };
+    WheelInput.prototype.connect = function (observer) {
+        this.dettachEvent();
+        this.attachEvent(observer);
+        return this;
+    };
+    WheelInput.prototype.disconnect = function () {
+        this.dettachEvent();
+        return this;
+    };
+    /**
+    * Destroys elements, properties, and events used in a module.
+    * @ko 모듈에 사용한 엘리먼트와 속성, 이벤트를 해제한다.
+    * @method eg.Axes.WheelInput#destroy
+    */
+    WheelInput.prototype.destroy = function () {
+        this.disconnect();
+        this.element = null;
+    };
+    WheelInput.prototype.onWheel = function (event) {
+        var _this = this;
+        if (!this._isEnabled) {
+            return;
+        }
+        event.preventDefault();
+        if (event.deltaY === 0) {
+            return;
+        }
+        if (!this._isHolded) {
+            this.observer.hold(this, event);
+            this._isHolded = true;
+        }
+        var offset = (event.deltaY > 0 ? -1 : 1) * this.options.scale * (this.options.useNormalized ? 1 : Math.abs(event.deltaY));
+        this.observer.change(this, event, InputType_1.toAxis(this.axes, [offset]));
+        clearTimeout(this._timer);
+        var inst = this;
+        this._timer = setTimeout(function () {
+            if (_this._isHolded) {
+                _this._isHolded = false;
+                _this.observer.release(_this, event, InputType_1.toAxis(_this.axes, [0]));
+            }
+        }, 50);
+    };
+    WheelInput.prototype.attachEvent = function (observer) {
+        this.observer = observer;
+        this.element.addEventListener("wheel", this.onWheel);
+        this._isEnabled = true;
+    };
+    WheelInput.prototype.dettachEvent = function () {
+        this.element.removeEventListener("wheel", this.onWheel);
+        this._isEnabled = false;
+        this.observer = null;
+    };
+    /**
+     * Enables input devices
+     * @ko 입력 장치를 사용할 수 있게 한다
+     * @method eg.Axes.WheelInput#enable
+     * @return {eg.Axes.WheelInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
+     */
+    WheelInput.prototype.enable = function () {
+        this._isEnabled = true;
+        return this;
+    };
+    /**
+     * Disables input devices
+     * @ko 입력 장치를 사용할 수 없게 한다.
+     * @method eg.Axes.WheelInput#disable
+     * @return {eg.Axes.WheelInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
+     */
+    WheelInput.prototype.disable = function () {
+        this._isEnabled = false;
+        return this;
+    };
+    /**
+     * Returns whether to use an input device
+     * @ko 입력 장치를 사용 여부를 반환한다.
+     * @method eg.Axes.WheelInput#isEnable
+     * @return {Boolean} Whether to use an input device <ko>입력장치 사용여부</ko>
+     */
+    WheelInput.prototype.isEnable = function () {
+        return this._isEnabled;
+    };
+    return WheelInput;
+}());
+exports.WheelInput = WheelInput;
+;
+
+
+/***/ }),
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8637,11 +8569,11 @@ if (true) {
 exports.__esModule = true;
 exports.YawPitchControl = undefined;
 
-var _YawPitchControl = __webpack_require__(28);
+var _YawPitchControl = __webpack_require__(42);
 
 var _YawPitchControl2 = _interopRequireDefault(_YawPitchControl);
 
-var _consts = __webpack_require__(6);
+var _consts = __webpack_require__(12);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -8657,7 +8589,7 @@ _YawPitchControl2["default"].TOUCH_DIRECTION_NONE = _consts.TOUCH_DIRECTION_NONE
 exports.YawPitchControl = _YawPitchControl2["default"];
 
 /***/ }),
-/* 17 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8671,13 +8603,13 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _YawPitchControl = __webpack_require__(16);
+var _YawPitchControl = __webpack_require__(30);
 
-var _PanoImageRenderer = __webpack_require__(24);
+var _PanoImageRenderer = __webpack_require__(38);
 
-var _consts = __webpack_require__(27);
+var _consts = __webpack_require__(41);
 
-var _mathUtil = __webpack_require__(1);
+var _mathUtil = __webpack_require__(2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -8687,7 +8619,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _Promise = typeof Promise === 'undefined' ? __webpack_require__(3).Promise : Promise;
+var _Promise = typeof Promise === 'undefined' ? __webpack_require__(8).Promise : Promise;
 
 var PanoViewer = function (_Component) {
 	_inherits(PanoViewer, _Component);
@@ -9452,7 +9384,7 @@ PanoViewer.EVENTS = _consts.EVENTS;
 PanoViewer.ProjectionType = _PanoImageRenderer.PanoImageRenderer.ImageType;
 
 /***/ }),
-/* 18 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9461,7 +9393,7 @@ PanoViewer.ProjectionType = _PanoImageRenderer.PanoImageRenderer.ImageType;
 exports.__esModule = true;
 exports.PanoViewer = undefined;
 
-var _PanoViewer = __webpack_require__(17);
+var _PanoViewer = __webpack_require__(31);
 
 var _PanoViewer2 = _interopRequireDefault(_PanoViewer);
 
@@ -9470,9 +9402,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 exports.PanoViewer = _PanoViewer2["default"];
 
 /***/ }),
-/* 19 */,
-/* 20 */,
-/* 21 */
+/* 33 */,
+/* 34 */,
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9492,7 +9424,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _Promise = typeof Promise === 'undefined' ? __webpack_require__(3).Promise : Promise;
+var _Promise = typeof Promise === 'undefined' ? __webpack_require__(8).Promise : Promise;
 
 var STATUS = {
 	"NONE": 0,
@@ -9603,8 +9535,8 @@ var ImageLoader = function (_Component) {
 	};
 
 	ImageLoader.isMaybeLoaded = function isMaybeLoaded(image) {
-		return image instanceof Image ? image.naturalWidth !== 0 : !image.some(function (img) {
-			return img.naturalWidth === 0;
+		return image instanceof Image ? image.complete && image.naturalWidth !== 0 : !image.some(function (img) {
+			return !img.complete || img.naturalWidth === 0;
 		});
 	};
 
@@ -9666,7 +9598,7 @@ exports["default"] = ImageLoader;
 ImageLoader.STATUS = STATUS;
 
 /***/ }),
-/* 22 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9680,29 +9612,29 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _ImageLoader = __webpack_require__(21);
+var _ImageLoader = __webpack_require__(35);
 
 var _ImageLoader2 = _interopRequireDefault(_ImageLoader);
 
-var _VideoLoader = __webpack_require__(23);
+var _VideoLoader = __webpack_require__(37);
 
 var _VideoLoader2 = _interopRequireDefault(_VideoLoader);
 
-var _WebGLUtils = __webpack_require__(11);
+var _WebGLUtils = __webpack_require__(17);
 
 var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
 
-var _CubeRenderer = __webpack_require__(25);
+var _CubeRenderer = __webpack_require__(39);
 
 var _CubeRenderer2 = _interopRequireDefault(_CubeRenderer);
 
-var _SphereRenderer = __webpack_require__(26);
+var _SphereRenderer = __webpack_require__(40);
 
 var _SphereRenderer2 = _interopRequireDefault(_SphereRenderer);
 
-var _mathUtil = __webpack_require__(1);
+var _mathUtil = __webpack_require__(2);
 
-var _browser = __webpack_require__(12);
+var _browser = __webpack_require__(18);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -9712,7 +9644,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _Promise = typeof Promise === 'undefined' ? __webpack_require__(3).Promise : Promise;
+var _Promise = typeof Promise === 'undefined' ? __webpack_require__(8).Promise : Promise;
 
 var ImageType = {
 	EQUIRECTANGULAR: "equirectangular",
@@ -10197,7 +10129,7 @@ PanoImageRenderer.ERROR_TYPE = ERROR_TYPE;
 PanoImageRenderer.ImageType = ImageType;
 
 /***/ }),
-/* 23 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10209,7 +10141,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var _Promise = typeof Promise === 'undefined' ? __webpack_require__(3).Promise : Promise;
+var _Promise = typeof Promise === 'undefined' ? __webpack_require__(8).Promise : Promise;
 
 /* Ref https://www.w3schools.com/tags/av_prop_readystate.asp */
 var READY_STATUS = {
@@ -10347,7 +10279,7 @@ var VideoLoader = function () {
 exports["default"] = VideoLoader;
 
 /***/ }),
-/* 24 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10356,11 +10288,11 @@ exports["default"] = VideoLoader;
 exports.__esModule = true;
 exports.WebGLUtils = exports.PanoImageRenderer = undefined;
 
-var _PanoImageRenderer = __webpack_require__(22);
+var _PanoImageRenderer = __webpack_require__(36);
 
 var _PanoImageRenderer2 = _interopRequireDefault(_PanoImageRenderer);
 
-var _WebGLUtils = __webpack_require__(11);
+var _WebGLUtils = __webpack_require__(17);
 
 var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
 
@@ -10370,7 +10302,7 @@ exports.PanoImageRenderer = _PanoImageRenderer2["default"];
 exports.WebGLUtils = _WebGLUtils2["default"];
 
 /***/ }),
-/* 25 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10380,15 +10312,15 @@ exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _agent = __webpack_require__(7);
+var _agent = __webpack_require__(13);
 
 var _agent2 = _interopRequireDefault(_agent);
 
-var _Renderer2 = __webpack_require__(13);
+var _Renderer2 = __webpack_require__(19);
 
 var _Renderer3 = _interopRequireDefault(_Renderer2);
 
-var _mathUtil = __webpack_require__(1);
+var _mathUtil = __webpack_require__(2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -10618,7 +10550,7 @@ CubeRenderer._VERTEX_POSITION_DATA = null;
 CubeRenderer._INDEX_DATA = null;
 
 /***/ }),
-/* 26 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10626,7 +10558,7 @@ CubeRenderer._INDEX_DATA = null;
 
 exports.__esModule = true;
 
-var _Renderer2 = __webpack_require__(13);
+var _Renderer2 = __webpack_require__(19);
 
 var _Renderer3 = _interopRequireDefault(_Renderer2);
 
@@ -10761,13 +10693,13 @@ SphereRenderer._TEXTURE_COORD_DATA = null;
 SphereRenderer._INDEX_DATA = null;
 
 /***/ }),
-/* 27 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _consts = __webpack_require__(6);
+var _consts = __webpack_require__(12);
 
 var ERROR_TYPE = {
 	INVALID_DEVICE: 10,
@@ -10793,7 +10725,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 28 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10807,23 +10739,23 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _axes = __webpack_require__(9);
+var _axes = __webpack_require__(15);
 
 var _axes2 = _interopRequireDefault(_axes);
 
-var _browser = __webpack_require__(5);
+var _browser = __webpack_require__(11);
 
-var _WheelInput = __webpack_require__(33);
+var _WheelInput = __webpack_require__(47);
 
 var _WheelInput2 = _interopRequireDefault(_WheelInput);
 
-var _TiltMotionInput = __webpack_require__(32);
+var _TiltMotionInput = __webpack_require__(46);
 
 var _TiltMotionInput2 = _interopRequireDefault(_TiltMotionInput);
 
-var _mathUtil = __webpack_require__(1);
+var _mathUtil = __webpack_require__(2);
 
-var _consts = __webpack_require__(6);
+var _consts = __webpack_require__(12);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -11395,7 +11327,7 @@ YawPitchControl.VERSION = "3.0.0-rc";
 exports["default"] = YawPitchControl;
 
 /***/ }),
-/* 29 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11403,11 +11335,11 @@ exports["default"] = YawPitchControl;
 
 exports.__esModule = true;
 
-var _mathUtil = __webpack_require__(4);
+var _mathUtil = __webpack_require__(9);
 
 var _mathUtil2 = _interopRequireDefault(_mathUtil);
 
-var _complementaryFilter = __webpack_require__(40);
+var _complementaryFilter = __webpack_require__(54);
 
 var _complementaryFilter2 = _interopRequireDefault(_complementaryFilter);
 
@@ -11481,7 +11413,7 @@ _complementaryFilter2["default"].prototype.getOrientation = function () {
 exports["default"] = _complementaryFilter2["default"];
 
 /***/ }),
-/* 30 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11493,13 +11425,13 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _agent = __webpack_require__(7);
+var _agent = __webpack_require__(13);
 
 var _agent2 = _interopRequireDefault(_agent);
 
-var _mathUtil = __webpack_require__(1);
+var _mathUtil = __webpack_require__(2);
 
-var _browser = __webpack_require__(5);
+var _browser = __webpack_require__(11);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -11595,7 +11527,7 @@ var DeviceMotion = function (_Component) {
 exports["default"] = DeviceMotion;
 
 /***/ }),
-/* 31 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11607,27 +11539,27 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _posePredictor = __webpack_require__(41);
+var _posePredictor = __webpack_require__(55);
 
 var _posePredictor2 = _interopRequireDefault(_posePredictor);
 
-var _mathUtil = __webpack_require__(4);
+var _mathUtil = __webpack_require__(9);
 
 var _mathUtil2 = _interopRequireDefault(_mathUtil);
 
-var _util = __webpack_require__(8);
+var _util = __webpack_require__(14);
 
 var _util2 = _interopRequireDefault(_util);
 
-var _browser = __webpack_require__(5);
+var _browser = __webpack_require__(11);
 
-var _mathUtil3 = __webpack_require__(1);
+var _mathUtil3 = __webpack_require__(2);
 
-var _DeviceMotion = __webpack_require__(30);
+var _DeviceMotion = __webpack_require__(44);
 
 var _DeviceMotion2 = _interopRequireDefault(_DeviceMotion);
 
-var _ComplementaryFilter = __webpack_require__(29);
+var _ComplementaryFilter = __webpack_require__(43);
 
 var _ComplementaryFilter2 = _interopRequireDefault(_ComplementaryFilter);
 
@@ -11834,7 +11766,7 @@ var FusionPoseSensor = function (_Component) {
 exports["default"] = FusionPoseSensor;
 
 /***/ }),
-/* 32 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11848,13 +11780,13 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _utils = __webpack_require__(14);
+var _utils = __webpack_require__(20);
 
-var _FusionPoseSensor = __webpack_require__(31);
+var _FusionPoseSensor = __webpack_require__(45);
 
 var _FusionPoseSensor2 = _interopRequireDefault(_FusionPoseSensor);
 
-var _mathUtil = __webpack_require__(1);
+var _mathUtil = __webpack_require__(2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -11965,7 +11897,7 @@ var TiltMotionInput = function (_Component) {
 exports["default"] = TiltMotionInput;
 
 /***/ }),
-/* 33 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11979,7 +11911,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _utils = __webpack_require__(14);
+var _utils = __webpack_require__(20);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -12061,13 +11993,13 @@ var WheelInput = function (_Component) {
 exports["default"] = WheelInput;
 
 /***/ }),
-/* 34 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _common = __webpack_require__(2);
+var _common = __webpack_require__(4);
 
 var _common2 = _interopRequireDefault(_common);
 
@@ -12260,13 +12192,13 @@ mat4.perspective = function (out, fovy, aspect, near, far) {
 module.exports = mat4;
 
 /***/ }),
-/* 35 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _common = __webpack_require__(2);
+var _common = __webpack_require__(4);
 
 var _common2 = _interopRequireDefault(_common);
 
@@ -12381,13 +12313,13 @@ quat.equals = function (a, b) {
 module.exports = quat;
 
 /***/ }),
-/* 36 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _common = __webpack_require__(2);
+var _common = __webpack_require__(4);
 
 var _common2 = _interopRequireDefault(_common);
 
@@ -12414,13 +12346,13 @@ vec2.copy = function (out, a) {
 module.exports = vec2;
 
 /***/ }),
-/* 37 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _common = __webpack_require__(2);
+var _common = __webpack_require__(4);
 
 var _common2 = _interopRequireDefault(_common);
 
@@ -12615,7 +12547,7 @@ vec3.transformQuat = function (out, a, q) {
 module.exports = vec3;
 
 /***/ }),
-/* 38 */
+/* 52 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -12805,7 +12737,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 39 */
+/* 53 */
 /***/ (function(module, exports) {
 
 var g;
@@ -12832,7 +12764,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 40 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -12850,9 +12782,9 @@ module.exports = g;
  * limitations under the License.
  */
 
-var SensorSample = __webpack_require__(42);
-var MathUtil = __webpack_require__(4);
-var Util = __webpack_require__(8);
+var SensorSample = __webpack_require__(56);
+var MathUtil = __webpack_require__(9);
+var Util = __webpack_require__(14);
 
 /**
  * An implementation of a simple complementary filter, which fuses gyroscope and
@@ -13004,7 +12936,7 @@ module.exports = ComplementaryFilter;
 
 
 /***/ }),
-/* 41 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -13021,8 +12953,8 @@ module.exports = ComplementaryFilter;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var MathUtil = __webpack_require__(4);
-var Util = __webpack_require__(8);
+var MathUtil = __webpack_require__(9);
+var Util = __webpack_require__(14);
 
 /**
  * Given an orientation and the gyroscope data, predicts the future orientation
@@ -13091,7 +13023,7 @@ module.exports = PosePredictor;
 
 
 /***/ }),
-/* 42 */
+/* 56 */
 /***/ (function(module, exports) {
 
 function SensorSample(sample, timestampS) {
@@ -13109,12 +13041,6 @@ SensorSample.prototype.copy = function(sensorSample) {
 
 module.exports = SensorSample;
 
-
-/***/ }),
-/* 43 */
-/***/ (function(module, exports) {
-
-/* (ignored) */
 
 /***/ })
 /******/ ]);
