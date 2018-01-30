@@ -206,7 +206,7 @@ describe("PanoViewer", function() {
 			panoViewer = null;
 		});
 
-		it("Should have isTrusted value true when trigged by user interaction", done => {
+		IT("Should have isTrusted value true when trigged by user interaction", done => {
 			// Given
 			panoViewer = new PanoViewer(target, {
 				image: "./images/test_equi.png"
@@ -217,7 +217,7 @@ describe("PanoViewer", function() {
 				panoViewer.on("viewChange", e => {
 					isTrustedOnChange = e.isTrusted;
 				});
-	
+
 				// When
 				Simulator.gestures.pan(target, { // this.el 이 300 * 300 이라고 가정
 					pos: [30, 30],
@@ -233,7 +233,7 @@ describe("PanoViewer", function() {
 			});
 		});
 
-		it("Should have isTrusted value false when trigged by javascript api", done => {
+		IT("Should have isTrusted value false when trigged by javascript api", done => {
 			// Given
 			panoViewer = new PanoViewer(target, {
 				image: "./images/test_equi.png"
