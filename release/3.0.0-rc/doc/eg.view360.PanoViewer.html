@@ -106,15 +106,13 @@
     
         <li data-name="eg.view360.PanoViewer#getPitchRange"><a href="eg.view360.PanoViewer.html#getPitchRange">getPitchRange</a></li>
     
-        <li data-name="eg.view360.PanoViewer#getProjectionType"><a href="eg.view360.PanoViewer.html#getProjectionType">getProjectionType</a></li>
-    
-        <li data-name="eg.view360.PanoViewer#getVideo"><a href="eg.view360.PanoViewer.html#getVideo">getVideo</a></li>
-    
         <li data-name="eg.view360.PanoViewer#getYaw"><a href="eg.view360.PanoViewer.html#getYaw">getYaw</a></li>
     
         <li data-name="eg.view360.PanoViewer#getYawRange"><a href="eg.view360.PanoViewer.html#getYawRange">getYawRange</a></li>
     
         <li data-name="eg.view360.PanoViewer#hasOn"><a href="eg.view360.PanoViewer.html#hasOn">hasOn</a> <img src="img/i.png" width="14" title="inherited" alt="inherited"></li>
+    
+        <li data-name="eg.view360.PanoViewer#isResumed"><a href="eg.view360.PanoViewer.html#isResumed">isResumed</a></li>
     
         <li data-name="eg.view360.PanoViewer#lookAt"><a href="eg.view360.PanoViewer.html#lookAt">lookAt</a></li>
     
@@ -124,6 +122,8 @@
     
         <li data-name="eg.view360.PanoViewer#once"><a href="eg.view360.PanoViewer.html#once">once</a> <img src="img/i.png" width="14" title="inherited" alt="inherited"></li>
     
+        <li data-name="eg.view360.PanoViewer#resume"><a href="eg.view360.PanoViewer.html#resume">resume</a></li>
+    
         <li data-name="eg.view360.PanoViewer#setFovRange"><a href="eg.view360.PanoViewer.html#setFovRange">setFovRange</a></li>
     
         <li data-name="eg.view360.PanoViewer#setImage"><a href="eg.view360.PanoViewer.html#setImage">setImage</a></li>
@@ -132,15 +132,13 @@
     
         <li data-name="eg.view360.PanoViewer#setPitchRange"><a href="eg.view360.PanoViewer.html#setPitchRange">setPitchRange</a></li>
     
-        <li data-name="eg.view360.PanoViewer#setUseGyro"><a href="eg.view360.PanoViewer.html#setUseGyro">setUseGyro</a></li>
-    
         <li data-name="eg.view360.PanoViewer#setUseKeyboard"><a href="eg.view360.PanoViewer.html#setUseKeyboard">setUseKeyboard</a></li>
     
         <li data-name="eg.view360.PanoViewer#setUseZoom"><a href="eg.view360.PanoViewer.html#setUseZoom">setUseZoom</a></li>
     
-        <li data-name="eg.view360.PanoViewer#setVideo"><a href="eg.view360.PanoViewer.html#setVideo">setVideo</a></li>
-    
         <li data-name="eg.view360.PanoViewer#setYawRange"><a href="eg.view360.PanoViewer.html#setYawRange">setYawRange</a></li>
+    
+        <li data-name="eg.view360.PanoViewer#suspend"><a href="eg.view360.PanoViewer.html#suspend">suspend</a></li>
     
         <li data-name="eg.view360.PanoViewer#trigger"><a href="eg.view360.PanoViewer.html#trigger">trigger</a> <img src="img/i.png" width="14" title="inherited" alt="inherited"></li>
     
@@ -153,11 +151,11 @@
     
         <li data-name="eg.view360.PanoViewer#event:animationEnd"><a href="eg.view360.PanoViewer.html#event:animationEnd">animationEnd</a></li>
     
-        <li data-name="eg.view360.PanoViewer#event:contentLoaded"><a href="eg.view360.PanoViewer.html#event:contentLoaded">contentLoaded</a></li>
-    
         <li data-name="eg.view360.PanoViewer#event:error"><a href="eg.view360.PanoViewer.html#event:error">error</a></li>
     
-        <li data-name="eg.view360.PanoViewer#event:ready"><a href="eg.view360.PanoViewer.html#event:ready">ready</a></li>
+        <li data-name="eg.view360.PanoViewer#event:resume"><a href="eg.view360.PanoViewer.html#event:resume">resume</a></li>
+    
+        <li data-name="eg.view360.PanoViewer#event:suspend"><a href="eg.view360.PanoViewer.html#event:suspend">suspend</a></li>
     
         <li data-name="eg.view360.PanoViewer#event:viewChange"><a href="eg.view360.PanoViewer.html#event:viewChange">viewChange</a></li>
     
@@ -366,8 +364,8 @@
         <!-- Description -->
         <div>
             
-            <div class="description en"><p>Input image url or image object</p></div>
-            <div class="description ko"><p>입력 이미지 URL 혹은 이미지 객체(image 와 video 둘 중 하나만 설정한다.)</p></div>
+            <div class="description en"><p>Input image </p></div>
+            <div class="description ko"><p>입력 이미지</p></div>
             
         </div>
 
@@ -378,43 +376,7 @@
     <li>
         <!-- parameter name -->
         <div>
-            <strong>video</strong>
-            
-
-            
-                
-                
-                    
-                
-            
-        </div>
-        <!-- parameter type -->
-        
-        <div>Type: 
-<span class="param-type">String</span>
-|
-
-<span class="param-type">HTMLVideoElement</span>
-
-</div>
-        
-    
-        <!-- Description -->
-        <div>
-            
-            <div class="description en"><p>Input video url or tag</p></div>
-            <div class="description ko"><p>입력 비디오 URL 혹은 video 태그(image 와 video 둘 중 하나만 설정한다.)</p></div>
-            
-        </div>
-
-        <!-- Sub parameters -->
-        
-    </li>
-    
-    <li>
-        <!-- parameter name -->
-        <div>
-            <strong>projectionType</strong>
+            <strong>imageType</strong>
             
                 (default: <code>equirectangular</code>)
             
@@ -439,8 +401,8 @@
         <!-- Description -->
         <div>
             
-            <div class="description en"><p>The type of projection: equirectangular, vertival_cubestrip </p></div>
-            <div class="description ko"><p>Projection 유형 : equirectangular, vertival_cubestrip</p></div>
+            <div class="description en"><p>The type of the image: equirectangular, vertival_cubestrip </p></div>
+            <div class="description ko"><p>이미지 유형 : equirectangular, vertival_cubestrip</p></div>
             
         </div>
 
@@ -747,43 +709,6 @@
     <li>
         <!-- parameter name -->
         <div>
-            <strong>useGyro</strong>
-            
-                (default: <code>yawPitch</code>)
-            
-
-            
-                
-                    <span class="optional">optional</span>
-                
-                
-                    
-                
-            
-        </div>
-        <!-- parameter type -->
-        
-        <div>Type: 
-<span class="param-type">String</span>
-
-</div>
-        
-    
-        <!-- Description -->
-        <div>
-            
-            <div class="description en"><p>Enables control through device motion. (&quot;none&quot;, &quot;yawPitch&quot;) </p></div>
-            <div class="description ko"><p>디바이스 움직임을 통한 컨트롤을 활성화 합니다. (&quot;none&quot;, &quot;yawPitch&quot;) </p></div>
-            
-        </div>
-
-        <!-- Sub parameters -->
-        
-    </li>
-    
-    <li>
-        <!-- parameter name -->
-        <div>
             <strong>yawRange</strong>
             
                 (default: <code>[-180, 180]</code>)
@@ -1021,7 +946,7 @@
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line635">line 635</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line601">line 601</a>
         </div>
         
     </div>
@@ -1134,7 +1059,7 @@
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line606">line 606</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line572">line 572</a>
         </div>
         
     </div>
@@ -1213,7 +1138,7 @@
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line437">line 437</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line354">line 354</a>
         </div>
         
     </div>
@@ -1327,7 +1252,7 @@
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line404">line 404</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line321">line 321</a>
         </div>
         
     </div>
@@ -1436,12 +1361,12 @@
     <div class="nameContainer">
         <h4 class="name" id="getImage">
             
-            getImage<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Image}</span>
+            getImage<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="global.html#ImageInfo">ImageInfo</a>}</span>
         </h4>
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line139">line 139</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line109">line 109</a>
         </div>
         
     </div>
@@ -1495,15 +1420,12 @@
             <td class="type">
             
                     	
-                        Image
+                        <a href="global.html#ImageInfo">ImageInfo</a>
                         
                         
                     
             </td>
             <td class="description last">
-                
-                <div class="en">Image Object</div>
-                <div class="ko"><p>이미지 객체</p></div>
                 
 
                 
@@ -1558,7 +1480,7 @@
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line465">line 465</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line382">line 382</a>
         </div>
         
     </div>
@@ -1672,7 +1594,7 @@
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line485">line 485</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line402">line 402</a>
         </div>
         
     </div>
@@ -1779,202 +1701,6 @@
             
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="getProjectionType">
-            
-            getProjectionType<span class="signature">()</span>
-        </h4>
-    
-        
-        <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line196">line 196</a>
-        </div>
-        
-    </div>
-
-    
-</dt>
-<dd>
-    
-    
-	<div class="description en">
-		<p>Get projection type (equirectangular/cube)</p>
-	</div>
-	
-	
-	<div class="description ko">
-		<p>프로젝션 타입(Equirectangular 혹은 Cube)을 반환한다.</p>
-	</div>
-	
-
-    
-    
-    
-    
-    
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    
-    
-
-    
-<dl class="details">
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-    <!-- if data.codepen -->
-</dl>
-
-</dd>
-
-        
-            
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="getVideo">
-            
-            getVideo<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{HTMLVideoElement}</span>
-        </h4>
-    
-        
-        <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line106">line 106</a>
-        </div>
-        
-    </div>
-
-    
-</dt>
-<dd>
-    
-    
-	<div class="description en">
-		<p>Getting the video element that the viewer is currently playing. You can use this for playback.</p>
-	</div>
-	
-	
-	<div class="description ko">
-		<p>뷰어가 현재 사용 중인 비디오 요소를 얻습니다. 이 요소를 이용해 비디오의 컨트롤을 할 수 있습니다.</p>
-	</div>
-	
-
-    
-    
-    
-    
-    
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Type</th>
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    
-        <tr>
-            
-            <td class="type">
-            
-                    	
-                        HTMLVideoElement
-                        
-                        
-                    
-            </td>
-            <td class="description last">
-                
-                <div class="en">HTMLVideoElement</div>
-                <div class="ko"><p>HTMLVideoElement</p></div>
-                
-
-                
-            </td>
-        </tr>
-    
-    </tbody>
-</table>
-
-    
-    
-    
-
-    
-<dl class="details">
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-    <!-- if data.codepen -->
-</dl>
-
-</dd>
-
-        
-            
-<dt>
-    <div class="nameContainer">
         <h4 class="name" id="getYaw">
             
             getYaw<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Number}</span>
@@ -1982,7 +1708,7 @@
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line455">line 455</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line372">line 372</a>
         </div>
         
     </div>
@@ -2096,7 +1822,7 @@
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line475">line 475</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line392">line 392</a>
         </div>
         
     </div>
@@ -2364,6 +2090,120 @@
             
 <dt>
     <div class="nameContainer">
+        <h4 class="name" id="isResumed">
+            
+            isResumed<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Boolean}</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line562">line 562</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+	<div class="description en">
+		<p>Returns whether the viewer is in resumed state.</p>
+	</div>
+	
+	
+	<div class="description ko">
+		<p>뷰어가 resume 된 상태인지 여부를 반환합니다.</p>
+	</div>
+	
+
+    
+    
+    
+    
+    
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+        <tr>
+            
+            <td class="type">
+            
+                    	
+                        Boolean
+                        
+                        
+                    
+            </td>
+            <td class="description last">
+                
+
+                
+            </td>
+        </tr>
+    
+    </tbody>
+</table>
+
+    
+    
+    
+
+    
+<dl class="details">
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+    <!-- if data.codepen -->
+</dl>
+
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
         <h4 class="name" id="lookAt">
             
             lookAt<span class="signature">(orientation, duration)</span>
@@ -2371,7 +2211,7 @@
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line525">line 525</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line442">line 442</a>
         </div>
         
     </div>
@@ -3160,6 +3000,85 @@
             
 <dt>
     <div class="nameContainer">
+        <h4 class="name" id="resume">
+            
+            resume<span class="signature">()</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line474">line 474</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+	<div class="description en">
+		<p>Create webgl context and initiate user interaction and rendering</p>
+	</div>
+	
+	
+	<div class="description ko">
+		<p>WebGl 컨텍스트 생성 및 사용자 상호 작용과 렌더링 시작</p>
+	</div>
+	
+
+    
+    
+    
+    
+    
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+    
+<dl class="details">
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+    <!-- if data.codepen -->
+</dl>
+
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
         <h4 class="name" id="setFovRange">
             
             setFovRange<span class="signature">(range)</span>
@@ -3167,7 +3086,7 @@
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line394">line 394</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line311">line 311</a>
         </div>
         
     </div>
@@ -3272,12 +3191,12 @@
     <div class="nameContainer">
         <h4 class="name" id="setImage">
             
-            setImage<span class="signature">(image, param)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{PanoViewer}</span>
+            setImage<span class="signature">(imageInfo)</span>
         </h4>
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line153">line 153</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line122">line 122</a>
         </div>
         
     </div>
@@ -3309,7 +3228,7 @@
     <li>
         <!-- parameter name -->
         <div>
-            <strong>image</strong>
+            <strong>imageInfo</strong>
             
 
             
@@ -3317,10 +3236,7 @@
         <!-- parameter type -->
         
         <div>Type: 
-<span class="param-type">String</span>
-|
-
-<span class="param-type">Image</span>
+<span class="param-type"><a href="global.html#ImageInfo">ImageInfo</a></span>
 
 </div>
         
@@ -3328,75 +3244,8 @@
         <!-- Description -->
         <div>
             
-            <div class="description en"><p>ImageURL or Image Object</p></div>
-            <div class="description ko"><p>이미지 URL 혹은 Image 객체</p></div>
-            
-        </div>
-
-        <!-- Sub parameters -->
-        
-    </li>
-    
-    <li>
-        <!-- parameter name -->
-        <div>
-            <strong>param</strong>
-            
-
-            
-        </div>
-        <!-- parameter type -->
-        
-        <div>Type: 
-<span class="param-type">Object</span>
-
-</div>
-        
-    
-        <!-- Description -->
-        <div>
-            
-            <div class="description en"><p>Additional information</p></div>
-            <div class="description ko"><p>이미지 추가 정보</p></div>
-            
-        </div>
-
-        <!-- Sub parameters -->
-        
-            
-
-<ul class="parameters">
-    
-    <li>
-        <!-- parameter name -->
-        <div>
-            <strong>projectionType</strong>
-            
-                (default: <code>"equirectangular"</code>)
-            
-
-            
-                
-                    <span class="optional">optional</span>
-                
-                
-                    
-                
-            
-        </div>
-        <!-- parameter type -->
-        
-        <div>Type: 
-<span class="param-type">String</span>
-
-</div>
-        
-    
-        <!-- Description -->
-        <div>
-            
-            <div class="description en"><p>Projection Type</p></div>
-            <div class="description ko"><p>프로젝션 타입</p></div>
+            <div class="description en"><p>Input image information  </p></div>
+            <div class="description ko"><p>입력 이미지 정보</p></div>
             
         </div>
 
@@ -3405,10 +3254,6 @@
     </li>
     
 </ul>
-        
-    </li>
-    
-</ul>
     
     
     
@@ -3419,44 +3264,6 @@
     
     
     
-    
-    <h5>Returns:</h5>
-    
-
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Type</th>
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    
-        <tr>
-            
-            <td class="type">
-            
-                    	
-                        PanoViewer
-                        
-                        
-                    
-            </td>
-            <td class="description last">
-                
-                <div class="en">PanoViewer instance</div>
-                <div class="ko"><p>PanoViewer 인스턴스</p></div>
-                
-
-                
-            </td>
-        </tr>
-    
-    </tbody>
-</table>
-
     
     
     
@@ -3502,7 +3309,7 @@
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line515">line 515</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line432">line 432</a>
         </div>
         
     </div>
@@ -3612,7 +3419,7 @@
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line505">line 505</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line422">line 422</a>
         </div>
         
     </div>
@@ -3715,116 +3522,6 @@
             
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="setUseGyro">
-            
-            setUseGyro<span class="signature">(useGyro)</span>
-        </h4>
-    
-        
-        <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line384">line 384</a>
-        </div>
-        
-    </div>
-
-    
-</dt>
-<dd>
-    
-    
-	<div class="description en">
-		<p>Enables control through device motion. (&quot;none&quot;, &quot;yawPitch&quot;)</p>
-	</div>
-	
-	
-	<div class="description ko">
-		<p>디바이스 움직임을 통한 컨트롤을 활성화 합니다. (&quot;none&quot;, &quot;yawPitch&quot;)</p>
-	</div>
-	
-
-    
-    
-    
-    
-    
-        
-
-<ul class="parameters">
-    
-    <li>
-        <!-- parameter name -->
-        <div>
-            <strong>useGyro</strong>
-            
-
-            
-        </div>
-        <!-- parameter type -->
-        
-        <div>Type: 
-<span class="param-type">String</span>
-
-</div>
-        
-    
-        <!-- Description -->
-        <div>
-            
-        </div>
-
-        <!-- Sub parameters -->
-        
-    </li>
-    
-</ul>
-    
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    
-    
-
-    
-<dl class="details">
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-    <!-- if data.codepen -->
-</dl>
-
-</dd>
-
-        
-            
-<dt>
-    <div class="nameContainer">
         <h4 class="name" id="setUseKeyboard">
             
             setUseKeyboard<span class="signature">(useKeyboard)</span>
@@ -3832,7 +3529,7 @@
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line374">line 374</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line301">line 301</a>
         </div>
         
     </div>
@@ -3942,7 +3639,7 @@
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line360">line 360</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line287">line 287</a>
         </div>
         
     </div>
@@ -4045,228 +3742,6 @@
             
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="setVideo">
-            
-            setVideo<span class="signature">(video, param)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{PanoViewer}</span>
-        </h4>
-    
-        
-        <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line120">line 120</a>
-        </div>
-        
-    </div>
-
-    
-</dt>
-<dd>
-    
-    
-	<div class="description en">
-		<p>Setting the video information to be used by the viewer.</p>
-	</div>
-	
-	
-	<div class="description ko">
-		<p>뷰어가 사용할 이미지 정보를 설정 합니다.</p>
-	</div>
-	
-
-    
-    
-    
-    
-    
-        
-
-<ul class="parameters">
-    
-    <li>
-        <!-- parameter name -->
-        <div>
-            <strong>video</strong>
-            
-
-            
-        </div>
-        <!-- parameter type -->
-        
-        <div>Type: 
-<span class="param-type">String</span>
-|
-
-<span class="param-type">HTMLVideoElement</span>
-
-</div>
-        
-    
-        <!-- Description -->
-        <div>
-            
-            <div class="description en"><p>Video URL or Video Tag</p></div>
-            <div class="description ko"><p>비디오 URL 혹은 비디오 태그</p></div>
-            
-        </div>
-
-        <!-- Sub parameters -->
-        
-    </li>
-    
-    <li>
-        <!-- parameter name -->
-        <div>
-            <strong>param</strong>
-            
-
-            
-        </div>
-        <!-- parameter type -->
-        
-        <div>Type: 
-<span class="param-type">Object</span>
-
-</div>
-        
-    
-        <!-- Description -->
-        <div>
-            
-        </div>
-
-        <!-- Sub parameters -->
-        
-            
-
-<ul class="parameters">
-    
-    <li>
-        <!-- parameter name -->
-        <div>
-            <strong>projectionType</strong>
-            
-                (default: <code>"equirectangular"</code>)
-            
-
-            
-                
-                    <span class="optional">optional</span>
-                
-                
-                    
-                
-            
-        </div>
-        <!-- parameter type -->
-        
-        <div>Type: 
-<span class="param-type">String</span>
-
-</div>
-        
-    
-        <!-- Description -->
-        <div>
-            
-            <div class="description en"><p>Projection Type</p></div>
-            <div class="description ko"><p>프로젝션 타입</p></div>
-            
-        </div>
-
-        <!-- Sub parameters -->
-        
-    </li>
-    
-</ul>
-        
-    </li>
-    
-</ul>
-    
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Type</th>
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    
-        <tr>
-            
-            <td class="type">
-            
-                    	
-                        PanoViewer
-                        
-                        
-                    
-            </td>
-            <td class="description last">
-                
-                <div class="en">PanoViewer instance</div>
-                <div class="ko"><p>PanoViewer 인스턴스</p></div>
-                
-
-                
-            </td>
-        </tr>
-    
-    </tbody>
-</table>
-
-    
-    
-    
-
-    
-<dl class="details">
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-    <!-- if data.codepen -->
-</dl>
-
-</dd>
-
-        
-            
-<dt>
-    <div class="nameContainer">
         <h4 class="name" id="setYawRange">
             
             setYawRange<span class="signature">(range)</span>
@@ -4274,7 +3749,7 @@
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line495">line 495</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line412">line 412</a>
         </div>
         
     </div>
@@ -4321,6 +3796,119 @@
     
         <!-- Description -->
         <div>
+            
+        </div>
+
+        <!-- Sub parameters -->
+        
+    </li>
+    
+</ul>
+    
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+    
+<dl class="details">
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+    <!-- if data.codepen -->
+</dl>
+
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="suspend">
+            
+            suspend<span class="signature">(persistOrientation)</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line540">line 540</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+	<div class="description en">
+		<p>Destroy webgl context and block user interaction and stop rendering</p>
+	</div>
+	
+	
+	<div class="description ko">
+		<p>Webgl 컨텍스트를 삭제하고 사용자 상호 작용을 차단하고 렌더링을 중지합니다.</p>
+	</div>
+	
+
+    
+    
+    
+    
+    
+        
+
+<ul class="parameters">
+    
+    <li>
+        <!-- parameter name -->
+        <div>
+            <strong>persistOrientation</strong>
+            
+
+            
+        </div>
+        <!-- parameter type -->
+        
+        <div>Type: 
+<span class="param-type">Boolean</span>
+
+</div>
+        
+    
+        <!-- Description -->
+        <div>
+            
+            <div class="description en"><p>When true, it persist last yaw, pitch, fov on next resume </p></div>
+            <div class="description ko"><p>true 지정 시, 다음 resume 때 기존의 카메라 설정을 유지합니다.</p></div>
             
         </div>
 
@@ -4574,7 +4162,7 @@
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line414">line 414</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line331">line 331</a>
         </div>
         
     </div>
@@ -4773,7 +4361,7 @@
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line333">line 333</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line272">line 272</a>
         </div>
         
     </div>
@@ -4853,200 +4441,6 @@
             
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="event:contentLoaded">
-            
-            contentLoaded
-        </h4>
-    
-        
-        <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line346">line 346</a>
-        </div>
-        
-    </div>
-
-    
-</dt>
-<dd>
-    
-    
-	<div class="description en">
-		<p>Events that is fired when content(Video/Image) is loaded</p>
-	</div>
-	
-	
-	<div class="description ko">
-		<p>컨텐츠(비디오 혹은 이미지)가 로드되었을때 발생되는 이벤트</p>
-	</div>
-	
-
-    
-    
-    
-    
-    
-        
-
-<ul class="parameters">
-    
-    <li>
-        <!-- parameter name -->
-        <div>
-            <strong>event</strong>
-            
-
-            
-        </div>
-        <!-- parameter type -->
-        
-        <div>Type: 
-<span class="param-type">Object</span>
-
-</div>
-        
-    
-        <!-- Description -->
-        <div>
-            
-        </div>
-
-        <!-- Sub parameters -->
-        
-            
-
-<ul class="parameters">
-    
-    <li>
-        <!-- parameter name -->
-        <div>
-            <strong>content</strong>
-            
-
-            
-        </div>
-        <!-- parameter type -->
-        
-        <div>Type: 
-<span class="param-type">HTMLVideoElement</span>
-|
-
-<span class="param-type">Image</span>
-
-</div>
-        
-    
-        <!-- Description -->
-        <div>
-            
-        </div>
-
-        <!-- Sub parameters -->
-        
-    </li>
-    
-    <li>
-        <!-- parameter name -->
-        <div>
-            <strong>isVideo</strong>
-            
-
-            
-        </div>
-        <!-- parameter type -->
-        
-        <div>Type: 
-<span class="param-type">Boolean</span>
-
-</div>
-        
-    
-        <!-- Description -->
-        <div>
-            
-        </div>
-
-        <!-- Sub parameters -->
-        
-    </li>
-    
-    <li>
-        <!-- parameter name -->
-        <div>
-            <strong>projectionType</strong>
-            
-
-            
-        </div>
-        <!-- parameter type -->
-        
-        <div>Type: 
-<span class="param-type">String</span>
-
-</div>
-        
-    
-        <!-- Description -->
-        <div>
-            
-        </div>
-
-        <!-- Sub parameters -->
-        
-    </li>
-    
-</ul>
-        
-    </li>
-    
-</ul>
-    
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    
-    
-
-    
-<dl class="details">
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-    <!-- if data.codepen -->
-</dl>
-
-</dd>
-
-        
-            
-<dt>
-    <div class="nameContainer">
         <h4 class="name" id="event:error">
             
             error
@@ -5054,7 +4448,7 @@
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line270">line 270</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line209">line 209</a>
         </div>
         
     </div>
@@ -5132,9 +4526,8 @@
         <!-- Description -->
         <div>
             
-            <div class="description en"><p>Error type<br>        10: INVALID_DEVICE: Unsupported device<br>        11: NO_WEBGL: Webgl not support<br>        12, FAIL_IMAGE_LOAD: Failed to load image<br>        13: FAIL_BIND_TEXTURE: Failed to bind texture<br>        14: INVALID_RESOURCE: Only one resource(image or video) should be specified<br>        15: RENDERING_CONTEXT_LOST: WebGL context lost occurred</p>
-</div>
-            <div class="description ko"><p>에러 종류<br>        10: INVALID_DEVICE: 미지원 기기<br>        11: NO_WEBGL: WEBGL 미지원<br>        12, FAIL_IMAGE_LOAD: 이미지 로드 실패<br>        13: FAIL_BIND_TEXTURE: 텍스쳐 바인딩 실패<br>        14: INVALID_RESOURCE: 리소스 지정 오류 (image 혹은 video 중 하나만 지정되어야 함)<br>        15: RENDERING_CONTEXT_LOST: WebGL context lost 발생<br></p></div>
+            <div class="description en"><p>Error type (10: INVALID_DEVICE, 11: NO_WEBGL, 12, FAIL_IMAGE_LOAD, 13: FAIL_BIND_TEXTURE)</p></div>
+            <div class="description ko"><p>에러 종류(10: INVALID_DEVICE, 11: NO_WEBGL, 12, FAIL_IMAGE_LOAD, 13: FAIL_BIND_TEXTURE)</p></div>
             
         </div>
 
@@ -5231,14 +4624,14 @@
             
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="event:ready">
+        <h4 class="name" id="event:resume">
             
-            ready
+            resume
         </h4>
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line302">line 302</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line227">line 227</a>
         </div>
         
     </div>
@@ -5279,7 +4672,94 @@
         
 
     
-    <pre class="prettyprint"><code><p>viwer.on({<br>    &quot;ready&quot; : function(evt) {<br>        // PanoViewer is ready to show image and handle user interaction.<br>});</p></code></pre>
+    <pre class="prettyprint"><code><p>viwer.on({<br>    &quot;resume&quot; : function(evt) {<br>        // PanoViewer is ready to show image and handle user interaction.<br>});</p></code></pre>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+    <!-- if data.codepen -->
+</dl>
+
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="event:suspend">
+            
+            suspend
+        </h4>
+    
+        
+        <div class="tag-source">
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line241">line 241</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+	<div class="description en">
+		<p>Events that is fired when PanoViewer is suspended</p>
+	</div>
+	
+	
+	<div class="description ko">
+		<p>PanoViewer 를 중지했을때 발생하는 이벤트</p>
+	</div>
+	
+
+    
+    
+    
+    
+    
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+        <h5>Example</h5>
+        
+
+    
+    <pre class="prettyprint"><code><p>viwer.on({<br>    &quot;suspend&quot; : function(evt) {<br>        // PanoViewer is ready to show image and handle user interaction.<br>});</p></code></pre>
     
 
     
@@ -5325,7 +4805,7 @@
     
         
         <div class="tag-source">
-            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line316">line 316</a>
+            <a href="src_PanoViewer_PanoViewer.js.html">PanoViewer.js</a>, <a href="src_PanoViewer_PanoViewer.js.html#line255">line 255</a>
         </div>
         
     </div>
@@ -5546,7 +5026,7 @@
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Jan 08 2018 16:09:35 GMT+0900 (KST)
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Jan 30 2018 13:32:51 GMT+0900 (KST)
         </footer>
     </div>
 </div>

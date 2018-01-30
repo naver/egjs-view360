@@ -106,15 +106,13 @@
     
         <li data-name="eg.view360.PanoViewer#getPitchRange"><a href="eg.view360.PanoViewer.html#getPitchRange">getPitchRange</a></li>
     
-        <li data-name="eg.view360.PanoViewer#getProjectionType"><a href="eg.view360.PanoViewer.html#getProjectionType">getProjectionType</a></li>
-    
-        <li data-name="eg.view360.PanoViewer#getVideo"><a href="eg.view360.PanoViewer.html#getVideo">getVideo</a></li>
-    
         <li data-name="eg.view360.PanoViewer#getYaw"><a href="eg.view360.PanoViewer.html#getYaw">getYaw</a></li>
     
         <li data-name="eg.view360.PanoViewer#getYawRange"><a href="eg.view360.PanoViewer.html#getYawRange">getYawRange</a></li>
     
         <li data-name="eg.view360.PanoViewer#hasOn"><a href="eg.view360.PanoViewer.html#hasOn">hasOn</a> <img src="img/i.png" width="14" title="inherited" alt="inherited"></li>
+    
+        <li data-name="eg.view360.PanoViewer#isResumed"><a href="eg.view360.PanoViewer.html#isResumed">isResumed</a></li>
     
         <li data-name="eg.view360.PanoViewer#lookAt"><a href="eg.view360.PanoViewer.html#lookAt">lookAt</a></li>
     
@@ -124,6 +122,8 @@
     
         <li data-name="eg.view360.PanoViewer#once"><a href="eg.view360.PanoViewer.html#once">once</a> <img src="img/i.png" width="14" title="inherited" alt="inherited"></li>
     
+        <li data-name="eg.view360.PanoViewer#resume"><a href="eg.view360.PanoViewer.html#resume">resume</a></li>
+    
         <li data-name="eg.view360.PanoViewer#setFovRange"><a href="eg.view360.PanoViewer.html#setFovRange">setFovRange</a></li>
     
         <li data-name="eg.view360.PanoViewer#setImage"><a href="eg.view360.PanoViewer.html#setImage">setImage</a></li>
@@ -132,15 +132,13 @@
     
         <li data-name="eg.view360.PanoViewer#setPitchRange"><a href="eg.view360.PanoViewer.html#setPitchRange">setPitchRange</a></li>
     
-        <li data-name="eg.view360.PanoViewer#setUseGyro"><a href="eg.view360.PanoViewer.html#setUseGyro">setUseGyro</a></li>
-    
         <li data-name="eg.view360.PanoViewer#setUseKeyboard"><a href="eg.view360.PanoViewer.html#setUseKeyboard">setUseKeyboard</a></li>
     
         <li data-name="eg.view360.PanoViewer#setUseZoom"><a href="eg.view360.PanoViewer.html#setUseZoom">setUseZoom</a></li>
     
-        <li data-name="eg.view360.PanoViewer#setVideo"><a href="eg.view360.PanoViewer.html#setVideo">setVideo</a></li>
-    
         <li data-name="eg.view360.PanoViewer#setYawRange"><a href="eg.view360.PanoViewer.html#setYawRange">setYawRange</a></li>
+    
+        <li data-name="eg.view360.PanoViewer#suspend"><a href="eg.view360.PanoViewer.html#suspend">suspend</a></li>
     
         <li data-name="eg.view360.PanoViewer#trigger"><a href="eg.view360.PanoViewer.html#trigger">trigger</a> <img src="img/i.png" width="14" title="inherited" alt="inherited"></li>
     
@@ -153,11 +151,11 @@
     
         <li data-name="eg.view360.PanoViewer#event:animationEnd"><a href="eg.view360.PanoViewer.html#event:animationEnd">animationEnd</a></li>
     
-        <li data-name="eg.view360.PanoViewer#event:contentLoaded"><a href="eg.view360.PanoViewer.html#event:contentLoaded">contentLoaded</a></li>
-    
         <li data-name="eg.view360.PanoViewer#event:error"><a href="eg.view360.PanoViewer.html#event:error">error</a></li>
     
-        <li data-name="eg.view360.PanoViewer#event:ready"><a href="eg.view360.PanoViewer.html#event:ready">ready</a></li>
+        <li data-name="eg.view360.PanoViewer#event:resume"><a href="eg.view360.PanoViewer.html#event:resume">resume</a></li>
+    
+        <li data-name="eg.view360.PanoViewer#event:suspend"><a href="eg.view360.PanoViewer.html#event:suspend">suspend</a></li>
     
         <li data-name="eg.view360.PanoViewer#event:viewChange"><a href="eg.view360.PanoViewer.html#event:viewChange">viewChange</a></li>
     
@@ -242,7 +240,7 @@
 
 
     <section>
-        <article class="readme"><h1>egjs-view360 <a href="https://badge.fury.io/js/%40egjs%2Fview360"><img src="https://badge.fury.io/js/%40egjs%2Fview360.svg" alt="npm version"></a> <a href="https://travis-ci.org/naver/egjs-view360"><img src="https://travis-ci.org/naver/egjs-view360.svg?branch=3.0.0-rc" alt="Build Status"></a> <a href="https://coveralls.io/github/naver/egjs-view360?branch=3.0.0-rc"><img src="https://coveralls.io/repos/github/naver/egjs-view360/badge.svg?branch=3.0.0-rc" alt="Coverage Status"></a></h1><p>egjs-view360 is a 360 integrated viewing solution from <strong>inside-out view</strong> to <strong>outside-in view</strong>. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.</p>
+        <article class="readme"><h1>egjs-view360 <a href="https://badge.fury.io/js/%40egjs%2Fview360"><img src="https://badge.fury.io/js/%40egjs%2Fview360.svg" alt="npm version"></a> <a href="https://travis-ci.org/naver/egjs-view360"><img src="https://travis-ci.org/naver/egjs-view360.svg?branch=master" alt="Build Status"></a> <a href="https://coveralls.io/github/naver/egjs-view360?branch=master"><img src="https://coveralls.io/repos/github/naver/egjs-view360/badge.svg?branch=master" alt="Coverage Status"></a></h1><p>egjs-view360 is a 360 integrated viewing solution from <strong>inside-out view</strong> to <strong>outside-in view</strong>. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.</p>
 <h2>Components</h2><p>egjs-view360 provides the following components.</p>
 <table>
 <thead>
@@ -429,7 +427,7 @@ THE SOFTWARE.</code></pre></article>
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Jan 08 2018 16:09:35 GMT+0900 (KST)
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Jan 30 2018 13:32:51 GMT+0900 (KST)
         </footer>
     </div>
 </div>
