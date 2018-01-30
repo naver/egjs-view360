@@ -105,19 +105,19 @@ var _common = __webpack_require__(2);
 
 var _common2 = _interopRequireDefault(_common);
 
-var _vec = __webpack_require__(35);
+var _vec = __webpack_require__(36);
 
 var _vec2 = _interopRequireDefault(_vec);
 
-var _vec3 = __webpack_require__(34);
+var _vec3 = __webpack_require__(35);
 
 var _vec4 = _interopRequireDefault(_vec3);
 
-var _quat = __webpack_require__(33);
+var _quat = __webpack_require__(34);
 
 var _quat2 = _interopRequireDefault(_quat);
 
-var _mat = __webpack_require__(32);
+var _mat = __webpack_require__(33);
 
 var _mat2 = _interopRequireDefault(_mat);
 
@@ -164,42 +164,13 @@ THE SOFTWARE. */
 var util = {};
 
 util.isPowerOfTwo = function (n) {
-	if (typeof n !== "number") {
-		return "Not a number";
-	}
 	return n && (n & n - 1) === 0;
-};
-
-util.extractYawFromQuat = function (quaternion) {
-	var baseV = quatToVec3(quaternion);
-
-	return 1 * Math.atan2(baseV[0], baseV[2]);
 };
 
 util.extractPitchFromQuat = function (quaternion) {
 	var baseV = quatToVec3(quaternion);
 
 	return -1 * Math.atan2(baseV[1], Math.sqrt(Math.pow(baseV[0], 2) + Math.pow(baseV[2], 2)));
-};
-
-util.getQuaternionWithYawPitch = function (yaw, pitch) {
-	var q = _quat2["default"].create();
-
-	_quat2["default"].rotateY(q, q, _common2["default"].toRadian(yaw));
-	_quat2["default"].rotateX(q, q, _common2["default"].toRadian(pitch));
-	return q;
-};
-
-util.quatToYawPitch = function (quaternion) {
-	return {
-		yaw: _common2["default"].toDegree(util.extractYawFromQuat(quaternion)),
-		pitch: _common2["default"].toDegree(util.extractPitchFromQuat(quaternion))
-	};
-};
-
-util.yawPitchToPoint = function (yaw, pitch) {
-	// rad, rad
-	return [Math.tan(yaw) / Math.cos(pitch), Math.tan(pitch)];
 };
 
 // implement reference
@@ -498,7 +469,7 @@ function flush() {
 function attemptVertx() {
   try {
     var r = require;
-    var vertx = __webpack_require__(41);
+    var vertx = __webpack_require__(42);
     vertxNext = vertx.runOnLoop || vertx.runOnContext;
     return useVertxTimer();
   } catch (e) {
@@ -1550,7 +1521,7 @@ return Promise$1;
 
 //# sourceMappingURL=es6-promise.map
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(36), __webpack_require__(37)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(37), __webpack_require__(38)))
 
 /***/ }),
 /* 4 */
@@ -1917,6 +1888,101 @@ module.exports = MathUtil;
 
 /***/ }),
 /* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+/* eslint-disable no-new-func */
+/* eslint-disable no-nested-ternary */
+var win = typeof window !== "undefined" && window.Math === Math ? window : typeof self !== "undefined" && self.Math === Math ? self : Function("return this")();
+/* eslint-enable no-nested-ternary */
+/* eslint-enable no-new-func */
+
+win.Float32Array = typeof win.Float32Array !== "undefined" ? win.Float32Array : win.Array;
+
+exports.window = win;
+var document = exports.document = win.document;
+var Float32Array = exports.Float32Array = win.Float32Array;
+var getComputedStyle = exports.getComputedStyle = win.getComputedStyle;
+var SUPPORT_TOUCH = exports.SUPPORT_TOUCH = "ontouchstart" in win;
+var SUPPORT_DEVICEMOTION = exports.SUPPORT_DEVICEMOTION = "ondevicemotion" in win;
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+var CONTROL_MODE_VR = 1;
+var CONTROL_MODE_YAWPITCH = 2;
+
+var TOUCH_DIRECTION_NONE = 1;
+var TOUCH_DIRECTION_YAW = 2;
+var TOUCH_DIRECTION_PITCH = 4;
+var TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_YAW | TOUCH_DIRECTION_PITCH;
+
+/* Const for MovableCoord */
+var MC_DECELERATION = 0.0014;
+var MC_MAXIMUM_DURATION = 1000;
+var MC_BIND_SCALE = [0.20, 0.20];
+
+var MIN_FIELD_OF_VIEW = 20;
+var MAX_FIELD_OF_VIEW = 110;
+var PAN_SCALE = 320;
+
+// const DELTA_THRESHOLD = 0.015;
+// const DELTA_THRESHOLD = 0.09; // Note4
+// const DELTA_THRESHOLD = 0.0825;
+// const DELTA_THRESHOLD = 0.075;
+// const DELTA_THRESHOLD = 0.06;
+// const DELTA_THRESHOLD = 0.045;
+var DELTA_THRESHOLD = 0.0375; // Note2
+
+var YAW_RANGE_HALF = 180;
+var PITCH_RANGE_HALF = 90;
+var PINCH_EVENTS = "pinchstart pinchmove pinchend";
+
+var KEYMAP = {
+	LEFT_ARROW: 37,
+	A: 65,
+	UP_ARROW: 38,
+	W: 87,
+	RIGHT_ARROW: 39,
+	D: 68,
+	DOWN_ARROW: 40,
+	S: 83
+};
+
+var GYRO_MODE = {
+	NONE: "none",
+	YAWPITCH: "yawPitch"
+};
+
+exports.GYRO_MODE = GYRO_MODE;
+exports.CONTROL_MODE_VR = CONTROL_MODE_VR;
+exports.CONTROL_MODE_YAWPITCH = CONTROL_MODE_YAWPITCH;
+exports.TOUCH_DIRECTION_NONE = TOUCH_DIRECTION_NONE;
+exports.TOUCH_DIRECTION_YAW = TOUCH_DIRECTION_YAW;
+exports.TOUCH_DIRECTION_PITCH = TOUCH_DIRECTION_PITCH;
+exports.TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_ALL;
+exports.MC_DECELERATION = MC_DECELERATION;
+exports.MC_MAXIMUM_DURATION = MC_MAXIMUM_DURATION;
+exports.MC_BIND_SCALE = MC_BIND_SCALE;
+exports.MIN_FIELD_OF_VIEW = MIN_FIELD_OF_VIEW;
+exports.MAX_FIELD_OF_VIEW = MAX_FIELD_OF_VIEW;
+exports.PAN_SCALE = PAN_SCALE;
+exports.DELTA_THRESHOLD = DELTA_THRESHOLD;
+exports.YAW_RANGE_HALF = YAW_RANGE_HALF;
+exports.PITCH_RANGE_HALF = PITCH_RANGE_HALF;
+exports.PINCH_EVENTS = PINCH_EVENTS;
+exports.KEYMAP = KEYMAP;
+
+/***/ }),
+/* 7 */
 /***/ (function(module, exports) {
 
 /*
@@ -2403,101 +2469,6 @@ module.exports = Util;
 
 
 /***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-/* eslint-disable no-new-func */
-/* eslint-disable no-nested-ternary */
-var win = typeof window !== "undefined" && window.Math === Math ? window : typeof self !== "undefined" && self.Math === Math ? self : Function("return this")();
-/* eslint-enable no-nested-ternary */
-/* eslint-enable no-new-func */
-
-win.Float32Array = typeof win.Float32Array !== "undefined" ? win.Float32Array : win.Array;
-
-exports.window = win;
-var document = exports.document = win.document;
-var Float32Array = exports.Float32Array = win.Float32Array;
-var getComputedStyle = exports.getComputedStyle = win.getComputedStyle;
-var SUPPORT_TOUCH = exports.SUPPORT_TOUCH = "ontouchstart" in win;
-var SUPPORT_DEVICEMOTION = exports.SUPPORT_DEVICEMOTION = "ondevicemotion" in win;
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-var CONTROL_MODE_VR = 1;
-var CONTROL_MODE_YAWPITCH = 2;
-
-var TOUCH_DIRECTION_NONE = 1;
-var TOUCH_DIRECTION_YAW = 2;
-var TOUCH_DIRECTION_PITCH = 4;
-var TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_YAW | TOUCH_DIRECTION_PITCH;
-
-/* Const for MovableCoord */
-var MC_DECELERATION = 0.0014;
-var MC_MAXIMUM_DURATION = 1000;
-var MC_BIND_SCALE = [0.20, 0.20];
-
-var MIN_FIELD_OF_VIEW = 20;
-var MAX_FIELD_OF_VIEW = 110;
-var PAN_SCALE = 320;
-
-// const DELTA_THRESHOLD = 0.015;
-// const DELTA_THRESHOLD = 0.09; // Note4
-// const DELTA_THRESHOLD = 0.0825;
-// const DELTA_THRESHOLD = 0.075;
-// const DELTA_THRESHOLD = 0.06;
-// const DELTA_THRESHOLD = 0.045;
-var DELTA_THRESHOLD = 0.0375; // Note2
-
-var YAW_RANGE_HALF = 180;
-var PITCH_RANGE_HALF = 90;
-var PINCH_EVENTS = "pinchstart pinchmove pinchend";
-
-var KEYMAP = {
-	LEFT_ARROW: 37,
-	A: 65,
-	UP_ARROW: 38,
-	W: 87,
-	RIGHT_ARROW: 39,
-	D: 68,
-	DOWN_ARROW: 40,
-	S: 83
-};
-
-var GYRO_MODE = {
-	NONE: "none",
-	YAWPITCH: "yawPitch"
-};
-
-exports.GYRO_MODE = GYRO_MODE;
-exports.CONTROL_MODE_VR = CONTROL_MODE_VR;
-exports.CONTROL_MODE_YAWPITCH = CONTROL_MODE_YAWPITCH;
-exports.TOUCH_DIRECTION_NONE = TOUCH_DIRECTION_NONE;
-exports.TOUCH_DIRECTION_YAW = TOUCH_DIRECTION_YAW;
-exports.TOUCH_DIRECTION_PITCH = TOUCH_DIRECTION_PITCH;
-exports.TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_ALL;
-exports.MC_DECELERATION = MC_DECELERATION;
-exports.MC_MAXIMUM_DURATION = MC_MAXIMUM_DURATION;
-exports.MC_BIND_SCALE = MC_BIND_SCALE;
-exports.MIN_FIELD_OF_VIEW = MIN_FIELD_OF_VIEW;
-exports.MAX_FIELD_OF_VIEW = MAX_FIELD_OF_VIEW;
-exports.PAN_SCALE = PAN_SCALE;
-exports.DELTA_THRESHOLD = DELTA_THRESHOLD;
-exports.YAW_RANGE_HALF = YAW_RANGE_HALF;
-exports.PITCH_RANGE_HALF = PITCH_RANGE_HALF;
-exports.PINCH_EVENTS = PINCH_EVENTS;
-exports.KEYMAP = KEYMAP;
-
-/***/ }),
 /* 8 */
 /***/ (function(module, exports) {
 
@@ -2610,7 +2581,10 @@ var WebGLUtils = function () {
 		for (var i = 0; i < webglIdentifiers.length; i++) {
 			try {
 				// preserveDrawingBuffer: if true, the Galaxy s6 Naver app will experience tremor
-				context = canvas.getContext(webglIdentifiers[i], { preserveDrawingBuffer: false });
+				context = canvas.getContext(webglIdentifiers[i], {
+					preserveDrawingBuffer: true,
+					antialias: false /* TODO: Make it user option for antialiasing */
+				});
 			} catch (t) {}
 			if (context) {
 				break;
@@ -3217,11 +3191,11 @@ module.exports = exports["default"];
 exports.__esModule = true;
 exports.YawPitchControl = undefined;
 
-var _YawPitchControl = __webpack_require__(26);
+var _YawPitchControl = __webpack_require__(27);
 
 var _YawPitchControl2 = _interopRequireDefault(_YawPitchControl);
 
-var _consts = __webpack_require__(7);
+var _consts = __webpack_require__(6);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -3253,9 +3227,9 @@ var _component2 = _interopRequireDefault(_component);
 
 var _YawPitchControl = __webpack_require__(14);
 
-var _PanoImageRenderer = __webpack_require__(22);
+var _PanoImageRenderer = __webpack_require__(23);
 
-var _consts = __webpack_require__(25);
+var _consts = __webpack_require__(26);
 
 var _mathUtil = __webpack_require__(1);
 
@@ -3284,7 +3258,7 @@ var PanoViewer = function (_Component) {
   *
   * @param {String|Image} config.image Input image url or image object<ko>입력 이미지 URL 혹은 이미지 객체(image 와 video 둘 중 하나만 설정한다.)</ko>
   * @param {String|HTMLVideoElement} config.video Input video url or tag<ko>입력 비디오 URL 혹은 video 태그(image 와 video 둘 중 하나만 설정한다.)</ko>
-  * @param {String} [config.projectionType=equirectangular] The type of projection: equirectangular, vertival_cubestrip <ko>Projection 유형 : equirectangular, vertival_cubestrip</ko>
+  * @param {String} [config.projectionType=equirectangular] The type of projection: equirectangular, cubemap <ko>Projection 유형 : equirectangular, cubemap</ko>
   * @param {Number} [config.width=width of container] the viewer's width. (in px) <ko>뷰어의 너비 (px 단위)</ko>
   * @param {Number} [config.height=height of container] the viewer's height.(in px) <ko>뷰어의 높이 (px 단위)</ko>
   *
@@ -4046,9 +4020,17 @@ exports.PanoViewer = _PanoViewer2["default"];
 
 exports.__esModule = true;
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _component = __webpack_require__(0);
+
+var _component2 = _interopRequireDefault(_component);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _Promise = typeof Promise === 'undefined' ? __webpack_require__(3).Promise : Promise;
 
@@ -4059,33 +4041,52 @@ var STATUS = {
 	"ERROR": 3
 };
 
-var ImageLoader = function () {
+var EVENT = {
+	"READYSTATECHANGE": "readystatechange"
+};
+
+var ImageLoader = function (_Component) {
+	_inherits(ImageLoader, _Component);
+
 	function ImageLoader(image) {
 		_classCallCheck(this, ImageLoader);
 
-		this._image = null;
-		this._onceHandlers = [];
-		this._loadStatus = STATUS.NONE;
+		var _this = _possibleConstructorReturn(this, _Component.call(this));
+		// Super constructor
 
-		image && this.set(image);
+
+		_this._image = null;
+		_this._onceHandlers = [];
+		_this._loadStatus = STATUS.NONE;
+
+		image && _this.set(image);
+		return _this;
 	}
 
 	ImageLoader.prototype.get = function get() {
-		var _this = this;
+		var _this2 = this;
 
 		return new _Promise(function (res, rej) {
-			if (!_this._image) {
+			if (!_this2._image) {
 				rej("ImageLoader: image is not defiend");
-			} else if (_this._loadStatus === STATUS.LOADED) {
-				/* Check isMaybeLoaded() first because there may have posibilities that image already loaded before get is called. for example calling get on external image onload callback.*/
-				res(_this._image);
-			} else if (_this._loadStatus === STATUS.LOADING) {
-				_this._once("load", function () {
-					return res(_this._image);
-				});
-				_this._once("error", function () {
-					return rej("ImageLoader: failed to load images.");
-				});
+			} else if (_this2._loadStatus === STATUS.LOADED) {
+				res(_this2.getElement());
+			} else if (_this2._loadStatus === STATUS.LOADING) {
+				/* Check isMaybeLoaded() first because there may have
+    	posibilities that image already loaded before get is called.
+    	for example calling get on external image onload callback.*/
+				if (ImageLoader.isMaybeLoaded(_this2._image)) {
+					_this2._loadStatus = STATUS.LOADED;
+					res(_this2.getElement());
+				} else {
+					_this2.on(EVENT.READYSTATECHANGE, function (e) {
+						if (e.type === STATUS.LOADED) {
+							res(_this2.getElement());
+						} else {
+							rej("ImageLoader: failed to load images.");
+						}
+					});
+				}
 			} else {
 				rej("ImageLoader: failed to load images");
 			}
@@ -4093,53 +4094,93 @@ var ImageLoader = function () {
 	};
 
 	/**
-  * @param image img element or img url
+  * @param image img element or img url or array of img element or array of img url
   */
 
 
 	ImageLoader.prototype.set = function set(image) {
-		var _this2 = this;
+		var _this3 = this;
 
 		this._loadStatus = STATUS.LOADING;
 
-		if (typeof image === "string") {
-			this._image = new Image();
-			this._image.src = image;
-		} else if ((typeof image === "undefined" ? "undefined" : _typeof(image)) === "object") {
-			this._image = image;
-		}
+		this._image = ImageLoader.createElement(image);
 
-		this._once("load", function () {
-			return _this2._loadStatus = STATUS.LOADED;
-		});
-		this._once("error", function () {
-			return _this2._loadStatus = STATUS.ERROR;
-		});
-
-		if (ImageLoader._isMaybeLoaded(this._image)) {
-			// Already loaded image
+		if (ImageLoader.isMaybeLoaded(this._image)) {
 			this._loadStatus = STATUS.LOADED;
+			return;
 		}
+
+		this.onceLoaded(this._image, function () {
+			_this3._loadStatus = STATUS.LOADED;
+			_this3.trigger(EVENT.READYSTATECHANGE, {
+				type: STATUS.LOADED
+			});
+		}, function () {
+			_this3._loadStatus = STATUS.ERROR;
+			_this3.trigger(EVENT.READYSTATECHANGE, {
+				type: STATUS.ERROR
+			});
+		});
+	};
+
+	ImageLoader.createElement = function createElement(image) {
+		var images = image instanceof Array ? image : [image];
+
+		return images.map(function (img) {
+			var _img = img;
+
+			if (typeof img === "string") {
+				_img = new Image();
+				_img.crossOrigin = "anonymous";
+				_img.src = img;
+			}
+			return _img;
+		});
 	};
 
 	ImageLoader.prototype.getElement = function getElement() {
-		return this._image;
+		return this._image.length === 1 ? this._image[0] : this._image;
 	};
 
-	ImageLoader._isMaybeLoaded = function _isMaybeLoaded(image) {
-		return image && image.naturalWidth !== 0;
+	ImageLoader.isMaybeLoaded = function isMaybeLoaded(image) {
+		return image instanceof Image ? image.naturalWidth !== 0 : !image.some(function (img) {
+			return img.naturalWidth === 0;
+		});
 	};
 
-	ImageLoader.prototype._once = function _once(type, listener) {
-		var target = this._image;
+	ImageLoader.prototype.onceLoaded = function onceLoaded(target, onload, onerror) {
+		var _this4 = this;
 
+		var targets = target instanceof Array ? target : [target];
+		var targetsNotLoaded = targets.filter(function (img) {
+			return !ImageLoader.isMaybeLoaded(img);
+		});
+		var loadPromises = targetsNotLoaded.map(function (img) {
+			return new _Promise(function (res, rej) {
+				_this4._once(img, "load", function () {
+					return res(img);
+				});
+				_this4._once(img, "error", function () {
+					return rej(img);
+				});
+			});
+		});
+
+		_Promise.all(loadPromises).then(function (result) {
+			return onload(targets.length === 1 ? targets[0] : targets);
+		}, function (reason) {
+			return onerror(reason);
+		});
+	};
+
+	ImageLoader.prototype._once = function _once(target, type, listener) {
 		var fn = function fn(event) {
 			target.removeEventListener(type, fn);
 			listener(event);
 		};
 
 		target.addEventListener(type, fn);
-		this._onceHandlers.push({ type: type, fn: fn });
+		this._onceHandlers.push({ target: target, type: type, fn: fn });
 	};
 
 	ImageLoader.prototype.getStatus = function getStatus() {
@@ -4147,10 +4188,8 @@ var ImageLoader = function () {
 	};
 
 	ImageLoader.prototype.destroy = function destroy() {
-		var _this3 = this;
-
 		this._onceHandlers.forEach(function (handler) {
-			_this3._image.removeEventListener(handler.type, handler.fn);
+			handler.target.removeEventListener(handler.type, handler.fn);
 		});
 		this._onceHandlers = [];
 		this._image.src = "";
@@ -4159,7 +4198,7 @@ var ImageLoader = function () {
 	};
 
 	return ImageLoader;
-}();
+}(_component2["default"]);
 
 exports["default"] = ImageLoader;
 
@@ -4174,6 +4213,8 @@ ImageLoader.STATUS = STATUS;
 
 
 exports.__esModule = true;
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _component = __webpack_require__(0);
 
@@ -4191,15 +4232,17 @@ var _WebGLUtils = __webpack_require__(10);
 
 var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
 
-var _CubeRenderer = __webpack_require__(23);
+var _CubeRenderer = __webpack_require__(24);
 
 var _CubeRenderer2 = _interopRequireDefault(_CubeRenderer);
 
-var _SphereRenderer = __webpack_require__(24);
+var _SphereRenderer = __webpack_require__(25);
 
 var _SphereRenderer2 = _interopRequireDefault(_SphereRenderer);
 
 var _mathUtil = __webpack_require__(1);
+
+var _browser = __webpack_require__(22);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -4213,10 +4256,10 @@ var _Promise = typeof Promise === 'undefined' ? __webpack_require__(3).Promise :
 
 var ImageType = {
 	EQUIRECTANGULAR: "equirectangular",
-	VERTICAL_CUBESTRIP: "vertical_cubestrip"
+	CUBEMAP: "cubemap"
 };
 
-var DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
+var DEVICE_PIXEL_RATIO = _browser.devicePixelRatio || 1;
 
 // DEVICE_PIXEL_RATIO 가 2를 초과하는 경우는 리소스 낭비이므로 2로 맞춘다.
 if (DEVICE_PIXEL_RATIO > 2) {
@@ -4276,7 +4319,10 @@ var PanoImageRenderer = function (_Component) {
 		_this.canvas = _this._initCanvas(width, height);
 
 		_this._image = null;
+		_this._imageConfig = image && PanoImageRenderer.extractImageConfig(image);
+		_this._imageOrder = image && image.order;
 		_this._imageIsReady = false;
+		_this._shouldForceDraw = false;
 		_this._keepUpdate = false; // Flag to specify 'continuous update' on video even when still.
 
 		_this._onContentLoad = _this._onContentLoad.bind(_this);
@@ -4315,13 +4361,35 @@ var PanoImageRenderer = function (_Component) {
 		}
 
 		// img element or img url
-		this._contentLoader.set(image);
+		this._contentLoader.set(PanoImageRenderer.extractImageSource(image));
 
 		// 이미지의 사이즈를 캐시한다.
 		// image is reference for content in contentLoader, so it may be not valid if contentLoader is destroyed.
 		this._image = this._contentLoader.getElement();
 
-		return this._contentLoader.get().then(this._onContentLoad)["catch"](this._onContentError);
+		return this._contentLoader.get().then(this._onContentLoad, this._onContentError)["catch"](function (e) {
+			return setTimeout(function () {
+				throw e;
+			});
+		}); // Prevent exceptions from being isolated in promise chain.
+	};
+
+	PanoImageRenderer.extractImageSource = function extractImageSource(imgParam) {
+		if (typeof imgParam === "string" || imgParam instanceof Array || imgParam.tagName === "IMG" || imgParam.tagName === "VIDEO") {
+			return imgParam;
+		}
+		return imgParam.src;
+	};
+
+	PanoImageRenderer.extractImageConfig = function extractImageConfig(imgParam) {
+		if (typeof imgParam === "string" || imgParam instanceof Array || imgParam.tagName === "IMG" || imgParam.tagName === "VIDEO") {
+			return {};
+		}
+
+		var imageConfig = _extends({}, imgParam);
+
+		delete imageConfig.src;
+		return imageConfig;
 	};
 
 	PanoImageRenderer.prototype._setImageType = function _setImageType(imageType) {
@@ -4330,8 +4398,8 @@ var PanoImageRenderer = function (_Component) {
 		}
 
 		this._imageType = imageType;
-		this._isCubeStrip = imageType === ImageType.VERTICAL_CUBESTRIP;
-		this._renderer = this._isCubeStrip ? _CubeRenderer2["default"] : _SphereRenderer2["default"];
+		this._isCubeMap = imageType === ImageType.CUBEMAP;
+		this._renderer = this._isCubeMap ? _CubeRenderer2["default"] : _SphereRenderer2["default"];
 		this._initWebGL();
 	};
 
@@ -4350,8 +4418,6 @@ var PanoImageRenderer = function (_Component) {
 		canvas.style.outline = "none";
 		canvas.style.position = "absolute";
 
-		// webgl context lost & restore 관련 이벤트 핸들링
-		// TODO : 어떤 상황에서 발생하는 지 더 알아보자
 		this._onWebglcontextlost = this._onWebglcontextlost.bind(this);
 		this._onWebglcontextrestored = this._onWebglcontextrestored.bind(this);
 
@@ -4387,10 +4453,6 @@ var PanoImageRenderer = function (_Component) {
 
 	PanoImageRenderer.prototype.isImageLoaded = function isImageLoaded() {
 		return !!this._image && this._imageIsReady && (!this._isVideo || this._image.readyState >= 2 /* HAVE_CURRENT_DATA */);
-	};
-
-	PanoImageRenderer.prototype.cancelLoadImage = function cancelLoadImage() {
-		this._contentLoader.destroy();
 	};
 
 	PanoImageRenderer.prototype.bindTexture = function bindTexture() {
@@ -4435,10 +4497,6 @@ var PanoImageRenderer = function (_Component) {
 		}
 	};
 
-	PanoImageRenderer.prototype.isAttached = function isAttached() {
-		return this._image && this.canvas && this.canvas.parentNode;
-	};
-
 	PanoImageRenderer.prototype.destroy = function destroy() {
 		if (this._contentLoader) {
 			this._contentLoader.destroy();
@@ -4454,9 +4512,9 @@ var PanoImageRenderer = function (_Component) {
 	};
 
 	PanoImageRenderer.prototype.hasRenderingContext = function hasRenderingContext() {
-		if (!this.context) {
+		if (!(this.context && !this.context.isContextLost())) {
 			return false;
-		} else if (!this.context.getProgramParameter(this.shaderProgram, this.context.LINK_STATUS) && !this.context.isContextLost()) {
+		} else if (this.context && !this.context.getProgramParameter(this.shaderProgram, this.context.LINK_STATUS)) {
 			return false;
 		}
 		return true;
@@ -4464,19 +4522,15 @@ var PanoImageRenderer = function (_Component) {
 
 	PanoImageRenderer.prototype._onWebglcontextlost = function _onWebglcontextlost(e) {
 		e.preventDefault();
-		this.trigger("renderingContextLost");
+		this.trigger(EVENTS.RENDERING_CONTEXT_LOST);
 	};
 
 	PanoImageRenderer.prototype._onWebglcontextrestored = function _onWebglcontextrestored(e) {
 		this._initWebGL();
-		this.trigger("renderingContextRestore");
+		this.trigger(EVENTS.RENDERING_CONTEXT_RESTORE);
 	};
 
 	PanoImageRenderer.prototype.updateFieldOfView = function updateFieldOfView(fieldOfView) {
-		if (this.fieldOfView === fieldOfView) {
-			return;
-		}
-
 		this.fieldOfView = fieldOfView;
 		this._updateViewport();
 	};
@@ -4541,7 +4595,7 @@ var PanoImageRenderer = function (_Component) {
 		}
 		// 캔버스를 투명으로 채운다.
 		this.context.clearColor(0, 0, 0, 0);
-		var textureTarget = this._isCubeStrip ? this.context.TEXTURE_CUBE_MAP : this.context.TEXTURE_2D;
+		var textureTarget = this._isCubeMap ? this.context.TEXTURE_CUBE_MAP : this.context.TEXTURE_2D;
 
 		if (this.texture) {
 			this.context.deleteTexture(this.texture);
@@ -4593,10 +4647,13 @@ var PanoImageRenderer = function (_Component) {
 		shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
 		shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
 		shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
-		if (!this._isCubeStrip) {
-			shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
-			gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
-		}
+		shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
+		gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
+
+		// clear buffer
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
+		// Use TEXTURE0
+		gl.uniform1i(shaderProgram.samplerUniform, 0);
 
 		return shaderProgram;
 	};
@@ -4604,62 +4661,21 @@ var PanoImageRenderer = function (_Component) {
 	PanoImageRenderer.prototype._initBuffers = function _initBuffers() {
 		var vertexPositionData = this._renderer.getVertexPositionData();
 		var indexData = this._renderer.getIndexData();
-		var textureCoordData = this._renderer.getTextureCoordData();
+		var textureCoordData = this._renderer.getTextureCoordData(this._imageConfig);
 		var gl = this.context;
 
 		this.vertexBuffer = _WebGLUtils2["default"].initBuffer(gl, gl.ARRAY_BUFFER, new Float32Array(vertexPositionData), 3, this.shaderProgram.vertexPositionAttribute);
 
 		this.indexBuffer = _WebGLUtils2["default"].initBuffer(gl, gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexData), 1);
 
-		if (textureCoordData !== null) {
-			this.textureCoordBuffer = _WebGLUtils2["default"].initBuffer(gl, gl.ARRAY_BUFFER, new Float32Array(textureCoordData), 2, this.shaderProgram.textureCoordAttribute);
-		}
+		this.textureCoordBuffer = _WebGLUtils2["default"].initBuffer(gl, gl.ARRAY_BUFFER, new Float32Array(textureCoordData), this._isCubeMap ? 3 : 2, this.shaderProgram.textureCoordAttribute);
 	};
 
 	PanoImageRenderer.prototype._bindTexture = function _bindTexture() {
-		this._renderer.bindTexture(this.context, this.texture, this._image);
+		this._renderer.bindTexture(this.context, this.texture, this._image, this._imageConfig);
 		this._shouldForceDraw = true;
 
 		this.trigger(EVENTS.BIND_TEXTURE);
-	};
-
-	PanoImageRenderer.prototype.renderWithQuaternion = function renderWithQuaternion(quaternion, fieldOfView) {
-		if (!this.isImageLoaded()) {
-			return;
-		}
-
-		// 항상 그려줄려고 강제로 플래그 올림... 원래 이러면 안됨
-		this._shouldForceDraw = true;
-
-		if (this._lastQuaternion && _mathUtil.quat.exactEquals(this._lastQuaternion, quaternion) && this.fieldOfView && this.fieldOfView === fieldOfView && this._shouldForceDraw === false) {
-			return;
-		}
-
-		// fieldOfView 가 존재하면서 기존의 값과 다를 경우에만 업데이트 호출
-		if (fieldOfView !== undefined && fieldOfView !== this.fieldOfView) {
-			this.updateFieldOfView(fieldOfView);
-		}
-
-		var adgustedQ = void 0;
-
-		// equirectangular 의 경우 이미지의 중심을 0,0 으로 맞추기 위해 렌더링 시 yaw 축을 조정한다.
-		if (!this._isCubeStrip) {
-			var adjustYaw = _mathUtil.quat.rotateY(_mathUtil.quat.create(), _mathUtil.quat.create(), _mathUtil.glMatrix.toRadian(-90));
-
-			adgustedQ = _mathUtil.quat.multiply(_mathUtil.quat.create(), adjustYaw, quaternion);
-		} else {
-			adgustedQ = quaternion;
-		}
-
-		this.mvMatrix = _mathUtil.mat4.fromQuat(_mathUtil.mat4.create(), _mathUtil.quat.conjugate(_mathUtil.quat.create(), adgustedQ));
-
-		this._draw();
-
-		this._lastQuaternion = _mathUtil.quat.clone(quaternion);
-
-		if (this._shouldForceDraw) {
-			this._shouldForceDraw = false;
-		}
 	};
 
 	PanoImageRenderer.prototype.keepUpdate = function keepUpdate(doUpdate) {
@@ -4687,7 +4703,7 @@ var PanoImageRenderer = function (_Component) {
 
 		_mathUtil.mat4.identity(this.mvMatrix);
 		_mathUtil.mat4.rotateX(this.mvMatrix, this.mvMatrix, -_mathUtil.glMatrix.toRadian(pitch));
-		_mathUtil.mat4.rotateY(this.mvMatrix, this.mvMatrix, -_mathUtil.glMatrix.toRadian(yaw - (this._isCubeStrip ? 0 : 90)));
+		_mathUtil.mat4.rotateY(this.mvMatrix, this.mvMatrix, -_mathUtil.glMatrix.toRadian(yaw - (this._isCubeMap ? 0 : 90)));
 
 		this._draw();
 
@@ -4701,14 +4717,12 @@ var PanoImageRenderer = function (_Component) {
 	PanoImageRenderer.prototype._draw = function _draw() {
 		var gl = this.context;
 
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
-
-		gl.uniform1i(this.shaderProgram.samplerUniform, 0);
 		gl.uniformMatrix4fv(this.shaderProgram.pMatrixUniform, false, this.pMatrix);
 		gl.uniformMatrix4fv(this.shaderProgram.mvMatrixUniform, false, this.mvMatrix);
 
 		if (this._isVideo) {
-			this._renderer.texImage2D(this.context, this._image);
+			// this._renderer.texImage2D(this.context, this._image);
+			this._bindTexture();
 		}
 
 		if (this.indexBuffer) {
@@ -4802,6 +4816,7 @@ var VideoLoader = function () {
 		} else if (typeof video === "string" || (typeof video === "undefined" ? "undefined" : _typeof(video)) === "object") {
 			// url
 			this._video = document.createElement("video");
+			this._video.crossOrigin = "anonymous";
 
 			if (video instanceof Array) {
 				video.forEach(function (v) {
@@ -4883,6 +4898,16 @@ exports["default"] = VideoLoader;
 
 
 exports.__esModule = true;
+var devicePixelRatio = exports.devicePixelRatio = window.devicePixelRatio;
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
 exports.WebGLUtils = exports.PanoImageRenderer = undefined;
 
 var _PanoImageRenderer = __webpack_require__(20);
@@ -4899,13 +4924,15 @@ exports.PanoImageRenderer = _PanoImageRenderer2["default"];
 exports.WebGLUtils = _WebGLUtils2["default"];
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 exports.__esModule = true;
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _agent = __webpack_require__(13);
 
@@ -4943,10 +4970,10 @@ var CubeRenderer = function (_Renderer) {
 		-1, -1, -1, 1, -1, -1, 1, 1, -1, -1, 1, -1,
 
 		// top
-		1, 1, -1, 1, 1, 1, -1, 1, 1, -1, 1, -1,
+		-1, 1, -1, 1, 1, -1, 1, 1, 1, -1, 1, 1,
 
 		// bottom
-		-1, -1, -1, -1, -1, 1, 1, -1, 1, 1, -1, -1,
+		1, -1, -1, -1, -1, -1, -1, -1, 1, 1, -1, 1,
 
 		// right
 		1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, -1,
@@ -4973,29 +5000,139 @@ var CubeRenderer = function (_Renderer) {
 		return indexData;
 	};
 
-	CubeRenderer.getTextureCoordData = function getTextureCoordData() {
-		return null;
+	CubeRenderer.extractTileConfig = function extractTileConfig(imageConfig) {
+		var tileConfig = Array.isArray(imageConfig.tileConfig) ? imageConfig.tileConfig : Array.apply(undefined, Array(6)).map(function () {
+			return imageConfig.tileConfig;
+		});
+
+		tileConfig = tileConfig.map(function (config) {
+			return _extends({
+				flipHorizontal: false,
+				rotation: 0
+			}, config);
+		});
+
+		return tileConfig;
+	};
+
+	CubeRenderer.extractOrder = function extractOrder(imageConfig) {
+		return imageConfig.order || "RLUDBF";
+	};
+
+	CubeRenderer.getTextureCoordData = function getTextureCoordData(imageConfig) {
+		var vertexOrder = "BFUDRL";
+		var order = CubeRenderer.extractOrder(imageConfig);
+		var base = CubeRenderer.getVertexPositionData();
+		var tileConfig = CubeRenderer.extractTileConfig(imageConfig);
+		var elemSize = 3;
+		var vertexPerTile = 4;
+		var textureCoordData = vertexOrder.split("").map(function (face) {
+			return tileConfig[order.indexOf(face)];
+		}).map(function (config, i) {
+			var rotation = parseInt(config.rotation / 90, 10);
+			var ordermap_ = config.flipHorizontal ? [0, 1, 2, 3] : [1, 0, 3, 2];
+
+			for (var r = 0; r < Math.abs(rotation); r++) {
+				if (config.flipHorizontal && rotation > 0 || !config.flipHorizontal && rotation < 0) {
+					ordermap_.push(ordermap_.shift());
+				} else {
+					ordermap_.unshift(ordermap_.pop());
+				}
+			}
+
+			var elemPerTile = elemSize * vertexPerTile;
+			var tileVertex = base.slice(i * elemPerTile, i * elemPerTile + elemPerTile);
+			var tileTemp = [];
+
+			for (var j = 0; j < vertexPerTile; j++) {
+				tileTemp[ordermap_[j]] = tileVertex.splice(0, elemSize);
+			}
+			return tileTemp;
+		}).join().split(",").map(function (v) {
+			return parseInt(v, 10);
+		});
+
+		return textureCoordData;
 	};
 
 	CubeRenderer.getVertexShaderSource = function getVertexShaderSource() {
-		return "\n\t\t\tattribute vec3 aVertexPosition;\n\t\t\tuniform mat4 uMVMatrix;\n\t\t\tuniform mat4 uPMatrix;\n\t\t\tvarying highp vec3 vVertexDirectionVector;\n\t\t\tvoid main(void) {\n\t\t\t\tgl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n\t\t\t\tvVertexDirectionVector = aVertexPosition;\n\t\t\t}";
+		return "\n\t\t\tattribute vec3 aVertexPosition;\n\t\t\tattribute vec3 aTextureCoord;\n\t\t\tuniform mat4 uMVMatrix;\n\t\t\tuniform mat4 uPMatrix;\n\t\t\tvarying highp vec3 vVertexDirectionVector;\n\t\t\tvoid main(void) {\n\t\t\t\tgl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n\t\t\t\tvVertexDirectionVector = aTextureCoord;\n\t\t\t}";
 	};
 
 	CubeRenderer.getFragmentShaderSource = function getFragmentShaderSource() {
 		return "\n\t\t\tvarying highp vec3 vVertexDirectionVector;\n\t\t\tuniform samplerCube uSampler;\n\t\t\tvoid main(void) {\n\t\t\t\tgl_FragColor = textureCube(uSampler, vVertexDirectionVector);\n\t\t\t}";
 	};
 
-	CubeRenderer.bindTexture = function bindTexture(gl, texture, image) {
+	CubeRenderer.bindTexture = function bindTexture(gl, texture, image, imageConfig) {
+		var baseOrder = "RLUDBF";
+		var order = CubeRenderer.extractOrder(imageConfig);
+		var orderMap = {};
+
+		order.split("").forEach(function (v, i) {
+			orderMap[v] = i;
+		});
+
 		if (!image) {
 			return;
 		}
 
 		try {
-			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
 			gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
 
-			this.texImage2D(gl, image);
+			if (image instanceof Array) {
+				for (var surfaceIdx = 0; surfaceIdx < 6; surfaceIdx++) {
+					var tileIdx = orderMap[baseOrder[surfaceIdx]];
+
+					gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image[tileIdx]);
+				}
+			} else {
+				var agent = (0, _agent2["default"])();
+				var maxCubeMapTextureSize = CubeRenderer.getMaxCubeMapTextureSize(gl, image, agent);
+
+				for (var _surfaceIdx = 0; _surfaceIdx < 6; _surfaceIdx++) {
+					var _tileIdx = orderMap[baseOrder[_surfaceIdx]];
+					var tile = CubeRenderer.extractTileFromImage(image, _tileIdx, maxCubeMapTextureSize);
+
+					gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + _surfaceIdx, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tile);
+				}
+			}
 		} catch (e) {}
+	};
+
+	CubeRenderer.getSourceTileSize = function getSourceTileSize(image) {
+		var width = image.naturalWidth || image.videoWidth;
+		var height = image.naturalHeight || image.videoHeight;
+		var aspectRatio = width / height;
+		var inputTextureSize = void 0;
+
+		if (aspectRatio === 1 / 6) {
+			inputTextureSize = width;
+		} else if (aspectRatio === 6) {
+			inputTextureSize = height;
+		} else if (aspectRatio === 2 / 3) {
+			inputTextureSize = width / 2;
+		} else {
+			inputTextureSize = width / 3;
+		}
+		return inputTextureSize;
+	};
+
+	CubeRenderer.extractTileFromImage = function extractTileFromImage(image, tileIdx, outputTextureSize) {
+		var width = image.naturalWidth || image.videoWidth;
+		var inputTextureSize = CubeRenderer.getSourceTileSize(image);
+
+		var canvas = document.createElement("canvas");
+
+		canvas.width = outputTextureSize;
+		canvas.height = outputTextureSize;
+		var context = canvas.getContext("2d");
+		var tilePerRow = width / inputTextureSize;
+
+		var x = inputTextureSize * tileIdx % (inputTextureSize * tilePerRow);
+		var y = parseInt(tileIdx / tilePerRow, 10) * inputTextureSize;
+
+		context.drawImage(image, x, y, inputTextureSize, inputTextureSize, 0, 0, outputTextureSize, outputTextureSize);
+		return canvas;
 	};
 
 	CubeRenderer.texImage2D = function texImage2D(gl, image) {
@@ -5005,6 +5142,18 @@ var CubeRenderer = function (_Renderer) {
 		var hasDrawImageBug = CubeRenderer.hasDrawImageBug(agent);
 		var maxCubeMapTextureSize = CubeRenderer.getMaxCubeMapTextureSize(gl, image, agent);
 		var heightScale = CubeRenderer.getHightScale(width, agent);
+		var aspectRatio = width / height;
+		var tileSize = void 0;
+
+		if (aspectRatio === 1 / 6) {
+			tileSize = width;
+		} else if (aspectRatio === 6) {
+			tileSize = height;
+		} else if (aspectRatio === 2 / 3) {
+			tileSize = width / 2;
+		} else {
+			tileSize = width / 3;
+		}
 
 		if (!hasDrawImageBug) {
 			var canvas = document.createElement("canvas");
@@ -5012,9 +5161,21 @@ var CubeRenderer = function (_Renderer) {
 			canvas.width = maxCubeMapTextureSize;
 			canvas.height = maxCubeMapTextureSize;
 			var context = canvas.getContext("2d");
+			var tilePerRow = width / tileSize;
 
 			for (var surfaceIdx = 0; surfaceIdx < 6; surfaceIdx++) {
-				context.drawImage(image, 0, surfaceIdx * (width * heightScale), width, width * heightScale, 0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize);
+				var x = tileSize * surfaceIdx % tileSize;
+				var y = parseInt(surfaceIdx / tilePerRow, 10) * (tileSize * heightScale);
+
+				// surfaceIdx * (width * heightScale)
+				context.drawImage(image, x, y, tileSize, tileSize * heightScale, 0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize);
+
+				// // w, h = img.size
+				// context.drawImage(
+				// 	width, x, surfaceIdx * (tileSize * heightScale),
+				// 	tileSize, tileSize * heightScale, 0, 0, maxCubeMapTextureSize, maxCubeMapTextureSize);
+
+
 				gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
 			}
 		} else {
@@ -5052,7 +5213,7 @@ var CubeRenderer = function (_Renderer) {
 
 	CubeRenderer.getMaxCubeMapTextureSize = function getMaxCubeMapTextureSize(gl, image, agent) {
 		var maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
-		var _imageWidth = image.naturalWidth || image.videoWidth;
+		var _imageWidth = CubeRenderer.getSourceTileSize(image);
 
 		if (agent.browser.name === "ie" && parseInt(agent.browser.version, 10) === 11) {
 			if (!_mathUtil.util.isPowerOfTwo(_imageWidth)) {
@@ -5120,7 +5281,7 @@ CubeRenderer._VERTEX_POSITION_DATA = null;
 CubeRenderer._INDEX_DATA = null;
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5268,13 +5429,13 @@ SphereRenderer._TEXTURE_COORD_DATA = null;
 SphereRenderer._INDEX_DATA = null;
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _consts = __webpack_require__(7);
+var _consts = __webpack_require__(6);
 
 var ERROR_TYPE = {
 	INVALID_DEVICE: 10,
@@ -5300,7 +5461,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5318,19 +5479,19 @@ var _axes = __webpack_require__(8);
 
 var _axes2 = _interopRequireDefault(_axes);
 
-var _browser = __webpack_require__(6);
+var _browser = __webpack_require__(5);
 
-var _WheelInput = __webpack_require__(31);
+var _WheelInput = __webpack_require__(32);
 
 var _WheelInput2 = _interopRequireDefault(_WheelInput);
 
-var _TiltMotionInput = __webpack_require__(30);
+var _TiltMotionInput = __webpack_require__(31);
 
 var _TiltMotionInput2 = _interopRequireDefault(_TiltMotionInput);
 
 var _mathUtil = __webpack_require__(1);
 
-var _consts = __webpack_require__(7);
+var _consts = __webpack_require__(6);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -5438,21 +5599,21 @@ var YawPitchControl = function (_Component) {
 			fov: opt.fov
 		}).on({
 			hold: function hold(evt) {
-				_this2.trigger("hold");
+				_this2.trigger("hold", { isTrusted: evt.isTrusted });
 			},
 			change: function change(evt) {
 				if (evt.delta.fov !== 0) {
 					_this2._setPanScale(evt.pos.fov);
 					_this2._updateControlScale(evt);
 				}
-				_this2._triggerChange();
+				_this2._triggerChange(evt);
 			},
 			release: function release(evt) {
-				_this2._triggerChange();
+				_this2._triggerChange(evt);
 			},
 			animationStart: function animationStart(evt) {},
 			animationEnd: function animationEnd(evt) {
-				_this2.trigger("animationEnd");
+				_this2.trigger("animationEnd", { isTrusted: evt.isTrusted });
 			}
 		});
 	};
@@ -5736,11 +5897,12 @@ var YawPitchControl = function (_Component) {
 		});
 	};
 
-	YawPitchControl.prototype._triggerChange = function _triggerChange() {
+	YawPitchControl.prototype._triggerChange = function _triggerChange(evt) {
 		var pos = this.axes.get();
 		var opt = this.options;
 		var event = {
-			targetElement: opt.element
+			targetElement: opt.element,
+			isTrusted: evt.isTrusted
 		};
 
 		event.yaw = pos.yaw;
@@ -5901,7 +6063,7 @@ YawPitchControl.VERSION = "3.0.0-rc";
 exports["default"] = YawPitchControl;
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5913,11 +6075,7 @@ var _mathUtil = __webpack_require__(4);
 
 var _mathUtil2 = _interopRequireDefault(_mathUtil);
 
-var _util = __webpack_require__(5);
-
-var _util2 = _interopRequireDefault(_util);
-
-var _complementaryFilter = __webpack_require__(38);
+var _complementaryFilter = __webpack_require__(39);
 
 var _complementaryFilter2 = _interopRequireDefault(_complementaryFilter);
 
@@ -5963,10 +6121,6 @@ _complementaryFilter2["default"].prototype.run_ = function () {
 	deltaQ.setFromUnitVectors(this.estimatedGravity, this.measuredGravity);
 	deltaQ.inverse();
 
-	if (_util2["default"].isDebug()) {
-		console.log("Delta: %d deg, G_est: (%s, %s, %s), G_meas: (%s, %s, %s)", _mathUtil2["default"].radToDeg * _util2["default"].getQuaternionAngle(deltaQ), this.estimatedGravity.x.toFixed(1), this.estimatedGravity.y.toFixed(1), this.estimatedGravity.z.toFixed(1), this.measuredGravity.x.toFixed(1), this.measuredGravity.y.toFixed(1), this.measuredGravity.z.toFixed(1));
-	}
-
 	// Calculate the SLERP target: current orientation plus the measured-estimated
 	// quaternion delta.
 	var targetQ = new _mathUtil2["default"].Quaternion();
@@ -5995,7 +6149,7 @@ _complementaryFilter2["default"].prototype.getOrientation = function () {
 exports["default"] = _complementaryFilter2["default"];
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6009,7 +6163,7 @@ var _component2 = _interopRequireDefault(_component);
 
 var _mathUtil = __webpack_require__(1);
 
-var _browser = __webpack_require__(6);
+var _browser = __webpack_require__(5);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -6105,7 +6259,7 @@ var DeviceMotion = function (_Component) {
 exports["default"] = DeviceMotion;
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6117,7 +6271,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _posePredictor = __webpack_require__(39);
+var _posePredictor = __webpack_require__(40);
 
 var _posePredictor2 = _interopRequireDefault(_posePredictor);
 
@@ -6125,19 +6279,19 @@ var _mathUtil = __webpack_require__(4);
 
 var _mathUtil2 = _interopRequireDefault(_mathUtil);
 
-var _util = __webpack_require__(5);
+var _util = __webpack_require__(7);
 
 var _util2 = _interopRequireDefault(_util);
 
-var _browser = __webpack_require__(6);
+var _browser = __webpack_require__(5);
 
 var _mathUtil3 = __webpack_require__(1);
 
-var _DeviceMotion = __webpack_require__(28);
+var _DeviceMotion = __webpack_require__(29);
 
 var _DeviceMotion2 = _interopRequireDefault(_DeviceMotion);
 
-var _ComplementaryFilter = __webpack_require__(27);
+var _ComplementaryFilter = __webpack_require__(28);
 
 var _ComplementaryFilter2 = _interopRequireDefault(_ComplementaryFilter);
 
@@ -6283,23 +6437,6 @@ var FusionPoseSensor = function (_Component) {
 		return out;
 	};
 
-	FusionPoseSensor.prototype.resetPose = function resetPose() {
-		// Reduce to inverted yaw-only.
-		this.resetQ.copy(this.filter.getOrientation());
-		this.resetQ.x = 0;
-		this.resetQ.y = 0;
-		this.resetQ.z *= -1;
-		this.resetQ.normalize();
-
-		// Take into account extra transformations in landscape mode.
-		if (_util2["default"].isLandscapeMode()) {
-			this.resetQ.multiply(this.inverseWorldToScreenQ);
-		}
-
-		// Take into account original pose.
-		this.resetQ.multiply(this.originalPoseAdjustQ);
-	};
-
 	FusionPoseSensor.prototype._onDeviceMotionChange = function _onDeviceMotionChange(_ref) {
 		var inputEvent = _ref.inputEvent;
 
@@ -6361,7 +6498,7 @@ var FusionPoseSensor = function (_Component) {
 exports["default"] = FusionPoseSensor;
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6377,7 +6514,7 @@ var _component2 = _interopRequireDefault(_component);
 
 var _utils = __webpack_require__(12);
 
-var _FusionPoseSensor = __webpack_require__(29);
+var _FusionPoseSensor = __webpack_require__(30);
 
 var _FusionPoseSensor2 = _interopRequireDefault(_FusionPoseSensor);
 
@@ -6492,7 +6629,7 @@ var TiltMotionInput = function (_Component) {
 exports["default"] = TiltMotionInput;
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6588,7 +6725,7 @@ var WheelInput = function (_Component) {
 exports["default"] = WheelInput;
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6753,55 +6890,6 @@ mat4.rotateY = function (out, a, rad) {
 };
 
 /**
- * Calculates a 4x4 matrix from the given quaternion
- *
- * @param {mat4} out mat4 receiving operation result
- * @param {quat} q Quaternion to create matrix from
- *
- * @returns {mat4} out
- */
-mat4.fromQuat = function (out, q) {
-    var x = q[0],
-        y = q[1],
-        z = q[2],
-        w = q[3],
-        x2 = x + x,
-        y2 = y + y,
-        z2 = z + z,
-        xx = x * x2,
-        yx = y * x2,
-        yy = y * y2,
-        zx = z * x2,
-        zy = z * y2,
-        zz = z * z2,
-        wx = w * x2,
-        wy = w * y2,
-        wz = w * z2;
-
-    out[0] = 1 - yy - zz;
-    out[1] = yx + wz;
-    out[2] = zx - wy;
-    out[3] = 0;
-
-    out[4] = yx - wz;
-    out[5] = 1 - xx - zz;
-    out[6] = zy + wx;
-    out[7] = 0;
-
-    out[8] = zx + wy;
-    out[9] = zy - wx;
-    out[10] = 1 - xx - yy;
-    out[11] = 0;
-
-    out[12] = 0;
-    out[13] = 0;
-    out[14] = 0;
-    out[15] = 1;
-
-    return out;
-};
-
-/**
  * Generates a perspective projection matrix with the given bounds
  *
  * @param {mat4} out mat4 frustum matrix will be written into
@@ -6836,7 +6924,7 @@ mat4.perspective = function (out, fovy, aspect, near, far) {
 module.exports = mat4;
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6855,9 +6943,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 var quat = {};
 
 /**
- * Creates a new identity quat
+ * Creates a new quat initialized with values from an existing quaternion
  *
+ * @param {quat} a quaternion to clone
  * @returns {quat} a new quaternion
+ * @function
  */
 /**
  * Original Code
@@ -6865,29 +6955,13 @@ var quat = {};
  * Quaternion util
  * modified by egjs
  */
-quat.create = function () {
-    var out = new _common2["default"].ARRAY_TYPE(4);
-    out[0] = 0;
-    out[1] = 0;
-    out[2] = 0;
-    out[3] = 1;
-    return out;
-};
-
-/**
- * Creates a new quat initialized with values from an existing quaternion
- *
- * @param {quat} a quaternion to clone
- * @returns {quat} a new quaternion
- * @function
- */
 quat.clone = function (a) {
-    var out = new _common2["default"].ARRAY_TYPE(4);
-    out[0] = a[0];
-    out[1] = a[1];
-    out[2] = a[2];
-    out[3] = a[3];
-    return out;
+  var out = new _common2["default"].ARRAY_TYPE(4);
+  out[0] = a[0];
+  out[1] = a[1];
+  out[2] = a[2];
+  out[3] = a[3];
+  return out;
 };
 
 /**
@@ -6901,12 +6975,12 @@ quat.clone = function (a) {
  * @function
  */
 quat.fromValues = function (x, y, z, w) {
-    var out = new _common2["default"].ARRAY_TYPE(4);
-    out[0] = x;
-    out[1] = y;
-    out[2] = z;
-    out[3] = w;
-    return out;
+  var out = new _common2["default"].ARRAY_TYPE(4);
+  out[0] = x;
+  out[1] = y;
+  out[2] = z;
+  out[3] = w;
+  return out;
 };;
 
 /**
@@ -6918,102 +6992,11 @@ quat.fromValues = function (x, y, z, w) {
  * @function
  */
 quat.copy = function (out, a) {
-    out[0] = a[0];
-    out[1] = a[1];
-    out[2] = a[2];
-    out[3] = a[3];
-    return out;
-};
-
-/**
- * Multiplies two quat's
- *
- * @param {quat} out the receiving quaternion
- * @param {quat} a the first operand
- * @param {quat} b the second operand
- * @returns {quat} out
- */
-quat.multiply = function (out, a, b) {
-    var ax = a[0],
-        ay = a[1],
-        az = a[2],
-        aw = a[3],
-        bx = b[0],
-        by = b[1],
-        bz = b[2],
-        bw = b[3];
-
-    out[0] = ax * bw + aw * bx + ay * bz - az * by;
-    out[1] = ay * bw + aw * by + az * bx - ax * bz;
-    out[2] = az * bw + aw * bz + ax * by - ay * bx;
-    out[3] = aw * bw - ax * bx - ay * by - az * bz;
-    return out;
-};
-
-/**
- * Rotates a quaternion by the given angle about the X axis
- *
- * @param {quat} out quat receiving operation result
- * @param {quat} a quat to rotate
- * @param {number} rad angle (in radians) to rotate
- * @returns {quat} out
- */
-quat.rotateX = function (out, a, rad) {
-    rad *= 0.5;
-
-    var ax = a[0],
-        ay = a[1],
-        az = a[2],
-        aw = a[3],
-        bx = Math.sin(rad),
-        bw = Math.cos(rad);
-
-    out[0] = ax * bw + aw * bx;
-    out[1] = ay * bw + az * bx;
-    out[2] = az * bw - ay * bx;
-    out[3] = aw * bw - ax * bx;
-    return out;
-};
-
-/**
- * Rotates a quaternion by the given angle about the Y axis
- *
- * @param {quat} out quat receiving operation result
- * @param {quat} a quat to rotate
- * @param {number} rad angle (in radians) to rotate
- * @returns {quat} out
- */
-quat.rotateY = function (out, a, rad) {
-    rad *= 0.5;
-
-    var ax = a[0],
-        ay = a[1],
-        az = a[2],
-        aw = a[3],
-        by = Math.sin(rad),
-        bw = Math.cos(rad);
-
-    out[0] = ax * bw - az * by;
-    out[1] = ay * bw + aw * by;
-    out[2] = az * bw + ax * by;
-    out[3] = aw * bw - ay * by;
-    return out;
-};
-
-/**
- * Calculates the conjugate of a quat
- * If the quaternion is normalized, this function is faster than quat.inverse and produces the same result.
- *
- * @param {quat} out the receiving quaternion
- * @param {quat} a quat to calculate conjugate of
- * @returns {quat} out
- */
-quat.conjugate = function (out, a) {
-    out[0] = -a[0];
-    out[1] = -a[1];
-    out[2] = -a[2];
-    out[3] = a[3];
-    return out;
+  out[0] = a[0];
+  out[1] = a[1];
+  out[2] = a[2];
+  out[3] = a[3];
+  return out;
 };
 
 /**
@@ -7025,19 +7008,19 @@ quat.conjugate = function (out, a) {
  * @function
  */
 quat.normalize = function (out, a) {
-    var x = a[0],
-        y = a[1],
-        z = a[2],
-        w = a[3];
-    var len = x * x + y * y + z * z + w * w;
-    if (len > 0) {
-        len = 1 / Math.sqrt(len);
-        out[0] = x * len;
-        out[1] = y * len;
-        out[2] = z * len;
-        out[3] = w * len;
-    }
-    return out;
+  var x = a[0],
+      y = a[1],
+      z = a[2],
+      w = a[3];
+  var len = x * x + y * y + z * z + w * w;
+  if (len > 0) {
+    len = 1 / Math.sqrt(len);
+    out[0] = x * len;
+    out[1] = y * len;
+    out[2] = z * len;
+    out[3] = w * len;
+  }
+  return out;
 };
 
 /**
@@ -7048,32 +7031,21 @@ quat.normalize = function (out, a) {
  * @returns {Boolean} True if the vectors are equal, false otherwise.
  */
 quat.equals = function (a, b) {
-    var a0 = a[0],
-        a1 = a[1],
-        a2 = a[2],
-        a3 = a[3];
-    var b0 = b[0],
-        b1 = b[1],
-        b2 = b[2],
-        b3 = b[3];
-    return Math.abs(a0 - b0) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) && Math.abs(a1 - b1) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) && Math.abs(a2 - b2) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a2), Math.abs(b2)) && Math.abs(a3 - b3) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a3), Math.abs(b3));
-};
-
-/**
- * Returns whether or not the quaternions have exactly the same elements in the same position (when compared with ===)
- *
- * @param {quat} a The first quaternion.
- * @param {quat} b The second quaternion.
- * @returns {Boolean} True if the vectors are equal, false otherwise.
- */
-quat.exactEquals = function (a, b) {
-    return a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3];
+  var a0 = a[0],
+      a1 = a[1],
+      a2 = a[2],
+      a3 = a[3];
+  var b0 = b[0],
+      b1 = b[1],
+      b2 = b[2],
+      b3 = b[3];
+  return Math.abs(a0 - b0) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) && Math.abs(a1 - b1) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) && Math.abs(a2 - b2) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a2), Math.abs(b2)) && Math.abs(a3 - b3) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a3), Math.abs(b3));
 };
 
 module.exports = quat;
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7089,25 +7061,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
  * @class 2 Dimensional Vector
  * @name vec2
  */
-var vec2 = {};
+var vec2 = {}; /**
+                * Original Code
+                * https://github.com/toji/gl-matrix/blob/v2.3.2/src/gl-matrix/vec2.js
+                * 2 Dimensional Vector Util
+                * modified by egjs
+                */
 
-/**
- * Creates a new, empty vec2
- *
- * @returns {vec2} a new 2D vector
- */
-/**
- * Original Code
- * https://github.com/toji/gl-matrix/blob/v2.3.2/src/gl-matrix/vec2.js
- * 2 Dimensional Vector Util
- * modified by egjs
- */
-vec2.create = function () {
-  var out = new _common2["default"].ARRAY_TYPE(2);
-  out[0] = 0;
-  out[1] = 0;
-  return out;
-};
 
 vec2.copy = function (out, a) {
   out[0] = a[0];
@@ -7118,7 +7078,7 @@ vec2.copy = function (out, a) {
 module.exports = vec2;
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7168,20 +7128,6 @@ vec3.fromValues = function (x, y, z) {
     out[0] = x;
     out[1] = y;
     out[2] = z;
-    return out;
-};
-
-vec3.set = function (out, x, y, z) {
-    out[0] = x;
-    out[1] = y;
-    out[2] = z;
-    return out;
-};
-
-vec3.copy = function (out, a) {
-    out[0] = a[0];
-    out[1] = a[1];
-    out[2] = a[2];
     return out;
 };
 
@@ -7319,7 +7265,7 @@ vec3.transformQuat = function (out, a, q) {
 module.exports = vec3;
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -7509,7 +7455,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports) {
 
 var g;
@@ -7536,7 +7482,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -7554,9 +7500,9 @@ module.exports = g;
  * limitations under the License.
  */
 
-var SensorSample = __webpack_require__(40);
+var SensorSample = __webpack_require__(41);
 var MathUtil = __webpack_require__(4);
-var Util = __webpack_require__(5);
+var Util = __webpack_require__(7);
 
 /**
  * An implementation of a simple complementary filter, which fuses gyroscope and
@@ -7708,7 +7654,7 @@ module.exports = ComplementaryFilter;
 
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -7726,7 +7672,7 @@ module.exports = ComplementaryFilter;
  * limitations under the License.
  */
 var MathUtil = __webpack_require__(4);
-var Util = __webpack_require__(5);
+var Util = __webpack_require__(7);
 
 /**
  * Given an orientation and the gyroscope data, predicts the future orientation
@@ -7795,7 +7741,7 @@ module.exports = PosePredictor;
 
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports) {
 
 function SensorSample(sample, timestampS) {
@@ -7815,7 +7761,7 @@ module.exports = SensorSample;
 
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
