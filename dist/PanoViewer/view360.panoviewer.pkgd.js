@@ -5,7 +5,7 @@
  * @egjs/view360 JavaScript library
  * 
  * 
- * @version 2.0.3-rc
+ * @version 2.0.3
  * 
  * All-in-one packaged file for ease use of '@egjs/view360' with below dependencies.
  * NOTE: This is not an official distribution file and is only for user convenience.
@@ -7188,7 +7188,7 @@ var Axes = /** @class */ (function (_super) {
         this.disconnect();
         this.em.destroy();
     };
-    Axes.VERSION = "2.0.3-rc";
+    Axes.VERSION = "2.0.3";
     /**
      * @name eg.Axes.TRANSFORM
      * @desc Returns the transform attribute with CSS vendor prefixes.
@@ -10991,7 +10991,7 @@ var YawPitchControl = function (_Component) {
 	return YawPitchControl;
 }(_component2["default"]);
 
-YawPitchControl.VERSION = "2.0.3-rc";
+YawPitchControl.VERSION = "2.0.3";
 exports["default"] = YawPitchControl;
 
 /***/ }),

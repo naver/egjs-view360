@@ -5,7 +5,7 @@
  * @egjs/view360 JavaScript library
  * 
  * 
- * @version 2.0.3-rc
+ * @version 2.0.3
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -5614,7 +5614,7 @@ var YawPitchControl = function (_Component) {
 	return YawPitchControl;
 }(_component2["default"]);
 
-YawPitchControl.VERSION = "2.0.3-rc";
+YawPitchControl.VERSION = "2.0.3";
 exports["default"] = YawPitchControl;
 
 /***/ }),

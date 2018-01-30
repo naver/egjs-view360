@@ -5,7 +5,7 @@
  * @egjs/view360 JavaScript library
  * 
  * 
- * @version 2.0.3-rc
+ * @version 2.0.3
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -4570,7 +4570,7 @@ exports.SpinViewer = _SpinViewer2["default"];
 exports.SpriteImage = _SpriteImage2["default"];
 
 
-_SpinViewer2["default"].VERSION = "2.0.3-rc";
+_SpinViewer2["default"].VERSION = "2.0.3";
 
 /***/ }),
 /* 19 */
@@ -6215,7 +6215,7 @@ var YawPitchControl = function (_Component) {
 	return YawPitchControl;
 }(_component2["default"]);
 
-YawPitchControl.VERSION = "2.0.3-rc";
+YawPitchControl.VERSION = "2.0.3";
 exports["default"] = YawPitchControl;
 
 /***/ }),
@@ -8275,7 +8275,7 @@ var _PanoViewer = __webpack_require__(16);
 
 var _SpinViewer = __webpack_require__(18);
 
-var VERSION = "2.0.3-rc";
+var VERSION = "2.0.3";
 
 exports.YawPitchControl = _YawPitchControl.YawPitchControl;
 exports.PanoViewer = _PanoViewer.PanoViewer;
