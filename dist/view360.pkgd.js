@@ -9876,7 +9876,7 @@ var SpinViewer = function (_Component) {
 		});
 
 		// Init Axes
-		_this._panInput = new _axes2["default"].PanInput(_this._el, {
+		_this._panInput = new _axes.PanInput(_this._el, {
 			scale: [_this._scale, _this._scale]
 		});
 		_this._axes = new _axes2["default"]({
@@ -11433,11 +11433,11 @@ var YawPitchControl = function (_Component) {
 		var pRange = YawPitchControl._updatePitchRange(opt.pitchRange, opt.fov, opt.showPolePoint);
 		var circular = yRange[1] - yRange[0] < 360 ? [false, false] : [true, true];
 
-		this.axesPanInput = new _axes2["default"].PanInput(this._element);
+		this.axesPanInput = new _axes.PanInput(this._element);
 		this.axesWheelInput = new _WheelInput2["default"](this._element, { scale: 4 });
 		this.axesTiltMotionInput = _browser.SUPPORT_DEVICEMOTION ? new _TiltMotionInput2["default"](this._element) : null;
-		this.axesPinchInput = _browser.SUPPORT_TOUCH ? new _axes2["default"].PinchInput(this._element, { scale: -1 }) : null;
-		this.axesMoveKeyInput = new _axes2["default"].MoveKeyInput(this._element, { scale: [-6, 6] });
+		this.axesPinchInput = _browser.SUPPORT_TOUCH ? new _axes.PinchInput(this._element, { scale: -1 }) : null;
+		this.axesMoveKeyInput = new _axes.MoveKeyInput(this._element, { scale: [-6, 6] });
 
 		this.axes = new _axes2["default"]({
 			yaw: {

@@ -5965,7 +5965,7 @@ var SpinViewer = function (_Component) {
 		});
 
 		// Init Axes
-		_this._panInput = new _axes2["default"].PanInput(_this._el, {
+		_this._panInput = new _axes.PanInput(_this._el, {
 			scale: [_this._scale, _this._scale]
 		});
 		_this._axes = new _axes2["default"]({
