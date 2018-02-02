@@ -82,7 +82,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 42);
+/******/ 	return __webpack_require__(__webpack_require__.s = 43);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -330,12 +330,12 @@ module.exports = glMatrix;
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(process, global) {/*!
+/* WEBPACK VAR INJECTION */(function(process, global) {var require;/*!
  * @overview es6-promise - a tiny implementation of Promises/A+.
  * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/stefanpenner/es6-promise/master/LICENSE
- * @version   v4.2.4+314e4831
+ * @version   v4.2.2+97478eb6
  */
 
 (function (global, factory) {
@@ -468,7 +468,8 @@ function flush() {
 
 function attemptVertx() {
   try {
-    var vertx = Function('return this')().require('vertx');
+    var r = require;
+    var vertx = __webpack_require__(42);
     vertxNext = vertx.runOnLoop || vertx.runOnContext;
     return useVertxTimer();
   } catch (e) {
@@ -558,7 +559,7 @@ function resolve$1(object) {
   return promise;
 }
 
-var PROMISE_ID = Math.random().toString(36).substring(2);
+var PROMISE_ID = Math.random().toString(36).substring(16);
 
 function noop() {}
 
@@ -566,7 +567,7 @@ var PENDING = void 0;
 var FULFILLED = 1;
 var REJECTED = 2;
 
-var TRY_CATCH_ERROR = { error: null };
+var GET_THEN_ERROR = new ErrorObject();
 
 function selfFulfillment() {
   return new TypeError("You cannot resolve a promise with itself");
@@ -580,8 +581,8 @@ function getThen(promise) {
   try {
     return promise.then;
   } catch (error) {
-    TRY_CATCH_ERROR.error = error;
-    return TRY_CATCH_ERROR;
+    GET_THEN_ERROR.error = error;
+    return GET_THEN_ERROR;
   }
 }
 
@@ -640,9 +641,9 @@ function handleMaybeThenable(promise, maybeThenable, then$$1) {
   if (maybeThenable.constructor === promise.constructor && then$$1 === then && maybeThenable.constructor.resolve === resolve$1) {
     handleOwnThenable(promise, maybeThenable);
   } else {
-    if (then$$1 === TRY_CATCH_ERROR) {
-      reject(promise, TRY_CATCH_ERROR.error);
-      TRY_CATCH_ERROR.error = null;
+    if (then$$1 === GET_THEN_ERROR) {
+      reject(promise, GET_THEN_ERROR.error);
+      GET_THEN_ERROR.error = null;
     } else if (then$$1 === undefined) {
       fulfill(promise, maybeThenable);
     } else if (isFunction(then$$1)) {
@@ -736,6 +737,12 @@ function publish(promise) {
   promise._subscribers.length = 0;
 }
 
+function ErrorObject() {
+  this.error = null;
+}
+
+var TRY_CATCH_ERROR = new ErrorObject();
+
 function tryCatch(callback, detail) {
   try {
     return callback(detail);
@@ -807,6 +814,10 @@ function makePromise(promise) {
   promise._state = undefined;
   promise._result = undefined;
   promise._subscribers = [];
+}
+
+function validationError() {
+  return new Error('Array Methods must be provided an Array');
 }
 
 function validationError() {
@@ -1466,36 +1477,36 @@ Promise$1._asap = asap;
 
 /*global self*/
 function polyfill() {
-  var local = void 0;
+    var local = void 0;
 
-  if (typeof global !== 'undefined') {
-    local = global;
-  } else if (typeof self !== 'undefined') {
-    local = self;
-  } else {
-    try {
-      local = Function('return this')();
-    } catch (e) {
-      throw new Error('polyfill failed because global object is unavailable in this environment');
-    }
-  }
-
-  var P = local.Promise;
-
-  if (P) {
-    var promiseToString = null;
-    try {
-      promiseToString = Object.prototype.toString.call(P.resolve());
-    } catch (e) {
-      // silently ignored
+    if (typeof global !== 'undefined') {
+        local = global;
+    } else if (typeof self !== 'undefined') {
+        local = self;
+    } else {
+        try {
+            local = Function('return this')();
+        } catch (e) {
+            throw new Error('polyfill failed because global object is unavailable in this environment');
+        }
     }
 
-    if (promiseToString === '[object Promise]' && !P.cast) {
-      return;
-    }
-  }
+    var P = local.Promise;
 
-  local.Promise = Promise$1;
+    if (P) {
+        var promiseToString = null;
+        try {
+            promiseToString = Object.prototype.toString.call(P.resolve());
+        } catch (e) {
+            // silently ignored
+        }
+
+        if (promiseToString === '[object Promise]' && !P.cast) {
+            return;
+        }
+    }
+
+    local.Promise = Promise$1;
 }
 
 // Strange compat..
@@ -4448,7 +4459,8 @@ var SpinViewer = function (_Component) {
 		var colCount = opt.colCount || 1;
 		var rowCount = opt.rowCount || 1;
 
-		_this._scale = (opt.scale || 1) * DEFAULT_PAN_SCALE;
+		_this._scale = opt.scale || 1;
+		_this._panScale = _this._scale * DEFAULT_PAN_SCALE;
 
 		_this._frameCount = colCount * rowCount;
 
@@ -4500,7 +4512,7 @@ var SpinViewer = function (_Component) {
 
 		// Init Axes
 		_this._panInput = new _axes.PanInput(_this._el, {
-			scale: [_this._scale, _this._scale]
+			scale: [_this._panScale, _this._panScale]
 		});
 		_this._axes = new _axes2["default"]({
 			angle: {
@@ -4537,6 +4549,11 @@ var SpinViewer = function (_Component) {
 					colRow: _this._sprites.getColRow(),
 					angle: evt.pos.angle
 				});
+			},
+			"animationEnd": function animationEnd(evt) {
+				_this.trigger("spinEnd", {
+					isTrusted: evt.isTrusted
+				});
 			}
 		});
 
@@ -4563,15 +4580,33 @@ var SpinViewer = function (_Component) {
 			return this;
 		}
 
-		this._scale = scale * DEFAULT_PAN_SCALE;
-		this._panInput.options.scale = [this._scale, this._scale];
+		this._scale = scale;
+		this._panScale = scale * DEFAULT_PAN_SCALE;
+		this._panInput.options.scale = [this._panScale, this._panScale];
 
 		return this;
 	};
 
 	/**
-  * It gives the effect of rotating at a specified angle for a certain period of time(duration).
-  * @ko 지정된 각도(angle)로 일정 시간동안(duration) 회전하는 효과를 준다.
+  * Get spin scale
+  * @ko scale 값을 반환한다.
+  * @method eg.view360.SpinViewer#getScale
+  *
+  * @return {Number} Rotation multiples at spin, the larger the rotation<ko>Spin 시 회전 배수값, 커질 수록 더 많이 회전</ko>
+  *
+  * @example
+  *
+  * viewer.getScale();// It returns number
+  */
+
+
+	SpinViewer.prototype.getScale = function getScale() {
+		return this._scale;
+	};
+
+	/**
+  * It gives the effect of rotating for a certain duration by the specified angle based on the current rotation angle.
+  * @ko 현재 회전 각도를 기준으로 지정된 각도(angle)만큼 일정 시간동안(duration) 회전하는 효과를 준다.
   * @method eg.view360.SpinViewer#spinBy
   * @param {Object} param The parameter object<ko>파라미터 객체</ko>
   * @param {Number} [param.angle=0] angle<ko>회전 각도</ko>
@@ -4593,7 +4628,57 @@ var SpinViewer = function (_Component) {
 
 		this._axes.setBy({ angle: angle }, duration);
 
+		if (duration === 0 || angle === 0) {
+			this.trigger("spinEnd", {
+				isTrusted: false
+			});
+		}
 		return this;
+	};
+
+	/**
+  * It gives the effect of rotating for a certain duration (duration) by the specified angle (angle).
+  * @ko 지정된 각도(angle)만큼 일정 시간동안(duration) 회전하는 효과를 준다.
+  *
+  * @param {Number} [angle = 0] angle<ko>회전 각도</ko>
+  * @param {Object} param The parameter object<ko>파라미터 객체</ko>
+  * @param {Number} [param.duration = 400] duration<ko>회전할 시간 - 밀리세컨드 단위</ko>
+  *
+  * @return {Object} Instance of SpinViewer <ko>SpinViewer 인스턴스</ko>
+  *
+  * @example
+  *
+  * viewer.spinTo(30, {duration:100});
+  */
+
+
+	SpinViewer.prototype.spinTo = function spinTo() {
+		var angle = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+		var param = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : { duration: 400 };
+
+		var isSameAngle = angle === this.getAngle();
+
+		this._axes.setTo({ angle: angle }, param.duration);
+
+		if (param.duration === 0 || isSameAngle) {
+			this.trigger("spinEnd", {
+				isTrusted: false
+			});
+		}
+
+		return this;
+	};
+
+	/**
+  * Returns current angles
+  * @ko 지정된 각도(angle)만큼 일정 시간동안(duration) 회전하는 효과를 준다.
+  *
+  * @return {Number} Current angle <ko>현재 각도</ko>
+  */
+
+
+	SpinViewer.prototype.getAngle = function getAngle() {
+		return this._axes.get().angle || 0;
 	};
 
 	return SpinViewer;
@@ -8268,6 +8353,12 @@ module.exports = SensorSample;
 
 /***/ }),
 /* 42 */
+/***/ (function(module, exports) {
+
+/* (ignored) */
+
+/***/ }),
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
