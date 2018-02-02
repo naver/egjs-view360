@@ -54,7 +54,7 @@ describe("SpinViewer", function() {
 			});
 		});
 	});
-	describe("setScale", function() {
+	describe("#setScale", function() {
 		var target
 		beforeEach(() => {
 			target = sandbox();
@@ -77,6 +77,144 @@ describe("SpinViewer", function() {
 			const currScale = inst._panInput.options.scale;
 
 			assert(prevScale[0] * 3 === currScale[0] && prevScale[1] * 3 === currScale[1]);
+		});
+
+		it("should not update scale if scale value is invalid", () => {
+			// Given
+			let inst = new SpinViewer(target, {
+				colCount: 3,
+				rowCount: 3
+			});
+			let nextScales = [];
+			const prevScale = inst.getScale();
+
+			// When
+			inst.setScale("invalid");
+			nextScales.push(inst.getScale());
+			inst.setScale(-1);
+			nextScales.push(inst.getScale());
+			// Then
+			expect(prevScale).to.be.equal(1);
+			expect(prevScale).to.be.equal(nextScales[0]);
+			expect(prevScale).to.be.equal(nextScales[1]);
+		});
+	});
+	describe("#spinTo", function() {
+		var target
+		let inst;
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div"></div>`;
+
+			const COL = 0;
+			const ROW = 0;
+			inst = new SpinViewer(target, {
+				colCount: COL,
+				rowCount: ROW,
+				imageUrl: "images/SpinViewer/bag360.jpg"
+			});
+		});
+
+		afterEach(() => {
+			inst = null;
+		});
+
+		it("should set to angle user specified in normal range.(0 ~ 360)", done => {
+			// Given
+			let i = 0;
+			/* 0 ~ 359 */
+			const NORMAL_ANGLES = [0, 1, 30, 60, 120, 150, 180, 359, 0];
+
+			inst.on("spinEnd", evt => {
+				const currAngle = inst.getAngle();
+				// Then
+				expect(currAngle).be.equal(NORMAL_ANGLES[i]);
+
+				if (++i < NORMAL_ANGLES.length) {
+					inst.spinTo(NORMAL_ANGLES[i]); // It causes recursive call, but it does not matter because it has done condition.
+				} else {
+					done();
+				}
+			});
+
+			// When
+			inst.spinTo(NORMAL_ANGLES[i]);
+		});
+
+		it("should change angle in a circular value within the range if input angle is beyond range.(angle < 0 || angle >= 360)", done => {
+			// Given
+			let i = 0;
+			/* angle < 0 || angle >= 360 */
+			const NORMAL_ANGLES = [-1, -10, -100, -360, -540, -720, 360, 370, 720];
+			const EXPECTED_ANGLES = [358, 349, 259, 358, 178, 357, 1, 11, 2];
+
+			// When
+			inst.spinTo(NORMAL_ANGLES[i]);
+			inst.on("spinEnd", evt => {
+				const currAngle = inst.getAngle();
+				// Then
+				expect(currAngle).be.equal(EXPECTED_ANGLES[i]);
+
+				if (++i < NORMAL_ANGLES.length) {
+					inst.spinTo(NORMAL_ANGLES[i]);
+				} else {
+					done();
+				}
+			})
+		});
+
+		it("should set 0 if angle is not specified", done => {
+			// Given
+			inst.on("spinEnd", evt => {
+				const currAngle = inst.getAngle();
+
+				// Then
+				expect(currAngle).be.equal(0);
+				done();
+			});
+
+			// When
+			inst.spinTo();
+		});
+
+		it("should apply duration", done => {
+			// Given
+			let before;
+			let after;
+
+			inst.on("spinEnd", evt => {
+				after = new Date().getTime();
+				const currAngle = inst.getAngle();
+				const diff = after - before;
+				// Then
+				expect(diff).be.above(100);
+				expect(diff).be.below(150); // timeout margin 50ms: it cannot be accurate because timeout is not accurate.
+				expect(currAngle).be.equal(10);
+				done();
+			});
+
+			// When
+			before = new Date().getTime();;
+			inst.spinTo(10, {duration: 100});
+		});
+
+		it("should follow last spinTo if spin is requested again before spinEnd", done => {
+			// Given
+			let spinEndCount = 0;
+			inst.on("spinEnd", function() {
+				spinEndCount++;
+			});
+			inst.spinTo(100, {duration: 100});
+
+			// When
+			// call spinTo before above spin is not end
+			inst.spinTo(200, {duration: 0});
+
+			setTimeout(() => {
+				expect(inst.getAngle() === 200);
+				expect(spinEndCount === 1);
+				done();
+			}, 400);
 		});
 	});
 });

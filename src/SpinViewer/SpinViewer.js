@@ -40,7 +40,8 @@ export default class SpinViewer extends Component {
 		const colCount = opt.colCount || 1;
 		const rowCount = opt.rowCount || 1;
 
-		this._scale = (opt.scale || 1) * DEFAULT_PAN_SCALE;
+		this._scale = (opt.scale || 1);
+		this._panScale = this._scale * DEFAULT_PAN_SCALE;
 
 		this._frameCount = colCount * rowCount;
 
@@ -92,7 +93,7 @@ export default class SpinViewer extends Component {
 
 		// Init Axes
 		this._panInput = new PanInput(this._el, {
-			scale: [this._scale, this._scale]
+			scale: [this._panScale, this._panScale]
 		});
 		this._axes = new Axes({
 			angle: {
@@ -129,6 +130,11 @@ export default class SpinViewer extends Component {
 					colRow: this._sprites.getColRow(),
 					angle: evt.pos.angle
 				});
+			},
+			"animationEnd": evt => {
+				this.trigger("spinEnd", {
+					isTrusted: evt.isTrusted
+				});
 			}
 		});
 
@@ -152,15 +158,31 @@ export default class SpinViewer extends Component {
 			return this;
 		}
 
-		this._scale = scale * DEFAULT_PAN_SCALE;
-		this._panInput.options.scale = [this._scale, this._scale];
+		this._scale = scale;
+		this._panScale = scale * DEFAULT_PAN_SCALE;
+		this._panInput.options.scale = [this._panScale, this._panScale];
 
 		return this;
 	}
 
 	/**
-	 * It gives the effect of rotating at a specified angle for a certain period of time(duration).
-	 * @ko 지정된 각도(angle)로 일정 시간동안(duration) 회전하는 효과를 준다.
+	 * Get spin scale
+	 * @ko scale 값을 반환한다.
+	 * @method eg.view360.SpinViewer#getScale
+	 *
+	 * @return {Number} Rotation multiples at spin, the larger the rotation<ko>Spin 시 회전 배수값, 커질 수록 더 많이 회전</ko>
+	 *
+	 * @example
+	 *
+	 * viewer.getScale();// It returns number
+	 */
+	getScale() {
+		return this._scale;
+	}
+
+	/**
+	 * It gives the effect of rotating for a certain duration by the specified angle based on the current rotation angle.
+	 * @ko 현재 회전 각도를 기준으로 지정된 각도(angle)만큼 일정 시간동안(duration) 회전하는 효과를 준다.
 	 * @method eg.view360.SpinViewer#spinBy
 	 * @param {Object} param The parameter object<ko>파라미터 객체</ko>
 	 * @param {Number} [param.angle=0] angle<ko>회전 각도</ko>
@@ -175,6 +197,48 @@ export default class SpinViewer extends Component {
 	spinBy({angle = 0, duration = 400}) {
 		this._axes.setBy({angle}, duration);
 
+		if (duration === 0 || angle === 0) {
+			this.trigger("spinEnd", {
+				isTrusted: false
+			});
+		}
 		return this;
+	}
+
+	/**
+	 * It gives the effect of rotating for a certain duration (duration) by the specified angle (angle).
+	 * @ko 지정된 각도(angle)만큼 일정 시간동안(duration) 회전하는 효과를 준다.
+	 *
+	 * @param {Number} [angle = 0] angle<ko>회전 각도</ko>
+	 * @param {Object} param The parameter object<ko>파라미터 객체</ko>
+	 * @param {Number} [param.duration = 400] duration<ko>회전할 시간 - 밀리세컨드 단위</ko>
+	 *
+	 * @return {Object} Instance of SpinViewer <ko>SpinViewer 인스턴스</ko>
+	 *
+	 * @example
+	 *
+	 * viewer.spinTo(30, {duration:100});
+	 */
+	spinTo(angle = 0, param = {duration: 400}) {
+		const isSameAngle = (angle === this.getAngle());
+		this._axes.setTo({angle}, param.duration);
+
+		if (param.duration === 0 || isSameAngle) {
+			this.trigger("spinEnd", {
+				isTrusted: false
+			});
+		}
+
+		return this;
+	}
+
+	/**
+	 * Returns current angles
+	 * @ko 지정된 각도(angle)만큼 일정 시간동안(duration) 회전하는 효과를 준다.
+	 *
+	 * @return {Number} Current angle <ko>현재 각도</ko>
+	 */
+	getAngle() {
+		return this._axes.get().angle || 0;
 	}
 }
