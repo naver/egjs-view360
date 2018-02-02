@@ -4,6 +4,10 @@ import PanoImageRendererInjector from "inject-loader!../../../src/PanoImageRende
 
 const WEBGL_AVAILABILITY = WebGLUtils.isWebGLAvailable();
 const IT = WEBGL_AVAILABILITY ? it : it.skip;
+const DEBUG_CONTEXT_ATTRIBUTES = {
+	preserveDrawingBuffer: true,
+	antialias: false
+};
 
 function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2) {
 	return new Promise(res => {
@@ -45,7 +49,7 @@ describe("PanoImageRenderer", function() {
 					pitch: 0,
 					imageType: "equirectangular",
 					fieldOfView: 65
-				});
+				}, DEBUG_CONTEXT_ATTRIBUTES);
 
 			// Then
 			expect(this.inst).to.be.exist;
@@ -60,7 +64,7 @@ describe("PanoImageRenderer", function() {
 				pitch: 0,
 				imageType: "equirectangular",
 				fieldOfView: 65
-			});
+			}, DEBUG_CONTEXT_ATTRIBUTES);
 
 			// When
 			this.inst.setImage({
@@ -83,7 +87,7 @@ describe("PanoImageRenderer", function() {
 				initialpitch: 0,
 				imageType: "equirectangular",
 				fieldOfView: 65
-			});
+			}, DEBUG_CONTEXT_ATTRIBUTES);
 
 			// When
 			const isImageLoaded = inst.isImageLoaded();
@@ -102,7 +106,7 @@ describe("PanoImageRenderer", function() {
 				initialpitch: 0,
 				imageType: "equirectangular",
 				fieldOfView: 65
-			});
+			}, DEBUG_CONTEXT_ATTRIBUTES);
 
 			inst.on("imageLoaded", () => {
 				// When
@@ -124,7 +128,7 @@ describe("PanoImageRenderer", function() {
 				initialpitch: 0,
 				imageType: "equirectangular",
 				fieldOfView: 65
-			});
+			}, DEBUG_CONTEXT_ATTRIBUTES);
 
 			inst.once("imageLoaded", () => {
 				// When
@@ -149,7 +153,7 @@ describe("PanoImageRenderer", function() {
 					initialpitch: 0,
 					imageType: "equirectangular",
 					fieldOfView: 65
-				});
+				}, DEBUG_CONTEXT_ATTRIBUTES);
 
 				// When
 				inst.setImage({
@@ -259,7 +263,7 @@ describe("PanoImageRenderer", function() {
 				initialpitch: 0,
 				imageType: "cubemap",
 				fieldOfView: 65
-            });
+            }, DEBUG_CONTEXT_ATTRIBUTES);
             inst.on("error", when);
 
             function when(e) {
@@ -283,7 +287,7 @@ describe("PanoImageRenderer", function() {
 				initialpitch: 0,
 				imageType: "cubemap",
 				fieldOfView: 65
-            });
+            }, DEBUG_CONTEXT_ATTRIBUTES);
             inst.on("renderingContextLost", when);
 
             for(var i=0;i<16;i++) {
@@ -292,7 +296,7 @@ describe("PanoImageRenderer", function() {
                     initialpitch: 0,
                     imageType: "cubemap",
                     fieldOfView: 65
-                });
+                }, DEBUG_CONTEXT_ATTRIBUTES);
             }
 
             function when(e) {
@@ -315,7 +319,7 @@ describe("PanoImageRenderer", function() {
 				initialpitch: 0,
 				imageType: "cubemap",
 				fieldOfView: 65
-            });
+            }, DEBUG_CONTEXT_ATTRIBUTES);
             inst._draw = function() {
                 isDrawCalled = true;
                 PanoImageRenderer.prototype._draw.call(inst);
@@ -339,7 +343,7 @@ describe("PanoImageRenderer", function() {
 				initialpitch: 0,
 				imageType: "cubemap",
 				fieldOfView: 65
-			});
+			}, DEBUG_CONTEXT_ATTRIBUTES);
 
 			inst.on("imageLoaded", () => {
 				inst.render(0, 0, 65);
@@ -375,7 +379,7 @@ describe("PanoImageRenderer", function() {
 					initialpitch: 0,
 					imageType: "cubemap",
 					fieldOfView: 65
-				});
+				}, DEBUG_CONTEXT_ATTRIBUTES);
 
 				inst.on("imageLoaded", when);
 
@@ -422,7 +426,7 @@ describe("PanoImageRenderer", function() {
 					initialpitch: 0,
 					imageType: "cubemap",
 					fieldOfView: 65
-				});
+				}, DEBUG_CONTEXT_ATTRIBUTES);
 
 				inst.on("imageLoaded", when);
 
@@ -473,7 +477,7 @@ describe("PanoImageRenderer", function() {
 							{flipHorizontal: false, rotation: 0}
 						]
 					}
-				});
+				}, DEBUG_CONTEXT_ATTRIBUTES);
 
 				inst.on("imageLoaded", when);
 
@@ -523,7 +527,7 @@ describe("PanoImageRenderer", function() {
 							{flipHorizontal: true, rotation: 0}
 						]
 					}
-				});
+				}, DEBUG_CONTEXT_ATTRIBUTES);
 
 				inst.on("imageLoaded", when);
 
@@ -573,7 +577,7 @@ describe("PanoImageRenderer", function() {
 							{flipHorizontal: true, rotation: 0}
 						]
 					}
-				});
+				}, DEBUG_CONTEXT_ATTRIBUTES);
 
 				inst.on("imageLoaded", when);
 
@@ -612,7 +616,7 @@ describe("PanoImageRenderer", function() {
 					initialpitch: 0,
 					imageType: "cubemap",
 					fieldOfView: 65
-				});
+				}, DEBUG_CONTEXT_ATTRIBUTES);
 				inst.on("imageLoaded", when);
 
 				function when() {
@@ -652,7 +656,7 @@ describe("PanoImageRenderer", function() {
 					cubemapConfig: {
 						tileConfig: tileConfigForCubestrip
 					}
-				});
+				}, DEBUG_CONTEXT_ATTRIBUTES);
 				inst.on("imageLoaded", when);
 
 				function when() {
@@ -700,7 +704,7 @@ describe("PanoImageRenderer", function() {
 						order: "LFRBUD",
 						tileConfig: tileConfigForCubestrip
 					}
-				});
+				}, DEBUG_CONTEXT_ATTRIBUTES);
 				inst.on("imageLoaded", when);
 
 				function when() {
@@ -736,7 +740,7 @@ describe("PanoImageRenderer", function() {
 					initialpitch: 0,
 					imageType: "cubemap",
 					fieldOfView: 65
-				});
+				}, DEBUG_CONTEXT_ATTRIBUTES);
 				inst.on("imageLoaded", when);
 
 				function when() {
@@ -771,7 +775,7 @@ describe("PanoImageRenderer", function() {
 					initialpitch: 0,
 					imageType: "cubemap",
 					fieldOfView: 65
-				});
+				}, DEBUG_CONTEXT_ATTRIBUTES);
 				inst.on("imageLoaded", when);
 
 				function when() {
@@ -807,7 +811,7 @@ describe("PanoImageRenderer", function() {
 					initialpitch: 0,
 					imageType: "cubemap",
 					fieldOfView: 65
-				});
+				}, DEBUG_CONTEXT_ATTRIBUTES);
 				inst.on("imageLoaded", when);
 
 				function when() {
@@ -843,7 +847,7 @@ describe("PanoImageRenderer", function() {
 					initialpitch: 0,
 					imageType: "cubemap",
 					fieldOfView: 65
-				});
+				}, DEBUG_CONTEXT_ATTRIBUTES);
 				inst.on("imageLoaded", when);
 
 				function when() {
@@ -891,7 +895,7 @@ describe("PanoImageRenderer", function() {
 						tileConfig: tileConfigForCubestrip,
 						order: "LFRBUD"
 					}
-				});
+				}, DEBUG_CONTEXT_ATTRIBUTES);
 				inst.on("imageLoaded", when);
 
 				function when() {
@@ -930,7 +934,7 @@ describe("PanoImageRenderer", function() {
 				initialpitch: 0,
 				imageType: "equirectangular",
 				fieldOfView: 65
-			});
+			}, DEBUG_CONTEXT_ATTRIBUTES);
 			inst.on("imageLoaded", when);
 			function when() {
 				// When
@@ -964,7 +968,7 @@ describe("PanoImageRenderer", function() {
 				initialpitch: 0,
 				imageType: "equirectangular",
 				fieldOfView: 65
-			});
+			}, DEBUG_CONTEXT_ATTRIBUTES);
 			inst.on("imageLoaded", when);
 			function when() {
 				// When

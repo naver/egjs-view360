@@ -16,7 +16,7 @@
 		exports["view360"] = factory(require("@egjs/component"), require("@egjs/axes"));
 	else
 		root["eg"] = root["eg"] || {}, root["eg"]["view360"] = factory(root["eg"]["Component"], root["eg"]["Axes"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_0__, __WEBPACK_EXTERNAL_MODULE_9__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_0__, __WEBPACK_EXTERNAL_MODULE_10__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -1883,6 +1883,200 @@ module.exports = MathUtil;
 
 
 exports.__esModule = true;
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _agent = __webpack_require__(8);
+
+var _agent2 = _interopRequireDefault(_agent);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var WEBGL_ERROR_CODE = {
+	"0": "NO_ERROR",
+	"1280": "INVALID_ENUM",
+	"1281": "INVALID_VALUE",
+	"1282": "INVALID_OPERATION",
+	"1285": "OUT_OF_MEMORY",
+	"1286": "INVALID_FRAMEBUFFER_OPERATION",
+	"37442": "CONTEXT_LOST_WEBGL"
+};
+
+var webglAvailability = null;
+
+var WebGLUtils = function () {
+	function WebGLUtils() {
+		_classCallCheck(this, WebGLUtils);
+	}
+
+	WebGLUtils.createShader = function createShader(gl, type, source) {
+		var shader = gl.createShader(type);
+
+		gl.shaderSource(shader, source);
+		gl.compileShader(shader);
+		var success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+
+		if (success) {
+			return shader;
+		}
+
+		gl.deleteShader(shader);
+		return null;
+	};
+
+	WebGLUtils.createProgram = function createProgram(gl, vertexShader, fragmentShader) {
+		var program = gl.createProgram();
+
+		gl.attachShader(program, vertexShader);
+		gl.attachShader(program, fragmentShader);
+		gl.linkProgram(program);
+		var success = gl.getProgramParameter(program, gl.LINK_STATUS);
+
+		if (success) {
+			return program;
+		}
+
+		gl.deleteProgram(program);
+		return null;
+	};
+
+	WebGLUtils.initBuffer = function initBuffer(gl, target /* bind point */, data, itemSize, attr) {
+		var buffer = gl.createBuffer();
+
+		gl.bindBuffer(target, buffer);
+		gl.bufferData(target, data, gl.STATIC_DRAW);
+
+		if (buffer) {
+			buffer.itemSize = itemSize;
+			buffer.numItems = data.length / itemSize;
+		}
+
+		if (attr !== undefined) {
+			gl.enableVertexAttribArray(attr);
+			gl.vertexAttribPointer(attr, buffer.itemSize, gl.FLOAT, false, 0, 0);
+		}
+
+		return buffer;
+	};
+
+	WebGLUtils.bindBufferToAttribute = function bindBufferToAttribute(gl, buffer, attr) {
+		if (buffer === null || attr === null) {
+			return;
+		}
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+		gl.vertexAttribPointer(attr, buffer.itemSize, gl.FLOAT, false, 0, 0);
+	};
+
+	WebGLUtils.getWebglContext = function getWebglContext(canvas, userContextAttributes) {
+		var webglIdentifiers = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
+		var context = null;
+		var contextAttributes = _extends({
+			preserveDrawingBuffer: false,
+			antialias: false
+		}, userContextAttributes);
+
+		function onWebglcontextcreationerror(e) {
+			return e.statusMessage;
+		}
+
+		canvas.addEventListener("webglcontextcreationerror", onWebglcontextcreationerror);
+
+		for (var i = 0; i < webglIdentifiers.length; i++) {
+			try {
+				context = canvas.getContext(webglIdentifiers[i], contextAttributes);
+			} catch (t) {}
+			if (context) {
+				break;
+			}
+		}
+
+		canvas.removeEventListener("webglcontextcreationerror", onWebglcontextcreationerror);
+
+		return context;
+	};
+
+	WebGLUtils.createTexture = function createTexture(gl, textureTarget) {
+		var texture = gl.createTexture();
+
+		gl.bindTexture(textureTarget, texture);
+		gl.texParameteri(textureTarget, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.texParameteri(textureTarget, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.texParameteri(textureTarget, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(textureTarget, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		gl.bindTexture(textureTarget, null);
+
+		return texture;
+	};
+
+	/**
+  * Returns the webgl availability of the current browser.
+  * @method WebGLUtils#isWebGLAvailable
+  * @retuen {Boolean} isWebGLAvailable
+  */
+
+
+	WebGLUtils.isWebGLAvailable = function isWebGLAvailable() {
+		if (webglAvailability === null) {
+			var canvas = document.createElement("canvas");
+			var webglContext = WebGLUtils.getWebglContext(canvas);
+
+			webglAvailability = !!webglContext;
+
+			// webglContext Resource forced collection
+			if (webglContext) {
+				var loseContextExtension = webglContext.getExtension("WEBGL_lose_context");
+
+				loseContextExtension && loseContextExtension.loseContext();
+			}
+		}
+		return webglAvailability;
+	};
+
+	/**
+  * Returns whether webgl is stable in the current browser.
+  * @method WebGLUtils#isStableWebGL
+  * @retuen {Boolean} isStableWebGL
+  */
+
+
+	WebGLUtils.isStableWebGL = function isStableWebGL() {
+		var agentInfo = (0, _agent2["default"])();
+		var isStableWebgl = true;
+
+		if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) <= 4.3) {
+			isStableWebgl = false;
+		} else if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) === 4.4) {
+			if (agentInfo.browser.name !== "chrome") {
+				isStableWebgl = false;
+			}
+		}
+		return isStableWebgl;
+	};
+
+	WebGLUtils.getErrorNameFromWebGLErrorCode = function getErrorNameFromWebGLErrorCode(code) {
+		if (!(code in WEBGL_ERROR_CODE)) {
+			return "UNKNOWN_ERROR";
+		}
+
+		return WEBGL_ERROR_CODE[code];
+	};
+
+	return WebGLUtils;
+}();
+
+exports["default"] = WebGLUtils;
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
 /* eslint-disable no-new-func */
 /* eslint-disable no-nested-ternary */
 var win = typeof window !== "undefined" && window.Math === Math ? window : typeof self !== "undefined" && self.Math === Math ? self : Function("return this")();
@@ -1900,7 +2094,7 @@ var SUPPORT_TOUCH = exports.SUPPORT_TOUCH = "ontouchstart" in win;
 var SUPPORT_DEVICEMOTION = exports.SUPPORT_DEVICEMOTION = "ondevicemotion" in win;
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1972,7 +2166,7 @@ exports.PINCH_EVENTS = PINCH_EVENTS;
 exports.KEYMAP = KEYMAP;
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -2442,7 +2636,7 @@ module.exports = exports["default"];
 });
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports) {
 
 /*
@@ -2929,220 +3123,14 @@ module.exports = Util;
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE_9__;
+module.exports = __WEBPACK_EXTERNAL_MODULE_10__;
 
 /***/ }),
-/* 10 */,
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-
-var _agent = __webpack_require__(7);
-
-var _agent2 = _interopRequireDefault(_agent);
-
-var _browser = __webpack_require__(12);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var WEBGL_ERROR_CODE = {
-	"0": "NO_ERROR",
-	"1280": "INVALID_ENUM",
-	"1281": "INVALID_VALUE",
-	"1282": "INVALID_OPERATION",
-	"1285": "OUT_OF_MEMORY",
-	"1286": "INVALID_FRAMEBUFFER_OPERATION",
-	"37442": "CONTEXT_LOST_WEBGL"
-};
-
-var webglAvailability = null;
-
-var WebGLUtils = function () {
-	function WebGLUtils() {
-		_classCallCheck(this, WebGLUtils);
-	}
-
-	WebGLUtils.createShader = function createShader(gl, type, source) {
-		var shader = gl.createShader(type);
-
-		gl.shaderSource(shader, source);
-		gl.compileShader(shader);
-		var success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-
-		if (success) {
-			return shader;
-		}
-
-		gl.deleteShader(shader);
-		return null;
-	};
-
-	WebGLUtils.createProgram = function createProgram(gl, vertexShader, fragmentShader) {
-		var program = gl.createProgram();
-
-		gl.attachShader(program, vertexShader);
-		gl.attachShader(program, fragmentShader);
-		gl.linkProgram(program);
-		var success = gl.getProgramParameter(program, gl.LINK_STATUS);
-
-		if (success) {
-			return program;
-		}
-
-		gl.deleteProgram(program);
-		return null;
-	};
-
-	WebGLUtils.initBuffer = function initBuffer(gl, target /* bind point */, data, itemSize, attr) {
-		var buffer = gl.createBuffer();
-
-		gl.bindBuffer(target, buffer);
-		gl.bufferData(target, data, gl.STATIC_DRAW);
-
-		if (buffer) {
-			buffer.itemSize = itemSize;
-			buffer.numItems = data.length / itemSize;
-		}
-
-		if (attr !== undefined) {
-			gl.enableVertexAttribArray(attr);
-			gl.vertexAttribPointer(attr, buffer.itemSize, gl.FLOAT, false, 0, 0);
-		}
-
-		return buffer;
-	};
-
-	WebGLUtils.bindBufferToAttribute = function bindBufferToAttribute(gl, buffer, attr) {
-		if (buffer === null || attr === null) {
-			return;
-		}
-
-		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-		gl.vertexAttribPointer(attr, buffer.itemSize, gl.FLOAT, false, 0, 0);
-	};
-
-	WebGLUtils.getWebglContext = function getWebglContext(canvas) {
-		var webglIdentifiers = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
-		var context = null;
-		var shouldPreserveDrawingBuffer = !(_browser.userAgent.indexOf("NAVER") !== -1 && _browser.userAgent.indexOf("SM-G925S") !== -1);
-
-		function onWebglcontextcreationerror(e) {
-			return e.statusMessage;
-		}
-
-		canvas.addEventListener("webglcontextcreationerror", onWebglcontextcreationerror);
-
-		for (var i = 0; i < webglIdentifiers.length; i++) {
-			try {
-				// preserveDrawingBuffer: if true, the Galaxy s6 Naver app will experience tremor
-				context = canvas.getContext(webglIdentifiers[i], {
-					preserveDrawingBuffer: shouldPreserveDrawingBuffer,
-					antialias: false /* TODO: Make it user option for antialiasing */
-				});
-			} catch (t) {}
-			if (context) {
-				break;
-			}
-		}
-
-		canvas.removeEventListener("webglcontextcreationerror", onWebglcontextcreationerror);
-
-		return context;
-	};
-
-	WebGLUtils.createTexture = function createTexture(gl, textureTarget) {
-		var texture = gl.createTexture();
-
-		gl.bindTexture(textureTarget, texture);
-		gl.texParameteri(textureTarget, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.texParameteri(textureTarget, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.texParameteri(textureTarget, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(textureTarget, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-		gl.bindTexture(textureTarget, null);
-
-		return texture;
-	};
-
-	/**
-  * Returns the webgl availability of the current browser.
-  * @method WebGLUtils#isWebGLAvailable
-  * @retuen {Boolean} isWebGLAvailable
-  */
-
-
-	WebGLUtils.isWebGLAvailable = function isWebGLAvailable() {
-		if (webglAvailability === null) {
-			var canvas = document.createElement("canvas");
-			var webglContext = WebGLUtils.getWebglContext(canvas);
-
-			webglAvailability = !!webglContext;
-
-			// webglContext Resource forced collection
-			if (webglContext) {
-				var loseContextExtension = webglContext.getExtension("WEBGL_lose_context");
-
-				loseContextExtension && loseContextExtension.loseContext();
-			}
-		}
-		return webglAvailability;
-	};
-
-	/**
-  * Returns whether webgl is stable in the current browser.
-  * @method WebGLUtils#isStableWebGL
-  * @retuen {Boolean} isStableWebGL
-  */
-
-
-	WebGLUtils.isStableWebGL = function isStableWebGL() {
-		var agentInfo = (0, _agent2["default"])();
-		var isStableWebgl = true;
-
-		if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) <= 4.3) {
-			isStableWebgl = false;
-		} else if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) === 4.4) {
-			if (agentInfo.browser.name !== "chrome") {
-				isStableWebgl = false;
-			}
-		}
-		return isStableWebgl;
-	};
-
-	WebGLUtils.getErrorNameFromWebGLErrorCode = function getErrorNameFromWebGLErrorCode(code) {
-		if (!(code in WEBGL_ERROR_CODE)) {
-			return "UNKNOWN_ERROR";
-		}
-
-		return WEBGL_ERROR_CODE[code];
-	};
-
-	return WebGLUtils;
-}();
-
-exports["default"] = WebGLUtils;
-
-/***/ }),
+/* 11 */,
 /* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-var userAgent = exports.userAgent = window.navigator.userAgent;
-var devicePixelRatio = exports.devicePixelRatio = window.devicePixelRatio;
-
-/***/ }),
-/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3157,6 +3145,44 @@ var Renderer = function Renderer() {
 };
 
 exports["default"] = Renderer;
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _consts = __webpack_require__(7);
+
+var ERROR_TYPE = {
+	INVALID_DEVICE: 10,
+	NO_WEBGL: 11,
+	FAIL_IMAGE_LOAD: 12,
+	FAIL_BIND_TEXTURE: 13,
+	INVALID_RESOURCE: 14,
+	RENDERING_CONTEXT_LOST: 15
+};
+
+var EVENTS = {
+	READY: "ready",
+	VIEW_CHANGE: "viewChange",
+	ANIMATION_END: "animationEnd",
+	ERROR: "error",
+	CONTENT_LOADED: "contentLoaded"
+};
+
+var PROJECTION_TYPE = {
+	EQUIRECTANGULAR: "equirectangular",
+	CUBEMAP: "cubemap"
+};
+
+module.exports = {
+	GYRO_MODE: _consts.GYRO_MODE,
+	EVENTS: EVENTS,
+	ERROR_TYPE: ERROR_TYPE,
+	PROJECTION_TYPE: PROJECTION_TYPE
+};
 
 /***/ }),
 /* 14 */
@@ -3196,7 +3222,7 @@ var _YawPitchControl = __webpack_require__(27);
 
 var _YawPitchControl2 = _interopRequireDefault(_YawPitchControl);
 
-var _consts = __webpack_require__(6);
+var _consts = __webpack_require__(7);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -3228,9 +3254,13 @@ var _component2 = _interopRequireDefault(_component);
 
 var _YawPitchControl = __webpack_require__(15);
 
-var _PanoImageRenderer = __webpack_require__(23);
+var _PanoImageRenderer = __webpack_require__(24);
 
-var _consts = __webpack_require__(26);
+var _WebGLUtils = __webpack_require__(5);
+
+var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
+
+var _consts = __webpack_require__(13);
 
 var _mathUtil = __webpack_require__(1);
 
@@ -3283,7 +3313,7 @@ var PanoViewer = function (_Component) {
 		// Raises the error event if webgl is not supported.
 		var _this = _possibleConstructorReturn(this, _Component.call(this));
 
-		if (!_PanoImageRenderer.WebGLUtils.isWebGLAvailable()) {
+		if (!_WebGLUtils2["default"].isWebGLAvailable()) {
 			var _ret;
 
 			setTimeout(function () {
@@ -3295,7 +3325,7 @@ var PanoViewer = function (_Component) {
 			return _ret = _this, _possibleConstructorReturn(_this, _ret);
 		}
 
-		if (!_PanoImageRenderer.WebGLUtils.isStableWebGL()) {
+		if (!_WebGLUtils2["default"].isStableWebGL()) {
 			var _ret2;
 
 			setTimeout(function () {
@@ -3323,7 +3353,7 @@ var PanoViewer = function (_Component) {
 		_this._container = container;
 		_this._image = options.image || options.video;
 		_this._isVideo = !!options.video;
-		_this._projectionType = options.projectionType || _PanoImageRenderer.PanoImageRenderer.ImageType.EQUIRECTANGULAR;
+		_this._projectionType = options.projectionType || _consts.PROJECTION_TYPE.EQUIRECTANGULAR;
 		_this._cubemapConfig = _extends({
 			order: "RLUDBF",
 			tileConfig: {
@@ -3460,7 +3490,7 @@ var PanoViewer = function (_Component) {
 
 		this._image = image;
 		this._isVideo = isVideo;
-		this._projectionType = param.projectionType || _PanoImageRenderer.PanoImageRenderer.ImageType.EQUIRECTANGULAR;
+		this._projectionType = param.projectionType || _consts.PROJECTION_TYPE.EQUIRECTANGULAR;
 		this._cubemapConfig = cubemapConfig;
 
 		this._deactivate();
@@ -3943,7 +3973,7 @@ var PanoViewer = function (_Component) {
 	};
 
 	PanoViewer.isWebGLAvailable = function isWebGLAvailable() {
-		return _PanoImageRenderer.WebGLUtils.isWebGLAvailable();
+		return _WebGLUtils2["default"].isWebGLAvailable();
 	};
 
 	/**
@@ -4004,7 +4034,7 @@ exports["default"] = PanoViewer;
 
 PanoViewer.ERROR_TYPE = _consts.ERROR_TYPE;
 PanoViewer.EVENTS = _consts.EVENTS;
-PanoViewer.ProjectionType = _PanoImageRenderer.PanoImageRenderer.ImageType;
+PanoViewer.ProjectionType = _consts.PROJECTION_TYPE;
 
 /***/ }),
 /* 17 */
@@ -4243,21 +4273,23 @@ var _VideoLoader = __webpack_require__(22);
 
 var _VideoLoader2 = _interopRequireDefault(_VideoLoader);
 
-var _WebGLUtils = __webpack_require__(11);
+var _WebGLUtils = __webpack_require__(5);
 
 var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
 
-var _CubeRenderer = __webpack_require__(24);
+var _CubeRenderer = __webpack_require__(25);
 
 var _CubeRenderer2 = _interopRequireDefault(_CubeRenderer);
 
-var _SphereRenderer = __webpack_require__(25);
+var _SphereRenderer = __webpack_require__(26);
 
 var _SphereRenderer2 = _interopRequireDefault(_SphereRenderer);
 
 var _mathUtil = __webpack_require__(1);
 
-var _browser = __webpack_require__(12);
+var _browser = __webpack_require__(23);
+
+var _consts = __webpack_require__(13);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -4269,10 +4301,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var _Promise = typeof Promise === 'undefined' ? __webpack_require__(3).Promise : Promise;
 
-var ImageType = {
-	EQUIRECTANGULAR: "equirectangular",
-	CUBEMAP: "cubemap"
-};
+var ImageType = _consts.PROJECTION_TYPE;
 
 var DEVICE_PIXEL_RATIO = _browser.devicePixelRatio || 1;
 
@@ -4304,7 +4333,7 @@ var ERROR_TYPE = {
 var PanoImageRenderer = function (_Component) {
 	_inherits(PanoImageRenderer, _Component);
 
-	function PanoImageRenderer(image, width, height, isVideo, sphericalConfig) {
+	function PanoImageRenderer(image, width, height, isVideo, sphericalConfig, renderingContextAttributes) {
 		_classCallCheck(this, PanoImageRenderer);
 
 		var _this = _possibleConstructorReturn(this, _Component.call(this));
@@ -4332,7 +4361,7 @@ var PanoImageRenderer = function (_Component) {
 		_this.vertexBuffer = null;
 		_this.indexBuffer = null;
 		_this.canvas = _this._initCanvas(width, height);
-
+		_this._renderingContextAttributes = renderingContextAttributes;
 		_this._image = null;
 		_this._imageConfig = null;
 		_this._imageIsReady = false;
@@ -4621,7 +4650,7 @@ var PanoImageRenderer = function (_Component) {
 			throw new Error("WebGLRenderingContext not available.");
 		}
 
-		this.context = _WebGLUtils2["default"].getWebglContext(this.canvas);
+		this.context = _WebGLUtils2["default"].getWebglContext(this.canvas, this._renderingContextAttributes);
 
 		if (!this.context) {
 			throw new Error("Failed to acquire 3D rendering context");
@@ -4749,7 +4778,6 @@ exports["default"] = PanoImageRenderer;
 
 PanoImageRenderer.EVENTS = EVENTS;
 PanoImageRenderer.ERROR_TYPE = ERROR_TYPE;
-PanoImageRenderer.ImageType = ImageType;
 
 /***/ }),
 /* 22 */
@@ -4909,20 +4937,8 @@ exports["default"] = VideoLoader;
 
 
 exports.__esModule = true;
-exports.WebGLUtils = exports.PanoImageRenderer = undefined;
-
-var _PanoImageRenderer = __webpack_require__(21);
-
-var _PanoImageRenderer2 = _interopRequireDefault(_PanoImageRenderer);
-
-var _WebGLUtils = __webpack_require__(11);
-
-var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-exports.PanoImageRenderer = _PanoImageRenderer2["default"];
-exports.WebGLUtils = _WebGLUtils2["default"];
+var userAgent = exports.userAgent = window.navigator.userAgent;
+var devicePixelRatio = exports.devicePixelRatio = window.devicePixelRatio;
 
 /***/ }),
 /* 24 */
@@ -4932,14 +4948,37 @@ exports.WebGLUtils = _WebGLUtils2["default"];
 
 
 exports.__esModule = true;
+exports.WebGLUtils = exports.PanoImageRenderer = undefined;
+
+var _PanoImageRenderer = __webpack_require__(21);
+
+var _PanoImageRenderer2 = _interopRequireDefault(_PanoImageRenderer);
+
+var _WebGLUtils = __webpack_require__(5);
+
+var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+exports.PanoImageRenderer = _PanoImageRenderer2["default"];
+exports.WebGLUtils = _WebGLUtils2["default"];
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _agent = __webpack_require__(7);
+var _agent = __webpack_require__(8);
 
 var _agent2 = _interopRequireDefault(_agent);
 
-var _Renderer2 = __webpack_require__(13);
+var _Renderer2 = __webpack_require__(12);
 
 var _Renderer3 = _interopRequireDefault(_Renderer2);
 
@@ -5173,7 +5212,7 @@ CubeRenderer._VERTEX_POSITION_DATA = null;
 CubeRenderer._INDEX_DATA = null;
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5181,7 +5220,7 @@ CubeRenderer._INDEX_DATA = null;
 
 exports.__esModule = true;
 
-var _Renderer2 = __webpack_require__(13);
+var _Renderer2 = __webpack_require__(12);
 
 var _Renderer3 = _interopRequireDefault(_Renderer2);
 
@@ -5316,38 +5355,6 @@ SphereRenderer._TEXTURE_COORD_DATA = null;
 SphereRenderer._INDEX_DATA = null;
 
 /***/ }),
-/* 26 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _consts = __webpack_require__(6);
-
-var ERROR_TYPE = {
-	INVALID_DEVICE: 10,
-	NO_WEBGL: 11,
-	FAIL_IMAGE_LOAD: 12,
-	FAIL_BIND_TEXTURE: 13,
-	INVALID_RESOURCE: 14,
-	RENDERING_CONTEXT_LOST: 15
-};
-
-var EVENTS = {
-	READY: "ready",
-	VIEW_CHANGE: "viewChange",
-	ANIMATION_END: "animationEnd",
-	ERROR: "error",
-	CONTENT_LOADED: "contentLoaded"
-};
-
-module.exports = {
-	GYRO_MODE: _consts.GYRO_MODE,
-	EVENTS: EVENTS,
-	ERROR_TYPE: ERROR_TYPE
-};
-
-/***/ }),
 /* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -5362,11 +5369,11 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _axes = __webpack_require__(9);
+var _axes = __webpack_require__(10);
 
 var _axes2 = _interopRequireDefault(_axes);
 
-var _browser = __webpack_require__(5);
+var _browser = __webpack_require__(6);
 
 var _WheelInput = __webpack_require__(32);
 
@@ -5378,7 +5385,7 @@ var _TiltMotionInput2 = _interopRequireDefault(_TiltMotionInput);
 
 var _mathUtil = __webpack_require__(1);
 
-var _consts = __webpack_require__(6);
+var _consts = __webpack_require__(7);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -6048,13 +6055,13 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _agent = __webpack_require__(7);
+var _agent = __webpack_require__(8);
 
 var _agent2 = _interopRequireDefault(_agent);
 
 var _mathUtil = __webpack_require__(1);
 
-var _browser = __webpack_require__(5);
+var _browser = __webpack_require__(6);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -6170,11 +6177,11 @@ var _mathUtil = __webpack_require__(4);
 
 var _mathUtil2 = _interopRequireDefault(_mathUtil);
 
-var _util = __webpack_require__(8);
+var _util = __webpack_require__(9);
 
 var _util2 = _interopRequireDefault(_util);
 
-var _browser = __webpack_require__(5);
+var _browser = __webpack_require__(6);
 
 var _mathUtil3 = __webpack_require__(1);
 
@@ -7407,7 +7414,7 @@ module.exports = g;
 
 var SensorSample = __webpack_require__(41);
 var MathUtil = __webpack_require__(4);
-var Util = __webpack_require__(8);
+var Util = __webpack_require__(9);
 
 /**
  * An implementation of a simple complementary filter, which fuses gyroscope and
@@ -7577,7 +7584,7 @@ module.exports = ComplementaryFilter;
  * limitations under the License.
  */
 var MathUtil = __webpack_require__(4);
-var Util = __webpack_require__(8);
+var Util = __webpack_require__(9);
 
 /**
  * Given an orientation and the gyroscope data, predicts the future orientation

@@ -6,11 +6,9 @@ import CubeRenderer from "./renderer/CubeRenderer";
 import SphereRenderer from "./renderer/SphereRenderer";
 import {glMatrix, mat4} from "../utils/math-util.js";
 import {devicePixelRatio} from "./browser";
+import {PROJECTION_TYPE} from "../PanoViewer/consts";
 
-const ImageType = {
-	EQUIRECTANGULAR: "equirectangular",
-	CUBEMAP: "cubemap"
-};
+const ImageType = PROJECTION_TYPE;
 
 let DEVICE_PIXEL_RATIO = devicePixelRatio || 1;
 
@@ -40,7 +38,7 @@ const ERROR_TYPE = {
 };
 
 export default class PanoImageRenderer extends Component {
-	constructor(image, width, height, isVideo, sphericalConfig) {
+	constructor(image, width, height, isVideo, sphericalConfig, renderingContextAttributes) {
 		// Super constructor
 		super();
 
@@ -65,7 +63,7 @@ export default class PanoImageRenderer extends Component {
 		this.vertexBuffer = null;
 		this.indexBuffer = null;
 		this.canvas = this._initCanvas(width, height);
-
+		this._renderingContextAttributes = renderingContextAttributes;
 		this._image = null;
 		this._imageConfig = null;
 		this._imageIsReady = false;
@@ -350,7 +348,7 @@ export default class PanoImageRenderer extends Component {
 			throw new Error("WebGLRenderingContext not available.");
 		}
 
-		this.context = WebGLUtils.getWebglContext(this.canvas);
+		this.context = WebGLUtils.getWebglContext(this.canvas, this._renderingContextAttributes);
 
 		if (!this.context) {
 			throw new Error("Failed to acquire 3D rendering context");
@@ -493,4 +491,3 @@ export default class PanoImageRenderer extends Component {
 
 PanoImageRenderer.EVENTS = EVENTS;
 PanoImageRenderer.ERROR_TYPE = ERROR_TYPE;
-PanoImageRenderer.ImageType = ImageType;
