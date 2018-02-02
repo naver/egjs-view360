@@ -221,6 +221,7 @@ export default class SpinViewer extends Component {
 	 */
 	spinTo(angle = 0, param = {duration: 400}) {
 		const isSameAngle = (angle === this.getAngle());
+
 		this._axes.setTo({angle}, param.duration);
 
 		if (param.duration === 0 || isSameAngle) {
