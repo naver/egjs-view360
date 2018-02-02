@@ -89,11 +89,6 @@
 var object = {
 };
 
-if (!eg.view360.PanoViewer.isWebGLAvailable() || !eg.view360.PanoViewer.isStableWebGL()) {
-  alert("이 브라우저는 webgl 을 지원하지 않습니다. 따라서 PanoViewer 가 동작할 수 없습니다.");
-  return;
-}
-
 var presets = {
   "360_cube": {
     "yaw": 0,
@@ -225,8 +220,6 @@ var json = {
   } 
 };
 
-console.log(presets[INITIAL_PRESET]);
-
 var gridView = new GridView(document.querySelector(".grid-chart"), 0, 0);
 
 var panoViewer = new eg.view360.PanoViewer(
@@ -247,6 +240,9 @@ var panoViewer = new eg.view360.PanoViewer(
   panoViewer.setUseKeyboard(object["useKeyboard"]);
 
   render();
+})
+.on("error", function(e) {
+	alert("이 브라우저는 webgl 을 지원하지 않습니다. 따라서 PanoViewer 가 동작할 수 없습니다. error: "+ e.type + " " + e.message);
 });
 render();
 
