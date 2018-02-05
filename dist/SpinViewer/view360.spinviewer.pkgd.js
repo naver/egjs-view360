@@ -3519,7 +3519,8 @@ exports.TRANSFORM = (function () {
 /* 12 */,
 /* 13 */,
 /* 14 */,
-/* 15 */
+/* 15 */,
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3538,7 +3539,7 @@ exports["default"] = Axes_1["default"];
 
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3891,7 +3892,6 @@ var SpriteImage = function (_Component) {
 exports["default"] = SpriteImage;
 
 /***/ }),
-/* 17 */,
 /* 18 */,
 /* 19 */,
 /* 20 */,
@@ -5855,11 +5855,11 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _axes = __webpack_require__(15);
+var _axes = __webpack_require__(16);
 
 var _axes2 = _interopRequireDefault(_axes);
 
-var _SpriteImage = __webpack_require__(16);
+var _SpriteImage = __webpack_require__(17);
 
 var _SpriteImage2 = _interopRequireDefault(_SpriteImage);
 
@@ -6081,7 +6081,7 @@ var _SpinViewer = __webpack_require__(33);
 
 var _SpinViewer2 = _interopRequireDefault(_SpinViewer);
 
-var _SpriteImage = __webpack_require__(16);
+var _SpriteImage = __webpack_require__(17);
 
 var _SpriteImage2 = _interopRequireDefault(_SpriteImage);
 

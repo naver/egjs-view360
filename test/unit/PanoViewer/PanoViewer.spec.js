@@ -1,4 +1,6 @@
+import PanoViewerInjector from "inject-loader!../../../src/PanoViewer/PanoViewer";
 import PanoViewer from "../../../src/PanoViewer/PanoViewer";
+import PanoImageRenderer from "../../../src/PanoImageRenderer/PanoImageRenderer";
 import {ERROR_TYPE, EVENTS} from "../../../src/PanoViewer/consts";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 
@@ -81,7 +83,25 @@ describe("PanoViewer", function() {
 
 		IT("should config cubemap layout", done => {
 			// Given
-			panoViewer = new PanoViewer(target, {
+			var MockedPanoViewer = PanoViewerInjector(
+				{
+					"../PanoImageRenderer": {
+						PanoImageRenderer: (function() {
+							class WrapedPanoImageRenderer extends PanoImageRenderer {
+								constructor(image, width, height, isVideo, sphericalConfig) {
+									super(image, width, height, isVideo, sphericalConfig, {
+										preserveDrawingBuffer: true,
+										antialias: false
+									});
+								}
+							}
+							return WrapedPanoImageRenderer;
+						})()
+					}
+				}
+            ).default;
+
+			panoViewer = new MockedPanoViewer(target, {
 				projectionType: "cubemap",
 				width: 200,
 				height: 200,
