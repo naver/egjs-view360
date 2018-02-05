@@ -84,8 +84,8 @@ describe("PanoViewer", function() {
 		IT("should config cubemap layout", done => {
 			// Given
 			var MockedPanoViewer = PanoViewerInjector(
-                {
-                    "../PanoImageRenderer": {
+				{
+					"../PanoImageRenderer": {
 						PanoImageRenderer: (function() {
 							class WrapedPanoImageRenderer extends PanoImageRenderer {
 								constructor(image, width, height, isVideo, sphericalConfig) {
@@ -98,7 +98,7 @@ describe("PanoViewer", function() {
 							return WrapedPanoImageRenderer;
 						})()
 					}
-                }
+				}
             ).default;
 
 			panoViewer = new MockedPanoViewer(target, {
