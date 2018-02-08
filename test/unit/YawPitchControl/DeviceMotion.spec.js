@@ -100,6 +100,41 @@ describe("DeviceMotion", function() {
 			});
 		});
 
+		it("should not trigger devicemotion event on android", (done) => {
+			// Given
+			let changed = false;
+			let MockedDeviceMotion = DeviceMotionInjector(
+				{
+					"@egjs/agent": function() {
+						return {
+						os: {
+							name: "android"
+						}
+						};
+					}
+				}
+			).default;
+
+			let inst = new MockedDeviceMotion();
+			inst.on("devicemotion", (e) => {
+				changed = true;
+			});
+			inst.enable();
+			inst.disable();
+
+			// When
+			TestHeler.devicemotion(window, {
+				acceleration: {x: 0, y: 0, z: 0},
+				accelerationIncludingGravity: {x: 0, y: 0, z: 0},
+				rotationRate: {alpha: 0, beta: 0, gamma: 0},
+				interval: 1000 / 60,
+			}, () => {
+				// Then
+				expect(changed).to.be.false;
+				done();
+			});
+		});
+
 		it("should devicemotion event have properties that original event has", (done) => {
 			// Given
 			let inst = new DeviceMotion();
