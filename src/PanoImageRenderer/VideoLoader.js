@@ -1,3 +1,5 @@
+import Agent from "@egjs/agent";
+
 /* Ref https://www.w3schools.com/tags/av_prop_readystate.asp */
 const READY_STATUS = {
 	HAVE_NOTHING: 0, // no information whether or not the audio/video is ready
@@ -78,12 +80,16 @@ export default class VideoLoader {
 		return new Promise((res, rej) => {
 			// on iOS safari, 'loadeddata' will not triggered unless the user hits play,
 			// so used 'loadedmetadata' instead.
+			const isIOS = Agent().os.name === "ios";
+			const thresholdReadyState = isIOS ? READY_STATUS.HAVE_METADATA : READY_STATUS.HAVE_CURRENT_DATA;
+			const thresholdEventName = isIOS ? "loadedmetadata" : "loadeddata";
+
 			if (!this._video) {
 				rej("VideoLoader: video is undefined");
-			} else if (this._video.readyState >= READY_STATUS.HAVE_METADATA) {
+			} else if (this._video.readyState >= thresholdReadyState) {
 				res(this._video);
 			} else {
-				this._once("loadedmetadata", () => res(this._video));
+				this._once(thresholdEventName, () => res(this._video));
 			}
 		});
 	}

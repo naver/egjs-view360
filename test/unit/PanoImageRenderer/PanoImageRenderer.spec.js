@@ -769,8 +769,14 @@ describe("PanoImageRenderer", function() {
 				// Given
 				let inst = this.inst;
 				const isVideo = true;
+				const video = document.createElement("video");
 
-				inst = new PanoImageRenderer("./images/test_cube_3x2_LRUDBF.mp4", 200, 200, isVideo, {
+				video.src = "./images/test_cube_3x2_LRUDBF.mp4";
+				video.setAttribute("crossorigin", "anonymous");
+				video.setAttribute("webkit-playsinline", "");
+				video.setAttribute("playsinline", "");
+
+				inst = new PanoImageRenderer(video, 200, 200, isVideo, {
 					initialYaw: 0,
 					initialpitch: 0,
 					imageType: "cubemap",
@@ -778,26 +784,25 @@ describe("PanoImageRenderer", function() {
 				}, DEBUG_CONTEXT_ATTRIBUTES);
 				inst.on("imageLoaded", when);
 
-				function when() {
-					// When
-					inst.bindTexture()
-						.then(() => {
-							// Then
-							renderAndCompareSequentially(
-								inst,
-								[
-									[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, 6],
-									[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, 6],
-									[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, 6],
-									[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, 6],
-									[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, 6],
-									[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, 6]
-								]
-							).then(() => {
-								done();
-							});
+				// When
+				inst.bindTexture()
+					.then(() => {
+						// Then
+						renderAndCompareSequentially(
+							inst,
+							[
+								[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, 6],
+								[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, 6],
+								[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, 6],
+								[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, 6],
+								[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, 6],
+								[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, 6]
+							]
+						).then(() => {
+							done();
 						});
-				}
+					});
+				}, 1000);
 			});
 
 			IT("cubestrip 2x3", function(done) {
