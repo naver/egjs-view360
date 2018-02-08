@@ -10794,6 +10794,13 @@ var VideoLoader = function () {
 		this._handlers = [];
 		this._sourceCount = 0;
 
+		// on iOS safari, 'loadeddata' will not triggered unless the user hits play,
+		// so used 'loadedmetadata' instead.
+		var isIOS = (0, _agent2["default"])().os.name === "ios";
+
+		this._thresholdReadyState = isIOS ? READY_STATUS.HAVE_METADATA : READY_STATUS.HAVE_CURRENT_DATA;
+		this._thresholdEventName = isIOS ? "loadedmetadata" : "loadeddata";
+
 		video && this.set(video);
 	}
 
@@ -10866,18 +10873,12 @@ var VideoLoader = function () {
 		var _this2 = this;
 
 		return new _Promise(function (res, rej) {
-			// on iOS safari, 'loadeddata' will not triggered unless the user hits play,
-			// so used 'loadedmetadata' instead.
-			var isIOS = (0, _agent2["default"])().os.name === "ios";
-			var thresholdReadyState = isIOS ? READY_STATUS.HAVE_METADATA : READY_STATUS.HAVE_CURRENT_DATA;
-			var thresholdEventName = isIOS ? "loadedmetadata" : "loadeddata";
-
 			if (!_this2._video) {
 				rej("VideoLoader: video is undefined");
-			} else if (_this2._video.readyState >= thresholdReadyState) {
+			} else if (_this2._video.readyState >= _this2._thresholdReadyState) {
 				res(_this2._video);
 			} else {
-				_this2._once(thresholdEventName, function () {
+				_this2._once(_this2._thresholdEventName, function () {
 					return res(_this2._video);
 				});
 			}

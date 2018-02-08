@@ -81,7 +81,7 @@ describe("DeviceMotion", function() {
 			});
 		});
 
-		it("should trigger devicemotion event on android", (done) => {
+		it("should trigger devicemotion event on android after calling enable()", (done) => {
 			// Given
 			let changed = false;
 			let MockedDeviceMotion = DeviceMotionInjector(
@@ -115,7 +115,7 @@ describe("DeviceMotion", function() {
 			});
 		});
 
-		it("should not trigger devicemotion event on android", (done) => {
+		it("should not trigger devicemotion event on android after calling disable()", (done) => {
 			// Given
 			let changed = false;
 			let MockedDeviceMotion = DeviceMotionInjector(

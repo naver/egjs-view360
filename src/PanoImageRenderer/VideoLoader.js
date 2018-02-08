@@ -14,6 +14,13 @@ export default class VideoLoader {
 		this._handlers = [];
 		this._sourceCount = 0;
 
+		// on iOS safari, 'loadeddata' will not triggered unless the user hits play,
+		// so used 'loadedmetadata' instead.
+		const isIOS = Agent().os.name === "ios";
+
+		this._thresholdReadyState = isIOS ? READY_STATUS.HAVE_METADATA : READY_STATUS.HAVE_CURRENT_DATA;
+		this._thresholdEventName = isIOS ? "loadedmetadata" : "loadeddata";
+
 		video && this.set(video);
 	}
 
@@ -78,18 +85,12 @@ export default class VideoLoader {
 
 	get() {
 		return new Promise((res, rej) => {
-			// on iOS safari, 'loadeddata' will not triggered unless the user hits play,
-			// so used 'loadedmetadata' instead.
-			const isIOS = Agent().os.name === "ios";
-			const thresholdReadyState = isIOS ? READY_STATUS.HAVE_METADATA : READY_STATUS.HAVE_CURRENT_DATA;
-			const thresholdEventName = isIOS ? "loadedmetadata" : "loadeddata";
-
 			if (!this._video) {
 				rej("VideoLoader: video is undefined");
-			} else if (this._video.readyState >= thresholdReadyState) {
+			} else if (this._video.readyState >= this._thresholdReadyState) {
 				res(this._video);
 			} else {
-				this._once(thresholdEventName, () => res(this._video));
+				this._once(this._thresholdEventName, () => res(this._video));
 			}
 		});
 	}
