@@ -5453,10 +5453,15 @@ var VideoLoader = function () {
 		if (video instanceof HTMLVideoElement) {
 			// video tag
 			this._video = video;
+			if (video.readyState === 0) {
+				this._video.load();
+			}
 		} else if (typeof video === "string" || (typeof video === "undefined" ? "undefined" : _typeof(video)) === "object") {
 			// url
 			this._video = document.createElement("video");
-			this._video.crossOrigin = "anonymous";
+			this._video.setAttribute("crossorigin", "anonymous");
+			this._video.setAttribute("webkit-playsinline", "");
+			this._video.setAttribute("playsinline", "");
 
 			if (video instanceof Array) {
 				video.forEach(function (v) {
@@ -5478,16 +5483,16 @@ var VideoLoader = function () {
 		var _this2 = this;
 
 		return new _Promise(function (res, rej) {
+			// on iOS safari, 'loadeddata' will not triggered unless the user hits play,
+			// so used 'loadedmetadata' instead.
 			if (!_this2._video) {
 				rej("VideoLoader: video is undefined");
-			} else if (_this2._video.readyState >= READY_STATUS.HAVE_CURRENT_DATA) {
+			} else if (_this2._video.readyState >= READY_STATUS.HAVE_METADATA) {
 				res(_this2._video);
 			} else {
-				_this2._once("loadeddata", function () {
+				_this2._once("loadedmetadata", function () {
 					return res(_this2._video);
 				});
-				// DO NOT HANDLE ERRORS, DELEGATE IT TO USER BY USING VIDEO ELEMENT.
-				// this._once("error", e => rej(`VideoLoader: failed to load ${e.target.src}`));
 			}
 		});
 	};

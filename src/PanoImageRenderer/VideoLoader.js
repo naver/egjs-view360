@@ -50,10 +50,15 @@ export default class VideoLoader {
 		if (video instanceof HTMLVideoElement) {
 			// video tag
 			this._video = video;
+			if (video.readyState === 0) {
+				this._video.load();
+			}
 		} else if (typeof video === "string" || typeof video === "object") {
 			// url
 			this._video = document.createElement("video");
-			this._video.crossOrigin = "anonymous";
+			this._video.setAttribute("crossorigin", "anonymous");
+			this._video.setAttribute("webkit-playsinline", "");
+			this._video.setAttribute("playsinline", "");
 
 			if (video instanceof Array) {
 				video.forEach(v => this._appendSourceElement(v));
@@ -71,14 +76,14 @@ export default class VideoLoader {
 
 	get() {
 		return new Promise((res, rej) => {
+			// on iOS safari, 'loadeddata' will not triggered unless the user hits play,
+			// so used 'loadedmetadata' instead.
 			if (!this._video) {
 				rej("VideoLoader: video is undefined");
-			} else if (this._video.readyState >= READY_STATUS.HAVE_CURRENT_DATA) {
+			} else if (this._video.readyState >= READY_STATUS.HAVE_METADATA) {
 				res(this._video);
 			} else {
-				this._once("loadeddata", () => res(this._video));
-				// DO NOT HANDLE ERRORS, DELEGATE IT TO USER BY USING VIDEO ELEMENT.
-				// this._once("error", e => rej(`VideoLoader: failed to load ${e.target.src}`));
+				this._once("loadedmetadata", () => res(this._video));
 			}
 		});
 	}

@@ -10,8 +10,8 @@ module.exports = function(config) {
 			"./test/hammer-simulator.run.js",
 			"./test/unit/util.js",
       "./test/unit/**/*.spec.js",
-			"./test/manual/img/**/*.*",
-      "./test/img/*.*",
+      {pattern: "./test/manual/img/**/*.*", watched: false, included: false, served: true},
+      {pattern: "./test/img/*.*", watched: false, included: false, served: true},
     ],
 
 		proxies: {
