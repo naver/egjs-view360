@@ -49,6 +49,21 @@ describe("DeviceMotion", function() {
 				});
 			});
 
+			it("should trigger devicemotion event", (done) => {
+				// Given
+				// When
+				TestHeler.devicemotion(window, {
+					acceleration: {x: 0, y: 0, z: 0},
+					accelerationIncludingGravity: {x: 0, y: 0, z: 0},
+					rotationRate: {alpha: 0, beta: 0, gamma: 0},
+					interval: 1000 / 60,
+				}, () => {
+					// Then
+					expect(changed).to.be.true;
+					done();
+				});
+			});
+
 			it("should not trigger change event when disable", (done) => {
 				// Given
 				// When
