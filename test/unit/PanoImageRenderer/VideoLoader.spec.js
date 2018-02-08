@@ -231,7 +231,7 @@ describe("VideoLoader", function() {
 			videoEl.load();
 
 			return new Promise((res, rej) => {
-				videoEl.addEventListener("canplay", () => {
+				videoEl.addEventListener("canplaythrough", () => {
 					const loader = new VideoLoader(videoEl);
 
 					loader.get()
