@@ -6162,10 +6162,6 @@ var DeviceMotion = function (_Component) {
 		this._isEnabled = false;
 	};
 
-	DeviceMotion.prototype.isEnabled = function isEnabled() {
-		return this._isEnabled;
-	};
-
 	return DeviceMotion;
 }(_component2["default"]);
 
