@@ -765,6 +765,7 @@ describe("PanoImageRenderer", function() {
 				}
 			});
 
+			// This test will fail on iOS safari, because video will not start load with out use interaction.
 			IT("cubestrip 3x2: video", function(done) {
 				// Given
 				let inst = this.inst;
@@ -782,6 +783,7 @@ describe("PanoImageRenderer", function() {
 					imageType: "cubemap",
 					fieldOfView: 65
 				}, DEBUG_CONTEXT_ATTRIBUTES);
+
 				inst.on("imageLoaded", when);
 
 				function when() {
