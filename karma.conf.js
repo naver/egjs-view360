@@ -2,7 +2,7 @@ module.exports = function(config) {
   var karmaConfig = {
     frameworks: ["mocha", "chai", "sinon"],
 
-    browserNoActivityTimeout: 30000,
+    browserNoActivityTimeout: 60000,
 
     // list of files / patterns to load in the browser
     files: [

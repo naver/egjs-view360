@@ -5539,7 +5539,6 @@ var VideoLoader = function () {
 		var _this2 = this;
 
 		return new _Promise(function (res, rej) {
-			console.log("get", _this2._loadStatus, _this2._video.readyState, _this2._thresholdReadyState);
 			if (!_this2._video) {
 				rej("VideoLoader: video is undefined");
 			} else if (_this2._loadStatus === READY_STATUS.LOADING_FAILED) {
@@ -5549,7 +5548,6 @@ var VideoLoader = function () {
 			} else {
 				// check errorCnt and rejectx
 				var rejector = function rejector() {
-					console.log("rejector");
 					if (_this2._loadStatus === READY_STATUS.LOADING_FAILED) {
 						_this2._detachErrorHandler(rejector);
 						_this2._detachErrorHandler(_this2._onerror);
