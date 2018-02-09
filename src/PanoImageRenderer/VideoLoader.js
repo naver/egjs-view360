@@ -131,6 +131,7 @@ export default class VideoLoader {
 
 	get() {
 		return new Promise((res, rej) => {
+			console.log("get", this._loadStatus, this._video.readyState, this._thresholdReadyState);
 			if (!this._video) {
 				rej("VideoLoader: video is undefined");
 			} else if (this._loadStatus === READY_STATUS.LOADING_FAILED) {
@@ -140,6 +141,7 @@ export default class VideoLoader {
 			} else {
 				// check errorCnt and rejectx
 				const rejector = () => {
+					console.log("rejector");
 					if (this._loadStatus === READY_STATUS.LOADING_FAILED) {
 						this._detachErrorHandler(rejector);
 						this._detachErrorHandler(this._onerror);
