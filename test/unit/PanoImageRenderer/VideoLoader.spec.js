@@ -258,7 +258,7 @@ describe("VideoLoader", function() {
 				videoEl.addEventListener("loadeddata", runAssertion);
 				videoEl.addEventListener("error", rej);
 			});
-		}).timeout(20000);
+		}).timeout(30000);
 
 		it("should set video url as a Array<String>", () => {
 			// Given
