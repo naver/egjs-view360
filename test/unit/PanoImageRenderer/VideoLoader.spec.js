@@ -239,13 +239,13 @@ describe("VideoLoader", function() {
 			const videoEl = document.createElement("video");
 
 			videoEl.src = "./images/PanoViewer/pano.mp4";
-			videoEl.removeEventListener("loadeddata", function() {
+			videoEl.addEventListener("loadeddata", function() {
 				console.log("loadeddata");
 			});
-			videoEl.removeEventListener("loadedmetadata", function() {
+			videoEl.addEventListener("loadedmetadata", function() {
 				console.log("loadedmetadata");
 			});
-			videoEl.removeEventListener("canplay", function() {
+			videoEl.addEventListener("canplay", function() {
 				console.log("canplay");
 			});
 			videoEl.load();
