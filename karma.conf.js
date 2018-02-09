@@ -49,7 +49,7 @@ module.exports = function(config) {
     customLaunchers: {
       ChromeHeadlessGL: {
         base: 'ChromeHeadless',
-        flags: ['--disable-gpu', '--use-gl=osmesa', '--no-sandbox']
+        flags: ['--disable-gpu', '--use-gl=osmesa', '--no-sandbox', '--disable-setuid-sandbox']
       }
     },
     reporters: ["mocha"],
