@@ -241,21 +241,24 @@ describe("VideoLoader", function() {
 			videoEl.src = "./images/PanoViewer/pano.mp4";
 			videoEl.load();
 
-			return new Promise((res, rej) => {
-				// canplay for the travis CI
-				videoEl.addEventListener("canplay", () => {
-					const loader = new VideoLoader(videoEl);
+			let runAssertion = function(videoEl, res, rej) {
+				videoEl.removeEventListener("canplay", runAssertion);
+				const loader = new VideoLoader(videoEl);
 
-					loader.get()
-						.then(video => {
-							expect(video).to.be.equal(videoEl);// It means that it resolve
-							res();
-						})
-						.catch(rej);
-				});
+				loader.get()
+					.then(video => {
+						expect(video).to.be.equal(videoEl);// It means that it resolve
+						res();
+					})
+					.catch(rej);
+			};
+
+			return new Promise((res, rej) => {
+				runAssertion = runAssertion.bind(this, videoEl, res, rej);
+				videoEl.addEventListener("canplay", runAssertion);
 				videoEl.addEventListener("error", rej);
 			});
-		}).timeout(20000); // extended timeout for the travis CI
+		});
 
 		it("should set video url as a Array<String>", () => {
 			// Given
