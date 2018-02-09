@@ -242,8 +242,7 @@ describe("VideoLoader", function() {
 			videoEl.load();
 
 			return new Promise((res, rej) => {
-				// "canplaythrough" event is not triggering on the travis CI
-				videoEl.addEventListener("canplay", () => {
+				videoEl.addEventListener("canplaythrough", () => {
 					const loader = new VideoLoader(videoEl);
 
 					loader.get()
@@ -255,7 +254,7 @@ describe("VideoLoader", function() {
 				});
 				videoEl.addEventListener("error", rej);
 			});
-		});
+		}).timeout(20000); // extended timeout for the travis CI
 
 		it("should set video url as a Array<String>", () => {
 			// Given
