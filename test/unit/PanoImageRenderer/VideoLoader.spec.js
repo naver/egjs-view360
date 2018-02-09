@@ -242,7 +242,8 @@ describe("VideoLoader", function() {
 			videoEl.load();
 
 			return new Promise((res, rej) => {
-				videoEl.addEventListener("canplaythrough", () => {
+				// "canplaythrough" event is not triggering on the travis CI
+				videoEl.addEventListener("canplay", () => {
 					const loader = new VideoLoader(videoEl);
 
 					loader.get()
