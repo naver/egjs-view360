@@ -10886,10 +10886,11 @@ var VideoLoader = function () {
 			}
 
 			if (this._sourceCount > 0) {
-				this._video.load();
-
-				// attach loading error listener
-				this._attachErrorHandler(this._onerror);
+				if (this._video.readyState < this._thresholdReadyState) {
+					this._video.load();
+					// attach loading error listener
+					this._attachErrorHandler(this._onerror);
+				}
 			} else {
 				this._video = null;
 			}
