@@ -114,13 +114,30 @@ describe("VideoLoader", function() {
 				});
 		});
 
-		/**
-		 * 2017.12.08. For the present, WE SKIP THIS TEST
-		 * we changed the spec that getter doesn't reject if error occurs on video source.
-		 * Delegate responsibility to user.because User can do advanced handling by video tag.
-		 *
-		 */
-		it.skip("should fails when url is invalid#1", function() {
+		it("should reject when src on video tag is invalid, and has valid sorce tags", function() {
+			// Given && When
+			const videoEl = document.createElement("video");
+			const sourceEl1 = document.createElement("source");
+			const sourceEl2 = document.createElement("source");
+
+			videoEl.src = "./images/PanoViewer/invalid.mp4";
+			sourceEl1.src = "./images/PanoViewer/pano.mp4";
+			sourceEl2.src = "./images/PanoViewer/pano.mp4";
+			videoEl.appendChild(sourceEl1);
+			videoEl.appendChild(sourceEl2);
+			videoEl.load();
+
+			this.inst = new VideoLoader(videoEl);
+
+			expect(this.inst).to.be.exist;
+
+			// Then
+			return this.inst.get()
+				.then(() => false, () => true);
+		});
+
+
+		it("should fails when url is invalid#1", function() {
 			this.inst = new VideoLoader("https://invalidurl.png");
 
 			expect(this.inst).to.be.exist;
@@ -131,13 +148,7 @@ describe("VideoLoader", function() {
 				});
 		});
 
-		/**
-		 * 2017.12.08. For the present, WE SKIP THIS TEST
-		 * we changed the spec that getter doesn't reject if error occurs on video source.
-		 * Delegate responsibility to user.because User can do advanced handling by video tag.
-		 *
-		 */
-		it.skip("should fails to get() after 100ms when url is invalid#2", function() {
+		it("should fails to get() after 100ms when url is invalid#2", function() {
 			this.inst = new VideoLoader("https://invalidurl.png");
 
 			expect(this.inst).to.be.exist;
@@ -262,6 +273,24 @@ describe("VideoLoader", function() {
 			});
 		});
 
+		it("should reject when there is only invalid url", () => {
+			// Given
+			this.inst = new VideoLoader();
+
+			// When
+			this.inst.set([
+				"https://invalidurl1.png",
+				"https://invalidurl2.png",
+			]);
+
+			// Then
+			return this.inst.get()
+				.then(
+					() => false,
+					() => true
+				);
+		});
+
 		it("should set video url if valid & invalid url is mixed", () => {
 			// Given
 			this.inst = new VideoLoader();
@@ -269,6 +298,7 @@ describe("VideoLoader", function() {
 			// When
 			this.inst.set([
 				"https://invalidurl1.png",
+				"https://invalidurl2.png",
 				"./images/PanoViewer/pano.mp4",
 			]);
 
@@ -276,16 +306,16 @@ describe("VideoLoader", function() {
 			return this.inst.get()
 				.then(video => {
 					let els = video.querySelectorAll("source");
-					expect(els.length).to.be.eql(2);
+					expect(els.length).to.be.eql(3);
 
 					return true;
 				}, () => false)
 				.then(success => {
 					expect(success).to.be.equal(true);
 				});
-		})
+		});
 		// on iOS safari, there is long delay (over 15s) to video tag trigger error event when source is missing.
-		.timeout(25000);
+
 
 		/**
 		 * 2017.12.08. For the present, WE SKIP THIS TEST

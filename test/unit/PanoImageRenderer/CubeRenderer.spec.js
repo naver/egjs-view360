@@ -254,6 +254,7 @@ describe("CubeRenderer", () => {
 				cubestripVideo.crossOrigin = "anonymous";
 				cubestripVideo.src = "./images/test_cube_3x2_LRUDBF.mp4";
 				cubestripVideo.preload = "auto";
+				cubestripVideo.load();
 
 				cubestripVideo.addEventListener("loadeddata", () => {
 					// When & Then

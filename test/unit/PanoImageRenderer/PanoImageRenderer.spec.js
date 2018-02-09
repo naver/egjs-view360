@@ -784,7 +784,7 @@ describe("PanoImageRenderer", function() {
 					fieldOfView: 65
 				}, DEBUG_CONTEXT_ATTRIBUTES);
 
-				inst.on("imageLoaded", when);
+				video.addEventListener("loadeddata", when);
 
 				function when() {
 					// When

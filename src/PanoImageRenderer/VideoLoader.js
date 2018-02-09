@@ -1,4 +1,4 @@
-import Agent from "@egjs/agent";
+// import Agent from "@egjs/agent";
 
 /* Ref https://www.w3schools.com/tags/av_prop_readystate.asp */
 const READY_STATUS = {
@@ -6,8 +6,17 @@ const READY_STATUS = {
 	HAVE_METADATA: 1, // HAVE_METADATA - metadata for the audio/video is ready
 	HAVE_CURRENT_DATA: 2, // data for the current playback position is available, but not enough data to play next frame/millisecond
 	HAVE_FUTURE_DATA: 3, // data for the current and at least the next frame is available
-	HAVE_ENOUGH_DATA: 4 // enough data available to start playing
+	HAVE_ENOUGH_DATA: 4, // enough data available to start playing
+	// below is custom status for failed to load status
+	LOADING_FAILED: -1
 };
+
+const READYSTATECHANGE_EVENT_NAME = {};
+
+READYSTATECHANGE_EVENT_NAME[READY_STATUS.HAVE_METADATA] = "loadedmetadata";
+READYSTATECHANGE_EVENT_NAME[READY_STATUS.HAVE_CURRENT_DATA] = "loadeddata";
+READYSTATECHANGE_EVENT_NAME[READY_STATUS.HAVE_FUTURE_DATA] = "canplay";
+READYSTATECHANGE_EVENT_NAME[READY_STATUS.HAVE_ENOUGH_DATA] = "canplaythrough";
 
 export default class VideoLoader {
 	constructor(video) {
@@ -16,12 +25,22 @@ export default class VideoLoader {
 
 		// on iOS safari, 'loadeddata' will not triggered unless the user hits play,
 		// so used 'loadedmetadata' instead.
-		const isIOS = Agent().os.name === "ios";
+		this._thresholdReadyState = READY_STATUS.HAVE_METADATA;
+		this._thresholdEventName = READYSTATECHANGE_EVENT_NAME[this._thresholdReadyState];
 
-		this._thresholdReadyState = isIOS ? READY_STATUS.HAVE_METADATA : READY_STATUS.HAVE_CURRENT_DATA;
-		this._thresholdEventName = isIOS ? "loadedmetadata" : "loadeddata";
+		this._loadStatus = (video && video.readyState) || READY_STATUS.HAVE_NOTHING;
+
+		this._onerror = this._onerror.bind(this);
 
 		video && this.set(video);
+	}
+
+	_onerror() {
+		this._errorCount++;
+		if (this._errorCount >= this._sourceCount) {
+			this._loadStatus = READY_STATUS.LOADING_FAILED;
+			this._detachErrorHandler(this._onerror);
+		}
 	}
 
 	/**
@@ -49,19 +68,19 @@ export default class VideoLoader {
 		videoType && (sourceElement.type = videoType);
 
 		this._video.appendChild(sourceElement);
-		this._sourceCount++;
 		return true;
 	}
 
 	set(video) {
 		this._reset(); // reset resources.
 
+		if (!video) {
+			return;
+		}
+
 		if (video instanceof HTMLVideoElement) {
 			// video tag
 			this._video = video;
-			if (video.readyState === 0) {
-				this._video.load();
-			}
 		} else if (typeof video === "string" || typeof video === "object") {
 			// url
 			this._video = document.createElement("video");
@@ -74,22 +93,61 @@ export default class VideoLoader {
 			} else {
 				this._appendSourceElement(video);
 			}
+		}
+
+		if (this._video) {
+			// count sources to count
+			if (!this._video.getAttribute("src")) {
+				this._sourceCount = this._video.querySelectorAll("source").length;
+			} else {
+				this._sourceCount = 1;
+			}
 
 			if (this._sourceCount > 0) {
 				this._video.load();
+
+				// attach loading error listener
+				this._attachErrorHandler(this._onerror);
 			} else {
 				this._video = null;
 			}
 		}
 	}
 
+	_attachErrorHandler(handler) {
+		this._video.addEventListener("error", handler);
+		this._sources = this._video.querySelectorAll("source");
+		[].forEach.call(this._sources, source => {
+			source.addEventListener("error", handler);
+		});
+	}
+
+	_detachErrorHandler(handler) {
+		this._video.removeEventListener("error", handler);
+		[].forEach.call(this._sources, source => {
+			source.removeEventListener("error", handler);
+		});
+	}
+
 	get() {
 		return new Promise((res, rej) => {
 			if (!this._video) {
 				rej("VideoLoader: video is undefined");
+			} else if (this._loadStatus === READY_STATUS.LOADING_FAILED) {
+				rej("VideoLoader: video source does not exist");
 			} else if (this._video.readyState >= this._thresholdReadyState) {
 				res(this._video);
 			} else {
+				// check errorCnt and rejectx
+				const rejector = () => {
+					if (this._loadStatus === READY_STATUS.LOADING_FAILED) {
+						this._detachErrorHandler(rejector);
+						this._detachErrorHandler(this._onerror);
+						rej("VideoLoader: video source does not exist");
+					}
+				};
+
+				this._attachErrorHandler(rejector);
 				this._once(this._thresholdEventName, () => res(this._video));
 			}
 		});
@@ -111,6 +169,7 @@ export default class VideoLoader {
 		this._video = null;
 
 		this._sourceCount = 0;
+		this._errorCount = 0;
 	}
 
 	_once(type, listener) {

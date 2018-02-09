@@ -156,7 +156,7 @@ describe("PanoViewer", function() {
 			panoViewer = new PanoViewer(target);
 
 			// When
-			panoViewer.setVideo("./images/PanoViewer/pano.webm");
+			panoViewer.setVideo("./images/PanoViewer/pano.mp4");
 
 			// Then
 			panoViewer.on(PanoViewer.EVENTS.CONTENT_LOADED, e => {
