@@ -256,7 +256,7 @@ describe("VideoLoader", function() {
 
 			return new Promise((res, rej) => {
 				runAssertion = runAssertion.bind(this, videoEl, res, rej);
-				videoEl.addEventListener("loadeddata", runAssertion);
+				videoEl.addEventListener("loadedmetadata", runAssertion);
 				videoEl.addEventListener("error", rej);
 			});
 		}).timeout(60000);
