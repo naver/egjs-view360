@@ -242,7 +242,7 @@ describe("VideoLoader", function() {
 			videoEl.load();
 
 			let runAssertion = function(videoEl, res, rej) {
-				videoEl.removeEventListener("canplay", runAssertion);
+				videoEl.removeEventListener("loadeddata", runAssertion);
 				const loader = new VideoLoader(videoEl);
 
 				loader.get()
@@ -255,7 +255,7 @@ describe("VideoLoader", function() {
 
 			return new Promise((res, rej) => {
 				runAssertion = runAssertion.bind(this, videoEl, res, rej);
-				videoEl.addEventListener("canplay", runAssertion);
+				videoEl.addEventListener("loadeddata", runAssertion);
 				videoEl.addEventListener("error", rej);
 			});
 		});
