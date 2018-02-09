@@ -254,7 +254,7 @@ describe("VideoLoader", function() {
 				});
 				videoEl.addEventListener("error", rej);
 			});
-		}).timeout(20000); // extended timeout for the travis CI
+		});
 
 		it("should set video url as a Array<String>", () => {
 			// Given

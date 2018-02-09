@@ -2,6 +2,8 @@ module.exports = function(config) {
   var karmaConfig = {
     frameworks: ["mocha", "chai", "sinon"],
 
+    browserNoActivityTimeout: 20000,
+
     // list of files / patterns to load in the browser
     files: [
       "./node_modules/resemblejs/resemble.js",
