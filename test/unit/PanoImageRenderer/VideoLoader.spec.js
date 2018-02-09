@@ -236,12 +236,14 @@ describe("VideoLoader", function() {
 
 		it("should get video without once handler if cached video", () => {
 			// Given & When
+			console.log("should get video without once handler if cached video");
 			const videoEl = document.createElement("video");
 
 			videoEl.src = "./images/PanoViewer/pano.mp4";
 			videoEl.load();
 
 			let runAssertion = function(videoEl, res, rej) {
+				console.log("runAssertion");
 				videoEl.removeEventListener("loadeddata", runAssertion);
 				const loader = new VideoLoader(videoEl);
 
@@ -255,6 +257,7 @@ describe("VideoLoader", function() {
 
 			return new Promise((res, rej) => {
 				runAssertion = runAssertion.bind(this, videoEl, res, rej);
+				console.log("videoEl.readyState", videoEl.readyState);
 				videoEl.addEventListener("loadeddata", runAssertion);
 				videoEl.addEventListener("error", rej);
 			});
