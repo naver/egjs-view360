@@ -239,19 +239,19 @@ describe("VideoLoader", function() {
 			const videoEl = document.createElement("video");
 
 			videoEl.src = "./images/PanoViewer/pano.mp4";
+			videoEl.removeEventListener("loadeddata", function() {
+				console.log("loadeddata");
+			});
+			videoEl.removeEventListener("loadedmetadata", function() {
+				console.log("loadedmetadata");
+			});
+			videoEl.removeEventListener("canplay", function() {
+				console.log("canplay");
+			});
 			videoEl.load();
 
 			let runAssertion = function(videoEl, res, rej) {
 				videoEl.removeEventListener("loadeddata", runAssertion);
-				videoEl.removeEventListener("loadeddata", function() {
-					console.log("loadeddata");
-				});
-				videoEl.removeEventListener("loadedmetadata", function() {
-					console.log("loadedmetadata");
-				});
-				videoEl.removeEventListener("canplay", function() {
-					console.log("canplay");
-				});
 				const loader = new VideoLoader(videoEl);
 
 				loader.get()
