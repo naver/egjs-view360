@@ -239,10 +239,18 @@ describe("VideoLoader", function() {
 			const videoEl = document.createElement("video");
 
 			videoEl.src = "./images/PanoViewer/pano.mp4";
+			videoEl.addEventListener("loadeddata", function() {
+				console.log("loadeddata");
+			});
+			videoEl.addEventListener("loadedmetadata", function() {
+				console.log("loadedmetadata");
+			});
+			videoEl.addEventListener("canplay", function() {
+				console.log("canplay");
+			});
 			videoEl.load();
 
 			let runAssertion = function(videoEl, res, rej) {
-				// used loadedmetadata event because of travis CI
 				videoEl.removeEventListener("loadedmetadata", runAssertion);
 				const loader = new VideoLoader(videoEl);
 
