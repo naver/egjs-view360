@@ -7,26 +7,14 @@ let pixelCanvas;
 
 export default class SphereRenderer extends Renderer {
 	static getVertexPositionData() {
-		if (SphereRenderer._VERTEX_POSITION_DATA === null) {
-			SphereRenderer._initData();
-		}
-
 		return SphereRenderer._VERTEX_POSITION_DATA;
 	}
 
 	static getIndexData() {
-		if (SphereRenderer._INDEX_DATA === null) {
-			SphereRenderer._initData();
-		}
-
 		return SphereRenderer._INDEX_DATA;
 	}
 
 	static getTextureCoordData() {
-		if (SphereRenderer._TEXTURE_COORD_DATA === null) {
-			SphereRenderer._initData();
-		}
-
 		return SphereRenderer._TEXTURE_COORD_DATA;
 	}
 
@@ -79,10 +67,6 @@ export default class SphereRenderer extends Renderer {
 	}
 
 	static bindTexture(gl, texture, image) {
-		if (!image) {
-			return;
-		}
-
 		// Make sure image isn't too big
 		const {width, height} = this._getDimension(image);
 		const size = Math.max(width, height);
@@ -95,7 +79,7 @@ export default class SphereRenderer extends Renderer {
 			return;
 		}
 
-		if (isIE11) {
+		if (isIE11 && image instanceof HTMLVideoElement) {
 			pixelCanvas = document.createElement("canvas");
 			pixelCanvas.width = width;
 			pixelCanvas.height = height;
@@ -155,3 +139,5 @@ export default class SphereRenderer extends Renderer {
 SphereRenderer._VERTEX_POSITION_DATA = null;
 SphereRenderer._TEXTURE_COORD_DATA = null;
 SphereRenderer._INDEX_DATA = null;
+
+SphereRenderer._initData();

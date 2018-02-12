@@ -5261,26 +5261,14 @@ var SphereRenderer = function (_Renderer) {
 	}
 
 	SphereRenderer.getVertexPositionData = function getVertexPositionData() {
-		if (SphereRenderer._VERTEX_POSITION_DATA === null) {
-			SphereRenderer._initData();
-		}
-
 		return SphereRenderer._VERTEX_POSITION_DATA;
 	};
 
 	SphereRenderer.getIndexData = function getIndexData() {
-		if (SphereRenderer._INDEX_DATA === null) {
-			SphereRenderer._initData();
-		}
-
 		return SphereRenderer._INDEX_DATA;
 	};
 
 	SphereRenderer.getTextureCoordData = function getTextureCoordData() {
-		if (SphereRenderer._TEXTURE_COORD_DATA === null) {
-			SphereRenderer._initData();
-		}
-
 		return SphereRenderer._TEXTURE_COORD_DATA;
 	};
 
@@ -5319,12 +5307,7 @@ var SphereRenderer = function (_Renderer) {
 	};
 
 	SphereRenderer.bindTexture = function bindTexture(gl, texture, image) {
-		if (!image) {
-			return;
-		}
-
 		// Make sure image isn't too big
-
 		var _getDimension3 = this._getDimension(image),
 		    width = _getDimension3.width,
 		    height = _getDimension3.height;
@@ -5339,7 +5322,7 @@ var SphereRenderer = function (_Renderer) {
 			return;
 		}
 
-		if (isIE11) {
+		if (isIE11 && image instanceof HTMLVideoElement) {
 			pixelCanvas = document.createElement("canvas");
 			pixelCanvas.width = width;
 			pixelCanvas.height = height;
@@ -5404,6 +5387,8 @@ exports["default"] = SphereRenderer;
 SphereRenderer._VERTEX_POSITION_DATA = null;
 SphereRenderer._TEXTURE_COORD_DATA = null;
 SphereRenderer._INDEX_DATA = null;
+
+SphereRenderer._initData();
 
 /***/ }),
 /* 27 */
