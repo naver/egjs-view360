@@ -245,7 +245,7 @@ describe("CubeRenderer", () => {
 						done();
 					});
 				};
-			}).timeout(20000);
+			});
 
 			IT("3x2 LRUDBF video", done => {
 				// Given
@@ -271,7 +271,7 @@ describe("CubeRenderer", () => {
 						done();
 					});
 				});
-			}).timeout(20000);
+			});
 
 			IT("6x1 LRUDBF", done => {
 				// Given
