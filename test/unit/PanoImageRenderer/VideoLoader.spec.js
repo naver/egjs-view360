@@ -20,7 +20,7 @@ describe("VideoLoader", function() {
 
 		it("should set video as a url", function() {
 			// Given && When
-			this.inst = new VideoLoader("./images/PanoViewer/pano.webm");
+			this.inst = new VideoLoader("./images/PanoViewer/pano.mp4");
 
 			expect(this.inst).to.be.exist;
 
@@ -29,6 +29,9 @@ describe("VideoLoader", function() {
 				.then(video => {
 					assert.isOk(video);
 					assert.isTrue(video instanceof HTMLVideoElement);
+					assert.isTrue(video.getAttribute("crossorigin") === "anonymous");
+					assert.isTrue(video.getAttribute("playsinline") === "");
+					assert.isTrue(video.getAttribute("webkit-playsinline") === "");
 				}, () => {
 					assert.isOk(false, "Failed to load video resource. check URL is valid.");
 				});
@@ -36,7 +39,7 @@ describe("VideoLoader", function() {
 
 		it("should set video as a object({type, src})", function() {
 			// Given && When
-			this.inst = new VideoLoader({src: "./images/PanoViewer/pano.webm", type: "video/webm"});
+			this.inst = new VideoLoader({src: "./images/PanoViewer/pano.mp4", type: "video/mp4"});
 
 			expect(this.inst).to.be.exist;
 
@@ -52,7 +55,7 @@ describe("VideoLoader", function() {
 
 		it("should set video as a object({src}) although type is not defined.", function() {
 			// Given && When
-			this.inst = new VideoLoader({src: "./images/PanoViewer/pano.webm"});
+			this.inst = new VideoLoader({src: "./images/PanoViewer/pano.mp4"});
 
 			expect(this.inst).to.be.exist;
 
@@ -85,9 +88,8 @@ describe("VideoLoader", function() {
 		it("should set video as a video tag", function() {
 			const video = document.createElement("video");
 
-			video.src = "./images/PanoViewer/pano.webm";
+			video.src = "./images/PanoViewer/pano.mp4";
 			this.inst = new VideoLoader(video);
-
 			expect(this.inst).to.be.exist;
 			return this.inst.get()
 				.then(video => {
@@ -112,13 +114,30 @@ describe("VideoLoader", function() {
 				});
 		});
 
-		/**
-		 * 2017.12.08. For the present, WE SKIP THIS TEST
-		 * we changed the spec that getter doesn't reject if error occurs on video source.
-		 * Delegate responsibility to user.because User can do advanced handling by video tag.
-		 *
-		 */
-		it.skip("should fails when url is invalid#1", function() {
+		it("should reject when src on video tag is invalid, and has valid sorce tags", function() {
+			// Given && When
+			const videoEl = document.createElement("video");
+			const sourceEl1 = document.createElement("source");
+			const sourceEl2 = document.createElement("source");
+
+			videoEl.src = "./images/PanoViewer/invalid.mp4";
+			sourceEl1.src = "./images/PanoViewer/pano.mp4";
+			sourceEl2.src = "./images/PanoViewer/pano.mp4";
+			videoEl.appendChild(sourceEl1);
+			videoEl.appendChild(sourceEl2);
+			videoEl.load();
+
+			this.inst = new VideoLoader(videoEl);
+
+			expect(this.inst).to.be.exist;
+
+			// Then
+			return this.inst.get()
+				.then(() => false, () => true);
+		});
+
+
+		it("should fails when url is invalid#1", function() {
 			this.inst = new VideoLoader("https://invalidurl.png");
 
 			expect(this.inst).to.be.exist;
@@ -129,13 +148,7 @@ describe("VideoLoader", function() {
 				});
 		});
 
-		/**
-		 * 2017.12.08. For the present, WE SKIP THIS TEST
-		 * we changed the spec that getter doesn't reject if error occurs on video source.
-		 * Delegate responsibility to user.because User can do advanced handling by video tag.
-		 *
-		 */
-		it.skip("should fails to get() after 100ms when url is invalid#2", function() {
+		it("should fails to get() after 100ms when url is invalid#2", function() {
 			this.inst = new VideoLoader("https://invalidurl.png");
 
 			expect(this.inst).to.be.exist;
@@ -150,7 +163,7 @@ describe("VideoLoader", function() {
 		it("should not call again", function() {
 			let countCb1 = 0;
 			let countCb2 = 0;
-			this.inst = new VideoLoader("./images/PanoViewer/pano.webm");
+			this.inst = new VideoLoader("./images/PanoViewer/pano.mp4");
 
 			expect(this.inst).to.be.exist;
 
@@ -183,7 +196,7 @@ describe("VideoLoader", function() {
 			// Given
 			// When
 			this.inst = new VideoLoader();
-			this.inst.set("./images/PanoViewer/pano.webm");
+			this.inst.set("./images/PanoViewer/pano.mp4");
 
 			return this.inst.get()
 				.then(video => {
@@ -193,7 +206,7 @@ describe("VideoLoader", function() {
 					// Next Given && When
 					const v = document.createElement("video");
 
-					v.src = "./images/PanoViewer/pano.webm";
+					v.src = "./images/PanoViewer/pano.mp4";
 					this.inst.set(v);
 					return this.inst.get();
 				})
@@ -204,7 +217,7 @@ describe("VideoLoader", function() {
 
 		it("should destroy video instance if set() called with no parameter", () => {
 			// Given & When
-			this.inst = new VideoLoader("./images/PanoViewer/pano.webm");
+			this.inst = new VideoLoader("./images/PanoViewer/pano.mp4");
 
 			return this.inst.get()
 				.then(video => {
@@ -223,24 +236,29 @@ describe("VideoLoader", function() {
 
 		it("should get video without once handler if cached video", () => {
 			// Given & When
-			let videoEl = document.createElement("video");
-			videoEl.src = "./images/PanoViewer/pano.webm";
+			const videoEl = document.createElement("video");
+
+			videoEl.src = "./images/PanoViewer/pano.mp4";
+			videoEl.load();
+
+			let runAssertion = function(videoEl, res, rej) {
+				videoEl.removeEventListener("loadedmetadata", runAssertion);
+				const loader = new VideoLoader(videoEl);
+
+				loader.get()
+					.then(video => {
+						expect(video).to.be.equal(videoEl);// It means that it resolve
+						res();
+					})
+					.catch(rej);
+			};
 
 			return new Promise((res, rej) => {
-				videoEl.addEventListener("canplaythrough", () => {
-					const loader = new VideoLoader(videoEl);
-
-					loader.get()
-						.then(video => {
-							expect(video).to.be.equal(videoEl);// It means that it resolve
-							res();
-						})
-						.catch(rej);
-				});
-
+				runAssertion = runAssertion.bind(this, videoEl, res, rej);
+				videoEl.addEventListener("loadedmetadata", runAssertion);
 				videoEl.addEventListener("error", rej);
 			});
-		});
+		}).timeout(60000);
 
 		it("should set video url as a Array<String>", () => {
 			// Given
@@ -259,6 +277,24 @@ describe("VideoLoader", function() {
 			});
 		});
 
+		it("should reject when there is only invalid url", () => {
+			// Given
+			this.inst = new VideoLoader();
+
+			// When
+			this.inst.set([
+				"https://invalidurl1.png",
+				"https://invalidurl2.png",
+			]);
+
+			// Then
+			return this.inst.get()
+				.then(
+					() => false,
+					() => true
+				);
+		});
+
 		it("should set video url if valid & invalid url is mixed", () => {
 			// Given
 			this.inst = new VideoLoader();
@@ -267,7 +303,7 @@ describe("VideoLoader", function() {
 			this.inst.set([
 				"https://invalidurl1.png",
 				"https://invalidurl2.png",
-				"./images/PanoViewer/pano.webm"
+				"./images/PanoViewer/pano.mp4",
 			]);
 
 			// Then
@@ -282,6 +318,8 @@ describe("VideoLoader", function() {
 					expect(success).to.be.equal(true);
 				});
 		});
+		// on iOS safari, there is long delay (over 15s) to video tag trigger error event when source is missing.
+
 
 		/**
 		 * 2017.12.08. For the present, WE SKIP THIS TEST
@@ -352,7 +390,7 @@ describe("VideoLoader", function() {
 			this.inst = new VideoLoader();
 
 			// When
-			this.inst.set({src: "./images/PanoViewer/pano.webm", type: "video/webm"});
+			this.inst.set({src: "./images/PanoViewer/pano.mp4", type: "video/mp4"});
 
 			// Then
 			return this.inst.get()
@@ -423,24 +461,19 @@ describe("VideoLoader", function() {
 				{},
 				"https://invalidurl.mov",
 				"",
-				{src: "./images/PanoViewer/pano.webm", type: "video/webm"}
+				{src: "./images/PanoViewer/pano.mp4", type: "video/mp4"}
 			]);
 
 			// Then
-			return this.inst.get()
-				.then(video => {
-					const els = video.querySelectorAll("source");
-					expect(els.length).to.be.equal(2);
-					return true;
-				}, errMsg => false)
-				.then(success => {
-					expect(success).to.be.equal(true);
-				});
+			const video = this.inst.getElement();
+			const els = video.querySelectorAll("source");
+
+			expect(els.length).to.be.equal(2);
 		});
 
 		it("should set video of crossOrigin as anonymous when setting by url", () => {
 			// Given
-			const videoUrl = "./images/PanoViewer/pano.webm";
+			const videoUrl = "./images/PanoViewer/pano.mp4";
 
 			// When
 			let inst = new VideoLoader(videoUrl);
@@ -466,7 +499,7 @@ describe("VideoLoader", function() {
 		it("could get video element after set video by element", () => {
 			// Given
 			const videoObj = document.createElement("video");
-			const videoPath = "./images/PanoViewer/pano.webm";
+			const videoPath = "./images/PanoViewer/pano.mp4";
 
 			videoObj.src = videoPath;
 			const inst = new VideoLoader(videoObj);
@@ -491,7 +524,7 @@ describe("VideoLoader", function() {
 
 		it("should destroy video instance", () => {
 			// Given & When
-			this.inst = new VideoLoader("./images/PanoViewer/pano.webm");
+			this.inst = new VideoLoader("./images/PanoViewer/pano.mp4");
 
 			return this.inst.get()
 				.then(video => {

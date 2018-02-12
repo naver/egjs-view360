@@ -5395,14 +5395,25 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var _Promise = typeof Promise === 'undefined' ? __webpack_require__(4).Promise : Promise;
 
+// import Agent from "@egjs/agent";
+
 /* Ref https://www.w3schools.com/tags/av_prop_readystate.asp */
 var READY_STATUS = {
 	HAVE_NOTHING: 0, // no information whether or not the audio/video is ready
 	HAVE_METADATA: 1, // HAVE_METADATA - metadata for the audio/video is ready
 	HAVE_CURRENT_DATA: 2, // data for the current playback position is available, but not enough data to play next frame/millisecond
 	HAVE_FUTURE_DATA: 3, // data for the current and at least the next frame is available
-	HAVE_ENOUGH_DATA: 4 // enough data available to start playing
+	HAVE_ENOUGH_DATA: 4, // enough data available to start playing
+	// below is custom status for failed to load status
+	LOADING_FAILED: -1
 };
+
+var READYSTATECHANGE_EVENT_NAME = {};
+
+READYSTATECHANGE_EVENT_NAME[READY_STATUS.HAVE_METADATA] = "loadedmetadata";
+READYSTATECHANGE_EVENT_NAME[READY_STATUS.HAVE_CURRENT_DATA] = "loadeddata";
+READYSTATECHANGE_EVENT_NAME[READY_STATUS.HAVE_FUTURE_DATA] = "canplay";
+READYSTATECHANGE_EVENT_NAME[READY_STATUS.HAVE_ENOUGH_DATA] = "canplaythrough";
 
 var VideoLoader = function () {
 	function VideoLoader(video) {
@@ -5411,8 +5422,25 @@ var VideoLoader = function () {
 		this._handlers = [];
 		this._sourceCount = 0;
 
+		// on iOS safari, 'loadeddata' will not triggered unless the user hits play,
+		// so used 'loadedmetadata' instead.
+		this._thresholdReadyState = READY_STATUS.HAVE_METADATA;
+		this._thresholdEventName = READYSTATECHANGE_EVENT_NAME[this._thresholdReadyState];
+
+		this._loadStatus = video && video.readyState || READY_STATUS.HAVE_NOTHING;
+
+		this._onerror = this._onerror.bind(this);
+
 		video && this.set(video);
 	}
+
+	VideoLoader.prototype._onerror = function _onerror() {
+		this._errorCount++;
+		if (this._errorCount >= this._sourceCount) {
+			this._loadStatus = READY_STATUS.LOADING_FAILED;
+			this._detachErrorHandler(this._onerror);
+		}
+	};
 
 	/**
   *
@@ -5441,7 +5469,6 @@ var VideoLoader = function () {
 		videoType && (sourceElement.type = videoType);
 
 		this._video.appendChild(sourceElement);
-		this._sourceCount++;
 		return true;
 	};
 
@@ -5450,13 +5477,19 @@ var VideoLoader = function () {
 
 		this._reset(); // reset resources.
 
+		if (!video) {
+			return;
+		}
+
 		if (video instanceof HTMLVideoElement) {
 			// video tag
 			this._video = video;
 		} else if (typeof video === "string" || (typeof video === "undefined" ? "undefined" : _typeof(video)) === "object") {
 			// url
 			this._video = document.createElement("video");
-			this._video.crossOrigin = "anonymous";
+			this._video.setAttribute("crossorigin", "anonymous");
+			this._video.setAttribute("webkit-playsinline", "");
+			this._video.setAttribute("playsinline", "");
 
 			if (video instanceof Array) {
 				video.forEach(function (v) {
@@ -5465,13 +5498,39 @@ var VideoLoader = function () {
 			} else {
 				this._appendSourceElement(video);
 			}
-
-			if (this._sourceCount > 0) {
-				this._video.load();
-			} else {
-				this._video = null;
-			}
 		}
+
+		// count sources to count
+		if (!this._video.getAttribute("src")) {
+			this._sourceCount = this._video.querySelectorAll("source").length;
+		} else {
+			this._sourceCount = 1;
+		}
+
+		if (this._sourceCount > 0) {
+			if (this._video.readyState < this._thresholdReadyState) {
+				this._video.load();
+				// attach loading error listener
+				this._attachErrorHandler(this._onerror);
+			}
+		} else {
+			this._video = null;
+		}
+	};
+
+	VideoLoader.prototype._attachErrorHandler = function _attachErrorHandler(handler) {
+		this._video.addEventListener("error", handler);
+		this._sources = this._video.querySelectorAll("source");
+		[].forEach.call(this._sources, function (source) {
+			source.addEventListener("error", handler);
+		});
+	};
+
+	VideoLoader.prototype._detachErrorHandler = function _detachErrorHandler(handler) {
+		this._video.removeEventListener("error", handler);
+		[].forEach.call(this._sources, function (source) {
+			source.removeEventListener("error", handler);
+		});
 	};
 
 	VideoLoader.prototype.get = function get() {
@@ -5480,14 +5539,23 @@ var VideoLoader = function () {
 		return new _Promise(function (res, rej) {
 			if (!_this2._video) {
 				rej("VideoLoader: video is undefined");
-			} else if (_this2._video.readyState >= READY_STATUS.HAVE_CURRENT_DATA) {
+			} else if (_this2._loadStatus === READY_STATUS.LOADING_FAILED) {
+				rej("VideoLoader: video source is invalid");
+			} else if (_this2._video.readyState >= _this2._thresholdReadyState) {
 				res(_this2._video);
 			} else {
-				_this2._once("loadeddata", function () {
+				// check errorCnt and reject
+				var rejector = function rejector() {
+					if (_this2._loadStatus === READY_STATUS.LOADING_FAILED) {
+						_this2._detachErrorHandler(rejector);
+						rej("VideoLoader: video source is invalid");
+					}
+				};
+
+				_this2._attachErrorHandler(rejector);
+				_this2._once(_this2._thresholdEventName, function () {
 					return res(_this2._video);
 				});
-				// DO NOT HANDLE ERRORS, DELEGATE IT TO USER BY USING VIDEO ELEMENT.
-				// this._once("error", e => rej(`VideoLoader: failed to load ${e.target.src}`));
 			}
 		});
 	};
@@ -5510,6 +5578,7 @@ var VideoLoader = function () {
 		this._video = null;
 
 		this._sourceCount = 0;
+		this._errorCount = 0;
 	};
 
 	VideoLoader.prototype._once = function _once(type, listener) {
@@ -6782,10 +6851,6 @@ var DeviceMotion = function (_Component) {
 		}
 		_browser.window.removeEventListener("devicemotion", this._onDeviceMotion);
 		this._isEnabled = false;
-	};
-
-	DeviceMotion.prototype.isEnabled = function isEnabled() {
-		return this._isEnabled;
 	};
 
 	return DeviceMotion;
