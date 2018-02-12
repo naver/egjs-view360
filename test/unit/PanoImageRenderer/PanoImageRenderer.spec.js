@@ -1,7 +1,26 @@
 import PanoImageRenderer from "../../../src/PanoImageRenderer/PanoImageRenderer";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 import PanoImageRendererInjector from "inject-loader!../../../src/PanoImageRenderer/PanoImageRenderer";
+import SphereRendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/SphereRenderer";
 
+const SphereRendererOnIE11 = SphereRendererInjector(
+	{
+		"@egjs/agent": function() {
+			return {
+				browser: {
+					name: "ie",
+					version: "11.0"
+				}
+			};
+		}
+	}
+).default;
+
+const PanoImageRendererOnIE11 = PanoImageRendererInjector(
+	{
+		"./renderer/SphereRenderer": SphereRendererOnIE11
+	}
+).default;
 const WEBGL_AVAILABILITY = WebGLUtils.isWebGLAvailable();
 const IT = WEBGL_AVAILABILITY ? it : it.skip;
 const DEBUG_CONTEXT_ATTRIBUTES = {
@@ -964,7 +983,126 @@ describe("PanoImageRenderer", function() {
 						});
 					});
 			}
-        });
+		});
+
+        IT("yaw: 0, pitch:0, fov:65 : IE11", function(done) {
+			// Given
+			let inst = this.inst;
+			const sourceImg = new Image();
+
+			sourceImg.src = "./images/test_equi.jpg";
+			inst = new PanoImageRendererOnIE11(sourceImg, 200, 200, false, {
+				initialYaw: 0,
+				initialpitch: 0,
+				imageType: "equirectangular",
+				fieldOfView: 65
+			}, DEBUG_CONTEXT_ATTRIBUTES);
+			inst.on("imageLoaded", when);
+			function when() {
+				// When
+				inst.bindTexture()
+					.then(() => {
+						// Then
+						renderAndCompareSequentially(
+							inst,
+							[
+								[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
+								[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
+								[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
+								[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
+								[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
+								[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
+							]
+						).then(() => {
+							done();
+						});
+					});
+			}
+		});
+
+        IT("yaw: 0, pitch:0, fov:65 : video IE11", function(done) {
+			// Given
+			let inst = this.inst;
+			const sourceImg = document.createElement("video");
+
+			sourceImg.src = "./images/test_equi.mp4";
+			sourceImg.load();
+			const isVideo = true;
+			const threshold = 7;
+
+			inst = new PanoImageRendererOnIE11(sourceImg, 200, 200, isVideo, {
+				initialYaw: 0,
+				initialpitch: 0,
+				imageType: "equirectangular",
+				fieldOfView: 65
+			}, DEBUG_CONTEXT_ATTRIBUTES);
+
+			inst.on("imageLoaded", when);
+
+			function when() {
+				// When
+				inst.bindTexture()
+					.then(() => {
+						// Then
+						renderAndCompareSequentially(
+							inst,
+							[
+								[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
+								[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
+								[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
+								[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
+								[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
+								[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
+							]
+						).then(() => {
+							done();
+						});
+					});
+			}
+		});
+
+		IT("yaw: 0, pitch:0, fov:65 : video", function(done) {
+			// Given
+			let inst = this.inst;
+			const sourceImg = document.createElement("video");
+
+			sourceImg.src = "./images/test_equi.mp4";
+			sourceImg.load();
+			const isVideo = true;
+			const threshold = 7;
+
+			sourceImg.src = "./images/test_equi.mp4";
+			inst = new PanoImageRenderer(sourceImg, 200, 200, isVideo, {
+				initialYaw: 0,
+				initialpitch: 0,
+				imageType: "equirectangular",
+				fieldOfView: 65
+			}, DEBUG_CONTEXT_ATTRIBUTES);
+
+			inst.on("imageLoaded", when);
+
+			function when() {
+				// When
+				inst.bindTexture()
+					.then(() => {
+						// Then
+						renderAndCompareSequentially(
+							inst,
+							[
+								[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
+								[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
+								[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
+								[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
+								[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
+								[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
+							]
+						).then(() => {
+							done();
+						});
+					});
+			}
+		});
+
         IT("yaw: 0, pitch:0, fov:65 -> 30", function(done) {
 			// Given
 			let inst = this.inst;
