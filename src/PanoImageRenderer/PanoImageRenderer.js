@@ -172,15 +172,24 @@ export default class PanoImageRenderer extends Component {
 		return false;
 	}
 
-	_onContentLoad(image) {
-		this._imageIsReady = true;
-
-		// 이벤트 발생. 여기에 핸들러로 render 하는 걸 넣어준다.
+	_triggerContentLoad() {
 		this.trigger(EVENTS.IMAGE_LOADED, {
 			content: this._image,
 			isVideo: this._isVideo,
 			projectionType: this._imageType
 		});
+	}
+	_onContentLoad(image) {
+		this._imageIsReady = true;
+
+		if (!this._isVideo) {
+			this._triggerContentLoad();
+		} else {
+			this._image.addEventListener("loadeddata", () => {
+				this._triggerContentLoad();
+			});
+		}
+
 		return true;
 	}
 

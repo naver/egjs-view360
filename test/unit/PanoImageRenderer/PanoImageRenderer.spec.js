@@ -1023,17 +1023,22 @@ describe("PanoImageRenderer", function() {
         IT("yaw: 0, pitch:0, fov:65 : video IE11", function(done) {
 			// Given
 			let inst = this.inst;
-			const sourceImg = new Image();
-			const isVideo = true;
+			const sourceImg = document.createElement("video");
 
 			sourceImg.src = "./images/test_equi.mp4";
+			sourceImg.load();
+			const isVideo = true;
+			const threshold = 7;
+
 			inst = new PanoImageRendererOnIE11(sourceImg, 200, 200, isVideo, {
 				initialYaw: 0,
 				initialpitch: 0,
 				imageType: "equirectangular",
 				fieldOfView: 65
 			}, DEBUG_CONTEXT_ATTRIBUTES);
+
 			inst.on("imageLoaded", when);
+
 			function when() {
 				// When
 				inst.bindTexture()
@@ -1059,8 +1064,12 @@ describe("PanoImageRenderer", function() {
 		IT("yaw: 0, pitch:0, fov:65 : video", function(done) {
 			// Given
 			let inst = this.inst;
-			const sourceImg = new Image();
+			const sourceImg = document.createElement("video");
+
+			sourceImg.src = "./images/test_equi.mp4";
+			sourceImg.load();
 			const isVideo = true;
+			const threshold = 7;
 
 			sourceImg.src = "./images/test_equi.mp4";
 			inst = new PanoImageRenderer(sourceImg, 200, 200, isVideo, {
@@ -1069,7 +1078,9 @@ describe("PanoImageRenderer", function() {
 				imageType: "equirectangular",
 				fieldOfView: 65
 			}, DEBUG_CONTEXT_ATTRIBUTES);
+
 			inst.on("imageLoaded", when);
+
 			function when() {
 				// When
 				inst.bindTexture()

@@ -10454,15 +10454,27 @@ var PanoImageRenderer = function (_Component) {
 		return false;
 	};
 
-	PanoImageRenderer.prototype._onContentLoad = function _onContentLoad(image) {
-		this._imageIsReady = true;
-
-		// 이벤트 발생. 여기에 핸들러로 render 하는 걸 넣어준다.
+	PanoImageRenderer.prototype._triggerContentLoad = function _triggerContentLoad() {
 		this.trigger(EVENTS.IMAGE_LOADED, {
 			content: this._image,
 			isVideo: this._isVideo,
 			projectionType: this._imageType
 		});
+	};
+
+	PanoImageRenderer.prototype._onContentLoad = function _onContentLoad(image) {
+		var _this2 = this;
+
+		this._imageIsReady = true;
+
+		if (!this._isVideo) {
+			this._triggerContentLoad();
+		} else {
+			this._image.addEventListener("loadeddata", function () {
+				_this2._triggerContentLoad();
+			});
+		}
+
 		return true;
 	};
 
@@ -10471,16 +10483,16 @@ var PanoImageRenderer = function (_Component) {
 	};
 
 	PanoImageRenderer.prototype.bindTexture = function bindTexture() {
-		var _this2 = this;
+		var _this3 = this;
 
 		return new _Promise(function (res, rej) {
-			if (!_this2._contentLoader) {
+			if (!_this3._contentLoader) {
 				rej("ImageLoader is not initialized");
 				return;
 			}
 
-			_this2._contentLoader.get().then(function () {
-				return _this2._bindTexture();
+			_this3._contentLoader.get().then(function () {
+				return _this3._bindTexture();
 			}, rej).then(res);
 		});
 	};
