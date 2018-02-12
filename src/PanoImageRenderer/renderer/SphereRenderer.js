@@ -1,4 +1,9 @@
+import Agent from "@egjs/agent";
 import Renderer from "./Renderer.js";
+
+const agent = Agent();
+const isIE11 = agent.browser.name === "ie" && agent.browser.version === "11.0";
+let pixelCanvas;
 
 export default class SphereRenderer extends Renderer {
 	static getVertexPositionData() {
@@ -50,9 +55,27 @@ export default class SphereRenderer extends Renderer {
 			}`;
 	}
 
+	static _getPixelSource(image) {
+		if (!pixelCanvas) {
+			return image;
+		}
+		const ctx = pixelCanvas.getContext("2d");
+		const {width, height} = this._getDimension(image);
+
+		ctx.drawImage(image, 0, 0, width, height);
+
+		return pixelCanvas;
+	}
+
+	static _getDimension(pixelSource) {
+		const width = pixelSource.naturalWidth || pixelSource.videoWidth;
+		const height = pixelSource.naturalHeight || pixelSource.videoHeight;
+
+		return {width, height};
+	}
+
 	static updateTexture(gl, image) {
-		// Draw first frame
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._getPixelSource(image));
 	}
 
 	static bindTexture(gl, texture, image) {
@@ -61,14 +84,21 @@ export default class SphereRenderer extends Renderer {
 		}
 
 		// Make sure image isn't too big
-		const width = Math.max(image.width, image.height);
-		const maxWidth = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+		const {width, height} = this._getDimension(image);
+		const size = Math.max(width, height);
+		const maxSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
 
-		if (width > maxWidth) {
+		if (size > maxSize) {
 			/* eslint-disable no-console */
-			console.warn(`Image width(${width}) exceeds device limit(${maxWidth}))`);
+			console.warn(`Image width(${width}) exceeds device limit(${maxSize}))`);
 			/* eslint-enable no-console */
 			return;
+		}
+
+		if (isIE11) {
+			pixelCanvas = document.createElement("canvas");
+			pixelCanvas.width = width;
+			pixelCanvas.height = height;
 		}
 
 		gl.activeTexture(gl.TEXTURE0);
