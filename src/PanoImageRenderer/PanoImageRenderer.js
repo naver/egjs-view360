@@ -182,12 +182,12 @@ export default class PanoImageRenderer extends Component {
 	_onContentLoad(image) {
 		this._imageIsReady = true;
 
-		if (!this._isVideo) {
-			this._triggerContentLoad();
-		} else {
+		if (this._isVideo) {
 			this._image.addEventListener("loadeddata", () => {
 				this._triggerContentLoad();
 			});
+		} else {
+			this._triggerContentLoad();
 		}
 
 		return true;

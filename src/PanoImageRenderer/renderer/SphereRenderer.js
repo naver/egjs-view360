@@ -4,6 +4,7 @@ import Renderer from "./Renderer.js";
 const agent = Agent();
 const isIE11 = agent.browser.name === "ie" && agent.browser.version === "11.0";
 let pixelCanvas;
+let pixelContext;
 
 export default class SphereRenderer extends Renderer {
 	static getVertexPositionData() {
@@ -47,10 +48,9 @@ export default class SphereRenderer extends Renderer {
 		if (!pixelCanvas) {
 			return image;
 		}
-		const ctx = pixelCanvas.getContext("2d");
 		const {width, height} = this._getDimension(image);
 
-		ctx.drawImage(image, 0, 0, width, height);
+		pixelContext.drawImage(image, 0, 0, width, height);
 
 		return pixelCanvas;
 	}
@@ -83,6 +83,7 @@ export default class SphereRenderer extends Renderer {
 			pixelCanvas = document.createElement("canvas");
 			pixelCanvas.width = width;
 			pixelCanvas.height = height;
+			pixelContext = pixelCanvas.getContext("2d");
 		}
 
 		gl.activeTexture(gl.TEXTURE0);

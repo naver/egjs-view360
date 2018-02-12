@@ -10467,12 +10467,12 @@ var PanoImageRenderer = function (_Component) {
 
 		this._imageIsReady = true;
 
-		if (!this._isVideo) {
-			this._triggerContentLoad();
-		} else {
+		if (this._isVideo) {
 			this._image.addEventListener("loadeddata", function () {
 				_this2._triggerContentLoad();
 			});
+		} else {
+			this._triggerContentLoad();
 		}
 
 		return true;
@@ -11309,6 +11309,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var agent = (0, _agent2["default"])();
 var isIE11 = agent.browser.name === "ie" && agent.browser.version === "11.0";
 var pixelCanvas = void 0;
+var pixelContext = void 0;
 
 var SphereRenderer = function (_Renderer) {
 	_inherits(SphereRenderer, _Renderer);
@@ -11343,13 +11344,12 @@ var SphereRenderer = function (_Renderer) {
 		if (!pixelCanvas) {
 			return image;
 		}
-		var ctx = pixelCanvas.getContext("2d");
 
 		var _getDimension2 = this._getDimension(image),
 		    width = _getDimension2.width,
 		    height = _getDimension2.height;
 
-		ctx.drawImage(image, 0, 0, width, height);
+		pixelContext.drawImage(image, 0, 0, width, height);
 
 		return pixelCanvas;
 	};
@@ -11385,6 +11385,7 @@ var SphereRenderer = function (_Renderer) {
 			pixelCanvas = document.createElement("canvas");
 			pixelCanvas.width = width;
 			pixelCanvas.height = height;
+			pixelContext = pixelCanvas.getContext("2d");
 		}
 
 		gl.activeTexture(gl.TEXTURE0);
