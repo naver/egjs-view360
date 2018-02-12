@@ -95,23 +95,21 @@ export default class VideoLoader {
 			}
 		}
 
-		if (this._video) {
-			// count sources to count
-			if (!this._video.getAttribute("src")) {
-				this._sourceCount = this._video.querySelectorAll("source").length;
-			} else {
-				this._sourceCount = 1;
-			}
+		// count sources to count
+		if (!this._video.getAttribute("src")) {
+			this._sourceCount = this._video.querySelectorAll("source").length;
+		} else {
+			this._sourceCount = 1;
+		}
 
-			if (this._sourceCount > 0) {
-				if (this._video.readyState < this._thresholdReadyState) {
-					this._video.load();
-					// attach loading error listener
-					this._attachErrorHandler(this._onerror);
-				}
-			} else {
-				this._video = null;
+		if (this._sourceCount > 0) {
+			if (this._video.readyState < this._thresholdReadyState) {
+				this._video.load();
+				// attach loading error listener
+				this._attachErrorHandler(this._onerror);
 			}
+		} else {
+			this._video = null;
 		}
 	}
 
@@ -135,16 +133,15 @@ export default class VideoLoader {
 			if (!this._video) {
 				rej("VideoLoader: video is undefined");
 			} else if (this._loadStatus === READY_STATUS.LOADING_FAILED) {
-				rej("VideoLoader: video source does not exist");
+				rej("VideoLoader: video source is invalid");
 			} else if (this._video.readyState >= this._thresholdReadyState) {
 				res(this._video);
 			} else {
-				// check errorCnt and rejectx
+				// check errorCnt and reject
 				const rejector = () => {
 					if (this._loadStatus === READY_STATUS.LOADING_FAILED) {
 						this._detachErrorHandler(rejector);
-						this._detachErrorHandler(this._onerror);
-						rej("VideoLoader: video source does not exist");
+						rej("VideoLoader: video source is invalid");
 					}
 				};
 

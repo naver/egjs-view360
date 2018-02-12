@@ -223,7 +223,7 @@ describe("CubeRenderer", () => {
 						done();
 					});
 				};
-			}).timeout(20000);
+			});
 
 			IT("3x2 LRUDBF", done => {
 				// Given
