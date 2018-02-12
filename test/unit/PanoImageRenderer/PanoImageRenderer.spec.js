@@ -765,18 +765,26 @@ describe("PanoImageRenderer", function() {
 				}
 			});
 
+			// This test will fail on iOS safari, because video will not start load with out use interaction.
 			IT("cubestrip 3x2: video", function(done) {
 				// Given
 				let inst = this.inst;
 				const isVideo = true;
+				const video = document.createElement("video");
 
-				inst = new PanoImageRenderer("./images/test_cube_3x2_LRUDBF.mp4", 200, 200, isVideo, {
+				video.src = "./images/test_cube_3x2_LRUDBF.mp4";
+				video.setAttribute("crossorigin", "anonymous");
+				video.setAttribute("webkit-playsinline", "");
+				video.setAttribute("playsinline", "");
+
+				inst = new PanoImageRenderer(video, 200, 200, isVideo, {
 					initialYaw: 0,
 					initialpitch: 0,
 					imageType: "cubemap",
 					fieldOfView: 65
 				}, DEBUG_CONTEXT_ATTRIBUTES);
-				inst.on("imageLoaded", when);
+
+				video.addEventListener("loadeddata", when);
 
 				function when() {
 					// When
