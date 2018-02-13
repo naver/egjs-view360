@@ -1,9 +1,5 @@
 import Component from "@egjs/component";
 import {
-	getComputedStyle,
-	requestAnimationFrame,
-	cancelAnimationFrame,
-	addEventListener,
 	DeviceMotionEvent
 } from "./browser";
 
@@ -90,8 +86,8 @@ export default class PanoViewer extends Component {
 		}, options.cubemapConfig);
 
 		// If the width and height are not provided, will use the size of the container.
-		this._width = options.width || parseInt(getComputedStyle(container).width, 10);
-		this._height = options.height || parseInt(getComputedStyle(container).height, 10);
+		this._width = options.width || parseInt(window.getComputedStyle(container).width, 10);
+		this._height = options.height || parseInt(window.getComputedStyle(container).height, 10);
 
 		this._yaw = options.yaw || 0;
 		this._pitch = options.pitch || 0;
@@ -453,9 +449,9 @@ export default class PanoViewer extends Component {
 			return;
 		}
 		this._width = (size && size.width) ||
-			parseInt(getComputedStyle(this._container).width, 10);
+			parseInt(window.getComputedStyle(this._container).width, 10);
 		this._height = (size && size.height) ||
-									parseInt(getComputedStyle(this._container).height, 10);
+									parseInt(window.getComputedStyle(this._container).height, 10);
 		this._aspectRatio = this._width / this._height;
 		this._photoSphereRenderer.updateViewportDimensions(this._width, this._height);
 		this._yawPitchControl.option("aspectRatio", this._aspectRatio);
@@ -599,19 +595,19 @@ export default class PanoViewer extends Component {
 	 */
 	_startRender() {
 		this._renderLoop = this._renderLoop.bind(this);
-		this._rafId = requestAnimationFrame(this._renderLoop);
+		this._rafId = window.requestAnimationFrame(this._renderLoop);
 	}
 
 	_renderLoop() {
 		if (this._photoSphereRenderer) {
 			this._photoSphereRenderer.render(this._yaw, this._pitch, this._fov);
 		}
-		this._rafId = requestAnimationFrame(this._renderLoop);
+		this._rafId = window.requestAnimationFrame(this._renderLoop);
 	}
 
 	_stopRender() {
 		if (this._rafId) {
-			cancelAnimationFrame(this._rafId);
+			window.cancelAnimationFrame(this._rafId);
 			delete this._rafId;
 		}
 	}
@@ -681,7 +677,7 @@ export default class PanoViewer extends Component {
 					res(isGyroSensorAvailable);
 				};
 
-				addEventListener("devicemotion", onDeviceMotionChange);
+				window.addEventListener("devicemotion", onDeviceMotionChange);
 			});
 		}
 

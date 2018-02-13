@@ -8742,8 +8742,8 @@ var PanoViewer = function (_Component) {
 		}, options.cubemapConfig);
 
 		// If the width and height are not provided, will use the size of the container.
-		_this._width = options.width || parseInt((0, _browser.getComputedStyle)(container).width, 10);
-		_this._height = options.height || parseInt((0, _browser.getComputedStyle)(container).height, 10);
+		_this._width = options.width || parseInt(window.getComputedStyle(container).width, 10);
+		_this._height = options.height || parseInt(window.getComputedStyle(container).height, 10);
 
 		_this._yaw = options.yaw || 0;
 		_this._pitch = options.pitch || 0;
@@ -9127,8 +9127,8 @@ var PanoViewer = function (_Component) {
 		if (!this._isReady) {
 			return;
 		}
-		this._width = size && size.width || parseInt((0, _browser.getComputedStyle)(this._container).width, 10);
-		this._height = size && size.height || parseInt((0, _browser.getComputedStyle)(this._container).height, 10);
+		this._width = size && size.width || parseInt(window.getComputedStyle(this._container).width, 10);
+		this._height = size && size.height || parseInt(window.getComputedStyle(this._container).height, 10);
 		this._aspectRatio = this._width / this._height;
 		this._photoSphereRenderer.updateViewportDimensions(this._width, this._height);
 		this._yawPitchControl.option("aspectRatio", this._aspectRatio);
@@ -9293,19 +9293,19 @@ var PanoViewer = function (_Component) {
 
 	PanoViewer.prototype._startRender = function _startRender() {
 		this._renderLoop = this._renderLoop.bind(this);
-		this._rafId = (0, _browser.requestAnimationFrame)(this._renderLoop);
+		this._rafId = window.requestAnimationFrame(this._renderLoop);
 	};
 
 	PanoViewer.prototype._renderLoop = function _renderLoop() {
 		if (this._photoSphereRenderer) {
 			this._photoSphereRenderer.render(this._yaw, this._pitch, this._fov);
 		}
-		this._rafId = (0, _browser.requestAnimationFrame)(this._renderLoop);
+		this._rafId = window.requestAnimationFrame(this._renderLoop);
 	};
 
 	PanoViewer.prototype._stopRender = function _stopRender() {
 		if (this._rafId) {
-			(0, _browser.cancelAnimationFrame)(this._rafId);
+			window.cancelAnimationFrame(this._rafId);
 			delete this._rafId;
 		}
 	};
@@ -9381,7 +9381,7 @@ var PanoViewer = function (_Component) {
 					res(isGyroSensorAvailable);
 				};
 
-				(0, _browser.addEventListener)("devicemotion", onDeviceMotionChange);
+				window.addEventListener("devicemotion", onDeviceMotionChange);
 			});
 		}
 
@@ -10862,10 +10862,6 @@ exports.__esModule = true;
 var win = window;
 
 exports.window = win;
-var getComputedStyle = exports.getComputedStyle = win.getComputedStyle;
-var requestAnimationFrame = exports.requestAnimationFrame = win.requestAnimationFrame;
-var cancelAnimationFrame = exports.cancelAnimationFrame = win.cancelAnimationFrame;
-var addEventListener = exports.addEventListener = win.addEventListener;
 var DeviceMotionEvent = exports.DeviceMotionEvent = win.DeviceMotionEvent;
 
 /***/ }),

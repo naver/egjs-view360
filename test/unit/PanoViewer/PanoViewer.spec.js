@@ -234,11 +234,7 @@ describe("PanoViewer", function() {
 			var MockedPanoViewer = PanoViewerInjector(
 				{
 					"./browser": {
-						DeviceMotionEvent: null,
-						getComputedStyle: window.getComputedStyle,
-						requestAnimationFrame: window.requestAnimationFrame,
-						cancelAnimationFrame: window.cancelAnimationFrame,
-						addEventListener: window.addEventListener
+						DeviceMotionEvent: null
 					}
 				}
 			).default;
