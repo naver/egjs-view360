@@ -81,6 +81,41 @@ describe("PanoViewer", function() {
 			expect(panoViewer.getVideo()).to.be.null;
 		});
 
+		IT("should work with video", function(done) {
+			// given
+			var videlEl = document.createElement("video");
+			videlEl.setAttribute("src", "./images/PanoViewer/pano.mp4");
+			var readyTriggered = false;
+
+			// when
+			panoViewer = new PanoViewer(target, {
+				video: videlEl
+			}).on("ready", function() {
+				readyTriggered = true;
+				// then			
+				expect(readyTriggered).to.be.true;
+				done();
+			});
+
+		});
+
+		IT("should work with video when src defined after initiate PanoViewer", function(done) {
+			// given
+			var videlEl = document.createElement("video");
+			var readyTriggered = false;
+			panoViewer = new PanoViewer(target, {
+				video: videlEl
+			}).on("ready", function() {
+				readyTriggered = true;
+				// then			
+				expect(readyTriggered).to.be.true;
+				done();
+			});
+
+			// when
+			videlEl.setAttribute("src", "./images/PanoViewer/pano.mp4");
+		});
+
 		IT("should config cubemap layout", done => {
 			// Given
 			var MockedPanoViewer = PanoViewerInjector(
