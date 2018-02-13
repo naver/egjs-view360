@@ -228,6 +228,28 @@ describe("PanoViewer", function() {
 		});
 	});
 
+	describe("static", function() {
+		IT("should isGyroSensorAvailable return false when DeviceMotionEvent not exist.", function(done) {
+			// Given
+			var MockedPanoViewer = PanoViewerInjector(
+				{
+					"./browser": {
+						DeviceMotionEvent: null,
+						getComputedStyle: window.getComputedStyle,
+						requestAnimationFrame: window.requestAnimationFrame,
+						cancelAnimationFrame: window.cancelAnimationFrame,
+						addEventListener: window.addEventListener
+					}
+				}
+			).default;
+
+			MockedPanoViewer.isGyroSensorAvailable(function(isGyroSensorAvailable) {
+				expect(isGyroSensorAvailable).to.be.false;
+				done();
+			});
+		});
+	});
+
 	describe("#setImage/getImage", function() {
 		let target;
 		let panoViewer;

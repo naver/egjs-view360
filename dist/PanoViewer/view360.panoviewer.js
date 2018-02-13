@@ -105,19 +105,19 @@ var _common = __webpack_require__(2);
 
 var _common2 = _interopRequireDefault(_common);
 
-var _vec = __webpack_require__(36);
+var _vec = __webpack_require__(37);
 
 var _vec2 = _interopRequireDefault(_vec);
 
-var _vec3 = __webpack_require__(35);
+var _vec3 = __webpack_require__(36);
 
 var _vec4 = _interopRequireDefault(_vec3);
 
-var _quat = __webpack_require__(34);
+var _quat = __webpack_require__(35);
 
 var _quat2 = _interopRequireDefault(_quat);
 
-var _mat = __webpack_require__(33);
+var _mat = __webpack_require__(34);
 
 var _mat2 = _interopRequireDefault(_mat);
 
@@ -1980,7 +1980,7 @@ return Promise$1;
 
 //# sourceMappingURL=es6-promise.map
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(37), __webpack_require__(38)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(38), __webpack_require__(39)))
 
 /***/ }),
 /* 5 */
@@ -3218,7 +3218,7 @@ exports.toAxis = toAxis;
 exports.__esModule = true;
 exports.YawPitchControl = undefined;
 
-var _YawPitchControl = __webpack_require__(27);
+var _YawPitchControl = __webpack_require__(28);
 
 var _YawPitchControl2 = _interopRequireDefault(_YawPitchControl);
 
@@ -3251,6 +3251,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
+
+var _browser = __webpack_require__(27);
 
 var _YawPitchControl = __webpack_require__(15);
 
@@ -3363,8 +3365,8 @@ var PanoViewer = function (_Component) {
 		}, options.cubemapConfig);
 
 		// If the width and height are not provided, will use the size of the container.
-		_this._width = options.width || parseInt(window.getComputedStyle(container).width, 10);
-		_this._height = options.height || parseInt(window.getComputedStyle(container).height, 10);
+		_this._width = options.width || parseInt((0, _browser.getComputedStyle)(container).width, 10);
+		_this._height = options.height || parseInt((0, _browser.getComputedStyle)(container).height, 10);
 
 		_this._yaw = options.yaw || 0;
 		_this._pitch = options.pitch || 0;
@@ -3748,8 +3750,8 @@ var PanoViewer = function (_Component) {
 		if (!this._isReady) {
 			return;
 		}
-		this._width = size && size.width || parseInt(window.getComputedStyle(this._container).width, 10);
-		this._height = size && size.height || parseInt(window.getComputedStyle(this._container).height, 10);
+		this._width = size && size.width || parseInt((0, _browser.getComputedStyle)(this._container).width, 10);
+		this._height = size && size.height || parseInt((0, _browser.getComputedStyle)(this._container).height, 10);
 		this._aspectRatio = this._width / this._height;
 		this._photoSphereRenderer.updateViewportDimensions(this._width, this._height);
 		this._yawPitchControl.option("aspectRatio", this._aspectRatio);
@@ -3914,19 +3916,19 @@ var PanoViewer = function (_Component) {
 
 	PanoViewer.prototype._startRender = function _startRender() {
 		this._renderLoop = this._renderLoop.bind(this);
-		this._rafId = window.requestAnimationFrame(this._renderLoop);
+		this._rafId = (0, _browser.requestAnimationFrame)(this._renderLoop);
 	};
 
 	PanoViewer.prototype._renderLoop = function _renderLoop() {
 		if (this._photoSphereRenderer) {
 			this._photoSphereRenderer.render(this._yaw, this._pitch, this._fov);
 		}
-		this._rafId = window.requestAnimationFrame(this._renderLoop);
+		this._rafId = (0, _browser.requestAnimationFrame)(this._renderLoop);
 	};
 
 	PanoViewer.prototype._stopRender = function _stopRender() {
 		if (this._rafId) {
-			window.cancelAnimationFrame(this._rafId);
+			(0, _browser.cancelAnimationFrame)(this._rafId);
 			delete this._rafId;
 		}
 	};
@@ -3987,7 +3989,7 @@ var PanoViewer = function (_Component) {
 
 
 	PanoViewer.isGyroSensorAvailable = function isGyroSensorAvailable(callback) {
-		if ("DeviceMotionEvent" in window === false || !window.DeviceMotionEvent) {
+		if (!_browser.DeviceMotionEvent) {
 			callback && callback(false);
 			return;
 		}
@@ -4002,7 +4004,7 @@ var PanoViewer = function (_Component) {
 					res(isGyroSensorAvailable);
 				};
 
-				window.addEventListener("devicemotion", onDeviceMotionChange);
+				(0, _browser.addEventListener)("devicemotion", onDeviceMotionChange);
 			});
 		}
 
@@ -5481,6 +5483,26 @@ SphereRenderer._initData();
 
 exports.__esModule = true;
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var win = typeof window === "undefined" ? "undefined" : _typeof(window);
+
+exports.window = win;
+var getComputedStyle = exports.getComputedStyle = win.getComputedStyle;
+var requestAnimationFrame = exports.requestAnimationFrame = win.requestAnimationFrame;
+var cancelAnimationFrame = exports.cancelAnimationFrame = win.cancelAnimationFrame;
+var addEventListener = exports.addEventListener = win.addEventListener;
+var DeviceMotionEvent = exports.DeviceMotionEvent = win.DeviceMotionEvent;
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _component = __webpack_require__(0);
@@ -5493,11 +5515,11 @@ var _axes2 = _interopRequireDefault(_axes);
 
 var _browser = __webpack_require__(7);
 
-var _WheelInput = __webpack_require__(32);
+var _WheelInput = __webpack_require__(33);
 
 var _WheelInput2 = _interopRequireDefault(_WheelInput);
 
-var _TiltMotionInput = __webpack_require__(31);
+var _TiltMotionInput = __webpack_require__(32);
 
 var _TiltMotionInput2 = _interopRequireDefault(_TiltMotionInput);
 
@@ -6075,7 +6097,7 @@ YawPitchControl.VERSION = "3.0.0-rc";
 exports["default"] = YawPitchControl;
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6087,7 +6109,7 @@ var _mathUtil = __webpack_require__(5);
 
 var _mathUtil2 = _interopRequireDefault(_mathUtil);
 
-var _complementaryFilter = __webpack_require__(39);
+var _complementaryFilter = __webpack_require__(40);
 
 var _complementaryFilter2 = _interopRequireDefault(_complementaryFilter);
 
@@ -6161,7 +6183,7 @@ _complementaryFilter2["default"].prototype.getOrientation = function () {
 exports["default"] = _complementaryFilter2["default"];
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6271,7 +6293,7 @@ var DeviceMotion = function (_Component) {
 exports["default"] = DeviceMotion;
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6283,7 +6305,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _posePredictor = __webpack_require__(40);
+var _posePredictor = __webpack_require__(41);
 
 var _posePredictor2 = _interopRequireDefault(_posePredictor);
 
@@ -6299,11 +6321,11 @@ var _browser = __webpack_require__(7);
 
 var _mathUtil3 = __webpack_require__(1);
 
-var _DeviceMotion = __webpack_require__(29);
+var _DeviceMotion = __webpack_require__(30);
 
 var _DeviceMotion2 = _interopRequireDefault(_DeviceMotion);
 
-var _ComplementaryFilter = __webpack_require__(28);
+var _ComplementaryFilter = __webpack_require__(29);
 
 var _ComplementaryFilter2 = _interopRequireDefault(_ComplementaryFilter);
 
@@ -6510,7 +6532,7 @@ var FusionPoseSensor = function (_Component) {
 exports["default"] = FusionPoseSensor;
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6526,7 +6548,7 @@ var _component2 = _interopRequireDefault(_component);
 
 var _utils = __webpack_require__(14);
 
-var _FusionPoseSensor = __webpack_require__(30);
+var _FusionPoseSensor = __webpack_require__(31);
 
 var _FusionPoseSensor2 = _interopRequireDefault(_FusionPoseSensor);
 
@@ -6641,7 +6663,7 @@ var TiltMotionInput = function (_Component) {
 exports["default"] = TiltMotionInput;
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6737,7 +6759,7 @@ var WheelInput = function (_Component) {
 exports["default"] = WheelInput;
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6936,7 +6958,7 @@ mat4.perspective = function (out, fovy, aspect, near, far) {
 module.exports = mat4;
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7057,7 +7079,7 @@ quat.equals = function (a, b) {
 module.exports = quat;
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7090,7 +7112,7 @@ vec2.copy = function (out, a) {
 module.exports = vec2;
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7291,7 +7313,7 @@ vec3.transformQuat = function (out, a, q) {
 module.exports = vec3;
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -7481,7 +7503,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports) {
 
 var g;
@@ -7508,7 +7530,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -7526,7 +7548,7 @@ module.exports = g;
  * limitations under the License.
  */
 
-var SensorSample = __webpack_require__(41);
+var SensorSample = __webpack_require__(42);
 var MathUtil = __webpack_require__(5);
 var Util = __webpack_require__(9);
 
@@ -7680,7 +7702,7 @@ module.exports = ComplementaryFilter;
 
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -7767,7 +7789,7 @@ module.exports = PosePredictor;
 
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports) {
 
 function SensorSample(sample, timestampS) {
