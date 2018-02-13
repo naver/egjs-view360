@@ -93,23 +93,18 @@ export default class VideoLoader {
 			} else {
 				this._appendSourceElement(video);
 			}
-		}
 
-		// count sources to count
-		if (!this._video.getAttribute("src")) {
 			this._sourceCount = this._video.querySelectorAll("source").length;
-		} else {
-			this._sourceCount = 1;
-		}
 
-		if (this._sourceCount > 0) {
-			if (this._video.readyState < this._thresholdReadyState) {
-				this._video.load();
-				// attach loading error listener
-				this._attachErrorHandler(this._onerror);
+			if (this._sourceCount > 0) {
+				if (this._video.readyState < this._thresholdReadyState) {
+					this._video.load();
+					// attach loading error listener
+					this._attachErrorHandler(this._onerror);
+				}
+			} else {
+				this._video = null;
 			}
-		} else {
-			this._video = null;
 		}
 	}
 

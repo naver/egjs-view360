@@ -86,7 +86,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 57);
+/******/ 	return __webpack_require__(__webpack_require__.s = 58);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -590,19 +590,19 @@ var _common = __webpack_require__(4);
 
 var _common2 = _interopRequireDefault(_common);
 
-var _vec = __webpack_require__(51);
+var _vec = __webpack_require__(52);
 
 var _vec2 = _interopRequireDefault(_vec);
 
-var _vec3 = __webpack_require__(50);
+var _vec3 = __webpack_require__(51);
 
 var _vec4 = _interopRequireDefault(_vec3);
 
-var _quat = __webpack_require__(49);
+var _quat = __webpack_require__(50);
 
 var _quat2 = _interopRequireDefault(_quat);
 
-var _mat = __webpack_require__(48);
+var _mat = __webpack_require__(49);
 
 var _mat2 = _interopRequireDefault(_mat);
 
@@ -5369,7 +5369,7 @@ return Promise$1;
 
 //# sourceMappingURL=es6-promise.map
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(52), __webpack_require__(53)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(53), __webpack_require__(54)))
 
 /***/ }),
 /* 10 */
@@ -8947,7 +8947,7 @@ exports.WheelInput = WheelInput;
 exports.__esModule = true;
 exports.YawPitchControl = undefined;
 
-var _YawPitchControl = __webpack_require__(42);
+var _YawPitchControl = __webpack_require__(43);
 
 var _YawPitchControl2 = _interopRequireDefault(_YawPitchControl);
 
@@ -8980,6 +8980,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
+
+var _browser = __webpack_require__(42);
 
 var _YawPitchControl = __webpack_require__(30);
 
@@ -9716,7 +9718,7 @@ var PanoViewer = function (_Component) {
 
 
 	PanoViewer.isGyroSensorAvailable = function isGyroSensorAvailable(callback) {
-		if ("DeviceMotionEvent" in window === false || !window.DeviceMotionEvent) {
+		if (!_browser.DeviceMotionEvent) {
 			callback && callback(false);
 			return;
 		}
@@ -10887,23 +10889,18 @@ var VideoLoader = function () {
 			} else {
 				this._appendSourceElement(video);
 			}
-		}
 
-		// count sources to count
-		if (!this._video.getAttribute("src")) {
 			this._sourceCount = this._video.querySelectorAll("source").length;
-		} else {
-			this._sourceCount = 1;
-		}
 
-		if (this._sourceCount > 0) {
-			if (this._video.readyState < this._thresholdReadyState) {
-				this._video.load();
-				// attach loading error listener
-				this._attachErrorHandler(this._onerror);
+			if (this._sourceCount > 0) {
+				if (this._video.readyState < this._thresholdReadyState) {
+					this._video.load();
+					// attach loading error listener
+					this._attachErrorHandler(this._onerror);
+				}
+			} else {
+				this._video = null;
 			}
-		} else {
-			this._video = null;
 		}
 	};
 
@@ -11458,6 +11455,19 @@ SphereRenderer._initData();
 
 
 exports.__esModule = true;
+var win = window;
+
+exports.window = win;
+var DeviceMotionEvent = exports.DeviceMotionEvent = win.DeviceMotionEvent;
+
+/***/ }),
+/* 43 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -11471,11 +11481,11 @@ var _axes2 = _interopRequireDefault(_axes);
 
 var _browser = __webpack_require__(13);
 
-var _WheelInput = __webpack_require__(47);
+var _WheelInput = __webpack_require__(48);
 
 var _WheelInput2 = _interopRequireDefault(_WheelInput);
 
-var _TiltMotionInput = __webpack_require__(46);
+var _TiltMotionInput = __webpack_require__(47);
 
 var _TiltMotionInput2 = _interopRequireDefault(_TiltMotionInput);
 
@@ -12053,7 +12063,7 @@ YawPitchControl.VERSION = "3.0.0-rc";
 exports["default"] = YawPitchControl;
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12065,7 +12075,7 @@ var _mathUtil = __webpack_require__(10);
 
 var _mathUtil2 = _interopRequireDefault(_mathUtil);
 
-var _complementaryFilter = __webpack_require__(54);
+var _complementaryFilter = __webpack_require__(55);
 
 var _complementaryFilter2 = _interopRequireDefault(_complementaryFilter);
 
@@ -12139,7 +12149,7 @@ _complementaryFilter2["default"].prototype.getOrientation = function () {
 exports["default"] = _complementaryFilter2["default"];
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12249,7 +12259,7 @@ var DeviceMotion = function (_Component) {
 exports["default"] = DeviceMotion;
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12261,7 +12271,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _posePredictor = __webpack_require__(55);
+var _posePredictor = __webpack_require__(56);
 
 var _posePredictor2 = _interopRequireDefault(_posePredictor);
 
@@ -12277,11 +12287,11 @@ var _browser = __webpack_require__(13);
 
 var _mathUtil3 = __webpack_require__(2);
 
-var _DeviceMotion = __webpack_require__(44);
+var _DeviceMotion = __webpack_require__(45);
 
 var _DeviceMotion2 = _interopRequireDefault(_DeviceMotion);
 
-var _ComplementaryFilter = __webpack_require__(43);
+var _ComplementaryFilter = __webpack_require__(44);
 
 var _ComplementaryFilter2 = _interopRequireDefault(_ComplementaryFilter);
 
@@ -12488,7 +12498,7 @@ var FusionPoseSensor = function (_Component) {
 exports["default"] = FusionPoseSensor;
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12504,7 +12514,7 @@ var _component2 = _interopRequireDefault(_component);
 
 var _utils = __webpack_require__(20);
 
-var _FusionPoseSensor = __webpack_require__(45);
+var _FusionPoseSensor = __webpack_require__(46);
 
 var _FusionPoseSensor2 = _interopRequireDefault(_FusionPoseSensor);
 
@@ -12619,7 +12629,7 @@ var TiltMotionInput = function (_Component) {
 exports["default"] = TiltMotionInput;
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12715,7 +12725,7 @@ var WheelInput = function (_Component) {
 exports["default"] = WheelInput;
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12914,7 +12924,7 @@ mat4.perspective = function (out, fovy, aspect, near, far) {
 module.exports = mat4;
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13035,7 +13045,7 @@ quat.equals = function (a, b) {
 module.exports = quat;
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13068,7 +13078,7 @@ vec2.copy = function (out, a) {
 module.exports = vec2;
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13269,7 +13279,7 @@ vec3.transformQuat = function (out, a, q) {
 module.exports = vec3;
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -13459,7 +13469,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports) {
 
 var g;
@@ -13486,7 +13496,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -13504,7 +13514,7 @@ module.exports = g;
  * limitations under the License.
  */
 
-var SensorSample = __webpack_require__(56);
+var SensorSample = __webpack_require__(57);
 var MathUtil = __webpack_require__(10);
 var Util = __webpack_require__(15);
 
@@ -13658,7 +13668,7 @@ module.exports = ComplementaryFilter;
 
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -13745,7 +13755,7 @@ module.exports = PosePredictor;
 
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports) {
 
 function SensorSample(sample, timestampS) {
@@ -13765,7 +13775,7 @@ module.exports = SensorSample;
 
 
 /***/ }),
-/* 57 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

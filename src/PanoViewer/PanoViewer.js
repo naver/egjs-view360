@@ -1,4 +1,7 @@
 import Component from "@egjs/component";
+import {
+	DeviceMotionEvent
+} from "./browser";
 
 import {YawPitchControl} from "../YawPitchControl";
 import {PanoImageRenderer} from "../PanoImageRenderer";
@@ -659,7 +662,7 @@ export default class PanoViewer extends Component {
 	 * @static
 	 */
 	static isGyroSensorAvailable(callback) {
-		if (("DeviceMotionEvent" in window) === false || !window.DeviceMotionEvent) {
+		if (!DeviceMotionEvent) {
 			callback && callback(false);
 			return;
 		}

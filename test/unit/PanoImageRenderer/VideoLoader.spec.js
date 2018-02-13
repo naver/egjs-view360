@@ -114,29 +114,6 @@ describe("VideoLoader", function() {
 				});
 		});
 
-		it("should reject when src on video tag is invalid, and has valid sorce tags", function() {
-			// Given && When
-			const videoEl = document.createElement("video");
-			const sourceEl1 = document.createElement("source");
-			const sourceEl2 = document.createElement("source");
-
-			videoEl.src = "./images/PanoViewer/invalid.mp4";
-			sourceEl1.src = "./images/PanoViewer/pano.mp4";
-			sourceEl2.src = "./images/PanoViewer/pano.mp4";
-			videoEl.appendChild(sourceEl1);
-			videoEl.appendChild(sourceEl2);
-			videoEl.load();
-
-			this.inst = new VideoLoader(videoEl);
-
-			expect(this.inst).to.be.exist;
-
-			// Then
-			return this.inst.get()
-				.then(() => false, () => true);
-		});
-
-
 		it("should fails when url is invalid#1", function() {
 			this.inst = new VideoLoader("https://invalidurl.png");
 
