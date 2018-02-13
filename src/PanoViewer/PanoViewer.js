@@ -6,6 +6,7 @@ import {
 	addEventListener,
 	DeviceMotionEvent
 } from "./browser";
+
 import {YawPitchControl} from "../YawPitchControl";
 import {PanoImageRenderer} from "../PanoImageRenderer";
 import WebGLUtils from "../PanoImageRenderer/WebGLUtils";
