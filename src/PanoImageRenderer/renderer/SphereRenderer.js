@@ -50,7 +50,15 @@ export default class SphereRenderer extends Renderer {
 		}
 		const {width, height} = this._getDimension(image);
 
-		pixelContext.drawImage(image, 0, 0, width, height);
+		if (pixelCanvas.width !== width) {
+			pixelCanvas.width = width;
+		}
+
+		if (pixelCanvas.height !== height) {
+			pixelCanvas.height = height;
+		}
+
+		pixelContext.drawImage(image, 0, 0);
 
 		return pixelCanvas;
 	}

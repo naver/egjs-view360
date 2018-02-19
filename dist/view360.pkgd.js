@@ -11346,7 +11346,15 @@ var SphereRenderer = function (_Renderer) {
 		    width = _getDimension2.width,
 		    height = _getDimension2.height;
 
-		pixelContext.drawImage(image, 0, 0, width, height);
+		if (pixelCanvas.width !== width) {
+			pixelCanvas.width = width;
+		}
+
+		if (pixelCanvas.height !== height) {
+			pixelCanvas.height = height;
+		}
+
+		pixelContext.drawImage(image, 0, 0);
 
 		return pixelCanvas;
 	};
