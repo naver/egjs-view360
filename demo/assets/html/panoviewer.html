@@ -1,3 +1,4 @@
+<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <div>
     <style>
     #panoviewer-showcase {
@@ -10,12 +11,13 @@
     <div id="panoviewer-showcase">
 
     </div>
+	<script type="text/javascript" src="https://naver.github.io/egjs-view360/release/latest/dist/PanoViewer/view360.panoviewer.pkgd.js"></script>
     <script>
         var container = document.getElementById("panoviewer-showcase");
         var PanoViewer = eg.view360.PanoViewer;
         var panoViewer = new PanoViewer(container, {
             yaw: 90,
-            image: "./assets/img/test_equi.png"
+            image: "../img/test_equi.png"
         }).on("ready", function() {
             panoViewer.lookAt({
                 yaw: 0

@@ -9,6 +9,10 @@
   <!--<link rel="stylesheet" href="./css/pure.css">-->
   <link rel="stylesheet" href="../css/pano-viewer.css">
   <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
     section {
       width: 100%;
     }
@@ -34,8 +38,7 @@
   <div>
     <section class="container">
       <h2>PanoVideo</h2>
-      <h3>Available on Chrome Browser</h3>
-      Video Source: <a href="https://github.com/mrdoob/three.js/blob/master/examples/textures/pano.webm">https://github.com/mrdoob/three.js/blob/master/examples/textures/pano.webm</a>
+      Video Source: <a href="https://github.com/mrdoob/three.js/blob/master/examples/textures/pano.webm">pano.webm</a>
       <!--<div class="360-area">-->
         <video id="videoSrc" style="width:100%;height:400px;display:none" webkit-playsinline playsinline loop crossorigin="anonymous">
           <source src="../img/PanoViewer/pano.webm" type="video/webm">
@@ -58,10 +61,9 @@
     var video;
     var panoViewer = new eg.view360.PanoViewer(rootNode, {
       video: document.getElementById("videoSrc"),
-      imageType: "equirectangular",
-      controlMode: "gallery_yaw_pitch"
-    }).on("contentLoaded", function(e) {
-      video = e.content;
+      projectionType: "equirectangular",
+    }).on("ready", function(e) {
+      video = panoViewer.getVideo();
       document.getElementById("play").addEventListener("click", function() {
         video.play();
       });
