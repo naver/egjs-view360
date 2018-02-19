@@ -3,7 +3,7 @@ import {window} from "../../../src/YawPitchControl/browser";
 import ScreenRotationAngle from "../../../src/YawPitchControl/ScreenRotationAngle";
 import ScreenRotationAngleInjector from "inject-loader!../../../src/YawPitchControl/ScreenRotationAngle";
 
-describe.only("ScreenRotationAngle", function() {
+describe("ScreenRotationAngle", function() {
 	describe("#constructor", function() {
 		it("Instance", () => {
 			// Given
