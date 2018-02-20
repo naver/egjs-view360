@@ -2,7 +2,7 @@ import {window} from "../../../src/YawPitchControl/browser";
 import RotationPanInput from "../../../src/YawPitchControl/input/RotationPanInput";
 import RotationPanInputInjector from "inject-loader!../../../src/YawPitchControl/input/RotationPanInput";
 
-describe.only("RotationPanInput", function() {
+describe("RotationPanInput", function() {
 	describe("#constructor", function() {
 		beforeEach(() => {
 			this.el = sandbox();
