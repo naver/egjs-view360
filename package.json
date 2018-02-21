@@ -37,10 +37,10 @@
 		"url": "https://github.com/naver/egjs-view360/issues"
 	},
 	"dependencies": {
-		"@egjs/agent": "^2.1.1",
+		"@egjs/agent": "^2.1.2",
 		"@egjs/axes": "^2.5.0",
-		"@egjs/component": "^2.0.0",
-		"es6-promise": "^4.1.1",
+		"@egjs/component": "^2.1.0",
+		"es6-promise": "^4.2.2",
 		"webvr-polyfill": "^0.9.16"
 	},
 	"devDependencies": {
