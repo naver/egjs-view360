@@ -90,6 +90,7 @@ export default class PanoViewer extends Component {
 		this._fov = options.fov || 65;
 
 		this._useGyro = options.useGyro || GYRO_MODE.YAWPITCH;
+		this._quaternion = null;
 
 		this._aspectRatio = this._width / this._height;
 		const fovRange = options.fovRange || [30, 110];
@@ -244,6 +245,7 @@ export default class PanoViewer extends Component {
 			.bindTexture()
 			.then(() => this._activate())
 			.catch(() => {
+				// TODO: Remove exception on catch
 				this._triggerEvent(EVENTS.ERROR, {
 					type: ERROR_TYPE.FAIL_BIND_TEXTURE,
 					message: "failed to bind texture"
@@ -280,6 +282,7 @@ export default class PanoViewer extends Component {
 			this._yaw = e.yaw;
 			this._pitch = e.pitch;
 			this._fov = e.fov;
+			this._quaternion = e.quaternion;
 
 			this._triggerEvent(EVENTS.VIEW_CHANGE, e);
 		});
@@ -596,7 +599,11 @@ export default class PanoViewer extends Component {
 
 	_renderLoop() {
 		if (this._photoSphereRenderer) {
-			this._photoSphereRenderer.render(this._yaw, this._pitch, this._fov);
+			if (this._quaternion) {
+				this._photoSphereRenderer.renderWithQuaternion(this._quaternion, this._fov);
+			} else {
+				this._photoSphereRenderer.render(this._yaw, this._pitch, this._fov);
+			}
 		}
 		this._rafId = window.requestAnimationFrame(this._renderLoop);
 	}

@@ -8,13 +8,16 @@ import {
 	MC_DECELERATION,
 	MAX_FIELD_OF_VIEW,
 	KEYMAP,
-	GYRO_MODE
+	GYRO_MODE,
+	YAW_RANGE_HALF,
+	CIRCULAR_PITCH_RANGE_HALF
 } from "../../../src/YawPitchControl/consts";
 import YawPitchControl from "../../../src/YawPitchControl/YawPitchControl";
 import TestHelper from "./testHelper";
 
 import YawPitchControlrInjector from "inject-loader!../../../src/YawPitchControl/YawPitchControl";
 import devicemotionRotateSample from "./devicemotionSampleRotate";
+import {glMatrix, quat} from "../../../src/utils/math-util.js";
 
 const INTERVAL = 1000 / 60.0;
 
@@ -128,7 +131,7 @@ describe("YawPitchControl", function() {
 			var callback = sinon.spy();
 
 			setTimeout(() => {
-				this.inst.on("change", callback);
+				this.inst.on("change", () => callback);
 
 				// When
 				Simulator.gestures.pan(target, { // this.el 이 300 * 300 이라고 가정
@@ -283,7 +286,7 @@ describe("YawPitchControl", function() {
 			}, () => {
 				// Then
 				expect(isTrustedOnHold).to.be.true;
-				expect(isTrustedOnChange).to.be.true;				
+				expect(isTrustedOnChange).to.be.true;
 				done();
 			});
 		});
@@ -1252,8 +1255,8 @@ describe("YawPitchControl", function() {
 			TestHelper.wheelVertical(targetEl , 100, () => {
 				// then
 				let pitch = this.inst.getPitch();
-				expect(this.inst.getPitch()).to.equal(-73);	
-				done();	
+				expect(this.inst.getPitch()).to.equal(-73);
+				done();
 			});
 		});
 
@@ -1287,12 +1290,12 @@ describe("YawPitchControl", function() {
 		// 						});
 		// 					})
 		// 				]).then(() => {
-		// 					res();							
+		// 					res();
 		// 				});
 		// 			}, delay);
 		// 		}));
 		// 	}
-		
+
 		// 	// When
 		// 	Promise.all(getDownPromises(3, 100)).then(() => {
 		// 		console.log(this.inst.getPitch());
@@ -1300,8 +1303,8 @@ describe("YawPitchControl", function() {
 		// 	// TestHelper.wheelVertical(targetEl , 100, () => {
 		// 	// 	// then
 		// 	// 	let pitch = this.inst.getPitch();
-		// 	// 	expect(this.inst.getPitch()).to.equal(-73);	
-		// 	// 	done();	
+		// 	// 	expect(this.inst.getPitch()).to.equal(-73);
+		// 	// 	done();
 		// 	// });
 		// });
 
@@ -1313,7 +1316,7 @@ describe("YawPitchControl", function() {
 				fov: 30,
 				showPolePoint: false
 			});
-			
+
 			function getWheelPromises(count, duration) {
 				return Array.apply(null, {length: count})
 				.map(Number.call, Number)
@@ -1329,11 +1332,11 @@ describe("YawPitchControl", function() {
 
 			// When
 			const wheelP = getWheelPromises(20, 1000);
-			
+
 			Promise.all(wheelP).then(() => {
 				// then
-				expect(this.inst.getPitch()).to.be.equal(-35);	
-				done();			
+				expect(this.inst.getPitch()).to.be.equal(-35);
+				done();
 			});
 		});
 	});
@@ -1469,6 +1472,87 @@ describe("YawPitchControl", function() {
 				expect(triggered).to.be.true;
 				done();
 			}
+		});
+	});
+
+	describe("VR Mode", () => {
+		let target;
+		class MockDeviceQuaternion {
+			constructor() {
+				this._timer = null;
+			}
+			getCombineQuaternion(yaw, pitch) {
+				return quat.create();
+			}
+			on(eventName, callback) {
+				this._timer = setInterval(() => {
+					callback({isTrusted: true});
+				}, 50)
+			}
+			destroy(){
+				this._timer && clearInterval(this._timer);
+			}
+		}
+		const DeviceQuaternionMockYawPitchControl = YawPitchControlrInjector({
+			"./DeviceQuaternion": MockDeviceQuaternion
+		}).default;
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+			this.inst = new DeviceQuaternionMockYawPitchControl({
+				element: target,
+				useGyro: GYRO_MODE.VR
+			});
+		});
+
+		afterEach(() => {
+			this.inst && this.inst.destroy();
+			target && target.remove();
+			target = null;
+		});
+
+		it("should ignore yaw/pitch range option. it use circular range.", () => {
+			// Given
+			this.inst.option({
+				"yawRange": [-100, 100],
+				"pitchRange": [-70, 70]
+			});
+
+			// When
+			let negativePos, positivePos, circularPos;
+
+			// negative max
+			this.inst.lookAt({yaw: -YAW_RANGE_HALF, pitch: -CIRCULAR_PITCH_RANGE_HALF}, 0);
+			negativePos = this.inst.get();
+
+			// positive max
+			this.inst.lookAt({yaw: YAW_RANGE_HALF, pitch: CIRCULAR_PITCH_RANGE_HALF}, 0);
+			positivePos = this.inst.get();
+
+			// if pos is over max, circular value should be return
+			this.inst.lookAt({yaw: YAW_RANGE_HALF + 1, pitch: -CIRCULAR_PITCH_RANGE_HALF - 1}, 0);
+			circularPos = this.inst.get();
+
+			// Then
+			expect(negativePos.yaw).to.equal(-YAW_RANGE_HALF);
+			expect(negativePos.pitch).to.equal(-CIRCULAR_PITCH_RANGE_HALF);
+
+			expect(positivePos.yaw).to.equal(YAW_RANGE_HALF);
+			expect(positivePos.pitch).to.equal(CIRCULAR_PITCH_RANGE_HALF);
+
+			expect(circularPos.yaw).to.equal(-YAW_RANGE_HALF + 1);
+			expect(circularPos.pitch).to.equal(CIRCULAR_PITCH_RANGE_HALF - 1);
+		});
+
+		it("should trigger event which has quaternion property if device moves on VR mode", done => {
+			// Given
+			// When
+			this.inst.on("change", e => {
+				// Then
+				expect(e.quaternion).to.be.exist;
+				done();
+			});
 		});
 	});
 });
