@@ -42,7 +42,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 	 * @param {Boolean} [optiosn.showPolePoint=true] Indicates whether pole is shown
 	 * @param {Boolean} [options.useZoom=true] Indicates whether zoom is available
 	 * @param {Boolean} [options.useKeyboard=true] Indicates whether keyboard is enabled
-	 * @param {String} [config.useGyro=yawPitch] Enables control through device motion.
+	 * @param {String} [config.gyroMode=yawPitch] Enables control through device motion.
 	 * @param {Number} [options.touchDirection=TOUCH_DIRECTION_ALL] Direction of the touch movement (TOUCH_DIRECTION_ALL: all,  TOUCH_DIRECTION_YAW: horizontal, TOUCH_DIRECTION_PITCH: vertical, TOUCH_DIRECTION_NONE: no move)
 	 * @param {Array} [options.yawRange=[-180, 180] Range of visible yaw
 	 * @param {Array} [options.pitchRange=[-90, 90] Range of visible pitch
@@ -60,7 +60,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 			showPolePoint: false,
 			useZoom: true,
 			useKeyboard: true,
-			useGyro: GYRO_MODE.YAWPITCH,
+			gyroMode: GYRO_MODE.YAWPITCH,
 			touchDirection: TOUCH_DIRECTION_ALL,
 			yawRange: DEFAULT_YAW_RANGE,
 			pitchRange: DEFAULT_PITCH_RANGE,
@@ -81,7 +81,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 	_initAxes(opt) {
 		const yRange = this._updateYawRange(opt.yawRange, opt.fov, opt.aspectRatio);
 		const pRange = this._updatePitchRange(opt.pitchRange, opt.fov, opt.showPolePoint);
-		const useRotation = opt.useGyro === GYRO_MODE.VR;
+		const useRotation = opt.gyroMode === GYRO_MODE.VR;
 
 		this.axesPanInput = new RotationPanInput(this._element, {useRotation});
 		this.axesWheelInput = new WheelInput(this._element, {scale: 4});
@@ -236,8 +236,8 @@ const YawPitchControl = class YawPitchControl extends Component {
 			}
 		}
 
-		if (keys.some(key => key === "useGyro") && SUPPORT_DEVICEMOTION) {
-			const useGyro = this.options.useGyro;
+		if (keys.some(key => key === "gyroMode") && SUPPORT_DEVICEMOTION) {
+			const gyroMode = this.options.gyroMode;
 
 			// Disconnect first
 			if (this.axesTiltMotionInput) {
@@ -251,10 +251,10 @@ const YawPitchControl = class YawPitchControl extends Component {
 				this._deviceQuaternion = null;
 			}
 
-			if (useGyro === GYRO_MODE.YAWPITCH) {
+			if (gyroMode === GYRO_MODE.YAWPITCH) {
 				this.axesTiltMotionInput = new TiltMotionInput(this._element);
 				this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
-			} else if (useGyro === GYRO_MODE.VR) {
+			} else if (gyroMode === GYRO_MODE.VR) {
 				this._initDeviceQuaternion();
 			}
 		}
@@ -377,7 +377,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 	}
 
 	_updatePitchRange(pitchRange, fov, showPolePoint) {
-		if (this.options.useGyro === GYRO_MODE.VR) {
+		if (this.options.gyroMode === GYRO_MODE.VR) {
 			// Circular pitch on VR
 			return CIRCULAR_PITCH_RANGE;
 		}
@@ -396,7 +396,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 	}
 
 	_updateYawRange(yawRange, fov, aspectRatio) {
-		if (this.options.useGyro === GYRO_MODE.VR) {
+		if (this.options.gyroMode === GYRO_MODE.VR) {
 			return DEFAULT_YAW_RANGE;
 		}
 
@@ -442,7 +442,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 		event.pitch = pos.pitch;
 		event.fov = pos.fov;
 
-		if (opt.useGyro === GYRO_MODE.VR) {
+		if (opt.gyroMode === GYRO_MODE.VR) {
 			event.quaternion = this._deviceQuaternion.getCombineQuaternion(pos.yaw, pos.pitch);
 		}
 		this.trigger("change", event);

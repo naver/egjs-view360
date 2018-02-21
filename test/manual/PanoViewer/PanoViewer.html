@@ -101,7 +101,7 @@ var presets = {
     "showPolePoint": true,
     "useZoom": true,
     "useKeyboard": true,
-    "useGyro": "yawPitch",
+    "gyroMode": "yawPitch",
     "image": "../img/test_cube_1x6_LRUDBF.jpg",
     "projectionType": "cubemap"
   },
@@ -116,7 +116,7 @@ var presets = {
     "showPolePoint": true,
     "useZoom": true,
     "useKeyboard": true,
-    "useGyro": "yawPitch",
+    "gyroMode": "yawPitch",
     "image": "../img/test_equi_4096.jpg",
     "projectionType": "equirectangular"
   },
@@ -132,7 +132,7 @@ var presets = {
     "showPolePoint": true,
     "useZoom": true,
     "useKeyboard": true,
-    "useGyro": "yawPitch",
+    "gyroMode": "yawPitch",
     "image": "../img/pano_360.png",
     "projectionType": "equirectangular"
   },
@@ -150,7 +150,7 @@ var presets = {
     "showPolePoint": true,
     "useZoom": true,
     "useKeyboard": true,
-    "useGyro": "yawPitch",
+    "gyroMode": "yawPitch",
     "image": "../img/pano_288.png",
     "projectionType": "equirectangular"
   }
@@ -362,8 +362,8 @@ f2.add(object, 'useKeyboard').onChange(function(value) {
   render();
 });
 
-f2.add(object, 'useGyro', {"none": "none", "yawPitch": "yawPitch"}).onChange(function(value) {
-  panoViewer.setUseGyro(value);
+f2.add(object, 'gyroMode', {"none": "none", "yawPitch": "yawPitch"}).onChange(function(value) {
+  panoViewer.setGyroMode(value);
   render();
 });
 

@@ -63,7 +63,7 @@ describe("YawPitchControl", function() {
 				expect(appliedOption.showPolePoint).to.equal(false);
 				expect(appliedOption.useZoom).to.equal(true);
 				expect(appliedOption.useKeyboard).to.equal(true);
-				expect(appliedOption.useGyro).to.equal(GYRO_MODE.YAWPITCH);
+				expect(appliedOption.gyroMode).to.equal(GYRO_MODE.YAWPITCH);
 				expect(appliedOption.touchDirection).to.equal(TOUCH_DIRECTION_ALL);
 				expect(appliedOption.yawRange).to.deep.equal([-180, 180]);
 				expect(appliedOption.pitchRange).to.deep.equal([-90, 90]);
@@ -961,7 +961,7 @@ describe("YawPitchControl", function() {
 			});
 		});
 
-		describe("useGyro none Test", () => {
+		describe("gyroMode none Test", () => {
 			let results = [];
 			let inst = null;
 			let target;
@@ -981,9 +981,9 @@ describe("YawPitchControl", function() {
 			});
 
 			// allow FOV (Zoom) (Spec for embedding in a document)
-			it("should not change yaw/pitch when useGyro is none", () => {
+			it("should not change yaw/pitch when gyroMode is none", () => {
 				// Given
-				inst.option("useGyro", GYRO_MODE.NONE);
+				inst.option("gyroMode", GYRO_MODE.NONE);
 				let changeTriggered = false;
 				inst.on("change", e => {
 					changeTriggered = true;
@@ -1502,7 +1502,7 @@ describe("YawPitchControl", function() {
 			target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
 			this.inst = new DeviceQuaternionMockYawPitchControl({
 				element: target,
-				useGyro: GYRO_MODE.VR
+				gyroMode: GYRO_MODE.VR
 			});
 		});
 
