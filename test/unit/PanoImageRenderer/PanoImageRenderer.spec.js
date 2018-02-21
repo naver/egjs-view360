@@ -1,14 +1,23 @@
 import PanoImageRenderer from "../../../src/PanoImageRenderer/PanoImageRenderer";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 import PanoImageRendererInjector from "inject-loader!../../../src/PanoImageRenderer/PanoImageRenderer";
+import {glMatrix, quat} from "../../../src/utils/math-util.js";
 
 const WEBGL_AVAILABILITY = WebGLUtils.isWebGLAvailable();
 const IT = WEBGL_AVAILABILITY ? it : it.skip;
+const USE_QUATERNION = true;
 
-function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2) {
+function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuaternion) {
 	return new Promise(res => {
 		// When
-		inst.render(yaw, pitch, fov);
+		if (isQuaternion) {
+			const quaternion = quat.create();
+			quat.rotateY(quaternion, quaternion, glMatrix.toRadian(-yaw));
+			quat.rotateX(quaternion, quaternion, glMatrix.toRadian(-pitch));
+			inst.renderWithQuaternion(quaternion, fov);
+		} else {
+			inst.render(yaw, pitch, fov);
+		}
 
 		// Then
 		compare(answerFile, inst.canvas, (pct, data) => {
@@ -918,8 +927,8 @@ describe("PanoImageRenderer", function() {
 		});
 	});
 
-	describe("Equirectangular Rendering", function() {
-        IT("yaw: 0, pitch:0, fov:65", function(done) {
+	describe("Equirectangular Rendering with yaw / pitch", function() {
+		IT("should render properly by yaw, pitch, fov", function(done) {
 			// Given
 			let inst = this.inst;
 			const sourceImg = new Image();
@@ -952,8 +961,9 @@ describe("PanoImageRenderer", function() {
 						});
 					});
 			}
-        });
-        IT("yaw: 0, pitch:0, fov:65 -> 30", function(done) {
+		});
+
+		IT("yaw: 0, pitch:0, fov:65 -> 30", function(done) {
 			// Given
 			let inst = this.inst;
 			const sourceImg = new Image();
@@ -981,4 +991,83 @@ describe("PanoImageRenderer", function() {
 			}
 		});
 	});
+
+	describe("Cubemap Rendering with Quaternion", () => {
+		IT("should render by quaternion in cubemap mode", function(done) {
+			// Given
+			const tileConfigForCubestrip = {flipHorizontal: true, rotation: 0};
+			let inst = this.inst;
+			const sourceImg = new Image();
+
+			sourceImg.src = "./images/test_cube_1x6_naver.jpg";
+			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
+				initialYaw: 0,
+				initialpitch: 0,
+				imageType: "cubemap",
+				fieldOfView: 65,
+				cubemapConfig: {
+					tileConfig: tileConfigForCubestrip
+				}
+			});
+			inst.on("imageLoaded", when);
+
+			function when() {
+				// When
+				inst.bindTexture()
+					.then(() => {
+						// Then
+						renderAndCompareSequentially(
+							inst,
+							[
+								[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold, USE_QUATERNION],
+								[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold, USE_QUATERNION],
+								[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold, USE_QUATERNION],
+								[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold, USE_QUATERNION],
+								[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold, USE_QUATERNION],
+								[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold, USE_QUATERNION]
+							]
+						).then(() => {
+							done();
+						});
+					});
+			}
+		});
+	})
+
+	describe("Equirectangular Rendering with Quaternion", () => {
+		IT("should render by quaternion in equirectangular mode", function(done) {
+			// Given
+			let inst = this.inst;
+			const sourceImg = new Image();
+
+			sourceImg.src = "./images/test_equi.jpg";
+			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
+				initialYaw: 0,
+				initialpitch: 0,
+				imageType: "equirectangular",
+				fieldOfView: 65
+			});
+			inst.on("imageLoaded", when);
+			function when() {
+				// When
+				inst.bindTexture()
+					.then(() => {
+						// Then
+						renderAndCompareSequentially(
+							inst,
+							[
+								[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold, USE_QUATERNION],
+								[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold, USE_QUATERNION],
+								[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold, USE_QUATERNION],
+								[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold, USE_QUATERNION],
+								[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold, USE_QUATERNION],
+								[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold, USE_QUATERNION]
+							]
+						).then(() => {
+							done();
+						});
+					});
+			}
+		});
+	})
 });
