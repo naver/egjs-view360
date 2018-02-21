@@ -1,4 +1,6 @@
+import PanoViewerInjector from "inject-loader!../../../src/PanoViewer/PanoViewer";
 import PanoViewer from "../../../src/PanoViewer/PanoViewer";
+import PanoImageRenderer from "../../../src/PanoImageRenderer/PanoImageRenderer";
 import {ERROR_TYPE, EVENTS} from "../../../src/PanoViewer/consts";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 
@@ -79,9 +81,62 @@ describe("PanoViewer", function() {
 			expect(panoViewer.getVideo()).to.be.null;
 		});
 
+		IT("should work with video", function(done) {
+			// given
+			var videlEl = document.createElement("video");
+			videlEl.setAttribute("src", "./images/PanoViewer/pano.mp4");
+			var readyTriggered = false;
+
+			// when
+			panoViewer = new PanoViewer(target, {
+				video: videlEl
+			}).on("ready", function() {
+				readyTriggered = true;
+				// then			
+				expect(readyTriggered).to.be.true;
+				done();
+			});
+
+		});
+
+		IT("should work with video when src defined after initiate PanoViewer", function(done) {
+			// given
+			var videlEl = document.createElement("video");
+			var readyTriggered = false;
+			panoViewer = new PanoViewer(target, {
+				video: videlEl
+			}).on("ready", function() {
+				readyTriggered = true;
+				// then			
+				expect(readyTriggered).to.be.true;
+				done();
+			});
+
+			// when
+			videlEl.setAttribute("src", "./images/PanoViewer/pano.mp4");
+		});
+
 		IT("should config cubemap layout", done => {
 			// Given
-			panoViewer = new PanoViewer(target, {
+			var MockedPanoViewer = PanoViewerInjector(
+				{
+					"../PanoImageRenderer": {
+						PanoImageRenderer: (function() {
+							class WrapedPanoImageRenderer extends PanoImageRenderer {
+								constructor(image, width, height, isVideo, sphericalConfig) {
+									super(image, width, height, isVideo, sphericalConfig, {
+										preserveDrawingBuffer: true,
+										antialias: false
+									});
+								}
+							}
+							return WrapedPanoImageRenderer;
+						})()
+					}
+				}
+            ).default;
+
+			panoViewer = new MockedPanoViewer(target, {
 				projectionType: "cubemap",
 				width: 200,
 				height: 200,
@@ -136,7 +191,7 @@ describe("PanoViewer", function() {
 			panoViewer = new PanoViewer(target);
 
 			// When
-			panoViewer.setVideo("./images/PanoViewer/pano.webm");
+			panoViewer.setVideo("./images/PanoViewer/pano.mp4");
 
 			// Then
 			panoViewer.on(PanoViewer.EVENTS.CONTENT_LOADED, e => {
@@ -168,6 +223,24 @@ describe("PanoViewer", function() {
 				expect(image).be.not.null;
 				expect(panoViewer.getVideo()).be.null; // not change to video
 				expect(panoViewer.getImage()).be.not.null; // persist previous status.
+				done();
+			});
+		});
+	});
+
+	describe("static", function() {
+		IT("should isGyroSensorAvailable return false when DeviceMotionEvent not exist.", function(done) {
+			// Given
+			var MockedPanoViewer = PanoViewerInjector(
+				{
+					"./browser": {
+						DeviceMotionEvent: null
+					}
+				}
+			).default;
+
+			MockedPanoViewer.isGyroSensorAvailable(function(isGyroSensorAvailable) {
+				expect(isGyroSensorAvailable).to.be.false;
 				done();
 			});
 		});

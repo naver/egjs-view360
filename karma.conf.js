@@ -2,6 +2,8 @@ module.exports = function(config) {
   var karmaConfig = {
     frameworks: ["mocha", "chai", "sinon"],
 
+    browserNoActivityTimeout: 60000,
+
     // list of files / patterns to load in the browser
     files: [
       "./node_modules/resemblejs/resemble.js",
@@ -10,8 +12,8 @@ module.exports = function(config) {
 			"./test/hammer-simulator.run.js",
 			"./test/unit/util.js",
       "./test/unit/**/*.spec.js",
-			"./test/manual/img/**/*.*",
-      "./test/img/*.*",
+      {pattern: "./test/manual/img/**/*.*", watched: false, included: false, served: true},
+      {pattern: "./test/img/*.*", watched: false, included: false, served: true},
     ],
 
 		proxies: {
@@ -20,7 +22,8 @@ module.exports = function(config) {
 
     client: {
       mocha: {
-        opts: "./mocha.opts"
+        opts: "./mocha.opts",
+        timeout: "20000"
       }
     },
 

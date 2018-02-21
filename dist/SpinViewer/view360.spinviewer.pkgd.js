@@ -3485,7 +3485,8 @@ if (true) {
 /***/ }),
 /* 8 */,
 /* 9 */,
-/* 10 */
+/* 10 */,
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3515,11 +3516,11 @@ exports.TRANSFORM = (function () {
 
 
 /***/ }),
-/* 11 */,
 /* 12 */,
 /* 13 */,
 /* 14 */,
-/* 15 */
+/* 15 */,
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3538,7 +3539,7 @@ exports["default"] = Axes_1["default"];
 
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3891,7 +3892,6 @@ var SpriteImage = function (_Component) {
 exports["default"] = SpriteImage;
 
 /***/ }),
-/* 17 */,
 /* 18 */,
 /* 19 */,
 /* 20 */,
@@ -4137,7 +4137,7 @@ var EventManager_1 = __webpack_require__(23);
 var InterruptManager_1 = __webpack_require__(25);
 var AxisManager_1 = __webpack_require__(5);
 var InputObserver_1 = __webpack_require__(24);
-var const_1 = __webpack_require__(10);
+var const_1 = __webpack_require__(11);
 /**
  * @typedef {Object} AxisOption The Axis information. The key of the axis specifies the name to use as the logical virtual coordinate system.
  * @ko 축 정보. 축의 키는 논리적인 가상 좌표계로 사용할 이름을 지정한다.
@@ -5226,7 +5226,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 exports.__esModule = true;
 var Hammer = __webpack_require__(7);
-var const_1 = __webpack_require__(10);
+var const_1 = __webpack_require__(11);
 var utils_1 = __webpack_require__(1);
 var InputType_1 = __webpack_require__(3);
 /**
@@ -5855,11 +5855,11 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _axes = __webpack_require__(15);
+var _axes = __webpack_require__(16);
 
 var _axes2 = _interopRequireDefault(_axes);
 
-var _SpriteImage = __webpack_require__(16);
+var _SpriteImage = __webpack_require__(17);
 
 var _SpriteImage2 = _interopRequireDefault(_SpriteImage);
 
@@ -6081,7 +6081,7 @@ var _SpinViewer = __webpack_require__(33);
 
 var _SpinViewer2 = _interopRequireDefault(_SpinViewer);
 
-var _SpriteImage = __webpack_require__(16);
+var _SpriteImage = __webpack_require__(17);
 
 var _SpriteImage2 = _interopRequireDefault(_SpriteImage);
 

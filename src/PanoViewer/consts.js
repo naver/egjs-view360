@@ -17,8 +17,14 @@ const EVENTS = {
 	CONTENT_LOADED: "contentLoaded"
 };
 
+const PROJECTION_TYPE = {
+	EQUIRECTANGULAR: "equirectangular",
+	CUBEMAP: "cubemap"
+};
+
 module.exports = {
 	GYRO_MODE,
 	EVENTS,
-	ERROR_TYPE
+	ERROR_TYPE,
+	PROJECTION_TYPE
 };

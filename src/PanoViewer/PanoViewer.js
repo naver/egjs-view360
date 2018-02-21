@@ -1,8 +1,12 @@
 import Component from "@egjs/component";
+import {
+	DeviceMotionEvent
+} from "./browser";
 
 import {YawPitchControl} from "../YawPitchControl";
-import {PanoImageRenderer, WebGLUtils} from "../PanoImageRenderer";
-import {ERROR_TYPE, EVENTS, GYRO_MODE} from "./consts";
+import {PanoImageRenderer} from "../PanoImageRenderer";
+import WebGLUtils from "../PanoImageRenderer/WebGLUtils";
+import {ERROR_TYPE, EVENTS, GYRO_MODE, PROJECTION_TYPE} from "./consts";
 import {glMatrix} from "../utils/math-util.js";
 
 export default class PanoViewer extends Component {
@@ -72,7 +76,7 @@ export default class PanoViewer extends Component {
 		this._container = container;
 		this._image = options.image || options.video;
 		this._isVideo = !!options.video;
-		this._projectionType = options.projectionType || PanoImageRenderer.ImageType.EQUIRECTANGULAR;
+		this._projectionType = options.projectionType || PROJECTION_TYPE.EQUIRECTANGULAR;
 		this._cubemapConfig = Object.assign({
 			order: "RLUDBF",
 			tileConfig: {
@@ -200,7 +204,7 @@ export default class PanoViewer extends Component {
 
 		this._image = image;
 		this._isVideo = isVideo;
-		this._projectionType = param.projectionType || PanoImageRenderer.ImageType.EQUIRECTANGULAR;
+		this._projectionType = param.projectionType || PROJECTION_TYPE.EQUIRECTANGULAR;
 		this._cubemapConfig = cubemapConfig;
 
 		this._deactivate();
@@ -665,7 +669,7 @@ export default class PanoViewer extends Component {
 	 * @static
 	 */
 	static isGyroSensorAvailable(callback) {
-		if (("DeviceMotionEvent" in window) === false || !window.DeviceMotionEvent) {
+		if (!DeviceMotionEvent) {
 			callback && callback(false);
 			return;
 		}
@@ -705,4 +709,4 @@ export default class PanoViewer extends Component {
 
 PanoViewer.ERROR_TYPE = ERROR_TYPE;
 PanoViewer.EVENTS = EVENTS;
-PanoViewer.ProjectionType = PanoImageRenderer.ImageType;
+PanoViewer.ProjectionType = PROJECTION_TYPE;

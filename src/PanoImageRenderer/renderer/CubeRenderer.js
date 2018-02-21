@@ -192,9 +192,15 @@ export default class CubeRenderer extends Renderer {
 		CubeRenderer.updateTexture(gl, image, imageConfig);
 	}
 
+	static _getDimension(pixelSource) {
+		const width = pixelSource.naturalWidth || pixelSource.videoWidth;
+		const height = pixelSource.naturalHeight || pixelSource.videoHeight;
+
+		return {width, height};
+	}
+
 	static getSourceTileSize(image) {
-		const width = image.naturalWidth || image.videoWidth;
-		const height = image.naturalHeight || image.videoHeight;
+		const {width, height} = this._getDimension(image);
 		const aspectRatio = width / height;
 		let inputTextureSize;
 
@@ -211,7 +217,7 @@ export default class CubeRenderer extends Renderer {
 	}
 
 	static extractTileFromImage(image, tileIdx, outputTextureSize) {
-		const width = image.naturalWidth || image.videoWidth;
+		const {width} = this._getDimension(image);
 		const inputTextureSize = CubeRenderer.getSourceTileSize(image);
 
 		const canvas = document.createElement("canvas");
