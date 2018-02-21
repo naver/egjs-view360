@@ -1,4 +1,5 @@
 import {window, screen, orientation as winOrientation} from "./browser";
+import {glMatrix} from "../utils/math-util";
 
 // Singleton
 let screenRotationAngleInst = null;
@@ -16,7 +17,6 @@ export default class ScreenRotationAngle {
 		/* eslint-enable */
 		this._onDeviceOrientation = this._onDeviceOrientation.bind(this);
 		this._onOrientationChange = this._onOrientationChange.bind(this);
-		// this._onDeviceMotionChange = this._onDeviceMotionChange.bind(this);
 
 		this._spinR = 0;
 
@@ -32,8 +32,8 @@ export default class ScreenRotationAngle {
 		}
 
 		// Radian
-		const betaR = ScreenRotationAngle._toRadian(e.beta);
-		const gammaR = ScreenRotationAngle._toRadian(e.gamma);
+		const betaR = glMatrix.toRadian(e.beta);
+		const gammaR = glMatrix.toRadian(e.gamma);
 
 		/* spinR range = [-180, 180], left side: 0 ~ -180(deg), right side: 0 ~ 180(deg) */
 		this._spinR = Math.atan2(Math.cos(betaR) * Math.sin(gammaR), Math.sin(betaR));
@@ -47,14 +47,10 @@ export default class ScreenRotationAngle {
 		}
 	}
 
-	static _toRadian(degree) {
-		return degree / 180 * Math.PI;
-	}
-
 	getRadian() {
 		// Join with screen orientation
 		// this._testVal = this._spinR + ", " + this._screenOrientationAngle + ", " + window.orientation;
-		return this._spinR + this._toRadian(this._screenOrientationAngle);
+		return this._spinR + glMatrix.toRadian(this._screenOrientationAngle);
 	}
 
 	unref() {
