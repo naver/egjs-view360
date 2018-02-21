@@ -467,6 +467,7 @@ export default class PanoImageRenderer extends Component {
 		}
 
 		let outQ;
+
 		if (!this._isCubeMap) {
 			// TODO: Remove this yaw revision by correcting shader
 			outQ = quat.rotateY(quat.create(), quaternion, glMatrix.toRadian(90));
