@@ -2,7 +2,7 @@ import DeviceQuaternion from "../../../src/YawPitchControl/DeviceQuaternion";
 import {quat} from "../../../src/utils/math-util";
 import DeviceQuaternionInjector from "inject-loader!../../../src/YawPitchControl/DeviceQuaternion";
 
-describe.only("DeviceQuaternion", function() {
+describe("DeviceQuaternion", function() {
 	describe("#constructor", function() {
 		it("Instance", () => {
 			// Given
