@@ -27,7 +27,7 @@ export default class DeviceQuaternion extends Component {
 		const deviceR = this._screenRotationAngle.getRadian();
 
 		// rotate x-axis around z-axis about screen rotation angle.
-		const pitchAxis = vec3.rotateZ(vec3.create(), X_AXIS_VECTOR, ORIGIN_VECTOR, deviceR)
+		const pitchAxis = vec3.rotateZ(vec3.create(), X_AXIS_VECTOR, ORIGIN_VECTOR, deviceR);
 		const yawQ = quat.setAxisAngle(quat.create(), Y_AXIS_VECTOR, glMatrix.toRadian(-yaw));
 		// rotate quaternion around new x-axis about pitch angle.
 		const pitchQ = quat.setAxisAngle(quat.create(), pitchAxis, glMatrix.toRadian(-pitch));

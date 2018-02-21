@@ -3,7 +3,6 @@ import {window, screen, orientation as winOrientation} from "./browser";
 // Singleton
 let screenRotationAngleInst = null;
 let refCount = 0;
-let testVal = "";
 
 export default class ScreenRotationAngle {
 	constructor() {
@@ -12,8 +11,9 @@ export default class ScreenRotationAngle {
 		if (screenRotationAngleInst) {
 			return screenRotationAngleInst;
 		}
-
+		/* eslint-disable */
 		screenRotationAngleInst = this;
+		/* eslint-enable */
 		this._onDeviceOrientation = this._onDeviceOrientation.bind(this);
 		this._onOrientationChange = this._onOrientationChange.bind(this);
 		// this._onDeviceMotionChange = this._onDeviceMotionChange.bind(this);
@@ -32,8 +32,9 @@ export default class ScreenRotationAngle {
 		}
 
 		// Radian
-		const betaR = this._toRadian(e.beta);
-		const gammaR = this._toRadian(e.gamma);
+		const betaR = ScreenRotationAngle._toRadian(e.beta);
+		const gammaR = ScreenRotationAngle._toRadian(e.gamma);
+
 		/* spinR range = [-180, 180], left side: 0 ~ -180(deg), right side: 0 ~ 180(deg) */
 		this._spinR = Math.atan2(Math.cos(betaR) * Math.sin(gammaR), Math.sin(betaR));
 	}
@@ -46,7 +47,7 @@ export default class ScreenRotationAngle {
 		}
 	}
 
-	_toRadian(degree) {
+	static _toRadian(degree) {
 		return degree / 180 * Math.PI;
 	}
 
@@ -66,7 +67,9 @@ export default class ScreenRotationAngle {
 
 		this._spinR = 0;
 		this._screenOrientationAngle = 0;
+		/* eslint-disable */
 		screenRotationAngleInst = null;
+		/* eslint-enable */
 		refCount = 0;
 	}
 }
