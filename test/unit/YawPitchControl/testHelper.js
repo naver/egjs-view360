@@ -76,7 +76,7 @@ export default class TestHelper {
 		return new Promise((resolve) => {
 			const params = value;
 			let deviceMotionEvent;
-	
+
 			try {
 				deviceMotionEvent = new DeviceMotionEvent("devicemotion", params);
 			} catch (e) {
@@ -84,13 +84,13 @@ export default class TestHelper {
 				deviceMotionEvent.initEvent("devicemotion");
 				Object.assign(deviceMotionEvent, params);
 			}
-	
+
 			function callbackOnce() {
 				callback && callback();
 				resolve();
 				target.removeEventListener("devicemotion", callbackOnce);
 			}
-	
+
 			target.addEventListener("devicemotion", callbackOnce);
 			target.dispatchEvent(deviceMotionEvent);
 		});
@@ -145,6 +145,15 @@ export default class TestHelper {
 		}
 
 		loop();
+	}
+
+	static once(target, type, listener) {
+		const fn = event => {
+			target.removeEventListener(type, fn);
+			listener(event);
+		};
+
+		target.addEventListener(type, fn);
 	}
 }
 
