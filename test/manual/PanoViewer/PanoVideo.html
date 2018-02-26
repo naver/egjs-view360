@@ -56,18 +56,18 @@
   <script>
     var rootNode = document.querySelector(".photo360");
     var video;
+    var videoSrc = document.getElementById("videoSrc");
     var panoViewer = new eg.view360.PanoViewer(rootNode, {
-      video: document.getElementById("videoSrc"),
+      video: videoSrc,
       imageType: "equirectangular",
       controlMode: "gallery_yaw_pitch"
-    }).on("contentLoaded", function(e) {
-      video = e.content;
+    }).on("ready", function() {
       document.getElementById("play").addEventListener("click", function() {
-        video.play();
+        videoSrc.play();
       });
 
       document.getElementById("pause").addEventListener("click", function() {
-        video.pause();
+        videoSrc.pause();
       });
     });
 
