@@ -256,10 +256,6 @@ export default class PanoViewer extends Component {
 	}
 
 	_bindRendererHandler() {
-		this._photoSphereRenderer.on(PanoImageRenderer.EVENTS.IMAGE_LOADED, e => {
-			this.trigger(EVENTS.CONTENT_LOADED, e);
-		});
-
 		this._photoSphereRenderer.on(PanoImageRenderer.EVENTS.ERROR, e => {
 			this.trigger(EVENTS.ERROR, e);
 		});
