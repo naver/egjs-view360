@@ -2,6 +2,7 @@ import PanoImageRenderer from "../../../src/PanoImageRenderer/PanoImageRenderer"
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 import PanoImageRendererInjector from "inject-loader!../../../src/PanoImageRenderer/PanoImageRenderer";
 import SphereRendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/SphereRenderer";
+import TestHelper from "../YawPitchControl/testHelper";
 
 const SphereRendererOnIE11 = SphereRendererInjector(
 	{
@@ -1037,9 +1038,10 @@ describe("PanoImageRenderer", function() {
 				fieldOfView: 65
 			}, DEBUG_CONTEXT_ATTRIBUTES);
 
-			inst.on("imageLoaded", when);
+			// inst.on("imageLoaded", when); // 2018.02.26. imageLoaded does not gaurantee video is playable. (spec changed)
+			sourceImg.addEventListener("loadeddata", when);
 
-			function when() {
+			function when(e) {
 				// When
 				inst.bindTexture()
 					.then(() => {
@@ -1061,7 +1063,7 @@ describe("PanoImageRenderer", function() {
 			}
 		});
 
-        IT("yaw: 0, pitch:0, fov:65 : video IE11 change video size after loaded", function(done) {
+		IT("yaw: 0, pitch:0, fov:65 : video IE11 change video size after loaded", function(done) {
 			// Given
 			let inst = this.inst;
 			const sourceImg = document.createElement("video");
@@ -1078,13 +1080,14 @@ describe("PanoImageRenderer", function() {
 				fieldOfView: 65
 			}, DEBUG_CONTEXT_ATTRIBUTES);
 
-			inst.once("imageLoaded", onFirstLoad);
+			// inst.once("imageLoaded", onFirstLoad); // 2018.02.26. imageLoaded does not gaurantee video is playable. (spec changed)
+			TestHelper.once(sourceImg, "loadeddata", onFirstLoad)
 
 			function onFirstLoad() {
 				inst.bindTexture()
 				.then(() => {
 					// When
-					inst.once("imageLoaded", when);
+					TestHelper.once(sourceImg, "loadeddata", when);
 					sourceImg.src = "./images/test_equi.mp4";
 				});
 			}
@@ -1125,7 +1128,9 @@ describe("PanoImageRenderer", function() {
 				fieldOfView: 65
 			}, DEBUG_CONTEXT_ATTRIBUTES);
 
-			inst.on("imageLoaded", when);
+			// inst.on("imageLoaded", when); // 2018.02.26. imageLoaded does not gaurantee video is playable. (spec changed)
+			sourceImg.addEventListener("loadeddata", when);
+
 
 			function when() {
 				// When
