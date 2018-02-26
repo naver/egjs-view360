@@ -23,7 +23,7 @@ export default class PanoViewer extends Component {
 	 * @param {String|Image} config.image Input image url or element<ko>입력 이미지 URL 혹은 엘리먼트(image 와 video 둘 중 하나만 설정한다.)</ko>
 	 * @param {String|HTMLVideoElement} config.video Input video url or element<ko>입력 비디오 URL 혹은 엘리먼트(image 와 video 둘 중 하나만 설정한다.)</ko>
 	 * @param {String} [config.projectionType=equirectangular] The type of projection: equirectangular, cubemap <ko>Projection 유형 : equirectangular, cubemap</ko>
-	 * @param {Object} config.cubemapConfig config cubemap projection layout. <ko>cubemap projection type 의 레이아웃을 설정한다.</ko>
+	 * @param {Object} [config.cubemapConfig] config cubemap projection layout. <ko>cubemap projection type 의 레이아웃을 설정한다.</ko>
 	 * @param {Number} [config.width=width of container] the viewer's width. (in px) <ko>뷰어의 너비 (px 단위)</ko>
 	 * @param {Number} [config.height=height of container] the viewer's height.(in px) <ko>뷰어의 높이 (px 단위)</ko>
 	 *
@@ -246,7 +246,6 @@ export default class PanoViewer extends Component {
 
 		this._photoSphereRenderer
 			.bindTexture()
-			.then(() => this._activate())
 			.catch(() => {
 				this._triggerEvent(EVENTS.ERROR, {
 					type: ERROR_TYPE.FAIL_BIND_TEXTURE,
@@ -257,6 +256,7 @@ export default class PanoViewer extends Component {
 
 	_bindRendererHandler() {
 		this._photoSphereRenderer.on(PanoImageRenderer.EVENTS.IMAGE_LOADED, e => {
+			this._activate();
 			this.trigger(EVENTS.CONTENT_LOADED, e);
 		});
 
@@ -321,20 +321,6 @@ export default class PanoViewer extends Component {
 		 *	"error" : function(evt) {
 		 *		// evt.type === 13
 		 *		// evt.messaeg === "failed to bind texture"
-		 * });
-		 */
-
-		/**
-		 * Events that is fired when PanoViewer is ready to go.
-		 * @ko PanoViewer 가 준비된 상태에 발생하는 이벤트
-		 * @name eg.view360.PanoViewer#ready
-		 * @event
-		 *
-		 * @example
-		 *
-		 * viwer.on({
-		 *	"ready" : function(evt) {
-		 *		// PanoViewer is ready to show image and handle user interaction.
 		 * });
 		 */
 
@@ -586,7 +572,6 @@ export default class PanoViewer extends Component {
 		this.updateViewportDimensions();
 
 		this._isReady = true;
-		this._triggerEvent(EVENTS.READY);
 		this._startRender();
 	}
 

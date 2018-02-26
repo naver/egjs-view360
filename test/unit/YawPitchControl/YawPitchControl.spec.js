@@ -252,6 +252,7 @@ describe("YawPitchControl", function() {
 			this.inst = new YawPitchControl({
 				element: target
 			});
+			this.inst.enable();
 		});
 
 		afterEach(() => {
@@ -264,7 +265,6 @@ describe("YawPitchControl", function() {
 			// Given
 			let isTrustedOnHold = null;
 			let isTrustedOnChange = null;
-			this.inst.enable();
 
 			this.inst.on("hold", e => {
 				isTrustedOnHold = e.isTrusted;
@@ -293,7 +293,6 @@ describe("YawPitchControl", function() {
 			let isTrustedOnChange = null;
 			let isTrustedOnAnimationEnd = null;
 
-			this.inst.enable();
 			this.inst.on("change", e => {
 				isTrustedOnChange = e.isTrusted;
 			});
@@ -1051,6 +1050,7 @@ describe("YawPitchControl", function() {
 				target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
 
 				inst = new YawPitchControl({element: target});
+				inst.enable();
 			});
 
 			afterEach(() => {
@@ -1063,7 +1063,6 @@ describe("YawPitchControl", function() {
 				// Given
 				let firstFov = inst.getFov();
 				inst.option("useZoom", true);
-
 				// When
 				Simulator.gestures.pinch(target, {
 					scale: 0.5
@@ -1152,7 +1151,7 @@ describe("YawPitchControl", function() {
 				target = sandbox();
 				target.innerHTML = `<div style="width:100px;height:100px;"></div>`;
 				inst = new YawPitchControl({element: target});
-
+				inst.enable();
 				inst.on("change", (e) => {
 					lastFov = e.fov;
 					changed = true;
@@ -1248,6 +1247,7 @@ describe("YawPitchControl", function() {
 				fov: 30,
 				showPolePoint: false
 			});
+			this.inst.enable();
 			// When
 			TestHelper.wheelVertical(targetEl , 100, () => {
 				// then
@@ -1313,6 +1313,7 @@ describe("YawPitchControl", function() {
 				fov: 30,
 				showPolePoint: false
 			});
+			this.inst.enable();
 			
 			function getWheelPromises(count, duration) {
 				return Array.apply(null, {length: count})

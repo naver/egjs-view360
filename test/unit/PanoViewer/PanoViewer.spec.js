@@ -85,30 +85,29 @@ describe("PanoViewer", function() {
 			// given
 			var videlEl = document.createElement("video");
 			videlEl.setAttribute("src", "./images/PanoViewer/pano.mp4");
-			var readyTriggered = false;
+			var contentLoadedTriggered = false;
 
 			// when
 			panoViewer = new PanoViewer(target, {
 				video: videlEl
-			}).on("ready", function() {
-				readyTriggered = true;
+			}).on("contentLoaded", function() {
+				contentLoadedTriggered = true;
 				// then			
-				expect(readyTriggered).to.be.true;
+				expect(contentLoadedTriggered).to.be.true;
 				done();
 			});
-
 		});
 
 		IT("should work with video when src defined after initiate PanoViewer", function(done) {
 			// given
 			var videlEl = document.createElement("video");
-			var readyTriggered = false;
+			var contentLoadedTriggered = false;
 			panoViewer = new PanoViewer(target, {
 				video: videlEl
-			}).on("ready", function() {
-				readyTriggered = true;
+			}).on("contentLoaded", function() {
+				contentLoadedTriggered = true;
 				// then			
-				expect(readyTriggered).to.be.true;
+				expect(contentLoadedTriggered).to.be.true;
 				done();
 			});
 
@@ -148,7 +147,7 @@ describe("PanoViewer", function() {
 			});
 
 			// When
-			panoViewer.on("ready", when);
+			panoViewer.on("contentLoaded", when);
 
 			function when() {
 				// Then
@@ -343,7 +342,7 @@ describe("PanoViewer", function() {
 			});
 			let isTrustedOnChange = null;
 
-			panoViewer.on("ready", () => {
+			panoViewer.on("contentLoaded", () => {
 				panoViewer.on("viewChange", e => {
 					isTrustedOnChange = e.isTrusted;
 				});
@@ -370,23 +369,23 @@ describe("PanoViewer", function() {
 			});
 			let isTrustedOnChange = null;
 
-			panoViewer.on("ready", () => {
-				panoViewer.on("viewChange", e => {
-					isTrustedOnChange = e.isTrusted;
-				});
+			panoViewer.on("viewChange", e => {
+				isTrustedOnChange = e.isTrusted;
+			});
 
-				panoViewer.on("animationEnd", then);
+			panoViewer.on("animationEnd", then);
 
+			function then(e) {
+			// Then
+				expect(isTrustedOnChange).to.be.false;
+				done();
+			}
+
+			panoViewer.on("contentLoaded", () => {
 				// When
 				panoViewer.lookAt({
 					yaw: 20
 				}, 1000);
-
-				function then(e) {
-				// Then
-					expect(isTrustedOnChange).to.be.false;
-					done();
-				}
 			});
 		});
 	});
@@ -414,7 +413,6 @@ describe("PanoViewer", function() {
 			photo360Viewer = new PanoViewer(target, {
 				image: "/images/book_equi_1.jpg"
 			}).on({
-				"ready": eventLogger,
 				"viewChange": eventLogger,
 				"animationEnd": eventLogger,
 				"contentLoaded": eventLogger,
@@ -445,7 +443,6 @@ describe("PanoViewer", function() {
 		IT("should follow event order on create", function(done) {
 			var order = [
 				PanoViewer.EVENTS.CONTENT_LOADED,
-				PanoViewer.EVENTS.READY
 			];
 
 			startEventLogTest(order, done);

@@ -225,7 +225,7 @@ var gridView = new GridView(document.querySelector(".grid-chart"), 0, 0);
 var panoViewer = new eg.view360.PanoViewer(
   document.querySelector( '.pano-viewer' ),
   presets[INITIAL_PRESET]
-).on("ready", function() {
+).on("contentLoaded", function() {
   panoViewer.lookAt({
     yaw: object["yaw"],
     pitch: object["pitch"],
