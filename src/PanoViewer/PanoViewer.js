@@ -363,18 +363,6 @@ export default class PanoViewer extends Component {
 		 *		// animation is ended.
 		 * });
 		 */
-
-		/**
-			* Events that is fired when content(Video/Image) is loaded
-			* @ko 컨텐츠(비디오 혹은 이미지)가 로드되었을때 발생되는 이벤트
-			*
-			* @name eg.view360.PanoViewer#contentLoaded
-			* @event
-			* @param {Object} event
-			* @param {HTMLVideoElement|Image} event.content
-			* @param {Boolean} event.isVideo
-			* @param {String} event.projectionType
-			*/
 		return this.trigger(name, evt);
 	}
 
