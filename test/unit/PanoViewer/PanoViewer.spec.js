@@ -45,6 +45,8 @@ describe("PanoViewer", function() {
 		});
 
 		afterEach(() => {
+			cleanup();
+
 			if (!panoViewer) {
 				return;
 			}
@@ -179,6 +181,8 @@ describe("PanoViewer", function() {
 		});
 
 		afterEach(() => {
+			cleanup();
+
 			if (!panoViewer) {
 				return;
 			}
@@ -256,6 +260,8 @@ describe("PanoViewer", function() {
 		});
 
 		afterEach(() => {
+			cleanup();
+
 			if (!panoViewer) {
 				return;
 			}
@@ -322,6 +328,51 @@ describe("PanoViewer", function() {
 		});
 	});
 
+	describe("#lookAt", function() {
+		let target;
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div></div>`;
+		});
+
+		afterEach(() => {
+			cleanup();
+		});
+
+		IT("should 'lookAt' works after ready event", done => {
+			// Given
+			const FIRST_REQ_DIR = {yaw: 10, pitch: 10};
+			const SECOND_REQ_DIR = {yaw: 20, pitch: 20};
+			const panoViewer = new PanoViewer(target, {
+				image: "./images/test_equi.png"
+			});
+
+			// When
+			const firstDir = {yaw: panoViewer.getYaw(), pitch:panoViewer.getPitch()};
+
+			panoViewer.lookAt(FIRST_REQ_DIR, 0);
+			const dir1 = {yaw: panoViewer.getYaw(), pitch:panoViewer.getPitch()};
+
+			panoViewer.on(PanoViewer.EVENTS.READY, e => {
+				panoViewer.lookAt(SECOND_REQ_DIR, 0);
+				const dir2 = {yaw: panoViewer.getYaw(), pitch:panoViewer.getPitch()};
+
+				// Then
+				expect(dir1.yaw).to.equal(firstDir.yaw);
+				expect(dir1.pitch).to.equal(firstDir.pitch);
+
+				expect(dir1.yaw).to.not.equal(FIRST_REQ_DIR.yaw);
+				expect(dir1.pitch).to.not.equal(FIRST_REQ_DIR.pitch);
+
+				expect(dir2.yaw).to.equal(SECOND_REQ_DIR.yaw);
+				expect(dir2.pitch).to.equal(SECOND_REQ_DIR.pitch);
+
+				done();
+			});
+		});
+	});
+
 	describe("viewChange event", function() {
 		let target;
 		let panoViewer;
@@ -332,6 +383,8 @@ describe("PanoViewer", function() {
 		});
 
 		afterEach(() => {
+			cleanup();
+
 			if (!panoViewer) {
 				return;
 			}
@@ -404,6 +457,8 @@ describe("PanoViewer", function() {
 		});
 
 		afterEach(() => {
+			cleanup();
+
 			if (!photo360Viewer) {
 				return;
 			}
