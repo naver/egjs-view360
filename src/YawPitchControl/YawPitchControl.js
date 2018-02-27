@@ -71,6 +71,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 
 		this._initAxes(opt);
 		this.option(opt);
+		this.disable();
 	}
 
 	_initAxes(opt) {
@@ -146,6 +147,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 	 * @param {*} args
 	 */
 	option(...args) {
+		// console.log("option method", args);
 		const argLen = args.length;
 
 		// Getter
@@ -168,8 +170,15 @@ const YawPitchControl = class YawPitchControl extends Component {
 			newOptions[args[0]] = args[1];
 		}
 
+		// console.log("changedKeyList", changedKeyList);
+
+
 		this._setOptions(this._getValidatedOptions(newOptions));
 		this._applyOptions(changedKeyList, beforeOptions);
+
+		// if (this._enabled) {
+		this._connectInputs(changedKeyList);
+		// }
 		return this;
 	}
 
@@ -228,38 +237,6 @@ const YawPitchControl = class YawPitchControl extends Component {
 					fov: nextFov
 				}, 0);
 				this._updateControlScale();
-			}
-		}
-
-		if (keys.some(key => key === "useGyro") && this.axesTiltMotionInput) {
-			const useGyro = this.options.useGyro;
-
-			if (useGyro === GYRO_MODE.YAWPITCH) {
-				this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
-			} else if (useGyro === GYRO_MODE.NONE) {
-				this.axes.disconnect(this.axesTiltMotionInput);
-			}
-		}
-
-		if (keys.some(key => key === "useKeyboard")) {
-			const useKeyboard = this.options.useKeyboard;
-
-			if (useKeyboard) {
-				this.axes.connect(["yaw", "pitch"], this.axesMoveKeyInput);
-			} else {
-				this.axes.disconnect(this.axesMoveKeyInput);
-			}
-		}
-
-		if (keys.some(key => key === "useZoom")) {
-			const useZoom = this.options.useZoom;
-
-			if (useZoom) {
-				this.axes.connect(["fov"], this.axesWheelInput);
-				this.axesPinchInput && this.axes.connect(["fov"], this.axesPinchInput);
-			} else {
-				this.axes.disconnect(this.axesWheelInput);
-				this.axesPinchInput && this.axes.disconnect(this.axesPinchInput);
 			}
 		}
 	}
@@ -454,12 +431,47 @@ const YawPitchControl = class YawPitchControl extends Component {
 		if (this._enabled) {
 			return this;
 		}
+		this._enabled = true;
+
 		this.axes.connect(["yaw", "pitch"], this.axesPanInput);
 		this._applyOptions(Object.keys(this.options), this.options);
+		this._connectInputs();
 		this._setPanScale(this.getFov());
-
-		this._enabled = true;
 		return this;
+	}
+
+	_connectInputs(keys = ["useGyro", "useKeyboard", "useZoom"]) {
+		if (keys.some(key => key === "useGyro") && this.axesTiltMotionInput) {
+			const useGyro = this.options.useGyro;
+
+			if (useGyro === GYRO_MODE.YAWPITCH) {
+				this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
+			} else {
+				this.axes.disconnect(this.axesTiltMotionInput);
+			}
+		}
+
+		if (keys.some(key => key === "useKeyboard") && this.axesMoveKeyInput) {
+			const useKeyboard = this.options.useKeyboard;
+
+			if (useKeyboard) {
+				this.axes.connect(["yaw", "pitch"], this.axesMoveKeyInput);
+			} else {
+				this.axes.disconnect(this.axesMoveKeyInput);
+			}
+		}
+
+		if (keys.some(key => key === "useZoom") && this.axesPinchInput) {
+			const useZoom = this.options.useZoom;
+
+			if (useZoom) {
+				this.axes.connect(["fov"], this.axesWheelInput);
+				this.axesPinchInput && this.axes.connect(["fov"], this.axesPinchInput);
+			} else {
+				this.axes.disconnect(this.axesWheelInput);
+				this.axesPinchInput && this.axes.disconnect(this.axesPinchInput);
+			}
+		}
 	}
 
 	/**

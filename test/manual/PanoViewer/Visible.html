@@ -162,8 +162,6 @@ var visible = new eg.Visible(document,{
 				setTimeout(function() {
 					instance.updateViewportDimensions();
 				}, 10);
-			}).on("suspend", function(evt) {
-				viewerEl.classList.add("inactive");
 			}).on("error", function() {
 				alert("이 브라우저는 webgl 을 지원하지 않습니다. 따라서 PanoViewer 가 동작할 수 없습니다.");
 			});

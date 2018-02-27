@@ -9021,7 +9021,7 @@ var PanoViewer = function (_Component) {
   * @param {String|Image} config.image Input image url or element<ko>입력 이미지 URL 혹은 엘리먼트(image 와 video 둘 중 하나만 설정한다.)</ko>
   * @param {String|HTMLVideoElement} config.video Input video url or element<ko>입력 비디오 URL 혹은 엘리먼트(image 와 video 둘 중 하나만 설정한다.)</ko>
   * @param {String} [config.projectionType=equirectangular] The type of projection: equirectangular, cubemap <ko>Projection 유형 : equirectangular, cubemap</ko>
-  * @param {Object} config.cubemapConfig config cubemap projection layout. <ko>cubemap projection type 의 레이아웃을 설정한다.</ko>
+  * @param {Object} [config.cubemapConfig] config cubemap projection layout. <ko>cubemap projection type 의 레이아웃을 설정한다.</ko>
   * @param {Number} [config.width=width of container] the viewer's width. (in px) <ko>뷰어의 너비 (px 단위)</ko>
   * @param {Number} [config.height=height of container] the viewer's height.(in px) <ko>뷰어의 높이 (px 단위)</ko>
   *
@@ -9260,9 +9260,7 @@ var PanoViewer = function (_Component) {
 
 		this._bindRendererHandler();
 
-		this._photoSphereRenderer.bindTexture().then(function () {
-			return _this2._activate();
-		})["catch"](function () {
+		this._photoSphereRenderer.bindTexture()["catch"](function () {
 			_this2._triggerEvent(_consts.EVENTS.ERROR, {
 				type: _consts.ERROR_TYPE.FAIL_BIND_TEXTURE,
 				message: "failed to bind texture"
@@ -9274,7 +9272,8 @@ var PanoViewer = function (_Component) {
 		var _this3 = this;
 
 		this._photoSphereRenderer.on(_PanoImageRenderer.PanoImageRenderer.EVENTS.IMAGE_LOADED, function (e) {
-			_this3.trigger(_consts.EVENTS.CONTENT_LOADED, e);
+			_this3._activate();
+			_this3.trigger(_consts.EVENTS.READY, e);
 		});
 
 		this._photoSphereRenderer.on(_PanoImageRenderer.PanoImageRenderer.EVENTS.ERROR, function (e) {
@@ -9344,11 +9343,10 @@ var PanoViewer = function (_Component) {
    */
 
 		/**
-   * Events that is fired when PanoViewer is ready to go.
-   * @ko PanoViewer 가 준비된 상태에 발생하는 이벤트
+   * Events that is fired when PanoViewer is ready to handle user interaction
+   * @ko PanoViewer 가 유저와 상호작용을 시작할때 발생
    * @name eg.view360.PanoViewer#ready
    * @event
-   *
    * @example
    *
    * viwer.on({
@@ -9634,7 +9632,6 @@ var PanoViewer = function (_Component) {
 		this.updateViewportDimensions();
 
 		this._isReady = true;
-		this._triggerEvent(_consts.EVENTS.READY);
 		this._startRender();
 	};
 
@@ -10465,18 +10462,9 @@ var PanoImageRenderer = function (_Component) {
 	};
 
 	PanoImageRenderer.prototype._onContentLoad = function _onContentLoad(image) {
-		var _this2 = this;
-
 		this._imageIsReady = true;
 
-		if (this._isVideo) {
-			this._image.addEventListener("loadeddata", function () {
-				_this2._triggerContentLoad();
-			});
-		} else {
-			this._triggerContentLoad();
-		}
-
+		this._triggerContentLoad();
 		return true;
 	};
 
@@ -10485,16 +10473,16 @@ var PanoImageRenderer = function (_Component) {
 	};
 
 	PanoImageRenderer.prototype.bindTexture = function bindTexture() {
-		var _this3 = this;
+		var _this2 = this;
 
 		return new _Promise(function (res, rej) {
-			if (!_this3._contentLoader) {
+			if (!_this2._contentLoader) {
 				rej("ImageLoader is not initialized");
 				return;
 			}
 
-			_this3._contentLoader.get().then(function () {
-				return _this3._bindTexture();
+			_this2._contentLoader.get().then(function () {
+				return _this2._bindTexture();
 			}, rej).then(res);
 		});
 	};
@@ -10652,23 +10640,9 @@ var PanoImageRenderer = function (_Component) {
 	PanoImageRenderer.prototype._initShaderProgram = function _initShaderProgram(gl) {
 		var vertexShaderSource = this._renderer.getVertexShaderSource();
 		var vertexShader = _WebGLUtils2["default"].createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-
-		if (!vertexShader) {
-			return false;
-		}
-
 		var fragmentShaderSource = this._renderer.getFragmentShaderSource();
 		var fragmentShader = _WebGLUtils2["default"].createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
-
-		if (!fragmentShader) {
-			return false;
-		}
-
 		var shaderProgram = _WebGLUtils2["default"].createProgram(gl, vertexShader, fragmentShader);
-
-		if (!shaderProgram) {
-			return null;
-		}
 
 		gl.useProgram(shaderProgram);
 		shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
@@ -11566,6 +11540,7 @@ var YawPitchControl = function (_Component) {
 
 		_this._initAxes(opt);
 		_this.option(opt);
+		_this.disable();
 		return _this;
 	}
 
@@ -11647,6 +11622,7 @@ var YawPitchControl = function (_Component) {
 			args[_key] = arguments[_key];
 		}
 
+		// console.log("option method", args);
 		var argLen = args.length;
 
 		// Getter
@@ -11669,8 +11645,15 @@ var YawPitchControl = function (_Component) {
 			newOptions[args[0]] = args[1];
 		}
 
+		// console.log("changedKeyList", changedKeyList);
+
+
 		this._setOptions(this._getValidatedOptions(newOptions));
 		this._applyOptions(changedKeyList, beforeOptions);
+
+		// if (this._enabled) {
+		this._connectInputs(changedKeyList);
+		// }
 		return this;
 	};
 
@@ -11729,44 +11712,6 @@ var YawPitchControl = function (_Component) {
 					fov: nextFov
 				}, 0);
 				this._updateControlScale();
-			}
-		}
-
-		if (keys.some(function (key) {
-			return key === "useGyro";
-		}) && this.axesTiltMotionInput) {
-			var useGyro = this.options.useGyro;
-
-			if (useGyro === _consts.GYRO_MODE.YAWPITCH) {
-				this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
-			} else if (useGyro === _consts.GYRO_MODE.NONE) {
-				this.axes.disconnect(this.axesTiltMotionInput);
-			}
-		}
-
-		if (keys.some(function (key) {
-			return key === "useKeyboard";
-		})) {
-			var useKeyboard = this.options.useKeyboard;
-
-			if (useKeyboard) {
-				this.axes.connect(["yaw", "pitch"], this.axesMoveKeyInput);
-			} else {
-				this.axes.disconnect(this.axesMoveKeyInput);
-			}
-		}
-
-		if (keys.some(function (key) {
-			return key === "useZoom";
-		})) {
-			var useZoom = this.options.useZoom;
-
-			if (useZoom) {
-				this.axes.connect(["fov"], this.axesWheelInput);
-				this.axesPinchInput && this.axes.connect(["fov"], this.axesPinchInput);
-			} else {
-				this.axes.disconnect(this.axesWheelInput);
-				this.axesPinchInput && this.axes.disconnect(this.axesPinchInput);
 			}
 		}
 	};
@@ -11967,12 +11912,55 @@ var YawPitchControl = function (_Component) {
 		if (this._enabled) {
 			return this;
 		}
+		this._enabled = true;
+
 		this.axes.connect(["yaw", "pitch"], this.axesPanInput);
 		this._applyOptions(Object.keys(this.options), this.options);
+		this._connectInputs();
 		this._setPanScale(this.getFov());
-
-		this._enabled = true;
 		return this;
+	};
+
+	YawPitchControl.prototype._connectInputs = function _connectInputs() {
+		var keys = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : ["useGyro", "useKeyboard", "useZoom"];
+
+		if (keys.some(function (key) {
+			return key === "useGyro";
+		}) && this.axesTiltMotionInput) {
+			var useGyro = this.options.useGyro;
+
+			if (useGyro === _consts.GYRO_MODE.YAWPITCH) {
+				this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
+			} else {
+				this.axes.disconnect(this.axesTiltMotionInput);
+			}
+		}
+
+		if (keys.some(function (key) {
+			return key === "useKeyboard";
+		}) && this.axesMoveKeyInput) {
+			var useKeyboard = this.options.useKeyboard;
+
+			if (useKeyboard) {
+				this.axes.connect(["yaw", "pitch"], this.axesMoveKeyInput);
+			} else {
+				this.axes.disconnect(this.axesMoveKeyInput);
+			}
+		}
+
+		if (keys.some(function (key) {
+			return key === "useZoom";
+		}) && this.axesPinchInput) {
+			var useZoom = this.options.useZoom;
+
+			if (useZoom) {
+				this.axes.connect(["fov"], this.axesWheelInput);
+				this.axesPinchInput && this.axes.connect(["fov"], this.axesPinchInput);
+			} else {
+				this.axes.disconnect(this.axesWheelInput);
+				this.axesPinchInput && this.axes.disconnect(this.axesPinchInput);
+			}
+		}
 	};
 
 	/**

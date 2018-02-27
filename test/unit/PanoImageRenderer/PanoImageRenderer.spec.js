@@ -1037,7 +1037,7 @@ describe("PanoImageRenderer", function() {
 				fieldOfView: 65
 			}, DEBUG_CONTEXT_ATTRIBUTES);
 
-			inst.on("imageLoaded", when);
+			sourceImg.addEventListener("loadeddata", when);
 
 			function when() {
 				// When
@@ -1078,13 +1078,14 @@ describe("PanoImageRenderer", function() {
 				fieldOfView: 65
 			}, DEBUG_CONTEXT_ATTRIBUTES);
 
-			inst.once("imageLoaded", onFirstLoad);
+			sourceImg.addEventListener("loadeddata", onFirstLoad);
 
 			function onFirstLoad() {
+				sourceImg.removeEventListener("loadeddata", onFirstLoad);
 				inst.bindTexture()
 				.then(() => {
 					// When
-					inst.once("imageLoaded", when);
+					sourceImg.addEventListener("loadeddata", when);
 					sourceImg.src = "./images/test_equi.mp4";
 				});
 			}
@@ -1125,7 +1126,7 @@ describe("PanoImageRenderer", function() {
 				fieldOfView: 65
 			}, DEBUG_CONTEXT_ATTRIBUTES);
 
-			inst.on("imageLoaded", when);
+			sourceImg.addEventListener("loadeddata", when);
 
 			function when() {
 				// When

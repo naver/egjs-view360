@@ -182,14 +182,7 @@ export default class PanoImageRenderer extends Component {
 	_onContentLoad(image) {
 		this._imageIsReady = true;
 
-		if (this._isVideo) {
-			this._image.addEventListener("loadeddata", () => {
-				this._triggerContentLoad();
-			});
-		} else {
-			this._triggerContentLoad();
-		}
-
+		this._triggerContentLoad();
 		return true;
 	}
 
@@ -367,23 +360,9 @@ export default class PanoImageRenderer extends Component {
 	_initShaderProgram(gl) {
 		const vertexShaderSource = this._renderer.getVertexShaderSource();
 		const vertexShader = WebGLUtils.createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-
-		if (!vertexShader) {
-			return false;
-		}
-
 		const fragmentShaderSource = this._renderer.getFragmentShaderSource();
 		const fragmentShader = WebGLUtils.createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
-
-		if (!fragmentShader) {
-			return false;
-		}
-
 		const shaderProgram = WebGLUtils.createProgram(gl, vertexShader, fragmentShader);
-
-		if (!shaderProgram) {
-			return null;
-		}
 
 		gl.useProgram(shaderProgram);
 		shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");

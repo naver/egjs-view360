@@ -9,6 +9,10 @@
   <!--<link rel="stylesheet" href="./css/pure.css">-->
   <link rel="stylesheet" href="../css/pano-viewer.css">
   <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
     section {
       width: 100%;
     }
@@ -27,6 +31,15 @@
     .hidden_elem {
       display: none;
     }
+    #log {
+      word-break: break-all;
+    }
+    .evt {
+      margin-right: 10px;
+    }
+    .timeupdate {
+      color: gray;
+    }
   </style>
 </head>
 
@@ -34,10 +47,9 @@
   <div>
     <section class="container">
       <h2>PanoVideo</h2>
-      <h3>Available on Chrome Browser</h3>
-      Video Source: <a href="https://github.com/mrdoob/three.js/blob/master/examples/textures/pano.webm">https://github.com/mrdoob/three.js/blob/master/examples/textures/pano.webm</a>
+      Video Source: <a href="https://github.com/mrdoob/three.js/blob/master/examples/textures/pano.webm">pano.webm</a><br/>
       <!--<div class="360-area">-->
-        <video id="videoSrc" style="width:100%;height:400px;display:none" webkit-playsinline playsinline loop crossorigin="anonymous">
+        <video id="videoSrc" style="height:200px;" webkit-playsinline playsinline controls loop preload="auto" crossorigin="anonymous">
           <source src="../img/PanoViewer/pano.webm" type="video/webm">
           <source src="../img/PanoViewer/pano.mp4" type="video/mp4">
         </video>
@@ -46,6 +58,11 @@
         </div>
         <button id="play">play</button>
         <button id="pause">pause</button>
+        <br/>
+        <div id="log">
+            <h3>event log</h3>
+        </div>
+        ready state<span id="rds"></span> 
     </section>
   </div>
   <script src="../../../node_modules/hammerjs/hammer.js"></script>
@@ -54,27 +71,52 @@
   <script src="../../../dist/view360.js"></script>
   <!--script src="../build/photo360viewer.js"></script>-->
   <script>
+    var log = document.getElementById("log");
+    var rds = document.getElementById("rds");
     var rootNode = document.querySelector(".photo360");
-    var video;
+    var video = document.getElementById("videoSrc");
     var panoViewer = new eg.view360.PanoViewer(rootNode, {
-      video: document.getElementById("videoSrc"),
-      imageType: "equirectangular",
-      controlMode: "gallery_yaw_pitch"
-    }).on("contentLoaded", function(e) {
-      video = e.content;
-      document.getElementById("play").addEventListener("click", function() {
-        video.play();
-      });
+      video: video,
+      projectionType: "equirectangular",
+    })
 
-      document.getElementById("pause").addEventListener("click", function() {
-        video.pause();
-      });
+    video = panoViewer.getVideo();
+
+    document.getElementById("play").addEventListener("click", function() {
+      video.play();
+    });
+
+    document.getElementById("pause").addEventListener("click", function() {
+      video.pause();
     });
 
     window.addEventListener('resize', debounce(function(){
       panoViewer.updateViewportDimensions();
     }, 0));
 
+    function logEvent(e) {
+      var span = document.createElement("span");
+      span.classList.add("evt");
+      if(e.type === "timeupdate") {
+        span.classList.add("timeupdate");
+      }
+      span.innerHTML = e.type;
+      log.insertAdjacentElement("beforeend", span);
+    }
+
+    [ "abort", "loadstart", "durationchange", "emptied", "ended", "pause", "play", "playing", "progress", "waiting", 
+      "loadedmetadata",
+      "loadeddata",
+      "canplay",
+      "canplaythrough",
+      "timeupdate"
+    ].forEach(evtName => {
+      video.addEventListener(evtName, logEvent);
+    });    
+ 
+    setInterval(function() {
+      rds.innerHTML = video.readyState;
+    }, 500);
     function debounce(func, wait, immediate) {
       var timeout;
       return function() {
