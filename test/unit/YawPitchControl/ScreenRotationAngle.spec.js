@@ -66,7 +66,7 @@ describe("ScreenRotationAngle", function() {
 	});
 
 	describe("#orientationchange", () => {
-		it("should returns rotated angles when screen is rotated.", () => {
+		it("should returns rotated angles when screen is rotated.", done => {
 			// Given
 			const win = {
 				screen: {
@@ -84,25 +84,20 @@ describe("ScreenRotationAngle", function() {
 			const sr = new ScreenRotationAngle90();
 
 			// When
+			TestHeler.once(window, "orientationchange", then);
+
 			// Dispatch 'orientationchange' event.
-			// const event = TestHeler.createOrientationChangeEvent();
-			// window.dispatchEvent(event);
+			const event = TestHeler.createOrientationChangeEvent();
+			window.dispatchEvent(event);
 
-			// // Then
-			// TestHeler.once(window, "orientationchange", e => {
-			// 	expect(sr.getRadian()).to.equal(0);
+			// Then
+			function then() {
+				expect(sr.getRadian()).to.equal(Math.PI / 2);
 
-			// 	// cleanup for later test
-			// 	sr.unref();
-			// 	done();
-			// });
-			/**
-			 * It's impossible to dispatch orientationchange event.
-			 * So here we go with calling private method.
-			 */
-			// sr._onOrientation
-			sr._onOrientationChange()
-			expect(sr.getRadian()).to.equal(Math.PI / 2);
+				// cleanup for later test
+				sr.unref();
+				done();
+			}
 		});
 
 		it("should returns rotated angles when screen is rotated && screen.orientation.angle is undefined", () => {
