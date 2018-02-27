@@ -623,13 +623,6 @@ export default class PanoViewer extends Component {
 			this._yawPitchControl.destroy();
 			this._yawPitchControl = null;
 		}
-
-		if (this._photoSphereRenderer) {
-			this._photoSphereRenderer.destroy();
-			this._photoSphereRenderer = null;
-		}
-
-		this._isReady = false;
 	}
 
 	static isWebGLAvailable() {
