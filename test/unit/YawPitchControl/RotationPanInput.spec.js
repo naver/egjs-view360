@@ -26,7 +26,7 @@ describe("RotationPanInput", function() {
 		it("Instance with useRotation: true", () => {
 			// Given
 			// When
-			this.inst = new RotationPanInput(sandbox(), {useRotation: true});
+			this.inst = new RotationPanInput(this.el, {useRotation: true});
 
 			// Then
 			expect(this.inst).to.be.exist;
