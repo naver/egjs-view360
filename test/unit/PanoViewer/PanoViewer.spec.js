@@ -85,15 +85,16 @@ describe("PanoViewer", function() {
 			// given
 			var videlEl = document.createElement("video");
 			videlEl.setAttribute("src", "./images/PanoViewer/pano.mp4");
-			var contentLoadedTriggered = false;
+			var readyTriggered = false;
 
 			// when
 			panoViewer = new PanoViewer(target, {
 				video: videlEl
-			}).on("contentLoaded", function() {
-				contentLoadedTriggered = true;
+			}).on("ready", function() {
+				console.log("ready");
+				readyTriggered = true;
 				// then			
-				expect(contentLoadedTriggered).to.be.true;
+				expect(readyTriggered).to.be.true;
 				done();
 			});
 		});
@@ -101,13 +102,13 @@ describe("PanoViewer", function() {
 		IT("should work with video when src defined after initiate PanoViewer", function(done) {
 			// given
 			var videlEl = document.createElement("video");
-			var contentLoadedTriggered = false;
+			var readyTriggered = false;
 			panoViewer = new PanoViewer(target, {
 				video: videlEl
-			}).on("contentLoaded", function() {
-				contentLoadedTriggered = true;
+			}).on("ready", function() {
+				readyTriggered = true;
 				// then			
-				expect(contentLoadedTriggered).to.be.true;
+				expect(readyTriggered).to.be.true;
 				done();
 			});
 
@@ -147,7 +148,7 @@ describe("PanoViewer", function() {
 			});
 
 			// When
-			panoViewer.on("contentLoaded", when);
+			panoViewer.on("ready", when);
 
 			function when() {
 				// Then
@@ -193,7 +194,7 @@ describe("PanoViewer", function() {
 			panoViewer.setVideo("./images/PanoViewer/pano.mp4");
 
 			// Then
-			panoViewer.on(PanoViewer.EVENTS.CONTENT_LOADED, e => {
+			panoViewer.on(PanoViewer.EVENTS.READY, e => {
 				const video = panoViewer.getVideo();
 				const projectionType = panoViewer.getProjectionType();
 
@@ -212,7 +213,7 @@ describe("PanoViewer", function() {
 			// Given
 			panoViewer = new PanoViewer(target, {
 				image: "./images/test_equi.png"
-			}).on(PanoViewer.EVENTS.CONTENT_LOADED, e => {
+			}).on(PanoViewer.EVENTS.READY, e => {
 				const image = panoViewer.getImage();
 
 				// When
@@ -266,7 +267,7 @@ describe("PanoViewer", function() {
 			// Given
 			panoViewer = new PanoViewer(target);
 
-			panoViewer.on(PanoViewer.EVENTS.CONTENT_LOADED, e => {
+			panoViewer.on(PanoViewer.EVENTS.READY, e => {
 				// Then
 				const image = panoViewer.getImage();
 				const projectionType = panoViewer.getProjectionType();
@@ -297,11 +298,11 @@ describe("PanoViewer", function() {
 			});
 
 			// first `onContentLoad` event is for image specified in constructor.
-			panoViewer.once(PanoViewer.EVENTS.CONTENT_LOADED, evt1 => {
+			panoViewer.once(PanoViewer.EVENTS.READY, evt1 => {
 				const prevContentSrc = evt1.content.src;
 				const prevProjectionType = evt1.projectionType;
 
-				panoViewer.once(PanoViewer.EVENTS.CONTENT_LOADED, evt2 => {
+				panoViewer.once(PanoViewer.EVENTS.READY, evt2 => {
 					// Then
 					expect(evt2.content.src).to.not.equal(prevContentSrc);
 					expect(evt2.projectionType).to.not.equal(prevProjectionType);
@@ -342,7 +343,7 @@ describe("PanoViewer", function() {
 			});
 			let isTrustedOnChange = null;
 
-			panoViewer.on("contentLoaded", () => {
+			panoViewer.on("ready", () => {
 				panoViewer.on("viewChange", e => {
 					isTrustedOnChange = e.isTrusted;
 				});
@@ -381,7 +382,7 @@ describe("PanoViewer", function() {
 				done();
 			}
 
-			panoViewer.on("contentLoaded", () => {
+			panoViewer.on("ready", () => {
 				// When
 				panoViewer.lookAt({
 					yaw: 20
@@ -413,6 +414,7 @@ describe("PanoViewer", function() {
 			photo360Viewer = new PanoViewer(target, {
 				image: "/images/book_equi_1.jpg"
 			}).on({
+				"ready": eventLogger,
 				"viewChange": eventLogger,
 				"animationEnd": eventLogger,
 				"contentLoaded": eventLogger,
@@ -442,7 +444,7 @@ describe("PanoViewer", function() {
 
 		IT("should follow event order on create", function(done) {
 			var order = [
-				PanoViewer.EVENTS.CONTENT_LOADED,
+				PanoViewer.EVENTS.READY
 			];
 
 			startEventLogTest(order, done);

@@ -148,7 +148,6 @@ var visible = new eg.Visible(document,{
 		if (!instance) { 
 			delete viewerEl["__photo360__"];
 			key = (new Date()).getTime() + idx;
-			console.log("creating PanoViewer...")
 
 			instance = new eg.view360.PanoViewer(viewerEl,{
 					image: viewerEl.getAttribute("data-source"),
@@ -157,8 +156,7 @@ var visible = new eg.Visible(document,{
 						tileConfig: {flipHorizontal:true, rotation:0}
 					}
 				}
-			).on("contentLoaded", function(evt) {
-				console.log("PanoViewer contentLoaded");
+			).on("ready", function(evt) {
 				viewerEl.classList.remove("loading");
 				viewerEl.classList.remove("inactive");
 				setTimeout(function() {
@@ -190,7 +188,6 @@ window.addEventListener("resize", function() {
 
 // eg scrollEnd 를 사용
 window.addEventListener("scroll", debounce(function() {
-	console.log("scroll")
 	visible.check()
 }, 100));
 

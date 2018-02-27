@@ -6949,6 +6949,7 @@ var ERROR_TYPE = {
 };
 
 var EVENTS = {
+	READY: "ready",
 	VIEW_CHANGE: "viewChange",
 	ANIMATION_END: "animationEnd",
 	ERROR: "error",
@@ -9272,7 +9273,7 @@ var PanoViewer = function (_Component) {
 
 		this._photoSphereRenderer.on(_PanoImageRenderer.PanoImageRenderer.EVENTS.IMAGE_LOADED, function (e) {
 			_this3._activate();
-			_this3.trigger(_consts.EVENTS.CONTENT_LOADED, e);
+			_this3.trigger(_consts.EVENTS.READY, e);
 		});
 
 		this._photoSphereRenderer.on(_PanoImageRenderer.PanoImageRenderer.EVENTS.ERROR, function (e) {
@@ -9338,6 +9339,19 @@ var PanoViewer = function (_Component) {
    *	"error" : function(evt) {
    *		// evt.type === 13
    *		// evt.messaeg === "failed to bind texture"
+   * });
+   */
+
+		/**
+   * Events that is fired when PanoViewer is ready to handle user interaction
+   * @ko PanoViewer 가 유저와 상호작용을 시작할때 발생
+   * @name eg.view360.PanoViewer#ready
+   * @event
+   * @example
+   *
+   * viwer.on({
+   *	"ready" : function(evt) {
+   *		// PanoViewer is ready to show image and handle user interaction.
    * });
    */
 
@@ -10448,18 +10462,9 @@ var PanoImageRenderer = function (_Component) {
 	};
 
 	PanoImageRenderer.prototype._onContentLoad = function _onContentLoad(image) {
-		var _this2 = this;
-
 		this._imageIsReady = true;
 
-		if (this._isVideo) {
-			this._image.addEventListener("loadeddata", function () {
-				_this2._triggerContentLoad();
-			});
-		} else {
-			this._triggerContentLoad();
-		}
-
+		this._triggerContentLoad();
 		return true;
 	};
 
@@ -10468,16 +10473,16 @@ var PanoImageRenderer = function (_Component) {
 	};
 
 	PanoImageRenderer.prototype.bindTexture = function bindTexture() {
-		var _this3 = this;
+		var _this2 = this;
 
 		return new _Promise(function (res, rej) {
-			if (!_this3._contentLoader) {
+			if (!_this2._contentLoader) {
 				rej("ImageLoader is not initialized");
 				return;
 			}
 
-			_this3._contentLoader.get().then(function () {
-				return _this3._bindTexture();
+			_this2._contentLoader.get().then(function () {
+				return _this2._bindTexture();
 			}, rej).then(res);
 		});
 	};
@@ -10911,7 +10916,6 @@ var VideoLoader = function () {
 			} else if (_this2._loadStatus === READY_STATUS.LOADING_FAILED) {
 				rej("VideoLoader: video source is invalid");
 			} else if (_this2._video.readyState >= _this2._thresholdReadyState) {
-				alert("VideoLoader.get readyState: " + _this2._video.readyState);
 				res(_this2._video);
 			} else {
 				// check errorCnt and reject
@@ -11550,6 +11554,7 @@ var YawPitchControl = function (_Component) {
 
 		_this._initAxes(opt);
 		_this.option(opt);
+		_this.disable();
 		return _this;
 	}
 
@@ -11631,6 +11636,7 @@ var YawPitchControl = function (_Component) {
 			args[_key] = arguments[_key];
 		}
 
+		// console.log("option method", args);
 		var argLen = args.length;
 
 		// Getter
@@ -11653,12 +11659,15 @@ var YawPitchControl = function (_Component) {
 			newOptions[args[0]] = args[1];
 		}
 
+		// console.log("changedKeyList", changedKeyList);
+
+
 		this._setOptions(this._getValidatedOptions(newOptions));
 		this._applyOptions(changedKeyList, beforeOptions);
 
-		if (this._enabled) {
-			this._connectInputs(changedKeyList);
-		}
+		// if (this._enabled) {
+		this._connectInputs(changedKeyList);
+		// }
 		return this;
 	};
 
@@ -11917,17 +11926,17 @@ var YawPitchControl = function (_Component) {
 		if (this._enabled) {
 			return this;
 		}
+		this._enabled = true;
 
+		this.axes.connect(["yaw", "pitch"], this.axesPanInput);
+		this._applyOptions(Object.keys(this.options), this.options);
 		this._connectInputs();
 		this._setPanScale(this.getFov());
-		this._enabled = true;
 		return this;
 	};
 
 	YawPitchControl.prototype._connectInputs = function _connectInputs() {
 		var keys = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : ["useGyro", "useKeyboard", "useZoom"];
-
-		this.axes.connect(["yaw", "pitch"], this.axesPanInput);
 
 		if (keys.some(function (key) {
 			return key === "useGyro";

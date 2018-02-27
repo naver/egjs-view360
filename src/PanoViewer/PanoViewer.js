@@ -257,7 +257,7 @@ export default class PanoViewer extends Component {
 	_bindRendererHandler() {
 		this._photoSphereRenderer.on(PanoImageRenderer.EVENTS.IMAGE_LOADED, e => {
 			this._activate();
-			this.trigger(EVENTS.CONTENT_LOADED, e);
+			this.trigger(EVENTS.READY, e);
 		});
 
 		this._photoSphereRenderer.on(PanoImageRenderer.EVENTS.ERROR, e => {
@@ -321,6 +321,19 @@ export default class PanoViewer extends Component {
 		 *	"error" : function(evt) {
 		 *		// evt.type === 13
 		 *		// evt.messaeg === "failed to bind texture"
+		 * });
+		 */
+
+		/**
+		 * Events that is fired when PanoViewer is ready to handle user interaction
+		 * @ko PanoViewer 가 유저와 상호작용을 시작할때 발생
+		 * @name eg.view360.PanoViewer#ready
+		 * @event
+		 * @example
+		 *
+		 * viwer.on({
+		 *	"ready" : function(evt) {
+		 *		// PanoViewer is ready to show image and handle user interaction.
 		 * });
 		 */
 

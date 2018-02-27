@@ -10,6 +10,7 @@ const ERROR_TYPE = {
 };
 
 const EVENTS = {
+	READY: "ready",
 	VIEW_CHANGE: "viewChange",
 	ANIMATION_END: "animationEnd",
 	ERROR: "error",

@@ -18,7 +18,7 @@
         var panoViewer = new PanoViewer(container, {
             yaw: 90,
             image: "../img/test_equi.png"
-        }).on("contentLoaded", function() {
+        }).on("ready", function() {
             panoViewer.lookAt({
                 yaw: 0
             }, 1000);
