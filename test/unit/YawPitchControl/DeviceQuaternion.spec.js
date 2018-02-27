@@ -14,13 +14,13 @@ describe("DeviceQuaternion", function() {
 		});
 	});
 
-	describe("#getCombineQuaternion", function() {
+	describe("#getCombinedQuaternion", function() {
 		it("should return quat(0, 0, 0, 0) if no motion &$ yaw = 0 && pitch = 0", () => {
 			// Given
 			this.inst = new DeviceQuaternion();
 
 			// When
-			const resultQ = this.inst.getCombineQuaternion(0, 0);
+			const resultQ = this.inst.getCombinedQuaternion(0, 0);
 
 			// Then
 			const expectedQ = quat.create();
@@ -34,7 +34,7 @@ describe("DeviceQuaternion", function() {
 			// When
 			const yaw = 10;
 			const pitch = 10;
-			let resultQ = this.inst.getCombineQuaternion(yaw, pitch);
+			let resultQ = this.inst.getCombinedQuaternion(yaw, pitch);
 			let expectedQ = quat.create();
 
 			// Then

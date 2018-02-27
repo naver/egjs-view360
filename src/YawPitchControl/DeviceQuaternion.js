@@ -23,7 +23,7 @@ export default class DeviceQuaternion extends Component {
 		});
 	}
 
-	getCombineQuaternion(yaw, pitch) {
+	getCombinedQuaternion(yaw, pitch) {
 		const deviceR = this._screenRotationAngle.getRadian();
 
 		// rotate x-axis around z-axis about screen rotation angle.

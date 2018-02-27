@@ -443,7 +443,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 		event.fov = pos.fov;
 
 		if (opt.gyroMode === GYRO_MODE.VR) {
-			event.quaternion = this._deviceQuaternion.getCombineQuaternion(pos.yaw, pos.pitch);
+			event.quaternion = this._deviceQuaternion.getCombinedQuaternion(pos.yaw, pos.pitch);
 		}
 		this.trigger("change", event);
 	}

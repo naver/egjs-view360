@@ -131,7 +131,7 @@ describe("YawPitchControl", function() {
 			var callback = sinon.spy();
 
 			setTimeout(() => {
-				this.inst.on("change", () => callback);
+				this.inst.on("change", callback);
 
 				// When
 				Simulator.gestures.pan(target, { // this.el 이 300 * 300 이라고 가정
@@ -1481,7 +1481,7 @@ describe("YawPitchControl", function() {
 			constructor() {
 				this._timer = null;
 			}
-			getCombineQuaternion(yaw, pitch) {
+			getCombinedQuaternion(yaw, pitch) {
 				return quat.create();
 			}
 			on(eventName, callback) {
