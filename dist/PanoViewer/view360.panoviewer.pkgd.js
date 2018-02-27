@@ -590,19 +590,19 @@ var _common = __webpack_require__(4);
 
 var _common2 = _interopRequireDefault(_common);
 
-var _vec = __webpack_require__(51);
+var _vec = __webpack_require__(52);
 
 var _vec2 = _interopRequireDefault(_vec);
 
-var _vec3 = __webpack_require__(50);
+var _vec3 = __webpack_require__(51);
 
 var _vec4 = _interopRequireDefault(_vec3);
 
-var _quat = __webpack_require__(49);
+var _quat = __webpack_require__(50);
 
 var _quat2 = _interopRequireDefault(_quat);
 
-var _mat = __webpack_require__(48);
+var _mat = __webpack_require__(49);
 
 var _mat2 = _interopRequireDefault(_mat);
 
@@ -3719,6 +3719,476 @@ if (true) {
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
+/*!
+ * Copyright (c) 2017 NAVER Corp.
+ * @egjs/agent project is licensed under the MIT license
+ * 
+ * @egjs/agent JavaScript library
+ * 
+ * 
+ * @version 2.1.2
+ */
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(true)
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else if(typeof exports === 'object')
+		exports["agent"] = factory();
+	else
+		root["eg"] = root["eg"] || {}, root["eg"]["agent"] = factory();
+})(this, function() {
+return /******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _agent = __webpack_require__(1);
+
+var _agent2 = _interopRequireDefault(_agent);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+module.exports = _agent2["default"]; /**
+                                      * Copyright (c) NAVER Corp.
+                                      * egjs-agent projects are licensed under the MIT license
+                                      */
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _browser = __webpack_require__(2);
+
+var _Parser = __webpack_require__(3);
+
+var _Parser2 = _interopRequireDefault(_Parser);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+/**
+ * @namespace eg
+ */
+
+/**
+ * Extracts browser and operating system information from the user agent string.
+ * @ko 유저 에이전트 문자열에서 브라우저와 운영체제 정보를 추출한다.
+ * @function eg#agent
+ * @param {String} [userAgent=navigator.userAgent] user agent string to parse <ko>파싱할 유저에이전트 문자열</ko>
+ * @return {Object} agentInfo
+ * @return {Object} agentInfo.os os Operating system information <ko>운영체제 정보</ko>
+ * @return {String} agentInfo.os.name Operating system name (android, ios, window, mac, unknown) <ko>운영체제 이름 (android, ios, window, mac, unknown)</ko>
+ * @return {String} agentInfo.os.version Operating system version <ko>운영체제 버전</ko>
+ * @return {String} agentInfo.browser Browser information <ko>브라우저 정보</ko>
+ * @return {String} agentInfo.browser.name Browser name (safari, chrome, sbrowser, ie, firefox, unknown) <ko>브라우저 이름 (safari, chrome, sbrowser, ie, firefox, unknown)</ko>
+ * @return {String} agentInfo.browser.version Browser version <ko>브라우저 버전 </ko>
+ * @return {Boolean} agentInfo.browser.webview Indicates whether the browser is inapp<ko>웹뷰 브라우저 여부</ko>
+ * @return {Boolean} agentInfo.isMobile Indicates whether the browser is for mobile<ko>모바일 브라우저 여부</ko>
+ */
+/**
+ * Copyright (c) NAVER Corp.
+ * egjs-agent projects are licensed under the MIT license
+ */
+function agent() {
+  var ua = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _browser.navigator.userAgent;
+
+  _Parser2["default"].setUa(ua);
+
+  var agentInfo = {
+    os: _Parser2["default"].getOs(),
+    browser: _Parser2["default"].getBrowser(),
+    isMobile: _Parser2["default"].getIsMobile()
+  };
+
+  agentInfo.browser.name = agentInfo.browser.name.toLowerCase();
+  agentInfo.os.name = agentInfo.os.name.toLowerCase();
+  agentInfo.os.version = agentInfo.os.version.toLowerCase();
+
+  if (agentInfo.os.name === "ios" && agentInfo.browser.webview) {
+    agentInfo.browser.version = "-1";
+  }
+
+  return agentInfo;
+}
+agent.VERSION = "2.1.2";
+exports["default"] = agent;
+module.exports = exports["default"];
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+var win = typeof window !== "undefined" && window || {};
+
+var RegExp = exports.RegExp = win.RegExp;
+var navigator = exports.navigator = win.navigator;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _parseRules = __webpack_require__(4);
+
+var _parseRules2 = _interopRequireDefault(_parseRules);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+var UA = void 0;
+
+function setUa(ua) {
+	UA = ua;
+}
+
+function isMatched(base, target) {
+	return target && target.test ? !!target.test(base) : base.indexOf(target) > -1;
+}
+
+function getIdentityStringFromArray(rules, defaultStrings) {
+	var matchedRule = rules.filter(function (rule) {
+		return isMatched(UA, rule.criteria);
+	})[0];
+
+	return matchedRule && matchedRule.identity || defaultStrings.name;
+}
+
+function getRule(rules, targetIdentity) {
+	return rules.filter(function (rule) {
+		var criteria = rule.criteria;
+		var identityMatched = new RegExp(rule.identity, "i").test(targetIdentity);
+
+		if (criteria ? identityMatched && isMatched(UA, criteria) : identityMatched) {
+			return true;
+		} else {
+			return false;
+		}
+	})[0];
+}
+
+function getBrowserName() {
+	return getIdentityStringFromArray(_parseRules2["default"].browser, _parseRules2["default"].defaultString.browser);
+}
+
+function getBrowserRule(browserName) {
+	var rule = getRule(_parseRules2["default"].browser, browserName);
+
+	if (!rule) {
+		rule = {
+			criteria: browserName,
+			versionSearch: browserName,
+			identity: browserName
+		};
+	}
+
+	return rule;
+}
+
+function extractBrowserVersion(versionToken, ua) {
+	var browserVersion = _parseRules2["default"].defaultString.browser.version;
+	var versionRegexResult = new RegExp("(" + versionToken + ")", "i").exec(ua);
+
+	if (!versionRegexResult) {
+		return browserVersion;
+	}
+
+	var versionTokenIndex = versionRegexResult.index;
+	var verTkn = versionRegexResult[0];
+
+	if (versionTokenIndex > -1) {
+		var versionIndex = versionTokenIndex + verTkn.length + 1;
+
+		browserVersion = ua.substring(versionIndex).split(" ")[0].replace(/_/g, ".").replace(/;|\)/g, "");
+	}
+	return browserVersion;
+}
+
+function getBrowserVersion(browserName) {
+	if (!browserName) {
+		return undefined;
+	}
+
+	// console.log(browserRule);
+	// const versionToken = browserRule ? browserRule.versionSearch : browserName;
+	var browserRule = getBrowserRule(browserName);
+	var versionToken = browserRule.versionSearch || browserName;
+	var browserVersion = extractBrowserVersion(versionToken, UA);
+
+	return browserVersion;
+}
+
+function isWebview() {
+	var webviewRules = _parseRules2["default"].webview;
+	var browserVersion = void 0;
+
+	return webviewRules.filter(function (rule) {
+		return isMatched(UA, rule.criteria);
+	}).some(function (rule) {
+		browserVersion = extractBrowserVersion(rule.browserVersionSearch, UA);
+		if (isMatched(UA, rule.webviewToken) || isMatched(browserVersion, rule.webviewBrowserVersion)) {
+			return true;
+		} else {
+			return false;
+		}
+	});
+}
+
+function getOSRule(osName) {
+	return getRule(_parseRules2["default"].os, osName);
+}
+
+function getOsName() {
+	return getIdentityStringFromArray(_parseRules2["default"].os, _parseRules2["default"].defaultString.os);
+}
+
+function getOsVersion(osName) {
+	var osRule = getOSRule(osName) || {};
+	var defaultOSVersion = _parseRules2["default"].defaultString.os.version;
+	var osVersion = void 0;
+
+	if (!osName) {
+		return undefined;
+	}
+	if (osRule.versionAlias) {
+		return osRule.versionAlias;
+	}
+	var osVersionToken = osRule.versionSearch || osName;
+	var osVersionRegex = new RegExp("(" + osVersionToken + ")\\s([\\d_\\.]+|\\d_0)", "i");
+	var osVersionRegexResult = osVersionRegex.exec(UA);
+
+	if (osVersionRegexResult) {
+		osVersion = osVersionRegex.exec(UA)[2].replace(/_/g, ".").replace(/;|\)/g, "");
+	}
+	return osVersion || defaultOSVersion;
+}
+
+function getOs() {
+	var name = getOsName();
+	var version = getOsVersion(name);
+
+	return { name: name, version: version };
+}
+
+function getBrowser() {
+	var name = getBrowserName();
+	var version = getBrowserVersion(name);
+
+	return { name: name, version: version, webview: isWebview() };
+}
+
+function getIsMobile() {
+	return UA.indexOf("Mobi") !== -1;
+}
+
+exports["default"] = {
+	getOs: getOs,
+	getBrowser: getBrowser,
+	getIsMobile: getIsMobile,
+	setUa: setUa
+};
+module.exports = exports["default"];
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+var parseRules = {
+	browser: [{
+		criteria: "PhantomJS",
+		identity: "PhantomJS"
+	}, {
+		criteria: /Whale/,
+		identity: "Whale",
+		versionSearch: "Whale"
+	}, {
+		criteria: /Edge/,
+		identity: "Edge",
+		versionSearch: "Edge"
+	}, {
+		criteria: /MSIE|Trident|Windows Phone/,
+		identity: "IE",
+		versionSearch: "IEMobile|MSIE|rv"
+	}, {
+		criteria: /MiuiBrowser/,
+		identity: "MIUI Browser",
+		versionSearch: "MiuiBrowser"
+	}, {
+		criteria: /SamsungBrowser/,
+		identity: "Samsung Internet",
+		versionSearch: "SamsungBrowser"
+	}, {
+		criteria: /SAMSUNG /,
+		identity: "Samsung Internet",
+		versionSearch: "Version"
+	}, {
+		criteria: /Chrome|CriOS/,
+		identity: "Chrome"
+	}, {
+		criteria: /Android/,
+		identity: "Android Browser",
+		versionSearch: "Version"
+	}, {
+		criteria: /iPhone|iPad/,
+		identity: "Safari",
+		versionSearch: "Version"
+	}, {
+		criteria: "Apple",
+		identity: "Safari",
+		versionSearch: "Version"
+	}, {
+		criteria: "Firefox",
+		identity: "Firefox"
+	}],
+	os: [{
+		criteria: /Windows Phone/,
+		identity: "Windows Phone",
+		versionSearch: "Windows Phone"
+	}, {
+		criteria: "Windows 2000",
+		identity: "Window",
+		versionAlias: "5.0"
+	}, {
+		criteria: /Windows NT/,
+		identity: "Window",
+		versionSearch: "Windows NT"
+	}, {
+		criteria: /iPhone|iPad/,
+		identity: "iOS",
+		versionSearch: "iPhone OS|CPU OS"
+	}, {
+		criteria: "Mac",
+		versionSearch: "OS X",
+		identity: "MAC"
+	}, {
+		criteria: /Android/,
+		identity: "Android"
+	}, {
+		criteria: /Tizen/,
+		identity: "Tizen"
+	}, {
+		criteria: /Web0S/,
+		identity: "WebOS"
+	}],
+
+	// Webview check condition
+	// ios: If has no version information
+	// Android 5.0 && chrome 40+: Presence of "; wv" in userAgent
+	// Under android 5.0: Presence of "NAVER" or "Daum" in userAgent
+	webview: [{
+		criteria: /iPhone|iPad/,
+		browserVersionSearch: "Version",
+		webviewBrowserVersion: /-1/
+	}, {
+		criteria: /iPhone|iPad|Android/,
+		webviewToken: /NAVER|DAUM|; wv/
+
+	}],
+	defaultString: {
+		browser: {
+			version: "-1",
+			name: "unknown"
+		},
+		os: {
+			version: "-1",
+			name: "unknown"
+		}
+	}
+};
+
+exports["default"] = parseRules;
+module.exports = exports["default"];
+
+/***/ })
+/******/ ]);
+});
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
 /* WEBPACK VAR INJECTION */(function(process, global) {/*!
  * @overview es6-promise - a tiny implementation of Promises/A+.
  * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
@@ -4899,10 +5369,10 @@ return Promise$1;
 
 //# sourceMappingURL=es6-promise.map
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(52), __webpack_require__(53)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(53), __webpack_require__(54)))
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports) {
 
 /*
@@ -5265,7 +5735,7 @@ module.exports = MathUtil;
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5295,7 +5765,201 @@ exports.TRANSFORM = (function () {
 
 
 /***/ }),
-/* 11 */
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _agent = __webpack_require__(8);
+
+var _agent2 = _interopRequireDefault(_agent);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var WEBGL_ERROR_CODE = {
+	"0": "NO_ERROR",
+	"1280": "INVALID_ENUM",
+	"1281": "INVALID_VALUE",
+	"1282": "INVALID_OPERATION",
+	"1285": "OUT_OF_MEMORY",
+	"1286": "INVALID_FRAMEBUFFER_OPERATION",
+	"37442": "CONTEXT_LOST_WEBGL"
+};
+
+var webglAvailability = null;
+
+var WebGLUtils = function () {
+	function WebGLUtils() {
+		_classCallCheck(this, WebGLUtils);
+	}
+
+	WebGLUtils.createShader = function createShader(gl, type, source) {
+		var shader = gl.createShader(type);
+
+		gl.shaderSource(shader, source);
+		gl.compileShader(shader);
+		var success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+
+		if (success) {
+			return shader;
+		}
+
+		gl.deleteShader(shader);
+		return null;
+	};
+
+	WebGLUtils.createProgram = function createProgram(gl, vertexShader, fragmentShader) {
+		var program = gl.createProgram();
+
+		gl.attachShader(program, vertexShader);
+		gl.attachShader(program, fragmentShader);
+		gl.linkProgram(program);
+		var success = gl.getProgramParameter(program, gl.LINK_STATUS);
+
+		if (success) {
+			return program;
+		}
+
+		gl.deleteProgram(program);
+		return null;
+	};
+
+	WebGLUtils.initBuffer = function initBuffer(gl, target /* bind point */, data, itemSize, attr) {
+		var buffer = gl.createBuffer();
+
+		gl.bindBuffer(target, buffer);
+		gl.bufferData(target, data, gl.STATIC_DRAW);
+
+		if (buffer) {
+			buffer.itemSize = itemSize;
+			buffer.numItems = data.length / itemSize;
+		}
+
+		if (attr !== undefined) {
+			gl.enableVertexAttribArray(attr);
+			gl.vertexAttribPointer(attr, buffer.itemSize, gl.FLOAT, false, 0, 0);
+		}
+
+		return buffer;
+	};
+
+	WebGLUtils.bindBufferToAttribute = function bindBufferToAttribute(gl, buffer, attr) {
+		if (buffer === null || attr === null) {
+			return;
+		}
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+		gl.vertexAttribPointer(attr, buffer.itemSize, gl.FLOAT, false, 0, 0);
+	};
+
+	WebGLUtils.getWebglContext = function getWebglContext(canvas, userContextAttributes) {
+		var webglIdentifiers = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
+		var context = null;
+		var contextAttributes = _extends({
+			preserveDrawingBuffer: false,
+			antialias: false
+		}, userContextAttributes);
+
+		function onWebglcontextcreationerror(e) {
+			return e.statusMessage;
+		}
+
+		canvas.addEventListener("webglcontextcreationerror", onWebglcontextcreationerror);
+
+		for (var i = 0; i < webglIdentifiers.length; i++) {
+			try {
+				context = canvas.getContext(webglIdentifiers[i], contextAttributes);
+			} catch (t) {}
+			if (context) {
+				break;
+			}
+		}
+
+		canvas.removeEventListener("webglcontextcreationerror", onWebglcontextcreationerror);
+
+		return context;
+	};
+
+	WebGLUtils.createTexture = function createTexture(gl, textureTarget) {
+		var texture = gl.createTexture();
+
+		gl.bindTexture(textureTarget, texture);
+		gl.texParameteri(textureTarget, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.texParameteri(textureTarget, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.texParameteri(textureTarget, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(textureTarget, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		gl.bindTexture(textureTarget, null);
+
+		return texture;
+	};
+
+	/**
+  * Returns the webgl availability of the current browser.
+  * @method WebGLUtils#isWebGLAvailable
+  * @retuen {Boolean} isWebGLAvailable
+  */
+
+
+	WebGLUtils.isWebGLAvailable = function isWebGLAvailable() {
+		if (webglAvailability === null) {
+			var canvas = document.createElement("canvas");
+			var webglContext = WebGLUtils.getWebglContext(canvas);
+
+			webglAvailability = !!webglContext;
+
+			// webglContext Resource forced collection
+			if (webglContext) {
+				var loseContextExtension = webglContext.getExtension("WEBGL_lose_context");
+
+				loseContextExtension && loseContextExtension.loseContext();
+			}
+		}
+		return webglAvailability;
+	};
+
+	/**
+  * Returns whether webgl is stable in the current browser.
+  * @method WebGLUtils#isStableWebGL
+  * @retuen {Boolean} isStableWebGL
+  */
+
+
+	WebGLUtils.isStableWebGL = function isStableWebGL() {
+		var agentInfo = (0, _agent2["default"])();
+		var isStableWebgl = true;
+
+		if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) <= 4.3) {
+			isStableWebgl = false;
+		} else if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) === 4.4) {
+			if (agentInfo.browser.name !== "chrome") {
+				isStableWebgl = false;
+			}
+		}
+		return isStableWebgl;
+	};
+
+	WebGLUtils.getErrorNameFromWebGLErrorCode = function getErrorNameFromWebGLErrorCode(code) {
+		if (!(code in WEBGL_ERROR_CODE)) {
+			return "UNKNOWN_ERROR";
+		}
+
+		return WEBGL_ERROR_CODE[code];
+	};
+
+	return WebGLUtils;
+}();
+
+exports["default"] = WebGLUtils;
+
+/***/ }),
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5319,7 +5983,7 @@ var SUPPORT_TOUCH = exports.SUPPORT_TOUCH = "ontouchstart" in win;
 var SUPPORT_DEVICEMOTION = exports.SUPPORT_DEVICEMOTION = "ondevicemotion" in win;
 
 /***/ }),
-/* 12 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5391,477 +6055,7 @@ exports.PINCH_EVENTS = PINCH_EVENTS;
 exports.KEYMAP = KEYMAP;
 
 /***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*!
- * Copyright (c) 2017 NAVER Corp.
- * @egjs/agent project is licensed under the MIT license
- * 
- * @egjs/agent JavaScript library
- * 
- * 
- * @version 2.1.2
- */
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(true)
-		module.exports = factory();
-	else if(typeof define === 'function' && define.amd)
-		define([], factory);
-	else if(typeof exports === 'object')
-		exports["agent"] = factory();
-	else
-		root["eg"] = root["eg"] || {}, root["eg"]["agent"] = factory();
-})(this, function() {
-return /******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
-/******/ })
-/************************************************************************/
-/******/ ([
-/* 0 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _agent = __webpack_require__(1);
-
-var _agent2 = _interopRequireDefault(_agent);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-module.exports = _agent2["default"]; /**
-                                      * Copyright (c) NAVER Corp.
-                                      * egjs-agent projects are licensed under the MIT license
-                                      */
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-
-var _browser = __webpack_require__(2);
-
-var _Parser = __webpack_require__(3);
-
-var _Parser2 = _interopRequireDefault(_Parser);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-/**
- * @namespace eg
- */
-
-/**
- * Extracts browser and operating system information from the user agent string.
- * @ko 유저 에이전트 문자열에서 브라우저와 운영체제 정보를 추출한다.
- * @function eg#agent
- * @param {String} [userAgent=navigator.userAgent] user agent string to parse <ko>파싱할 유저에이전트 문자열</ko>
- * @return {Object} agentInfo
- * @return {Object} agentInfo.os os Operating system information <ko>운영체제 정보</ko>
- * @return {String} agentInfo.os.name Operating system name (android, ios, window, mac, unknown) <ko>운영체제 이름 (android, ios, window, mac, unknown)</ko>
- * @return {String} agentInfo.os.version Operating system version <ko>운영체제 버전</ko>
- * @return {String} agentInfo.browser Browser information <ko>브라우저 정보</ko>
- * @return {String} agentInfo.browser.name Browser name (safari, chrome, sbrowser, ie, firefox, unknown) <ko>브라우저 이름 (safari, chrome, sbrowser, ie, firefox, unknown)</ko>
- * @return {String} agentInfo.browser.version Browser version <ko>브라우저 버전 </ko>
- * @return {Boolean} agentInfo.browser.webview Indicates whether the browser is inapp<ko>웹뷰 브라우저 여부</ko>
- * @return {Boolean} agentInfo.isMobile Indicates whether the browser is for mobile<ko>모바일 브라우저 여부</ko>
- */
-/**
- * Copyright (c) NAVER Corp.
- * egjs-agent projects are licensed under the MIT license
- */
-function agent() {
-  var ua = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _browser.navigator.userAgent;
-
-  _Parser2["default"].setUa(ua);
-
-  var agentInfo = {
-    os: _Parser2["default"].getOs(),
-    browser: _Parser2["default"].getBrowser(),
-    isMobile: _Parser2["default"].getIsMobile()
-  };
-
-  agentInfo.browser.name = agentInfo.browser.name.toLowerCase();
-  agentInfo.os.name = agentInfo.os.name.toLowerCase();
-  agentInfo.os.version = agentInfo.os.version.toLowerCase();
-
-  if (agentInfo.os.name === "ios" && agentInfo.browser.webview) {
-    agentInfo.browser.version = "-1";
-  }
-
-  return agentInfo;
-}
-agent.VERSION = "2.1.2";
-exports["default"] = agent;
-module.exports = exports["default"];
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-var win = typeof window !== "undefined" && window || {};
-
-var RegExp = exports.RegExp = win.RegExp;
-var navigator = exports.navigator = win.navigator;
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-
-var _parseRules = __webpack_require__(4);
-
-var _parseRules2 = _interopRequireDefault(_parseRules);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-var UA = void 0;
-
-function setUa(ua) {
-	UA = ua;
-}
-
-function isMatched(base, target) {
-	return target && target.test ? !!target.test(base) : base.indexOf(target) > -1;
-}
-
-function getIdentityStringFromArray(rules, defaultStrings) {
-	var matchedRule = rules.filter(function (rule) {
-		return isMatched(UA, rule.criteria);
-	})[0];
-
-	return matchedRule && matchedRule.identity || defaultStrings.name;
-}
-
-function getRule(rules, targetIdentity) {
-	return rules.filter(function (rule) {
-		var criteria = rule.criteria;
-		var identityMatched = new RegExp(rule.identity, "i").test(targetIdentity);
-
-		if (criteria ? identityMatched && isMatched(UA, criteria) : identityMatched) {
-			return true;
-		} else {
-			return false;
-		}
-	})[0];
-}
-
-function getBrowserName() {
-	return getIdentityStringFromArray(_parseRules2["default"].browser, _parseRules2["default"].defaultString.browser);
-}
-
-function getBrowserRule(browserName) {
-	var rule = getRule(_parseRules2["default"].browser, browserName);
-
-	if (!rule) {
-		rule = {
-			criteria: browserName,
-			versionSearch: browserName,
-			identity: browserName
-		};
-	}
-
-	return rule;
-}
-
-function extractBrowserVersion(versionToken, ua) {
-	var browserVersion = _parseRules2["default"].defaultString.browser.version;
-	var versionRegexResult = new RegExp("(" + versionToken + ")", "i").exec(ua);
-
-	if (!versionRegexResult) {
-		return browserVersion;
-	}
-
-	var versionTokenIndex = versionRegexResult.index;
-	var verTkn = versionRegexResult[0];
-
-	if (versionTokenIndex > -1) {
-		var versionIndex = versionTokenIndex + verTkn.length + 1;
-
-		browserVersion = ua.substring(versionIndex).split(" ")[0].replace(/_/g, ".").replace(/;|\)/g, "");
-	}
-	return browserVersion;
-}
-
-function getBrowserVersion(browserName) {
-	if (!browserName) {
-		return undefined;
-	}
-
-	// console.log(browserRule);
-	// const versionToken = browserRule ? browserRule.versionSearch : browserName;
-	var browserRule = getBrowserRule(browserName);
-	var versionToken = browserRule.versionSearch || browserName;
-	var browserVersion = extractBrowserVersion(versionToken, UA);
-
-	return browserVersion;
-}
-
-function isWebview() {
-	var webviewRules = _parseRules2["default"].webview;
-	var browserVersion = void 0;
-
-	return webviewRules.filter(function (rule) {
-		return isMatched(UA, rule.criteria);
-	}).some(function (rule) {
-		browserVersion = extractBrowserVersion(rule.browserVersionSearch, UA);
-		if (isMatched(UA, rule.webviewToken) || isMatched(browserVersion, rule.webviewBrowserVersion)) {
-			return true;
-		} else {
-			return false;
-		}
-	});
-}
-
-function getOSRule(osName) {
-	return getRule(_parseRules2["default"].os, osName);
-}
-
-function getOsName() {
-	return getIdentityStringFromArray(_parseRules2["default"].os, _parseRules2["default"].defaultString.os);
-}
-
-function getOsVersion(osName) {
-	var osRule = getOSRule(osName) || {};
-	var defaultOSVersion = _parseRules2["default"].defaultString.os.version;
-	var osVersion = void 0;
-
-	if (!osName) {
-		return undefined;
-	}
-	if (osRule.versionAlias) {
-		return osRule.versionAlias;
-	}
-	var osVersionToken = osRule.versionSearch || osName;
-	var osVersionRegex = new RegExp("(" + osVersionToken + ")\\s([\\d_\\.]+|\\d_0)", "i");
-	var osVersionRegexResult = osVersionRegex.exec(UA);
-
-	if (osVersionRegexResult) {
-		osVersion = osVersionRegex.exec(UA)[2].replace(/_/g, ".").replace(/;|\)/g, "");
-	}
-	return osVersion || defaultOSVersion;
-}
-
-function getOs() {
-	var name = getOsName();
-	var version = getOsVersion(name);
-
-	return { name: name, version: version };
-}
-
-function getBrowser() {
-	var name = getBrowserName();
-	var version = getBrowserVersion(name);
-
-	return { name: name, version: version, webview: isWebview() };
-}
-
-function getIsMobile() {
-	return UA.indexOf("Mobi") !== -1;
-}
-
-exports["default"] = {
-	getOs: getOs,
-	getBrowser: getBrowser,
-	getIsMobile: getIsMobile,
-	setUa: setUa
-};
-module.exports = exports["default"];
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-var parseRules = {
-	browser: [{
-		criteria: "PhantomJS",
-		identity: "PhantomJS"
-	}, {
-		criteria: /Whale/,
-		identity: "Whale",
-		versionSearch: "Whale"
-	}, {
-		criteria: /Edge/,
-		identity: "Edge",
-		versionSearch: "Edge"
-	}, {
-		criteria: /MSIE|Trident|Windows Phone/,
-		identity: "IE",
-		versionSearch: "IEMobile|MSIE|rv"
-	}, {
-		criteria: /MiuiBrowser/,
-		identity: "MIUI Browser",
-		versionSearch: "MiuiBrowser"
-	}, {
-		criteria: /SamsungBrowser/,
-		identity: "Samsung Internet",
-		versionSearch: "SamsungBrowser"
-	}, {
-		criteria: /SAMSUNG /,
-		identity: "Samsung Internet",
-		versionSearch: "Version"
-	}, {
-		criteria: /Chrome|CriOS/,
-		identity: "Chrome"
-	}, {
-		criteria: /Android/,
-		identity: "Android Browser",
-		versionSearch: "Version"
-	}, {
-		criteria: /iPhone|iPad/,
-		identity: "Safari",
-		versionSearch: "Version"
-	}, {
-		criteria: "Apple",
-		identity: "Safari",
-		versionSearch: "Version"
-	}, {
-		criteria: "Firefox",
-		identity: "Firefox"
-	}],
-	os: [{
-		criteria: /Windows Phone/,
-		identity: "Windows Phone",
-		versionSearch: "Windows Phone"
-	}, {
-		criteria: "Windows 2000",
-		identity: "Window",
-		versionAlias: "5.0"
-	}, {
-		criteria: /Windows NT/,
-		identity: "Window",
-		versionSearch: "Windows NT"
-	}, {
-		criteria: /iPhone|iPad/,
-		identity: "iOS",
-		versionSearch: "iPhone OS|CPU OS"
-	}, {
-		criteria: "Mac",
-		versionSearch: "OS X",
-		identity: "MAC"
-	}, {
-		criteria: /Android/,
-		identity: "Android"
-	}, {
-		criteria: /Tizen/,
-		identity: "Tizen"
-	}, {
-		criteria: /Web0S/,
-		identity: "WebOS"
-	}],
-
-	// Webview check condition
-	// ios: If has no version information
-	// Android 5.0 && chrome 40+: Presence of "; wv" in userAgent
-	// Under android 5.0: Presence of "NAVER" or "Daum" in userAgent
-	webview: [{
-		criteria: /iPhone|iPad/,
-		browserVersionSearch: "Version",
-		webviewBrowserVersion: /-1/
-	}, {
-		criteria: /iPhone|iPad|Android/,
-		webviewToken: /NAVER|DAUM|; wv/
-
-	}],
-	defaultString: {
-		browser: {
-			version: "-1",
-			name: "unknown"
-		},
-		os: {
-			version: "-1",
-			name: "unknown"
-		}
-	}
-};
-
-exports["default"] = parseRules;
-module.exports = exports["default"];
-
-/***/ })
-/******/ ]);
-});
-
-/***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports) {
 
 /*
@@ -6348,7 +6542,7 @@ module.exports = Util;
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6367,214 +6561,8 @@ exports["default"] = Axes_1["default"];
 
 
 /***/ }),
-/* 16 */,
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-
-var _agent = __webpack_require__(13);
-
-var _agent2 = _interopRequireDefault(_agent);
-
-var _browser = __webpack_require__(18);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var WEBGL_ERROR_CODE = {
-	"0": "NO_ERROR",
-	"1280": "INVALID_ENUM",
-	"1281": "INVALID_VALUE",
-	"1282": "INVALID_OPERATION",
-	"1285": "OUT_OF_MEMORY",
-	"1286": "INVALID_FRAMEBUFFER_OPERATION",
-	"37442": "CONTEXT_LOST_WEBGL"
-};
-
-var webglAvailability = null;
-
-var WebGLUtils = function () {
-	function WebGLUtils() {
-		_classCallCheck(this, WebGLUtils);
-	}
-
-	WebGLUtils.createShader = function createShader(gl, type, source) {
-		var shader = gl.createShader(type);
-
-		gl.shaderSource(shader, source);
-		gl.compileShader(shader);
-		var success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-
-		if (success) {
-			return shader;
-		}
-
-		gl.deleteShader(shader);
-		return null;
-	};
-
-	WebGLUtils.createProgram = function createProgram(gl, vertexShader, fragmentShader) {
-		var program = gl.createProgram();
-
-		gl.attachShader(program, vertexShader);
-		gl.attachShader(program, fragmentShader);
-		gl.linkProgram(program);
-		var success = gl.getProgramParameter(program, gl.LINK_STATUS);
-
-		if (success) {
-			return program;
-		}
-
-		gl.deleteProgram(program);
-		return null;
-	};
-
-	WebGLUtils.initBuffer = function initBuffer(gl, target /* bind point */, data, itemSize, attr) {
-		var buffer = gl.createBuffer();
-
-		gl.bindBuffer(target, buffer);
-		gl.bufferData(target, data, gl.STATIC_DRAW);
-
-		if (buffer) {
-			buffer.itemSize = itemSize;
-			buffer.numItems = data.length / itemSize;
-		}
-
-		if (attr !== undefined) {
-			gl.enableVertexAttribArray(attr);
-			gl.vertexAttribPointer(attr, buffer.itemSize, gl.FLOAT, false, 0, 0);
-		}
-
-		return buffer;
-	};
-
-	WebGLUtils.bindBufferToAttribute = function bindBufferToAttribute(gl, buffer, attr) {
-		if (buffer === null || attr === null) {
-			return;
-		}
-
-		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-		gl.vertexAttribPointer(attr, buffer.itemSize, gl.FLOAT, false, 0, 0);
-	};
-
-	WebGLUtils.getWebglContext = function getWebglContext(canvas) {
-		var webglIdentifiers = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
-		var context = null;
-		var shouldPreserveDrawingBuffer = !(_browser.userAgent.indexOf("NAVER") !== -1 && _browser.userAgent.indexOf("SM-G925S") !== -1);
-
-		function onWebglcontextcreationerror(e) {
-			return e.statusMessage;
-		}
-
-		canvas.addEventListener("webglcontextcreationerror", onWebglcontextcreationerror);
-
-		for (var i = 0; i < webglIdentifiers.length; i++) {
-			try {
-				// preserveDrawingBuffer: if true, the Galaxy s6 Naver app will experience tremor
-				context = canvas.getContext(webglIdentifiers[i], {
-					preserveDrawingBuffer: shouldPreserveDrawingBuffer,
-					antialias: false /* TODO: Make it user option for antialiasing */
-				});
-			} catch (t) {}
-			if (context) {
-				break;
-			}
-		}
-
-		canvas.removeEventListener("webglcontextcreationerror", onWebglcontextcreationerror);
-
-		return context;
-	};
-
-	WebGLUtils.createTexture = function createTexture(gl, textureTarget) {
-		var texture = gl.createTexture();
-
-		gl.bindTexture(textureTarget, texture);
-		gl.texParameteri(textureTarget, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.texParameteri(textureTarget, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.texParameteri(textureTarget, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(textureTarget, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-		gl.bindTexture(textureTarget, null);
-
-		return texture;
-	};
-
-	/**
-  * Returns the webgl availability of the current browser.
-  * @method WebGLUtils#isWebGLAvailable
-  * @retuen {Boolean} isWebGLAvailable
-  */
-
-
-	WebGLUtils.isWebGLAvailable = function isWebGLAvailable() {
-		if (webglAvailability === null) {
-			var canvas = document.createElement("canvas");
-			var webglContext = WebGLUtils.getWebglContext(canvas);
-
-			webglAvailability = !!webglContext;
-
-			// webglContext Resource forced collection
-			if (webglContext) {
-				var loseContextExtension = webglContext.getExtension("WEBGL_lose_context");
-
-				loseContextExtension && loseContextExtension.loseContext();
-			}
-		}
-		return webglAvailability;
-	};
-
-	/**
-  * Returns whether webgl is stable in the current browser.
-  * @method WebGLUtils#isStableWebGL
-  * @retuen {Boolean} isStableWebGL
-  */
-
-
-	WebGLUtils.isStableWebGL = function isStableWebGL() {
-		var agentInfo = (0, _agent2["default"])();
-		var isStableWebgl = true;
-
-		if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) <= 4.3) {
-			isStableWebgl = false;
-		} else if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) === 4.4) {
-			if (agentInfo.browser.name !== "chrome") {
-				isStableWebgl = false;
-			}
-		}
-		return isStableWebgl;
-	};
-
-	WebGLUtils.getErrorNameFromWebGLErrorCode = function getErrorNameFromWebGLErrorCode(code) {
-		if (!(code in WEBGL_ERROR_CODE)) {
-			return "UNKNOWN_ERROR";
-		}
-
-		return WEBGL_ERROR_CODE[code];
-	};
-
-	return WebGLUtils;
-}();
-
-exports["default"] = WebGLUtils;
-
-/***/ }),
+/* 17 */,
 /* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-var userAgent = exports.userAgent = window.navigator.userAgent;
-var devicePixelRatio = exports.devicePixelRatio = window.devicePixelRatio;
-
-/***/ }),
-/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6589,6 +6577,44 @@ var Renderer = function Renderer() {
 };
 
 exports["default"] = Renderer;
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _consts = __webpack_require__(14);
+
+var ERROR_TYPE = {
+	INVALID_DEVICE: 10,
+	NO_WEBGL: 11,
+	FAIL_IMAGE_LOAD: 12,
+	FAIL_BIND_TEXTURE: 13,
+	INVALID_RESOURCE: 14,
+	RENDERING_CONTEXT_LOST: 15
+};
+
+var EVENTS = {
+	READY: "ready",
+	VIEW_CHANGE: "viewChange",
+	ANIMATION_END: "animationEnd",
+	ERROR: "error",
+	CONTENT_LOADED: "contentLoaded"
+};
+
+var PROJECTION_TYPE = {
+	EQUIRECTANGULAR: "equirectangular",
+	CUBEMAP: "cubemap"
+};
+
+module.exports = {
+	GYRO_MODE: _consts.GYRO_MODE,
+	EVENTS: EVENTS,
+	ERROR_TYPE: ERROR_TYPE,
+	PROJECTION_TYPE: PROJECTION_TYPE
+};
 
 /***/ }),
 /* 20 */
@@ -6857,7 +6883,7 @@ var EventManager_1 = __webpack_require__(23);
 var InterruptManager_1 = __webpack_require__(25);
 var AxisManager_1 = __webpack_require__(5);
 var InputObserver_1 = __webpack_require__(24);
-var const_1 = __webpack_require__(10);
+var const_1 = __webpack_require__(11);
 /**
  * @typedef {Object} AxisOption The Axis information. The key of the axis specifies the name to use as the logical virtual coordinate system.
  * @ko 축 정보. 축의 키는 논리적인 가상 좌표계로 사용할 이름을 지정한다.
@@ -7946,7 +7972,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 exports.__esModule = true;
 var Hammer = __webpack_require__(7);
-var const_1 = __webpack_require__(10);
+var const_1 = __webpack_require__(11);
 var utils_1 = __webpack_require__(1);
 var InputType_1 = __webpack_require__(3);
 /**
@@ -8569,11 +8595,11 @@ exports.WheelInput = WheelInput;
 exports.__esModule = true;
 exports.YawPitchControl = undefined;
 
-var _YawPitchControl = __webpack_require__(42);
+var _YawPitchControl = __webpack_require__(43);
 
 var _YawPitchControl2 = _interopRequireDefault(_YawPitchControl);
 
-var _consts = __webpack_require__(12);
+var _consts = __webpack_require__(14);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -8603,11 +8629,17 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
+var _browser = __webpack_require__(42);
+
 var _YawPitchControl = __webpack_require__(30);
 
-var _PanoImageRenderer = __webpack_require__(38);
+var _PanoImageRenderer = __webpack_require__(39);
 
-var _consts = __webpack_require__(41);
+var _WebGLUtils = __webpack_require__(12);
+
+var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
+
+var _consts = __webpack_require__(19);
 
 var _mathUtil = __webpack_require__(2);
 
@@ -8619,7 +8651,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _Promise = typeof Promise === 'undefined' ? __webpack_require__(8).Promise : Promise;
+var _Promise = typeof Promise === 'undefined' ? __webpack_require__(9).Promise : Promise;
 
 var PanoViewer = function (_Component) {
 	_inherits(PanoViewer, _Component);
@@ -8660,7 +8692,7 @@ var PanoViewer = function (_Component) {
 		// Raises the error event if webgl is not supported.
 		var _this = _possibleConstructorReturn(this, _Component.call(this));
 
-		if (!_PanoImageRenderer.WebGLUtils.isWebGLAvailable()) {
+		if (!_WebGLUtils2["default"].isWebGLAvailable()) {
 			var _ret;
 
 			setTimeout(function () {
@@ -8672,7 +8704,7 @@ var PanoViewer = function (_Component) {
 			return _ret = _this, _possibleConstructorReturn(_this, _ret);
 		}
 
-		if (!_PanoImageRenderer.WebGLUtils.isStableWebGL()) {
+		if (!_WebGLUtils2["default"].isStableWebGL()) {
 			var _ret2;
 
 			setTimeout(function () {
@@ -8700,7 +8732,7 @@ var PanoViewer = function (_Component) {
 		_this._container = container;
 		_this._image = options.image || options.video;
 		_this._isVideo = !!options.video;
-		_this._projectionType = options.projectionType || _PanoImageRenderer.PanoImageRenderer.ImageType.EQUIRECTANGULAR;
+		_this._projectionType = options.projectionType || _consts.PROJECTION_TYPE.EQUIRECTANGULAR;
 		_this._cubemapConfig = _extends({
 			order: "RLUDBF",
 			tileConfig: {
@@ -8837,7 +8869,7 @@ var PanoViewer = function (_Component) {
 
 		this._image = image;
 		this._isVideo = isVideo;
-		this._projectionType = param.projectionType || _PanoImageRenderer.PanoImageRenderer.ImageType.EQUIRECTANGULAR;
+		this._projectionType = param.projectionType || _consts.PROJECTION_TYPE.EQUIRECTANGULAR;
 		this._cubemapConfig = cubemapConfig;
 
 		this._deactivate();
@@ -9320,7 +9352,7 @@ var PanoViewer = function (_Component) {
 	};
 
 	PanoViewer.isWebGLAvailable = function isWebGLAvailable() {
-		return _PanoImageRenderer.WebGLUtils.isWebGLAvailable();
+		return _WebGLUtils2["default"].isWebGLAvailable();
 	};
 
 	/**
@@ -9334,7 +9366,7 @@ var PanoViewer = function (_Component) {
 
 
 	PanoViewer.isGyroSensorAvailable = function isGyroSensorAvailable(callback) {
-		if ("DeviceMotionEvent" in window === false || !window.DeviceMotionEvent) {
+		if (!_browser.DeviceMotionEvent) {
 			callback && callback(false);
 			return;
 		}
@@ -9381,7 +9413,7 @@ exports["default"] = PanoViewer;
 
 PanoViewer.ERROR_TYPE = _consts.ERROR_TYPE;
 PanoViewer.EVENTS = _consts.EVENTS;
-PanoViewer.ProjectionType = _PanoImageRenderer.PanoImageRenderer.ImageType;
+PanoViewer.ProjectionType = _consts.PROJECTION_TYPE;
 
 /***/ }),
 /* 32 */
@@ -9424,7 +9456,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _Promise = typeof Promise === 'undefined' ? __webpack_require__(8).Promise : Promise;
+var _Promise = typeof Promise === 'undefined' ? __webpack_require__(9).Promise : Promise;
 
 var STATUS = {
 	"NONE": 0,
@@ -9620,21 +9652,23 @@ var _VideoLoader = __webpack_require__(37);
 
 var _VideoLoader2 = _interopRequireDefault(_VideoLoader);
 
-var _WebGLUtils = __webpack_require__(17);
+var _WebGLUtils = __webpack_require__(12);
 
 var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
 
-var _CubeRenderer = __webpack_require__(39);
+var _CubeRenderer = __webpack_require__(40);
 
 var _CubeRenderer2 = _interopRequireDefault(_CubeRenderer);
 
-var _SphereRenderer = __webpack_require__(40);
+var _SphereRenderer = __webpack_require__(41);
 
 var _SphereRenderer2 = _interopRequireDefault(_SphereRenderer);
 
 var _mathUtil = __webpack_require__(2);
 
-var _browser = __webpack_require__(18);
+var _browser = __webpack_require__(38);
+
+var _consts = __webpack_require__(19);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -9644,12 +9678,9 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _Promise = typeof Promise === 'undefined' ? __webpack_require__(8).Promise : Promise;
+var _Promise = typeof Promise === 'undefined' ? __webpack_require__(9).Promise : Promise;
 
-var ImageType = {
-	EQUIRECTANGULAR: "equirectangular",
-	CUBEMAP: "cubemap"
-};
+var ImageType = _consts.PROJECTION_TYPE;
 
 var DEVICE_PIXEL_RATIO = _browser.devicePixelRatio || 1;
 
@@ -9681,7 +9712,7 @@ var ERROR_TYPE = {
 var PanoImageRenderer = function (_Component) {
 	_inherits(PanoImageRenderer, _Component);
 
-	function PanoImageRenderer(image, width, height, isVideo, sphericalConfig) {
+	function PanoImageRenderer(image, width, height, isVideo, sphericalConfig, renderingContextAttributes) {
 		_classCallCheck(this, PanoImageRenderer);
 
 		var _this = _possibleConstructorReturn(this, _Component.call(this));
@@ -9709,7 +9740,7 @@ var PanoImageRenderer = function (_Component) {
 		_this.vertexBuffer = null;
 		_this.indexBuffer = null;
 		_this.canvas = _this._initCanvas(width, height);
-
+		_this._renderingContextAttributes = renderingContextAttributes;
 		_this._image = null;
 		_this._imageConfig = null;
 		_this._imageIsReady = false;
@@ -9824,15 +9855,27 @@ var PanoImageRenderer = function (_Component) {
 		return false;
 	};
 
-	PanoImageRenderer.prototype._onContentLoad = function _onContentLoad(image) {
-		this._imageIsReady = true;
-
-		// 이벤트 발생. 여기에 핸들러로 render 하는 걸 넣어준다.
+	PanoImageRenderer.prototype._triggerContentLoad = function _triggerContentLoad() {
 		this.trigger(EVENTS.IMAGE_LOADED, {
 			content: this._image,
 			isVideo: this._isVideo,
 			projectionType: this._imageType
 		});
+	};
+
+	PanoImageRenderer.prototype._onContentLoad = function _onContentLoad(image) {
+		var _this2 = this;
+
+		this._imageIsReady = true;
+
+		if (this._isVideo) {
+			this._image.addEventListener("loadeddata", function () {
+				_this2._triggerContentLoad();
+			});
+		} else {
+			this._triggerContentLoad();
+		}
+
 		return true;
 	};
 
@@ -9841,16 +9884,16 @@ var PanoImageRenderer = function (_Component) {
 	};
 
 	PanoImageRenderer.prototype.bindTexture = function bindTexture() {
-		var _this2 = this;
+		var _this3 = this;
 
 		return new _Promise(function (res, rej) {
-			if (!_this2._contentLoader) {
+			if (!_this3._contentLoader) {
 				rej("ImageLoader is not initialized");
 				return;
 			}
 
-			_this2._contentLoader.get().then(function () {
-				return _this2._bindTexture();
+			_this3._contentLoader.get().then(function () {
+				return _this3._bindTexture();
 			}, rej).then(res);
 		});
 	};
@@ -9998,7 +10041,7 @@ var PanoImageRenderer = function (_Component) {
 			throw new Error("WebGLRenderingContext not available.");
 		}
 
-		this.context = _WebGLUtils2["default"].getWebglContext(this.canvas);
+		this.context = _WebGLUtils2["default"].getWebglContext(this.canvas, this._renderingContextAttributes);
 
 		if (!this.context) {
 			throw new Error("Failed to acquire 3D rendering context");
@@ -10126,7 +10169,6 @@ exports["default"] = PanoImageRenderer;
 
 PanoImageRenderer.EVENTS = EVENTS;
 PanoImageRenderer.ERROR_TYPE = ERROR_TYPE;
-PanoImageRenderer.ImageType = ImageType;
 
 /***/ }),
 /* 37 */
@@ -10141,7 +10183,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var _Promise = typeof Promise === 'undefined' ? __webpack_require__(8).Promise : Promise;
+var _Promise = typeof Promise === 'undefined' ? __webpack_require__(9).Promise : Promise;
+
+// import Agent from "@egjs/agent";
 
 /* Ref https://www.w3schools.com/tags/av_prop_readystate.asp */
 var READY_STATUS = {
@@ -10149,8 +10193,17 @@ var READY_STATUS = {
 	HAVE_METADATA: 1, // HAVE_METADATA - metadata for the audio/video is ready
 	HAVE_CURRENT_DATA: 2, // data for the current playback position is available, but not enough data to play next frame/millisecond
 	HAVE_FUTURE_DATA: 3, // data for the current and at least the next frame is available
-	HAVE_ENOUGH_DATA: 4 // enough data available to start playing
+	HAVE_ENOUGH_DATA: 4, // enough data available to start playing
+	// below is custom status for failed to load status
+	LOADING_FAILED: -1
 };
+
+var READYSTATECHANGE_EVENT_NAME = {};
+
+READYSTATECHANGE_EVENT_NAME[READY_STATUS.HAVE_METADATA] = "loadedmetadata";
+READYSTATECHANGE_EVENT_NAME[READY_STATUS.HAVE_CURRENT_DATA] = "loadeddata";
+READYSTATECHANGE_EVENT_NAME[READY_STATUS.HAVE_FUTURE_DATA] = "canplay";
+READYSTATECHANGE_EVENT_NAME[READY_STATUS.HAVE_ENOUGH_DATA] = "canplaythrough";
 
 var VideoLoader = function () {
 	function VideoLoader(video) {
@@ -10159,8 +10212,25 @@ var VideoLoader = function () {
 		this._handlers = [];
 		this._sourceCount = 0;
 
+		// on iOS safari, 'loadeddata' will not triggered unless the user hits play,
+		// so used 'loadedmetadata' instead.
+		this._thresholdReadyState = READY_STATUS.HAVE_METADATA;
+		this._thresholdEventName = READYSTATECHANGE_EVENT_NAME[this._thresholdReadyState];
+
+		this._loadStatus = video && video.readyState || READY_STATUS.HAVE_NOTHING;
+
+		this._onerror = this._onerror.bind(this);
+
 		video && this.set(video);
 	}
+
+	VideoLoader.prototype._onerror = function _onerror() {
+		this._errorCount++;
+		if (this._errorCount >= this._sourceCount) {
+			this._loadStatus = READY_STATUS.LOADING_FAILED;
+			this._detachErrorHandler(this._onerror);
+		}
+	};
 
 	/**
   *
@@ -10189,7 +10259,6 @@ var VideoLoader = function () {
 		videoType && (sourceElement.type = videoType);
 
 		this._video.appendChild(sourceElement);
-		this._sourceCount++;
 		return true;
 	};
 
@@ -10198,13 +10267,19 @@ var VideoLoader = function () {
 
 		this._reset(); // reset resources.
 
+		if (!video) {
+			return;
+		}
+
 		if (video instanceof HTMLVideoElement) {
 			// video tag
 			this._video = video;
 		} else if (typeof video === "string" || (typeof video === "undefined" ? "undefined" : _typeof(video)) === "object") {
 			// url
 			this._video = document.createElement("video");
-			this._video.crossOrigin = "anonymous";
+			this._video.setAttribute("crossorigin", "anonymous");
+			this._video.setAttribute("webkit-playsinline", "");
+			this._video.setAttribute("playsinline", "");
 
 			if (video instanceof Array) {
 				video.forEach(function (v) {
@@ -10214,12 +10289,33 @@ var VideoLoader = function () {
 				this._appendSourceElement(video);
 			}
 
+			this._sourceCount = this._video.querySelectorAll("source").length;
+
 			if (this._sourceCount > 0) {
-				this._video.load();
+				if (this._video.readyState < this._thresholdReadyState) {
+					this._video.load();
+					// attach loading error listener
+					this._attachErrorHandler(this._onerror);
+				}
 			} else {
 				this._video = null;
 			}
 		}
+	};
+
+	VideoLoader.prototype._attachErrorHandler = function _attachErrorHandler(handler) {
+		this._video.addEventListener("error", handler);
+		this._sources = this._video.querySelectorAll("source");
+		[].forEach.call(this._sources, function (source) {
+			source.addEventListener("error", handler);
+		});
+	};
+
+	VideoLoader.prototype._detachErrorHandler = function _detachErrorHandler(handler) {
+		this._video.removeEventListener("error", handler);
+		[].forEach.call(this._sources, function (source) {
+			source.removeEventListener("error", handler);
+		});
 	};
 
 	VideoLoader.prototype.get = function get() {
@@ -10228,14 +10324,23 @@ var VideoLoader = function () {
 		return new _Promise(function (res, rej) {
 			if (!_this2._video) {
 				rej("VideoLoader: video is undefined");
-			} else if (_this2._video.readyState >= READY_STATUS.HAVE_CURRENT_DATA) {
+			} else if (_this2._loadStatus === READY_STATUS.LOADING_FAILED) {
+				rej("VideoLoader: video source is invalid");
+			} else if (_this2._video.readyState >= _this2._thresholdReadyState) {
 				res(_this2._video);
 			} else {
-				_this2._once("loadeddata", function () {
+				// check errorCnt and reject
+				var rejector = function rejector() {
+					if (_this2._loadStatus === READY_STATUS.LOADING_FAILED) {
+						_this2._detachErrorHandler(rejector);
+						rej("VideoLoader: video source is invalid");
+					}
+				};
+
+				_this2._attachErrorHandler(rejector);
+				_this2._once(_this2._thresholdEventName, function () {
 					return res(_this2._video);
 				});
-				// DO NOT HANDLE ERRORS, DELEGATE IT TO USER BY USING VIDEO ELEMENT.
-				// this._once("error", e => rej(`VideoLoader: failed to load ${e.target.src}`));
 			}
 		});
 	};
@@ -10258,6 +10363,7 @@ var VideoLoader = function () {
 		this._video = null;
 
 		this._sourceCount = 0;
+		this._errorCount = 0;
 	};
 
 	VideoLoader.prototype._once = function _once(type, listener) {
@@ -10286,20 +10392,8 @@ exports["default"] = VideoLoader;
 
 
 exports.__esModule = true;
-exports.WebGLUtils = exports.PanoImageRenderer = undefined;
-
-var _PanoImageRenderer = __webpack_require__(36);
-
-var _PanoImageRenderer2 = _interopRequireDefault(_PanoImageRenderer);
-
-var _WebGLUtils = __webpack_require__(17);
-
-var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-exports.PanoImageRenderer = _PanoImageRenderer2["default"];
-exports.WebGLUtils = _WebGLUtils2["default"];
+var userAgent = exports.userAgent = window.navigator.userAgent;
+var devicePixelRatio = exports.devicePixelRatio = window.devicePixelRatio;
 
 /***/ }),
 /* 39 */
@@ -10309,14 +10403,37 @@ exports.WebGLUtils = _WebGLUtils2["default"];
 
 
 exports.__esModule = true;
+exports.WebGLUtils = exports.PanoImageRenderer = undefined;
+
+var _PanoImageRenderer = __webpack_require__(36);
+
+var _PanoImageRenderer2 = _interopRequireDefault(_PanoImageRenderer);
+
+var _WebGLUtils = __webpack_require__(12);
+
+var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+exports.PanoImageRenderer = _PanoImageRenderer2["default"];
+exports.WebGLUtils = _WebGLUtils2["default"];
+
+/***/ }),
+/* 40 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _agent = __webpack_require__(13);
+var _agent = __webpack_require__(8);
 
 var _agent2 = _interopRequireDefault(_agent);
 
-var _Renderer2 = __webpack_require__(19);
+var _Renderer2 = __webpack_require__(18);
 
 var _Renderer3 = _interopRequireDefault(_Renderer2);
 
@@ -10475,9 +10592,18 @@ var CubeRenderer = function (_Renderer) {
 		CubeRenderer.updateTexture(gl, image, imageConfig);
 	};
 
+	CubeRenderer._getDimension = function _getDimension(pixelSource) {
+		var width = pixelSource.naturalWidth || pixelSource.videoWidth;
+		var height = pixelSource.naturalHeight || pixelSource.videoHeight;
+
+		return { width: width, height: height };
+	};
+
 	CubeRenderer.getSourceTileSize = function getSourceTileSize(image) {
-		var width = image.naturalWidth || image.videoWidth;
-		var height = image.naturalHeight || image.videoHeight;
+		var _getDimension2 = this._getDimension(image),
+		    width = _getDimension2.width,
+		    height = _getDimension2.height;
+
 		var aspectRatio = width / height;
 		var inputTextureSize = void 0;
 
@@ -10494,7 +10620,9 @@ var CubeRenderer = function (_Renderer) {
 	};
 
 	CubeRenderer.extractTileFromImage = function extractTileFromImage(image, tileIdx, outputTextureSize) {
-		var width = image.naturalWidth || image.videoWidth;
+		var _getDimension3 = this._getDimension(image),
+		    width = _getDimension3.width;
+
 		var inputTextureSize = CubeRenderer.getSourceTileSize(image);
 
 		var canvas = document.createElement("canvas");
@@ -10550,7 +10678,7 @@ CubeRenderer._VERTEX_POSITION_DATA = null;
 CubeRenderer._INDEX_DATA = null;
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10558,7 +10686,11 @@ CubeRenderer._INDEX_DATA = null;
 
 exports.__esModule = true;
 
-var _Renderer2 = __webpack_require__(19);
+var _agent = __webpack_require__(8);
+
+var _agent2 = _interopRequireDefault(_agent);
+
+var _Renderer2 = __webpack_require__(18);
 
 var _Renderer3 = _interopRequireDefault(_Renderer2);
 
@@ -10570,6 +10702,11 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var agent = (0, _agent2["default"])();
+var isIE11 = agent.browser.name === "ie" && agent.browser.version === "11.0";
+var pixelCanvas = void 0;
+var pixelContext = void 0;
+
 var SphereRenderer = function (_Renderer) {
 	_inherits(SphereRenderer, _Renderer);
 
@@ -10580,26 +10717,14 @@ var SphereRenderer = function (_Renderer) {
 	}
 
 	SphereRenderer.getVertexPositionData = function getVertexPositionData() {
-		if (SphereRenderer._VERTEX_POSITION_DATA === null) {
-			SphereRenderer._initData();
-		}
-
 		return SphereRenderer._VERTEX_POSITION_DATA;
 	};
 
 	SphereRenderer.getIndexData = function getIndexData() {
-		if (SphereRenderer._INDEX_DATA === null) {
-			SphereRenderer._initData();
-		}
-
 		return SphereRenderer._INDEX_DATA;
 	};
 
 	SphereRenderer.getTextureCoordData = function getTextureCoordData() {
-		if (SphereRenderer._TEXTURE_COORD_DATA === null) {
-			SphereRenderer._initData();
-		}
-
 		return SphereRenderer._TEXTURE_COORD_DATA;
 	};
 
@@ -10611,25 +10736,60 @@ var SphereRenderer = function (_Renderer) {
 		return "\n\t\t\tvarying highp vec2 vTextureCoord;\n\t\t\tuniform sampler2D uSampler;\n\t\t\tvoid main(void) {\n\t\t\t\tgl_FragColor = texture2D(\n\t\t\t\t\tuSampler,\n\t\t\t\t\tvec2(vTextureCoord.s, vTextureCoord.t)\n\t\t\t\t);\n\t\t\t}";
 	};
 
+	SphereRenderer._getPixelSource = function _getPixelSource(image) {
+		if (!pixelCanvas) {
+			return image;
+		}
+
+		var _getDimension2 = this._getDimension(image),
+		    width = _getDimension2.width,
+		    height = _getDimension2.height;
+
+		if (pixelCanvas.width !== width) {
+			pixelCanvas.width = width;
+		}
+
+		if (pixelCanvas.height !== height) {
+			pixelCanvas.height = height;
+		}
+
+		pixelContext.drawImage(image, 0, 0);
+
+		return pixelCanvas;
+	};
+
+	SphereRenderer._getDimension = function _getDimension(pixelSource) {
+		var width = pixelSource.naturalWidth || pixelSource.videoWidth;
+		var height = pixelSource.naturalHeight || pixelSource.videoHeight;
+
+		return { width: width, height: height };
+	};
+
 	SphereRenderer.updateTexture = function updateTexture(gl, image) {
-		// Draw first frame
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._getPixelSource(image));
 	};
 
 	SphereRenderer.bindTexture = function bindTexture(gl, texture, image) {
-		if (!image) {
+		// Make sure image isn't too big
+		var _getDimension3 = this._getDimension(image),
+		    width = _getDimension3.width,
+		    height = _getDimension3.height;
+
+		var size = Math.max(width, height);
+		var maxSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+
+		if (size > maxSize) {
+			/* eslint-disable no-console */
+			console.warn("Image width(" + width + ") exceeds device limit(" + maxSize + "))");
+			/* eslint-enable no-console */
 			return;
 		}
 
-		// Make sure image isn't too big
-		var width = Math.max(image.width, image.height);
-		var maxWidth = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-
-		if (width > maxWidth) {
-			/* eslint-disable no-console */
-			console.warn("Image width(" + width + ") exceeds device limit(" + maxWidth + "))");
-			/* eslint-enable no-console */
-			return;
+		if (isIE11 && image instanceof HTMLVideoElement) {
+			pixelCanvas = document.createElement("canvas");
+			pixelCanvas.width = width;
+			pixelCanvas.height = height;
+			pixelContext = pixelCanvas.getContext("2d");
 		}
 
 		gl.activeTexture(gl.TEXTURE0);
@@ -10692,40 +10852,23 @@ SphereRenderer._VERTEX_POSITION_DATA = null;
 SphereRenderer._TEXTURE_COORD_DATA = null;
 SphereRenderer._INDEX_DATA = null;
 
+SphereRenderer._initData();
+
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _consts = __webpack_require__(12);
+exports.__esModule = true;
+var win = window;
 
-var ERROR_TYPE = {
-	INVALID_DEVICE: 10,
-	NO_WEBGL: 11,
-	FAIL_IMAGE_LOAD: 12,
-	FAIL_BIND_TEXTURE: 13,
-	INVALID_RESOURCE: 14,
-	RENDERING_CONTEXT_LOST: 15
-};
-
-var EVENTS = {
-	READY: "ready",
-	VIEW_CHANGE: "viewChange",
-	ANIMATION_END: "animationEnd",
-	ERROR: "error",
-	CONTENT_LOADED: "contentLoaded"
-};
-
-module.exports = {
-	GYRO_MODE: _consts.GYRO_MODE,
-	EVENTS: EVENTS,
-	ERROR_TYPE: ERROR_TYPE
-};
+exports.window = win;
+var DeviceMotionEvent = exports.DeviceMotionEvent = win.DeviceMotionEvent;
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10739,23 +10882,23 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _axes = __webpack_require__(15);
+var _axes = __webpack_require__(16);
 
 var _axes2 = _interopRequireDefault(_axes);
 
-var _browser = __webpack_require__(11);
+var _browser = __webpack_require__(13);
 
-var _WheelInput = __webpack_require__(47);
+var _WheelInput = __webpack_require__(48);
 
 var _WheelInput2 = _interopRequireDefault(_WheelInput);
 
-var _TiltMotionInput = __webpack_require__(46);
+var _TiltMotionInput = __webpack_require__(47);
 
 var _TiltMotionInput2 = _interopRequireDefault(_TiltMotionInput);
 
 var _mathUtil = __webpack_require__(2);
 
-var _consts = __webpack_require__(12);
+var _consts = __webpack_require__(14);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -11327,7 +11470,7 @@ YawPitchControl.VERSION = "3.0.0-rc";
 exports["default"] = YawPitchControl;
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11335,11 +11478,11 @@ exports["default"] = YawPitchControl;
 
 exports.__esModule = true;
 
-var _mathUtil = __webpack_require__(9);
+var _mathUtil = __webpack_require__(10);
 
 var _mathUtil2 = _interopRequireDefault(_mathUtil);
 
-var _complementaryFilter = __webpack_require__(54);
+var _complementaryFilter = __webpack_require__(55);
 
 var _complementaryFilter2 = _interopRequireDefault(_complementaryFilter);
 
@@ -11413,7 +11556,7 @@ _complementaryFilter2["default"].prototype.getOrientation = function () {
 exports["default"] = _complementaryFilter2["default"];
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11425,13 +11568,13 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _agent = __webpack_require__(13);
+var _agent = __webpack_require__(8);
 
 var _agent2 = _interopRequireDefault(_agent);
 
 var _mathUtil = __webpack_require__(2);
 
-var _browser = __webpack_require__(11);
+var _browser = __webpack_require__(13);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -11517,17 +11660,13 @@ var DeviceMotion = function (_Component) {
 		this._isEnabled = false;
 	};
 
-	DeviceMotion.prototype.isEnabled = function isEnabled() {
-		return this._isEnabled;
-	};
-
 	return DeviceMotion;
 }(_component2["default"]);
 
 exports["default"] = DeviceMotion;
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11539,27 +11678,27 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _posePredictor = __webpack_require__(55);
+var _posePredictor = __webpack_require__(56);
 
 var _posePredictor2 = _interopRequireDefault(_posePredictor);
 
-var _mathUtil = __webpack_require__(9);
+var _mathUtil = __webpack_require__(10);
 
 var _mathUtil2 = _interopRequireDefault(_mathUtil);
 
-var _util = __webpack_require__(14);
+var _util = __webpack_require__(15);
 
 var _util2 = _interopRequireDefault(_util);
 
-var _browser = __webpack_require__(11);
+var _browser = __webpack_require__(13);
 
 var _mathUtil3 = __webpack_require__(2);
 
-var _DeviceMotion = __webpack_require__(44);
+var _DeviceMotion = __webpack_require__(45);
 
 var _DeviceMotion2 = _interopRequireDefault(_DeviceMotion);
 
-var _ComplementaryFilter = __webpack_require__(43);
+var _ComplementaryFilter = __webpack_require__(44);
 
 var _ComplementaryFilter2 = _interopRequireDefault(_ComplementaryFilter);
 
@@ -11766,7 +11905,7 @@ var FusionPoseSensor = function (_Component) {
 exports["default"] = FusionPoseSensor;
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11782,7 +11921,7 @@ var _component2 = _interopRequireDefault(_component);
 
 var _utils = __webpack_require__(20);
 
-var _FusionPoseSensor = __webpack_require__(45);
+var _FusionPoseSensor = __webpack_require__(46);
 
 var _FusionPoseSensor2 = _interopRequireDefault(_FusionPoseSensor);
 
@@ -11897,7 +12036,7 @@ var TiltMotionInput = function (_Component) {
 exports["default"] = TiltMotionInput;
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11993,7 +12132,7 @@ var WheelInput = function (_Component) {
 exports["default"] = WheelInput;
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12192,7 +12331,7 @@ mat4.perspective = function (out, fovy, aspect, near, far) {
 module.exports = mat4;
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12313,7 +12452,7 @@ quat.equals = function (a, b) {
 module.exports = quat;
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12346,7 +12485,7 @@ vec2.copy = function (out, a) {
 module.exports = vec2;
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12547,7 +12686,7 @@ vec3.transformQuat = function (out, a, q) {
 module.exports = vec3;
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -12737,7 +12876,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports) {
 
 var g;
@@ -12764,7 +12903,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -12782,9 +12921,9 @@ module.exports = g;
  * limitations under the License.
  */
 
-var SensorSample = __webpack_require__(56);
-var MathUtil = __webpack_require__(9);
-var Util = __webpack_require__(14);
+var SensorSample = __webpack_require__(57);
+var MathUtil = __webpack_require__(10);
+var Util = __webpack_require__(15);
 
 /**
  * An implementation of a simple complementary filter, which fuses gyroscope and
@@ -12936,7 +13075,7 @@ module.exports = ComplementaryFilter;
 
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -12953,8 +13092,8 @@ module.exports = ComplementaryFilter;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var MathUtil = __webpack_require__(9);
-var Util = __webpack_require__(14);
+var MathUtil = __webpack_require__(10);
+var Util = __webpack_require__(15);
 
 /**
  * Given an orientation and the gyroscope data, predicts the future orientation
@@ -13023,7 +13162,7 @@ module.exports = PosePredictor;
 
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports) {
 
 function SensorSample(sample, timestampS) {

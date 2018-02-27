@@ -70,7 +70,4 @@ export default class DeviceMotion extends Component {
 		window.removeEventListener("devicemotion", this._onDeviceMotion);
 		this._isEnabled = false;
 	}
-	isEnabled() {
-		return this._isEnabled;
-	}
 }
