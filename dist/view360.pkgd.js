@@ -10640,23 +10640,9 @@ var PanoImageRenderer = function (_Component) {
 	PanoImageRenderer.prototype._initShaderProgram = function _initShaderProgram(gl) {
 		var vertexShaderSource = this._renderer.getVertexShaderSource();
 		var vertexShader = _WebGLUtils2["default"].createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-
-		if (!vertexShader) {
-			return false;
-		}
-
 		var fragmentShaderSource = this._renderer.getFragmentShaderSource();
 		var fragmentShader = _WebGLUtils2["default"].createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
-
-		if (!fragmentShader) {
-			return false;
-		}
-
 		var shaderProgram = _WebGLUtils2["default"].createProgram(gl, vertexShader, fragmentShader);
-
-		if (!shaderProgram) {
-			return null;
-		}
 
 		gl.useProgram(shaderProgram);
 		shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
