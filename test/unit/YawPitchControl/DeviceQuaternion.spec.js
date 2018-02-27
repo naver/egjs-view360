@@ -1,5 +1,5 @@
 import DeviceQuaternion from "../../../src/YawPitchControl/DeviceQuaternion";
-import {quat} from "../../../src/utils/math-util";
+import {quat, glMatrix} from "../../../src/utils/math-util";
 import DeviceQuaternionInjector from "inject-loader!../../../src/YawPitchControl/DeviceQuaternion";
 
 describe("DeviceQuaternion", function() {
@@ -27,6 +27,26 @@ describe("DeviceQuaternion", function() {
 			expect(resultQ).to.deep.equal(expectedQ);
 		});
 
+		it("should return responding quaternion if no motion &$ yaw != 0 && pitch != 0", () => {
+			// Given
+			this.inst = new DeviceQuaternion();
+
+			// When
+			const yaw = 10;
+			const pitch = 10;
+			let resultQ = this.inst.getCombineQuaternion(yaw, pitch);
+			let expectedQ = quat.create();
+
+			// Then
+			quat.rotateX(expectedQ, expectedQ, glMatrix.toRadian(-pitch));
+			quat.rotateY(expectedQ, expectedQ, glMatrix.toRadian(-yaw));
+
+			// Ignore small tiny difference in value (eg. resultQ.z: 0.007596123497933149, expectedQ.z: 0.007596123963594437)
+			resultQ = resultQ.map(val => val.toFixed(5));
+			expectedQ = expectedQ.map(val => val.toFixed(5));
+
+			expect(resultQ).to.deep.equal(expectedQ);
+		});
 
 		// it("should return conjugate quaternion if yaw = 0 && pitch = 0", () => {
 		// 	// Given
