@@ -1,7 +1,24 @@
 import {PanInput} from "@egjs/axes";
 import ScreenRotationAngle from "../ScreenRotationAngle";
 
+/**
+ * RotationPanInput is extension of PanInput to compensate coordinates by screen rotation angle.
+ *
+ * The reason for using this function is that in VR mode,
+ * the roll angle is adjusted in the direction opposite to the screen rotation angle.
+ *
+ * Therefore, the angle that the user touches and moves does not match the angle at which the actual object should move.
+ * @extends PanInput
+ */
 export default class RotationPanInput extends PanInput {
+	/**
+	 * Constructor
+	 *
+	 * @private
+	 * @param {HTMLElement} el target element
+	 * @param {Object} [options] The option object
+	 * @param {Boolean} [options.useRotation]  Whether to use rotation(or VR)
+	 */
 	constructor(el, options) {
 		super(el, options);
 		this._useRotation = !!(options && options.useRotation);
