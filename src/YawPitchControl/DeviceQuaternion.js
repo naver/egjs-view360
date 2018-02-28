@@ -45,7 +45,7 @@ export default class DeviceQuaternion extends Component {
 
 		if (this._fusionPoseSensor) {
 			this._fusionPoseSensor.off();
-			this._fusionPoseSensor.disable();
+			this._fusionPoseSensor.destroy();
 			this._fusionPoseSensor = null;
 		}
 
