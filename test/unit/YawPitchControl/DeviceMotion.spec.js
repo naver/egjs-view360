@@ -64,6 +64,21 @@ describe("DeviceMotion", function() {
 				});
 			});
 
+			it("should not trigger devicemotion event with empty sensor values.", (done) => {
+				// Given
+				// When
+				TestHeler.devicemotion(window, {
+					acceleration: {x: null, y: null, z: null},
+					accelerationIncludingGravity: {x: null, y: null, z: null},
+					rotationRate: {alpha: null, beta: null, gamma: null},
+					interval: 1000 / 60,
+				}, () => {
+					// Then
+					expect(changed).to.be.false;
+					done();
+				});
+			});
+
 			it("should not trigger change event when disable", (done) => {
 				// Given
 				// When
