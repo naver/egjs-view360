@@ -368,6 +368,7 @@ describe("PanoViewer", function() {
 				expect(dir2.yaw).to.equal(SECOND_REQ_DIR.yaw);
 				expect(dir2.pitch).to.equal(SECOND_REQ_DIR.pitch);
 
+				panoViewer.destroy();
 				done();
 			});
 		});

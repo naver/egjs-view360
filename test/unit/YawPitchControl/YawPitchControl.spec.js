@@ -31,8 +31,8 @@ describe("YawPitchControl", function() {
 			});
 
 			afterEach(() => {
-				// this.inst && this.inst.destroy();
-				// this.inst = null;
+				this.inst && this.inst.destroy();
+				this.inst = null;
 			});
 
 			it("Instance without params", () => {
@@ -95,6 +95,11 @@ describe("YawPitchControl", function() {
 				target = sandbox();
 				target.innerHTML = `<div></div>`;
 			});
+
+			afterEach(() => {
+				this.inst && this.inst.destroy();
+				this.inst = null;
+			})
 
 			it("should change initial yaw by yaw range", function() {
 				// Given

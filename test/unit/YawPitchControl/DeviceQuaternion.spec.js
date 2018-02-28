@@ -3,6 +3,8 @@ import {quat, glMatrix} from "../../../src/utils/math-util";
 import DeviceQuaternionInjector from "inject-loader!../../../src/YawPitchControl/DeviceQuaternion";
 
 describe("DeviceQuaternion", function() {
+	this.inst = null;
+
 	describe("#constructor", function() {
 		it("Instance", () => {
 			// Given
@@ -11,14 +13,23 @@ describe("DeviceQuaternion", function() {
 
 			// Then
 			expect(this.inst).to.be.exist;
+			this.inst && this.inst.destroy();
+			this.inst = null;
 		});
 	});
 
 	describe("#getCombinedQuaternion", function() {
+		beforeEach(() => {
+			this.inst = new DeviceQuaternion();
+		});
+
+		afterEach(() => {
+			this.inst && this.inst.destroy();
+			this.inst = null;
+		});
+
 		it("should return quat(0, 0, 0, 0) if no motion &$ yaw = 0 && pitch = 0", () => {
 			// Given
-			this.inst = new DeviceQuaternion();
-
 			// When
 			const resultQ = this.inst.getCombinedQuaternion(0, 0);
 
@@ -29,8 +40,6 @@ describe("DeviceQuaternion", function() {
 
 		it("should return responding quaternion if no motion &$ yaw != 0 && pitch != 0", () => {
 			// Given
-			this.inst = new DeviceQuaternion();
-
 			// When
 			const yaw = 10;
 			const pitch = 10;
@@ -81,6 +90,9 @@ describe("DeviceQuaternion", function() {
 			}
 			off() {
 				clearInterval(this._motionEventTimer);
+			}
+			destroy() {
+				this.off();
 			}
 		}
 
