@@ -32,6 +32,8 @@ export default class DeviceMotion extends Component {
 		}, STILLNESS_THRESHOLD);
 	}
 	_onDeviceMotion(e) {
+		// desktop chrome triggers devicemotion event with empthy sensor values.
+		// Those events should ignored.
 		if (e.acceleration.x === null) {
 			return;
 		}
