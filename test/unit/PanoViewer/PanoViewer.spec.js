@@ -45,6 +45,8 @@ describe("PanoViewer", function() {
 		});
 
 		afterEach(() => {
+			cleanup();
+
 			if (!panoViewer) {
 				return;
 			}
@@ -92,7 +94,7 @@ describe("PanoViewer", function() {
 				video: videlEl
 			}).on("ready", function() {
 				readyTriggered = true;
-				// then			
+				// then
 				expect(readyTriggered).to.be.true;
 				done();
 			});
@@ -107,7 +109,7 @@ describe("PanoViewer", function() {
 				video: videlEl
 			}).on("ready", function() {
 				readyTriggered = true;
-				// then			
+				// then
 				expect(readyTriggered).to.be.true;
 				done();
 			});
@@ -179,6 +181,8 @@ describe("PanoViewer", function() {
 		});
 
 		afterEach(() => {
+			cleanup();
+
 			if (!panoViewer) {
 				return;
 			}
@@ -194,7 +198,7 @@ describe("PanoViewer", function() {
 			panoViewer.setVideo("./images/PanoViewer/pano.mp4");
 
 			// Then
-			panoViewer.on(PanoViewer.EVENTS.CONTENT_LOADED, e => {
+			panoViewer.on(PanoViewer.EVENTS.READY, e => {
 				const video = panoViewer.getVideo();
 				const projectionType = panoViewer.getProjectionType();
 
@@ -213,7 +217,7 @@ describe("PanoViewer", function() {
 			// Given
 			panoViewer = new PanoViewer(target, {
 				image: "./images/test_equi.png"
-			}).on(PanoViewer.EVENTS.CONTENT_LOADED, e => {
+			}).on(PanoViewer.EVENTS.READY, e => {
 				const image = panoViewer.getImage();
 
 				// When
@@ -256,6 +260,8 @@ describe("PanoViewer", function() {
 		});
 
 		afterEach(() => {
+			cleanup();
+
 			if (!panoViewer) {
 				return;
 			}
@@ -267,16 +273,16 @@ describe("PanoViewer", function() {
 			// Given
 			panoViewer = new PanoViewer(target);
 
-			panoViewer.on(PanoViewer.EVENTS.CONTENT_LOADED, e => {
+			panoViewer.on(PanoViewer.EVENTS.READY, e => {
 				// Then
 				const image = panoViewer.getImage();
 				const projectionType = panoViewer.getProjectionType();
 
 				expect(image).to.not.be.null;
 				expect(projectionType).to.equal(PanoViewer.ProjectionType.EQUIRECTANGULAR);
-				expect(e.content).to.equal(image);
-				expect(e.projectionType).to.equal(projectionType);
-				expect(e.isVideo).to.be.false;
+				// expect(e.content).to.equal(image);
+				// expect(e.projectionType).to.equal(projectionType);
+				// expect(e.isVideo).to.be.false;
 				done();
 			});
 
@@ -298,14 +304,17 @@ describe("PanoViewer", function() {
 			});
 
 			// first `onContentLoad` event is for image specified in constructor.
-			panoViewer.once(PanoViewer.EVENTS.CONTENT_LOADED, evt1 => {
-				const prevContentSrc = evt1.content.src;
-				const prevProjectionType = evt1.projectionType;
+			panoViewer.once(PanoViewer.EVENTS.READY, evt1 => {
+				const prevContentSrc = panoViewer.getImage().src;
+				const prevProjectionType = panoViewer.getProjectionType();
 
-				panoViewer.once(PanoViewer.EVENTS.CONTENT_LOADED, evt2 => {
+				panoViewer.once(PanoViewer.EVENTS.READY, evt2 => {
+					const currContentSrc = panoViewer.getImage().src;
+					const currProjectionType = panoViewer.getProjectionType();
+
 					// Then
-					expect(evt2.content.src).to.not.equal(prevContentSrc);
-					expect(evt2.projectionType).to.not.equal(prevProjectionType);
+					expect(currContentSrc).to.not.equal(prevContentSrc);
+					expect(currProjectionType).to.not.equal(prevProjectionType);
 
 					done();
 				});
@@ -315,6 +324,51 @@ describe("PanoViewer", function() {
 				panoViewer.setImage("./images/glasscity_cube_1024.jpg", {
 					projectionType: PanoViewer.ProjectionType.CUBEMAP
 				});
+			});
+		});
+	});
+
+	describe("#lookAt", function() {
+		let target;
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div></div>`;
+		});
+
+		afterEach(() => {
+			cleanup();
+		});
+
+		IT("should 'lookAt' works after ready event", done => {
+			// Given
+			const FIRST_REQ_DIR = {yaw: 10, pitch: 10};
+			const SECOND_REQ_DIR = {yaw: 20, pitch: 20};
+			const panoViewer = new PanoViewer(target, {
+				image: "./images/test_equi.png"
+			});
+
+			// When
+			const firstDir = {yaw: panoViewer.getYaw(), pitch:panoViewer.getPitch()};
+
+			panoViewer.lookAt(FIRST_REQ_DIR, 0);
+			const dir1 = {yaw: panoViewer.getYaw(), pitch:panoViewer.getPitch()};
+
+			panoViewer.on(PanoViewer.EVENTS.READY, e => {
+				panoViewer.lookAt(SECOND_REQ_DIR, 0);
+				const dir2 = {yaw: panoViewer.getYaw(), pitch:panoViewer.getPitch()};
+
+				// Then
+				expect(dir1.yaw).to.equal(firstDir.yaw);
+				expect(dir1.pitch).to.equal(firstDir.pitch);
+
+				expect(dir1.yaw).to.not.equal(FIRST_REQ_DIR.yaw);
+				expect(dir1.pitch).to.not.equal(FIRST_REQ_DIR.pitch);
+
+				expect(dir2.yaw).to.equal(SECOND_REQ_DIR.yaw);
+				expect(dir2.pitch).to.equal(SECOND_REQ_DIR.pitch);
+
+				done();
 			});
 		});
 	});
@@ -329,6 +383,8 @@ describe("PanoViewer", function() {
 		});
 
 		afterEach(() => {
+			cleanup();
+
 			if (!panoViewer) {
 				return;
 			}
@@ -401,6 +457,8 @@ describe("PanoViewer", function() {
 		});
 
 		afterEach(() => {
+			cleanup();
+
 			if (!photo360Viewer) {
 				return;
 			}
@@ -417,7 +475,6 @@ describe("PanoViewer", function() {
 				"ready": eventLogger,
 				"viewChange": eventLogger,
 				"animationEnd": eventLogger,
-				"contentLoaded": eventLogger,
 				"error": eventLogger
 			});
 
@@ -444,7 +501,6 @@ describe("PanoViewer", function() {
 
 		IT("should follow event order on create", function(done) {
 			var order = [
-				PanoViewer.EVENTS.CONTENT_LOADED,
 				PanoViewer.EVENTS.READY
 			];
 
