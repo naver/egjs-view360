@@ -6600,8 +6600,7 @@ var EVENTS = {
 	READY: "ready",
 	VIEW_CHANGE: "viewChange",
 	ANIMATION_END: "animationEnd",
-	ERROR: "error",
-	CONTENT_LOADED: "contentLoaded"
+	ERROR: "error"
 };
 
 var PROJECTION_TYPE = {
@@ -8910,7 +8909,7 @@ var PanoViewer = function (_Component) {
 
 		this._photoSphereRenderer.bindTexture().then(function () {
 			return _this2._activate();
-		})["catch"](function () {
+		}, function () {
 			_this2._triggerEvent(_consts.EVENTS.ERROR, {
 				type: _consts.ERROR_TYPE.FAIL_BIND_TEXTURE,
 				message: "failed to bind texture"
@@ -8920,10 +8919,6 @@ var PanoViewer = function (_Component) {
 
 	PanoViewer.prototype._bindRendererHandler = function _bindRendererHandler() {
 		var _this3 = this;
-
-		this._photoSphereRenderer.on(_PanoImageRenderer.PanoImageRenderer.EVENTS.IMAGE_LOADED, function (e) {
-			_this3.trigger(_consts.EVENTS.CONTENT_LOADED, e);
-		});
 
 		this._photoSphereRenderer.on(_PanoImageRenderer.PanoImageRenderer.EVENTS.ERROR, function (e) {
 			_this3.trigger(_consts.EVENTS.ERROR, e);
@@ -9034,18 +9029,6 @@ var PanoViewer = function (_Component) {
    *		// animation is ended.
    * });
    */
-
-		/**
-  	* Events that is fired when content(Video/Image) is loaded
-  	* @ko 컨텐츠(비디오 혹은 이미지)가 로드되었을때 발생되는 이벤트
-  	*
-  	* @name eg.view360.PanoViewer#contentLoaded
-  	* @event
-  	* @param {Object} event
-  	* @param {HTMLVideoElement|Image} event.content
-  	* @param {Boolean} event.isVideo
-  	* @param {String} event.projectionType
-  	*/
 		return this.trigger(name, evt);
 	};
 
@@ -9342,13 +9325,6 @@ var PanoViewer = function (_Component) {
 			this._yawPitchControl.destroy();
 			this._yawPitchControl = null;
 		}
-
-		if (this._photoSphereRenderer) {
-			this._photoSphereRenderer.destroy();
-			this._photoSphereRenderer = null;
-		}
-
-		this._isReady = false;
 	};
 
 	PanoViewer.isWebGLAvailable = function isWebGLAvailable() {
@@ -9864,18 +9840,9 @@ var PanoImageRenderer = function (_Component) {
 	};
 
 	PanoImageRenderer.prototype._onContentLoad = function _onContentLoad(image) {
-		var _this2 = this;
-
 		this._imageIsReady = true;
 
-		if (this._isVideo) {
-			this._image.addEventListener("loadeddata", function () {
-				_this2._triggerContentLoad();
-			});
-		} else {
-			this._triggerContentLoad();
-		}
-
+		this._triggerContentLoad();
 		return true;
 	};
 
@@ -9884,16 +9851,16 @@ var PanoImageRenderer = function (_Component) {
 	};
 
 	PanoImageRenderer.prototype.bindTexture = function bindTexture() {
-		var _this3 = this;
+		var _this2 = this;
 
 		return new _Promise(function (res, rej) {
-			if (!_this3._contentLoader) {
+			if (!_this2._contentLoader) {
 				rej("ImageLoader is not initialized");
 				return;
 			}
 
-			_this3._contentLoader.get().then(function () {
-				return _this3._bindTexture();
+			_this2._contentLoader.get().then(function () {
+				return _this2._bindTexture();
 			}, rej).then(res);
 		});
 	};
@@ -11623,8 +11590,7 @@ var DeviceMotion = function (_Component) {
 	};
 
 	DeviceMotion.prototype._onDeviceMotion = function _onDeviceMotion(e) {
-		// TODO: 브라우저에서는 이벤트 등록 시점에도 이벤트가 발생한다. 이렇게 체크하는 게 맞나??? @happyhj
-		if (e.interval === 0) {
+		if (e.acceleration.x === null) {
 			return;
 		}
 
