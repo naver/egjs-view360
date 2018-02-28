@@ -32,8 +32,9 @@ export default class DeviceMotion extends Component {
 		}, STILLNESS_THRESHOLD);
 	}
 	_onDeviceMotion(e) {
-		// TODO: 브라우저에서는 이벤트 등록 시점에도 이벤트가 발생한다. 이렇게 체크하는 게 맞나??? @happyhj
-		if (e.interval === 0) {
+		// desktop chrome triggers devicemotion event with empthy sensor values.
+		// Those events should ignored.
+		if (e.interval === 0 || e.acceleration.x === null) {
 			return;
 		}
 
