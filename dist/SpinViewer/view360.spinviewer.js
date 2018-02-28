@@ -16,7 +16,7 @@
 		exports["view360"] = factory(require("@egjs/component"), require("@egjs/axes"));
 	else
 		root["eg"] = root["eg"] || {}, root["eg"]["view360"] = factory(root["eg"]["Component"], root["eg"]["Axes"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_0__, __WEBPACK_EXTERNAL_MODULE_10__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_0__, __WEBPACK_EXTERNAL_MODULE_7__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -82,7 +82,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 19);
+/******/ 	return __webpack_require__(__webpack_require__.s = 21);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -91,13 +91,6 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ (function(module, exports) {
 
 module.exports = __WEBPACK_EXTERNAL_MODULE_0__;
-
-/***/ }),
-
-/***/ 10:
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_10__;
 
 /***/ }),
 
@@ -455,7 +448,7 @@ exports["default"] = SpriteImage;
 
 /***/ }),
 
-/***/ 18:
+/***/ 20:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -467,7 +460,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _axes = __webpack_require__(10);
+var _axes = __webpack_require__(7);
 
 var _axes2 = _interopRequireDefault(_axes);
 
@@ -681,7 +674,7 @@ exports["default"] = SpinViewer;
 
 /***/ }),
 
-/***/ 19:
+/***/ 21:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -690,7 +683,7 @@ exports["default"] = SpinViewer;
 exports.__esModule = true;
 exports.SpriteImage = exports.SpinViewer = undefined;
 
-var _SpinViewer = __webpack_require__(18);
+var _SpinViewer = __webpack_require__(20);
 
 var _SpinViewer2 = _interopRequireDefault(_SpinViewer);
 
@@ -705,6 +698,13 @@ exports.SpriteImage = _SpriteImage2["default"];
 
 
 _SpinViewer2["default"].VERSION = "3.0.0-rc";
+
+/***/ }),
+
+/***/ 7:
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_7__;
 
 /***/ })
 
