@@ -11590,7 +11590,9 @@ var DeviceMotion = function (_Component) {
 	};
 
 	DeviceMotion.prototype._onDeviceMotion = function _onDeviceMotion(e) {
-		if (e.acceleration.x === null) {
+		// desktop chrome triggers devicemotion event with empthy sensor values.
+		// Those events should ignored.
+		if (e.interval === 0 || e.acceleration.x === null) {
 			return;
 		}
 
