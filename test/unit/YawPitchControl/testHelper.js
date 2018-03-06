@@ -121,6 +121,34 @@ export default class TestHelper {
 		});
 	}
 
+	static createDeviceOrientationEvent(alpha, beta, gamma) {
+		const options = {
+			absolute: 0,
+			alpha: alpha || 0,
+			beta: beta || 0,
+			gamma: gamma || 0
+		};
+		const event = new DeviceOrientationEvent("deviceorientation", options);
+		return event;
+	}
+
+	static createOrientationChangeEvent() {
+  	const event = document.createEvent("HTMLEvents");
+  	event.initEvent("orientationchange", true, true);
+
+		return event;
+	}
+
+	static once(target, type, listener) {
+		const fn = event => {
+			target.removeEventListener(type, fn);
+			listener(event);
+		};
+
+		/* By useCapture mode enabled, you can capture the error event being fired on source(child)*/
+		target.addEventListener(type, fn);
+	}
+
 	/**
 	 * looping async function
 	 *
@@ -145,15 +173,6 @@ export default class TestHelper {
 		}
 
 		loop();
-	}
-
-	static once(target, type, listener) {
-		const fn = event => {
-			target.removeEventListener(type, fn);
-			listener(event);
-		};
-
-		target.addEventListener(type, fn);
 	}
 }
 

@@ -126,6 +126,7 @@ describe("DeviceMotion", function() {
 			}, () => {
 				// Then
 				expect(changed).to.be.true;
+				inst.disable();
 				done();
 			});
 		});
