@@ -76,7 +76,7 @@ export default class TestHelper {
 		return new Promise((resolve) => {
 			const params = value;
 			let deviceMotionEvent;
-	
+
 			try {
 				deviceMotionEvent = new DeviceMotionEvent("devicemotion", params);
 			} catch (e) {
@@ -84,13 +84,13 @@ export default class TestHelper {
 				deviceMotionEvent.initEvent("devicemotion");
 				Object.assign(deviceMotionEvent, params);
 			}
-	
+
 			function callbackOnce() {
 				callback && callback();
 				resolve();
 				target.removeEventListener("devicemotion", callbackOnce);
 			}
-	
+
 			target.addEventListener("devicemotion", callbackOnce);
 			target.dispatchEvent(deviceMotionEvent);
 		});
@@ -119,6 +119,34 @@ export default class TestHelper {
 				callback();
 			});
 		});
+	}
+
+	static createDeviceOrientationEvent(alpha, beta, gamma) {
+		const options = {
+			absolute: 0,
+			alpha: alpha || 0,
+			beta: beta || 0,
+			gamma: gamma || 0
+		};
+		const event = new DeviceOrientationEvent("deviceorientation", options);
+		return event;
+	}
+
+	static createOrientationChangeEvent() {
+  	const event = document.createEvent("HTMLEvents");
+  	event.initEvent("orientationchange", true, true);
+
+		return event;
+	}
+
+	static once(target, type, listener) {
+		const fn = event => {
+			target.removeEventListener(type, fn);
+			listener(event);
+		};
+
+		/* By useCapture mode enabled, you can capture the error event being fired on source(child)*/
+		target.addEventListener(type, fn);
 	}
 
 	/**

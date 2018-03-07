@@ -16,7 +16,7 @@
 		exports["view360"] = factory(require("@egjs/component"), require("@egjs/axes"));
 	else
 		root["eg"] = root["eg"] || {}, root["eg"]["view360"] = factory(root["eg"]["Component"], root["eg"]["Axes"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_0__, __WEBPACK_EXTERNAL_MODULE_10__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_0__, __WEBPACK_EXTERNAL_MODULE_7__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -82,7 +82,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 17);
+/******/ 	return __webpack_require__(__webpack_require__.s = 19);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -105,19 +105,19 @@ var _common = __webpack_require__(2);
 
 var _common2 = _interopRequireDefault(_common);
 
-var _vec = __webpack_require__(37);
+var _vec = __webpack_require__(40);
 
 var _vec2 = _interopRequireDefault(_vec);
 
-var _vec3 = __webpack_require__(36);
+var _vec3 = __webpack_require__(39);
 
 var _vec4 = _interopRequireDefault(_vec3);
 
-var _quat = __webpack_require__(35);
+var _quat = __webpack_require__(38);
 
 var _quat2 = _interopRequireDefault(_quat);
 
-var _mat = __webpack_require__(34);
+var _mat = __webpack_require__(37);
 
 var _mat2 = _interopRequireDefault(_mat);
 
@@ -328,6 +328,32 @@ module.exports = glMatrix;
 
 /***/ }),
 /* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+/* eslint-disable no-new-func */
+/* eslint-disable no-nested-ternary */
+var win = typeof window !== "undefined" && window.Math === Math ? window : typeof self !== "undefined" && self.Math === Math ? self : Function("return this")();
+/* eslint-enable no-nested-ternary */
+/* eslint-enable no-new-func */
+
+win.Float32Array = typeof win.Float32Array !== "undefined" ? win.Float32Array : win.Array;
+
+exports.window = win;
+var screen = exports.screen = win.screen;
+var orientation = exports.orientation = win.orientation;
+var document = exports.document = win.document;
+var Float32Array = exports.Float32Array = win.Float32Array;
+var getComputedStyle = exports.getComputedStyle = win.getComputedStyle;
+var userAgent = exports.userAgent = win.navigator.userAgent;
+var SUPPORT_TOUCH = exports.SUPPORT_TOUCH = "ontouchstart" in win;
+var SUPPORT_DEVICEMOTION = exports.SUPPORT_DEVICEMOTION = "ondevicemotion" in win;
+
+/***/ }),
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -797,7 +823,7 @@ module.exports = exports["default"];
 });
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process, global) {/*!
@@ -1980,10 +2006,10 @@ return Promise$1;
 
 //# sourceMappingURL=es6-promise.map
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(38), __webpack_require__(39)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(41), __webpack_require__(42)))
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports) {
 
 /*
@@ -2346,7 +2372,13 @@ module.exports = MathUtil;
 
 
 /***/ }),
-/* 6 */
+/* 7 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_7__;
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2356,7 +2388,7 @@ exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _agent = __webpack_require__(3);
+var _agent = __webpack_require__(4);
 
 var _agent2 = _interopRequireDefault(_agent);
 
@@ -2540,31 +2572,7 @@ var WebGLUtils = function () {
 exports["default"] = WebGLUtils;
 
 /***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-/* eslint-disable no-new-func */
-/* eslint-disable no-nested-ternary */
-var win = typeof window !== "undefined" && window.Math === Math ? window : typeof self !== "undefined" && self.Math === Math ? self : Function("return this")();
-/* eslint-enable no-nested-ternary */
-/* eslint-enable no-new-func */
-
-win.Float32Array = typeof win.Float32Array !== "undefined" ? win.Float32Array : win.Array;
-
-exports.window = win;
-var document = exports.document = win.document;
-var Float32Array = exports.Float32Array = win.Float32Array;
-var getComputedStyle = exports.getComputedStyle = win.getComputedStyle;
-var userAgent = exports.userAgent = win.navigator.userAgent;
-var SUPPORT_TOUCH = exports.SUPPORT_TOUCH = "ontouchstart" in win;
-var SUPPORT_DEVICEMOTION = exports.SUPPORT_DEVICEMOTION = "ondevicemotion" in win;
-
-/***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2598,6 +2606,7 @@ var DELTA_THRESHOLD = 0.0375; // Note2
 
 var YAW_RANGE_HALF = 180;
 var PITCH_RANGE_HALF = 90;
+var CIRCULAR_PITCH_RANGE_HALF = 180;
 var PINCH_EVENTS = "pinchstart pinchmove pinchend";
 
 var KEYMAP = {
@@ -2613,7 +2622,8 @@ var KEYMAP = {
 
 var GYRO_MODE = {
 	NONE: "none",
-	YAWPITCH: "yawPitch"
+	YAWPITCH: "yawPitch",
+	VR: "VR"
 };
 
 exports.GYRO_MODE = GYRO_MODE;
@@ -2632,11 +2642,12 @@ exports.PAN_SCALE = PAN_SCALE;
 exports.DELTA_THRESHOLD = DELTA_THRESHOLD;
 exports.YAW_RANGE_HALF = YAW_RANGE_HALF;
 exports.PITCH_RANGE_HALF = PITCH_RANGE_HALF;
+exports.CIRCULAR_PITCH_RANGE_HALF = CIRCULAR_PITCH_RANGE_HALF;
 exports.PINCH_EVENTS = PINCH_EVENTS;
 exports.KEYMAP = KEYMAP;
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports) {
 
 /*
@@ -3123,12 +3134,6 @@ module.exports = Util;
 
 
 /***/ }),
-/* 10 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_10__;
-
-/***/ }),
 /* 11 */,
 /* 12 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -3153,7 +3158,7 @@ exports["default"] = Renderer;
 "use strict";
 
 
-var _consts = __webpack_require__(8);
+var _consts = __webpack_require__(9);
 
 var ERROR_TYPE = {
 	INVALID_DEVICE: 10,
@@ -3168,8 +3173,7 @@ var EVENTS = {
 	READY: "ready",
 	VIEW_CHANGE: "viewChange",
 	ANIMATION_END: "animationEnd",
-	ERROR: "error",
-	CONTENT_LOADED: "contentLoaded"
+	ERROR: "error"
 };
 
 var PROJECTION_TYPE = {
@@ -3186,6 +3190,335 @@ module.exports = {
 
 /***/ }),
 /* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _browser = __webpack_require__(3);
+
+var _mathUtil = __webpack_require__(1);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+// Singleton
+var screenRotationAngleInst = null;
+var refCount = 0;
+
+var ScreenRotationAngle = function () {
+	function ScreenRotationAngle() {
+		_classCallCheck(this, ScreenRotationAngle);
+
+		refCount++;
+
+		if (screenRotationAngleInst) {
+			return screenRotationAngleInst;
+		}
+		/* eslint-disable */
+		screenRotationAngleInst = this;
+		/* eslint-enable */
+		this._onDeviceOrientation = this._onDeviceOrientation.bind(this);
+		this._onOrientationChange = this._onOrientationChange.bind(this);
+
+		this._spinR = 0;
+
+		this._screenOrientationAngle = 0;
+		_browser.window.addEventListener("deviceorientation", this._onDeviceOrientation);
+		_browser.window.addEventListener("orientationchange", this._onOrientationChange);
+	}
+
+	ScreenRotationAngle.prototype._onDeviceOrientation = function _onDeviceOrientation(e) {
+		if (e.beta === null || e.gamma === null) {
+			// (Chrome) deviceorientation is fired with invalid information {alpha=null, beta=null, ...} despite of not dispatching it. We skip it.
+			return;
+		}
+
+		// Radian
+		var betaR = _mathUtil.glMatrix.toRadian(e.beta);
+		var gammaR = _mathUtil.glMatrix.toRadian(e.gamma);
+
+		/* spinR range = [-180, 180], left side: 0 ~ -180(deg), right side: 0 ~ 180(deg) */
+		this._spinR = Math.atan2(Math.cos(betaR) * Math.sin(gammaR), Math.sin(betaR));
+	};
+
+	ScreenRotationAngle.prototype._onOrientationChange = function _onOrientationChange(e) {
+		if (_browser.screen && _browser.screen.orientation && _browser.screen.orientation.angle !== undefined) {
+			this._screenOrientationAngle = _browser.screen.orientation.angle;
+		} else if (_browser.orientation !== undefined) {
+			this._screenOrientationAngle = _browser.orientation >= 0 ? _browser.orientation : 360 + _browser.orientation;
+		}
+	};
+
+	ScreenRotationAngle.prototype.getRadian = function getRadian() {
+		// Join with screen orientation
+		// this._testVal = this._spinR + ", " + this._screenOrientationAngle + ", " + window.orientation;
+		return this._spinR + _mathUtil.glMatrix.toRadian(this._screenOrientationAngle);
+	};
+
+	ScreenRotationAngle.prototype.unref = function unref() {
+		if (--refCount > 0) {
+			return;
+		}
+
+		_browser.window.removeEventListener("deviceorientation", this._onDeviceOrientation);
+		_browser.window.removeEventListener("orientationchange", this._onOrientationChange);
+
+		this._spinR = 0;
+		this._screenOrientationAngle = 0;
+		/* eslint-disable */
+		screenRotationAngleInst = null;
+		/* eslint-enable */
+		refCount = 0;
+	};
+
+	return ScreenRotationAngle;
+}();
+
+exports["default"] = ScreenRotationAngle;
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _component = __webpack_require__(0);
+
+var _component2 = _interopRequireDefault(_component);
+
+var _posePredictor = __webpack_require__(44);
+
+var _posePredictor2 = _interopRequireDefault(_posePredictor);
+
+var _mathUtil = __webpack_require__(6);
+
+var _mathUtil2 = _interopRequireDefault(_mathUtil);
+
+var _util = __webpack_require__(10);
+
+var _util2 = _interopRequireDefault(_util);
+
+var _browser = __webpack_require__(3);
+
+var _mathUtil3 = __webpack_require__(1);
+
+var _DeviceMotion = __webpack_require__(33);
+
+var _DeviceMotion2 = _interopRequireDefault(_DeviceMotion);
+
+var _ComplementaryFilter = __webpack_require__(32);
+
+var _ComplementaryFilter2 = _interopRequireDefault(_ComplementaryFilter);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var K_FILTER = 0.98;
+var PREDICTION_TIME_S = 0.040;
+
+var FusionPoseSensor = function (_Component) {
+	_inherits(FusionPoseSensor, _Component);
+
+	function FusionPoseSensor() {
+		_classCallCheck(this, FusionPoseSensor);
+
+		var _this = _possibleConstructorReturn(this, _Component.call(this));
+
+		_this.deviceMotion = new _DeviceMotion2["default"]();
+
+		_this.accelerometer = new _mathUtil2["default"].Vector3();
+		_this.gyroscope = new _mathUtil2["default"].Vector3();
+
+		_this._onDeviceMotionChange = _this._onDeviceMotionChange.bind(_this);
+		_this._onScreenOrientationChange = _this._onScreenOrientationChange.bind(_this);
+
+		_this.filter = new _ComplementaryFilter2["default"](K_FILTER);
+		_this.posePredictor = new _posePredictor2["default"](PREDICTION_TIME_S);
+
+		_this.filterToWorldQ = new _mathUtil2["default"].Quaternion();
+
+		_this.isFirefoxAndroid = _util2["default"].isFirefoxAndroid();
+		_this.isIOS = _util2["default"].isIOS();
+		_this._isEnabled = false;
+
+		// Set the filter to world transform, depending on OS.
+		if (_this.isIOS) {
+			_this.filterToWorldQ.setFromAxisAngle(new _mathUtil2["default"].Vector3(1, 0, 0), Math.PI / 2);
+		} else {
+			_this.filterToWorldQ.setFromAxisAngle(new _mathUtil2["default"].Vector3(1, 0, 0), -Math.PI / 2);
+		}
+
+		_this.inverseWorldToScreenQ = new _mathUtil2["default"].Quaternion();
+		_this.worldToScreenQ = new _mathUtil2["default"].Quaternion();
+		_this.originalPoseAdjustQ = new _mathUtil2["default"].Quaternion();
+		_this.originalPoseAdjustQ.setFromAxisAngle(new _mathUtil2["default"].Vector3(0, 0, 1), -_browser.window.orientation * Math.PI / 180);
+
+		_this._setScreenTransform();
+		// Adjust this filter for being in landscape mode.
+		if (_util2["default"].isLandscapeMode()) {
+			_this.filterToWorldQ.multiply(_this.inverseWorldToScreenQ);
+		}
+
+		// Keep track of a reset transform for resetSensor.
+		_this.resetQ = new _mathUtil2["default"].Quaternion();
+
+		_this.deviceMotion.on("devicemotion", _this._onDeviceMotionChange);
+		_this.enable();
+		return _this;
+	}
+
+	FusionPoseSensor.prototype.enable = function enable() {
+		if (this.isEnabled()) {
+			return;
+		}
+		this.deviceMotion.enable();
+		this._isEnabled = true;
+		_browser.window.addEventListener("orientationchange", this._onScreenOrientationChange);
+	};
+
+	FusionPoseSensor.prototype.disable = function disable() {
+		if (!this.isEnabled()) {
+			return;
+		}
+		this.deviceMotion.disable();
+		this._isEnabled = false;
+		_browser.window.removeEventListener("orientationchange", this._onScreenOrientationChange);
+	};
+
+	FusionPoseSensor.prototype.isEnabled = function isEnabled() {
+		return this._isEnabled;
+	};
+
+	FusionPoseSensor.prototype.destroy = function destroy() {
+		this.disable();
+		this.deviceMotion = null;
+	};
+
+	FusionPoseSensor.prototype._triggerChange = function _triggerChange() {
+		var orientation = this.getOrientation();
+
+		// if orientation is not prepared. don't trigger change event
+		if (!orientation) {
+			return;
+		}
+
+		if (!this._prevOrientation) {
+			this._prevOrientation = orientation;
+			return;
+		}
+
+		if (_mathUtil3.quat.equals(this._prevOrientation, orientation)) {
+			return;
+		}
+
+		this.trigger("change", { quaternion: orientation });
+	};
+
+	FusionPoseSensor.prototype.getOrientation = function getOrientation() {
+		// Convert from filter space to the the same system used by the
+		// deviceorientation event.
+		var orientation = this.filter.getOrientation();
+
+		if (!orientation) {
+			return null;
+		}
+
+		// Predict orientation.
+		var out = this._convertFusionToPredicted(orientation);
+
+		// return quaternion as glmatrix quaternion object
+		out = _mathUtil3.quat.fromValues(out.x, out.y, out.z, out.w);
+
+		return _mathUtil3.quat.normalize(out, out);
+	};
+
+	FusionPoseSensor.prototype._convertFusionToPredicted = function _convertFusionToPredicted(orientation) {
+		// Predict orientation.
+		this.predictedQ = this.posePredictor.getPrediction(orientation, this.gyroscope, this.previousTimestampS);
+
+		// Convert to THREE coordinate system: -Z forward, Y up, X right.
+		var out = new _mathUtil2["default"].Quaternion();
+
+		out.copy(this.filterToWorldQ);
+		out.multiply(this.resetQ);
+		out.multiply(this.predictedQ);
+		out.multiply(this.worldToScreenQ);
+
+		return out;
+	};
+
+	FusionPoseSensor.prototype._onDeviceMotionChange = function _onDeviceMotionChange(_ref) {
+		var inputEvent = _ref.inputEvent;
+
+		var deviceMotion = inputEvent;
+		var accGravity = deviceMotion.accelerationIncludingGravity;
+		var rotRate = deviceMotion.adjustedRotationRate || deviceMotion.rotationRate;
+		var timestampS = deviceMotion.timeStamp / 1000;
+
+		// Firefox Android timeStamp returns one thousandth of a millisecond.
+		if (this.isFirefoxAndroid) {
+			timestampS /= 1000;
+		}
+
+		this.accelerometer.set(-accGravity.x, -accGravity.y, -accGravity.z);
+		this.gyroscope.set(rotRate.alpha, rotRate.beta, rotRate.gamma);
+
+		// With iOS and Firefox Android, rotationRate is reported in degrees,
+		// so we first convert to radians.
+		if (this.isIOS || this.isFirefoxAndroid) {
+			this.gyroscope.multiplyScalar(Math.PI / 180);
+		}
+
+		this.filter.addAccelMeasurement(this.accelerometer, timestampS);
+		this.filter.addGyroMeasurement(this.gyroscope, timestampS);
+
+		this._triggerChange();
+
+		this.previousTimestampS = timestampS;
+	};
+
+	FusionPoseSensor.prototype._onScreenOrientationChange = function _onScreenOrientationChange(screenOrientation) {
+		this._setScreenTransform(_browser.window.orientation);
+	};
+
+	FusionPoseSensor.prototype._setScreenTransform = function _setScreenTransform() {
+		this.worldToScreenQ.set(0, 0, 0, 1);
+		switch (_browser.window.orientation) {
+			case 0:
+				break;
+			case 90:
+				this.worldToScreenQ.setFromAxisAngle(new _mathUtil2["default"].Vector3(0, 0, 1), 90 / -180 * Math.PI);
+				break;
+			case -90:
+				this.worldToScreenQ.setFromAxisAngle(new _mathUtil2["default"].Vector3(0, 0, 1), -90 / -180 * Math.PI);
+				break;
+			case 180:
+				this.worldToScreenQ.setFromAxisAngle(new _mathUtil2["default"].Vector3(0, 0, 1), 180 / -180 * Math.PI);
+				break;
+			default:
+				break;
+		}
+		this.inverseWorldToScreenQ.copy(this.worldToScreenQ);
+		this.inverseWorldToScreenQ.inverse();
+	};
+
+	return FusionPoseSensor;
+}(_component2["default"]);
+
+exports["default"] = FusionPoseSensor;
+
+/***/ }),
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3209,7 +3542,7 @@ exports["default"] = util;
 exports.toAxis = toAxis;
 
 /***/ }),
-/* 15 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3218,11 +3551,11 @@ exports.toAxis = toAxis;
 exports.__esModule = true;
 exports.YawPitchControl = undefined;
 
-var _YawPitchControl = __webpack_require__(28);
+var _YawPitchControl = __webpack_require__(31);
 
 var _YawPitchControl2 = _interopRequireDefault(_YawPitchControl);
 
-var _consts = __webpack_require__(8);
+var _consts = __webpack_require__(9);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -3238,7 +3571,7 @@ _YawPitchControl2["default"].TOUCH_DIRECTION_NONE = _consts.TOUCH_DIRECTION_NONE
 exports.YawPitchControl = _YawPitchControl2["default"];
 
 /***/ }),
-/* 16 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3252,13 +3585,13 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _browser = __webpack_require__(27);
+var _browser = __webpack_require__(29);
 
-var _YawPitchControl = __webpack_require__(15);
+var _YawPitchControl = __webpack_require__(17);
 
-var _PanoImageRenderer = __webpack_require__(24);
+var _PanoImageRenderer = __webpack_require__(26);
 
-var _WebGLUtils = __webpack_require__(6);
+var _WebGLUtils = __webpack_require__(8);
 
 var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
 
@@ -3274,7 +3607,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _Promise = typeof Promise === 'undefined' ? __webpack_require__(4).Promise : Promise;
+var _Promise = typeof Promise === 'undefined' ? __webpack_require__(5).Promise : Promise;
 
 var PanoViewer = function (_Component) {
 	_inherits(PanoViewer, _Component);
@@ -3302,7 +3635,7 @@ var PanoViewer = function (_Component) {
   * @param {Boolean} [config.showPolePoint=false] If false, the pole is not displayed inside the viewport <ko>false 인 경우, 극점은 뷰포트 내부에 표시되지 않습니다</ko>
   * @param {Boolean} [config.useZoom=true] When true, enables zoom with the wheel and Pinch gesture <ko>true 일 때 휠 및 집기 제스춰로 확대 / 축소 할 수 있습니다.</ko>
   * @param {Boolean} [config.useKeyboard=true] When true, enables the keyboard move key control: awsd, arrow keys <ko>true 이면 키보드 이동 키 컨트롤을 활성화합니다: awsd, 화살표 키</ko>
-  * @param {String} [config.useGyro=yawPitch] Enables control through device motion. ("none", "yawPitch") <ko>디바이스 움직임을 통한 컨트롤을 활성화 합니다. ("none", "yawPitch") </ko>
+  * @param {String} [config.gyroMode=yawPitch] Enables control through device motion. ("none", "yawPitch") <ko>디바이스 움직임을 통한 컨트롤을 활성화 합니다. ("none", "yawPitch") </ko>
   * @param {Array} [config.yawRange=[-180, 180]] Range of controllable Yaw values <ko>제어 가능한 Yaw 값의 범위</ko>
   * @param {Array} [config.pitchRange=[-90, 90]] Range of controllable Pitch values <ko>제어 가능한 Pitch 값의 범위</ko>
   * @param {Array} [config.fovRange=[30, 110]] Range of controllable vertical field of view values <ko>제어 가능한 수직 field of view 값의 범위</ko>
@@ -3372,7 +3705,8 @@ var PanoViewer = function (_Component) {
 		_this._pitch = options.pitch || 0;
 		_this._fov = options.fov || 65;
 
-		_this._useGyro = options.useGyro || _consts.GYRO_MODE.YAWPITCH;
+		_this._gyroMode = options.gyroMode || _consts.GYRO_MODE.YAWPITCH;
+		_this._quaternion = null;
 
 		_this._aspectRatio = _this._width / _this._height;
 		var fovRange = options.fovRange || [30, 110];
@@ -3382,7 +3716,7 @@ var PanoViewer = function (_Component) {
 			yaw: _this._yaw,
 			pitch: _this._pitch,
 			fov: _this._fov,
-			useGyro: _this._useGyro,
+			gyroMode: _this._gyroMode,
 			fovRange: fovRange,
 			aspectRatio: _this._aspectRatio
 		});
@@ -3533,7 +3867,7 @@ var PanoViewer = function (_Component) {
 
 		this._photoSphereRenderer.bindTexture().then(function () {
 			return _this2._activate();
-		})["catch"](function () {
+		}, function () {
 			_this2._triggerEvent(_consts.EVENTS.ERROR, {
 				type: _consts.ERROR_TYPE.FAIL_BIND_TEXTURE,
 				message: "failed to bind texture"
@@ -3543,10 +3877,6 @@ var PanoViewer = function (_Component) {
 
 	PanoViewer.prototype._bindRendererHandler = function _bindRendererHandler() {
 		var _this3 = this;
-
-		this._photoSphereRenderer.on(_PanoImageRenderer.PanoImageRenderer.EVENTS.IMAGE_LOADED, function (e) {
-			_this3.trigger(_consts.EVENTS.CONTENT_LOADED, e);
-		});
 
 		this._photoSphereRenderer.on(_PanoImageRenderer.PanoImageRenderer.EVENTS.ERROR, function (e) {
 			_this3.trigger(_consts.EVENTS.ERROR, e);
@@ -3574,6 +3904,7 @@ var PanoViewer = function (_Component) {
 			_this4._yaw = e.yaw;
 			_this4._pitch = e.pitch;
 			_this4._fov = e.fov;
+			_this4._quaternion = e.quaternion;
 
 			_this4._triggerEvent(_consts.EVENTS.VIEW_CHANGE, e);
 		});
@@ -3657,18 +3988,6 @@ var PanoViewer = function (_Component) {
    *		// animation is ended.
    * });
    */
-
-		/**
-  	* Events that is fired when content(Video/Image) is loaded
-  	* @ko 컨텐츠(비디오 혹은 이미지)가 로드되었을때 발생되는 이벤트
-  	*
-  	* @name eg.view360.PanoViewer#contentLoaded
-  	* @event
-  	* @param {Object} event
-  	* @param {HTMLVideoElement|Image} event.content
-  	* @param {Boolean} event.isVideo
-  	* @param {String} event.projectionType
-  	*/
 		return this.trigger(name, evt);
 	};
 
@@ -3703,13 +4022,13 @@ var PanoViewer = function (_Component) {
 	/**
   * Enables control through device motion. ("none", "yawPitch")
   * @ko 디바이스 움직임을 통한 컨트롤을 활성화 합니다. ("none", "yawPitch")
-  * @method eg.view360.PanoViewer#setUseGyro
-  * @param {String} useGyro
+  * @method eg.view360.PanoViewer#setGyroMode
+  * @param {String} gyroMode
   */
 
 
-	PanoViewer.prototype.setUseGyro = function setUseGyro(useGyro) {
-		this._yawPitchControl.option("useGyro", useGyro);
+	PanoViewer.prototype.setGyroMode = function setGyroMode(gyroMode) {
+		this._yawPitchControl.option("gyroMode", gyroMode);
 	};
 
 	/**
@@ -3921,7 +4240,11 @@ var PanoViewer = function (_Component) {
 
 	PanoViewer.prototype._renderLoop = function _renderLoop() {
 		if (this._photoSphereRenderer) {
-			this._photoSphereRenderer.render(this._yaw, this._pitch, this._fov);
+			if (this._quaternion) {
+				this._photoSphereRenderer.renderWithQuaternion(this._quaternion, this._fov);
+			} else {
+				this._photoSphereRenderer.render(this._yaw, this._pitch, this._fov);
+			}
 		}
 		this._rafId = window.requestAnimationFrame(this._renderLoop);
 	};
@@ -3965,13 +4288,6 @@ var PanoViewer = function (_Component) {
 			this._yawPitchControl.destroy();
 			this._yawPitchControl = null;
 		}
-
-		if (this._photoSphereRenderer) {
-			this._photoSphereRenderer.destroy();
-			this._photoSphereRenderer = null;
-		}
-
-		this._isReady = false;
 	};
 
 	PanoViewer.isWebGLAvailable = function isWebGLAvailable() {
@@ -4039,7 +4355,7 @@ PanoViewer.EVENTS = _consts.EVENTS;
 PanoViewer.ProjectionType = _consts.PROJECTION_TYPE;
 
 /***/ }),
-/* 17 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4048,7 +4364,7 @@ PanoViewer.ProjectionType = _consts.PROJECTION_TYPE;
 exports.__esModule = true;
 exports.PanoViewer = undefined;
 
-var _PanoViewer = __webpack_require__(16);
+var _PanoViewer = __webpack_require__(18);
 
 var _PanoViewer2 = _interopRequireDefault(_PanoViewer);
 
@@ -4057,9 +4373,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 exports.PanoViewer = _PanoViewer2["default"];
 
 /***/ }),
-/* 18 */,
-/* 19 */,
-/* 20 */
+/* 20 */,
+/* 21 */,
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4079,7 +4395,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _Promise = typeof Promise === 'undefined' ? __webpack_require__(4).Promise : Promise;
+var _Promise = typeof Promise === 'undefined' ? __webpack_require__(5).Promise : Promise;
 
 var STATUS = {
 	"NONE": 0,
@@ -4253,7 +4569,7 @@ exports["default"] = ImageLoader;
 ImageLoader.STATUS = STATUS;
 
 /***/ }),
-/* 21 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4267,29 +4583,29 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _ImageLoader = __webpack_require__(20);
+var _ImageLoader = __webpack_require__(22);
 
 var _ImageLoader2 = _interopRequireDefault(_ImageLoader);
 
-var _VideoLoader = __webpack_require__(22);
+var _VideoLoader = __webpack_require__(24);
 
 var _VideoLoader2 = _interopRequireDefault(_VideoLoader);
 
-var _WebGLUtils = __webpack_require__(6);
+var _WebGLUtils = __webpack_require__(8);
 
 var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
 
-var _CubeRenderer = __webpack_require__(25);
+var _CubeRenderer = __webpack_require__(27);
 
 var _CubeRenderer2 = _interopRequireDefault(_CubeRenderer);
 
-var _SphereRenderer = __webpack_require__(26);
+var _SphereRenderer = __webpack_require__(28);
 
 var _SphereRenderer2 = _interopRequireDefault(_SphereRenderer);
 
 var _mathUtil = __webpack_require__(1);
 
-var _browser = __webpack_require__(23);
+var _browser = __webpack_require__(25);
 
 var _consts = __webpack_require__(13);
 
@@ -4301,7 +4617,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _Promise = typeof Promise === 'undefined' ? __webpack_require__(4).Promise : Promise;
+var _Promise = typeof Promise === 'undefined' ? __webpack_require__(5).Promise : Promise;
 
 var ImageType = _consts.PROJECTION_TYPE;
 
@@ -4487,18 +4803,9 @@ var PanoImageRenderer = function (_Component) {
 	};
 
 	PanoImageRenderer.prototype._onContentLoad = function _onContentLoad(image) {
-		var _this2 = this;
-
 		this._imageIsReady = true;
 
-		if (this._isVideo) {
-			this._image.addEventListener("loadeddata", function () {
-				_this2._triggerContentLoad();
-			});
-		} else {
-			this._triggerContentLoad();
-		}
-
+		this._triggerContentLoad();
 		return true;
 	};
 
@@ -4507,16 +4814,16 @@ var PanoImageRenderer = function (_Component) {
 	};
 
 	PanoImageRenderer.prototype.bindTexture = function bindTexture() {
-		var _this3 = this;
+		var _this2 = this;
 
 		return new _Promise(function (res, rej) {
-			if (!_this3._contentLoader) {
+			if (!_this2._contentLoader) {
 				rej("ImageLoader is not initialized");
 				return;
 			}
 
-			_this3._contentLoader.get().then(function () {
-				return _this3._bindTexture();
+			_this2._contentLoader.get().then(function () {
+				return _this2._bindTexture();
 			}, rej).then(res);
 		});
 	};
@@ -4742,6 +5049,39 @@ var PanoImageRenderer = function (_Component) {
 		this._keepUpdate = doUpdate;
 	};
 
+	PanoImageRenderer.prototype.renderWithQuaternion = function renderWithQuaternion(quaternion, fieldOfView) {
+		if (!this.isImageLoaded()) {
+			return;
+		}
+
+		if (this._keepUpdate === false && this._lastQuaternion && _mathUtil.quat.exactEquals(this._lastQuaternion, quaternion) && this.fieldOfView && this.fieldOfView === fieldOfView && this._shouldForceDraw === false) {
+			return;
+		}
+
+		// updatefieldOfView only if fieldOfView is changed.
+		if (fieldOfView !== undefined && fieldOfView !== this.fieldOfView) {
+			this.updateFieldOfView(fieldOfView);
+		}
+
+		var outQ = void 0;
+
+		if (!this._isCubeMap) {
+			// TODO: Remove this yaw revision by correcting shader
+			outQ = _mathUtil.quat.rotateY(_mathUtil.quat.create(), quaternion, _mathUtil.glMatrix.toRadian(90));
+		} else {
+			outQ = quaternion;
+		}
+
+		this.mvMatrix = _mathUtil.mat4.fromQuat(_mathUtil.mat4.create(), outQ);
+
+		this._draw();
+
+		this._lastQuaternion = _mathUtil.quat.clone(quaternion);
+		if (this._shouldForceDraw) {
+			this._shouldForceDraw = false;
+		}
+	};
+
 	PanoImageRenderer.prototype.render = function render(yaw, pitch, fieldOfView) {
 		if (!this.isImageLoaded()) {
 			return;
@@ -4794,7 +5134,7 @@ PanoImageRenderer.EVENTS = EVENTS;
 PanoImageRenderer.ERROR_TYPE = ERROR_TYPE;
 
 /***/ }),
-/* 22 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4806,7 +5146,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var _Promise = typeof Promise === 'undefined' ? __webpack_require__(4).Promise : Promise;
+var _Promise = typeof Promise === 'undefined' ? __webpack_require__(5).Promise : Promise;
 
 // import Agent from "@egjs/agent";
 
@@ -5008,7 +5348,7 @@ var VideoLoader = function () {
 exports["default"] = VideoLoader;
 
 /***/ }),
-/* 23 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5019,7 +5359,7 @@ var userAgent = exports.userAgent = window.navigator.userAgent;
 var devicePixelRatio = exports.devicePixelRatio = window.devicePixelRatio;
 
 /***/ }),
-/* 24 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5028,11 +5368,11 @@ var devicePixelRatio = exports.devicePixelRatio = window.devicePixelRatio;
 exports.__esModule = true;
 exports.WebGLUtils = exports.PanoImageRenderer = undefined;
 
-var _PanoImageRenderer = __webpack_require__(21);
+var _PanoImageRenderer = __webpack_require__(23);
 
 var _PanoImageRenderer2 = _interopRequireDefault(_PanoImageRenderer);
 
-var _WebGLUtils = __webpack_require__(6);
+var _WebGLUtils = __webpack_require__(8);
 
 var _WebGLUtils2 = _interopRequireDefault(_WebGLUtils);
 
@@ -5042,7 +5382,7 @@ exports.PanoImageRenderer = _PanoImageRenderer2["default"];
 exports.WebGLUtils = _WebGLUtils2["default"];
 
 /***/ }),
-/* 25 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5052,7 +5392,7 @@ exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _agent = __webpack_require__(3);
+var _agent = __webpack_require__(4);
 
 var _agent2 = _interopRequireDefault(_agent);
 
@@ -5301,7 +5641,7 @@ CubeRenderer._VERTEX_POSITION_DATA = null;
 CubeRenderer._INDEX_DATA = null;
 
 /***/ }),
-/* 26 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5309,7 +5649,7 @@ CubeRenderer._INDEX_DATA = null;
 
 exports.__esModule = true;
 
-var _agent = __webpack_require__(3);
+var _agent = __webpack_require__(4);
 
 var _agent2 = _interopRequireDefault(_agent);
 
@@ -5478,7 +5818,7 @@ SphereRenderer._INDEX_DATA = null;
 SphereRenderer._initData();
 
 /***/ }),
-/* 27 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5491,7 +5831,100 @@ exports.window = win;
 var DeviceMotionEvent = exports.DeviceMotionEvent = win.DeviceMotionEvent;
 
 /***/ }),
-/* 28 */
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _component = __webpack_require__(0);
+
+var _component2 = _interopRequireDefault(_component);
+
+var _FusionPoseSensor = __webpack_require__(15);
+
+var _FusionPoseSensor2 = _interopRequireDefault(_FusionPoseSensor);
+
+var _ScreenRotationAngle = __webpack_require__(14);
+
+var _ScreenRotationAngle2 = _interopRequireDefault(_ScreenRotationAngle);
+
+var _mathUtil = __webpack_require__(1);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var ORIGIN_VECTOR = _mathUtil.vec3.fromValues(0, 0, 0);
+var X_AXIS_VECTOR = _mathUtil.vec3.fromValues(1, 0, 0);
+var Y_AXIS_VECTOR = _mathUtil.vec3.fromValues(0, 1, 0);
+
+var DeviceQuaternion = function (_Component) {
+	_inherits(DeviceQuaternion, _Component);
+
+	function DeviceQuaternion() {
+		_classCallCheck(this, DeviceQuaternion);
+
+		var _this = _possibleConstructorReturn(this, _Component.call(this));
+
+		_this._screenRotationAngle = new _ScreenRotationAngle2["default"]();
+		_this._fusionPoseSensor = new _FusionPoseSensor2["default"]();
+		_this._quaternion = _mathUtil.quat.create();
+
+		_this._fusionPoseSensor.enable();
+		_this._fusionPoseSensor.on("change", function (e) {
+			_this._quaternion = e.quaternion;
+
+			_this.trigger("change", { isTrusted: true });
+		});
+		return _this;
+	}
+
+	DeviceQuaternion.prototype.getCombinedQuaternion = function getCombinedQuaternion(yaw, pitch) {
+		var deviceR = this._screenRotationAngle.getRadian();
+
+		// rotate x-axis around z-axis about screen rotation angle.
+		var pitchAxis = _mathUtil.vec3.rotateZ(_mathUtil.vec3.create(), X_AXIS_VECTOR, ORIGIN_VECTOR, deviceR);
+		var yawQ = _mathUtil.quat.setAxisAngle(_mathUtil.quat.create(), Y_AXIS_VECTOR, _mathUtil.glMatrix.toRadian(-yaw));
+		// rotate quaternion around new x-axis about pitch angle.
+		var pitchQ = _mathUtil.quat.setAxisAngle(_mathUtil.quat.create(), pitchAxis, _mathUtil.glMatrix.toRadian(-pitch));
+		var conj = _mathUtil.quat.conjugate(_mathUtil.quat.create(), this._quaternion);
+		// Multiply pitch quaternion -> device quaternion -> yaw quaternion
+		var outQ = _mathUtil.quat.multiply(_mathUtil.quat.create(), pitchQ, conj);
+
+		_mathUtil.quat.multiply(outQ, outQ, yawQ);
+		return outQ;
+	};
+
+	DeviceQuaternion.prototype.destroy = function destroy() {
+		// detach all event handler
+		this.off();
+
+		if (this._fusionPoseSensor) {
+			this._fusionPoseSensor.off();
+			this._fusionPoseSensor.destroy();
+			this._fusionPoseSensor = null;
+		}
+
+		if (this._screenRotationAngle) {
+			this._screenRotationAngle.unref();
+			this._screenRotationAngle = null;
+		}
+	};
+
+	return DeviceQuaternion;
+}(_component2["default"]);
+
+exports["default"] = DeviceQuaternion;
+
+/***/ }),
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5505,23 +5938,31 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _axes = __webpack_require__(10);
+var _axes = __webpack_require__(7);
 
 var _axes2 = _interopRequireDefault(_axes);
 
-var _browser = __webpack_require__(7);
+var _browser = __webpack_require__(3);
 
-var _WheelInput = __webpack_require__(33);
+var _WheelInput = __webpack_require__(36);
 
 var _WheelInput2 = _interopRequireDefault(_WheelInput);
 
-var _TiltMotionInput = __webpack_require__(32);
+var _TiltMotionInput = __webpack_require__(35);
 
 var _TiltMotionInput2 = _interopRequireDefault(_TiltMotionInput);
 
+var _RotationPanInput = __webpack_require__(34);
+
+var _RotationPanInput2 = _interopRequireDefault(_RotationPanInput);
+
+var _DeviceQuaternion = __webpack_require__(30);
+
+var _DeviceQuaternion2 = _interopRequireDefault(_DeviceQuaternion);
+
 var _mathUtil = __webpack_require__(1);
 
-var _consts = __webpack_require__(8);
+var _consts = __webpack_require__(9);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -5533,6 +5974,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var DEFAULT_YAW_RANGE = [-_consts.YAW_RANGE_HALF, _consts.YAW_RANGE_HALF];
 var DEFAULT_PITCH_RANGE = [-_consts.PITCH_RANGE_HALF, _consts.PITCH_RANGE_HALF];
+var CIRCULAR_PITCH_RANGE = [-_consts.CIRCULAR_PITCH_RANGE_HALF, _consts.CIRCULAR_PITCH_RANGE_HALF];
 /**
  * A module used to provide coordinate based on yaw/pitch orientation. This module receives user touch action, keyboard, mouse and device orientation(if it exists) as input, then combines them and converts it to yaw/pitch coordinates.
  *
@@ -5553,7 +5995,7 @@ var YawPitchControl = function (_Component) {
   * @param {Boolean} [optiosn.showPolePoint=true] Indicates whether pole is shown
   * @param {Boolean} [options.useZoom=true] Indicates whether zoom is available
   * @param {Boolean} [options.useKeyboard=true] Indicates whether keyboard is enabled
-  * @param {String} [config.useGyro=yawPitch] Enables control through device motion.
+  * @param {String} [config.gyroMode=yawPitch] Enables control through device motion.
   * @param {Number} [options.touchDirection=TOUCH_DIRECTION_ALL] Direction of the touch movement (TOUCH_DIRECTION_ALL: all,  TOUCH_DIRECTION_YAW: horizontal, TOUCH_DIRECTION_PITCH: vertical, TOUCH_DIRECTION_NONE: no move)
   * @param {Array} [options.yawRange=[-180, 180] Range of visible yaw
   * @param {Array} [options.pitchRange=[-90, 90] Range of visible pitch
@@ -5573,7 +6015,7 @@ var YawPitchControl = function (_Component) {
 			showPolePoint: false,
 			useZoom: true,
 			useKeyboard: true,
-			useGyro: _consts.GYRO_MODE.YAWPITCH,
+			gyroMode: _consts.GYRO_MODE.YAWPITCH,
 			touchDirection: _consts.TOUCH_DIRECTION_ALL,
 			yawRange: DEFAULT_YAW_RANGE,
 			pitchRange: DEFAULT_PITCH_RANGE,
@@ -5585,6 +6027,7 @@ var YawPitchControl = function (_Component) {
 		_this._initialFov = opt.fov;
 		_this._enabled = false;
 		_this._isAnimating = false;
+		_this._deviceQuaternion = null;
 
 		_this._initAxes(opt);
 		_this.option(opt);
@@ -5594,25 +6037,26 @@ var YawPitchControl = function (_Component) {
 	YawPitchControl.prototype._initAxes = function _initAxes(opt) {
 		var _this2 = this;
 
-		var yRange = YawPitchControl._updateYawRange(opt.yawRange, opt.fov, opt.aspectRatio);
-		var pRange = YawPitchControl._updatePitchRange(opt.pitchRange, opt.fov, opt.showPolePoint);
-		var circular = yRange[1] - yRange[0] < 360 ? [false, false] : [true, true];
+		var yRange = this._updateYawRange(opt.yawRange, opt.fov, opt.aspectRatio);
+		var pRange = this._updatePitchRange(opt.pitchRange, opt.fov, opt.showPolePoint);
+		var useRotation = opt.gyroMode === _consts.GYRO_MODE.VR;
 
-		this.axesPanInput = new _axes.PanInput(this._element);
+		this.axesPanInput = new _RotationPanInput2["default"](this._element, { useRotation: useRotation });
 		this.axesWheelInput = new _WheelInput2["default"](this._element, { scale: 4 });
-		this.axesTiltMotionInput = _browser.SUPPORT_DEVICEMOTION ? new _TiltMotionInput2["default"](this._element) : null;
+		// this.axesTiltMotionInput = SUPPORT_DEVICEMOTION ? new TiltMotionInput(this._element) : null;
+		this.axesTiltMotionInput = null;
 		this.axesPinchInput = _browser.SUPPORT_TOUCH ? new _axes.PinchInput(this._element, { scale: -1 }) : null;
 		this.axesMoveKeyInput = new _axes.MoveKeyInput(this._element, { scale: [-6, 6] });
 
 		this.axes = new _axes2["default"]({
 			yaw: {
 				range: yRange,
-				circular: circular,
+				circular: YawPitchControl.isCircular(yRange),
 				bounce: [0, 0]
 			},
 			pitch: {
 				range: pRange,
-				circular: [false, false],
+				circular: YawPitchControl.isCircular(pRange),
 				bounce: [0, 0]
 			},
 			fov: {
@@ -5755,14 +6199,27 @@ var YawPitchControl = function (_Component) {
 		}
 
 		if (keys.some(function (key) {
-			return key === "useGyro";
-		}) && this.axesTiltMotionInput) {
-			var useGyro = this.options.useGyro;
+			return key === "gyroMode";
+		}) && _browser.SUPPORT_DEVICEMOTION) {
+			var gyroMode = this.options.gyroMode;
 
-			if (useGyro === _consts.GYRO_MODE.YAWPITCH) {
-				this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
-			} else if (useGyro === _consts.GYRO_MODE.NONE) {
+			// Disconnect first
+			if (this.axesTiltMotionInput) {
 				this.axes.disconnect(this.axesTiltMotionInput);
+				this.axesTiltMotionInput.destroy();
+				this.axesTiltMotionInput = null;
+			}
+
+			if (this._deviceQuaternion) {
+				this._deviceQuaternion.destroy();
+				this._deviceQuaternion = null;
+			}
+
+			if (gyroMode === _consts.GYRO_MODE.YAWPITCH) {
+				this.axesTiltMotionInput = new _TiltMotionInput2["default"](this._element);
+				this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
+			} else if (gyroMode === _consts.GYRO_MODE.VR) {
+				this._initDeviceQuaternion();
 			}
 		}
 
@@ -5793,6 +6250,16 @@ var YawPitchControl = function (_Component) {
 		}
 	};
 
+	YawPitchControl.prototype._initDeviceQuaternion = function _initDeviceQuaternion() {
+		var _this3 = this;
+
+		this._deviceQuaternion = new _DeviceQuaternion2["default"]();
+
+		this._deviceQuaternion.on("change", function (e) {
+			_this3._triggerChange(e);
+		});
+	};
+
 	YawPitchControl.prototype._getValidYawRange = function _getValidYawRange(newYawRange, newFov, newAspectRatio) {
 		var ratio = YawPitchControl.adjustAspectRatio(newAspectRatio || this.options.aspectRatio || 1);
 		var fov = newFov || this.axes.get().fov;
@@ -5817,6 +6284,10 @@ var YawPitchControl = function (_Component) {
 		}
 	};
 
+	YawPitchControl.isCircular = function isCircular(range) {
+		return range[1] - range[0] < 360 ? [false, false] : [true, true];
+	};
+
 	/**
   * Update yaw/pitch min/max by 5 factor
   *
@@ -5834,8 +6305,8 @@ var YawPitchControl = function (_Component) {
 		var opt = this.options;
 		var fov = this.axes.get().fov;
 
-		var pRange = YawPitchControl._updatePitchRange(opt.pitchRange, fov, opt.showPolePoint);
-		var yRange = YawPitchControl._updateYawRange(opt.yawRange, fov, opt.aspectRatio);
+		var pRange = this._updatePitchRange(opt.pitchRange, fov, opt.showPolePoint);
+		var yRange = this._updateYawRange(opt.yawRange, fov, opt.aspectRatio);
 
 		// TODO: If not changed!?
 		var pos = this.axes.get();
@@ -5844,7 +6315,8 @@ var YawPitchControl = function (_Component) {
 
 		_mathUtil.vec2.copy(this.axes.axis.yaw.range, yRange);
 		_mathUtil.vec2.copy(this.axes.axis.pitch.range, pRange);
-		this.axes.axis.yaw.circular = yRange[1] - yRange[0] < 360 ? [false, false] : [true, true];
+		this.axes.axis.yaw.circular = YawPitchControl.isCircular(yRange);
+		this.axes.axis.pitch.circular = YawPitchControl.isCircular(pRange);
 
 		/**
    * update yaw/pitch by it's range.
@@ -5876,7 +6348,12 @@ var YawPitchControl = function (_Component) {
 		return this;
 	};
 
-	YawPitchControl._updatePitchRange = function _updatePitchRange(pitchRange, fov, showPolePoint) {
+	YawPitchControl.prototype._updatePitchRange = function _updatePitchRange(pitchRange, fov, showPolePoint) {
+		if (this.options.gyroMode === _consts.GYRO_MODE.VR) {
+			// Circular pitch on VR
+			return CIRCULAR_PITCH_RANGE;
+		}
+
 		var verticalAngle = pitchRange[1] - pitchRange[0];
 		var halfFov = fov / 2;
 		var isPanorama = verticalAngle < 180;
@@ -5894,7 +6371,11 @@ var YawPitchControl = function (_Component) {
 		});
 	};
 
-	YawPitchControl._updateYawRange = function _updateYawRange(yawRange, fov, aspectRatio) {
+	YawPitchControl.prototype._updateYawRange = function _updateYawRange(yawRange, fov, aspectRatio) {
+		if (this.options.gyroMode === _consts.GYRO_MODE.VR) {
+			return DEFAULT_YAW_RANGE;
+		}
+
 		var horizontalAngle = yawRange[1] - yawRange[0];
 
 		/**
@@ -5939,6 +6420,9 @@ var YawPitchControl = function (_Component) {
 		event.pitch = pos.pitch;
 		event.fov = pos.fov;
 
+		if (opt.gyroMode === _consts.GYRO_MODE.VR) {
+			event.quaternion = this._deviceQuaternion.getCombinedQuaternion(pos.yaw, pos.pitch);
+		}
 		this.trigger("change", event);
 	};
 
@@ -6082,8 +6566,10 @@ var YawPitchControl = function (_Component) {
 		this.axisPanInput && this.axisPanInput.destroy();
 		this.axesWheelInput && this.axesWheelInput.destroy();
 		this.axesTiltMotionInput && this.axesTiltMotionInput.destroy();
+		this.axesDeviceOrientationInput && this.axesDeviceOrientationInput.destroy();
 		this.axesPinchInput && this.axesPinchInput.destroy();
 		this.axesMoveKeyInput && this.axesMoveKeyInput.destroy();
+		this._deviceQuaternion && this._deviceQuaternion.destroy();
 	};
 
 	return YawPitchControl;
@@ -6093,7 +6579,7 @@ YawPitchControl.VERSION = "3.0.0-rc";
 exports["default"] = YawPitchControl;
 
 /***/ }),
-/* 29 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6101,11 +6587,11 @@ exports["default"] = YawPitchControl;
 
 exports.__esModule = true;
 
-var _mathUtil = __webpack_require__(5);
+var _mathUtil = __webpack_require__(6);
 
 var _mathUtil2 = _interopRequireDefault(_mathUtil);
 
-var _complementaryFilter = __webpack_require__(40);
+var _complementaryFilter = __webpack_require__(43);
 
 var _complementaryFilter2 = _interopRequireDefault(_complementaryFilter);
 
@@ -6179,7 +6665,7 @@ _complementaryFilter2["default"].prototype.getOrientation = function () {
 exports["default"] = _complementaryFilter2["default"];
 
 /***/ }),
-/* 30 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6191,13 +6677,13 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _agent = __webpack_require__(3);
+var _agent = __webpack_require__(4);
 
 var _agent2 = _interopRequireDefault(_agent);
 
 var _mathUtil = __webpack_require__(1);
 
-var _browser = __webpack_require__(7);
+var _browser = __webpack_require__(3);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -6246,8 +6732,9 @@ var DeviceMotion = function (_Component) {
 	};
 
 	DeviceMotion.prototype._onDeviceMotion = function _onDeviceMotion(e) {
-		// TODO: 브라우저에서는 이벤트 등록 시점에도 이벤트가 발생한다. 이렇게 체크하는 게 맞나??? @happyhj
-		if (e.interval === 0) {
+		// desktop chrome triggers devicemotion event with empthy sensor values.
+		// Those events should ignored.
+		if (e.interval === 0 || e.acceleration.x === null) {
 			return;
 		}
 
@@ -6289,7 +6776,7 @@ var DeviceMotion = function (_Component) {
 exports["default"] = DeviceMotion;
 
 /***/ }),
-/* 31 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6297,33 +6784,11 @@ exports["default"] = DeviceMotion;
 
 exports.__esModule = true;
 
-var _component = __webpack_require__(0);
+var _axes = __webpack_require__(7);
 
-var _component2 = _interopRequireDefault(_component);
+var _ScreenRotationAngle = __webpack_require__(14);
 
-var _posePredictor = __webpack_require__(41);
-
-var _posePredictor2 = _interopRequireDefault(_posePredictor);
-
-var _mathUtil = __webpack_require__(5);
-
-var _mathUtil2 = _interopRequireDefault(_mathUtil);
-
-var _util = __webpack_require__(9);
-
-var _util2 = _interopRequireDefault(_util);
-
-var _browser = __webpack_require__(7);
-
-var _mathUtil3 = __webpack_require__(1);
-
-var _DeviceMotion = __webpack_require__(30);
-
-var _DeviceMotion2 = _interopRequireDefault(_DeviceMotion);
-
-var _ComplementaryFilter = __webpack_require__(29);
-
-var _ComplementaryFilter2 = _interopRequireDefault(_ComplementaryFilter);
+var _ScreenRotationAngle2 = _interopRequireDefault(_ScreenRotationAngle);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -6333,202 +6798,71 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var K_FILTER = 0.98;
-var PREDICTION_TIME_S = 0.040;
+/**
+ * RotationPanInput is extension of PanInput to compensate coordinates by screen rotation angle.
+ *
+ * The reason for using this function is that in VR mode,
+ * the roll angle is adjusted in the direction opposite to the screen rotation angle.
+ *
+ * Therefore, the angle that the user touches and moves does not match the angle at which the actual object should move.
+ * @extends PanInput
+ */
+var RotationPanInput = function (_PanInput) {
+	_inherits(RotationPanInput, _PanInput);
 
-var FusionPoseSensor = function (_Component) {
-	_inherits(FusionPoseSensor, _Component);
+	/**
+  * Constructor
+  *
+  * @private
+  * @param {HTMLElement} el target element
+  * @param {Object} [options] The option object
+  * @param {Boolean} [options.useRotation]  Whether to use rotation(or VR)
+  */
+	function RotationPanInput(el, options) {
+		_classCallCheck(this, RotationPanInput);
 
-	function FusionPoseSensor() {
-		_classCallCheck(this, FusionPoseSensor);
+		var _this = _possibleConstructorReturn(this, _PanInput.call(this, el, options));
 
-		var _this = _possibleConstructorReturn(this, _Component.call(this));
+		_this._useRotation = !!(options && options.useRotation);
 
-		_this.deviceMotion = new _DeviceMotion2["default"]();
-
-		_this.accelerometer = new _mathUtil2["default"].Vector3();
-		_this.gyroscope = new _mathUtil2["default"].Vector3();
-
-		_this._onDeviceMotionChange = _this._onDeviceMotionChange.bind(_this);
-		_this._onScreenOrientationChange = _this._onScreenOrientationChange.bind(_this);
-
-		_this.filter = new _ComplementaryFilter2["default"](K_FILTER);
-		_this.posePredictor = new _posePredictor2["default"](PREDICTION_TIME_S);
-
-		_this.filterToWorldQ = new _mathUtil2["default"].Quaternion();
-
-		_this.isFirefoxAndroid = _util2["default"].isFirefoxAndroid();
-		_this.isIOS = _util2["default"].isIOS();
-		_this._isEnabled = false;
-
-		// Set the filter to world transform, depending on OS.
-		if (_this.isIOS) {
-			_this.filterToWorldQ.setFromAxisAngle(new _mathUtil2["default"].Vector3(1, 0, 0), Math.PI / 2);
-		} else {
-			_this.filterToWorldQ.setFromAxisAngle(new _mathUtil2["default"].Vector3(1, 0, 0), -Math.PI / 2);
-		}
-
-		_this.inverseWorldToScreenQ = new _mathUtil2["default"].Quaternion();
-		_this.worldToScreenQ = new _mathUtil2["default"].Quaternion();
-		_this.originalPoseAdjustQ = new _mathUtil2["default"].Quaternion();
-		_this.originalPoseAdjustQ.setFromAxisAngle(new _mathUtil2["default"].Vector3(0, 0, 1), -_browser.window.orientation * Math.PI / 180);
-
-		_this._setScreenTransform();
-		// Adjust this filter for being in landscape mode.
-		if (_util2["default"].isLandscapeMode()) {
-			_this.filterToWorldQ.multiply(_this.inverseWorldToScreenQ);
-		}
-
-		// Keep track of a reset transform for resetSensor.
-		_this.resetQ = new _mathUtil2["default"].Quaternion();
-
-		_this.deviceMotion.on("devicemotion", _this._onDeviceMotionChange);
-		_this.enable();
+		_this._screenRotationAngle = null;
+		_this._useRotation && (_this._screenRotationAngle = new _ScreenRotationAngle2["default"]());
 		return _this;
 	}
 
-	FusionPoseSensor.prototype.enable = function enable() {
-		if (this.isEnabled()) {
-			return;
-		}
-		this.deviceMotion.enable();
-		this._isEnabled = true;
-		_browser.window.addEventListener("orientationchange", this._onScreenOrientationChange);
-	};
+	RotationPanInput.prototype.getOffset = function getOffset(properties, useDirection) {
+		var offset = _PanInput.prototype.getOffset.call(this, properties, useDirection);
 
-	FusionPoseSensor.prototype.disable = function disable() {
-		if (!this.isEnabled()) {
-			return;
-		}
-		this.deviceMotion.disable();
-		this._isEnabled = false;
-		_browser.window.removeEventListener("orientationchange", this._onScreenOrientationChange);
-	};
-
-	FusionPoseSensor.prototype.isEnabled = function isEnabled() {
-		return this._isEnabled;
-	};
-
-	FusionPoseSensor.prototype.destroy = function destroy() {
-		this.disable();
-		this.deviceMotion = null;
-	};
-
-	FusionPoseSensor.prototype._triggerChange = function _triggerChange() {
-		var orientation = this.getOrientation();
-
-		// if orientation is not prepared. don't trigger change event
-		if (!orientation) {
-			return;
+		if (this._useRotation === false) {
+			return offset;
 		}
 
-		if (!this._prevOrientation) {
-			this._prevOrientation = orientation;
-			return;
-		}
+		var newOffset = [0, 0];
+		var theta = this._screenRotationAngle.getRadian();
+		var cosTheta = Math.cos(theta);
+		var sinTheta = Math.sin(theta);
 
-		if (_mathUtil3.quat.equals(this._prevOrientation, orientation)) {
-			return;
-		}
+		newOffset[0] = offset[0] * cosTheta - offset[1] * sinTheta;
+		newOffset[1] = offset[1] * cosTheta + offset[0] * sinTheta;
 
-		this.trigger("change", { quaternion: orientation });
+		return newOffset;
 	};
 
-	FusionPoseSensor.prototype.getOrientation = function getOrientation() {
-		// Convert from filter space to the the same system used by the
-		// deviceorientation event.
-		var orientation = this.filter.getOrientation();
-
-		if (!orientation) {
-			return null;
+	RotationPanInput.prototype.destroy = function destroy() {
+		if (this._useRotation) {
+			this._screenRotationAngle && this._screenRotationAngle.unref();
 		}
 
-		// Predict orientation.
-		var out = this._convertFusionToPredicted(orientation);
-
-		// return quaternion as glmatrix quaternion object
-		out = _mathUtil3.quat.fromValues(out.x, out.y, out.z, out.w);
-
-		return _mathUtil3.quat.normalize(out, out);
+		_PanInput.prototype.destroy.call(this);
 	};
 
-	FusionPoseSensor.prototype._convertFusionToPredicted = function _convertFusionToPredicted(orientation) {
-		// Predict orientation.
-		this.predictedQ = this.posePredictor.getPrediction(orientation, this.gyroscope, this.previousTimestampS);
+	return RotationPanInput;
+}(_axes.PanInput);
 
-		// Convert to THREE coordinate system: -Z forward, Y up, X right.
-		var out = new _mathUtil2["default"].Quaternion();
-
-		out.copy(this.filterToWorldQ);
-		out.multiply(this.resetQ);
-		out.multiply(this.predictedQ);
-		out.multiply(this.worldToScreenQ);
-
-		return out;
-	};
-
-	FusionPoseSensor.prototype._onDeviceMotionChange = function _onDeviceMotionChange(_ref) {
-		var inputEvent = _ref.inputEvent;
-
-		var deviceMotion = inputEvent;
-		var accGravity = deviceMotion.accelerationIncludingGravity;
-		var rotRate = deviceMotion.adjustedRotationRate || deviceMotion.rotationRate;
-		var timestampS = deviceMotion.timeStamp / 1000;
-
-		// Firefox Android timeStamp returns one thousandth of a millisecond.
-		if (this.isFirefoxAndroid) {
-			timestampS /= 1000;
-		}
-
-		this.accelerometer.set(-accGravity.x, -accGravity.y, -accGravity.z);
-		this.gyroscope.set(rotRate.alpha, rotRate.beta, rotRate.gamma);
-
-		// With iOS and Firefox Android, rotationRate is reported in degrees,
-		// so we first convert to radians.
-		if (this.isIOS || this.isFirefoxAndroid) {
-			this.gyroscope.multiplyScalar(Math.PI / 180);
-		}
-
-		this.filter.addAccelMeasurement(this.accelerometer, timestampS);
-		this.filter.addGyroMeasurement(this.gyroscope, timestampS);
-
-		this._triggerChange();
-
-		this.previousTimestampS = timestampS;
-	};
-
-	FusionPoseSensor.prototype._onScreenOrientationChange = function _onScreenOrientationChange(screenOrientation) {
-		this._setScreenTransform(_browser.window.orientation);
-	};
-
-	FusionPoseSensor.prototype._setScreenTransform = function _setScreenTransform() {
-		this.worldToScreenQ.set(0, 0, 0, 1);
-		switch (_browser.window.orientation) {
-			case 0:
-				break;
-			case 90:
-				this.worldToScreenQ.setFromAxisAngle(new _mathUtil2["default"].Vector3(0, 0, 1), 90 / -180 * Math.PI);
-				break;
-			case -90:
-				this.worldToScreenQ.setFromAxisAngle(new _mathUtil2["default"].Vector3(0, 0, 1), -90 / -180 * Math.PI);
-				break;
-			case 180:
-				this.worldToScreenQ.setFromAxisAngle(new _mathUtil2["default"].Vector3(0, 0, 1), 180 / -180 * Math.PI);
-				break;
-			default:
-				break;
-		}
-		this.inverseWorldToScreenQ.copy(this.worldToScreenQ);
-		this.inverseWorldToScreenQ.inverse();
-	};
-
-	return FusionPoseSensor;
-}(_component2["default"]);
-
-exports["default"] = FusionPoseSensor;
+exports["default"] = RotationPanInput;
 
 /***/ }),
-/* 32 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6542,9 +6876,9 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _utils = __webpack_require__(14);
+var _utils = __webpack_require__(16);
 
-var _FusionPoseSensor = __webpack_require__(31);
+var _FusionPoseSensor = __webpack_require__(15);
 
 var _FusionPoseSensor2 = _interopRequireDefault(_FusionPoseSensor);
 
@@ -6659,7 +6993,7 @@ var TiltMotionInput = function (_Component) {
 exports["default"] = TiltMotionInput;
 
 /***/ }),
-/* 33 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6673,7 +7007,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _utils = __webpack_require__(14);
+var _utils = __webpack_require__(16);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -6755,7 +7089,7 @@ var WheelInput = function (_Component) {
 exports["default"] = WheelInput;
 
 /***/ }),
-/* 34 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6920,6 +7254,55 @@ mat4.rotateY = function (out, a, rad) {
 };
 
 /**
+ * Calculates a 4x4 matrix from the given quaternion
+ *
+ * @param {mat4} out mat4 receiving operation result
+ * @param {quat} q Quaternion to create matrix from
+ *
+ * @returns {mat4} out
+ */
+mat4.fromQuat = function (out, q) {
+    var x = q[0],
+        y = q[1],
+        z = q[2],
+        w = q[3],
+        x2 = x + x,
+        y2 = y + y,
+        z2 = z + z,
+        xx = x * x2,
+        yx = y * x2,
+        yy = y * y2,
+        zx = z * x2,
+        zy = z * y2,
+        zz = z * z2,
+        wx = w * x2,
+        wy = w * y2,
+        wz = w * z2;
+
+    out[0] = 1 - yy - zz;
+    out[1] = yx + wz;
+    out[2] = zx - wy;
+    out[3] = 0;
+
+    out[4] = yx - wz;
+    out[5] = 1 - xx - zz;
+    out[6] = zy + wx;
+    out[7] = 0;
+
+    out[8] = zx + wy;
+    out[9] = zy - wx;
+    out[10] = 1 - xx - yy;
+    out[11] = 0;
+
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = 0;
+    out[15] = 1;
+
+    return out;
+};
+
+/**
  * Generates a perspective projection matrix with the given bounds
  *
  * @param {mat4} out mat4 frustum matrix will be written into
@@ -6954,7 +7337,7 @@ mat4.perspective = function (out, fovy, aspect, near, far) {
 module.exports = mat4;
 
 /***/ }),
-/* 35 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6973,11 +7356,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 var quat = {};
 
 /**
- * Creates a new quat initialized with values from an existing quaternion
+ * Creates a new identity quat
  *
- * @param {quat} a quaternion to clone
  * @returns {quat} a new quaternion
- * @function
  */
 /**
  * Original Code
@@ -6985,13 +7366,29 @@ var quat = {};
  * Quaternion util
  * modified by egjs
  */
+quat.create = function () {
+    var out = new _common2["default"].ARRAY_TYPE(4);
+    out[0] = 0;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 1;
+    return out;
+};
+
+/**
+ * Creates a new quat initialized with values from an existing quaternion
+ *
+ * @param {quat} a quaternion to clone
+ * @returns {quat} a new quaternion
+ * @function
+ */
 quat.clone = function (a) {
-  var out = new _common2["default"].ARRAY_TYPE(4);
-  out[0] = a[0];
-  out[1] = a[1];
-  out[2] = a[2];
-  out[3] = a[3];
-  return out;
+    var out = new _common2["default"].ARRAY_TYPE(4);
+    out[0] = a[0];
+    out[1] = a[1];
+    out[2] = a[2];
+    out[3] = a[3];
+    return out;
 };
 
 /**
@@ -7005,12 +7402,12 @@ quat.clone = function (a) {
  * @function
  */
 quat.fromValues = function (x, y, z, w) {
-  var out = new _common2["default"].ARRAY_TYPE(4);
-  out[0] = x;
-  out[1] = y;
-  out[2] = z;
-  out[3] = w;
-  return out;
+    var out = new _common2["default"].ARRAY_TYPE(4);
+    out[0] = x;
+    out[1] = y;
+    out[2] = z;
+    out[3] = w;
+    return out;
 };;
 
 /**
@@ -7022,11 +7419,121 @@ quat.fromValues = function (x, y, z, w) {
  * @function
  */
 quat.copy = function (out, a) {
-  out[0] = a[0];
-  out[1] = a[1];
-  out[2] = a[2];
-  out[3] = a[3];
-  return out;
+    out[0] = a[0];
+    out[1] = a[1];
+    out[2] = a[2];
+    out[3] = a[3];
+    return out;
+};
+
+/**
+ * Sets a quat from the given angle and rotation axis,
+ * then returns it.
+ *
+ * @param {quat} out the receiving quaternion
+ * @param {vec3} axis the axis around which to rotate
+ * @param {Number} rad the angle in radians
+ * @returns {quat} out
+ **/
+quat.setAxisAngle = function (out, axis, rad) {
+    rad = rad * 0.5;
+    var s = Math.sin(rad);
+    out[0] = s * axis[0];
+    out[1] = s * axis[1];
+    out[2] = s * axis[2];
+    out[3] = Math.cos(rad);
+    return out;
+};
+
+/**
+ * Multiplies two quat's
+ *
+ * @param {quat} out the receiving quaternion
+ * @param {quat} a the first operand
+ * @param {quat} b the second operand
+ * @returns {quat} out
+ */
+quat.multiply = function (out, a, b) {
+    var ax = a[0],
+        ay = a[1],
+        az = a[2],
+        aw = a[3],
+        bx = b[0],
+        by = b[1],
+        bz = b[2],
+        bw = b[3];
+
+    out[0] = ax * bw + aw * bx + ay * bz - az * by;
+    out[1] = ay * bw + aw * by + az * bx - ax * bz;
+    out[2] = az * bw + aw * bz + ax * by - ay * bx;
+    out[3] = aw * bw - ax * bx - ay * by - az * bz;
+    return out;
+};
+
+/**
+ * Rotates a quaternion by the given angle about the X axis
+ *
+ * @param {quat} out quat receiving operation result
+ * @param {quat} a quat to rotate
+ * @param {number} rad angle (in radians) to rotate
+ * @returns {quat} out
+ */
+quat.rotateX = function (out, a, rad) {
+    rad *= 0.5;
+
+    var ax = a[0],
+        ay = a[1],
+        az = a[2],
+        aw = a[3],
+        bx = Math.sin(rad),
+        bw = Math.cos(rad);
+
+    out[0] = ax * bw + aw * bx;
+    out[1] = ay * bw + az * bx;
+    out[2] = az * bw - ay * bx;
+    out[3] = aw * bw - ax * bx;
+    return out;
+};
+
+/**
+ * Rotates a quaternion by the given angle about the Y axis
+ *
+ * @param {quat} out quat receiving operation result
+ * @param {quat} a quat to rotate
+ * @param {number} rad angle (in radians) to rotate
+ * @returns {quat} out
+ */
+quat.rotateY = function (out, a, rad) {
+    rad *= 0.5;
+
+    var ax = a[0],
+        ay = a[1],
+        az = a[2],
+        aw = a[3],
+        by = Math.sin(rad),
+        bw = Math.cos(rad);
+
+    out[0] = ax * bw - az * by;
+    out[1] = ay * bw + aw * by;
+    out[2] = az * bw + ax * by;
+    out[3] = aw * bw - ay * by;
+    return out;
+};
+
+/**
+ * Calculates the conjugate of a quat
+ * If the quaternion is normalized, this function is faster than quat.inverse and produces the same result.
+ *
+ * @param {quat} out the receiving quaternion
+ * @param {quat} a quat to calculate conjugate of
+ * @returns {quat} out
+ */
+quat.conjugate = function (out, a) {
+    out[0] = -a[0];
+    out[1] = -a[1];
+    out[2] = -a[2];
+    out[3] = a[3];
+    return out;
 };
 
 /**
@@ -7038,19 +7545,19 @@ quat.copy = function (out, a) {
  * @function
  */
 quat.normalize = function (out, a) {
-  var x = a[0],
-      y = a[1],
-      z = a[2],
-      w = a[3];
-  var len = x * x + y * y + z * z + w * w;
-  if (len > 0) {
-    len = 1 / Math.sqrt(len);
-    out[0] = x * len;
-    out[1] = y * len;
-    out[2] = z * len;
-    out[3] = w * len;
-  }
-  return out;
+    var x = a[0],
+        y = a[1],
+        z = a[2],
+        w = a[3];
+    var len = x * x + y * y + z * z + w * w;
+    if (len > 0) {
+        len = 1 / Math.sqrt(len);
+        out[0] = x * len;
+        out[1] = y * len;
+        out[2] = z * len;
+        out[3] = w * len;
+    }
+    return out;
 };
 
 /**
@@ -7061,21 +7568,32 @@ quat.normalize = function (out, a) {
  * @returns {Boolean} True if the vectors are equal, false otherwise.
  */
 quat.equals = function (a, b) {
-  var a0 = a[0],
-      a1 = a[1],
-      a2 = a[2],
-      a3 = a[3];
-  var b0 = b[0],
-      b1 = b[1],
-      b2 = b[2],
-      b3 = b[3];
-  return Math.abs(a0 - b0) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) && Math.abs(a1 - b1) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) && Math.abs(a2 - b2) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a2), Math.abs(b2)) && Math.abs(a3 - b3) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a3), Math.abs(b3));
+    var a0 = a[0],
+        a1 = a[1],
+        a2 = a[2],
+        a3 = a[3];
+    var b0 = b[0],
+        b1 = b[1],
+        b2 = b[2],
+        b3 = b[3];
+    return Math.abs(a0 - b0) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) && Math.abs(a1 - b1) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) && Math.abs(a2 - b2) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a2), Math.abs(b2)) && Math.abs(a3 - b3) <= _common2["default"].EPSILON * Math.max(1.0, Math.abs(a3), Math.abs(b3));
+};
+
+/**
+ * Returns whether or not the quaternions have exactly the same elements in the same position (when compared with ===)
+ *
+ * @param {quat} a The first quaternion.
+ * @param {quat} b The second quaternion.
+ * @returns {Boolean} True if the vectors are equal, false otherwise.
+ */
+quat.exactEquals = function (a, b) {
+    return a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3];
 };
 
 module.exports = quat;
 
 /***/ }),
-/* 36 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7108,7 +7626,7 @@ vec2.copy = function (out, a) {
 module.exports = vec2;
 
 /***/ }),
-/* 37 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7306,10 +7824,39 @@ vec3.transformQuat = function (out, a, q) {
     return out;
 };
 
+/**
+ * Rotate a 3D vector around the z-axis
+ * @param {vec3} out The receiving vec3
+ * @param {vec3} a The vec3 point to rotate
+ * @param {vec3} b The origin of the rotation
+ * @param {Number} c The angle of rotation
+ * @returns {vec3} out
+ */
+vec3.rotateZ = function (out, a, b, c) {
+    var p = [],
+        r = [];
+    //Translate point to the origin
+    p[0] = a[0] - b[0];
+    p[1] = a[1] - b[1];
+    p[2] = a[2] - b[2];
+
+    //perform rotation
+    r[0] = p[0] * Math.cos(c) - p[1] * Math.sin(c);
+    r[1] = p[0] * Math.sin(c) + p[1] * Math.cos(c);
+    r[2] = p[2];
+
+    //translate to correct position
+    out[0] = r[0] + b[0];
+    out[1] = r[1] + b[1];
+    out[2] = r[2] + b[2];
+
+    return out;
+};
+
 module.exports = vec3;
 
 /***/ }),
-/* 38 */
+/* 41 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -7499,7 +8046,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 39 */
+/* 42 */
 /***/ (function(module, exports) {
 
 var g;
@@ -7526,7 +8073,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 40 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -7544,9 +8091,9 @@ module.exports = g;
  * limitations under the License.
  */
 
-var SensorSample = __webpack_require__(42);
-var MathUtil = __webpack_require__(5);
-var Util = __webpack_require__(9);
+var SensorSample = __webpack_require__(45);
+var MathUtil = __webpack_require__(6);
+var Util = __webpack_require__(10);
 
 /**
  * An implementation of a simple complementary filter, which fuses gyroscope and
@@ -7698,7 +8245,7 @@ module.exports = ComplementaryFilter;
 
 
 /***/ }),
-/* 41 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -7715,8 +8262,8 @@ module.exports = ComplementaryFilter;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var MathUtil = __webpack_require__(5);
-var Util = __webpack_require__(9);
+var MathUtil = __webpack_require__(6);
+var Util = __webpack_require__(10);
 
 /**
  * Given an orientation and the gyroscope data, predicts the future orientation
@@ -7785,7 +8332,7 @@ module.exports = PosePredictor;
 
 
 /***/ }),
-/* 42 */
+/* 45 */
 /***/ (function(module, exports) {
 
 function SensorSample(sample, timestampS) {

@@ -33,7 +33,7 @@ export default class PanoViewer extends Component {
 	 * @param {Boolean} [config.showPolePoint=false] If false, the pole is not displayed inside the viewport <ko>false 인 경우, 극점은 뷰포트 내부에 표시되지 않습니다</ko>
 	 * @param {Boolean} [config.useZoom=true] When true, enables zoom with the wheel and Pinch gesture <ko>true 일 때 휠 및 집기 제스춰로 확대 / 축소 할 수 있습니다.</ko>
 	 * @param {Boolean} [config.useKeyboard=true] When true, enables the keyboard move key control: awsd, arrow keys <ko>true 이면 키보드 이동 키 컨트롤을 활성화합니다: awsd, 화살표 키</ko>
-	 * @param {String} [config.useGyro=yawPitch] Enables control through device motion. ("none", "yawPitch") <ko>디바이스 움직임을 통한 컨트롤을 활성화 합니다. ("none", "yawPitch") </ko>
+	 * @param {String} [config.gyroMode=yawPitch] Enables control through device motion. ("none", "yawPitch") <ko>디바이스 움직임을 통한 컨트롤을 활성화 합니다. ("none", "yawPitch") </ko>
 	 * @param {Array} [config.yawRange=[-180, 180]] Range of controllable Yaw values <ko>제어 가능한 Yaw 값의 범위</ko>
 	 * @param {Array} [config.pitchRange=[-90, 90]] Range of controllable Pitch values <ko>제어 가능한 Pitch 값의 범위</ko>
 	 * @param {Array} [config.fovRange=[30, 110]] Range of controllable vertical field of view values <ko>제어 가능한 수직 field of view 값의 범위</ko>
@@ -93,7 +93,8 @@ export default class PanoViewer extends Component {
 		this._pitch = options.pitch || 0;
 		this._fov = options.fov || 65;
 
-		this._useGyro = options.useGyro || GYRO_MODE.YAWPITCH;
+		this._gyroMode = options.gyroMode || GYRO_MODE.YAWPITCH;
+		this._quaternion = null;
 
 		this._aspectRatio = this._width / this._height;
 		const fovRange = options.fovRange || [30, 110];
@@ -103,7 +104,7 @@ export default class PanoViewer extends Component {
 			yaw: this._yaw,
 			pitch: this._pitch,
 			fov: this._fov,
-			useGyro: this._useGyro,
+			gyroMode: this._gyroMode,
 			fovRange,
 			aspectRatio: this._aspectRatio,
 		});
@@ -246,8 +247,7 @@ export default class PanoViewer extends Component {
 
 		this._photoSphereRenderer
 			.bindTexture()
-			.then(() => this._activate())
-			.catch(() => {
+			.then(() => this._activate(), () => {
 				this._triggerEvent(EVENTS.ERROR, {
 					type: ERROR_TYPE.FAIL_BIND_TEXTURE,
 					message: "failed to bind texture"
@@ -256,10 +256,6 @@ export default class PanoViewer extends Component {
 	}
 
 	_bindRendererHandler() {
-		this._photoSphereRenderer.on(PanoImageRenderer.EVENTS.IMAGE_LOADED, e => {
-			this.trigger(EVENTS.CONTENT_LOADED, e);
-		});
-
 		this._photoSphereRenderer.on(PanoImageRenderer.EVENTS.ERROR, e => {
 			this.trigger(EVENTS.ERROR, e);
 		});
@@ -284,6 +280,7 @@ export default class PanoViewer extends Component {
 			this._yaw = e.yaw;
 			this._pitch = e.pitch;
 			this._fov = e.fov;
+			this._quaternion = e.quaternion;
 
 			this._triggerEvent(EVENTS.VIEW_CHANGE, e);
 		});
@@ -367,18 +364,6 @@ export default class PanoViewer extends Component {
 		 *		// animation is ended.
 		 * });
 		 */
-
-		/**
-			* Events that is fired when content(Video/Image) is loaded
-			* @ko 컨텐츠(비디오 혹은 이미지)가 로드되었을때 발생되는 이벤트
-			*
-			* @name eg.view360.PanoViewer#contentLoaded
-			* @event
-			* @param {Object} event
-			* @param {HTMLVideoElement|Image} event.content
-			* @param {Boolean} event.isVideo
-			* @param {String} event.projectionType
-			*/
 		return this.trigger(name, evt);
 	}
 
@@ -409,11 +394,11 @@ export default class PanoViewer extends Component {
 	/**
 	 * Enables control through device motion. ("none", "yawPitch")
 	 * @ko 디바이스 움직임을 통한 컨트롤을 활성화 합니다. ("none", "yawPitch")
-	 * @method eg.view360.PanoViewer#setUseGyro
-	 * @param {String} useGyro
+	 * @method eg.view360.PanoViewer#setGyroMode
+	 * @param {String} gyroMode
 	 */
-	setUseGyro(useGyro) {
-		this._yawPitchControl.option("useGyro", useGyro);
+	setGyroMode(gyroMode) {
+		this._yawPitchControl.option("gyroMode", gyroMode);
 	}
 
 	/**
@@ -600,7 +585,11 @@ export default class PanoViewer extends Component {
 
 	_renderLoop() {
 		if (this._photoSphereRenderer) {
-			this._photoSphereRenderer.render(this._yaw, this._pitch, this._fov);
+			if (this._quaternion) {
+				this._photoSphereRenderer.renderWithQuaternion(this._quaternion, this._fov);
+			} else {
+				this._photoSphereRenderer.render(this._yaw, this._pitch, this._fov);
+			}
 		}
 		this._rafId = window.requestAnimationFrame(this._renderLoop);
 	}
@@ -640,13 +629,6 @@ export default class PanoViewer extends Component {
 			this._yawPitchControl.destroy();
 			this._yawPitchControl = null;
 		}
-
-		if (this._photoSphereRenderer) {
-			this._photoSphereRenderer.destroy();
-			this._photoSphereRenderer = null;
-		}
-
-		this._isReady = false;
 	}
 
 	static isWebGLAvailable() {

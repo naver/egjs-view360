@@ -4,7 +4,7 @@ import VideoLoader from "./VideoLoader";
 import WebGLUtils from "./WebGLUtils";
 import CubeRenderer from "./renderer/CubeRenderer";
 import SphereRenderer from "./renderer/SphereRenderer";
-import {glMatrix, mat4} from "../utils/math-util.js";
+import {glMatrix, mat4, quat} from "../utils/math-util.js";
 import {devicePixelRatio} from "./browser";
 import {PROJECTION_TYPE} from "../PanoViewer/consts";
 
@@ -182,14 +182,7 @@ export default class PanoImageRenderer extends Component {
 	_onContentLoad(image) {
 		this._imageIsReady = true;
 
-		if (this._isVideo) {
-			this._image.addEventListener("loadeddata", () => {
-				this._triggerContentLoad();
-			});
-		} else {
-			this._triggerContentLoad();
-		}
-
+		this._triggerContentLoad();
 		return true;
 	}
 
@@ -449,6 +442,42 @@ export default class PanoImageRenderer extends Component {
 		this._keepUpdate = doUpdate;
 	}
 
+	renderWithQuaternion(quaternion, fieldOfView) {
+		if (!this.isImageLoaded()) {
+			return;
+		}
+
+		if (this._keepUpdate === false &&
+			this._lastQuaternion && quat.exactEquals(this._lastQuaternion, quaternion) &&
+			this.fieldOfView && this.fieldOfView === fieldOfView &&
+			this._shouldForceDraw === false) {
+			return;
+		}
+
+		// updatefieldOfView only if fieldOfView is changed.
+		if (fieldOfView !== undefined && fieldOfView !== this.fieldOfView) {
+			this.updateFieldOfView(fieldOfView);
+		}
+
+		let outQ;
+
+		if (!this._isCubeMap) {
+			// TODO: Remove this yaw revision by correcting shader
+			outQ = quat.rotateY(quat.create(), quaternion, glMatrix.toRadian(90));
+		} else {
+			outQ = quaternion;
+		}
+
+		this.mvMatrix = mat4.fromQuat(mat4.create(), outQ);
+
+		this._draw();
+
+		this._lastQuaternion = quat.clone(quaternion);
+		if (this._shouldForceDraw) {
+			this._shouldForceDraw = false;
+		}
+	}
+
 	render(yaw, pitch, fieldOfView) {
 		if (!this.isImageLoaded()) {
 			return;
@@ -470,7 +499,7 @@ export default class PanoImageRenderer extends Component {
 		mat4.identity(this.mvMatrix);
 		mat4.rotateX(this.mvMatrix, this.mvMatrix, -glMatrix.toRadian(pitch));
 		mat4.rotateY(this.mvMatrix, this.mvMatrix,
-		-glMatrix.toRadian(yaw - (this._isCubeMap ? 0 : 90)));
+			-glMatrix.toRadian(yaw - (this._isCubeMap ? 0 : 90)));
 
 		this._draw();
 

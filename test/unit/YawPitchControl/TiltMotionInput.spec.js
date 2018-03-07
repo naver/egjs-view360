@@ -32,14 +32,7 @@ describe("TiltMotionInput", function() {
 					yaw: 0,
 					pitch: 0
 				})
-				.on({
-					change: e => {
-						changed = true;
-						if (Math.abs(deltaPitch) < Math.abs(e.delta.pitch)) {
-							deltaPitch = e.delta.pitch;
-						}
-					}
-				}).connect(["yaw", "pitch"], tiltMotionInput);
+				.connect(["yaw", "pitch"], tiltMotionInput);
 			});
 
 			afterEach(() => {
@@ -54,10 +47,19 @@ describe("TiltMotionInput", function() {
 
 			it("Delta pitch should stay near 0 when rotating yaw axis", () => {
 				// Given
+				axes.on({
+					change: e => {
+						changed = true;
+						if (Math.abs(deltaPitch) < Math.abs(e.delta.pitch)) {
+							deltaPitch = e.delta.pitch;
+						}
+					}
+				});
 				// When
 				return TestHelper.multipleDevicemotion(window, devicemotionRotateSample)
 				.then(() => {
 					// Then
+					expect(changed).to.be.true;
 					expect(Math.abs(deltaPitch)).to.below(10);
 				});
 			});

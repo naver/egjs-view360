@@ -86,7 +86,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 34);
+/******/ 	return __webpack_require__(__webpack_require__.s = 36);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -471,7 +471,8 @@ module.exports = exports["default"];
 //# sourceMappingURL=component.js.map
 
 /***/ }),
-/* 1 */
+/* 1 */,
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -577,7 +578,6 @@ exports.cancelAnimationFrame = cancelAnimationFrame;
 
 
 /***/ }),
-/* 2 */,
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3486,7 +3486,8 @@ if (true) {
 /* 8 */,
 /* 9 */,
 /* 10 */,
-/* 11 */
+/* 11 */,
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3516,29 +3517,28 @@ exports.TRANSFORM = (function () {
 
 
 /***/ }),
-/* 12 */,
-/* 13 */,
-/* 14 */,
-/* 15 */,
-/* 16 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 exports.__esModule = true;
-var Axes_1 = __webpack_require__(22);
-var PanInput_1 = __webpack_require__(27);
+var Axes_1 = __webpack_require__(24);
+var PanInput_1 = __webpack_require__(29);
 exports.PanInput = PanInput_1.PanInput;
-var PinchInput_1 = __webpack_require__(28);
+var PinchInput_1 = __webpack_require__(30);
 exports.PinchInput = PinchInput_1.PinchInput;
-var WheelInput_1 = __webpack_require__(29);
+var WheelInput_1 = __webpack_require__(31);
 exports.WheelInput = WheelInput_1.WheelInput;
-var MoveKeyInput_1 = __webpack_require__(26);
+var MoveKeyInput_1 = __webpack_require__(28);
 exports.MoveKeyInput = MoveKeyInput_1.MoveKeyInput;
 exports["default"] = Axes_1["default"];
 
 
 /***/ }),
+/* 14 */,
+/* 15 */,
+/* 16 */,
 /* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3895,7 +3895,9 @@ exports["default"] = SpriteImage;
 /* 18 */,
 /* 19 */,
 /* 20 */,
-/* 21 */
+/* 21 */,
+/* 22 */,
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3911,7 +3913,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 exports.__esModule = true;
 var Coordinate_1 = __webpack_require__(6);
 var AxisManager_1 = __webpack_require__(5);
-var utils_1 = __webpack_require__(1);
+var utils_1 = __webpack_require__(2);
 var AnimationManager = /** @class */ (function () {
     function AnimationManager(_a) {
         var options = _a.options, itm = _a.itm, em = _a.em, axm = _a.axm;
@@ -4107,7 +4109,7 @@ exports.AnimationManager = AnimationManager;
 
 
 /***/ }),
-/* 22 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4132,12 +4134,12 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 exports.__esModule = true;
 var Component = __webpack_require__(0);
-var AnimationManager_1 = __webpack_require__(21);
-var EventManager_1 = __webpack_require__(23);
-var InterruptManager_1 = __webpack_require__(25);
+var AnimationManager_1 = __webpack_require__(23);
+var EventManager_1 = __webpack_require__(25);
+var InterruptManager_1 = __webpack_require__(27);
 var AxisManager_1 = __webpack_require__(5);
-var InputObserver_1 = __webpack_require__(24);
-var const_1 = __webpack_require__(11);
+var InputObserver_1 = __webpack_require__(26);
+var const_1 = __webpack_require__(12);
 /**
  * @typedef {Object} AxisOption The Axis information. The key of the axis specifies the name to use as the logical virtual coordinate system.
  * @ko 축 정보. 축의 키는 논리적인 가상 좌표계로 사용할 이름을 지정한다.
@@ -4536,7 +4538,7 @@ exports["default"] = Axes;
 
 
 /***/ }),
-/* 23 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4834,7 +4836,7 @@ exports.EventManager = EventManager;
 
 
 /***/ }),
-/* 24 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4988,7 +4990,7 @@ exports.InputObserver = InputObserver;
 
 
 /***/ }),
-/* 25 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5016,7 +5018,7 @@ exports.InterruptManager = InterruptManager;
 
 
 /***/ }),
-/* 26 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5030,7 +5032,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 exports.__esModule = true;
-var utils_1 = __webpack_require__(1);
+var utils_1 = __webpack_require__(2);
 var InputType_1 = __webpack_require__(3);
 exports.KEYMAP = {
     LEFT_ARROW: 37,
@@ -5211,7 +5213,7 @@ exports.MoveKeyInput = MoveKeyInput;
 
 
 /***/ }),
-/* 27 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5226,8 +5228,8 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 exports.__esModule = true;
 var Hammer = __webpack_require__(7);
-var const_1 = __webpack_require__(11);
-var utils_1 = __webpack_require__(1);
+var const_1 = __webpack_require__(12);
+var utils_1 = __webpack_require__(2);
 var InputType_1 = __webpack_require__(3);
 /**
  * @typedef {Object} PanInputOption The option object of the eg.Axes.PanInput module.
@@ -5500,7 +5502,7 @@ exports.PanInput = PanInput;
 
 
 /***/ }),
-/* 28 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5515,7 +5517,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 exports.__esModule = true;
 var Hammer = __webpack_require__(7);
-var utils_1 = __webpack_require__(1);
+var utils_1 = __webpack_require__(2);
 var InputType_1 = __webpack_require__(3);
 /**
  * @typedef {Object} PinchInputOption The option object of the eg.Axes.PinchInput module
@@ -5698,7 +5700,7 @@ exports.PinchInput = PinchInput;
 
 
 /***/ }),
-/* 29 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5712,7 +5714,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 exports.__esModule = true;
-var utils_1 = __webpack_require__(1);
+var utils_1 = __webpack_require__(2);
 var InputType_1 = __webpack_require__(3);
 /**
  * @typedef {Object} WheelInputOption The option object of the eg.Axes.WheelInput module
@@ -5840,10 +5842,10 @@ exports.WheelInput = WheelInput;
 
 
 /***/ }),
-/* 30 */,
-/* 31 */,
 /* 32 */,
-/* 33 */
+/* 33 */,
+/* 34 */,
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5855,7 +5857,7 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _axes = __webpack_require__(16);
+var _axes = __webpack_require__(13);
 
 var _axes2 = _interopRequireDefault(_axes);
 
@@ -6068,7 +6070,7 @@ var SpinViewer = function (_Component) {
 exports["default"] = SpinViewer;
 
 /***/ }),
-/* 34 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6077,7 +6079,7 @@ exports["default"] = SpinViewer;
 exports.__esModule = true;
 exports.SpriteImage = exports.SpinViewer = undefined;
 
-var _SpinViewer = __webpack_require__(33);
+var _SpinViewer = __webpack_require__(35);
 
 var _SpinViewer2 = _interopRequireDefault(_SpinViewer);
 

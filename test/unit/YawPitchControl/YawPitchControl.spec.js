@@ -8,13 +8,16 @@ import {
 	MC_DECELERATION,
 	MAX_FIELD_OF_VIEW,
 	KEYMAP,
-	GYRO_MODE
+	GYRO_MODE,
+	YAW_RANGE_HALF,
+	CIRCULAR_PITCH_RANGE_HALF
 } from "../../../src/YawPitchControl/consts";
 import YawPitchControl from "../../../src/YawPitchControl/YawPitchControl";
 import TestHelper from "./testHelper";
 
 import YawPitchControlrInjector from "inject-loader!../../../src/YawPitchControl/YawPitchControl";
 import devicemotionRotateSample from "./devicemotionSampleRotate";
+import {glMatrix, quat} from "../../../src/utils/math-util.js";
 
 const INTERVAL = 1000 / 60.0;
 
@@ -28,8 +31,8 @@ describe("YawPitchControl", function() {
 			});
 
 			afterEach(() => {
-				// this.inst && this.inst.destroy();
-				// this.inst = null;
+				this.inst && this.inst.destroy();
+				this.inst = null;
 			});
 
 			it("Instance without params", () => {
@@ -60,7 +63,7 @@ describe("YawPitchControl", function() {
 				expect(appliedOption.showPolePoint).to.equal(false);
 				expect(appliedOption.useZoom).to.equal(true);
 				expect(appliedOption.useKeyboard).to.equal(true);
-				expect(appliedOption.useGyro).to.equal(GYRO_MODE.YAWPITCH);
+				expect(appliedOption.gyroMode).to.equal(GYRO_MODE.YAWPITCH);
 				expect(appliedOption.touchDirection).to.equal(TOUCH_DIRECTION_ALL);
 				expect(appliedOption.yawRange).to.deep.equal([-180, 180]);
 				expect(appliedOption.pitchRange).to.deep.equal([-90, 90]);
@@ -92,6 +95,11 @@ describe("YawPitchControl", function() {
 				target = sandbox();
 				target.innerHTML = `<div></div>`;
 			});
+
+			afterEach(() => {
+				this.inst && this.inst.destroy();
+				this.inst = null;
+			})
 
 			it("should change initial yaw by yaw range", function() {
 				// Given
@@ -283,7 +291,7 @@ describe("YawPitchControl", function() {
 			}, () => {
 				// Then
 				expect(isTrustedOnHold).to.be.true;
-				expect(isTrustedOnChange).to.be.true;				
+				expect(isTrustedOnChange).to.be.true;
 				done();
 			});
 		});
@@ -958,7 +966,7 @@ describe("YawPitchControl", function() {
 			});
 		});
 
-		describe("useGyro none Test", () => {
+		describe("gyroMode none Test", () => {
 			let results = [];
 			let inst = null;
 			let target;
@@ -978,9 +986,9 @@ describe("YawPitchControl", function() {
 			});
 
 			// allow FOV (Zoom) (Spec for embedding in a document)
-			it("should not change yaw/pitch when useGyro is none", () => {
+			it("should not change yaw/pitch when gyroMode is none", () => {
 				// Given
-				inst.option("useGyro", GYRO_MODE.NONE);
+				inst.option("gyroMode", GYRO_MODE.NONE);
 				let changeTriggered = false;
 				inst.on("change", e => {
 					changeTriggered = true;
@@ -1252,8 +1260,8 @@ describe("YawPitchControl", function() {
 			TestHelper.wheelVertical(targetEl , 100, () => {
 				// then
 				let pitch = this.inst.getPitch();
-				expect(this.inst.getPitch()).to.equal(-73);	
-				done();	
+				expect(this.inst.getPitch()).to.equal(-73);
+				done();
 			});
 		});
 
@@ -1287,12 +1295,12 @@ describe("YawPitchControl", function() {
 		// 						});
 		// 					})
 		// 				]).then(() => {
-		// 					res();							
+		// 					res();
 		// 				});
 		// 			}, delay);
 		// 		}));
 		// 	}
-		
+
 		// 	// When
 		// 	Promise.all(getDownPromises(3, 100)).then(() => {
 		// 		console.log(this.inst.getPitch());
@@ -1300,8 +1308,8 @@ describe("YawPitchControl", function() {
 		// 	// TestHelper.wheelVertical(targetEl , 100, () => {
 		// 	// 	// then
 		// 	// 	let pitch = this.inst.getPitch();
-		// 	// 	expect(this.inst.getPitch()).to.equal(-73);	
-		// 	// 	done();	
+		// 	// 	expect(this.inst.getPitch()).to.equal(-73);
+		// 	// 	done();
 		// 	// });
 		// });
 
@@ -1313,7 +1321,7 @@ describe("YawPitchControl", function() {
 				fov: 30,
 				showPolePoint: false
 			});
-			
+
 			function getWheelPromises(count, duration) {
 				return Array.apply(null, {length: count})
 				.map(Number.call, Number)
@@ -1329,11 +1337,11 @@ describe("YawPitchControl", function() {
 
 			// When
 			const wheelP = getWheelPromises(20, 1000);
-			
+
 			Promise.all(wheelP).then(() => {
 				// then
-				expect(this.inst.getPitch()).to.be.equal(-35);	
-				done();			
+				expect(this.inst.getPitch()).to.be.equal(-35);
+				done();
 			});
 		});
 	});
@@ -1469,6 +1477,87 @@ describe("YawPitchControl", function() {
 				expect(triggered).to.be.true;
 				done();
 			}
+		});
+	});
+
+	describe("VR Mode", () => {
+		let target;
+		class MockDeviceQuaternion {
+			constructor() {
+				this._timer = null;
+			}
+			getCombinedQuaternion(yaw, pitch) {
+				return quat.create();
+			}
+			on(eventName, callback) {
+				this._timer = setInterval(() => {
+					callback({isTrusted: true});
+				}, 50)
+			}
+			destroy(){
+				this._timer && clearInterval(this._timer);
+			}
+		}
+		const DeviceQuaternionMockYawPitchControl = YawPitchControlrInjector({
+			"./DeviceQuaternion": MockDeviceQuaternion
+		}).default;
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+			this.inst = new DeviceQuaternionMockYawPitchControl({
+				element: target,
+				gyroMode: GYRO_MODE.VR
+			});
+		});
+
+		afterEach(() => {
+			this.inst && this.inst.destroy();
+			target && target.remove();
+			target = null;
+		});
+
+		it("should ignore yaw/pitch range option. it use circular range.", () => {
+			// Given
+			this.inst.option({
+				"yawRange": [-100, 100],
+				"pitchRange": [-70, 70]
+			});
+
+			// When
+			let negativePos, positivePos, circularPos;
+
+			// negative max
+			this.inst.lookAt({yaw: -YAW_RANGE_HALF, pitch: -CIRCULAR_PITCH_RANGE_HALF}, 0);
+			negativePos = this.inst.get();
+
+			// positive max
+			this.inst.lookAt({yaw: YAW_RANGE_HALF, pitch: CIRCULAR_PITCH_RANGE_HALF}, 0);
+			positivePos = this.inst.get();
+
+			// if pos is over max, circular value should be return
+			this.inst.lookAt({yaw: YAW_RANGE_HALF + 1, pitch: -CIRCULAR_PITCH_RANGE_HALF - 1}, 0);
+			circularPos = this.inst.get();
+
+			// Then
+			expect(negativePos.yaw).to.equal(-YAW_RANGE_HALF);
+			expect(negativePos.pitch).to.equal(-CIRCULAR_PITCH_RANGE_HALF);
+
+			expect(positivePos.yaw).to.equal(YAW_RANGE_HALF);
+			expect(positivePos.pitch).to.equal(CIRCULAR_PITCH_RANGE_HALF);
+
+			expect(circularPos.yaw).to.equal(-YAW_RANGE_HALF + 1);
+			expect(circularPos.pitch).to.equal(CIRCULAR_PITCH_RANGE_HALF - 1);
+		});
+
+		it("should trigger event which has quaternion property if device moves on VR mode", done => {
+			// Given
+			// When
+			this.inst.on("change", e => {
+				// Then
+				expect(e.quaternion).to.be.exist;
+				done();
+			});
 		});
 	});
 });
