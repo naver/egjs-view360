@@ -1560,4 +1560,67 @@ describe("YawPitchControl", function() {
 			});
 		});
 	});
+
+	describe("Touch Direction Test by constructor's option property -touchDirection '", () => {
+		it("should enable only yaw direction when DIRECTION_HORIZONTAL is specified", done => {
+			done();
+		});
+		it("should enable only pitch direction when DIRECTION_VERTICAL is specified", done => {
+			done();
+		});
+		it("should disable all direction when DIRECTION_NONE is specified", done => {
+			done();
+		});
+		it("should enable all direction when DIRECTION_ALL is specified", done => {
+			done();
+		});
+	});
+
+	describe("Touch Direction Test by option method'", () => {
+		it("should enable only yaw direction when direction changed from DIRECTION_ALL to DIRECTION_HORIZONTAL", done => {
+			done();
+		});
+		it("should enable only pitch direction when direction changed from DIRECTION_ALL to DIRECTION_HORIZONTAL", done => {
+			done();
+		});
+		it("should disable all direction when direction changed from DIRECTION_ALL to DIRECTION_NONE", done => {
+			done();
+		});
+		it("should enable only pitch direction when direction changed from DIRECTION_HORIZONTAL to DIRECTION_VERTICAL", done => {
+			done();
+		});
+		it("should enable only pitch direction when direction is not changed from DIRECTION_VERTICAL", done => {
+			done();
+		});
+	});
+
+	describe("Touch Direction Test when useRotation is enabled but screen is not rotated(angle = 0)'", () => {
+		it("should change yaw when direction = DIRECTION_HORIZONTAL & moved horizontally", done => {
+			done();
+		});
+		it("should not change yaw when direction = DIRECTION_HORIZONTAL & moved vertically", done => {
+			done();
+		});
+		it("should change pitch when direction = DIRECTION_VERTICAL & moved vertically", done => {
+			done();
+		});
+		it("should not change pitch when direction = DIRECTION_VERTICAL && moved horizontally", done => {
+			done();
+		});
+	});
+
+	describe("Touch Direction Test when useRotation is enabled and screen is rotated(angle = 90)'", () => {
+		it("should change yaw when direction = DIRECTION_HORIZONTAL & moved vertically", done => {
+			done();
+		});
+		it("should not change yaw when direction = DIRECTION_HORIZONTAL & moved horizontally", done => {
+			done();
+		});
+		it("should change pitch when direction = DIRECTION_VERTICAL & moved horizontally", done => {
+			done();
+		});
+		it("should not change pitch when direction = DIRECTION_VERTICAL && moved vertically", done => {
+			done();
+		});
+	});
 });
