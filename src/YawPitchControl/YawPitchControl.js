@@ -10,6 +10,8 @@ import {
 } from "../utils/math-util";
 import {
 	GYRO_MODE,
+	TOUCH_DIRECTION_YAW,
+	TOUCH_DIRECTION_PITCH,
 	TOUCH_DIRECTION_ALL,
 	MC_DECELERATION,
 	MC_MAXIMUM_DURATION,
@@ -280,6 +282,17 @@ const YawPitchControl = class YawPitchControl extends Component {
 				this.axesPinchInput && this.axes.disconnect(this.axesPinchInput);
 			}
 		}
+
+		if (keys.some(key => key === "touchDirection")) {
+			this._enabled && this._enableTouch(this.options.touchDirection);
+		}
+	}
+
+	_enableTouch(direction) {
+		const yawEnabled = direction & TOUCH_DIRECTION_YAW ? "yaw" : null;
+		const pitchEnabled = direction & TOUCH_DIRECTION_PITCH ? "pitch" : null;
+
+		this.axes.connect([yawEnabled, pitchEnabled], this.axesPanInput);
 	}
 
 	_initDeviceQuaternion() {
@@ -497,7 +510,10 @@ const YawPitchControl = class YawPitchControl extends Component {
 		if (this._enabled) {
 			return this;
 		}
-		this.axes.connect(["yaw", "pitch"], this.axesPanInput);
+
+		// touchDirection is decided by parameter is valid string (Ref. Axes.connect)
+		this._enableTouch(this.options.touchDirection);
+
 		this._applyOptions(Object.keys(this.options), this.options);
 		this._setPanScale(this.getFov());
 

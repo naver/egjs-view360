@@ -28,12 +28,11 @@ export default class RotationPanInput extends PanInput {
 	}
 
 	getOffset(properties, useDirection) {
-		const offset = super.getOffset(properties, useDirection);
-
 		if (this._useRotation === false) {
-			return offset;
+			return super.getOffset(properties, useDirection);
 		}
 
+		const offset = super.getOffset(properties, [true, true]);
 		const newOffset = [0, 0];
 		const theta = this._screenRotationAngle.getRadian();
 		const cosTheta = Math.cos(theta);
@@ -41,6 +40,13 @@ export default class RotationPanInput extends PanInput {
 
 		newOffset[0] = offset[0] * cosTheta - offset[1] * sinTheta;
 		newOffset[1] = offset[1] * cosTheta + offset[0] * sinTheta;
+
+		// Use only user allowed direction.
+		if (useDirection[0] === false) {
+			newOffset[0] = 0;
+		} else if (useDirection[1] === false) {
+			newOffset[1] = 0;
+		}
 
 		return newOffset;
 	}
