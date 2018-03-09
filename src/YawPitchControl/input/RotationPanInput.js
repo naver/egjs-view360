@@ -53,3 +53,13 @@ export default class RotationPanInput extends PanInput {
 		super.destroy();
 	}
 }
+
+/**
+ * Override getDirectionByAngle to return DIRECTION_ALL
+ * Ref: https://github.com/naver/egjs-axes/issues/99
+ *
+ * But we obey axes's rule. If axes's rule is problem, let's apply following code.
+ */
+// PanInput.getDirectionByAngle = function (angle, thresholdAngle) {
+// 	return DIRECTION_ALL;
+// };
