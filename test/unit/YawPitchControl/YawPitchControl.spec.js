@@ -2105,7 +2105,7 @@ describe("YawPitchControl", function() {
 		});
 	});
 
-	describe.only("Touch Direction Test Others....", () => {
+	describe("Touch Direction Test Others....", () => {
 		let target;
 		/**
 		 * Due to the next issue, we move horizontally and vertically, respectively.
