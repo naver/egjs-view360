@@ -37,6 +37,7 @@ export default class PanoViewer extends Component {
 	 * @param {Array} [config.yawRange=[-180, 180]] Range of controllable Yaw values <ko>제어 가능한 Yaw 값의 범위</ko>
 	 * @param {Array} [config.pitchRange=[-90, 90]] Range of controllable Pitch values <ko>제어 가능한 Pitch 값의 범위</ko>
 	 * @param {Array} [config.fovRange=[30, 110]] Range of controllable vertical field of view values <ko>제어 가능한 수직 field of view 값의 범위</ko>
+	 * @param {Number} [config.touchDirection= PanoViewer.TOUCH_DIRECTION.ALL(6)] Direction of touch that can be controlled by user {@link eg.PanoViewer.TOUCH_DIRECTION}<ko>사용자가 터치로 조작 가능한 방향 {@link eg.PanoViewer.TOUCH_DIRECTION}</ko>
 	 */
 	constructor(container, options = {}) {
 		super();
@@ -98,7 +99,7 @@ export default class PanoViewer extends Component {
 
 		this._aspectRatio = this._width / this._height;
 		const fovRange = options.fovRange || [30, 110];
-
+		const touchDirection = this._isValidTouchDirection(options.touchDirection) ? options.touchDirection : YawPitchControl.TOUCH_DIRECTION_ALL
 		const yawPitchConfig = Object.assign(options, {
 			element: container,
 			yaw: this._yaw,
@@ -107,6 +108,7 @@ export default class PanoViewer extends Component {
 			gyroMode: this._gyroMode,
 			fovRange,
 			aspectRatio: this._aspectRatio,
+			touchDirection
 		});
 
 		this._isReady = false;
@@ -617,6 +619,48 @@ export default class PanoViewer extends Component {
 		}
 	}
 
+	_isValidTouchDirection(direction) {
+		return direction === PanoViewer.TOUCH_DIRECTION.NONE ||
+			direction === PanoViewer.TOUCH_DIRECTION.YAW ||
+			direction === PanoViewer.TOUCH_DIRECTION.PITCH ||
+			direction === PanoViewer.TOUCH_DIRECTION.ALL;
+	}
+
+	/**
+	 * Set touch direction by which user can control.
+	 * @ko 사용자가 조작가능한 터치 방향을 지정한다.
+	 * @method eg.view360.PanoViewer#setTouchDirection
+	 * @param {Number} direction of the touch. {@link eg.PanoViewer.TOUCH_DIRECTION}<ko>컨트롤 가능한 방향 {@link eg.PanoViewer.TOUCH_DIRECTION}</ko>
+	 * @return {eg.PanoViewer} PanoViewer instance
+	 * @example
+	 *
+	 * panoViewer = new PanoViewer(el);
+	 * // Limit the touch direction to the yaw direction only.
+	 * panoViewer.setTouchDirection(PanoViewer.TOUCH_DIRECTION.YAW);
+	 */
+	setTouchDirection(direction) {
+		if (this._isValidTouchDirection(direction)) {
+			this._yawPitchControl.option("touchDirection", direction);
+		}
+
+		return this;
+	}
+
+	/**
+	 * Returns touch direction by which user can control
+	 * @ko 사용자가 조작가능한 터치 방향을 반환한다.
+	 * @method eg.view360.PanoViewer#getTouchDirection
+	 * @return {Number} direction of the touch. {@link eg.PanoViewer.TOUCH_DIRECTION}<ko>컨트롤 가능한 방향 {@link eg.PanoViewer.TOUCH_DIRECTION}</ko>
+	 * @example
+	 *
+	 * panoViewer = new PanoViewer(el);
+	 * // Returns the current touch direction.
+	 * var dir = panoViewer.getTouchDirection();
+	 */
+	getTouchDirection() {
+		return this._yawPitchControl.option("touchDirection");
+	}
+
 	/**
 	 * Destroy viewer. Remove all registered event listeners and remove viewer canvas.
 	 * @ko 뷰어 인스턴스를 해제합니다. 모든 등록된 이벤트리스너를 제거하고 뷰어 캔버스를 삭제한다.
@@ -685,3 +729,52 @@ export default class PanoViewer extends Component {
 PanoViewer.ERROR_TYPE = ERROR_TYPE;
 PanoViewer.EVENTS = EVENTS;
 PanoViewer.ProjectionType = PROJECTION_TYPE;
+/**
+ * Constant value for touch directions
+ * @ko 터치 방향에 대한 상수 값.
+ * @namespace
+ * @name TOUCH_DIRECTION
+ * @memberof eg.PanoViewer
+ */
+PanoViewer.TOUCH_DIRECTION = {
+	/**
+	 * Constant value for none direction.
+	 * @ko none 방향에 대한 상수 값.
+	 * @name NONE
+	 * @memberof eg.PanoViewer.TOUCH_DIRECTION
+	 * @constant
+	 * @type {Number}
+	 * @default 1
+	 */
+	NONE: YawPitchControl.TOUCH_DIRECTION_NONE,
+	/**
+	 * Constant value for horizontal(yaw) direction.
+	 * @ko horizontal(yaw) 방향에 대한 상수 값.
+	 * @name YAW
+	 * @memberof eg.PanoViewer.TOUCH_DIRECTION
+	 * @constant
+	 * @type {Number}
+	 * @default 6
+	 */
+	YAW: YawPitchControl.TOUCH_DIRECTION_YAW,
+	/**
+	 * Constant value for vertical direction.
+	 * @ko vertical(pitch) 방향에 대한 상수 값.
+	 * @name PITCH
+	 * @memberof eg.PanoViewer.TOUCH_DIRECTION
+	 * @constant
+	 * @type {Number}
+	 * @default 24
+	 */
+	PITCH: YawPitchControl.TOUCH_DIRECTION_PITCH,
+	/**
+	 * Constant value for all direction.
+	 * @ko all 방향에 대한 상수 값.
+	 * @name ALL
+	 * @memberof eg.PanoViewer.TOUCH_DIRECTION
+	 * @constant
+	 * @type {Number}
+	 * @default 30
+	 */
+	ALL: YawPitchControl.TOUCH_DIRECTION_ALL
+};
