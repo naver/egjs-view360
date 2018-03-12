@@ -99,7 +99,8 @@ export default class PanoViewer extends Component {
 
 		this._aspectRatio = this._width / this._height;
 		const fovRange = options.fovRange || [30, 110];
-		const touchDirection = this._isValidTouchDirection(options.touchDirection) ? options.touchDirection : YawPitchControl.TOUCH_DIRECTION_ALL
+		const touchDirection = PanoViewer._isValidTouchDirection(options.touchDirection) ?
+			options.touchDirection : YawPitchControl.TOUCH_DIRECTION_ALL;
 		const yawPitchConfig = Object.assign(options, {
 			element: container,
 			yaw: this._yaw,
@@ -619,7 +620,7 @@ export default class PanoViewer extends Component {
 		}
 	}
 
-	_isValidTouchDirection(direction) {
+	static _isValidTouchDirection(direction) {
 		return direction === PanoViewer.TOUCH_DIRECTION.NONE ||
 			direction === PanoViewer.TOUCH_DIRECTION.YAW ||
 			direction === PanoViewer.TOUCH_DIRECTION.PITCH ||
@@ -639,7 +640,7 @@ export default class PanoViewer extends Component {
 	 * panoViewer.setTouchDirection(PanoViewer.TOUCH_DIRECTION.YAW);
 	 */
 	setTouchDirection(direction) {
-		if (this._isValidTouchDirection(direction)) {
+		if (PanoViewer._isValidTouchDirection(direction)) {
 			this._yawPitchControl.option("touchDirection", direction);
 		}
 
