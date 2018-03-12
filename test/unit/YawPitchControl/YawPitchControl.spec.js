@@ -2105,6 +2105,123 @@ describe("YawPitchControl", function() {
 		});
 	});
 
+	describe.only("Touch Direction Test Others....", () => {
+		let target;
+		/**
+		 * Due to the next issue, we move horizontally and vertically, respectively.
+		 * And it's not bug, it's policy.
+		 * https://github.com/naver/egjs-axes/issues/99
+		 */
+		const MOVE_HORIZONTALLY = {
+			pos: [0, 0],
+			deltaX: 100,
+			deltaY: 0,
+			duration: 200,
+			easing: "linear"
+		};
+
+		const MOVE_VERTICALLY = {
+			pos: [0, 0],
+			deltaX: 0,
+			deltaY: 100,
+			duration: 200,
+			easing: "linear"
+		};
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+		});
+
+		afterEach(() => {
+			this.inst && this.inst.destroy();
+			target && target.remove();
+			target = null;
+		});
+
+		it("should enable touch after changed from TOUCH_DIRECTION_ALL to TOUCH_DIRECTION_YAW", done => {
+			// Given
+			this.inst = new YawPitchControl({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_NONE
+			});
+
+			this.inst.enable();
+
+			const prevYaw = this.inst.getYaw();
+			const prevPitch = this.inst.getPitch();
+
+			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+					expect(this.inst.getYaw()).to.be.equal(prevYaw);
+					expect(this.inst.getPitch()).to.be.equal(prevPitch);
+
+					// When
+					this.inst.option("touchDirection", TOUCH_DIRECTION_ALL);
+
+					Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+						Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+
+							// Then
+							expect(this.inst.getYaw()).to.be.not.equal(prevYaw);
+							expect(this.inst.getPitch()).to.be.not.equal(prevPitch);
+							done();
+						})
+					});
+				});
+			});
+		});
+
+		it("should follow touchDirection by option", done => {
+			// Given
+			this.inst = new YawPitchControl({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_NONE
+			});
+
+			this.inst.enable();
+
+			const prevYaw = this.inst.getYaw();
+			const prevPitch = this.inst.getPitch();
+
+			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+					expect(this.inst.getYaw()).to.be.equal(prevYaw);
+					expect(this.inst.getPitch()).to.be.equal(prevPitch);
+
+					// When
+					this.inst.option("touchDirection", TOUCH_DIRECTION_ALL);
+
+					Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+						Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+
+							// Then
+							const prevYaw2 = this.inst.getYaw();
+							const prevPitch2 = this.inst.getPitch();
+							expect(prevYaw2).to.be.not.equal(prevYaw);
+							expect(prevPitch2).to.be.not.equal(prevPitch);
+
+							this.inst.option("touchDirection", TOUCH_DIRECTION_NONE);
+
+							Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+								Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+
+									expect(this.inst.getYaw()).to.be.equal(prevYaw2);
+									expect(this.inst.getPitch()).to.be.equal(prevPitch2);
+									done();
+								});
+							});
+						})
+					});
+				});
+			});
+		});
+	});
+
+	/**
+	 * TODO: It would be better to Simulator Pan test as a template format. because It's too long to read.
+	 */
+
 	// describe.skip("Touch Direction Test & useRotation", () => {
 	// 	let target;
 	// 	let inst = null;
