@@ -1,5 +1,4 @@
-import Axes from "@egjs/axes";
-import {PanInput} from "@egjs/axes";
+import Axes, {PanInput} from "@egjs/axes";
 import ScreenRotationAngle from "../ScreenRotationAngle";
 
 /**
