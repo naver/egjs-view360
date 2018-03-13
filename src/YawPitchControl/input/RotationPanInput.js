@@ -1,3 +1,4 @@
+import Axes from "@egjs/axes";
 import {PanInput} from "@egjs/axes";
 import ScreenRotationAngle from "../ScreenRotationAngle";
 
@@ -25,6 +26,21 @@ export default class RotationPanInput extends PanInput {
 
 		this._screenRotationAngle = null;
 		this._useRotation && (this._screenRotationAngle = new ScreenRotationAngle());
+		this._userDirection = Axes.DIRECTION_ALL;
+	}
+
+	connect(observer) {
+		// User intetened direction
+		this._userDirection = this._direction;
+
+		// In VR Mode, Use ALL direction if direction is not none
+		// Because horizontal and vertical is changed dynamically by screen rotation.
+		// this._direction is used to initialize hammerjs
+		if (this._useRotation && (this._direction & Axes.DIRECTION_ALL)) {
+			this._direction = Axes.DIRECTION_ALL;
+		}
+
+		super.connect(observer);
 	}
 
 	getOffset(properties, useDirection) {
@@ -42,9 +58,9 @@ export default class RotationPanInput extends PanInput {
 		newOffset[1] = offset[1] * cosTheta + offset[0] * sinTheta;
 
 		// Use only user allowed direction.
-		if (useDirection[0] === false) {
+		if (!(this._userDirection & Axes.DIRECTION_HORIZONTAL)) {
 			newOffset[0] = 0;
-		} else if (useDirection[1] === false) {
+		} else if (!(this._userDirection & Axes.DIRECTION_VERTICAL)) {
 			newOffset[1] = 0;
 		}
 
