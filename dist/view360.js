@@ -4187,6 +4187,15 @@ var PanoViewer = function (_Component) {
 		return this;
 	};
 
+	/**
+  * Can set whether the renderer always updates the texture and renders.
+  * @ko 렌더러가 항상 텍스쳐를 갱신하고 화면을 렌더링 할지 여부를 설정할 수 있다.
+  *
+  * @method eg.view360.PanoViewer#keepUpdate
+  * @param {Boolean} doUpdate When true, viewer will always update texture and render, when false viewer will not update texture and render only camera config is changed.<ko>True면, 항상 텍스쳐를 갱신하고 화면을 그린다. False 면 텍스쳐 갱신은 하지 않으며, 카메라 요소에 변화가 있을 때에만 화면을 그린다.</ko>
+  */
+
+
 	PanoViewer.prototype.keepUpdate = function keepUpdate(doUpdate) {
 		this._photoSphereRenderer.keepUpdate(doUpdate);
 		return this;
@@ -5716,7 +5725,7 @@ var PanoImageRenderer = function (_Component) {
 		gl.uniformMatrix4fv(this.shaderProgram.pMatrixUniform, false, this.pMatrix);
 		gl.uniformMatrix4fv(this.shaderProgram.mvMatrixUniform, false, this.mvMatrix);
 
-		if (this._isVideo) {
+		if (this._isVideo && this._keepUpdate) {
 			this._updateTexture();
 		}
 

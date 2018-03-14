@@ -362,36 +362,6 @@ describe("PanoImageRenderer", function() {
             // Then
             expect(isDrawCalled).to.be.equal(false);
         });
-		IT("Should not render internaly when calling render when it doesn't need.", function(done) {
-			// Given
-			let inst = this.inst;
-			let isDrawCalled = false;
-			const sourceImg = new Image();
-			sourceImg.src = "./images/test_cube.jpg";
-
-			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-				initialYaw: 0,
-				initialpitch: 0,
-				imageType: "cubemap",
-				fieldOfView: 65
-			}, DEBUG_CONTEXT_ATTRIBUTES);
-
-			inst.on("imageLoaded", () => {
-				inst.render(0, 0, 65);
-				inst._draw = function() {
-					isDrawCalled = true;
-					PanoImageRenderer.prototype._draw.call(inst);
-				};
-
-				// When
-				inst.keepUpdate(false);
-				inst.render(0, 0, 65);
-
-				// Then
-				expect(isDrawCalled).to.be.equal(false);
-				done();
-            });
-        });
     });
 
 	describe("Cubemap Rendering", function() {
@@ -1190,6 +1160,78 @@ describe("PanoImageRenderer", function() {
 								expect(pct).to.be.below(threshold);
 								done();
 							});
+					});
+			}
+		});
+	});
+
+	describe("#keepUpdate", () => {
+		IT("Should not render internaly when calling render when it doesn't need.", function(done) {
+			// Given
+			let inst = this.inst;
+			let isDrawCalled = false;
+			const sourceImg = new Image();
+			sourceImg.src = "./images/test_cube.jpg";
+
+			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
+				initialYaw: 0,
+				initialpitch: 0,
+				imageType: "cubemap",
+				fieldOfView: 65
+			}, DEBUG_CONTEXT_ATTRIBUTES);
+
+			inst.on("imageLoaded", () => {
+				inst.render(0, 0, 65);
+				inst._draw = function() {
+					isDrawCalled = true;
+					PanoImageRenderer.prototype._draw.call(inst);
+				};
+
+				// When
+				inst.keepUpdate(false);
+				inst.render(0, 0, 65);
+
+				// Then
+				expect(isDrawCalled).to.be.equal(false);
+				done();
+            });
+        });
+		IT("should not update video texture after keepUpdate(false) called", function(done) {
+			// Given
+			let inst = this.inst;
+			const sourceImg = document.createElement("video");
+
+			sourceImg.src = "./images/PanoViewer/pano.mp4";
+			sourceImg.play();
+			const isVideo = true;
+			const threshold = 7;
+
+			inst = new PanoImageRenderer(sourceImg, 200, 200, isVideo, {
+				initialYaw: 90,
+				initialpitch: 0,
+				imageType: "equirectangular",
+				fieldOfView: 65
+			}, DEBUG_CONTEXT_ATTRIBUTES);
+
+			sourceImg.addEventListener("loadeddata", when);
+
+			function when() {
+				inst.bindTexture()
+					.then(() => {
+						// When
+						inst.keepUpdate(false);
+
+						setTimeout(function() {
+							// Then
+							renderAndCompareSequentially(
+								inst,
+								[
+									[0, 0, 65, `./images/PanoViewer/pano_0_0_65${suffix}`, threshold],
+								]
+							).then(() => {
+								done();
+							});
+						}, 1000);
 					});
 			}
 		});
