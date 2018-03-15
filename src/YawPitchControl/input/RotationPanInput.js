@@ -1,4 +1,4 @@
-import {PanInput} from "@egjs/axes";
+import Axes, {PanInput} from "@egjs/axes";
 import ScreenRotationAngle from "../ScreenRotationAngle";
 
 /**
@@ -25,15 +25,29 @@ export default class RotationPanInput extends PanInput {
 
 		this._screenRotationAngle = null;
 		this._useRotation && (this._screenRotationAngle = new ScreenRotationAngle());
+		this._userDirection = Axes.DIRECTION_ALL;
+	}
+
+	connect(observer) {
+		// User intetened direction
+		this._userDirection = this._direction;
+
+		// In VR Mode, Use ALL direction if direction is not none
+		// Because horizontal and vertical is changed dynamically by screen rotation.
+		// this._direction is used to initialize hammerjs
+		if (this._useRotation && (this._direction & Axes.DIRECTION_ALL)) {
+			this._direction = Axes.DIRECTION_ALL;
+		}
+
+		super.connect(observer);
 	}
 
 	getOffset(properties, useDirection) {
-		const offset = super.getOffset(properties, useDirection);
-
 		if (this._useRotation === false) {
-			return offset;
+			return super.getOffset(properties, useDirection);
 		}
 
+		const offset = super.getOffset(properties, [true, true]);
 		const newOffset = [0, 0];
 		const theta = this._screenRotationAngle.getRadian();
 		const cosTheta = Math.cos(theta);
@@ -41,6 +55,13 @@ export default class RotationPanInput extends PanInput {
 
 		newOffset[0] = offset[0] * cosTheta - offset[1] * sinTheta;
 		newOffset[1] = offset[1] * cosTheta + offset[0] * sinTheta;
+
+		// Use only user allowed direction.
+		if (!(this._userDirection & Axes.DIRECTION_HORIZONTAL)) {
+			newOffset[0] = 0;
+		} else if (!(this._userDirection & Axes.DIRECTION_VERTICAL)) {
+			newOffset[1] = 0;
+		}
 
 		return newOffset;
 	}
@@ -53,3 +74,13 @@ export default class RotationPanInput extends PanInput {
 		super.destroy();
 	}
 }
+
+/**
+ * Override getDirectionByAngle to return DIRECTION_ALL
+ * Ref: https://github.com/naver/egjs-axes/issues/99
+ *
+ * But we obey axes's rule. If axes's rule is problem, let's apply following code.
+ */
+// PanInput.getDirectionByAngle = function (angle, thresholdAngle) {
+// 	return DIRECTION_ALL;
+// };

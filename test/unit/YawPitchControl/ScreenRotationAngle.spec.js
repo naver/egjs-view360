@@ -50,18 +50,19 @@ describe("ScreenRotationAngle", function() {
 			const sr = new ScreenRotationAngle();
 
 			// When
+			TestHeler.once(window, "deviceorientation", then);
 			// Dispatch 'deviceorientation' event.
 			const event = TestHeler.createDeviceOrientationEvent(0, 0, 90);
 			window.dispatchEvent(event);
 
 			// Then
-			TestHeler.once(window, "deviceorientation", e => {
+			function then() {
 				expect(sr.getRadian()).to.equal(Math.PI / 2);
 
 				// cleanup for later test
 				sr.unref();
 				done();
-			});
+			};
 		});
 	});
 
@@ -153,16 +154,18 @@ describe("ScreenRotationAngle", function() {
 			sr.unref();
 
 			// When
+			TestHeler.once(window, "deviceorientation", then);
+
 			// Dispatch 'deviceorientation' event.
 			const event = TestHeler.createDeviceOrientationEvent(0, 0, 90);
 			window.dispatchEvent(event);
 
 			// Then
-			TestHeler.once(window, "deviceorientation", e => {
+			function then() {
 				expect(sr.getRadian()).to.equal(0);
 				// cleanup for later test
 				done();
-			});
+			};
 		});
 
 		it("should return valid angle if refCount for ScreenRotationAngle is more than 0.", done => {
@@ -172,19 +175,21 @@ describe("ScreenRotationAngle", function() {
 			sr1.unref();
 
 			// When
+			TestHeler.once(window, "deviceorientation", then);
+
 			// Dispatch 'deviceorientation' event.
 			const event = TestHeler.createDeviceOrientationEvent(0, 0, 90);
 			window.dispatchEvent(event);
 
 			// Then
-			TestHeler.once(window, "deviceorientation", e => {
+			function then() {
 				// Because it's singleton, sr1 and sr2 is same. So following is possible.
 				expect(sr1.getRadian()).to.equal(Math.PI / 2);
 				expect(sr2.getRadian()).to.equal(Math.PI / 2);
 				// cleanup for later test
 				sr2.unref();
 				done();
-			});
+			};
 		});
 	});
 });

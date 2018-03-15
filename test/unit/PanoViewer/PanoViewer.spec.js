@@ -3,6 +3,7 @@ import PanoViewer from "../../../src/PanoViewer/PanoViewer";
 import PanoImageRenderer from "../../../src/PanoImageRenderer/PanoImageRenderer";
 import {ERROR_TYPE, EVENTS} from "../../../src/PanoViewer/consts";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
+import { YawPitchControl } from "../../../src/YawPitchControl";
 
 function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2) {
 	return new Promise(res => {
@@ -506,6 +507,96 @@ describe("PanoViewer", function() {
 			];
 
 			startEventLogTest(order, done);
+		});
+	});
+
+	describe("Touch Direction Test", () => {
+		let target;
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div"></div>`;
+		});
+
+		afterEach(() => {
+			cleanup();
+		});
+
+		IT("should set touchDirection as TOUCH_DIRECTION.ALL by default", () => {
+			let panoViewer = new PanoViewer(target);
+
+			expect(panoViewer.getTouchDirection()).to.be.equal(PanoViewer.TOUCH_DIRECTION.ALL);
+			panoViewer.destroy();
+		});
+
+		IT("should set touchDirection by constructor", () => {
+			const expectList = [
+				PanoViewer.TOUCH_DIRECTION.NONE,
+				PanoViewer.TOUCH_DIRECTION.YAW,
+				PanoViewer.TOUCH_DIRECTION.PITCH,
+				PanoViewer.TOUCH_DIRECTION.ALL
+			];
+
+			expectList.forEach(expectDir => {
+				let panoViewer = new PanoViewer(target, {
+					touchDirection: expectDir
+				});
+
+				expect(panoViewer.getTouchDirection()).to.be.equal(expectDir);
+				panoViewer.destroy();
+			})
+		});
+
+		IT("should set touchDirection by setTouchDirection", () => {
+			const expectList = [
+				PanoViewer.TOUCH_DIRECTION.NONE,
+				PanoViewer.TOUCH_DIRECTION.YAW,
+				PanoViewer.TOUCH_DIRECTION.PITCH,
+				PanoViewer.TOUCH_DIRECTION.ALL
+			];
+
+			expectList.forEach(expectDir => {
+				let panoViewer = new PanoViewer(target);
+				panoViewer.setTouchDirection(expectDir);
+
+				expect(panoViewer.getTouchDirection()).to.be.equal(expectDir);
+				panoViewer.destroy();
+			});
+		});
+
+		IT("should not set touchDirection if invalid direction(constructor)", () => {
+			const exceptionList = [
+				7,
+				3,
+				0,
+				8
+			];
+
+			exceptionList.forEach(expectDir => {
+				let panoViewer = new PanoViewer(target, {
+					touchDirection: expectDir
+				});
+
+				expect(panoViewer.getTouchDirection()).to.be.equal(PanoViewer.TOUCH_DIRECTION.ALL);
+				panoViewer.destroy();
+			})
+		});
+
+		IT("should not set touchDirection if invalid direction(setTouchDirection)", () => {
+			const exceptionList = [
+				7,
+				3,
+				0,
+				8
+			];
+
+			exceptionList.forEach(expectDir => {
+				let panoViewer = new PanoViewer(target);
+				panoViewer.setTouchDirection(expectDir);
+
+				expect(panoViewer.getTouchDirection()).to.be.equal(PanoViewer.TOUCH_DIRECTION.ALL);
+				panoViewer.destroy();
+			})
 		});
 	});
 });
