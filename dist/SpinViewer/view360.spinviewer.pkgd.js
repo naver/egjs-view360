@@ -843,7 +843,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*! Hammer.JS - v2.0.7 - 2016-04-22
  * Licensed under the MIT license */
 (function(window, document, exportName, undefined) {
   'use strict';
-
 var VENDOR_PREFIXES = ['', 'webkit', 'Moz', 'MS', 'ms', 'o'];
 var TEST_ELEMENT = document.createElement('div');
 
@@ -2544,7 +2543,7 @@ inherit(AttrRecognizer, Recognizer, {
      * @returns {Boolean} recognized
      */
     attrTest: function(input) {
-        var optionPointers = this.options.pointers;
+		var optionPointers = this.options.pointers;
         return optionPointers === 0 || input.pointers.length === optionPointers;
     },
 
@@ -2621,7 +2620,7 @@ inherit(PanRecognizer, AttrRecognizer, {
         var x = input.deltaX;
         var y = input.deltaY;
 
-        // lock to axis?
+		// lock to axis?
         if (!(direction & options.direction)) {
             if (options.direction & DIRECTION_HORIZONTAL) {
                 direction = (x === 0) ? DIRECTION_NONE : (x < 0) ? DIRECTION_LEFT : DIRECTION_RIGHT;
@@ -2638,12 +2637,12 @@ inherit(PanRecognizer, AttrRecognizer, {
     },
 
     attrTest: function(input) {
-        return AttrRecognizer.prototype.attrTest.call(this, input) &&
-            (this.state & STATE_BEGAN || (!(this.state & STATE_BEGAN) && this.directionTest(input)));
+        var ret = AttrRecognizer.prototype.attrTest.call(this, input) &&
+			(this.state & STATE_BEGAN || (!(this.state & STATE_BEGAN) && this.directionTest(input)));
+		return ret;
     },
 
     emit: function(input) {
-
         this.pX = input.deltaX;
         this.pY = input.deltaY;
 
@@ -3202,7 +3201,7 @@ Manager.prototype = {
             //      this can be setup with the `recognizeWith()` method on the recognizer.
             if (session.stopped !== FORCED_STOP && ( // 1
                     !curRecognizer || recognizer == curRecognizer || // 2
-                    recognizer.canRecognizeWith(curRecognizer))) { // 3
+					recognizer.canRecognizeWith(curRecognizer))) { // 3
                 recognizer.recognize(inputData);
             } else {
                 recognizer.reset();
@@ -5367,7 +5366,8 @@ var PanInput = /** @class */ (function () {
             var inputClass = InputType_1.convertInputType(this.options.inputType);
             if (!inputClass) {
                 throw new Error("Wrong inputType parameter!");
-            }
+			}
+			console.log("hammerManagerOption:", this.options.hammerManagerOptions);
             this.hammer = InputType_1.createHammer(this.element, __assign({
                 recognizers: [
                     [Hammer.Pan, hammerOption],
@@ -5472,13 +5472,13 @@ var PanInput = /** @class */ (function () {
             PanInput.useDirection(const_1.DIRECTION.DIRECTION_HORIZONTAL, this._direction),
             PanInput.useDirection(const_1.DIRECTION.DIRECTION_VERTICAL, this._direction)
         ]);
-        offset = PanInput.getNextOffset(offset, this.observer.options.deceleration);
+		offset = PanInput.getNextOffset(offset, this.observer.options.deceleration);
         this.observer.release(this, event, InputType_1.toAxis(this.axes, offset));
     };
     PanInput.prototype.attachEvent = function (observer) {
         this.observer = observer;
         this.hammer.on("hammer.input", this.onHammerInput)
-            .on("panstart panmove", this.onPanmove);
+			.on("panstart panmove", this.onPanmove);
     };
     PanInput.prototype.dettachEvent = function () {
         this.hammer.off("hammer.input", this.onHammerInput)

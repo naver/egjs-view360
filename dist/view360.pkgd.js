@@ -1076,7 +1076,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*! Hammer.JS - v2.0.7 - 2016-04-22
  * Licensed under the MIT license */
 (function(window, document, exportName, undefined) {
   'use strict';
-
 var VENDOR_PREFIXES = ['', 'webkit', 'Moz', 'MS', 'ms', 'o'];
 var TEST_ELEMENT = document.createElement('div');
 
@@ -2777,7 +2776,7 @@ inherit(AttrRecognizer, Recognizer, {
      * @returns {Boolean} recognized
      */
     attrTest: function(input) {
-        var optionPointers = this.options.pointers;
+		var optionPointers = this.options.pointers;
         return optionPointers === 0 || input.pointers.length === optionPointers;
     },
 
@@ -2854,7 +2853,7 @@ inherit(PanRecognizer, AttrRecognizer, {
         var x = input.deltaX;
         var y = input.deltaY;
 
-        // lock to axis?
+		// lock to axis?
         if (!(direction & options.direction)) {
             if (options.direction & DIRECTION_HORIZONTAL) {
                 direction = (x === 0) ? DIRECTION_NONE : (x < 0) ? DIRECTION_LEFT : DIRECTION_RIGHT;
@@ -2871,12 +2870,12 @@ inherit(PanRecognizer, AttrRecognizer, {
     },
 
     attrTest: function(input) {
-        return AttrRecognizer.prototype.attrTest.call(this, input) &&
-            (this.state & STATE_BEGAN || (!(this.state & STATE_BEGAN) && this.directionTest(input)));
+        var ret = AttrRecognizer.prototype.attrTest.call(this, input) &&
+			(this.state & STATE_BEGAN || (!(this.state & STATE_BEGAN) && this.directionTest(input)));
+		return ret;
     },
 
     emit: function(input) {
-
         this.pX = input.deltaX;
         this.pY = input.deltaY;
 
@@ -3435,7 +3434,7 @@ Manager.prototype = {
             //      this can be setup with the `recognizeWith()` method on the recognizer.
             if (session.stopped !== FORCED_STOP && ( // 1
                     !curRecognizer || recognizer == curRecognizer || // 2
-                    recognizer.canRecognizeWith(curRecognizer))) { // 3
+					recognizer.canRecognizeWith(curRecognizer))) { // 3
                 recognizer.recognize(inputData);
             } else {
                 recognizer.reset();
@@ -8796,7 +8795,8 @@ var PanInput = /** @class */ (function () {
             var inputClass = InputType_1.convertInputType(this.options.inputType);
             if (!inputClass) {
                 throw new Error("Wrong inputType parameter!");
-            }
+			}
+			console.log("hammerManagerOption:", this.options.hammerManagerOptions);
             this.hammer = InputType_1.createHammer(this.element, __assign({
                 recognizers: [
                     [Hammer.Pan, hammerOption],
@@ -8901,13 +8901,13 @@ var PanInput = /** @class */ (function () {
             PanInput.useDirection(const_1.DIRECTION.DIRECTION_HORIZONTAL, this._direction),
             PanInput.useDirection(const_1.DIRECTION.DIRECTION_VERTICAL, this._direction)
         ]);
-        offset = PanInput.getNextOffset(offset, this.observer.options.deceleration);
+		offset = PanInput.getNextOffset(offset, this.observer.options.deceleration);
         this.observer.release(this, event, InputType_1.toAxis(this.axes, offset));
     };
     PanInput.prototype.attachEvent = function (observer) {
         this.observer = observer;
         this.hammer.on("hammer.input", this.onHammerInput)
-            .on("panstart panmove", this.onPanmove);
+			.on("panstart panmove", this.onPanmove);
     };
     PanInput.prototype.dettachEvent = function () {
         this.hammer.off("hammer.input", this.onHammerInput)
@@ -9368,6 +9368,7 @@ var PanoViewer = function (_Component) {
   * @param {Array} [config.yawRange=[-180, 180]] Range of controllable Yaw values <ko>제어 가능한 Yaw 값의 범위</ko>
   * @param {Array} [config.pitchRange=[-90, 90]] Range of controllable Pitch values <ko>제어 가능한 Pitch 값의 범위</ko>
   * @param {Array} [config.fovRange=[30, 110]] Range of controllable vertical field of view values <ko>제어 가능한 수직 field of view 값의 범위</ko>
+  * @param {Number} [config.touchDirection= PanoViewer.TOUCH_DIRECTION.ALL(6)] Direction of touch that can be controlled by user {@link eg.PanoViewer.TOUCH_DIRECTION}<ko>사용자가 터치로 조작 가능한 방향 {@link eg.PanoViewer.TOUCH_DIRECTION}</ko>
   */
 	function PanoViewer(container) {
 		var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -9439,7 +9440,7 @@ var PanoViewer = function (_Component) {
 
 		_this._aspectRatio = _this._width / _this._height;
 		var fovRange = options.fovRange || [30, 110];
-
+		var touchDirection = PanoViewer._isValidTouchDirection(options.touchDirection) ? options.touchDirection : _YawPitchControl.YawPitchControl.TOUCH_DIRECTION_ALL;
 		var yawPitchConfig = _extends(options, {
 			element: container,
 			yaw: _this._yaw,
@@ -9447,7 +9448,8 @@ var PanoViewer = function (_Component) {
 			fov: _this._fov,
 			gyroMode: _this._gyroMode,
 			fovRange: fovRange,
-			aspectRatio: _this._aspectRatio
+			aspectRatio: _this._aspectRatio,
+			touchDirection: touchDirection
 		});
 
 		_this._isReady = false;
@@ -10012,6 +10014,49 @@ var PanoViewer = function (_Component) {
 		}
 	};
 
+	PanoViewer._isValidTouchDirection = function _isValidTouchDirection(direction) {
+		return direction === PanoViewer.TOUCH_DIRECTION.NONE || direction === PanoViewer.TOUCH_DIRECTION.YAW || direction === PanoViewer.TOUCH_DIRECTION.PITCH || direction === PanoViewer.TOUCH_DIRECTION.ALL;
+	};
+
+	/**
+  * Set touch direction by which user can control.
+  * @ko 사용자가 조작가능한 터치 방향을 지정한다.
+  * @method eg.view360.PanoViewer#setTouchDirection
+  * @param {Number} direction of the touch. {@link eg.PanoViewer.TOUCH_DIRECTION}<ko>컨트롤 가능한 방향 {@link eg.PanoViewer.TOUCH_DIRECTION}</ko>
+  * @return {eg.PanoViewer} PanoViewer instance
+  * @example
+  *
+  * panoViewer = new PanoViewer(el);
+  * // Limit the touch direction to the yaw direction only.
+  * panoViewer.setTouchDirection(PanoViewer.TOUCH_DIRECTION.YAW);
+  */
+
+
+	PanoViewer.prototype.setTouchDirection = function setTouchDirection(direction) {
+		if (PanoViewer._isValidTouchDirection(direction)) {
+			this._yawPitchControl.option("touchDirection", direction);
+		}
+
+		return this;
+	};
+
+	/**
+  * Returns touch direction by which user can control
+  * @ko 사용자가 조작가능한 터치 방향을 반환한다.
+  * @method eg.view360.PanoViewer#getTouchDirection
+  * @return {Number} direction of the touch. {@link eg.PanoViewer.TOUCH_DIRECTION}<ko>컨트롤 가능한 방향 {@link eg.PanoViewer.TOUCH_DIRECTION}</ko>
+  * @example
+  *
+  * panoViewer = new PanoViewer(el);
+  * // Returns the current touch direction.
+  * var dir = panoViewer.getTouchDirection();
+  */
+
+
+	PanoViewer.prototype.getTouchDirection = function getTouchDirection() {
+		return this._yawPitchControl.option("touchDirection");
+	};
+
 	/**
   * Destroy viewer. Remove all registered event listeners and remove viewer canvas.
   * @ko 뷰어 인스턴스를 해제합니다. 모든 등록된 이벤트리스너를 제거하고 뷰어 캔버스를 삭제한다.
@@ -10091,6 +10136,55 @@ exports["default"] = PanoViewer;
 PanoViewer.ERROR_TYPE = _consts.ERROR_TYPE;
 PanoViewer.EVENTS = _consts.EVENTS;
 PanoViewer.ProjectionType = _consts.PROJECTION_TYPE;
+/**
+ * Constant value for touch directions
+ * @ko 터치 방향에 대한 상수 값.
+ * @namespace
+ * @name TOUCH_DIRECTION
+ * @memberof eg.PanoViewer
+ */
+PanoViewer.TOUCH_DIRECTION = {
+	/**
+  * Constant value for none direction.
+  * @ko none 방향에 대한 상수 값.
+  * @name NONE
+  * @memberof eg.PanoViewer.TOUCH_DIRECTION
+  * @constant
+  * @type {Number}
+  * @default 1
+  */
+	NONE: _YawPitchControl.YawPitchControl.TOUCH_DIRECTION_NONE,
+	/**
+  * Constant value for horizontal(yaw) direction.
+  * @ko horizontal(yaw) 방향에 대한 상수 값.
+  * @name YAW
+  * @memberof eg.PanoViewer.TOUCH_DIRECTION
+  * @constant
+  * @type {Number}
+  * @default 6
+  */
+	YAW: _YawPitchControl.YawPitchControl.TOUCH_DIRECTION_YAW,
+	/**
+  * Constant value for vertical direction.
+  * @ko vertical(pitch) 방향에 대한 상수 값.
+  * @name PITCH
+  * @memberof eg.PanoViewer.TOUCH_DIRECTION
+  * @constant
+  * @type {Number}
+  * @default 24
+  */
+	PITCH: _YawPitchControl.YawPitchControl.TOUCH_DIRECTION_PITCH,
+	/**
+  * Constant value for all direction.
+  * @ko all 방향에 대한 상수 값.
+  * @name ALL
+  * @memberof eg.PanoViewer.TOUCH_DIRECTION
+  * @constant
+  * @type {Number}
+  * @default 30
+  */
+	ALL: _YawPitchControl.YawPitchControl.TOUCH_DIRECTION_ALL
+};
 
 /***/ }),
 /* 34 */
@@ -12235,6 +12329,19 @@ var YawPitchControl = function (_Component) {
 				this.axesPinchInput && this.axes.disconnect(this.axesPinchInput);
 			}
 		}
+
+		if (keys.some(function (key) {
+			return key === "touchDirection";
+		})) {
+			this._enabled && this._enableTouch(this.options.touchDirection);
+		}
+	};
+
+	YawPitchControl.prototype._enableTouch = function _enableTouch(direction) {
+		var yawEnabled = direction & _consts.TOUCH_DIRECTION_YAW ? "yaw" : null;
+		var pitchEnabled = direction & _consts.TOUCH_DIRECTION_PITCH ? "pitch" : null;
+
+		this.axes.connect([yawEnabled, pitchEnabled], this.axesPanInput);
 	};
 
 	YawPitchControl.prototype._initDeviceQuaternion = function _initDeviceQuaternion() {
@@ -12460,7 +12567,10 @@ var YawPitchControl = function (_Component) {
 		if (this._enabled) {
 			return this;
 		}
-		this.axes.connect(["yaw", "pitch"], this.axesPanInput);
+
+		// touchDirection is decided by parameter is valid string (Ref. Axes.connect)
+		this._enableTouch(this.options.touchDirection);
+
 		this._applyOptions(Object.keys(this.options), this.options);
 		this._setPanScale(this.getFov());
 
@@ -12773,6 +12883,8 @@ exports.__esModule = true;
 
 var _axes = __webpack_require__(13);
 
+var _axes2 = _interopRequireDefault(_axes);
+
 var _ScreenRotationAngle = __webpack_require__(20);
 
 var _ScreenRotationAngle2 = _interopRequireDefault(_ScreenRotationAngle);
@@ -12814,16 +12926,30 @@ var RotationPanInput = function (_PanInput) {
 
 		_this._screenRotationAngle = null;
 		_this._useRotation && (_this._screenRotationAngle = new _ScreenRotationAngle2["default"]());
+		_this._userDirection = _axes2["default"].DIRECTION_ALL;
 		return _this;
 	}
 
-	RotationPanInput.prototype.getOffset = function getOffset(properties, useDirection) {
-		var offset = _PanInput.prototype.getOffset.call(this, properties, useDirection);
+	RotationPanInput.prototype.connect = function connect(observer) {
+		// User intetened direction
+		this._userDirection = this._direction;
 
-		if (this._useRotation === false) {
-			return offset;
+		// In VR Mode, Use ALL direction if direction is not none
+		// Because horizontal and vertical is changed dynamically by screen rotation.
+		// this._direction is used to initialize hammerjs
+		if (this._useRotation && this._direction & _axes2["default"].DIRECTION_ALL) {
+			this._direction = _axes2["default"].DIRECTION_ALL;
 		}
 
+		_PanInput.prototype.connect.call(this, observer);
+	};
+
+	RotationPanInput.prototype.getOffset = function getOffset(properties, useDirection) {
+		if (this._useRotation === false) {
+			return _PanInput.prototype.getOffset.call(this, properties, useDirection);
+		}
+
+		var offset = _PanInput.prototype.getOffset.call(this, properties, [true, true]);
 		var newOffset = [0, 0];
 		var theta = this._screenRotationAngle.getRadian();
 		var cosTheta = Math.cos(theta);
@@ -12831,6 +12957,13 @@ var RotationPanInput = function (_PanInput) {
 
 		newOffset[0] = offset[0] * cosTheta - offset[1] * sinTheta;
 		newOffset[1] = offset[1] * cosTheta + offset[0] * sinTheta;
+
+		// Use only user allowed direction.
+		if (!(this._userDirection & _axes2["default"].DIRECTION_HORIZONTAL)) {
+			newOffset[0] = 0;
+		} else if (!(this._userDirection & _axes2["default"].DIRECTION_VERTICAL)) {
+			newOffset[1] = 0;
+		}
 
 		return newOffset;
 	};
@@ -12845,6 +12978,17 @@ var RotationPanInput = function (_PanInput) {
 
 	return RotationPanInput;
 }(_axes.PanInput);
+
+/**
+ * Override getDirectionByAngle to return DIRECTION_ALL
+ * Ref: https://github.com/naver/egjs-axes/issues/99
+ *
+ * But we obey axes's rule. If axes's rule is problem, let's apply following code.
+ */
+// PanInput.getDirectionByAngle = function (angle, thresholdAngle) {
+// 	return DIRECTION_ALL;
+// };
+
 
 exports["default"] = RotationPanInput;
 
