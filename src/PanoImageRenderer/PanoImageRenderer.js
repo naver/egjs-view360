@@ -516,7 +516,7 @@ export default class PanoImageRenderer extends Component {
 		gl.uniformMatrix4fv(this.shaderProgram.pMatrixUniform, false, this.pMatrix);
 		gl.uniformMatrix4fv(this.shaderProgram.mvMatrixUniform, false, this.mvMatrix);
 
-		if (this._isVideo) {
+		if (this._isVideo && this._keepUpdate) {
 			this._updateTexture();
 		}
 
