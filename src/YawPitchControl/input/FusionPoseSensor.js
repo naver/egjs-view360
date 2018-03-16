@@ -1,4 +1,5 @@
 import Component from "@egjs/component";
+import agent from "@egjs/agent";
 import PosePredictor from "webvr-polyfill/src/sensor-fusion/pose-predictor";
 import MathUtil from "webvr-polyfill/src/math-util";
 import Util from "webvr-polyfill/src/util";
@@ -9,6 +10,7 @@ import ComplementaryFilter from "./ComplementaryFilter";
 
 const K_FILTER = 0.98;
 const PREDICTION_TIME_S = 0.040;
+const agentInfo = agent();
 
 export default class FusionPoseSensor extends Component {
 	constructor() {
@@ -29,6 +31,12 @@ export default class FusionPoseSensor extends Component {
 
 		this.isFirefoxAndroid = Util.isFirefoxAndroid();
 		this.isIOS = Util.isIOS();
+
+		// Ref https://github.com/immersive-web/cardboard-vr-display/issues/18
+		this.isChromeUsingDegrees = agentInfo.browser.name === "chrome" &&
+			parseInt(agentInfo.browser.version, 10) >= 66;
+
+
 		this._isEnabled = false;
 
 		// Set the filter to world transform, depending on OS.
@@ -149,9 +157,9 @@ export default class FusionPoseSensor extends Component {
 		this.accelerometer.set(-accGravity.x, -accGravity.y, -accGravity.z);
 		this.gyroscope.set(rotRate.alpha, rotRate.beta, rotRate.gamma);
 
-		// With iOS and Firefox Android, rotationRate is reported in degrees,
-		// so we first convert to radians.
-		if (this.isIOS || this.isFirefoxAndroid) {
+		// Browsers on iOS, Firefox/Android, and Chrome m66/Android `rotationRate`
+		// is reported in degrees, so we first convert to radians.
+		if (this.isIOS || this.isFirefoxAndroid || this.isChromeUsingDegrees) {
 			this.gyroscope.multiplyScalar(Math.PI / 180);
 		}
 

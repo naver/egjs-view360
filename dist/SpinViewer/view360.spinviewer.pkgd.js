@@ -592,7 +592,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 exports.__esModule = true;
-var Hammer = __webpack_require__(7);
+var Hammer = __webpack_require__(8);
 exports.SUPPORT_POINTER_EVENTS = "PointerEvent" in window || "MSPointerEvent" in window;
 exports.SUPPORT_TOUCH = "ontouchstart" in window;
 exports.UNIQUEKEY = "_EGJS_AXES_INPUTTYPE_";
@@ -652,7 +652,8 @@ exports.convertInputType = convertInputType;
 
 /***/ }),
 /* 4 */,
-/* 5 */
+/* 5 */,
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -666,7 +667,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 exports.__esModule = true;
-var Coordinate_1 = __webpack_require__(6);
+var Coordinate_1 = __webpack_require__(7);
 ;
 var AxisManager = /** @class */ (function () {
     function AxisManager(axis, options) {
@@ -785,7 +786,7 @@ exports.AxisManager = AxisManager;
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -833,7 +834,7 @@ exports["default"] = Coordinate;
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;/*! Hammer.JS - v2.0.7 - 2016-04-22
@@ -843,6 +844,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*! Hammer.JS - v2.0.7 - 2016-04-22
  * Licensed under the MIT license */
 (function(window, document, exportName, undefined) {
   'use strict';
+
 var VENDOR_PREFIXES = ['', 'webkit', 'Moz', 'MS', 'ms', 'o'];
 var TEST_ELEMENT = document.createElement('div');
 
@@ -2543,7 +2545,7 @@ inherit(AttrRecognizer, Recognizer, {
      * @returns {Boolean} recognized
      */
     attrTest: function(input) {
-		var optionPointers = this.options.pointers;
+        var optionPointers = this.options.pointers;
         return optionPointers === 0 || input.pointers.length === optionPointers;
     },
 
@@ -2620,7 +2622,7 @@ inherit(PanRecognizer, AttrRecognizer, {
         var x = input.deltaX;
         var y = input.deltaY;
 
-		// lock to axis?
+        // lock to axis?
         if (!(direction & options.direction)) {
             if (options.direction & DIRECTION_HORIZONTAL) {
                 direction = (x === 0) ? DIRECTION_NONE : (x < 0) ? DIRECTION_LEFT : DIRECTION_RIGHT;
@@ -2637,12 +2639,12 @@ inherit(PanRecognizer, AttrRecognizer, {
     },
 
     attrTest: function(input) {
-        var ret = AttrRecognizer.prototype.attrTest.call(this, input) &&
-			(this.state & STATE_BEGAN || (!(this.state & STATE_BEGAN) && this.directionTest(input)));
-		return ret;
+        return AttrRecognizer.prototype.attrTest.call(this, input) &&
+            (this.state & STATE_BEGAN || (!(this.state & STATE_BEGAN) && this.directionTest(input)));
     },
 
     emit: function(input) {
+
         this.pX = input.deltaX;
         this.pY = input.deltaY;
 
@@ -3201,7 +3203,7 @@ Manager.prototype = {
             //      this can be setup with the `recognizeWith()` method on the recognizer.
             if (session.stopped !== FORCED_STOP && ( // 1
                     !curRecognizer || recognizer == curRecognizer || // 2
-					recognizer.canRecognizeWith(curRecognizer))) { // 3
+                    recognizer.canRecognizeWith(curRecognizer))) { // 3
                 recognizer.recognize(inputData);
             } else {
                 recognizer.reset();
@@ -3482,7 +3484,6 @@ if (true) {
 
 
 /***/ }),
-/* 8 */,
 /* 9 */,
 /* 10 */,
 /* 11 */,
@@ -3910,8 +3911,8 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 exports.__esModule = true;
-var Coordinate_1 = __webpack_require__(6);
-var AxisManager_1 = __webpack_require__(5);
+var Coordinate_1 = __webpack_require__(7);
+var AxisManager_1 = __webpack_require__(6);
 var utils_1 = __webpack_require__(2);
 var AnimationManager = /** @class */ (function () {
     function AnimationManager(_a) {
@@ -4136,7 +4137,7 @@ var Component = __webpack_require__(0);
 var AnimationManager_1 = __webpack_require__(23);
 var EventManager_1 = __webpack_require__(25);
 var InterruptManager_1 = __webpack_require__(27);
-var AxisManager_1 = __webpack_require__(5);
+var AxisManager_1 = __webpack_require__(6);
 var InputObserver_1 = __webpack_require__(26);
 var const_1 = __webpack_require__(12);
 /**
@@ -4849,8 +4850,8 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 exports.__esModule = true;
-var AxisManager_1 = __webpack_require__(5);
-var Coordinate_1 = __webpack_require__(6);
+var AxisManager_1 = __webpack_require__(6);
+var Coordinate_1 = __webpack_require__(7);
 var InputObserver = /** @class */ (function () {
     function InputObserver(_a) {
         var options = _a.options, itm = _a.itm, em = _a.em, axm = _a.axm, am = _a.am;
@@ -5226,7 +5227,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 exports.__esModule = true;
-var Hammer = __webpack_require__(7);
+var Hammer = __webpack_require__(8);
 var const_1 = __webpack_require__(12);
 var utils_1 = __webpack_require__(2);
 var InputType_1 = __webpack_require__(3);
@@ -5366,8 +5367,7 @@ var PanInput = /** @class */ (function () {
             var inputClass = InputType_1.convertInputType(this.options.inputType);
             if (!inputClass) {
                 throw new Error("Wrong inputType parameter!");
-			}
-			console.log("hammerManagerOption:", this.options.hammerManagerOptions);
+            }
             this.hammer = InputType_1.createHammer(this.element, __assign({
                 recognizers: [
                     [Hammer.Pan, hammerOption],
@@ -5472,13 +5472,13 @@ var PanInput = /** @class */ (function () {
             PanInput.useDirection(const_1.DIRECTION.DIRECTION_HORIZONTAL, this._direction),
             PanInput.useDirection(const_1.DIRECTION.DIRECTION_VERTICAL, this._direction)
         ]);
-		offset = PanInput.getNextOffset(offset, this.observer.options.deceleration);
+        offset = PanInput.getNextOffset(offset, this.observer.options.deceleration);
         this.observer.release(this, event, InputType_1.toAxis(this.axes, offset));
     };
     PanInput.prototype.attachEvent = function (observer) {
         this.observer = observer;
         this.hammer.on("hammer.input", this.onHammerInput)
-			.on("panstart panmove", this.onPanmove);
+            .on("panstart panmove", this.onPanmove);
     };
     PanInput.prototype.dettachEvent = function () {
         this.hammer.off("hammer.input", this.onHammerInput)
@@ -5516,7 +5516,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 exports.__esModule = true;
-var Hammer = __webpack_require__(7);
+var Hammer = __webpack_require__(8);
 var utils_1 = __webpack_require__(2);
 var InputType_1 = __webpack_require__(3);
 /**

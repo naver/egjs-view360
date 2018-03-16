@@ -330,32 +330,6 @@ module.exports = glMatrix;
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-
-
-exports.__esModule = true;
-/* eslint-disable no-new-func */
-/* eslint-disable no-nested-ternary */
-var win = typeof window !== "undefined" && window.Math === Math ? window : typeof self !== "undefined" && self.Math === Math ? self : Function("return this")();
-/* eslint-enable no-nested-ternary */
-/* eslint-enable no-new-func */
-
-win.Float32Array = typeof win.Float32Array !== "undefined" ? win.Float32Array : win.Array;
-
-exports.window = win;
-var screen = exports.screen = win.screen;
-var orientation = exports.orientation = win.orientation;
-var document = exports.document = win.document;
-var Float32Array = exports.Float32Array = win.Float32Array;
-var getComputedStyle = exports.getComputedStyle = win.getComputedStyle;
-var userAgent = exports.userAgent = win.navigator.userAgent;
-var SUPPORT_TOUCH = exports.SUPPORT_TOUCH = "ontouchstart" in win;
-var SUPPORT_DEVICEMOTION = exports.SUPPORT_DEVICEMOTION = "ondevicemotion" in win;
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
 /*!
  * Copyright (c) 2017 NAVER Corp.
  * @egjs/agent project is licensed under the MIT license
@@ -821,6 +795,32 @@ module.exports = exports["default"];
 /***/ })
 /******/ ]);
 });
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+/* eslint-disable no-new-func */
+/* eslint-disable no-nested-ternary */
+var win = typeof window !== "undefined" && window.Math === Math ? window : typeof self !== "undefined" && self.Math === Math ? self : Function("return this")();
+/* eslint-enable no-nested-ternary */
+/* eslint-enable no-new-func */
+
+win.Float32Array = typeof win.Float32Array !== "undefined" ? win.Float32Array : win.Array;
+
+exports.window = win;
+var screen = exports.screen = win.screen;
+var orientation = exports.orientation = win.orientation;
+var document = exports.document = win.document;
+var Float32Array = exports.Float32Array = win.Float32Array;
+var getComputedStyle = exports.getComputedStyle = win.getComputedStyle;
+var userAgent = exports.userAgent = win.navigator.userAgent;
+var SUPPORT_TOUCH = exports.SUPPORT_TOUCH = "ontouchstart" in win;
+var SUPPORT_DEVICEMOTION = exports.SUPPORT_DEVICEMOTION = "ondevicemotion" in win;
 
 /***/ }),
 /* 5 */
@@ -2388,7 +2388,7 @@ exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _agent = __webpack_require__(4);
+var _agent = __webpack_require__(3);
 
 var _agent2 = _interopRequireDefault(_agent);
 
@@ -3197,7 +3197,7 @@ module.exports = {
 
 exports.__esModule = true;
 
-var _browser = __webpack_require__(3);
+var _browser = __webpack_require__(4);
 
 var _mathUtil = __webpack_require__(1);
 
@@ -3291,6 +3291,10 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
+var _agent = __webpack_require__(3);
+
+var _agent2 = _interopRequireDefault(_agent);
+
 var _posePredictor = __webpack_require__(44);
 
 var _posePredictor2 = _interopRequireDefault(_posePredictor);
@@ -3303,7 +3307,7 @@ var _util = __webpack_require__(10);
 
 var _util2 = _interopRequireDefault(_util);
 
-var _browser = __webpack_require__(3);
+var _browser = __webpack_require__(4);
 
 var _mathUtil3 = __webpack_require__(1);
 
@@ -3325,6 +3329,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var K_FILTER = 0.98;
 var PREDICTION_TIME_S = 0.040;
+var agentInfo = (0, _agent2["default"])();
 
 var FusionPoseSensor = function (_Component) {
 	_inherits(FusionPoseSensor, _Component);
@@ -3349,6 +3354,10 @@ var FusionPoseSensor = function (_Component) {
 
 		_this.isFirefoxAndroid = _util2["default"].isFirefoxAndroid();
 		_this.isIOS = _util2["default"].isIOS();
+
+		// Ref https://github.com/immersive-web/cardboard-vr-display/issues/18
+		_this.isChromeUsingDegrees = agentInfo.browser.name === "chrome" && parseInt(agentInfo.browser.version, 10) >= 66;
+
 		_this._isEnabled = false;
 
 		// Set the filter to world transform, depending on OS.
@@ -3473,9 +3482,9 @@ var FusionPoseSensor = function (_Component) {
 		this.accelerometer.set(-accGravity.x, -accGravity.y, -accGravity.z);
 		this.gyroscope.set(rotRate.alpha, rotRate.beta, rotRate.gamma);
 
-		// With iOS and Firefox Android, rotationRate is reported in degrees,
-		// so we first convert to radians.
-		if (this.isIOS || this.isFirefoxAndroid) {
+		// Browsers on iOS, Firefox/Android, and Chrome m66/Android `rotationRate`
+		// is reported in degrees, so we first convert to radians.
+		if (this.isIOS || this.isFirefoxAndroid || this.isChromeUsingDegrees) {
 			this.gyroscope.multiplyScalar(Math.PI / 180);
 		}
 
@@ -5495,7 +5504,7 @@ exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _agent = __webpack_require__(4);
+var _agent = __webpack_require__(3);
 
 var _agent2 = _interopRequireDefault(_agent);
 
@@ -5752,7 +5761,7 @@ CubeRenderer._INDEX_DATA = null;
 
 exports.__esModule = true;
 
-var _agent = __webpack_require__(4);
+var _agent = __webpack_require__(3);
 
 var _agent2 = _interopRequireDefault(_agent);
 
@@ -6045,7 +6054,7 @@ var _axes = __webpack_require__(7);
 
 var _axes2 = _interopRequireDefault(_axes);
 
-var _browser = __webpack_require__(3);
+var _browser = __webpack_require__(4);
 
 var _WheelInput = __webpack_require__(36);
 
@@ -6796,13 +6805,13 @@ var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
 
-var _agent = __webpack_require__(4);
+var _agent = __webpack_require__(3);
 
 var _agent2 = _interopRequireDefault(_agent);
 
 var _mathUtil = __webpack_require__(1);
 
-var _browser = __webpack_require__(3);
+var _browser = __webpack_require__(4);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
