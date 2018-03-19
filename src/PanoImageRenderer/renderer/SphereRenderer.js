@@ -1,27 +1,21 @@
+import Agent from "@egjs/agent";
 import Renderer from "./Renderer.js";
+
+const agent = Agent();
+const isIE11 = agent.browser.name === "ie" && agent.browser.version === "11.0";
+let pixelCanvas;
+let pixelContext;
 
 export default class SphereRenderer extends Renderer {
 	static getVertexPositionData() {
-		if (SphereRenderer._VERTEX_POSITION_DATA === null) {
-			SphereRenderer._initData();
-		}
-
 		return SphereRenderer._VERTEX_POSITION_DATA;
 	}
 
 	static getIndexData() {
-		if (SphereRenderer._INDEX_DATA === null) {
-			SphereRenderer._initData();
-		}
-
 		return SphereRenderer._INDEX_DATA;
 	}
 
 	static getTextureCoordData() {
-		if (SphereRenderer._TEXTURE_COORD_DATA === null) {
-			SphereRenderer._initData();
-		}
-
 		return SphereRenderer._TEXTURE_COORD_DATA;
 	}
 
@@ -50,25 +44,54 @@ export default class SphereRenderer extends Renderer {
 			}`;
 	}
 
+	static _getPixelSource(image) {
+		if (!pixelCanvas) {
+			return image;
+		}
+		const {width, height} = this._getDimension(image);
+
+		if (pixelCanvas.width !== width) {
+			pixelCanvas.width = width;
+		}
+
+		if (pixelCanvas.height !== height) {
+			pixelCanvas.height = height;
+		}
+
+		pixelContext.drawImage(image, 0, 0);
+
+		return pixelCanvas;
+	}
+
+	static _getDimension(pixelSource) {
+		const width = pixelSource.naturalWidth || pixelSource.videoWidth;
+		const height = pixelSource.naturalHeight || pixelSource.videoHeight;
+
+		return {width, height};
+	}
+
 	static updateTexture(gl, image) {
-		// Draw first frame
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._getPixelSource(image));
 	}
 
 	static bindTexture(gl, texture, image) {
-		if (!image) {
+		// Make sure image isn't too big
+		const {width, height} = this._getDimension(image);
+		const size = Math.max(width, height);
+		const maxSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+
+		if (size > maxSize) {
+			/* eslint-disable no-console */
+			console.warn(`Image width(${width}) exceeds device limit(${maxSize}))`);
+			/* eslint-enable no-console */
 			return;
 		}
 
-		// Make sure image isn't too big
-		const width = Math.max(image.width, image.height);
-		const maxWidth = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-
-		if (width > maxWidth) {
-			/* eslint-disable no-console */
-			console.warn(`Image width(${width}) exceeds device limit(${maxWidth}))`);
-			/* eslint-enable no-console */
-			return;
+		if (isIE11 && image instanceof HTMLVideoElement) {
+			pixelCanvas = document.createElement("canvas");
+			pixelCanvas.width = width;
+			pixelCanvas.height = height;
+			pixelContext = pixelCanvas.getContext("2d");
 		}
 
 		gl.activeTexture(gl.TEXTURE0);
@@ -125,3 +148,5 @@ export default class SphereRenderer extends Renderer {
 SphereRenderer._VERTEX_POSITION_DATA = null;
 SphereRenderer._TEXTURE_COORD_DATA = null;
 SphereRenderer._INDEX_DATA = null;
+
+SphereRenderer._initData();

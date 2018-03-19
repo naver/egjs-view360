@@ -13,12 +13,17 @@ const EVENTS = {
 	READY: "ready",
 	VIEW_CHANGE: "viewChange",
 	ANIMATION_END: "animationEnd",
-	ERROR: "error",
-	CONTENT_LOADED: "contentLoaded"
+	ERROR: "error"
+};
+
+const PROJECTION_TYPE = {
+	EQUIRECTANGULAR: "equirectangular",
+	CUBEMAP: "cubemap"
 };
 
 module.exports = {
 	GYRO_MODE,
 	EVENTS,
-	ERROR_TYPE
+	ERROR_TYPE,
+	PROJECTION_TYPE
 };

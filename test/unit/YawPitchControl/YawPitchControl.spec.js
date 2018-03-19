@@ -8,13 +8,17 @@ import {
 	MC_DECELERATION,
 	MAX_FIELD_OF_VIEW,
 	KEYMAP,
-	GYRO_MODE
+	GYRO_MODE,
+	YAW_RANGE_HALF,
+	CIRCULAR_PITCH_RANGE_HALF
 } from "../../../src/YawPitchControl/consts";
 import YawPitchControl from "../../../src/YawPitchControl/YawPitchControl";
+import RotationPanInput from "../../../src/YawPitchControl/input/RotationPanInput";
 import TestHelper from "./testHelper";
 
 import YawPitchControlrInjector from "inject-loader!../../../src/YawPitchControl/YawPitchControl";
 import devicemotionRotateSample from "./devicemotionSampleRotate";
+import {glMatrix, quat} from "../../../src/utils/math-util.js";
 
 const INTERVAL = 1000 / 60.0;
 
@@ -28,8 +32,8 @@ describe("YawPitchControl", function() {
 			});
 
 			afterEach(() => {
-				// this.inst && this.inst.destroy();
-				// this.inst = null;
+				this.inst && this.inst.destroy();
+				this.inst = null;
 			});
 
 			it("Instance without params", () => {
@@ -60,7 +64,7 @@ describe("YawPitchControl", function() {
 				expect(appliedOption.showPolePoint).to.equal(false);
 				expect(appliedOption.useZoom).to.equal(true);
 				expect(appliedOption.useKeyboard).to.equal(true);
-				expect(appliedOption.useGyro).to.equal(GYRO_MODE.YAWPITCH);
+				expect(appliedOption.gyroMode).to.equal(GYRO_MODE.YAWPITCH);
 				expect(appliedOption.touchDirection).to.equal(TOUCH_DIRECTION_ALL);
 				expect(appliedOption.yawRange).to.deep.equal([-180, 180]);
 				expect(appliedOption.pitchRange).to.deep.equal([-90, 90]);
@@ -92,6 +96,11 @@ describe("YawPitchControl", function() {
 				target = sandbox();
 				target.innerHTML = `<div></div>`;
 			});
+
+			afterEach(() => {
+				this.inst && this.inst.destroy();
+				this.inst = null;
+			})
 
 			it("should change initial yaw by yaw range", function() {
 				// Given
@@ -283,7 +292,7 @@ describe("YawPitchControl", function() {
 			}, () => {
 				// Then
 				expect(isTrustedOnHold).to.be.true;
-				expect(isTrustedOnChange).to.be.true;				
+				expect(isTrustedOnChange).to.be.true;
 				done();
 			});
 		});
@@ -958,7 +967,7 @@ describe("YawPitchControl", function() {
 			});
 		});
 
-		describe("useGyro none Test", () => {
+		describe("gyroMode none Test", () => {
 			let results = [];
 			let inst = null;
 			let target;
@@ -978,9 +987,9 @@ describe("YawPitchControl", function() {
 			});
 
 			// allow FOV (Zoom) (Spec for embedding in a document)
-			it("should not change yaw/pitch when useGyro is none", () => {
+			it("should not change yaw/pitch when gyroMode is none", () => {
 				// Given
-				inst.option("useGyro", GYRO_MODE.NONE);
+				inst.option("gyroMode", GYRO_MODE.NONE);
 				let changeTriggered = false;
 				inst.on("change", e => {
 					changeTriggered = true;
@@ -1252,8 +1261,8 @@ describe("YawPitchControl", function() {
 			TestHelper.wheelVertical(targetEl , 100, () => {
 				// then
 				let pitch = this.inst.getPitch();
-				expect(this.inst.getPitch()).to.equal(-73);	
-				done();	
+				expect(this.inst.getPitch()).to.equal(-73);
+				done();
 			});
 		});
 
@@ -1287,12 +1296,12 @@ describe("YawPitchControl", function() {
 		// 						});
 		// 					})
 		// 				]).then(() => {
-		// 					res();							
+		// 					res();
 		// 				});
 		// 			}, delay);
 		// 		}));
 		// 	}
-		
+
 		// 	// When
 		// 	Promise.all(getDownPromises(3, 100)).then(() => {
 		// 		console.log(this.inst.getPitch());
@@ -1300,8 +1309,8 @@ describe("YawPitchControl", function() {
 		// 	// TestHelper.wheelVertical(targetEl , 100, () => {
 		// 	// 	// then
 		// 	// 	let pitch = this.inst.getPitch();
-		// 	// 	expect(this.inst.getPitch()).to.equal(-73);	
-		// 	// 	done();	
+		// 	// 	expect(this.inst.getPitch()).to.equal(-73);
+		// 	// 	done();
 		// 	// });
 		// });
 
@@ -1313,7 +1322,7 @@ describe("YawPitchControl", function() {
 				fov: 30,
 				showPolePoint: false
 			});
-			
+
 			function getWheelPromises(count, duration) {
 				return Array.apply(null, {length: count})
 				.map(Number.call, Number)
@@ -1329,11 +1338,11 @@ describe("YawPitchControl", function() {
 
 			// When
 			const wheelP = getWheelPromises(20, 1000);
-			
+
 			Promise.all(wheelP).then(() => {
 				// then
-				expect(this.inst.getPitch()).to.be.equal(-35);	
-				done();			
+				expect(this.inst.getPitch()).to.be.equal(-35);
+				done();
 			});
 		});
 	});
@@ -1471,4 +1480,893 @@ describe("YawPitchControl", function() {
 			}
 		});
 	});
+
+	describe("VR Mode", () => {
+		let target;
+		class MockDeviceQuaternion {
+			constructor() {
+				this._timer = null;
+			}
+			getCombinedQuaternion(yaw, pitch) {
+				return quat.create();
+			}
+			on(eventName, callback) {
+				this._timer = setInterval(() => {
+					callback({isTrusted: true});
+				}, 50)
+			}
+			destroy(){
+				this._timer && clearInterval(this._timer);
+			}
+		}
+		const DeviceQuaternionMockYawPitchControl = YawPitchControlrInjector({
+			"./DeviceQuaternion": MockDeviceQuaternion
+		}).default;
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+			this.inst = new DeviceQuaternionMockYawPitchControl({
+				element: target,
+				gyroMode: GYRO_MODE.VR
+			});
+		});
+
+		afterEach(() => {
+			this.inst && this.inst.destroy();
+			target && target.remove();
+			target = null;
+		});
+
+		it("should ignore yaw/pitch range option. it use circular range.", () => {
+			// Given
+			this.inst.option({
+				"yawRange": [-100, 100],
+				"pitchRange": [-70, 70]
+			});
+
+			// When
+			let negativePos, positivePos, circularPos;
+
+			// negative max
+			this.inst.lookAt({yaw: -YAW_RANGE_HALF, pitch: -CIRCULAR_PITCH_RANGE_HALF}, 0);
+			negativePos = this.inst.get();
+
+			// positive max
+			this.inst.lookAt({yaw: YAW_RANGE_HALF, pitch: CIRCULAR_PITCH_RANGE_HALF}, 0);
+			positivePos = this.inst.get();
+
+			// if pos is over max, circular value should be return
+			this.inst.lookAt({yaw: YAW_RANGE_HALF + 1, pitch: -CIRCULAR_PITCH_RANGE_HALF - 1}, 0);
+			circularPos = this.inst.get();
+
+			// Then
+			expect(negativePos.yaw).to.equal(-YAW_RANGE_HALF);
+			expect(negativePos.pitch).to.equal(-CIRCULAR_PITCH_RANGE_HALF);
+
+			expect(positivePos.yaw).to.equal(YAW_RANGE_HALF);
+			expect(positivePos.pitch).to.equal(CIRCULAR_PITCH_RANGE_HALF);
+
+			expect(circularPos.yaw).to.equal(-YAW_RANGE_HALF + 1);
+			expect(circularPos.pitch).to.equal(CIRCULAR_PITCH_RANGE_HALF - 1);
+		});
+
+		it("should trigger event which has quaternion property if device moves on VR mode", done => {
+			// Given
+			// When
+			this.inst.on("change", e => {
+				// Then
+				expect(e.quaternion).to.be.exist;
+				done();
+			});
+		});
+	});
+
+	describe("Touch Direction Test by constructor's option property -touchDirection '", () => {
+		let target;
+
+		/**
+		 * Due to the next issue, we move horizontally and vertically, respectively.
+		 * And it's not bug, it's policy.
+		 * https://github.com/naver/egjs-axes/issues/99
+		 */
+		const MOVE_HORIZONTALLY = {
+			pos: [0, 0],
+			deltaX: 100,
+			deltaY: 0,
+			duration: 200,
+			easing: "linear"
+		};
+
+		const MOVE_VERTICALLY = {
+			pos: [0, 0],
+			deltaX: 0,
+			deltaY: 100,
+			duration: 200,
+			easing: "linear"
+		};
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+		});
+
+		afterEach(() => {
+			this.inst && this.inst.destroy();
+			target && target.remove();
+			target = null;
+		});
+
+		it("should enable all direction when TOUCH_DIRECTION_ALL is specified", done => {
+			// Given
+			this.inst = new YawPitchControl({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_ALL
+			});
+			this.inst.enable();
+
+			const prevYaw = this.inst.getYaw();
+			const prevPitch = this.inst.getPitch();
+
+			// When
+			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+					// Then
+					expect(this.inst.getYaw()).to.be.not.equal(prevYaw);
+					expect(this.inst.getPitch()).to.be.not.equal(prevPitch);
+					done();
+				});
+			});
+		});
+
+		it("should enable only yaw direction when TOUCH_DIRECTION_YAW is specified", done => {
+			// Given
+			this.inst = new YawPitchControl({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_YAW
+			});
+			this.inst.enable();
+
+			const prevYaw = this.inst.getYaw();
+			const prevPitch = this.inst.getPitch();
+
+			// When
+			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+					// Then
+					expect(this.inst.getYaw()).to.be.not.equal(prevYaw);
+					expect(this.inst.getPitch()).to.be.equal(prevPitch);
+					done();
+				});
+			});
+		});
+		it("should enable only pitch direction when TOUCH_DIRECTION_PITCH is specified", done => {
+			// Given
+			this.inst = new YawPitchControl({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_PITCH
+			});
+			this.inst.enable();
+
+			const prevYaw = this.inst.getYaw();
+			const prevPitch = this.inst.getPitch();
+
+			// When
+			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+					// Then
+					expect(this.inst.getYaw()).to.be.equal(prevYaw);
+					expect(this.inst.getPitch()).to.be.not.equal(prevPitch);
+					done();
+				});
+			});
+		});
+		it("should disable all direction when TOUCH_DIRECTION_NONE is specified", done => {
+			// Given
+			this.inst = new YawPitchControl({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_NONE
+			});
+
+			this.inst.enable();
+
+			const prevYaw = this.inst.getYaw();
+			const prevPitch = this.inst.getPitch();
+
+			// When
+			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+					// Then
+					expect(this.inst.getYaw()).to.be.equal(prevYaw);
+					expect(this.inst.getPitch()).to.be.equal(prevPitch);
+					done();
+				});
+			});
+		});
+	});
+
+	describe("Touch Direction Test by option method'", () => {
+		let target;
+		/**
+		 * Due to the next issue, we move horizontally and vertically, respectively.
+		 * And it's not bug, it's policy.
+		 * https://github.com/naver/egjs-axes/issues/99
+		 */
+		const MOVE_HORIZONTALLY = {
+			pos: [0, 0],
+			deltaX: 100,
+			deltaY: 0,
+			duration: 200,
+			easing: "linear"
+		};
+
+		const MOVE_VERTICALLY = {
+			pos: [0, 0],
+			deltaX: 0,
+			deltaY: 100,
+			duration: 200,
+			easing: "linear"
+		};
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+		});
+
+		afterEach(() => {
+			this.inst && this.inst.destroy();
+			target && target.remove();
+			target = null;
+		});
+
+		it("should enable only yaw direction when direction changed from TOUCH_DIRECTION_ALL to TOUCH_DIRECTION_YAW", done => {
+			// Given
+			this.inst = new YawPitchControl({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_ALL
+			});
+
+			this.inst.enable();
+
+			const prevYaw = this.inst.getYaw();
+			const prevPitch = this.inst.getPitch();
+
+			// When
+			this.inst.option("touchDirection", TOUCH_DIRECTION_YAW);
+
+			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+					// Then
+					expect(this.inst.getYaw()).to.be.not.equal(prevYaw);
+					expect(this.inst.getPitch()).to.be.equal(prevPitch);
+					done();
+				});
+			});
+		});
+		it("should enable only pitch direction when direction changed from TOUCH_DIRECTION_ALL to TOUCH_DIRECTION_PITCH", done => {
+			// Given
+			this.inst = new YawPitchControl({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_ALL
+			});
+
+			this.inst.enable();
+
+			const prevYaw = this.inst.getYaw();
+			const prevPitch = this.inst.getPitch();
+
+			// When
+			this.inst.option("touchDirection", TOUCH_DIRECTION_PITCH);
+
+			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+					// Then
+					expect(this.inst.getYaw()).to.be.equal(prevYaw);
+					expect(this.inst.getPitch()).to.be.not.equal(prevPitch);
+					done();
+				});
+			});
+		});
+		it("should disable all direction when direction changed from DIRECTION_ALL to TOUCH_DIRECTION_NONE", done => {
+			// Given
+			this.inst = new YawPitchControl({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_ALL
+			});
+
+			this.inst.enable();
+
+			const prevYaw = this.inst.getYaw();
+			const prevPitch = this.inst.getPitch();
+
+			// When
+			this.inst.option("touchDirection", TOUCH_DIRECTION_NONE);
+
+			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+					// Then
+					expect(this.inst.getYaw()).to.be.equal(prevYaw);
+					expect(this.inst.getPitch()).to.be.equal(prevPitch);
+					done();
+				});
+			});
+		});
+		it("should enable only pitch direction when direction changed from TOUCH_DIRECTION_YAW to TOUCH_DIRECTION_PITCH", done => {
+			// Given
+			this.inst = new YawPitchControl({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_YAW
+			});
+
+			this.inst.enable();
+
+			const prevYaw = this.inst.getYaw();
+			const prevPitch = this.inst.getPitch();
+
+			// When
+			this.inst.option("touchDirection", TOUCH_DIRECTION_PITCH);
+
+			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+					// Then
+					expect(this.inst.getYaw()).to.be.equal(prevYaw);
+					expect(this.inst.getPitch()).to.be.not.equal(prevPitch);
+					done();
+				});
+			});
+		});
+
+		it("should enable only pitch direction when direction changed from TOUCH_DIRECTION_PITCH to TOUCH_DIRECTION_PITCH", done => {
+			// Given
+			this.inst = new YawPitchControl({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_PITCH
+			});
+
+			this.inst.enable();
+
+			const prevYaw = this.inst.getYaw();
+			const prevPitch = this.inst.getPitch();
+
+			// When
+			this.inst.option("touchDirection", TOUCH_DIRECTION_PITCH);
+
+			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+					// Then
+					expect(this.inst.getYaw()).to.be.equal(prevYaw);
+					expect(this.inst.getPitch()).to.be.not.equal(prevPitch);
+					done();
+				});
+			});
+		});
+	});
+
+	describe("Touch Direction Test when useRotation is enabled but screen is not rotated(angle = 0)'", () => {
+		let target;
+		let inst = null;;
+		/**
+		 * VR Mode, https://github.com/naver/egjs-axes/issues/99 is not applied.
+		 * Known Issue
+		 */
+		const MOVE_HORIZONTALLY = {
+			pos: [0, 0],
+			deltaX: 100,
+			deltaY: 0,
+			duration: 200,
+			easing: "linear"
+		};
+
+		const MOVE_VERTICALLY = {
+			pos: [0, 0],
+			deltaX: 0,
+			deltaY: 100,
+			duration: 200,
+			easing: "linear"
+		};
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+		});
+
+		afterEach(() => {
+			inst && inst.destroy();
+			inst = null;
+			target && target.remove();
+			target = null;
+		});
+
+		it("should change yaw when direction = TOUCH_DIRECTION_YAW & moved horizontally", done => {
+			// Given
+			inst = new YawPitchControl({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_YAW,
+				gyroMode: GYRO_MODE.VR /* this makes RotationPanInput as a rotation Mode */
+			});
+
+			inst.enable();
+
+			const prevYaw = inst.getYaw();
+			const prevPitch = inst.getPitch();
+
+			// When
+			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+				// Then
+				expect(inst.getYaw()).to.be.not.equal(prevYaw);
+				expect(inst.getPitch()).to.be.equal(prevPitch);
+				done();
+			});
+		});
+
+		it("should not change yaw when direction = TOUCH_DIRECTION_YAW & moved vertically", done => {
+			// Given
+			inst = new YawPitchControl({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_YAW,
+				gyroMode: GYRO_MODE.VR /* this makes RotationPanInput as a rotation Mode */
+			});
+
+			inst.enable();
+
+			const prevYaw = inst.getYaw();
+			const prevPitch = inst.getPitch();
+
+			// When
+			Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+				// Then
+				expect(inst.getYaw()).to.be.equal(prevYaw);
+				expect(inst.getPitch()).to.be.equal(prevPitch);
+				done();
+			});
+		});
+		it("should change pitch when direction = TOUCH_DIRECTION_PITCH & moved vertically", done => {
+			// Given
+			inst = new YawPitchControl({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_PITCH,
+				gyroMode: GYRO_MODE.VR /* this makes RotationPanInput as a rotation Mode */
+			});
+
+			inst.enable();
+
+			const prevYaw = inst.getYaw();
+			const prevPitch = inst.getPitch();
+
+			// When
+			Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+				// Then
+				expect(inst.getYaw()).to.be.equal(prevYaw);
+				expect(inst.getPitch()).to.be.not.equal(prevPitch);
+				done();
+			});
+		});
+		it("should not change pitch when direction = DIRECTION_VERTICAL && moved horizontally", done => {
+			// Given
+			inst = new YawPitchControl({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_PITCH,
+				gyroMode: GYRO_MODE.VR /* this makes RotationPanInput as a rotation Mode */
+			});
+
+			inst.enable();
+
+			const prevYaw = inst.getYaw();
+			const prevPitch = inst.getPitch();
+
+			// When
+			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+				// Then
+				expect(inst.getYaw()).to.be.equal(prevYaw);
+				expect(inst.getPitch()).to.be.equal(prevPitch);
+				done();
+			});
+		});
+	});
+
+	describe("Touch Direction Test when useRotation is enabled and screen is rotated(angle = 90)'", () => {
+		let target;
+		let inst = null;;
+		/**
+		 * VR Mode, https://github.com/naver/egjs-axes/issues/99 is not applied.
+		 * Known Issue
+		 */
+		const MOVE_HORIZONTALLY = {
+			pos: [0, 0],
+			deltaX: 100,
+			deltaY: 0,
+			duration: 200,
+			easing: "linear"
+		};
+
+		const MOVE_VERTICALLY = {
+			pos: [0, 0],
+			deltaX: 0,
+			deltaY: 100,
+			duration: 200,
+			easing: "linear"
+		};
+
+		class MockRotationPanInput extends RotationPanInput {
+			constructor(el, options) {
+				super(el, options);
+
+				this._screenRotationAngle = {
+					getRadian: function() {
+						return glMatrix.toRadian(90); /* 90 degree */
+					},
+					unref: function() {
+						/* Do nothing */
+					}
+				}
+			}
+		}
+		const MockYawPitchControl90Rotated = YawPitchControlrInjector({
+			"./input/RotationPanInput": MockRotationPanInput
+		}).default;
+
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+		});
+
+		afterEach(() => {
+			inst && inst.destroy();
+			inst = null;
+			target && target.remove();
+			target = null;
+		});
+
+		it("should change yaw when direction = TOUCH_DIRECTION_YAW & moved vertically", done => {
+			// Given
+			inst = new MockYawPitchControl90Rotated({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_YAW,
+				gyroMode: GYRO_MODE.VR /* this makes RotationPanInput as a rotation Mode */
+			});
+
+			inst.enable();
+
+			const prevYaw = inst.getYaw();
+			const prevPitch = inst.getPitch();
+
+			// When
+			Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+				// Then
+				console.log(inst.getYaw(), inst.getPitch())
+				expect(inst.getYaw()).to.be.not.equal(prevYaw);
+				expect(inst.getPitch()).to.be.equal(prevPitch);
+				done();
+			});
+		});
+		it("should not change yaw when direction = TOUCH_DIRECTION_YAW & moved horizontally", done => {
+			// Given
+			inst = new MockYawPitchControl90Rotated({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_YAW,
+				gyroMode: GYRO_MODE.VR /* this makes RotationPanInput as a rotation Mode */
+			});
+
+			inst.enable();
+
+			const prevYaw = inst.getYaw();
+			const prevPitch = inst.getPitch();
+
+			// When
+			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+				// Then
+				expect(inst.getYaw()).to.be.equal(prevYaw);
+				expect(inst.getPitch()).to.be.equal(prevPitch);
+				done();
+			});
+		});
+		it("should change pitch when direction = TOUCH_DIRECTION_PITCH & moved horizontally", done => {
+			// Given
+			inst = new MockYawPitchControl90Rotated({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_PITCH,
+				gyroMode: GYRO_MODE.VR /* this makes RotationPanInput as a rotation Mode */
+			});
+
+			inst.enable();
+
+			const prevYaw = inst.getYaw();
+			const prevPitch = inst.getPitch();
+
+			// When
+			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+				// Then
+				expect(inst.getYaw()).to.be.equal(prevYaw);
+				expect(inst.getPitch()).to.be.not.equal(prevPitch);
+				done();
+			});
+		});
+		it("should not change pitch when direction = TOUCH_DIRECTION_PITCH && moved vertically", done => {
+			// Given
+			inst = new MockYawPitchControl90Rotated({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_PITCH,
+				gyroMode: GYRO_MODE.VR /* this makes RotationPanInput as a rotation Mode */
+			});
+
+			inst.enable();
+
+			const prevYaw = inst.getYaw();
+			const prevPitch = inst.getPitch();
+
+			// When
+			Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+				// Then
+				expect(inst.getYaw()).to.be.equal(prevYaw);
+				expect(inst.getPitch()).to.be.equal(prevPitch);
+				done();
+			});
+		});
+	});
+
+	describe("Touch Direction Test Others....", () => {
+		let target;
+		/**
+		 * Due to the next issue, we move horizontally and vertically, respectively.
+		 * And it's not bug, it's policy.
+		 * https://github.com/naver/egjs-axes/issues/99
+		 */
+		const MOVE_HORIZONTALLY = {
+			pos: [0, 0],
+			deltaX: 100,
+			deltaY: 0,
+			duration: 200,
+			easing: "linear"
+		};
+
+		const MOVE_VERTICALLY = {
+			pos: [0, 0],
+			deltaX: 0,
+			deltaY: 100,
+			duration: 200,
+			easing: "linear"
+		};
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+		});
+
+		afterEach(() => {
+			this.inst && this.inst.destroy();
+			target && target.remove();
+			target = null;
+		});
+
+		it("should enable touch after changed from TOUCH_DIRECTION_ALL to TOUCH_DIRECTION_YAW", done => {
+			// Given
+			this.inst = new YawPitchControl({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_NONE
+			});
+
+			this.inst.enable();
+
+			const prevYaw = this.inst.getYaw();
+			const prevPitch = this.inst.getPitch();
+
+			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+					expect(this.inst.getYaw()).to.be.equal(prevYaw);
+					expect(this.inst.getPitch()).to.be.equal(prevPitch);
+
+					// When
+					this.inst.option("touchDirection", TOUCH_DIRECTION_ALL);
+
+					Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+						Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+
+							// Then
+							expect(this.inst.getYaw()).to.be.not.equal(prevYaw);
+							expect(this.inst.getPitch()).to.be.not.equal(prevPitch);
+							done();
+						})
+					});
+				});
+			});
+		});
+
+		it("should follow touchDirection by option", done => {
+			// Given
+			this.inst = new YawPitchControl({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_NONE
+			});
+
+			this.inst.enable();
+
+			const prevYaw = this.inst.getYaw();
+			const prevPitch = this.inst.getPitch();
+
+			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+					expect(this.inst.getYaw()).to.be.equal(prevYaw);
+					expect(this.inst.getPitch()).to.be.equal(prevPitch);
+
+					// When
+					this.inst.option("touchDirection", TOUCH_DIRECTION_ALL);
+
+					Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+						Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+
+							// Then
+							const prevYaw2 = this.inst.getYaw();
+							const prevPitch2 = this.inst.getPitch();
+							expect(prevYaw2).to.be.not.equal(prevYaw);
+							expect(prevPitch2).to.be.not.equal(prevPitch);
+
+							this.inst.option("touchDirection", TOUCH_DIRECTION_NONE);
+
+							Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+								Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+
+									expect(this.inst.getYaw()).to.be.equal(prevYaw2);
+									expect(this.inst.getPitch()).to.be.equal(prevPitch2);
+									done();
+								});
+							});
+						})
+					});
+				});
+			});
+		});
+	});
+
+	/**
+	 * TODO: It would be better to Simulator Pan test as a template format. because It's too long to read.
+	 */
+
+	// describe.skip("Touch Direction Test & useRotation", () => {
+	// 	let target;
+	// 	let inst = null;
+
+	// 	const MOVE_ANGLE_X = {
+	// 		pos: [100, 100],
+	// 		deltaX: 100,
+	// 		deltaY: 0,
+	// 		duration: 200,
+	// 		easing: "linear"
+	// 	};
+
+	// 	class MockRotationPanInput extends RotationPanInput {
+	// 		constructor(el, options) {
+	// 			super(el, options);
+
+	// 			this._screenRotationAngle = {
+	// 				getRadian: function() {
+	// 					return glMatrix.toRadian(90); /* 90 degree */
+	// 				},
+	// 				unref: function() {
+	// 					/* Do nothing */
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// 	const MockYawPitchControl90Rotated = YawPitchControlrInjector({
+	// 		"./input/RotationPanInput": MockRotationPanInput
+	// 	}).default;
+
+
+	// 	beforeEach(() => {
+	// 		target = sandbox();
+	// 		target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+	// 	});
+
+	// 	afterEach(() => {
+	// 		inst && inst.destroy();
+	// 		inst = null;
+	// 		target && target.remove();
+	// 		target = null;
+	// 	});
+
+	// 	function getMoveAngle(angle) {
+	// 		const x = MOVE_ANGLE_X.deltaX;
+	// 		return Object.assign({}, MOVE_ANGLE_X, {
+	// 			deltaY: -x * Math.tan(glMatrix.toRadian(angle)),
+	// 		});
+	// 	}
+
+	// 	/* This angle is based on not changed screen orientation */
+	// 	it("should not change yaw when direction = TOUCH_DIRECTION_YAW & moved 0 angle", done => {
+	// 		// Given
+	// 		inst = new MockYawPitchControl90Rotated({
+	// 			element: target,
+	// 			touchDirection: TOUCH_DIRECTION_YAW,
+	// 			gyroMode: GYRO_MODE.VR /* this makes RotationPanInput as a rotation Mode */
+	// 		});
+
+	// 		inst.enable();
+
+	// 		const prevYaw = inst.getYaw();
+	// 		const prevPitch = inst.getPitch();
+
+	// 		// When
+	// 		const MOVE_ANGLE_0 = getMoveAngle(0);
+	// 		Simulator.gestures.pan(target, MOVE_ANGLE_0, () => {
+	// 			// Then
+	// 			// console.log(inst.getYaw(), inst.getPitch())
+	// 			expect(inst.getYaw()).to.be.equal(prevYaw);
+	// 			expect(inst.getPitch()).to.be.equal(prevPitch);
+	// 			done();
+	// 		});
+	// 	});
+
+	// 	it("should not change yaw when direction = TOUCH_DIRECTION_YAW & moved 40 degree", done => {
+	// 		// Given
+	// 		inst = new MockYawPitchControl90Rotated({
+	// 			element: target,
+	// 			touchDirection: TOUCH_DIRECTION_YAW,
+	// 			gyroMode: GYRO_MODE.VR /* this makes RotationPanInput as a rotation Mode */
+	// 		});
+
+	// 		inst.enable();
+
+	// 		const prevYaw = inst.getYaw();
+	// 		const prevPitch = inst.getPitch();
+
+	// 		// When
+	// 		const MOVE_ANGLE_40 = getMoveAngle(40);
+	// 		Simulator.gestures.pan(target, MOVE_ANGLE_40, () => {
+	// 			// Then
+	// 			// console.log(inst.getYaw(), inst.getPitch())
+	// 			expect(inst.getYaw()).to.be.equal(prevYaw);
+	// 			expect(inst.getPitch()).to.be.equal(prevPitch);
+	// 			done();
+	// 		});
+	// 	});
+
+	// 	it.only("should change yaw when direction = TOUCH_DIRECTION_YAW & moved 60 angle", done => {
+	// 		// Given
+	// 		inst = new MockYawPitchControl90Rotated({
+	// 			element: target,
+	// 			touchDirection: TOUCH_DIRECTION_YAW,
+	// 			gyroMode: GYRO_MODE.VR /* this makes RotationPanInput as a rotation Mode */
+	// 		});
+
+	// 		inst.enable();
+
+	// 		const prevYaw = inst.getYaw();
+	// 		const prevPitch = inst.getPitch();
+
+	// 		// When
+	// 		const MOVE_ANGLE_60 = getMoveAngle(60);
+	// 		Simulator.gestures.pan(target, MOVE_ANGLE_60, () => {
+	// 			// Then
+	// 			// console.log(inst.getYaw(), inst.getPitch())
+	// 			expect(inst.getYaw()).to.be.not.equal(prevYaw);
+	// 			expect(inst.getPitch()).to.be.equal(prevPitch);
+	// 			done();
+	// 		});
+	// 	});
+
+	// 	it.only("should change yaw when direction = TOUCH_DIRECTION_YAW & moved 150 angle", done => {
+	// 		// Given
+	// 		inst = new MockYawPitchControl90Rotated({
+	// 			element: target,
+	// 			touchDirection: TOUCH_DIRECTION_YAW,
+	// 			gyroMode: GYRO_MODE.VR /* this makes RotationPanInput as a rotation Mode */
+	// 		});
+
+	// 		inst.enable();
+
+	// 		const prevYaw = inst.getYaw();
+	// 		const prevPitch = inst.getPitch();
+
+	// 		// When
+	// 		const MOVE_ANGLE_150 = getMoveAngle(150);
+	// 		Simulator.gestures.pan(target, MOVE_ANGLE_150, () => {
+	// 			// Then
+	// 			// console.log(inst.getYaw(), inst.getPitch())
+	// 			expect(inst.getYaw()).to.be.not.equal(prevYaw);
+	// 			expect(inst.getPitch()).to.be.equal(prevPitch);
+	// 			done();
+	// 		});
+	// 	});
+	// });
 });

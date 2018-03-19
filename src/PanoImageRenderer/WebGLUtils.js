@@ -1,5 +1,4 @@
 import agent from "@egjs/agent";
-import {userAgent} from "./browser";
 
 const WEBGL_ERROR_CODE = {
 	"0": "NO_ERROR",
@@ -73,12 +72,13 @@ export default class WebGLUtils {
 		gl.vertexAttribPointer(attr, buffer.itemSize, gl.FLOAT, false, 0, 0);
 	}
 
-	static getWebglContext(canvas) {
+	static getWebglContext(canvas, userContextAttributes) {
 		const webglIdentifiers = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
 		let context = null;
-		const shouldPreserveDrawingBuffer =
-			!(userAgent.indexOf("NAVER") !== -1 && userAgent.indexOf("SM-G925S") !== -1);
-
+		const contextAttributes = Object.assign({
+			preserveDrawingBuffer: false,
+			antialias: false
+		}, userContextAttributes);
 
 		function onWebglcontextcreationerror(e) {
 			return e.statusMessage;
@@ -88,11 +88,7 @@ export default class WebGLUtils {
 
 		for (let i = 0; i < webglIdentifiers.length; i++) {
 			try {
-				// preserveDrawingBuffer: if true, the Galaxy s6 Naver app will experience tremor
-				context = canvas.getContext(webglIdentifiers[i], {
-					preserveDrawingBuffer: shouldPreserveDrawingBuffer,
-					antialias: false /* TODO: Make it user option for antialiasing */
-				});
+				context = canvas.getContext(webglIdentifiers[i], contextAttributes);
 			} catch (t) {}
 			if (context) {
 				break;

@@ -1,8 +1,12 @@
 import Component from "@egjs/component";
+import {
+	DeviceMotionEvent
+} from "./browser";
 
 import {YawPitchControl} from "../YawPitchControl";
-import {PanoImageRenderer, WebGLUtils} from "../PanoImageRenderer";
-import {ERROR_TYPE, EVENTS, GYRO_MODE} from "./consts";
+import {PanoImageRenderer} from "../PanoImageRenderer";
+import WebGLUtils from "../PanoImageRenderer/WebGLUtils";
+import {ERROR_TYPE, EVENTS, GYRO_MODE, PROJECTION_TYPE} from "./consts";
 import {glMatrix} from "../utils/math-util.js";
 
 export default class PanoViewer extends Component {
@@ -29,10 +33,11 @@ export default class PanoViewer extends Component {
 	 * @param {Boolean} [config.showPolePoint=false] If false, the pole is not displayed inside the viewport <ko>false 인 경우, 극점은 뷰포트 내부에 표시되지 않습니다</ko>
 	 * @param {Boolean} [config.useZoom=true] When true, enables zoom with the wheel and Pinch gesture <ko>true 일 때 휠 및 집기 제스춰로 확대 / 축소 할 수 있습니다.</ko>
 	 * @param {Boolean} [config.useKeyboard=true] When true, enables the keyboard move key control: awsd, arrow keys <ko>true 이면 키보드 이동 키 컨트롤을 활성화합니다: awsd, 화살표 키</ko>
-	 * @param {String} [config.useGyro=yawPitch] Enables control through device motion. ("none", "yawPitch") <ko>디바이스 움직임을 통한 컨트롤을 활성화 합니다. ("none", "yawPitch") </ko>
+	 * @param {String} [config.gyroMode=yawPitch] Enables control through device motion. ("none", "yawPitch") <ko>디바이스 움직임을 통한 컨트롤을 활성화 합니다. ("none", "yawPitch") </ko>
 	 * @param {Array} [config.yawRange=[-180, 180]] Range of controllable Yaw values <ko>제어 가능한 Yaw 값의 범위</ko>
 	 * @param {Array} [config.pitchRange=[-90, 90]] Range of controllable Pitch values <ko>제어 가능한 Pitch 값의 범위</ko>
 	 * @param {Array} [config.fovRange=[30, 110]] Range of controllable vertical field of view values <ko>제어 가능한 수직 field of view 값의 범위</ko>
+	 * @param {Number} [config.touchDirection= PanoViewer.TOUCH_DIRECTION.ALL(6)] Direction of touch that can be controlled by user {@link eg.PanoViewer.TOUCH_DIRECTION}<ko>사용자가 터치로 조작 가능한 방향 {@link eg.PanoViewer.TOUCH_DIRECTION}</ko>
 	 */
 	constructor(container, options = {}) {
 		super();
@@ -72,7 +77,7 @@ export default class PanoViewer extends Component {
 		this._container = container;
 		this._image = options.image || options.video;
 		this._isVideo = !!options.video;
-		this._projectionType = options.projectionType || PanoImageRenderer.ImageType.EQUIRECTANGULAR;
+		this._projectionType = options.projectionType || PROJECTION_TYPE.EQUIRECTANGULAR;
 		this._cubemapConfig = Object.assign({
 			order: "RLUDBF",
 			tileConfig: {
@@ -89,19 +94,22 @@ export default class PanoViewer extends Component {
 		this._pitch = options.pitch || 0;
 		this._fov = options.fov || 65;
 
-		this._useGyro = options.useGyro || GYRO_MODE.YAWPITCH;
+		this._gyroMode = options.gyroMode || GYRO_MODE.YAWPITCH;
+		this._quaternion = null;
 
 		this._aspectRatio = this._width / this._height;
 		const fovRange = options.fovRange || [30, 110];
-
+		const touchDirection = PanoViewer._isValidTouchDirection(options.touchDirection) ?
+			options.touchDirection : YawPitchControl.TOUCH_DIRECTION_ALL;
 		const yawPitchConfig = Object.assign(options, {
 			element: container,
 			yaw: this._yaw,
 			pitch: this._pitch,
 			fov: this._fov,
-			useGyro: this._useGyro,
+			gyroMode: this._gyroMode,
 			fovRange,
 			aspectRatio: this._aspectRatio,
+			touchDirection
 		});
 
 		this._isReady = false;
@@ -199,7 +207,7 @@ export default class PanoViewer extends Component {
 
 		this._image = image;
 		this._isVideo = isVideo;
-		this._projectionType = param.projectionType || PanoImageRenderer.ImageType.EQUIRECTANGULAR;
+		this._projectionType = param.projectionType || PROJECTION_TYPE.EQUIRECTANGULAR;
 		this._cubemapConfig = cubemapConfig;
 
 		this._deactivate();
@@ -208,6 +216,13 @@ export default class PanoViewer extends Component {
 		return this;
 	}
 
+	/**
+	 * Can set whether the renderer always updates the texture and renders.
+	 * @ko 렌더러가 항상 텍스쳐를 갱신하고 화면을 렌더링 할지 여부를 설정할 수 있다.
+	 *
+	 * @method eg.view360.PanoViewer#keepUpdate
+	 * @param {Boolean} doUpdate When true, viewer will always update texture and render, when false viewer will not update texture and render only camera config is changed.<ko>True면, 항상 텍스쳐를 갱신하고 화면을 그린다. False 면 텍스쳐 갱신은 하지 않으며, 카메라 요소에 변화가 있을 때에만 화면을 그린다.</ko>
+	 */
 	keepUpdate(doUpdate) {
 		this._photoSphereRenderer.keepUpdate(doUpdate);
 		return this;
@@ -242,8 +257,7 @@ export default class PanoViewer extends Component {
 
 		this._photoSphereRenderer
 			.bindTexture()
-			.then(() => this._activate())
-			.catch(() => {
+			.then(() => this._activate(), () => {
 				this._triggerEvent(EVENTS.ERROR, {
 					type: ERROR_TYPE.FAIL_BIND_TEXTURE,
 					message: "failed to bind texture"
@@ -252,10 +266,6 @@ export default class PanoViewer extends Component {
 	}
 
 	_bindRendererHandler() {
-		this._photoSphereRenderer.on(PanoImageRenderer.EVENTS.IMAGE_LOADED, e => {
-			this.trigger(EVENTS.CONTENT_LOADED, e);
-		});
-
 		this._photoSphereRenderer.on(PanoImageRenderer.EVENTS.ERROR, e => {
 			this.trigger(EVENTS.ERROR, e);
 		});
@@ -280,6 +290,7 @@ export default class PanoViewer extends Component {
 			this._yaw = e.yaw;
 			this._pitch = e.pitch;
 			this._fov = e.fov;
+			this._quaternion = e.quaternion;
 
 			this._triggerEvent(EVENTS.VIEW_CHANGE, e);
 		});
@@ -363,18 +374,6 @@ export default class PanoViewer extends Component {
 		 *		// animation is ended.
 		 * });
 		 */
-
-		/**
-			* Events that is fired when content(Video/Image) is loaded
-			* @ko 컨텐츠(비디오 혹은 이미지)가 로드되었을때 발생되는 이벤트
-			*
-			* @name eg.view360.PanoViewer#contentLoaded
-			* @event
-			* @param {Object} event
-			* @param {HTMLVideoElement|Image} event.content
-			* @param {Boolean} event.isVideo
-			* @param {String} event.projectionType
-			*/
 		return this.trigger(name, evt);
 	}
 
@@ -405,11 +404,11 @@ export default class PanoViewer extends Component {
 	/**
 	 * Enables control through device motion. ("none", "yawPitch")
 	 * @ko 디바이스 움직임을 통한 컨트롤을 활성화 합니다. ("none", "yawPitch")
-	 * @method eg.view360.PanoViewer#setUseGyro
-	 * @param {String} useGyro
+	 * @method eg.view360.PanoViewer#setGyroMode
+	 * @param {String} gyroMode
 	 */
-	setUseGyro(useGyro) {
-		this._yawPitchControl.option("useGyro", useGyro);
+	setGyroMode(gyroMode) {
+		this._yawPitchControl.option("gyroMode", gyroMode);
 	}
 
 	/**
@@ -596,7 +595,11 @@ export default class PanoViewer extends Component {
 
 	_renderLoop() {
 		if (this._photoSphereRenderer) {
-			this._photoSphereRenderer.render(this._yaw, this._pitch, this._fov);
+			if (this._quaternion) {
+				this._photoSphereRenderer.renderWithQuaternion(this._quaternion, this._fov);
+			} else {
+				this._photoSphereRenderer.render(this._yaw, this._pitch, this._fov);
+			}
 		}
 		this._rafId = window.requestAnimationFrame(this._renderLoop);
 	}
@@ -624,6 +627,48 @@ export default class PanoViewer extends Component {
 		}
 	}
 
+	static _isValidTouchDirection(direction) {
+		return direction === PanoViewer.TOUCH_DIRECTION.NONE ||
+			direction === PanoViewer.TOUCH_DIRECTION.YAW ||
+			direction === PanoViewer.TOUCH_DIRECTION.PITCH ||
+			direction === PanoViewer.TOUCH_DIRECTION.ALL;
+	}
+
+	/**
+	 * Set touch direction by which user can control.
+	 * @ko 사용자가 조작가능한 터치 방향을 지정한다.
+	 * @method eg.view360.PanoViewer#setTouchDirection
+	 * @param {Number} direction of the touch. {@link eg.PanoViewer.TOUCH_DIRECTION}<ko>컨트롤 가능한 방향 {@link eg.PanoViewer.TOUCH_DIRECTION}</ko>
+	 * @return {eg.PanoViewer} PanoViewer instance
+	 * @example
+	 *
+	 * panoViewer = new PanoViewer(el);
+	 * // Limit the touch direction to the yaw direction only.
+	 * panoViewer.setTouchDirection(PanoViewer.TOUCH_DIRECTION.YAW);
+	 */
+	setTouchDirection(direction) {
+		if (PanoViewer._isValidTouchDirection(direction)) {
+			this._yawPitchControl.option("touchDirection", direction);
+		}
+
+		return this;
+	}
+
+	/**
+	 * Returns touch direction by which user can control
+	 * @ko 사용자가 조작가능한 터치 방향을 반환한다.
+	 * @method eg.view360.PanoViewer#getTouchDirection
+	 * @return {Number} direction of the touch. {@link eg.PanoViewer.TOUCH_DIRECTION}<ko>컨트롤 가능한 방향 {@link eg.PanoViewer.TOUCH_DIRECTION}</ko>
+	 * @example
+	 *
+	 * panoViewer = new PanoViewer(el);
+	 * // Returns the current touch direction.
+	 * var dir = panoViewer.getTouchDirection();
+	 */
+	getTouchDirection() {
+		return this._yawPitchControl.option("touchDirection");
+	}
+
 	/**
 	 * Destroy viewer. Remove all registered event listeners and remove viewer canvas.
 	 * @ko 뷰어 인스턴스를 해제합니다. 모든 등록된 이벤트리스너를 제거하고 뷰어 캔버스를 삭제한다.
@@ -636,13 +681,6 @@ export default class PanoViewer extends Component {
 			this._yawPitchControl.destroy();
 			this._yawPitchControl = null;
 		}
-
-		if (this._photoSphereRenderer) {
-			this._photoSphereRenderer.destroy();
-			this._photoSphereRenderer = null;
-		}
-
-		this._isReady = false;
 	}
 
 	static isWebGLAvailable() {
@@ -658,7 +696,7 @@ export default class PanoViewer extends Component {
 	 * @static
 	 */
 	static isGyroSensorAvailable(callback) {
-		if (("DeviceMotionEvent" in window) === false || !window.DeviceMotionEvent) {
+		if (!DeviceMotionEvent) {
 			callback && callback(false);
 			return;
 		}
@@ -698,4 +736,53 @@ export default class PanoViewer extends Component {
 
 PanoViewer.ERROR_TYPE = ERROR_TYPE;
 PanoViewer.EVENTS = EVENTS;
-PanoViewer.ProjectionType = PanoImageRenderer.ImageType;
+PanoViewer.ProjectionType = PROJECTION_TYPE;
+/**
+ * Constant value for touch directions
+ * @ko 터치 방향에 대한 상수 값.
+ * @namespace
+ * @name TOUCH_DIRECTION
+ * @memberof eg.PanoViewer
+ */
+PanoViewer.TOUCH_DIRECTION = {
+	/**
+	 * Constant value for none direction.
+	 * @ko none 방향에 대한 상수 값.
+	 * @name NONE
+	 * @memberof eg.PanoViewer.TOUCH_DIRECTION
+	 * @constant
+	 * @type {Number}
+	 * @default 1
+	 */
+	NONE: YawPitchControl.TOUCH_DIRECTION_NONE,
+	/**
+	 * Constant value for horizontal(yaw) direction.
+	 * @ko horizontal(yaw) 방향에 대한 상수 값.
+	 * @name YAW
+	 * @memberof eg.PanoViewer.TOUCH_DIRECTION
+	 * @constant
+	 * @type {Number}
+	 * @default 6
+	 */
+	YAW: YawPitchControl.TOUCH_DIRECTION_YAW,
+	/**
+	 * Constant value for vertical direction.
+	 * @ko vertical(pitch) 방향에 대한 상수 값.
+	 * @name PITCH
+	 * @memberof eg.PanoViewer.TOUCH_DIRECTION
+	 * @constant
+	 * @type {Number}
+	 * @default 24
+	 */
+	PITCH: YawPitchControl.TOUCH_DIRECTION_PITCH,
+	/**
+	 * Constant value for all direction.
+	 * @ko all 방향에 대한 상수 값.
+	 * @name ALL
+	 * @memberof eg.PanoViewer.TOUCH_DIRECTION
+	 * @constant
+	 * @type {Number}
+	 * @default 30
+	 */
+	ALL: YawPitchControl.TOUCH_DIRECTION_ALL
+};

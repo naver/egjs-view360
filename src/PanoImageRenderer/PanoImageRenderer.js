@@ -4,13 +4,11 @@ import VideoLoader from "./VideoLoader";
 import WebGLUtils from "./WebGLUtils";
 import CubeRenderer from "./renderer/CubeRenderer";
 import SphereRenderer from "./renderer/SphereRenderer";
-import {glMatrix, mat4} from "../utils/math-util.js";
+import {glMatrix, mat4, quat} from "../utils/math-util.js";
 import {devicePixelRatio} from "./browser";
+import {PROJECTION_TYPE} from "../PanoViewer/consts";
 
-const ImageType = {
-	EQUIRECTANGULAR: "equirectangular",
-	CUBEMAP: "cubemap"
-};
+const ImageType = PROJECTION_TYPE;
 
 let DEVICE_PIXEL_RATIO = devicePixelRatio || 1;
 
@@ -40,7 +38,7 @@ const ERROR_TYPE = {
 };
 
 export default class PanoImageRenderer extends Component {
-	constructor(image, width, height, isVideo, sphericalConfig) {
+	constructor(image, width, height, isVideo, sphericalConfig, renderingContextAttributes) {
 		// Super constructor
 		super();
 
@@ -65,7 +63,7 @@ export default class PanoImageRenderer extends Component {
 		this.vertexBuffer = null;
 		this.indexBuffer = null;
 		this.canvas = this._initCanvas(width, height);
-
+		this._renderingContextAttributes = renderingContextAttributes;
 		this._image = null;
 		this._imageConfig = null;
 		this._imageIsReady = false;
@@ -174,15 +172,17 @@ export default class PanoImageRenderer extends Component {
 		return false;
 	}
 
-	_onContentLoad(image) {
-		this._imageIsReady = true;
-
-		// 이벤트 발생. 여기에 핸들러로 render 하는 걸 넣어준다.
+	_triggerContentLoad() {
 		this.trigger(EVENTS.IMAGE_LOADED, {
 			content: this._image,
 			isVideo: this._isVideo,
 			projectionType: this._imageType
 		});
+	}
+	_onContentLoad(image) {
+		this._imageIsReady = true;
+
+		this._triggerContentLoad();
 		return true;
 	}
 
@@ -350,7 +350,7 @@ export default class PanoImageRenderer extends Component {
 			throw new Error("WebGLRenderingContext not available.");
 		}
 
-		this.context = WebGLUtils.getWebglContext(this.canvas);
+		this.context = WebGLUtils.getWebglContext(this.canvas, this._renderingContextAttributes);
 
 		if (!this.context) {
 			throw new Error("Failed to acquire 3D rendering context");
@@ -442,6 +442,42 @@ export default class PanoImageRenderer extends Component {
 		this._keepUpdate = doUpdate;
 	}
 
+	renderWithQuaternion(quaternion, fieldOfView) {
+		if (!this.isImageLoaded()) {
+			return;
+		}
+
+		if (this._keepUpdate === false &&
+			this._lastQuaternion && quat.exactEquals(this._lastQuaternion, quaternion) &&
+			this.fieldOfView && this.fieldOfView === fieldOfView &&
+			this._shouldForceDraw === false) {
+			return;
+		}
+
+		// updatefieldOfView only if fieldOfView is changed.
+		if (fieldOfView !== undefined && fieldOfView !== this.fieldOfView) {
+			this.updateFieldOfView(fieldOfView);
+		}
+
+		let outQ;
+
+		if (!this._isCubeMap) {
+			// TODO: Remove this yaw revision by correcting shader
+			outQ = quat.rotateY(quat.create(), quaternion, glMatrix.toRadian(90));
+		} else {
+			outQ = quaternion;
+		}
+
+		this.mvMatrix = mat4.fromQuat(mat4.create(), outQ);
+
+		this._draw();
+
+		this._lastQuaternion = quat.clone(quaternion);
+		if (this._shouldForceDraw) {
+			this._shouldForceDraw = false;
+		}
+	}
+
 	render(yaw, pitch, fieldOfView) {
 		if (!this.isImageLoaded()) {
 			return;
@@ -463,7 +499,7 @@ export default class PanoImageRenderer extends Component {
 		mat4.identity(this.mvMatrix);
 		mat4.rotateX(this.mvMatrix, this.mvMatrix, -glMatrix.toRadian(pitch));
 		mat4.rotateY(this.mvMatrix, this.mvMatrix,
-		-glMatrix.toRadian(yaw - (this._isCubeMap ? 0 : 90)));
+			-glMatrix.toRadian(yaw - (this._isCubeMap ? 0 : 90)));
 
 		this._draw();
 
@@ -480,7 +516,7 @@ export default class PanoImageRenderer extends Component {
 		gl.uniformMatrix4fv(this.shaderProgram.pMatrixUniform, false, this.pMatrix);
 		gl.uniformMatrix4fv(this.shaderProgram.mvMatrixUniform, false, this.mvMatrix);
 
-		if (this._isVideo) {
+		if (this._isVideo && this._keepUpdate) {
 			this._updateTexture();
 		}
 
@@ -493,4 +529,3 @@ export default class PanoImageRenderer extends Component {
 
 PanoImageRenderer.EVENTS = EVENTS;
 PanoImageRenderer.ERROR_TYPE = ERROR_TYPE;
-PanoImageRenderer.ImageType = ImageType;

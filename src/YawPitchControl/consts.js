@@ -25,6 +25,7 @@ const DELTA_THRESHOLD = 0.0375; // Note2
 
 const YAW_RANGE_HALF = 180;
 const PITCH_RANGE_HALF = 90;
+const CIRCULAR_PITCH_RANGE_HALF = 180;
 const PINCH_EVENTS = "pinchstart pinchmove pinchend";
 
 const KEYMAP = {
@@ -40,7 +41,8 @@ const KEYMAP = {
 
 const GYRO_MODE = {
 	NONE: "none",
-	YAWPITCH: "yawPitch"
+	YAWPITCH: "yawPitch",
+	VR: "VR"
 };
 
 export {
@@ -63,6 +65,7 @@ export {
 	DELTA_THRESHOLD,
 	YAW_RANGE_HALF,
 	PITCH_RANGE_HALF,
+	CIRCULAR_PITCH_RANGE_HALF,
 	PINCH_EVENTS,
 	KEYMAP
 };
