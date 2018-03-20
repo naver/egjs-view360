@@ -1,12 +1,28 @@
 import SpinViewer from "../../../src/SpinViewer/SpinViewer";
 
 describe("SpinViewer", function() {
+	describe("constructor", () => {
+		it("should accept with no option", () => {
+			// Given
+			var target = sandbox();
+			target.innerHTML = `<div"></div>`;
+
+			// When, no option
+			let inst = new SpinViewer(target);
+
+			// Then
+			expect(inst.getAngle()).to.be.equal(0);
+			cleanup();
+		});
+	});
+
 	describe("event", function() {
 		var target
 		beforeEach(() => {
 			target = sandbox();
 			target.innerHTML = `<div"></div>`;
 		});
+		// load
 		it("should fire load event when image is vaild", (done) => {
 			const COL = 4;
 			const ROW = 3;
@@ -20,6 +36,7 @@ describe("SpinViewer", function() {
 				done();
 			});
 		});
+		// error
 		it("should fire error event when image is not valid", (done) => {
 			const COL = 4;
 			const ROW = 3;
@@ -34,6 +51,7 @@ describe("SpinViewer", function() {
 				done();
 			});
 		});
+		// change
 		it("should fire change event when spin", (done) => {
 			const COL = 4;
 			const ROW = 3;
@@ -44,7 +62,7 @@ describe("SpinViewer", function() {
 			});
 			inst.on({
 				"load": e => {
-					inst.spinBy({angle: 30, duration: 0})
+					inst.spinBy(30, {duration: 0})
 				},
 				"change": e => {
 					assert(e.target !== null && e.bgElement !== null);
@@ -53,7 +71,33 @@ describe("SpinViewer", function() {
 				}
 			});
 		});
+		// change #2
+		it("should not fire change event when angle is not changed", (done) => {
+			const COL = 4;
+			const ROW = 3;
+			let called = false;
+			let inst = new SpinViewer(target, {
+				colCount: COL,
+				rowCount: ROW,
+				imageUrl: "images/SpinViewer/bag360.jpg"
+			});
+			inst.on({
+				"load": e => {
+					inst.spinBy(0, {duration: 0})
+				},
+				"change": e => {
+					called = true;
+				}
+			});
+
+			setTimeout(() => {
+				expect(called).to.be.equal(false);
+				expect(inst.getAngle()).to.be.equal(0);
+				done();
+			}, 30);
+		});
 	});
+
 	describe("#setScale", function() {
 		var target
 		beforeEach(() => {
@@ -99,6 +143,62 @@ describe("SpinViewer", function() {
 			expect(prevScale).to.be.equal(nextScales[1]);
 		});
 	});
+
+	describe("#spinBy", function() {
+		var target
+		let inst;
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div"></div>`;
+
+			const COL = 0;
+			const ROW = 0;
+			inst = new SpinViewer(target, {
+				colCount: COL,
+				rowCount: ROW,
+				imageUrl: "images/SpinViewer/bag360.jpg"
+			});
+		});
+
+		afterEach(() => {
+			inst = null;
+			cleanup();
+		});
+
+		it("should spinBy with duration 0, if no option is specified", done => {
+			// Given
+			// When
+			let sync = true;
+			inst.on("change", then);
+			inst.spinTo(100);
+			sync = false;
+
+			// Then
+			function then() {
+				expect(sync).to.be.equal(true);
+				expect(inst.getAngle()).to.be.equal(100);
+				done();
+			}
+		});
+
+		it("should not change if param is not specified", done => {
+			// Given
+			// When
+			let changeCount = 0;
+			let prevAngle = inst.getAngle();
+			inst.on("change", () => {
+				changeCount = 1;
+			});
+			inst.spinBy();
+
+			// Then
+			setTimeout(() => {
+				expect(changeCount).to.be.equal(0);
+				expect(inst.getAngle()).to.be.equal(prevAngle);
+				done();
+			}, 30);
+		});
+	});
 	describe("#spinTo", function() {
 		var target
 		let inst;
@@ -117,15 +217,16 @@ describe("SpinViewer", function() {
 
 		afterEach(() => {
 			inst = null;
+			cleanup();
 		});
 
 		it("should set to angle user specified in normal range.(0 ~ 360)", done => {
 			// Given
 			let i = 0;
 			/* 0 ~ 359 */
-			const NORMAL_ANGLES = [0, 1, 30, 60, 120, 150, 180, 359, 0];
+			const NORMAL_ANGLES = [1, 30, 60, 120, 150, 180, 359, 0];
 
-			inst.on("spinEnd", evt => {
+			inst.on("change", evt => {
 				const currAngle = inst.getAngle();
 				// Then
 				expect(currAngle).be.equal(NORMAL_ANGLES[i]);
@@ -149,10 +250,13 @@ describe("SpinViewer", function() {
 			const EXPECTED_ANGLES = [358, 349, 259, 358, 178, 357, 1, 11, 2];
 
 			// When
+			inst.on("change", then);
 			inst.spinTo(NORMAL_ANGLES[i]);
-			inst.on("spinEnd", evt => {
+
+			// Then
+			function then(evt) {
 				const currAngle = inst.getAngle();
-				// Then
+
 				expect(currAngle).be.equal(EXPECTED_ANGLES[i]);
 
 				if (++i < NORMAL_ANGLES.length) {
@@ -160,21 +264,21 @@ describe("SpinViewer", function() {
 				} else {
 					done();
 				}
-			})
+			}
 		});
 
 		it("should set 0 if angle is not specified", done => {
 			// Given
-			inst.on("spinEnd", evt => {
-				const currAngle = inst.getAngle();
-
-				// Then
-				expect(currAngle).be.equal(0);
-				done();
-			});
-
 			// When
 			inst.spinTo();
+
+			// Then
+			setTimeout(() => {
+				const currAngle = inst.getAngle();
+
+				expect(currAngle).be.equal(0);
+				done();
+			}, 100);
 		});
 
 		it("should apply duration", done => {
@@ -182,7 +286,7 @@ describe("SpinViewer", function() {
 			let before;
 			let after;
 
-			inst.on("spinEnd", evt => {
+			inst.on("animationEnd", evt => {
 				after = new Date().getTime();
 				const currAngle = inst.getAngle();
 				const diff = after - before;
@@ -198,21 +302,21 @@ describe("SpinViewer", function() {
 			inst.spinTo(10, {duration: 100});
 		});
 
-		it("should follow last spinTo if spin is requested again before spinEnd", done => {
+		it("should follow last spinTo if spin is requested again before animationEnd", done => {
 			// Given
-			let spinEndCount = 0;
-			inst.on("spinEnd", function() {
-				spinEndCount++;
+			let animationEndCount = 0;
+			inst.on("animationEnd", function() {
+				animationEndCount++;
 			});
 			inst.spinTo(100, {duration: 100});
 
 			// When
 			// call spinTo before above spin is not end
-			inst.spinTo(200, {duration: 0});
+			inst.spinTo(200);
 
 			setTimeout(() => {
 				expect(inst.getAngle() === 200);
-				expect(spinEndCount === 1);
+				expect(animationEndCount === 1);
 				done();
 			}, 400);
 		});
