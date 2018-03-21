@@ -2,7 +2,7 @@ import DeviceMotionInjector from "inject-loader!../../../src/YawPitchControl/inp
 
 import {window} from "../../../src/YawPitchControl/browser";
 import DeviceMotion from "../../../src/YawPitchControl/input/DeviceMotion";
-import TestHeler from "./testHelper";
+import TestHelper from "./testHelper";
 
 describe("DeviceMotion", function() {
 	describe("#constructor", function() {
@@ -37,7 +37,7 @@ describe("DeviceMotion", function() {
 			it("should trigger devicemotion event", (done) => {
 				// Given
 				// When
-				TestHeler.devicemotion(window, {
+				TestHelper.devicemotion(window, {
 					acceleration: {x: 0, y: 0, z: 0},
 					accelerationIncludingGravity: {x: 0, y: 0, z: 0},
 					rotationRate: {alpha: 0, beta: 0, gamma: 0},
@@ -52,7 +52,7 @@ describe("DeviceMotion", function() {
 			it("should trigger devicemotion event", (done) => {
 				// Given
 				// When
-				TestHeler.devicemotion(window, {
+				TestHelper.devicemotion(window, {
 					acceleration: {x: 0, y: 0, z: 0},
 					accelerationIncludingGravity: {x: 0, y: 0, z: 0},
 					rotationRate: {alpha: 0, beta: 0, gamma: 0},
@@ -67,7 +67,7 @@ describe("DeviceMotion", function() {
 			it("should not trigger devicemotion event with empty sensor values.", (done) => {
 				// Given
 				// When
-				TestHeler.devicemotion(window, {
+				TestHelper.devicemotion(window, {
 					acceleration: {x: null, y: null, z: null},
 					accelerationIncludingGravity: {x: null, y: null, z: null},
 					rotationRate: {alpha: null, beta: null, gamma: null},
@@ -83,7 +83,7 @@ describe("DeviceMotion", function() {
 				// Given
 				// When
 				inst.disable();
-				TestHeler.devicemotion(window, {
+				TestHelper.devicemotion(window, {
 					acceleration: {x: 0, y: 0, z: 0},
 					accelerationIncludingGravity: {x: 0, y: 0, z: 0},
 					rotationRate: {alpha: 0, beta: 0, gamma: 0},
@@ -103,9 +103,13 @@ describe("DeviceMotion", function() {
 				{
 					"@egjs/agent": function() {
 						return {
-						os: {
-							name: "android"
-						}
+							os: {
+								name: "android"
+							},
+							browser: {
+								name: "chrome",
+								version: "65.0.3325.162"
+							}
 						};
 					}
 				}
@@ -118,7 +122,7 @@ describe("DeviceMotion", function() {
 			inst.enable();
 
 			// When
-			TestHeler.devicemotion(window, {
+			TestHelper.devicemotion(window, {
 				acceleration: {x: 0, y: 0, z: 0},
 				accelerationIncludingGravity: {x: 0, y: 0, z: 0},
 				rotationRate: {alpha: 0, beta: 0, gamma: 0},
@@ -138,9 +142,13 @@ describe("DeviceMotion", function() {
 				{
 					"@egjs/agent": function() {
 						return {
-						os: {
-							name: "android"
-						}
+							os: {
+								name: "android"
+							},
+							browser: {
+								name: "chrome",
+								version: "65.0.3325.162"
+							}
 						};
 					}
 				}
@@ -154,7 +162,7 @@ describe("DeviceMotion", function() {
 			inst.disable();
 
 			// When
-			TestHeler.devicemotion(window, {
+			TestHelper.devicemotion(window, {
 				acceleration: {x: 0, y: 0, z: 0},
 				accelerationIncludingGravity: {x: 0, y: 0, z: 0},
 				rotationRate: {alpha: 0, beta: 0, gamma: 0},
@@ -175,7 +183,7 @@ describe("DeviceMotion", function() {
 			});
 
 			// When
-			TestHeler.devicemotion(window, {
+			TestHelper.devicemotion(window, {
 				acceleration: {x: 0, y: 0, z: 0},
 				accelerationIncludingGravity: {x: 0, y: 0, z: 0},
 				rotationRate: {alpha: 0, beta: 0, gamma: 0},
@@ -200,7 +208,7 @@ describe("DeviceMotion", function() {
 			// When
 			inst.enable();
 			inst.enable();
-			TestHeler.devicemotion(window, {
+			TestHelper.devicemotion(window, {
 				acceleration: {x: 0, y: 0, z: 0},
 				accelerationIncludingGravity: {x: 0, y: 0, z: 0},
 				rotationRate: {alpha: 0, beta: 0, gamma: 0},

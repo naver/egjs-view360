@@ -72,8 +72,9 @@ export default class TestHelper {
 		target.addEventListener("keyup", callbackOnce);
 		target.dispatchEvent(keyboardEvent);
 	}
+
 	static devicemotion(target, value, callback) {
-		return new Promise((resolve) => {
+		return new Promise(resolve => {
 			const params = value;
 			let deviceMotionEvent;
 
@@ -93,6 +94,30 @@ export default class TestHelper {
 
 			target.addEventListener("devicemotion", callbackOnce);
 			target.dispatchEvent(deviceMotionEvent);
+		});
+	}
+
+	static deviceorientation(target, value, callback) {
+		return new Promise(resolve => {
+			const params = value;
+			let deviceOrientationEvent;
+
+			try {
+				deviceOrientationEvent = new DeviceOrientationEvent("deviceorientation", params);
+			} catch (e) {
+				deviceOrientationEvent = document.createEvent("Event");
+				deviceOrientationEvent.initEvent("deviceorientation");
+				Object.assign(deviceOrientationEvent, params);
+			}
+
+			function callbackOnce() {
+				callback && callback();
+				resolve();
+				target.removeEventListener("deviceorientation", callbackOnce);
+			}
+
+			target.addEventListener("deviceorientation", callbackOnce);
+			target.dispatchEvent(deviceOrientationEvent);
 		});
 	}
 
@@ -116,7 +141,36 @@ export default class TestHelper {
 
 			promiseChain.then(() => {
 				resolve();
-				callback();
+				callback && callback();
+			});
+		});
+	}
+
+	static multipleDeviceorientation(target, samples, callback) {
+		const self = this;
+
+		return new Promise(resolve => {
+			function promiseFactory(sample, prevSample) {
+				const interval = !prevSample ? 0 : sample.timeStamp - prevSample.timeStamp;
+
+				return new Promise(res => {
+					setTimeout(() => {
+						self.deviceorientation(target, sample, () => {
+							res();
+						});
+					}, interval);
+				});
+			}
+
+			const promiseChain = samples.reduce(
+				(startSample, nextSample, nextIdx, arr) => startSample.then(
+					() => promiseFactory(nextSample, arr[nextIdx - 1])
+				)
+			, Promise.resolve());
+
+			promiseChain.then(() => {
+				resolve();
+				callback && callback();
 			});
 		});
 	}
@@ -133,9 +187,9 @@ export default class TestHelper {
 	}
 
 	static createOrientationChangeEvent() {
-  	const event = document.createEvent("HTMLEvents");
-  	event.initEvent("orientationchange", true, true);
+		const event = document.createEvent("HTMLEvents");
 
+		event.initEvent("orientationchange", true, true);
 		return event;
 	}
 

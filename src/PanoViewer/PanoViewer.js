@@ -706,7 +706,7 @@ export default class PanoViewer extends Component {
 		function checkGyro() {
 			return new Promise((res, rej) => {
 				onDeviceMotionChange = function(deviceMotion) {
-					const isGyroSensorAvailable = deviceMotion.rotationRate.alpha !== null;
+					const isGyroSensorAvailable = !(deviceMotion.rotationRate.alpha == null);
 
 					res(isGyroSensorAvailable);
 				};

@@ -7215,24 +7215,60 @@ var FusionPoseSensor = function (_Component) {
 		}
 
 		this.trigger("change", { quaternion: orientation });
+		// console.log("orientation", orientation);
 	};
 
 	FusionPoseSensor.prototype.getOrientation = function getOrientation() {
-		// Convert from filter space to the the same system used by the
-		// deviceorientation event.
-		var orientation = this.filter.getOrientation();
+		var orientation = void 0;
 
-		if (!orientation) {
-			return null;
+		// Hack around using deviceorientation instead of devicemotion
+		if (this.deviceMotion.isWithoutDeviceMotion && this._deviceOrientationQ) {
+			// We must rotate 90 degrees on the Y axis to get the correct
+			// orientation of looking down the -Z axis.
+			this.deviceOrientationFixQ = this.deviceOrientationFixQ || function () {
+				var z = new _mathUtil2["default"].Quaternion().setFromAxisAngle(new _mathUtil2["default"].Vector3(0, 0, -1), 0);
+				var y = new _mathUtil2["default"].Quaternion().setFromAxisAngle(new _mathUtil2["default"].Vector3(0, 1, 0), Math.PI / 2);
+
+				return z.multiply(y);
+			}();
+			orientation = this._deviceOrientationQ;
+			var out = new _mathUtil2["default"].Quaternion();
+
+			out.copy(orientation);
+			out.multiply(this.filterToWorldQ);
+			out.multiply(this.resetQ);
+			out.multiply(this.worldToScreenQ);
+			out.multiplyQuaternions(this.deviceOrientationFixQ, out);
+
+			// return quaternion as glmatrix quaternion object
+			var out_ = _mathUtil3.quat.fromValues(out.x, out.y, out.z, out.w);
+
+			return _mathUtil3.quat.normalize(out_, out_);
+		} else {
+			// Convert from filter space to the the same system used by the
+			// deviceorientation event.
+			orientation = this.filter.getOrientation();
+
+			if (!orientation) {
+				return null;
+			}
+
+			// Predict orientation.
+			this.predictedQ = this.posePredictor.getPrediction(orientation, this.gyroscope, this.previousTimestampS);
+
+			// Convert to THREE coordinate system: -Z forward, Y up, X right.
+			var _out = new _mathUtil2["default"].Quaternion();
+
+			_out.copy(this.filterToWorldQ);
+			_out.multiply(this.resetQ);
+			_out.multiply(this.predictedQ);
+			_out.multiply(this.worldToScreenQ);
+
+			// return quaternion as glmatrix quaternion object
+			var _out_ = _mathUtil3.quat.fromValues(_out.x, _out.y, _out.z, _out.w);
+
+			return _mathUtil3.quat.normalize(_out_, _out_);
 		}
-
-		// Predict orientation.
-		var out = this._convertFusionToPredicted(orientation);
-
-		// return quaternion as glmatrix quaternion object
-		out = _mathUtil3.quat.fromValues(out.x, out.y, out.z, out.w);
-
-		return _mathUtil3.quat.normalize(out, out);
 	};
 
 	FusionPoseSensor.prototype._convertFusionToPredicted = function _convertFusionToPredicted(orientation) {
@@ -7253,31 +7289,39 @@ var FusionPoseSensor = function (_Component) {
 	FusionPoseSensor.prototype._onDeviceMotionChange = function _onDeviceMotionChange(_ref) {
 		var inputEvent = _ref.inputEvent;
 
+		var deviceorientation = inputEvent.deviceorientation;
 		var deviceMotion = inputEvent;
 		var accGravity = deviceMotion.accelerationIncludingGravity;
 		var rotRate = deviceMotion.adjustedRotationRate || deviceMotion.rotationRate;
 		var timestampS = deviceMotion.timeStamp / 1000;
 
-		// Firefox Android timeStamp returns one thousandth of a millisecond.
-		if (this.isFirefoxAndroid) {
-			timestampS /= 1000;
+		if (deviceorientation) {
+			this._deviceOrientationQ = this._deviceOrientationQ || new _mathUtil2["default"].Quaternion();
+			this._deviceOrientationQ.setFromEulerYXZ(deviceorientation.beta, deviceorientation.alpha, deviceorientation.gamma);
+
+			this._triggerChange();
+		} else {
+			// Firefox Android timeStamp returns one thousandth of a millisecond.
+			if (this.isFirefoxAndroid) {
+				timestampS /= 1000;
+			}
+
+			this.accelerometer.set(-accGravity.x, -accGravity.y, -accGravity.z);
+			this.gyroscope.set(rotRate.alpha, rotRate.beta, rotRate.gamma);
+
+			// Browsers on iOS, Firefox/Android, and Chrome m66/Android `rotationRate`
+			// is reported in degrees, so we first convert to radians.
+			if (this.isIOS || this.isFirefoxAndroid || this.isChromeUsingDegrees) {
+				this.gyroscope.multiplyScalar(Math.PI / 180);
+			}
+
+			this.filter.addAccelMeasurement(this.accelerometer, timestampS);
+			this.filter.addGyroMeasurement(this.gyroscope, timestampS);
+
+			this._triggerChange();
+
+			this.previousTimestampS = timestampS;
 		}
-
-		this.accelerometer.set(-accGravity.x, -accGravity.y, -accGravity.z);
-		this.gyroscope.set(rotRate.alpha, rotRate.beta, rotRate.gamma);
-
-		// Browsers on iOS, Firefox/Android, and Chrome m66/Android `rotationRate`
-		// is reported in degrees, so we first convert to radians.
-		if (this.isIOS || this.isFirefoxAndroid || this.isChromeUsingDegrees) {
-			this.gyroscope.multiplyScalar(Math.PI / 180);
-		}
-
-		this.filter.addAccelMeasurement(this.accelerometer, timestampS);
-		this.filter.addGyroMeasurement(this.gyroscope, timestampS);
-
-		this._triggerChange();
-
-		this.previousTimestampS = timestampS;
 	};
 
 	FusionPoseSensor.prototype._onScreenOrientationChange = function _onScreenOrientationChange(screenOrientation) {
@@ -10107,7 +10151,7 @@ var PanoViewer = function (_Component) {
 		function checkGyro() {
 			return new _Promise(function (res, rej) {
 				onDeviceMotionChange = function onDeviceMotionChange(deviceMotion) {
-					var isGyroSensorAvailable = deviceMotion.rotationRate.alpha !== null;
+					var isGyroSensorAvailable = !(deviceMotion.rotationRate.alpha == null);
 
 					res(isGyroSensorAvailable);
 				};
@@ -12779,6 +12823,8 @@ exports["default"] = _complementaryFilter2["default"];
 
 exports.__esModule = true;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
@@ -12801,6 +12847,28 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var STILLNESS_THRESHOLD = 200; // millisecond
 
+/**
+ * In Chrome m65, `devicemotion` events are broken but subsequently fixed
+ * in 65.0.3325.148. Since many browsers use Chromium, ensure that
+ * we scope this detection by branch and build numbers to provide
+ * a proper fallback.
+ * https://github.com/immersive-web/webvr-polyfill/issues/307
+ */
+var isChromeWithoutDeviceMotion = function isChromeWithoutDeviceMotion() {
+	var value = false;
+	var agentInfo = (0, _agent2["default"])();
+	var browserVersion = agentInfo.browser.version;
+
+	if (agentInfo.browser.name === "chrome" && parseInt(browserVersion, 10) === 65) {
+		var versionToken = browserVersion.split(".");
+		var branch = versionToken[2];
+		var build = versionToken[3];
+
+		value = parseInt(branch, 10) === 3325 && parseInt(build, 10) < 148;
+	}
+	return value;
+};
+
 var DeviceMotion = function (_Component) {
 	_inherits(DeviceMotion, _Component);
 
@@ -12811,7 +12879,9 @@ var DeviceMotion = function (_Component) {
 
 		_this._onDeviceMotion = _this._onDeviceMotion.bind(_this);
 		_this._onDeviceOrientation = _this._onDeviceOrientation.bind(_this);
+		_this._onChromeWithoutDeviceMotion = _this._onChromeWithoutDeviceMotion.bind(_this);
 
+		_this.isWithoutDeviceMotion = isChromeWithoutDeviceMotion();
 		_this.isAndroid = (0, _agent2["default"])().os.name === "android";
 
 		_this.stillGyroVec = _mathUtil.vec3.create();
@@ -12825,6 +12895,28 @@ var DeviceMotion = function (_Component) {
 		_this.enable();
 		return _this;
 	}
+
+	DeviceMotion.prototype._onChromeWithoutDeviceMotion = function _onChromeWithoutDeviceMotion(e) {
+		var alpha = e.alpha,
+		    beta = e.beta,
+		    gamma = e.gamma;
+
+		// convert to radian
+
+		alpha = (alpha || 0) * Math.PI / 180;
+		beta = (beta || 0) * Math.PI / 180;
+		gamma = (gamma || 0) * Math.PI / 180;
+
+		this.trigger("devicemotion", {
+			inputEvent: {
+				deviceorientation: {
+					alpha: alpha,
+					beta: beta,
+					gamma: -gamma
+				}
+			}
+		});
+	};
 
 	DeviceMotion.prototype._onDeviceOrientation = function _onDeviceOrientation() {
 		var _this2 = this;
@@ -12840,23 +12932,47 @@ var DeviceMotion = function (_Component) {
 	DeviceMotion.prototype._onDeviceMotion = function _onDeviceMotion(e) {
 		// desktop chrome triggers devicemotion event with empthy sensor values.
 		// Those events should ignored.
-		if (e.interval === 0 || e.acceleration.x === null) {
+		var isGyroSensorAvailable = !(e.rotationRate.alpha == null);
+		var isGravitySensorAvailable = !(e.accelerationIncludingGravity.x == null);
+
+		if (e.interval === 0 || !(isGyroSensorAvailable && isGravitySensorAvailable)) {
 			return;
 		}
+
+		var devicemotionEvent = _extends({}, e);
+
+		devicemotionEvent.interval = e.interval;
+		devicemotionEvent.timeStamp = e.timeStamp;
+		devicemotionEvent.type = e.type;
+		devicemotionEvent.rotationRate = {
+			alpha: e.rotationRate.alpha,
+			beta: e.rotationRate.beta,
+			gamma: e.rotationRate.gamma
+		};
+		devicemotionEvent.accelerationIncludingGravity = {
+			x: e.accelerationIncludingGravity.x,
+			y: e.accelerationIncludingGravity.y,
+			z: e.accelerationIncludingGravity.z
+		};
+		devicemotionEvent.acceleration = {
+			x: e.acceleration.x,
+			y: e.acceleration.y,
+			z: e.acceleration.z
+		};
 
 		if (this.isAndroid) {
 			_mathUtil.vec3.set(this.rawGyroVec, e.rotationRate.alpha || 0, e.rotationRate.beta || 0, e.rotationRate.gamma || 0);
 			_mathUtil.vec3.subtract(this.adjustedGyroVec, this.rawGyroVec, this.stillGyroVec);
 			this.lastDevicemotionTimestamp = new Date().getTime();
 
-			e.adjustedRotationRate = {
+			devicemotionEvent.adjustedRotationRate = {
 				alpha: this.adjustedGyroVec[0],
 				beta: this.adjustedGyroVec[1],
 				gamma: this.adjustedGyroVec[2] };
 		}
 
 		this.trigger("devicemotion", {
-			inputEvent: e
+			inputEvent: devicemotionEvent
 		});
 	};
 
@@ -12864,14 +12980,17 @@ var DeviceMotion = function (_Component) {
 		if (this.isAndroid) {
 			_browser.window.addEventListener("deviceorientation", this._onDeviceOrientation);
 		}
-		_browser.window.addEventListener("devicemotion", this._onDeviceMotion);
+		if (this.isWithoutDeviceMotion) {
+			_browser.window.addEventListener("deviceorientation", this._onChromeWithoutDeviceMotion);
+		} else {
+			_browser.window.addEventListener("devicemotion", this._onDeviceMotion);
+		}
 		this._isEnabled = true;
 	};
 
 	DeviceMotion.prototype.disable = function disable() {
-		if (this.isAndroid) {
-			_browser.window.removeEventListener("deviceorientation", this._onDeviceOrientation);
-		}
+		_browser.window.removeEventListener("deviceorientation", this._onDeviceOrientation);
+		_browser.window.removeEventListener("deviceorientation", this._onChromeWithoutDeviceMotion);
 		_browser.window.removeEventListener("devicemotion", this._onDeviceMotion);
 		this._isEnabled = false;
 	};
