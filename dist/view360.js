@@ -3783,7 +3783,6 @@ var FusionPoseSensor = function (_Component) {
 		}
 
 		this.trigger("change", { quaternion: orientation });
-		// console.log("orientation", orientation);
 	};
 
 	FusionPoseSensor.prototype.getOrientation = function getOrientation() {
@@ -3791,14 +3790,12 @@ var FusionPoseSensor = function (_Component) {
 
 		// Hack around using deviceorientation instead of devicemotion
 		if (this.deviceMotion.isWithoutDeviceMotion && this._deviceOrientationQ) {
-			// We must rotate 90 degrees on the Y axis to get the correct
-			// orientation of looking down the -Z axis.
 			this.deviceOrientationFixQ = this.deviceOrientationFixQ || function () {
-				var z = new _mathUtil2["default"].Quaternion().setFromAxisAngle(new _mathUtil2["default"].Vector3(0, 0, -1), 0);
-				var y = new _mathUtil2["default"].Quaternion().setFromAxisAngle(new _mathUtil2["default"].Vector3(0, 1, 0), Math.PI / 2);
+				var y = new _mathUtil2["default"].Quaternion().setFromAxisAngle(new _mathUtil2["default"].Vector3(0, 1, 0), -this._alpha);
 
-				return z.multiply(y);
-			}();
+				return y;
+			}.bind(this)();
+
 			orientation = this._deviceOrientationQ;
 			var out = new _mathUtil2["default"].Quaternion();
 
@@ -3821,16 +3818,7 @@ var FusionPoseSensor = function (_Component) {
 				return null;
 			}
 
-			// Predict orientation.
-			this.predictedQ = this.posePredictor.getPrediction(orientation, this.gyroscope, this.previousTimestampS);
-
-			// Convert to THREE coordinate system: -Z forward, Y up, X right.
-			var _out = new _mathUtil2["default"].Quaternion();
-
-			_out.copy(this.filterToWorldQ);
-			_out.multiply(this.resetQ);
-			_out.multiply(this.predictedQ);
-			_out.multiply(this.worldToScreenQ);
+			var _out = this._convertFusionToPredicted(orientation);
 
 			// return quaternion as glmatrix quaternion object
 			var _out_ = _mathUtil3.quat.fromValues(_out.x, _out.y, _out.z, _out.w);
@@ -3864,6 +3852,9 @@ var FusionPoseSensor = function (_Component) {
 		var timestampS = deviceMotion.timeStamp / 1000;
 
 		if (deviceorientation) {
+			if (!this._alpha) {
+				this._alpha = deviceorientation.alpha;
+			}
 			this._deviceOrientationQ = this._deviceOrientationQ || new _mathUtil2["default"].Quaternion();
 			this._deviceOrientationQ.setFromEulerYXZ(deviceorientation.beta, deviceorientation.alpha, deviceorientation.gamma);
 

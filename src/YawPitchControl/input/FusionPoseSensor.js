@@ -104,23 +104,20 @@ export default class FusionPoseSensor extends Component {
 		}
 
 		this.trigger("change", {quaternion: orientation});
-		// console.log("orientation", orientation);
 	}
 	getOrientation() {
 		let orientation;
 
 		// Hack around using deviceorientation instead of devicemotion
 		if (this.deviceMotion.isWithoutDeviceMotion && this._deviceOrientationQ) {
-			// We must rotate 90 degrees on the Y axis to get the correct
-			// orientation of looking down the -Z axis.
 			this.deviceOrientationFixQ = this.deviceOrientationFixQ || (function() {
-				const z =
-					new MathUtil.Quaternion().setFromAxisAngle(new MathUtil.Vector3(0, 0, -1), 0);
 				const y =
-					new MathUtil.Quaternion().setFromAxisAngle(new MathUtil.Vector3(0, 1, 0), Math.PI / 2);
+					new MathUtil.Quaternion().setFromAxisAngle(
+						new MathUtil.Vector3(0, 1, 0), -this._alpha);
 
-				return z.multiply(y);
-			})();
+				return y;
+			}).bind(this)();
+
 			orientation = this._deviceOrientationQ;
 			const out = new MathUtil.Quaternion();
 
@@ -148,17 +145,7 @@ export default class FusionPoseSensor extends Component {
 				return null;
 			}
 
-			// Predict orientation.
-			this.predictedQ =
-				this.posePredictor.getPrediction(orientation, this.gyroscope, this.previousTimestampS);
-
-			// Convert to THREE coordinate system: -Z forward, Y up, X right.
-			const out = new MathUtil.Quaternion();
-
-			out.copy(this.filterToWorldQ);
-			out.multiply(this.resetQ);
-			out.multiply(this.predictedQ);
-			out.multiply(this.worldToScreenQ);
+			const out = this._convertFusionToPredicted(orientation);
 
 			// return quaternion as glmatrix quaternion object
 			const out_ = quat.fromValues(
@@ -194,6 +181,9 @@ export default class FusionPoseSensor extends Component {
 		let timestampS = deviceMotion.timeStamp / 1000;
 
 		if (deviceorientation) {
+			if (!this._alpha) {
+				this._alpha = deviceorientation.alpha;
+			}
 			this._deviceOrientationQ = this._deviceOrientationQ || new MathUtil.Quaternion();
 			this._deviceOrientationQ.setFromEulerYXZ(
 				deviceorientation.beta,

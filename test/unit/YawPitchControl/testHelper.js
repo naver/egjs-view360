@@ -110,13 +110,11 @@ export default class TestHelper {
 				Object.assign(deviceOrientationEvent, params);
 			}
 
-			function callbackOnce() {
+			TestHelper.once(target, "deviceorientation", () => {
 				callback && callback();
 				resolve();
-				target.removeEventListener("deviceorientation", callbackOnce);
-			}
+			});
 
-			target.addEventListener("deviceorientation", callbackOnce);
 			target.dispatchEvent(deviceOrientationEvent);
 		});
 	}
