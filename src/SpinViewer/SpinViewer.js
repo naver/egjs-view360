@@ -36,7 +36,7 @@ export default class SpinViewer extends Component {
 
 		this._el = element;
 
-		const opt = options || {};
+		const opt = Object.assign({}, options);
 		const colCount = opt.colCount || 1;
 		const rowCount = opt.rowCount || 1;
 

@@ -1,21 +1,6 @@
 import SpinViewer from "../../../src/SpinViewer/SpinViewer";
 
 describe("SpinViewer", function() {
-	describe("constructor", () => {
-		it("should accept with no option", () => {
-			// Given
-			var target = sandbox();
-			target.innerHTML = `<div"></div>`;
-
-			// When, no option
-			let inst = new SpinViewer(target);
-
-			// Then
-			expect(inst.getAngle()).to.be.equal(0);
-			cleanup();
-		});
-	});
-
 	describe("event", function() {
 		var target
 		beforeEach(() => {
