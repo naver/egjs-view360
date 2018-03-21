@@ -8442,9 +8442,8 @@ var PanInput = /** @class */ (function () {
             }
             var inputClass = InputType_1.convertInputType(this.options.inputType);
             if (!inputClass) {
-                throw new Error("Wrong inputType parameter!");
+				throw new Error("Wrong inputType parameter!");
 			}
-			console.log("hammerManagerOption:", this.options.hammerManagerOptions);
             this.hammer = InputType_1.createHammer(this.element, __assign({
                 recognizers: [
                     [Hammer.Pan, hammerOption],
