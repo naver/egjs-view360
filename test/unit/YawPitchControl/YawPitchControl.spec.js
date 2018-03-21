@@ -1487,7 +1487,7 @@ describe("YawPitchControl", function() {
 			});
 
 			function then() {
-				expect(parseInt(inst.get().yaw, 10)).to.be.equal(-36);
+				expect(Math.round(Math.abs(inst.get().yaw/10))).to.be.equal(4);
 				done();
 			}
 		});
@@ -1506,7 +1506,7 @@ describe("YawPitchControl", function() {
 			});
 
 			function then() {
-				expect(parseInt(inst.get().yaw, 10)).to.be.equal(-39);
+				expect(Math.round(Math.abs(inst.get().yaw/10))).to.be.equal(4);
 				done();
 			}
 		});
