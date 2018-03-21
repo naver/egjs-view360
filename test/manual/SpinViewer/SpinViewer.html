@@ -13,6 +13,24 @@
     background-color: yellow;
     display:none;
   }
+
+  #slider {
+    width: 50%;
+    height: 25px;
+  }
+
+  #slider-val {
+    display: inline-block;
+    position: relative;
+    width: 60px;
+    color: #fff;
+    line-height: 20px;
+    text-align: center;
+    border-radius: 3px;
+    background: #2c3e50;
+    padding: 5px 10px;
+    margin-left: 8px;
+  }
 </style>
 </head>
 <body>
@@ -20,6 +38,7 @@
   <h3>Mini Bag</h3>
   <div id="message">GUIDE: Scale GUI is not available on <span>Android 2.3.</span></div>
   <div id="product-360"></div>
+  <input id="slider" type="range" min="0" max="359"><span id="slider-val">0</span>
 </body>
 <!-- Shim for Android 2.3 and IE8 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.1.5/es5-shim.min.js"></script>
@@ -46,7 +65,6 @@
 
   viewer = new eg.view360.SpinViewer(document.getElementById("product-360"), options);
   viewer.setScale(getScaleByWidth());//Temporary code
-
   viewer.on({
     "load": function(e) {
       // console.log("load event fired - e.target", e.target, "e.bgElement", e.bgElement);
@@ -54,12 +72,35 @@
     },
     "change": function(e) {
       // console.log(e.frameIndex, e.colRow, e.angle);
+      rangeSlider.setVal(e.angle);
+    },
+    "spinEnd": function(e) {
+      // console.log("spinEnd");
     }
   });
 
   window.onresize = function() {
     viewer.setScale(getScaleByWidth());
   }
+
+  var rangeSlider = (function() {
+    var slider = document.getElementById("slider");
+    var sliderVal = document.getElementById("slider-val");
+
+    slider.oninput = function() {
+      var val = Number(this.value);
+      sliderVal.innerHTML = this.value;
+      viewer.spinTo(val, {duration: 0});
+    };
+
+    return {
+      setVal: function(angle) {
+        const ang = Math.round(angle);
+        slider.value = ang;
+        sliderVal.innerHTML = ang;
+      }
+    }
+  })();
 
   /* TODO: this functionality should be covered by spinviewer */
   function getScaleByWidth() {
