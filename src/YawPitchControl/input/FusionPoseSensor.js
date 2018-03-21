@@ -1,4 +1,5 @@
 import Component from "@egjs/component";
+import agent from "@egjs/agent";
 import PosePredictor from "webvr-polyfill/src/sensor-fusion/pose-predictor";
 import MathUtil from "webvr-polyfill/src/math-util";
 import Util from "webvr-polyfill/src/util";
@@ -9,6 +10,7 @@ import ComplementaryFilter from "./ComplementaryFilter";
 
 const K_FILTER = 0.98;
 const PREDICTION_TIME_S = 0.040;
+const agentInfo = agent();
 
 export default class FusionPoseSensor extends Component {
 	constructor() {
@@ -29,6 +31,11 @@ export default class FusionPoseSensor extends Component {
 
 		this.isFirefoxAndroid = Util.isFirefoxAndroid();
 		this.isIOS = Util.isIOS();
+
+		// Ref https://github.com/immersive-web/cardboard-vr-display/issues/18
+		this.isChromeUsingDegrees = agentInfo.browser.name === "chrome" &&
+			parseInt(agentInfo.browser.version, 10) >= 66;
+
 		this._isEnabled = false;
 
 		// Set the filter to world transform, depending on OS.
@@ -99,26 +106,57 @@ export default class FusionPoseSensor extends Component {
 		this.trigger("change", {quaternion: orientation});
 	}
 	getOrientation() {
-		// Convert from filter space to the the same system used by the
-		// deviceorientation event.
-		const orientation = this.filter.getOrientation();
+		let orientation;
 
-		if (!orientation) {
-			return null;
+		// Hack around using deviceorientation instead of devicemotion
+		if (this.deviceMotion.isWithoutDeviceMotion && this._deviceOrientationQ) {
+			this.deviceOrientationFixQ = this.deviceOrientationFixQ || (function() {
+				const y =
+					new MathUtil.Quaternion().setFromAxisAngle(
+						new MathUtil.Vector3(0, 1, 0), -this._alpha);
+
+				return y;
+			}).bind(this)();
+
+			orientation = this._deviceOrientationQ;
+			const out = new MathUtil.Quaternion();
+
+			out.copy(orientation);
+			out.multiply(this.filterToWorldQ);
+			out.multiply(this.resetQ);
+			out.multiply(this.worldToScreenQ);
+			out.multiplyQuaternions(this.deviceOrientationFixQ, out);
+
+			// return quaternion as glmatrix quaternion object
+			const out_ = quat.fromValues(
+				out.x,
+				out.y,
+				out.z,
+				out.w
+			);
+
+			return quat.normalize(out_, out_);
+		} else {
+			// Convert from filter space to the the same system used by the
+			// deviceorientation event.
+			orientation = this.filter.getOrientation();
+
+			if (!orientation) {
+				return null;
+			}
+
+			const out = this._convertFusionToPredicted(orientation);
+
+			// return quaternion as glmatrix quaternion object
+			const out_ = quat.fromValues(
+				out.x,
+				out.y,
+				out.z,
+				out.w
+			);
+
+			return quat.normalize(out_, out_);
 		}
-
-		// Predict orientation.
-		let out = this._convertFusionToPredicted(orientation);
-
-		// return quaternion as glmatrix quaternion object
-		out = quat.fromValues(
-			out.x,
-			out.y,
-			out.z,
-			out.w
-		);
-
-		return quat.normalize(out, out);
 	}
 	_convertFusionToPredicted(orientation) {
 		// Predict orientation.
@@ -136,31 +174,46 @@ export default class FusionPoseSensor extends Component {
 		return out;
 	}
 	_onDeviceMotionChange({inputEvent}) {
+		const deviceorientation = inputEvent.deviceorientation;
 		const deviceMotion = inputEvent;
 		const accGravity = deviceMotion.accelerationIncludingGravity;
 		const rotRate = deviceMotion.adjustedRotationRate || deviceMotion.rotationRate;
 		let timestampS = deviceMotion.timeStamp / 1000;
 
-		// Firefox Android timeStamp returns one thousandth of a millisecond.
-		if (this.isFirefoxAndroid) {
-			timestampS /= 1000;
+		if (deviceorientation) {
+			if (!this._alpha) {
+				this._alpha = deviceorientation.alpha;
+			}
+			this._deviceOrientationQ = this._deviceOrientationQ || new MathUtil.Quaternion();
+			this._deviceOrientationQ.setFromEulerYXZ(
+				deviceorientation.beta,
+				deviceorientation.alpha,
+				deviceorientation.gamma
+			);
+
+			this._triggerChange();
+		} else {
+			// Firefox Android timeStamp returns one thousandth of a millisecond.
+			if (this.isFirefoxAndroid) {
+				timestampS /= 1000;
+			}
+
+			this.accelerometer.set(-accGravity.x, -accGravity.y, -accGravity.z);
+			this.gyroscope.set(rotRate.alpha, rotRate.beta, rotRate.gamma);
+
+			// Browsers on iOS, Firefox/Android, and Chrome m66/Android `rotationRate`
+			// is reported in degrees, so we first convert to radians.
+			if (this.isIOS || this.isFirefoxAndroid || this.isChromeUsingDegrees) {
+				this.gyroscope.multiplyScalar(Math.PI / 180);
+			}
+
+			this.filter.addAccelMeasurement(this.accelerometer, timestampS);
+			this.filter.addGyroMeasurement(this.gyroscope, timestampS);
+
+			this._triggerChange();
+
+			this.previousTimestampS = timestampS;
 		}
-
-		this.accelerometer.set(-accGravity.x, -accGravity.y, -accGravity.z);
-		this.gyroscope.set(rotRate.alpha, rotRate.beta, rotRate.gamma);
-
-		// With iOS and Firefox Android, rotationRate is reported in degrees,
-		// so we first convert to radians.
-		if (this.isIOS || this.isFirefoxAndroid) {
-			this.gyroscope.multiplyScalar(Math.PI / 180);
-		}
-
-		this.filter.addAccelMeasurement(this.accelerometer, timestampS);
-		this.filter.addGyroMeasurement(this.gyroscope, timestampS);
-
-		this._triggerChange();
-
-		this.previousTimestampS = timestampS;
 	}
 	_onScreenOrientationChange(screenOrientation) {
 		this._setScreenTransform(window.orientation);

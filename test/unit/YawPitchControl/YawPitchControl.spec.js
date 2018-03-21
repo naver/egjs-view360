@@ -15,10 +15,74 @@ import {
 import YawPitchControl from "../../../src/YawPitchControl/YawPitchControl";
 import RotationPanInput from "../../../src/YawPitchControl/input/RotationPanInput";
 import TestHelper from "./testHelper";
+import chrome65Sample from "./chrome65Sample";
+import chrome66Sample from "./chrome66Sample";
 
 import YawPitchControlrInjector from "inject-loader!../../../src/YawPitchControl/YawPitchControl";
+import TiltMotionInputInjector from "inject-loader!../../../src/YawPitchControl/input/TiltMotionInput";
+import FusionPoseSensorInjector from "inject-loader!../../../src/YawPitchControl/input/FusionPoseSensor";
+import DeviceMotionInjector from "inject-loader!../../../src/YawPitchControl/input/DeviceMotion";
+
 import devicemotionRotateSample from "./devicemotionSampleRotate";
 import {glMatrix, quat} from "../../../src/utils/math-util.js";
+
+function agentOnChrome65() {
+	return {
+		browser: {
+			"name": "chrome",
+			"version": "65.0.3325.109"
+		},
+		os: {
+			"name": "android"
+		}
+	};
+}
+
+function agentOnChrome66() {
+	return {
+		browser: {
+			"name": "chrome",
+			"version": "66.0.3359.30"
+		},
+		os: {
+			"name": "android"
+		}
+	};
+}
+
+const YawPitchControlOnChrome65 = YawPitchControlrInjector(
+	{
+		"./input/TiltMotionInput": TiltMotionInputInjector(
+			{
+				"./FusionPoseSensor": FusionPoseSensorInjector(
+					{
+						"@egjs/agent": agentOnChrome65,
+						"./DeviceMotion": DeviceMotionInjector({
+							"@egjs/agent": agentOnChrome65
+						}).default
+					}
+				).default
+			}
+		).default
+	}
+).default;
+
+const YawPitchControlOnChrome66 = YawPitchControlrInjector(
+	{
+		"./input/TiltMotionInput": TiltMotionInputInjector(
+			{
+				"./FusionPoseSensor": FusionPoseSensorInjector(
+					{
+						"@egjs/agent": agentOnChrome66,
+						"./DeviceMotion": DeviceMotionInjector({
+							"@egjs/agent": agentOnChrome66
+						}).default
+					}
+				).default
+			}
+		).default
+	}
+).default;
 
 const INTERVAL = 1000 / 60.0;
 
@@ -1386,6 +1450,65 @@ describe("YawPitchControl", function() {
 
             // Then
             expect(errorThrown).to.not.ok;
+		});
+	});
+
+	describe("Rotating yaw 45 degree by tilting device", () => {
+		let results = [];
+		let inst = null;
+		let target;
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+
+			// inst = new YawPitchControl({element: target});
+			// inst.enable();
+		});
+
+		afterEach(() => {
+			results = [];
+			target.remove();
+			inst.destroy();
+		});
+
+		it("should work on chrome 65 android", (done) => {
+			// When
+			inst = new YawPitchControlOnChrome65({element: target});
+			inst.enable();
+
+			Promise.all(
+				[
+					TestHelper.multipleDevicemotion(window, chrome65Sample.devicemotion),
+					TestHelper.multipleDeviceorientation(window, chrome65Sample.deviceorientation)
+				]
+			).then(result => {
+				then();
+			});
+
+			function then() {
+				expect(Math.round(Math.abs(inst.get().yaw/10))).to.be.equal(4);
+				done();
+			}
+		});
+		
+		it("should work on chrome 66 android", (done) => {
+			inst = new YawPitchControlOnChrome66({element: target});
+			inst.enable();
+
+			Promise.all(
+				[
+					TestHelper.multipleDevicemotion(window, chrome66Sample.devicemotion),
+					TestHelper.multipleDeviceorientation(window, chrome66Sample.deviceorientation)
+				]
+			).then(result => {
+				then();
+			});
+
+			function then() {
+				expect(Math.round(Math.abs(inst.get().yaw/10))).to.be.equal(4);
+				done();
+			}
 		});
 	});
 

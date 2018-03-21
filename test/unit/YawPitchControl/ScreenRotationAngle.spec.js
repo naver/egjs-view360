@@ -1,4 +1,4 @@
-import TestHeler from "./testHelper";
+import TestHelper from "./testHelper";
 import {window} from "../../../src/YawPitchControl/browser";
 import ScreenRotationAngle from "../../../src/YawPitchControl/ScreenRotationAngle";
 import ScreenRotationAngleInjector from "inject-loader!../../../src/YawPitchControl/ScreenRotationAngle";
@@ -50,9 +50,10 @@ describe("ScreenRotationAngle", function() {
 			const sr = new ScreenRotationAngle();
 
 			// When
-			TestHeler.once(window, "deviceorientation", then);
+			TestHelper.once(window, "deviceorientation", then);
 			// Dispatch 'deviceorientation' event.
-			const event = TestHeler.createDeviceOrientationEvent(0, 0, 90);
+			const event = TestHelper.createDeviceOrientationEvent(0, 0, 90);
+
 			window.dispatchEvent(event);
 
 			// Then
@@ -85,10 +86,11 @@ describe("ScreenRotationAngle", function() {
 			const sr = new ScreenRotationAngle90();
 
 			// When
-			TestHeler.once(window, "orientationchange", then);
+			TestHelper.once(window, "orientationchange", then);
 
 			// Dispatch 'orientationchange' event.
-			const event = TestHeler.createOrientationChangeEvent();
+			const event = TestHelper.createOrientationChangeEvent();
+
 			window.dispatchEvent(event);
 
 			// Then
@@ -154,10 +156,11 @@ describe("ScreenRotationAngle", function() {
 			sr.unref();
 
 			// When
-			TestHeler.once(window, "deviceorientation", then);
+			TestHelper.once(window, "deviceorientation", then);
 
 			// Dispatch 'deviceorientation' event.
-			const event = TestHeler.createDeviceOrientationEvent(0, 0, 90);
+			const event = TestHelper.createDeviceOrientationEvent(0, 0, 90);
+
 			window.dispatchEvent(event);
 
 			// Then
@@ -175,10 +178,11 @@ describe("ScreenRotationAngle", function() {
 			sr1.unref();
 
 			// When
-			TestHeler.once(window, "deviceorientation", then);
+			TestHelper.once(window, "deviceorientation", then);
 
 			// Dispatch 'deviceorientation' event.
-			const event = TestHeler.createDeviceOrientationEvent(0, 0, 90);
+			const event = TestHelper.createDeviceOrientationEvent(0, 0, 90);
+
 			window.dispatchEvent(event);
 
 			// Then

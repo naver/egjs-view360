@@ -1,6 +1,6 @@
 import {window} from "../../../src/YawPitchControl/browser";
 import FusionPoseSensor from "../../../src/YawPitchControl/input/FusionPoseSensor";
-import TestHeler from "./testHelper";
+import TestHelper from "./testHelper";
 import devicemotionSample from "./devicemotionSample";
 
 
@@ -37,7 +37,7 @@ describe("FusionPoseSensor", function() {
 			it("should trigger change event", (done) => {
 				// Given
 				// When
-				TestHeler.multipleDevicemotion(window, devicemotionSample, () => {
+				TestHelper.multipleDevicemotion(window, devicemotionSample, () => {
 					// Then
 					expect(changed).to.be.true;
 					done();
@@ -49,7 +49,7 @@ describe("FusionPoseSensor", function() {
 				// When
 				inst.disable();
 
-				TestHeler.multipleDevicemotion(window, devicemotionSample, () => {
+				TestHelper.multipleDevicemotion(window, devicemotionSample, () => {
 					// Then
 					expect(changed).to.be.false;
 					done();
@@ -67,7 +67,7 @@ describe("FusionPoseSensor", function() {
 				changeEvent = e;
 			});
 			// When
-			TestHeler.multipleDevicemotion(window, devicemotionSample, () => {
+			TestHelper.multipleDevicemotion(window, devicemotionSample, () => {
 				// Then
 				expect(changeEvent.quaternion).to.be.exist;
 				done();

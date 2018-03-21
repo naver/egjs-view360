@@ -456,6 +456,8 @@ exports["default"] = SpriteImage;
 
 exports.__esModule = true;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _component = __webpack_require__(0);
 
 var _component2 = _interopRequireDefault(_component);
@@ -515,7 +517,7 @@ var SpinViewer = function (_Component) {
 
 		_this._el = element;
 
-		var opt = options || {};
+		var opt = _extends({}, options);
 		var colCount = opt.colCount || 1;
 		var rowCount = opt.rowCount || 1;
 
