@@ -6923,8 +6923,14 @@ var DeviceMotion = function (_Component) {
 		    beta = e.beta,
 		    gamma = e.gamma;
 
-		// convert to radian
+		// There is deviceorientation event trigged with empty values
+		// on Headless Chrome.
 
+		if (alpha === null) {
+			return;
+		}
+
+		// convert to radian
 		alpha = (alpha || 0) * Math.PI / 180;
 		beta = (beta || 0) * Math.PI / 180;
 		gamma = (gamma || 0) * Math.PI / 180;

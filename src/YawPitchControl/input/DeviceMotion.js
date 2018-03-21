@@ -50,6 +50,12 @@ export default class DeviceMotion extends Component {
 	_onChromeWithoutDeviceMotion(e) {
 		let {alpha, beta, gamma} = e;
 
+		// There is deviceorientation event trigged with empty values
+		// on Headless Chrome.
+		if (alpha === null) {
+			return;
+		}
+
 		// convert to radian
 		alpha = (alpha || 0) * Math.PI / 180;
 		beta = (beta || 0) * Math.PI / 180;
