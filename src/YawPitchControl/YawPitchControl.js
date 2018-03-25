@@ -240,6 +240,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 
 		if (keys.some(key => key === "gyroMode") && SUPPORT_DEVICEMOTION) {
 			const isVR = this.options.gyroMode === GYRO_MODE.VR;
+			const isYawPitch = this.options.gyroMode === GYRO_MODE.YAWPITCH;
 
 			// Disconnect first
 			if (this.axesTiltMotionInput) {
@@ -255,7 +256,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 
 			if (isVR) {
 				this._initDeviceQuaternion();
-			} else if (!isVR) {
+			} else if (isYawPitch) {
 				this.axesTiltMotionInput = new TiltMotionInput(this._element);
 				this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
 			}

@@ -2111,15 +2111,22 @@ describe("YawPitchControl", function() {
 		};
 
 		class MockRotationPanInput extends RotationPanInput {
-			constructor(el, options) {
-				super(el, options);
-
-				this._screenRotationAngle = {
-					getRadian: function() {
-						return glMatrix.toRadian(90); /* 90 degree */
-					},
-					unref: function() {
-						/* Do nothing */
+			setUseRotation(useRotation) {
+				this._useRotation = useRotation;
+		
+				if (this._screenRotationAngle) {
+					this._screenRotationAngle.unref();
+					this._screenRotationAngle = null;
+				}
+		
+				if (this._useRotation) {
+					this._screenRotationAngle = {
+						getRadian: function() {
+							return glMatrix.toRadian(90); /* 90 degree */
+						},
+						unref: function() {
+							/* Do nothing */
+						}
 					}
 				}
 			}
@@ -2149,17 +2156,22 @@ describe("YawPitchControl", function() {
 				gyroMode: GYRO_MODE.VR /* this makes RotationPanInput as a rotation Mode */
 			});
 
+			inst.on("change", function(e) {
+				console.log(e);
+			});
 			inst.enable();
 
 			const prevYaw = inst.getYaw();
 			const prevPitch = inst.getPitch();
-
+			console.log(prevYaw,prevPitch )
 			// When
 			Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 				// Then
-				console.log(inst.getYaw(), inst.getPitch())
-				expect(inst.getYaw()).to.be.not.equal(prevYaw);
-				expect(inst.getPitch()).to.be.equal(prevPitch);
+				const currYaw = inst.getYaw();
+				const currPitch = inst.getPitch();
+				console.log(currYaw, currPitch);
+				expect(currYaw).to.be.not.equal(prevYaw);
+				expect(currPitch).to.be.equal(prevPitch);
 				done();
 			});
 		});

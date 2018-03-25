@@ -6349,6 +6349,7 @@ var YawPitchControl = function (_Component) {
 			return key === "gyroMode";
 		}) && _browser.SUPPORT_DEVICEMOTION) {
 			var isVR = this.options.gyroMode === _consts.GYRO_MODE.VR;
+			var isYawPitch = this.options.gyroMode === _consts.GYRO_MODE.YAWPITCH;
 
 			// Disconnect first
 			if (this.axesTiltMotionInput) {
@@ -6364,7 +6365,7 @@ var YawPitchControl = function (_Component) {
 
 			if (isVR) {
 				this._initDeviceQuaternion();
-			} else if (!isVR) {
+			} else if (isYawPitch) {
 				this.axesTiltMotionInput = new _TiltMotionInput2["default"](this._element);
 				this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
 			}
