@@ -2156,25 +2156,23 @@ describe("YawPitchControl", function() {
 				gyroMode: GYRO_MODE.VR /* this makes RotationPanInput as a rotation Mode */
 			});
 
-			inst.on("change", function(e) {
-				console.log(e);
-			});
 			inst.enable();
 
 			const prevYaw = inst.getYaw();
 			const prevPitch = inst.getPitch();
-			console.log(prevYaw,prevPitch )
+
 			// When
 			Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 				// Then
 				const currYaw = inst.getYaw();
 				const currPitch = inst.getPitch();
-				console.log(currYaw, currPitch);
+
 				expect(currYaw).to.be.not.equal(prevYaw);
 				expect(currPitch).to.be.equal(prevPitch);
 				done();
 			});
 		});
+
 		it("should not change yaw when direction = TOUCH_DIRECTION_YAW & moved horizontally", done => {
 			// Given
 			inst = new MockYawPitchControl90Rotated({
