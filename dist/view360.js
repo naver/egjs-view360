@@ -813,8 +813,6 @@ var win = typeof window !== "undefined" && window.Math === Math ? window : typeo
 win.Float32Array = typeof win.Float32Array !== "undefined" ? win.Float32Array : win.Array;
 
 exports.window = win;
-var screen = exports.screen = win.screen;
-var orientation = exports.orientation = win.orientation;
 var document = exports.document = win.document;
 var Float32Array = exports.Float32Array = win.Float32Array;
 var getComputedStyle = exports.getComputedStyle = win.getComputedStyle;
@@ -3596,10 +3594,11 @@ var ScreenRotationAngle = function () {
 	};
 
 	ScreenRotationAngle.prototype._onOrientationChange = function _onOrientationChange(e) {
-		if (_browser.screen && _browser.screen.orientation && _browser.screen.orientation.angle !== undefined) {
-			this._screenOrientationAngle = _browser.screen.orientation.angle;
-		} else if (_browser.orientation !== undefined) {
-			this._screenOrientationAngle = _browser.orientation >= 0 ? _browser.orientation : 360 + _browser.orientation;
+		if (_browser.window.screen && _browser.window.screen.orientation && _browser.window.screen.orientation.angle !== undefined) {
+			this._screenOrientationAngle = screen.orientation.angle;
+		} else if (_browser.window.orientation !== undefined) {
+			/* iOS */
+			this._screenOrientationAngle = _browser.window.orientation >= 0 ? _browser.window.orientation : 360 + _browser.window.orientation;
 		}
 	};
 
