@@ -1546,7 +1546,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*! Hammer.JS - v2.0.7 - 2016-04-22
  * Licensed under the MIT license */
 (function(window, document, exportName, undefined) {
   'use strict';
-
 var VENDOR_PREFIXES = ['', 'webkit', 'Moz', 'MS', 'ms', 'o'];
 var TEST_ELEMENT = document.createElement('div');
 
@@ -3247,7 +3246,7 @@ inherit(AttrRecognizer, Recognizer, {
      * @returns {Boolean} recognized
      */
     attrTest: function(input) {
-        var optionPointers = this.options.pointers;
+		var optionPointers = this.options.pointers;
         return optionPointers === 0 || input.pointers.length === optionPointers;
     },
 
@@ -3324,7 +3323,7 @@ inherit(PanRecognizer, AttrRecognizer, {
         var x = input.deltaX;
         var y = input.deltaY;
 
-        // lock to axis?
+		// lock to axis?
         if (!(direction & options.direction)) {
             if (options.direction & DIRECTION_HORIZONTAL) {
                 direction = (x === 0) ? DIRECTION_NONE : (x < 0) ? DIRECTION_LEFT : DIRECTION_RIGHT;
@@ -3341,12 +3340,12 @@ inherit(PanRecognizer, AttrRecognizer, {
     },
 
     attrTest: function(input) {
-        return AttrRecognizer.prototype.attrTest.call(this, input) &&
-            (this.state & STATE_BEGAN || (!(this.state & STATE_BEGAN) && this.directionTest(input)));
+        var ret = AttrRecognizer.prototype.attrTest.call(this, input) &&
+			(this.state & STATE_BEGAN || (!(this.state & STATE_BEGAN) && this.directionTest(input)));
+		return ret;
     },
 
     emit: function(input) {
-
         this.pX = input.deltaX;
         this.pY = input.deltaY;
 
@@ -3905,7 +3904,7 @@ Manager.prototype = {
             //      this can be setup with the `recognizeWith()` method on the recognizer.
             if (session.stopped !== FORCED_STOP && ( // 1
                     !curRecognizer || recognizer == curRecognizer || // 2
-                    recognizer.canRecognizeWith(curRecognizer))) { // 3
+					recognizer.canRecognizeWith(curRecognizer))) { // 3
                 recognizer.recognize(inputData);
             } else {
                 recognizer.reset();
@@ -4202,8 +4201,6 @@ var win = typeof window !== "undefined" && window.Math === Math ? window : typeo
 win.Float32Array = typeof win.Float32Array !== "undefined" ? win.Float32Array : win.Array;
 
 exports.window = win;
-var screen = exports.screen = win.screen;
-var orientation = exports.orientation = win.orientation;
 var document = exports.document = win.document;
 var Float32Array = exports.Float32Array = win.Float32Array;
 var getComputedStyle = exports.getComputedStyle = win.getComputedStyle;
@@ -6676,10 +6673,11 @@ var ScreenRotationAngle = function () {
 	};
 
 	ScreenRotationAngle.prototype._onOrientationChange = function _onOrientationChange(e) {
-		if (_browser.screen && _browser.screen.orientation && _browser.screen.orientation.angle !== undefined) {
-			this._screenOrientationAngle = _browser.screen.orientation.angle;
-		} else if (_browser.orientation !== undefined) {
-			this._screenOrientationAngle = _browser.orientation >= 0 ? _browser.orientation : 360 + _browser.orientation;
+		if (_browser.window.screen && _browser.window.screen.orientation && _browser.window.screen.orientation.angle !== undefined) {
+			this._screenOrientationAngle = screen.orientation.angle;
+		} else if (_browser.window.orientation !== undefined) {
+			/* iOS */
+			this._screenOrientationAngle = _browser.window.orientation >= 0 ? _browser.window.orientation : 360 + _browser.window.orientation;
 		}
 	};
 
@@ -8487,8 +8485,8 @@ var PanInput = /** @class */ (function () {
             }
             var inputClass = InputType_1.convertInputType(this.options.inputType);
             if (!inputClass) {
-                throw new Error("Wrong inputType parameter!");
-            }
+				throw new Error("Wrong inputType parameter!");
+			}
             this.hammer = InputType_1.createHammer(this.element, __assign({
                 recognizers: [
                     [Hammer.Pan, hammerOption],
@@ -8593,13 +8591,13 @@ var PanInput = /** @class */ (function () {
             PanInput.useDirection(const_1.DIRECTION.DIRECTION_HORIZONTAL, this._direction),
             PanInput.useDirection(const_1.DIRECTION.DIRECTION_VERTICAL, this._direction)
         ]);
-        offset = PanInput.getNextOffset(offset, this.observer.options.deceleration);
+		offset = PanInput.getNextOffset(offset, this.observer.options.deceleration);
         this.observer.release(this, event, InputType_1.toAxis(this.axes, offset));
     };
     PanInput.prototype.attachEvent = function (observer) {
         this.observer = observer;
         this.hammer.on("hammer.input", this.onHammerInput)
-            .on("panstart panmove", this.onPanmove);
+			.on("panstart panmove", this.onPanmove);
     };
     PanInput.prototype.dettachEvent = function () {
         this.hammer.off("hammer.input", this.onHammerInput)
