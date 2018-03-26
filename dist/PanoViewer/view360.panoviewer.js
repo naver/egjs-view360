@@ -6347,7 +6347,8 @@ var YawPitchControl = function (_Component) {
 		if (keys.some(function (key) {
 			return key === "gyroMode";
 		}) && _browser.SUPPORT_DEVICEMOTION) {
-			var gyroMode = this.options.gyroMode;
+			var isVR = this.options.gyroMode === _consts.GYRO_MODE.VR;
+			var isYawPitch = this.options.gyroMode === _consts.GYRO_MODE.YAWPITCH;
 
 			// Disconnect first
 			if (this.axesTiltMotionInput) {
@@ -6361,12 +6362,14 @@ var YawPitchControl = function (_Component) {
 				this._deviceQuaternion = null;
 			}
 
-			if (gyroMode === _consts.GYRO_MODE.YAWPITCH) {
+			if (isVR) {
+				this._initDeviceQuaternion();
+			} else if (isYawPitch) {
 				this.axesTiltMotionInput = new _TiltMotionInput2["default"](this._element);
 				this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
-			} else if (gyroMode === _consts.GYRO_MODE.VR) {
-				this._initDeviceQuaternion();
 			}
+
+			this.axesPanInput.setUseRotation(isVR);
 		}
 
 		if (keys.some(function (key) {
@@ -7068,13 +7071,27 @@ var RotationPanInput = function (_PanInput) {
 
 		var _this = _possibleConstructorReturn(this, _PanInput.call(this, el, options));
 
-		_this._useRotation = !!(options && options.useRotation);
-
+		_this._useRotation = false;
 		_this._screenRotationAngle = null;
-		_this._useRotation && (_this._screenRotationAngle = new _ScreenRotationAngle2["default"]());
+
+		_this.setUseRotation(!!(options && options.useRotation));
+
 		_this._userDirection = _axes2["default"].DIRECTION_ALL;
 		return _this;
 	}
+
+	RotationPanInput.prototype.setUseRotation = function setUseRotation(useRotation) {
+		this._useRotation = useRotation;
+
+		if (this._screenRotationAngle) {
+			this._screenRotationAngle.unref();
+			this._screenRotationAngle = null;
+		}
+
+		if (this._useRotation) {
+			this._screenRotationAngle = new _ScreenRotationAngle2["default"]();
+		}
+	};
 
 	RotationPanInput.prototype.connect = function connect(observer) {
 		// User intetened direction
