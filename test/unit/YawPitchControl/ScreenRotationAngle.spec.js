@@ -150,13 +150,12 @@ describe("ScreenRotationAngle", function() {
 			testList.reduce((promise, test) => promise.then(() => promiseFactory(test)), Promise.resolve()).then(done);
 		});
 
-		it("should returns 0 if screen.orientation.angle and window.orientation is undefiend", done => {
+		it("should return 0 if screen.orientation.angle and window.orientation is undefiend", done => {
 			// Given
 			const ScreenRotationAngleUndefined = ScreenRotationAngleInjector({"./browser": {
 				"window": window,
 			}}).default;
 			const sr3 = new ScreenRotationAngleUndefined();
-			sr3._onOrientationChange();
 
 			// When
 			TestHelper.once(window, "orientationchange", then);
