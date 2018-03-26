@@ -68,19 +68,26 @@ describe("ScreenRotationAngle", function() {
 	});
 
 	describe("#orientationchange", () => {
-		it("should returns rotated angles when screen is rotated.", done => {
-			// Given
-			const win = {
-				screen: {
-					orientation: {
-						angle: 90
-					}
-				}
-			};
+		let tempScreen;
+		let tempWindowOrientation;
 
+		beforeEach(() => {
+			tempScreen = window.screen;
+			tempWindowOrientation = window.orientation;
+		});
+
+		afterEach(() => {
+			// Restore original orientation information
+			Object.assign(window, {
+				screen: tempScreen,
+				orientation: tempWindowOrientation
+			});
+		});
+
+		it("should return rotated angles when screen is rotated.", done => {
+			// Given
 			const ScreenRotationAngle90 = ScreenRotationAngleInjector({"./browser": {
-				"window": window,
-				"screen": win.screen
+				"window": window
 			}}).default;
 
 			const sr = new ScreenRotationAngle90();
@@ -89,6 +96,7 @@ describe("ScreenRotationAngle", function() {
 			TestHelper.once(window, "orientationchange", then);
 
 			// Dispatch 'orientationchange' event.
+			Object.assign(window, {screen: {orientation: {angle:90}}});
 			const event = TestHelper.createOrientationChangeEvent();
 
 			window.dispatchEvent(event);
@@ -103,49 +111,65 @@ describe("ScreenRotationAngle", function() {
 			}
 		});
 
-		it("should returns rotated angles when screen is rotated && screen.orientation.angle is undefined", () => {
+		it("should return rotated angles when screen is rotated && screen.orientation.angle is undefined", done => {
 			// Given
-			const win = {
-				screen: {
-					orientation: {
+			const MockScreenRotationAngle = ScreenRotationAngleInjector({"./browser": {
+				"window": window
+			}}).default;
+
+			const sr1 = new MockScreenRotationAngle();
+			const testList = [{
+				angle: 0,
+				expected: 0
+			},{
+				angle: 180,
+				expected: Math.PI
+			}, {
+				angle: -180,
+				expected: Math.PI
+			}];
+
+			function promiseFactory(test) {
+				return new Promise(res => {
+					// When
+					TestHelper.once(window, "orientationchange", then);
+
+					Object.assign(window, {screen: {orientation: {}}, orientation: test.angle});
+					const event = TestHelper.createOrientationChangeEvent();
+
+					window.dispatchEvent(event);
+
+					// Then
+					function then() {
+						expect(sr1.getRadian()).to.equal(test.expected);
+						res();
 					}
-				},
-				orientation: 180
-			};
+				});
+			}
 
-			const ScreenRotationAngle180 = ScreenRotationAngleInjector({"./browser": {
-				"window": window,
-				"screen": win.screen,
-				"orientation": win.orientation
-			}}).default;
-
-			const sr1 = new ScreenRotationAngle180();
-
-			/**
-			 * It's impossible to dispatch orientationchange event.
-			 * So here we go with calling private method.
-			 */
-			// sr._onOrientation
-			sr1._onOrientationChange()
-			expect(sr1.getRadian()).to.equal(Math.PI);
-
-			const ScreenRotationAngleNagative180 = ScreenRotationAngleInjector({"./browser": {
-				"window": window,
-				"screen": win.screen,
-				"orientation": -180
-			}}).default;
-			const sr2 = new ScreenRotationAngleNagative180();
-			sr2._onOrientationChange()
-			expect(sr2.getRadian()).to.equal(Math.PI);
+			testList.reduce((promise, test) => promise.then(() => promiseFactory(test)), Promise.resolve()).then(done);
 		});
 
-		it("should returns 0 if screen.orientation.angle and window.orientation is undefiend", () => {
+		it("should returns 0 if screen.orientation.angle and window.orientation is undefiend", done => {
+			// Given
 			const ScreenRotationAngleUndefined = ScreenRotationAngleInjector({"./browser": {
 				"window": window,
 			}}).default;
 			const sr3 = new ScreenRotationAngleUndefined();
-			sr3._onOrientationChange()
-			expect(sr3.getRadian()).to.equal(0);
+			sr3._onOrientationChange();
+
+			// When
+			TestHelper.once(window, "orientationchange", then);
+			Object.assign(window, {screen: {orientation: {}}, orientation: undefined});
+
+			const event = TestHelper.createOrientationChangeEvent();
+
+			window.dispatchEvent(event);
+
+			function then() {
+				expect(sr3.getRadian()).to.equal(0);
+				done();
+			}
 		});
 	});
 
