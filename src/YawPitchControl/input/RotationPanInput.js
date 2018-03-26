@@ -40,18 +40,6 @@ export default class RotationPanInput extends PanInput {
 		}
 
 		super.connect(observer);
-
-		// hammerjs persist touch-action property as none
-		// when PinchRecognizer is attached.
-		setTimeout(() => {
-			if (this._direction === Axes.DIRECTION_HORIZONTAL) {
-				this.element.style.touchAction = "pan-y";
-			} else if (this._direction === Axes.DIRECTION_VERTICAL) {
-				this.element.style.touchAction = "pan-x";
-			} else if (this._direction === Axes.DIRECTION_NONE) {
-				this.element.style.touchAction = "auto";
-			}
-		}, 0);
 	}
 
 	getOffset(properties, useDirection) {

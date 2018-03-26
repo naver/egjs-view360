@@ -511,13 +511,13 @@ const YawPitchControl = class YawPitchControl extends Component {
 			return this;
 		}
 
-		// touchDirection is decided by parameter is valid string (Ref. Axes.connect)
-		this._enableTouch(this.options.touchDirection);
+		this._enabled = true;
 
+		// touchDirection is decided by parameter is valid string (Ref. Axes.connect)
 		this._applyOptions(Object.keys(this.options), this.options);
+
 		this._setPanScale(this.getFov());
 
-		this._enabled = true;
 		return this;
 	}
 

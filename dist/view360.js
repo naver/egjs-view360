@@ -7312,13 +7312,13 @@ var YawPitchControl = function (_Component) {
 			return this;
 		}
 
-		// touchDirection is decided by parameter is valid string (Ref. Axes.connect)
-		this._enableTouch(this.options.touchDirection);
+		this._enabled = true;
 
+		// touchDirection is decided by parameter is valid string (Ref. Axes.connect)
 		this._applyOptions(Object.keys(this.options), this.options);
+
 		this._setPanScale(this.getFov());
 
-		this._enabled = true;
 		return this;
 	};
 
@@ -7756,8 +7756,6 @@ var RotationPanInput = function (_PanInput) {
 	}
 
 	RotationPanInput.prototype.connect = function connect(observer) {
-		var _this2 = this;
-
 		// User intetened direction
 		this._userDirection = this._direction;
 
@@ -7769,18 +7767,6 @@ var RotationPanInput = function (_PanInput) {
 		}
 
 		_PanInput.prototype.connect.call(this, observer);
-
-		// hammerjs persist touch-action property as none
-		// when PinchRecognizer is attached.
-		setTimeout(function () {
-			if (_this2._direction === _axes2["default"].DIRECTION_HORIZONTAL) {
-				_this2.element.style.touchAction = "pan-y";
-			} else if (_this2._direction === _axes2["default"].DIRECTION_VERTICAL) {
-				_this2.element.style.touchAction = "pan-x";
-			} else if (_this2._direction === _axes2["default"].DIRECTION_NONE) {
-				_this2.element.style.touchAction = "auto";
-			}
-		}, 0);
 	};
 
 	RotationPanInput.prototype.getOffset = function getOffset(properties, useDirection) {

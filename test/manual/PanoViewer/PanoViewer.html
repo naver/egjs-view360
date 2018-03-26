@@ -104,7 +104,8 @@ var presets = {
     "useKeyboard": true,
     "gyroMode": "yawPitch",
     "image": "../img/test_cube_1x6_LRUDBF.jpg",
-    "projectionType": "cubemap"
+    "projectionType": "cubemap",
+    "touchDirection": eg.view360.PanoViewer.TOUCH_DIRECTION.ALL
   },
   "360_equi": {
     "yaw": 0,
@@ -119,7 +120,8 @@ var presets = {
     "useKeyboard": true,
     "gyroMode": "yawPitch",
     "image": "../img/test_equi_4096.jpg",
-    "projectionType": "equirectangular"
+    "projectionType": "equirectangular",
+    "touchDirection": eg.view360.PanoViewer.TOUCH_DIRECTION.ALL
   },
   "pano_360": {
     "yaw": 0,
@@ -135,7 +137,8 @@ var presets = {
     "useKeyboard": true,
     "gyroMode": "yawPitch",
     "image": "../img/pano_360.png",
-    "projectionType": "equirectangular"
+    "projectionType": "equirectangular",
+    "touchDirection": eg.view360.PanoViewer.TOUCH_DIRECTION.ALL
   },
   "pano_288": {
     "yaw": 0,
@@ -153,7 +156,8 @@ var presets = {
     "useKeyboard": true,
     "gyroMode": "yawPitch",
     "image": "../img/pano_288.png",
-    "projectionType": "equirectangular"
+    "projectionType": "equirectangular",
+    "touchDirection": eg.view360.PanoViewer.TOUCH_DIRECTION.ALL
   }
 };
 
@@ -239,6 +243,7 @@ var panoViewer = new eg.view360.PanoViewer(
   panoViewer.setShowPolePoint(object["showPolePoint"]);
   panoViewer.setUseZoom(object["useZoom"]);
   panoViewer.setUseKeyboard(object["useKeyboard"]);
+  panoViewer.setTouchDirection(object["touchDirection"]);
 
   render();
 })
@@ -365,6 +370,16 @@ f2.add(object, 'useKeyboard').onChange(function(value) {
 
 f2.add(object, 'gyroMode', {"none": "none", "yawPitch": "yawPitch"}).onChange(function(value) {
   panoViewer.setGyroMode(value);
+  render();
+});
+
+f2.add(object, 'touchDirection', {
+  "none": eg.view360.PanoViewer.TOUCH_DIRECTION.NONE,
+  "yaw": eg.view360.PanoViewer.TOUCH_DIRECTION.YAW,
+  "pitch": eg.view360.PanoViewer.TOUCH_DIRECTION.PITCH,
+  "all": eg.view360.PanoViewer.TOUCH_DIRECTION.ALL,
+}).onChange(function(value) {
+  panoViewer.setTouchDirection(value);
   render();
 });
 
