@@ -44,7 +44,8 @@ export default class ScreenRotationAngle {
 			this._screenOrientationAngle = screen.orientation.angle;
 		} else if (window.orientation !== undefined) {
 			/* iOS */
-			this._screenOrientationAngle = window.orientation >= 0 ? window.orientation : 360 + window.orientation;
+			this._screenOrientationAngle = window.orientation >= 0 ?
+				window.orientation : 360 + window.orientation;
 		}
 	}
 
