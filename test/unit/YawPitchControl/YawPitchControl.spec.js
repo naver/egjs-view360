@@ -1,6 +1,11 @@
+import YawPitchControlrInjector from "inject-loader!../../../src/YawPitchControl/YawPitchControl";
+import TiltMotionInputInjector from "inject-loader!../../../src/YawPitchControl/input/TiltMotionInput";
+import FusionPoseSensorInjector from "inject-loader!../../../src/YawPitchControl/input/FusionPoseSensor";
+import DeviceMotionInjector from "inject-loader!../../../src/YawPitchControl/input/DeviceMotion";
+import RotationPanInputInjector from "inject-loader!../../../src/YawPitchControl/input/RotationPanInput";
+
 import {
 	CONTROL_MODE_VR,
-	CONTROL_MODE_YAWPITCH,
 	TOUCH_DIRECTION_YAW,
 	TOUCH_DIRECTION_PITCH,
 	TOUCH_DIRECTION_NONE,
@@ -13,16 +18,9 @@ import {
 	CIRCULAR_PITCH_RANGE_HALF
 } from "../../../src/YawPitchControl/consts";
 import YawPitchControl from "../../../src/YawPitchControl/YawPitchControl";
-import RotationPanInput from "../../../src/YawPitchControl/input/RotationPanInput";
 import TestHelper from "./testHelper";
 import chrome65Sample from "./chrome65Sample";
 import chrome66Sample from "./chrome66Sample";
-
-import YawPitchControlrInjector from "inject-loader!../../../src/YawPitchControl/YawPitchControl";
-import TiltMotionInputInjector from "inject-loader!../../../src/YawPitchControl/input/TiltMotionInput";
-import FusionPoseSensorInjector from "inject-loader!../../../src/YawPitchControl/input/FusionPoseSensor";
-import DeviceMotionInjector from "inject-loader!../../../src/YawPitchControl/input/DeviceMotion";
-
 import devicemotionRotateSample from "./devicemotionSampleRotate";
 import {glMatrix, quat} from "../../../src/utils/math-util.js";
 
@@ -83,8 +81,6 @@ const YawPitchControlOnChrome66 = YawPitchControlrInjector(
 		).default
 	}
 ).default;
-
-const INTERVAL = 1000 / 60.0;
 
 describe("YawPitchControl", function() {
 	describe("constructor", function() {
@@ -2110,27 +2106,19 @@ describe("YawPitchControl", function() {
 			easing: "linear"
 		};
 
-		class MockRotationPanInput extends RotationPanInput {
-			setUseRotation(useRotation) {
-				this._useRotation = useRotation;
-		
-				if (this._screenRotationAngle) {
-					this._screenRotationAngle.unref();
-					this._screenRotationAngle = null;
-				}
-		
-				if (this._useRotation) {
-					this._screenRotationAngle = {
-						getRadian: function() {
-							return glMatrix.toRadian(90); /* 90 degree */
-						},
-						unref: function() {
-							/* Do nothing */
-						}
-					}
-				}
+		class ScreenRotationAngle {
+			getRadian() {
+				return glMatrix.toRadian(90); /* 90 degree */
 			}
+			unref() {
+				/* Do nothing */
+			}		
 		}
+
+		const MockRotationPanInput = RotationPanInputInjector({
+			"../ScreenRotationAngle": ScreenRotationAngle
+		}).default;
+		
 		const MockYawPitchControl90Rotated = YawPitchControlrInjector({
 			"./input/RotationPanInput": MockRotationPanInput
 		}).default;
