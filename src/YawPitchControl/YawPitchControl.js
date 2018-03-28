@@ -87,7 +87,6 @@ const YawPitchControl = class YawPitchControl extends Component {
 
 		this.axesPanInput = new RotationPanInput(this._element, {useRotation});
 		this.axesWheelInput = new WheelInput(this._element, {scale: 4});
-		// this.axesTiltMotionInput = SUPPORT_DEVICEMOTION ? new TiltMotionInput(this._element) : null;
 		this.axesTiltMotionInput = null;
 		this.axesPinchInput = SUPPORT_TOUCH ? new PinchInput(this._element, {scale: -1}) : null;
 		this.axesMoveKeyInput = new MoveKeyInput(this._element, {scale: [-6, 6]});
@@ -274,12 +273,16 @@ const YawPitchControl = class YawPitchControl extends Component {
 		if (keys.some(key => key === "useZoom")) {
 			const useZoom = this.options.useZoom;
 
+			// Disconnect first
+			this.axes.disconnect(this.axesWheelInput);
+			this.axes.disconnect(this.axesPinchInput);
+
 			if (useZoom) {
 				this.axes.connect(["fov"], this.axesWheelInput);
-				this.axesPinchInput && this.axes.connect(["fov"], this.axesPinchInput);
+				this.axes.connect(["fov"], this.axesPinchInput);
 			} else {
 				this.axes.disconnect(this.axesWheelInput);
-				this.axesPinchInput && this.axes.disconnect(this.axesPinchInput);
+				this.axes.disconnect(this.axesPinchInput);
 			}
 		}
 
@@ -289,15 +292,25 @@ const YawPitchControl = class YawPitchControl extends Component {
 	}
 
 	_enableTouch(direction) {
+		// Disconnect first
+		this.axesPanInput && this.axes.disconnect(this.axesPanInput);
+
 		const yawEnabled = direction & TOUCH_DIRECTION_YAW ? "yaw" : null;
 		const pitchEnabled = direction & TOUCH_DIRECTION_PITCH ? "pitch" : null;
+
+		if (this.options.useZoom) {
+			if (!!yawEnabled && !!pitchEnabled) {
+				this.axes.connect(["fov"], this.axesPinchInput);
+			} else {
+				this.axes.disconnect(this.axesPinchInput);
+			}
+		}
 
 		this.axes.connect([yawEnabled, pitchEnabled], this.axesPanInput);
 	}
 
 	_initDeviceQuaternion() {
 		this._deviceQuaternion = new DeviceQuaternion();
-
 		this._deviceQuaternion.on("change", e => {
 			this._triggerChange(e);
 		});

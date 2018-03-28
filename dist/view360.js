@@ -6868,7 +6868,6 @@ var YawPitchControl = function (_Component) {
 
 		this.axesPanInput = new _RotationPanInput2["default"](this._element, { useRotation: useRotation });
 		this.axesWheelInput = new _WheelInput2["default"](this._element, { scale: 4 });
-		// this.axesTiltMotionInput = SUPPORT_DEVICEMOTION ? new TiltMotionInput(this._element) : null;
 		this.axesTiltMotionInput = null;
 		this.axesPinchInput = _browser.SUPPORT_TOUCH ? new _axes.PinchInput(this._element, { scale: -1 }) : null;
 		this.axesMoveKeyInput = new _axes.MoveKeyInput(this._element, { scale: [-6, 6] });
@@ -7065,12 +7064,16 @@ var YawPitchControl = function (_Component) {
 		})) {
 			var useZoom = this.options.useZoom;
 
+			// Disconnect first
+			this.axes.disconnect(this.axesWheelInput);
+			this.axes.disconnect(this.axesPinchInput);
+
 			if (useZoom) {
 				this.axes.connect(["fov"], this.axesWheelInput);
-				this.axesPinchInput && this.axes.connect(["fov"], this.axesPinchInput);
+				this.axes.connect(["fov"], this.axesPinchInput);
 			} else {
 				this.axes.disconnect(this.axesWheelInput);
-				this.axesPinchInput && this.axes.disconnect(this.axesPinchInput);
+				this.axes.disconnect(this.axesPinchInput);
 			}
 		}
 
@@ -7082,8 +7085,19 @@ var YawPitchControl = function (_Component) {
 	};
 
 	YawPitchControl.prototype._enableTouch = function _enableTouch(direction) {
+		// Disconnect first
+		this.axesPanInput && this.axes.disconnect(this.axesPanInput);
+
 		var yawEnabled = direction & _consts.TOUCH_DIRECTION_YAW ? "yaw" : null;
 		var pitchEnabled = direction & _consts.TOUCH_DIRECTION_PITCH ? "pitch" : null;
+
+		if (this.options.useZoom) {
+			if (!!yawEnabled && !!pitchEnabled) {
+				this.axes.connect(["fov"], this.axesPinchInput);
+			} else {
+				this.axes.disconnect(this.axesPinchInput);
+			}
+		}
 
 		this.axes.connect([yawEnabled, pitchEnabled], this.axesPanInput);
 	};
@@ -7092,7 +7106,6 @@ var YawPitchControl = function (_Component) {
 		var _this3 = this;
 
 		this._deviceQuaternion = new _DeviceQuaternion2["default"]();
-
 		this._deviceQuaternion.on("change", function (e) {
 			_this3._triggerChange(e);
 		});

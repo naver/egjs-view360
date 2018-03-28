@@ -379,7 +379,7 @@ f2.add(object, 'touchDirection', {
   "pitch": eg.view360.PanoViewer.TOUCH_DIRECTION.PITCH,
   "all": eg.view360.PanoViewer.TOUCH_DIRECTION.ALL,
 }).onChange(function(value) {
-  panoViewer.setTouchDirection(value);
+  panoViewer.setTouchDirection(parseInt(value, 10));
   render();
 });
 

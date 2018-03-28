@@ -8519,6 +8519,8 @@ exports.KEYMAP = {
 };
 var DIRECTION_REVERSE = -1;
 var DIRECTION_FORWARD = 1;
+var DIRECTION_HORIZONTAL = -1;
+var DIRECTION_VERTICAL = 1;
 var DELAY = 80;
 /**
  * @typedef {Object} MoveKeyInputOption The option object of the eg.Axes.MoveKeyInput module
@@ -8588,36 +8590,35 @@ var MoveKeyInput = /** @class */ (function () {
         }
         var isMoveKey = true;
         var direction = DIRECTION_FORWARD;
-        var offsets;
+        var move = DIRECTION_HORIZONTAL;
         switch (e.keyCode) {
             case exports.KEYMAP.LEFT_ARROW:
             case exports.KEYMAP.A:
                 direction = DIRECTION_REVERSE;
+                break;
             case exports.KEYMAP.RIGHT_ARROW:
             case exports.KEYMAP.D:
-                if (!this.axes[0]) {
-                    isMoveKey = false;
-                    break;
-                }
-                offsets = [+this.options.scale[0] * direction, 0];
                 break;
             case exports.KEYMAP.DOWN_ARROW:
             case exports.KEYMAP.S:
                 direction = DIRECTION_REVERSE;
+                move = DIRECTION_VERTICAL;
+                break;
             case exports.KEYMAP.UP_ARROW:
             case exports.KEYMAP.W:
-                if (!this.axes[1]) {
-                    isMoveKey = false;
-                    break;
-                }
-                offsets = [0, +this.options.scale[1] * direction];
+                move = DIRECTION_VERTICAL;
                 break;
             default:
                 isMoveKey = false;
         }
+        if ((move === DIRECTION_HORIZONTAL && !this.axes[0]) ||
+            (move === DIRECTION_VERTICAL && !this.axes[1])) {
+            isMoveKey = false;
+        }
         if (!isMoveKey) {
             return;
         }
+        var offsets = move === DIRECTION_HORIZONTAL ? [+this.options.scale[0] * direction, 0] : [0, +this.options.scale[1] * direction];
         if (!this._isHolded) {
             this.observer.hold(this, event);
             this._isHolded = true;
@@ -8866,7 +8867,7 @@ var PanInput = /** @class */ (function () {
     */
     PanInput.prototype.destroy = function () {
         this.disconnect();
-        if (this.hammer) {
+        if (this.hammer && this.hammer.recognizers.length === 1) {
             this.hammer.destroy();
         }
         delete this.element[InputType_1.UNIQUEKEY];
@@ -9021,6 +9022,7 @@ var PinchInput = /** @class */ (function () {
         this.element = null;
         this._base = null;
         this._prev = null;
+        this._pinchRecognizer = null;
         /**
          * Hammer helps you add support for touch gestures to your page
          *
@@ -9059,9 +9061,10 @@ var PinchInput = /** @class */ (function () {
             threshold: this.options.threshold
         };
         if (this.hammer) {
-            this.dettachEvent();
+            this.disconnect();
             // hammer remove previous PinchRecognizer.
-            this.hammer.add(new Hammer.Pinch(hammerOption));
+            this._pinchRecognizer = new Hammer.Pinch(hammerOption);
+            this.hammer.add(this._pinchRecognizer);
         }
         else {
             var keyValue = this.element[InputType_1.UNIQUEKEY];
@@ -9084,6 +9087,8 @@ var PinchInput = /** @class */ (function () {
     };
     PinchInput.prototype.disconnect = function () {
         if (this.hammer) {
+            this.hammer.remove(this._pinchRecognizer);
+            this._pinchRecognizer = null;
             this.dettachEvent();
         }
         return this;
@@ -9095,7 +9100,7 @@ var PinchInput = /** @class */ (function () {
     */
     PinchInput.prototype.destroy = function () {
         this.disconnect();
-        if (this.hammer) {
+        if (this.hammer && this.hammer.recognizers.length === 1) {
             this.hammer.destroy();
         }
         delete this.element[InputType_1.UNIQUEKEY];
@@ -12245,7 +12250,6 @@ var YawPitchControl = function (_Component) {
 
 		this.axesPanInput = new _RotationPanInput2["default"](this._element, { useRotation: useRotation });
 		this.axesWheelInput = new _WheelInput2["default"](this._element, { scale: 4 });
-		// this.axesTiltMotionInput = SUPPORT_DEVICEMOTION ? new TiltMotionInput(this._element) : null;
 		this.axesTiltMotionInput = null;
 		this.axesPinchInput = _browser.SUPPORT_TOUCH ? new _axes.PinchInput(this._element, { scale: -1 }) : null;
 		this.axesMoveKeyInput = new _axes.MoveKeyInput(this._element, { scale: [-6, 6] });
@@ -12442,12 +12446,16 @@ var YawPitchControl = function (_Component) {
 		})) {
 			var useZoom = this.options.useZoom;
 
+			// Disconnect first
+			this.axes.disconnect(this.axesWheelInput);
+			this.axes.disconnect(this.axesPinchInput);
+
 			if (useZoom) {
 				this.axes.connect(["fov"], this.axesWheelInput);
-				this.axesPinchInput && this.axes.connect(["fov"], this.axesPinchInput);
+				this.axes.connect(["fov"], this.axesPinchInput);
 			} else {
 				this.axes.disconnect(this.axesWheelInput);
-				this.axesPinchInput && this.axes.disconnect(this.axesPinchInput);
+				this.axes.disconnect(this.axesPinchInput);
 			}
 		}
 
@@ -12459,8 +12467,19 @@ var YawPitchControl = function (_Component) {
 	};
 
 	YawPitchControl.prototype._enableTouch = function _enableTouch(direction) {
+		// Disconnect first
+		this.axesPanInput && this.axes.disconnect(this.axesPanInput);
+
 		var yawEnabled = direction & _consts.TOUCH_DIRECTION_YAW ? "yaw" : null;
 		var pitchEnabled = direction & _consts.TOUCH_DIRECTION_PITCH ? "pitch" : null;
+
+		if (this.options.useZoom) {
+			if (!!yawEnabled && !!pitchEnabled) {
+				this.axes.connect(["fov"], this.axesPinchInput);
+			} else {
+				this.axes.disconnect(this.axesPinchInput);
+			}
+		}
 
 		this.axes.connect([yawEnabled, pitchEnabled], this.axesPanInput);
 	};
@@ -12469,7 +12488,6 @@ var YawPitchControl = function (_Component) {
 		var _this3 = this;
 
 		this._deviceQuaternion = new _DeviceQuaternion2["default"]();
-
 		this._deviceQuaternion.on("change", function (e) {
 			_this3._triggerChange(e);
 		});
