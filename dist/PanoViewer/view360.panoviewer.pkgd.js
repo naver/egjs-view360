@@ -11565,7 +11565,6 @@ var YawPitchControl = function (_Component) {
 
 		this.axesPanInput = new _RotationPanInput2["default"](this._element, { useRotation: useRotation });
 		this.axesWheelInput = new _WheelInput2["default"](this._element, { scale: 4 });
-		// this.axesTiltMotionInput = SUPPORT_DEVICEMOTION ? new TiltMotionInput(this._element) : null;
 		this.axesTiltMotionInput = null;
 		this.axesPinchInput = _browser.SUPPORT_TOUCH ? new _axes.PinchInput(this._element, { scale: -1 }) : null;
 		this.axesMoveKeyInput = new _axes.MoveKeyInput(this._element, { scale: [-6, 6] });
@@ -11958,7 +11957,7 @@ var YawPitchControl = function (_Component) {
 		event.pitch = pos.pitch;
 		event.fov = pos.fov;
 
-		if (opt.gyroMode === _consts.GYRO_MODE.VR) {
+		if (opt.gyroMode === _consts.GYRO_MODE.VR && this._deviceQuaternion) {
 			event.quaternion = this._deviceQuaternion.getCombinedQuaternion(pos.yaw, pos.pitch);
 		}
 		this.trigger("change", event);
