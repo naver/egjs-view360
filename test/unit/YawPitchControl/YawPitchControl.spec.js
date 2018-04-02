@@ -1487,7 +1487,7 @@ describe("YawPitchControl", function() {
 				done();
 			}
 		});
-		
+
 		it("should work on chrome 66 android", (done) => {
 			inst = new YawPitchControlOnChrome66({element: target});
 			inst.enable();
@@ -1602,6 +1602,7 @@ describe("YawPitchControl", function() {
 
 	describe("VR Mode", () => {
 		let target;
+
 		class MockDeviceQuaternion {
 			constructor() {
 				this._timer = null;
@@ -1678,6 +1679,56 @@ describe("YawPitchControl", function() {
 				expect(e.quaternion).to.be.exist;
 				done();
 			});
+		});
+
+		it("should retain VR Mode although device does not support devicemotion", () => {
+			// Given
+			const DeviceMotionUnsupportedMockYawPitchControl = YawPitchControlrInjector({
+				"./DeviceQuaternion": MockDeviceQuaternion,
+				"./browser": {
+					SUPPORT_DEVICEMOTION: false
+				}
+			}).default;
+
+			const el = sandbox();
+			el.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+			const yawpitchControl = new DeviceMotionUnsupportedMockYawPitchControl({
+				element: el,
+				gyroMode: GYRO_MODE.VR,
+				yawRange: [-100, 100],
+				pitchRange: [-70, 70]
+			});
+
+			// When
+			// Same Test for VR: should ignore yaw/pitch range option. it use circular range.
+			let negativePos, positivePos, circularPos;
+
+			// negative max
+			yawpitchControl.lookAt({yaw: -YAW_RANGE_HALF, pitch: -CIRCULAR_PITCH_RANGE_HALF}, 0);
+			negativePos = yawpitchControl.get();
+
+			// positive max
+			yawpitchControl.lookAt({yaw: YAW_RANGE_HALF, pitch: CIRCULAR_PITCH_RANGE_HALF}, 0);
+			positivePos = yawpitchControl.get();
+
+			// if pos is over max, circular value should be return
+			yawpitchControl.lookAt({yaw: YAW_RANGE_HALF + 1, pitch: -CIRCULAR_PITCH_RANGE_HALF - 1}, 0);
+			circularPos = yawpitchControl.get();
+
+			// Then
+			expect(yawpitchControl.option("gyroMode")).to.be.equal(GYRO_MODE.VR);
+			expect(negativePos.yaw).to.equal(-YAW_RANGE_HALF);
+			expect(negativePos.pitch).to.equal(-CIRCULAR_PITCH_RANGE_HALF);
+
+			expect(positivePos.yaw).to.equal(YAW_RANGE_HALF);
+			expect(positivePos.pitch).to.equal(CIRCULAR_PITCH_RANGE_HALF);
+
+			expect(circularPos.yaw).to.equal(-YAW_RANGE_HALF + 1);
+			expect(circularPos.pitch).to.equal(CIRCULAR_PITCH_RANGE_HALF - 1);
+
+			// Cleanup
+			yawpitchControl.destroy();
+			el.remove();
 		});
 	});
 
@@ -2112,13 +2163,13 @@ describe("YawPitchControl", function() {
 			}
 			unref() {
 				/* Do nothing */
-			}		
+			}
 		}
 
 		const MockRotationPanInput = RotationPanInputInjector({
 			"../ScreenRotationAngle": ScreenRotationAngle
 		}).default;
-		
+
 		const MockYawPitchControl90Rotated = YawPitchControlrInjector({
 			"./input/RotationPanInput": MockRotationPanInput
 		}).default;
