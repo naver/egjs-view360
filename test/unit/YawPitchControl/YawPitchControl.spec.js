@@ -1,6 +1,5 @@
 import {
 	CONTROL_MODE_VR,
-	CONTROL_MODE_YAWPITCH,
 	TOUCH_DIRECTION_YAW,
 	TOUCH_DIRECTION_PITCH,
 	TOUCH_DIRECTION_NONE,
@@ -85,6 +84,9 @@ const YawPitchControlOnChrome66 = YawPitchControlrInjector(
 ).default;
 
 const INTERVAL = 1000 / 60.0;
+
+// PanInput works with pointer event first when browser support pointer event.
+Simulator.setType("pointer");
 
 describe("YawPitchControl", function() {
 	describe("constructor", function() {
@@ -2157,7 +2159,6 @@ describe("YawPitchControl", function() {
 			// When
 			Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 				// Then
-				console.log(inst.getYaw(), inst.getPitch())
 				expect(inst.getYaw()).to.be.not.equal(prevYaw);
 				expect(inst.getPitch()).to.be.equal(prevPitch);
 				done();

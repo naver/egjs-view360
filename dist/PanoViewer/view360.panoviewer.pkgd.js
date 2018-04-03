@@ -8393,6 +8393,7 @@ var PanInput = /** @class */ (function () {
         this.axes = [];
         this.hammer = null;
         this.element = null;
+        this.panRecognizer = null;
         /**
          * Hammer helps you add support for touch gestures to your page
          *
@@ -8474,16 +8475,13 @@ var PanInput = /** @class */ (function () {
             threshold: this.options.threshold
         };
         if (this.hammer) {
-            this.dettachEvent();
             // hammer remove previous PanRecognizer.
-            this.hammer.add(new Hammer.Pan(hammerOption));
+            this.removeRecognizer();
+            this.dettachEvent();
         }
         else {
             var keyValue = this.element[InputType_1.UNIQUEKEY];
-            if (keyValue) {
-                this.hammer && this.hammer.destroy();
-            }
-            else {
+            if (!keyValue) {
                 keyValue = String(Math.round(Math.random() * new Date().getTime()));
             }
             var inputClass = InputType_1.convertInputType(this.options.inputType);
@@ -8491,17 +8489,17 @@ var PanInput = /** @class */ (function () {
                 throw new Error("Wrong inputType parameter!");
             }
             this.hammer = InputType_1.createHammer(this.element, __assign({
-                recognizers: [
-                    [Hammer.Pan, hammerOption],
-                ],
                 inputClass: inputClass
             }, this.options.hammerManagerOptions));
             this.element[InputType_1.UNIQUEKEY] = keyValue;
         }
+        this.panRecognizer = new Hammer.Pan(hammerOption);
+        this.hammer.add(this.panRecognizer);
         this.attachEvent(observer);
         return this;
     };
     PanInput.prototype.disconnect = function () {
+        this.removeRecognizer();
         if (this.hammer) {
             this.dettachEvent();
         }
@@ -8515,7 +8513,7 @@ var PanInput = /** @class */ (function () {
     */
     PanInput.prototype.destroy = function () {
         this.disconnect();
-        if (this.hammer && this.hammer.recognizers.length === 1) {
+        if (this.hammer && this.hammer.recognizers.length === 0) {
             this.hammer.destroy();
         }
         delete this.element[InputType_1.UNIQUEKEY];
@@ -8550,6 +8548,12 @@ var PanInput = /** @class */ (function () {
      */
     PanInput.prototype.isEnable = function () {
         return !!(this.hammer && this.hammer.get("pan").options.enable);
+    };
+    PanInput.prototype.removeRecognizer = function () {
+        if (this.hammer && this.panRecognizer) {
+            this.hammer.remove(this.panRecognizer);
+            this.panRecognizer = null;
+        }
     };
     PanInput.prototype.onHammerInput = function (event) {
         if (this.isEnable()) {
@@ -8670,7 +8674,7 @@ var PinchInput = /** @class */ (function () {
         this.element = null;
         this._base = null;
         this._prev = null;
-        this._pinchRecognizer = null;
+        this.pinchRecognizer = null;
         /**
          * Hammer helps you add support for touch gestures to your page
          *
@@ -8686,6 +8690,7 @@ var PinchInput = /** @class */ (function () {
         this.options = __assign({
             scale: 1,
             threshold: 0,
+            inputType: ["touch", "pointer"],
             hammerManagerOptions: {
                 // css properties were removed due to usablility issue
                 // http://hammerjs.github.io/jsdoc/Hammer.defaults.cssProps.html
@@ -8705,38 +8710,36 @@ var PinchInput = /** @class */ (function () {
         this.axes = axes;
     };
     PinchInput.prototype.connect = function (observer) {
-        var hammerOption = {
-            threshold: this.options.threshold
-        };
+        var hammerOption = { threshold: this.options.threshold };
         if (this.hammer) {
-            this.disconnect();
             // hammer remove previous PinchRecognizer.
-            this._pinchRecognizer = new Hammer.Pinch(hammerOption);
-            this.hammer.add(this._pinchRecognizer);
+            this.removeRecognizer();
+            this.dettachEvent();
         }
         else {
             var keyValue = this.element[InputType_1.UNIQUEKEY];
-            if (keyValue) {
-                this.hammer.destroy();
-            }
-            else {
+            if (!keyValue) {
                 keyValue = String(Math.round(Math.random() * new Date().getTime()));
             }
+            var inputClass = InputType_1.convertInputType(this.options.inputType);
+            if (!inputClass) {
+                throw new Error("Wrong inputType parameter!");
+            }
             this.hammer = InputType_1.createHammer(this.element, __assign({
-                recognizers: [
-                    [Hammer.Pinch, hammerOption],
-                ],
-                inputClass: Hammer.TouchInput
+                inputClass: inputClass
             }, this.options.hammerManagerOptions));
             this.element[InputType_1.UNIQUEKEY] = keyValue;
         }
+        this.pinchRecognizer = new Hammer.Pinch(hammerOption);
+        this.hammer.add(this.pinchRecognizer);
         this.attachEvent(observer);
         return this;
     };
     PinchInput.prototype.disconnect = function () {
+        this.removeRecognizer();
         if (this.hammer) {
-            this.hammer.remove(this._pinchRecognizer);
-            this._pinchRecognizer = null;
+            this.hammer.remove(this.pinchRecognizer);
+            this.pinchRecognizer = null;
             this.dettachEvent();
         }
         return this;
@@ -8748,12 +8751,18 @@ var PinchInput = /** @class */ (function () {
     */
     PinchInput.prototype.destroy = function () {
         this.disconnect();
-        if (this.hammer && this.hammer.recognizers.length === 1) {
+        if (this.hammer && this.hammer.recognizers.length === 0) {
             this.hammer.destroy();
         }
         delete this.element[InputType_1.UNIQUEKEY];
         this.element = null;
         this.hammer = null;
+    };
+    PinchInput.prototype.removeRecognizer = function () {
+        if (this.hammer && this.pinchRecognizer) {
+            this.hammer.remove(this.pinchRecognizer);
+            this.pinchRecognizer = null;
+        }
     };
     PinchInput.prototype.onPinchStart = function (event) {
         this._base = this.observer.get(this)[this.axes[0]];
@@ -11768,16 +11777,28 @@ var YawPitchControl = function (_Component) {
 		})) {
 			var useZoom = this.options.useZoom;
 
+			// Init WheelInput
 			// Disconnect first
 			this.axes.disconnect(this.axesWheelInput);
-			this.axes.disconnect(this.axesPinchInput);
 
 			if (useZoom) {
 				this.axes.connect(["fov"], this.axesWheelInput);
-				this.axes.connect(["fov"], this.axesPinchInput);
 			} else {
 				this.axes.disconnect(this.axesWheelInput);
+			}
+
+			// Init PinchInput
+			if (this.axesPinchInput) {
+				// Disconnect first
 				this.axes.disconnect(this.axesPinchInput);
+
+				if (useZoom) {
+					this.axes.connect(["fov"], this.axesPinchInput);
+				} else {
+					this.axes.disconnect(this.axesPinchInput);
+				}
+
+				keys.push("touchDirection");
 			}
 		}
 
@@ -11795,8 +11816,10 @@ var YawPitchControl = function (_Component) {
 		var yawEnabled = direction & _consts.TOUCH_DIRECTION_YAW ? "yaw" : null;
 		var pitchEnabled = direction & _consts.TOUCH_DIRECTION_PITCH ? "pitch" : null;
 
-		if (this.options.useZoom) {
-			if (!!yawEnabled && !!pitchEnabled) {
+		// If the touchDirection option is not ALL, pinchInput should be disconnected to make use of a native scroll.
+		if (this.axesPinchInput && this.options.useZoom) {
+			// TODO: Get rid of using private property of axes instance.
+			if (direction === _consts.TOUCH_DIRECTION_ALL && this.axes._inputs.indexOf(this.axesPinchInput) === -1) {
 				this.axes.connect(["fov"], this.axesPinchInput);
 			} else {
 				this.axes.disconnect(this.axesPinchInput);
