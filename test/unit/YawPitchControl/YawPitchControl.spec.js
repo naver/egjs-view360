@@ -2206,16 +2206,11 @@ describe("YawPitchControl", function() {
 			// When
 			Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 				// Then
-<<<<<<< HEAD
-				expect(inst.getYaw()).to.be.not.equal(prevYaw);
-				expect(inst.getPitch()).to.be.equal(prevPitch);
-=======
 				const currYaw = inst.getYaw();
 				const currPitch = inst.getPitch();
 
 				expect(currYaw).to.be.not.equal(prevYaw);
 				expect(currPitch).to.be.equal(prevPitch);
->>>>>>> 30d2ee053000c39b789ec3e44a8f0269288c0aac
 				done();
 			});
 		});
