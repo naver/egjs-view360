@@ -1,3 +1,9 @@
+import YawPitchControlrInjector from "inject-loader!../../../src/YawPitchControl/YawPitchControl";
+import TiltMotionInputInjector from "inject-loader!../../../src/YawPitchControl/input/TiltMotionInput";
+import FusionPoseSensorInjector from "inject-loader!../../../src/YawPitchControl/input/FusionPoseSensor";
+import DeviceMotionInjector from "inject-loader!../../../src/YawPitchControl/input/DeviceMotion";
+import RotationPanInputInjector from "inject-loader!../../../src/YawPitchControl/input/RotationPanInput";
+
 import {
 	CONTROL_MODE_VR,
 	TOUCH_DIRECTION_YAW,
@@ -12,16 +18,9 @@ import {
 	CIRCULAR_PITCH_RANGE_HALF
 } from "../../../src/YawPitchControl/consts";
 import YawPitchControl from "../../../src/YawPitchControl/YawPitchControl";
-import RotationPanInput from "../../../src/YawPitchControl/input/RotationPanInput";
 import TestHelper from "./testHelper";
 import chrome65Sample from "./chrome65Sample";
 import chrome66Sample from "./chrome66Sample";
-
-import YawPitchControlrInjector from "inject-loader!../../../src/YawPitchControl/YawPitchControl";
-import TiltMotionInputInjector from "inject-loader!../../../src/YawPitchControl/input/TiltMotionInput";
-import FusionPoseSensorInjector from "inject-loader!../../../src/YawPitchControl/input/FusionPoseSensor";
-import DeviceMotionInjector from "inject-loader!../../../src/YawPitchControl/input/DeviceMotion";
-
 import devicemotionRotateSample from "./devicemotionSampleRotate";
 import {glMatrix, quat} from "../../../src/utils/math-util.js";
 
@@ -86,9 +85,7 @@ const YawPitchControlOnChrome66 = YawPitchControlrInjector(
 	}
 ).default;
 
-const INTERVAL = 1000 / 60.0;
-
-describe.only("YawPitchControl", function() {
+describe("YawPitchControl", function() {
 	describe("constructor", function() {
 		describe("default options", function() {
 			var target
@@ -1493,7 +1490,7 @@ describe.only("YawPitchControl", function() {
 				done();
 			}
 		});
-		
+
 		it("should work on chrome 66 android", (done) => {
 			inst = new YawPitchControlOnChrome66({element: target});
 			inst.enable();
@@ -1608,6 +1605,7 @@ describe.only("YawPitchControl", function() {
 
 	describe("VR Mode", () => {
 		let target;
+
 		class MockDeviceQuaternion {
 			constructor() {
 				this._timer = null;
@@ -1684,6 +1682,56 @@ describe.only("YawPitchControl", function() {
 				expect(e.quaternion).to.be.exist;
 				done();
 			});
+		});
+
+		it("should retain VR Mode although device does not support devicemotion", () => {
+			// Given
+			const DeviceMotionUnsupportedMockYawPitchControl = YawPitchControlrInjector({
+				"./DeviceQuaternion": MockDeviceQuaternion,
+				"./browser": {
+					SUPPORT_DEVICEMOTION: false
+				}
+			}).default;
+
+			const el = sandbox();
+			el.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+			const yawpitchControl = new DeviceMotionUnsupportedMockYawPitchControl({
+				element: el,
+				gyroMode: GYRO_MODE.VR,
+				yawRange: [-100, 100],
+				pitchRange: [-70, 70]
+			});
+
+			// When
+			// Same Test for VR: should ignore yaw/pitch range option. it use circular range.
+			let negativePos, positivePos, circularPos;
+
+			// negative max
+			yawpitchControl.lookAt({yaw: -YAW_RANGE_HALF, pitch: -CIRCULAR_PITCH_RANGE_HALF}, 0);
+			negativePos = yawpitchControl.get();
+
+			// positive max
+			yawpitchControl.lookAt({yaw: YAW_RANGE_HALF, pitch: CIRCULAR_PITCH_RANGE_HALF}, 0);
+			positivePos = yawpitchControl.get();
+
+			// if pos is over max, circular value should be return
+			yawpitchControl.lookAt({yaw: YAW_RANGE_HALF + 1, pitch: -CIRCULAR_PITCH_RANGE_HALF - 1}, 0);
+			circularPos = yawpitchControl.get();
+
+			// Then
+			expect(yawpitchControl.option("gyroMode")).to.be.equal(GYRO_MODE.VR);
+			expect(negativePos.yaw).to.equal(-YAW_RANGE_HALF);
+			expect(negativePos.pitch).to.equal(-CIRCULAR_PITCH_RANGE_HALF);
+
+			expect(positivePos.yaw).to.equal(YAW_RANGE_HALF);
+			expect(positivePos.pitch).to.equal(CIRCULAR_PITCH_RANGE_HALF);
+
+			expect(circularPos.yaw).to.equal(-YAW_RANGE_HALF + 1);
+			expect(circularPos.pitch).to.equal(CIRCULAR_PITCH_RANGE_HALF - 1);
+
+			// Cleanup
+			yawpitchControl.destroy();
+			el.remove();
 		});
 	});
 
@@ -2112,20 +2160,19 @@ describe.only("YawPitchControl", function() {
 			easing: "linear"
 		};
 
-		class MockRotationPanInput extends RotationPanInput {
-			constructor(el, options) {
-				super(el, options);
-
-				this._screenRotationAngle = {
-					getRadian: function() {
-						return glMatrix.toRadian(90); /* 90 degree */
-					},
-					unref: function() {
-						/* Do nothing */
-					}
-				}
+		class ScreenRotationAngle {
+			getRadian() {
+				return glMatrix.toRadian(90); /* 90 degree */
+			}
+			unref() {
+				/* Do nothing */
 			}
 		}
+
+		const MockRotationPanInput = RotationPanInputInjector({
+			"../ScreenRotationAngle": ScreenRotationAngle
+		}).default;
+
 		const MockYawPitchControl90Rotated = YawPitchControlrInjector({
 			"./input/RotationPanInput": MockRotationPanInput
 		}).default;
@@ -2159,11 +2206,20 @@ describe.only("YawPitchControl", function() {
 			// When
 			Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 				// Then
+<<<<<<< HEAD
 				expect(inst.getYaw()).to.be.not.equal(prevYaw);
 				expect(inst.getPitch()).to.be.equal(prevPitch);
+=======
+				const currYaw = inst.getYaw();
+				const currPitch = inst.getPitch();
+
+				expect(currYaw).to.be.not.equal(prevYaw);
+				expect(currPitch).to.be.equal(prevPitch);
+>>>>>>> 30d2ee053000c39b789ec3e44a8f0269288c0aac
 				done();
 			});
 		});
+
 		it("should not change yaw when direction = TOUCH_DIRECTION_YAW & moved horizontally", done => {
 			// Given
 			inst = new MockYawPitchControl90Rotated({

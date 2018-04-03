@@ -21,11 +21,26 @@ export default class RotationPanInput extends PanInput {
 	 */
 	constructor(el, options) {
 		super(el, options);
-		this._useRotation = !!(options && options.useRotation);
 
+		this._useRotation = false;
 		this._screenRotationAngle = null;
-		this._useRotation && (this._screenRotationAngle = new ScreenRotationAngle());
+
+		this.setUseRotation(!!(options && options.useRotation));
+
 		this._userDirection = Axes.DIRECTION_ALL;
+	}
+
+	setUseRotation(useRotation) {
+		this._useRotation = useRotation;
+
+		if (this._screenRotationAngle) {
+			this._screenRotationAngle.unref();
+			this._screenRotationAngle = null;
+		}
+
+		if (this._useRotation) {
+			this._screenRotationAngle = new ScreenRotationAngle();
+		}
 	}
 
 	connect(observer) {

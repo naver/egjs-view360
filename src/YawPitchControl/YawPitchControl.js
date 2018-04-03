@@ -238,7 +238,8 @@ const YawPitchControl = class YawPitchControl extends Component {
 		}
 
 		if (keys.some(key => key === "gyroMode") && SUPPORT_DEVICEMOTION) {
-			const gyroMode = this.options.gyroMode;
+			const isVR = this.options.gyroMode === GYRO_MODE.VR;
+			const isYawPitch = this.options.gyroMode === GYRO_MODE.YAWPITCH;
 
 			// Disconnect first
 			if (this.axesTiltMotionInput) {
@@ -252,12 +253,14 @@ const YawPitchControl = class YawPitchControl extends Component {
 				this._deviceQuaternion = null;
 			}
 
-			if (gyroMode === GYRO_MODE.YAWPITCH) {
+			if (isVR) {
+				this._initDeviceQuaternion();
+			} else if (isYawPitch) {
 				this.axesTiltMotionInput = new TiltMotionInput(this._element);
 				this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
-			} else if (gyroMode === GYRO_MODE.VR) {
-				this._initDeviceQuaternion();
 			}
+
+			this.axesPanInput.setUseRotation(isVR);
 		}
 
 		if (keys.some(key => key === "useKeyboard")) {
@@ -484,7 +487,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 		event.pitch = pos.pitch;
 		event.fov = pos.fov;
 
-		if (opt.gyroMode === GYRO_MODE.VR) {
+		if (opt.gyroMode === GYRO_MODE.VR && this._deviceQuaternion) {
 			event.quaternion = this._deviceQuaternion.getCombinedQuaternion(pos.yaw, pos.pitch);
 		}
 		this.trigger("change", event);

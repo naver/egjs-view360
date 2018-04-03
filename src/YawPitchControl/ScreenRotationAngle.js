@@ -1,4 +1,4 @@
-import {window, screen, orientation as winOrientation} from "./browser";
+import {window} from "./browser";
 import {glMatrix} from "../utils/math-util";
 
 // Singleton
@@ -40,10 +40,12 @@ export default class ScreenRotationAngle {
 	}
 
 	_onOrientationChange(e) {
-		if (screen && screen.orientation && screen.orientation.angle !== undefined) {
+		if (window.screen && window.screen.orientation && window.screen.orientation.angle !== undefined) {
 			this._screenOrientationAngle = screen.orientation.angle;
-		} else if (winOrientation !== undefined) {
-			this._screenOrientationAngle = winOrientation >= 0 ? winOrientation : 360 + winOrientation;
+		} else if (window.orientation !== undefined) {
+			/* iOS */
+			this._screenOrientationAngle = window.orientation >= 0 ?
+				window.orientation : 360 + window.orientation;
 		}
 	}
 

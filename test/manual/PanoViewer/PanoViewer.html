@@ -368,7 +368,7 @@ f2.add(object, 'useKeyboard').onChange(function(value) {
   render();
 });
 
-f2.add(object, 'gyroMode', {"none": "none", "yawPitch": "yawPitch"}).onChange(function(value) {
+f2.add(object, 'gyroMode', {"none": "none", "yawPitch": "yawPitch", "VR": "VR"}).onChange(function(value) {
   panoViewer.setGyroMode(value);
   render();
 });
