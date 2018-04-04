@@ -276,33 +276,42 @@ const YawPitchControl = class YawPitchControl extends Component {
 		if (keys.some(key => key === "useZoom")) {
 			const useZoom = this.options.useZoom;
 
-			// Init WheelInput
 			// Disconnect first
 			this.axes.disconnect(this.axesWheelInput);
+			this.axesPinchInput && this.axes.disconnect(this.axesPinchInput);
 
 			if (useZoom) {
 				this.axes.connect(["fov"], this.axesWheelInput);
+				this.axesPinchInput && this.axes.connect(["fov"], this.axesPinchInput);
 			} else {
 				this.axes.disconnect(this.axesWheelInput);
+				this.axesPinchInput && this.axes.disconnect(this.axesPinchInput);
 			}
 
-			// Init PinchInput
-			if (this.axesPinchInput) {
-				// Disconnect first
-				this.axes.disconnect(this.axesPinchInput);
+			this._shouldTogglePinchInput = true;
+		}
 
-				if (useZoom) {
-					this.axes.connect(["fov"], this.axesPinchInput);
-				} else {
-					this.axes.disconnect(this.axesPinchInput);
-				}
-
-				keys.push("touchDirection");
-			}
+		if (keys.some(key => key === "touchDirection") || this._shouldTogglePinchInput) {
+			this._togglePinchInputByOption(this.options.touchDirection, this.options.useZoom);
+			this._shouldTogglePinchInput = false;
 		}
 
 		if (keys.some(key => key === "touchDirection")) {
 			this._enabled && this._enableTouch(this.options.touchDirection);
+		}
+	}
+
+	_togglePinchInputByOption(touchDirection, useZoom) {
+		// If the touchDirection option is not ALL, pinchInput should be disconnected to make use of a native scroll.
+		if (this.axesPinchInput && useZoom) {
+			if (touchDirection === TOUCH_DIRECTION_ALL) {
+				// TODO: Get rid of using private property of axes instance.
+				if (this.axes._inputs.indexOf(this.axesPinchInput) === -1) {
+					this.axes.connect(["fov"], this.axesPinchInput);
+				}
+			} else {
+				this.axes.disconnect(this.axesPinchInput);
+			}
 		}
 	}
 
@@ -312,18 +321,6 @@ const YawPitchControl = class YawPitchControl extends Component {
 
 		const yawEnabled = direction & TOUCH_DIRECTION_YAW ? "yaw" : null;
 		const pitchEnabled = direction & TOUCH_DIRECTION_PITCH ? "pitch" : null;
-
-		// If the touchDirection option is not ALL, pinchInput should be disconnected to make use of a native scroll.
-		if (this.axesPinchInput && this.options.useZoom) {
-			if (direction === TOUCH_DIRECTION_ALL) {
-				// TODO: Get rid of using private property of axes instance.
-				if (this.axes._inputs.indexOf(this.axesPinchInput) === -1) {
-					this.axes.connect(["fov"], this.axesPinchInput);
-				}
-			} else {
-				this.axes.disconnect(this.axesPinchInput);
-			}
-		}
 
 		this.axes.connect([yawEnabled, pitchEnabled], this.axesPanInput);
 	}

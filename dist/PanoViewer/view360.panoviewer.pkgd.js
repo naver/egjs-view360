@@ -11779,29 +11779,26 @@ var YawPitchControl = function (_Component) {
 		})) {
 			var useZoom = this.options.useZoom;
 
-			// Init WheelInput
 			// Disconnect first
 			this.axes.disconnect(this.axesWheelInput);
+			this.axesPinchInput && this.axes.disconnect(this.axesPinchInput);
 
 			if (useZoom) {
 				this.axes.connect(["fov"], this.axesWheelInput);
+				this.axesPinchInput && this.axes.connect(["fov"], this.axesPinchInput);
 			} else {
 				this.axes.disconnect(this.axesWheelInput);
+				this.axesPinchInput && this.axes.disconnect(this.axesPinchInput);
 			}
 
-			// Init PinchInput
-			if (this.axesPinchInput) {
-				// Disconnect first
-				this.axes.disconnect(this.axesPinchInput);
+			this._shouldTogglePinchInput = true;
+		}
 
-				if (useZoom) {
-					this.axes.connect(["fov"], this.axesPinchInput);
-				} else {
-					this.axes.disconnect(this.axesPinchInput);
-				}
-
-				keys.push("touchDirection");
-			}
+		if (keys.some(function (key) {
+			return key === "touchDirection";
+		}) || this._shouldTogglePinchInput) {
+			this._togglePinchInputByOption(this.options.touchDirection, this.options.useZoom);
+			this._shouldTogglePinchInput = false;
 		}
 
 		if (keys.some(function (key) {
@@ -11811,16 +11808,10 @@ var YawPitchControl = function (_Component) {
 		}
 	};
 
-	YawPitchControl.prototype._enableTouch = function _enableTouch(direction) {
-		// Disconnect first
-		this.axesPanInput && this.axes.disconnect(this.axesPanInput);
-
-		var yawEnabled = direction & _consts.TOUCH_DIRECTION_YAW ? "yaw" : null;
-		var pitchEnabled = direction & _consts.TOUCH_DIRECTION_PITCH ? "pitch" : null;
-
+	YawPitchControl.prototype._togglePinchInputByOption = function _togglePinchInputByOption(touchDirection, useZoom) {
 		// If the touchDirection option is not ALL, pinchInput should be disconnected to make use of a native scroll.
-		if (this.axesPinchInput && this.options.useZoom) {
-			if (direction === _consts.TOUCH_DIRECTION_ALL) {
+		if (this.axesPinchInput && useZoom) {
+			if (touchDirection === _consts.TOUCH_DIRECTION_ALL) {
 				// TODO: Get rid of using private property of axes instance.
 				if (this.axes._inputs.indexOf(this.axesPinchInput) === -1) {
 					this.axes.connect(["fov"], this.axesPinchInput);
@@ -11829,6 +11820,14 @@ var YawPitchControl = function (_Component) {
 				this.axes.disconnect(this.axesPinchInput);
 			}
 		}
+	};
+
+	YawPitchControl.prototype._enableTouch = function _enableTouch(direction) {
+		// Disconnect first
+		this.axesPanInput && this.axes.disconnect(this.axesPanInput);
+
+		var yawEnabled = direction & _consts.TOUCH_DIRECTION_YAW ? "yaw" : null;
+		var pitchEnabled = direction & _consts.TOUCH_DIRECTION_PITCH ? "pitch" : null;
 
 		this.axes.connect([yawEnabled, pitchEnabled], this.axesPanInput);
 	};
