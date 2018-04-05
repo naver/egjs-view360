@@ -6388,14 +6388,14 @@ var YawPitchControl = function (_Component) {
 		})) {
 			var useZoom = this.options.useZoom;
 
+			// Disconnect first
+			this.axes.disconnect(this.axesWheelInput);
 			if (useZoom) {
 				this.axes.connect(["fov"], this.axesWheelInput);
-				this.axesPinchInput && this.axes.connect(["fov"], this.axesPinchInput);
-			} else {
-				this.axes.disconnect(this.axesWheelInput);
-				this.axesPinchInput && this.axes.disconnect(this.axesPinchInput);
 			}
 		}
+
+		this._togglePinchInputByOption(this.options.touchDirection, this.options.useZoom);
 
 		if (keys.some(function (key) {
 			return key === "touchDirection";
@@ -6404,7 +6404,24 @@ var YawPitchControl = function (_Component) {
 		}
 	};
 
+	YawPitchControl.prototype._togglePinchInputByOption = function _togglePinchInputByOption(touchDirection, useZoom) {
+		if (this.axesPinchInput) {
+			// disconnect first
+			this.axes.disconnect(this.axesPinchInput);
+
+			// If the touchDirection option is not ALL, pinchInput should be disconnected to make use of a native scroll.
+			if (useZoom && touchDirection === _consts.TOUCH_DIRECTION_ALL &&
+			// TODO: Get rid of using private property of axes instance.
+			this.axes._inputs.indexOf(this.axesPinchInput) === -1) {
+				this.axes.connect(["fov"], this.axesPinchInput);
+			}
+		}
+	};
+
 	YawPitchControl.prototype._enableTouch = function _enableTouch(direction) {
+		// Disconnect first
+		this.axesPanInput && this.axes.disconnect(this.axesPanInput);
+
 		var yawEnabled = direction & _consts.TOUCH_DIRECTION_YAW ? "yaw" : null;
 		var pitchEnabled = direction & _consts.TOUCH_DIRECTION_PITCH ? "pitch" : null;
 
@@ -6415,7 +6432,6 @@ var YawPitchControl = function (_Component) {
 		var _this3 = this;
 
 		this._deviceQuaternion = new _DeviceQuaternion2["default"]();
-
 		this._deviceQuaternion.on("change", function (e) {
 			_this3._triggerChange(e);
 		});
@@ -6635,13 +6651,13 @@ var YawPitchControl = function (_Component) {
 			return this;
 		}
 
-		// touchDirection is decided by parameter is valid string (Ref. Axes.connect)
-		this._enableTouch(this.options.touchDirection);
+		this._enabled = true;
 
+		// touchDirection is decided by parameter is valid string (Ref. Axes.connect)
 		this._applyOptions(Object.keys(this.options), this.options);
+
 		this._setPanScale(this.getFov());
 
-		this._enabled = true;
 		return this;
 	};
 

@@ -24,6 +24,9 @@ import chrome66Sample from "./chrome66Sample";
 import devicemotionRotateSample from "./devicemotionSampleRotate";
 import {glMatrix, quat} from "../../../src/utils/math-util.js";
 
+// PanInput works with pointer event first when browser support pointer event.
+Simulator.setType("pointer");
+
 function agentOnChrome65() {
 	return {
 		browser: {
