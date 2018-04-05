@@ -7068,25 +7068,12 @@ var YawPitchControl = function (_Component) {
 
 			// Disconnect first
 			this.axes.disconnect(this.axesWheelInput);
-			this.axesPinchInput && this.axes.disconnect(this.axesPinchInput);
-
 			if (useZoom) {
 				this.axes.connect(["fov"], this.axesWheelInput);
-				this.axesPinchInput && this.axes.connect(["fov"], this.axesPinchInput);
-			} else {
-				this.axes.disconnect(this.axesWheelInput);
-				this.axesPinchInput && this.axes.disconnect(this.axesPinchInput);
 			}
-
-			this._shouldTogglePinchInput = true;
 		}
 
-		if (keys.some(function (key) {
-			return key === "touchDirection";
-		}) || this._shouldTogglePinchInput) {
-			this._togglePinchInputByOption(this.options.touchDirection, this.options.useZoom);
-			this._shouldTogglePinchInput = false;
-		}
+		this._togglePinchInputByOption(this.options.touchDirection, this.options.useZoom);
 
 		if (keys.some(function (key) {
 			return key === "touchDirection";
@@ -7096,15 +7083,15 @@ var YawPitchControl = function (_Component) {
 	};
 
 	YawPitchControl.prototype._togglePinchInputByOption = function _togglePinchInputByOption(touchDirection, useZoom) {
-		// If the touchDirection option is not ALL, pinchInput should be disconnected to make use of a native scroll.
-		if (this.axesPinchInput && useZoom) {
-			if (touchDirection === _consts.TOUCH_DIRECTION_ALL) {
-				// TODO: Get rid of using private property of axes instance.
-				if (this.axes._inputs.indexOf(this.axesPinchInput) === -1) {
-					this.axes.connect(["fov"], this.axesPinchInput);
-				}
-			} else {
-				this.axes.disconnect(this.axesPinchInput);
+		if (this.axesPinchInput) {
+			// disconnect first
+			this.axes.disconnect(this.axesPinchInput);
+
+			// If the touchDirection option is not ALL, pinchInput should be disconnected to make use of a native scroll.
+			if (useZoom && touchDirection === _consts.TOUCH_DIRECTION_ALL &&
+			// TODO: Get rid of using private property of axes instance.
+			this.axes._inputs.indexOf(this.axesPinchInput) === -1) {
+				this.axes.connect(["fov"], this.axesPinchInput);
 			}
 		}
 	};
