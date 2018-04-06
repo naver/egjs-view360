@@ -844,7 +844,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*! Hammer.JS - v2.0.7 - 2016-04-22
  * Licensed under the MIT license */
 (function(window, document, exportName, undefined) {
   'use strict';
-
 var VENDOR_PREFIXES = ['', 'webkit', 'Moz', 'MS', 'ms', 'o'];
 var TEST_ELEMENT = document.createElement('div');
 
@@ -2545,7 +2544,7 @@ inherit(AttrRecognizer, Recognizer, {
      * @returns {Boolean} recognized
      */
     attrTest: function(input) {
-        var optionPointers = this.options.pointers;
+		var optionPointers = this.options.pointers;
         return optionPointers === 0 || input.pointers.length === optionPointers;
     },
 
@@ -2622,7 +2621,7 @@ inherit(PanRecognizer, AttrRecognizer, {
         var x = input.deltaX;
         var y = input.deltaY;
 
-        // lock to axis?
+		// lock to axis?
         if (!(direction & options.direction)) {
             if (options.direction & DIRECTION_HORIZONTAL) {
                 direction = (x === 0) ? DIRECTION_NONE : (x < 0) ? DIRECTION_LEFT : DIRECTION_RIGHT;
@@ -2639,12 +2638,12 @@ inherit(PanRecognizer, AttrRecognizer, {
     },
 
     attrTest: function(input) {
-        return AttrRecognizer.prototype.attrTest.call(this, input) &&
-            (this.state & STATE_BEGAN || (!(this.state & STATE_BEGAN) && this.directionTest(input)));
+        var ret = AttrRecognizer.prototype.attrTest.call(this, input) &&
+			(this.state & STATE_BEGAN || (!(this.state & STATE_BEGAN) && this.directionTest(input)));
+		return ret;
     },
 
     emit: function(input) {
-
         this.pX = input.deltaX;
         this.pY = input.deltaY;
 
@@ -3203,7 +3202,7 @@ Manager.prototype = {
             //      this can be setup with the `recognizeWith()` method on the recognizer.
             if (session.stopped !== FORCED_STOP && ( // 1
                     !curRecognizer || recognizer == curRecognizer || // 2
-                    recognizer.canRecognizeWith(curRecognizer))) { // 3
+					recognizer.canRecognizeWith(curRecognizer))) { // 3
                 recognizer.recognize(inputData);
             } else {
                 recognizer.reset();
@@ -6106,7 +6105,7 @@ var SpinViewer = function (_Component) {
   *
   * @example
   *
-  * viewer.spinBy({angle: 720, duration: 500});
+  * viewer.spinBy(720, {duration: 500});
   */
 
 
@@ -6168,7 +6167,7 @@ exports["default"] = SpinViewer;
 
 
 exports.__esModule = true;
-exports.SpriteImage = exports.SpinViewer = undefined;
+exports.VERSION = exports.SpriteImage = exports.SpinViewer = undefined;
 
 var _SpinViewer = __webpack_require__(35);
 
@@ -6180,11 +6179,15 @@ var _SpriteImage2 = _interopRequireDefault(_SpriteImage);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+var VERSION = "3.0.0-rc";
+
 exports.SpinViewer = _SpinViewer2["default"];
 exports.SpriteImage = _SpriteImage2["default"];
+exports.VERSION = VERSION;
 
 
-_SpinViewer2["default"].VERSION = "3.0.0-rc";
+_SpinViewer2["default"].VERSION = VERSION;
+_SpriteImage2["default"].VERSION = VERSION;
 
 /***/ })
 /******/ ]);

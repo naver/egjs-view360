@@ -4860,7 +4860,7 @@ PanoViewer.TOUCH_DIRECTION = {
 
 
 exports.__esModule = true;
-exports.PanoViewer = undefined;
+exports.VERSION = exports.PanoViewer = undefined;
 
 var _PanoViewer = __webpack_require__(18);
 
@@ -4868,7 +4868,13 @@ var _PanoViewer2 = _interopRequireDefault(_PanoViewer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+var VERSION = "3.0.0-rc";
+
 exports.PanoViewer = _PanoViewer2["default"];
+exports.VERSION = VERSION;
+
+
+_PanoViewer2["default"].VERSION = VERSION;
 
 /***/ }),
 /* 20 */
@@ -5118,7 +5124,7 @@ var SpinViewer = function (_Component) {
   *
   * @example
   *
-  * viewer.spinBy({angle: 720, duration: 500});
+  * viewer.spinBy(720, {duration: 500});
   */
 
 
@@ -5180,7 +5186,7 @@ exports["default"] = SpinViewer;
 
 
 exports.__esModule = true;
-exports.SpriteImage = exports.SpinViewer = undefined;
+exports.VERSION = exports.SpriteImage = exports.SpinViewer = undefined;
 
 var _SpinViewer = __webpack_require__(20);
 
@@ -5192,11 +5198,15 @@ var _SpriteImage2 = _interopRequireDefault(_SpriteImage);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+var VERSION = "3.0.0-rc";
+
 exports.SpinViewer = _SpinViewer2["default"];
 exports.SpriteImage = _SpriteImage2["default"];
+exports.VERSION = VERSION;
 
 
-_SpinViewer2["default"].VERSION = "3.0.0-rc";
+_SpinViewer2["default"].VERSION = VERSION;
+_SpriteImage2["default"].VERSION = VERSION;
 
 /***/ }),
 /* 22 */

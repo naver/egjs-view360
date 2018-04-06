@@ -1,9 +1,13 @@
 import SpinViewer from "./SpinViewer";
 import SpriteImage from "./SpriteImage";
 
+const VERSION = "#__VERSION__#";
+
 export {
 	SpinViewer,
-	SpriteImage
+	SpriteImage,
+	VERSION
 };
 
-SpinViewer.VERSION = "#__VERSION__#";
+SpinViewer.VERSION = VERSION;
+SpriteImage.VERSION = VERSION;
