@@ -1,5 +1,10 @@
 import PanoViewer from "./PanoViewer";
 
+const VERSION = "#__VERSION__#";
+
 export {
-	PanoViewer
+	PanoViewer,
+	VERSION
 };
+
+PanoViewer.VERSION = VERSION;
