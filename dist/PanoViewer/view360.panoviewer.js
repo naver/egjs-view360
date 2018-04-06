@@ -4508,7 +4508,7 @@ PanoViewer.TOUCH_DIRECTION = {
 
 
 exports.__esModule = true;
-exports.PanoViewer = undefined;
+exports.VERSION = exports.PanoViewer = undefined;
 
 var _PanoViewer = __webpack_require__(18);
 
@@ -4516,7 +4516,13 @@ var _PanoViewer2 = _interopRequireDefault(_PanoViewer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+var VERSION = "3.0.0-rc";
+
 exports.PanoViewer = _PanoViewer2["default"];
+exports.VERSION = VERSION;
+
+
+_PanoViewer2["default"].VERSION = VERSION;
 
 /***/ }),
 /* 20 */,
