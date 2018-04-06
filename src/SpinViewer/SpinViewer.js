@@ -209,7 +209,7 @@ export default class SpinViewer extends Component {
 	 *
 	 * @example
 	 *
-	 * viewer.spinBy({angle: 720, duration: 500});
+	 * viewer.spinBy(720, {duration: 500});
 	 */
 	spinBy(angle = 0, param = {duration: 0}) {
 		this._axes.setBy({angle}, param.duration);
