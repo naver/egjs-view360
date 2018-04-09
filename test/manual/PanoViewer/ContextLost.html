@@ -100,7 +100,7 @@
       var contextCnt = 0;
       viewerInstances.forEach(function (curr, idx, arr) {
         // TODO: _photoSphereRender is private. it is used for test only.
-        if (curr._photoSphereRenderer) {
+        if (curr && curr._photoSphereRenderer) {
           var isContextActive = (curr._photoSphereRenderer.hasRenderingContext());
           isContextActive && contextCnt++;
         }
