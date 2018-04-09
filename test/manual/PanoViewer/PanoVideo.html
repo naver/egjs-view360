@@ -59,8 +59,8 @@
     var videoSrc = document.getElementById("videoSrc");
     var panoViewer = new eg.view360.PanoViewer(rootNode, {
       video: videoSrc,
-      imageType: "equirectangular",
-      controlMode: "gallery_yaw_pitch"
+      projectionType: "equirectangular",
+      gyroMode: "yawPitch"
     }).on("ready", function() {
       document.getElementById("play").addEventListener("click", function() {
         videoSrc.play();
