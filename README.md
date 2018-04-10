@@ -2,6 +2,10 @@
 
 egjs-view360 is a 360 integrated viewing solution from **inside-out view** to **outside-in view**. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.
 
+## `NEW` v3.0 Released
+
+For more information, visit [3.0 Change Notes](https://github.com/naver/egjs-view360/wiki/3.0.0-Change-Notes)/[Korean](https://github.com/naver/egjs-view360/wiki/3.0.0-Change-Notes-%7C-%ED%95%9C%EA%B5%AD%EC%96%B4)
+
 ## Components
 egjs-view360 provides the following components.
 
@@ -10,7 +14,7 @@ egjs-view360 provides the following components.
 |View|Inside-out|Outside-in|
 |Example| <img width="412" src="https://raw.githubusercontent.com/naver/egjs-view360/master/demo/assets/img/panoviewer_thumbnail.gif">|<img width="300" src="https://raw.githubusercontent.com/naver/egjs-view360/master/demo/assets/img/basic_spinview_thumb.gif">|
 ### [PanoViewer](https://naver.github.io/egjs-view360/panoviewer.html)
-It is a component that supports the **inside-out viewing** method in which observer becomes the center of the world and looks around. Full 360 photos taken with a 360-degree camera, as well as panoramic photos taken with a mobile phone. Touch, mouse, and keyboard, as well as sophisticated customized motion sensing support, provide immersive immersion in virtual reality.
+It is a component that supports the **inside-out viewing** method in which observer becomes the center of the world and looks around. Full 360 photos & videos taken with a 360-degree camera, as well as panoramic photos taken with a mobile phone. Touch, mouse, and keyboard, as well as sophisticated customized motion sensing support, provide immersive immersion in virtual reality.
 
 ### [SpinViewer](https://naver.github.io/egjs-view360/spinviewer.html)
 It is a component that supports the **outside-in viewing** method in which the object is centered and the observer can turn around and observe the object. All you need to do is create a sprite image of objects from multiple angles. By giving images to components, we'll give you the experience of turning things around as if they were in your hands.
