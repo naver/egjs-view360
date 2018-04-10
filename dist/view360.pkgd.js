@@ -9990,15 +9990,17 @@ var PanoViewer = function (_Component) {
   * @ko true 로 설정 시 휠 혹은 집기 동작으로 확대/축소 할 수 있습니다. false 설정 시 확대/축소 기능을 비활성화 합니다. 단, 터치인 경우 touchDirection 설정이 {@link eg.view360.PanoViewer.TOUCH_DIRECTION.ALL} 인 경우에만 pinch 가 동작합니다.
   * @method eg.view360.PanoViewer#setUseZoom
   * @param {Boolean} useZoom
+  * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
   */
 
 
 	PanoViewer.prototype.setUseZoom = function setUseZoom(useZoom) {
 		if (typeof useZoom !== "boolean") {
-			return;
+			return this;
 		}
 
 		this._yawPitchControl.option("useZoom", useZoom);
+		return this;
 	};
 
 	/**
@@ -10006,11 +10008,13 @@ var PanoViewer = function (_Component) {
   * @ko true이면 키보드 이동 키 컨트롤을 활성화합니다. (awsd, 화살표 키)
   * @method eg.view360.PanoViewer#setUseKeyboard
   * @param {Boolean} useKeyboard
+  * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
   */
 
 
 	PanoViewer.prototype.setUseKeyboard = function setUseKeyboard(useKeyboard) {
 		this._yawPitchControl.option("useKeyboard", useKeyboard);
+		return this;
 	};
 
 	/**
@@ -10018,6 +10022,7 @@ var PanoViewer = function (_Component) {
   * @ko 디바이스 움직임을 통한 컨트롤을 활성화 합니다. ("none", "yawPitch", "VR")
   * @method eg.view360.PanoViewer#setGyroMode
   * @param {String} gyroMode {@link eg.view360.PanoViewer.GYRO_MODE}
+  * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
   * @example
   * panoViewer.setGyroMode("yawPitch");
   * //equivalent
@@ -10027,6 +10032,7 @@ var PanoViewer = function (_Component) {
 
 	PanoViewer.prototype.setGyroMode = function setGyroMode(gyroMode) {
 		this._yawPitchControl.option("gyroMode", gyroMode);
+		return this;
 	};
 
 	/**
@@ -10034,6 +10040,7 @@ var PanoViewer = function (_Component) {
   * @ko 제어 가능한 FOV 구간을 설정합니다.
   * @method eg.view360.PanoViewer#setFovRange
   * @param {Array} range
+  * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
   * @example
   * panoViewer.setFovRange([50, 90]);
   */
@@ -10041,6 +10048,7 @@ var PanoViewer = function (_Component) {
 
 	PanoViewer.prototype.setFovRange = function setFovRange(range) {
 		this._yawPitchControl.option("fovRange", range);
+		return this;
 	};
 
 	/**
@@ -10064,12 +10072,13 @@ var PanoViewer = function (_Component) {
   * @param {Object} [size]
   * @param {Number} [size.width=width of container]
   * @param {Number} [size.height=height of container]
+  * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
   */
 
 
 	PanoViewer.prototype.updateViewportDimensions = function updateViewportDimensions(size) {
 		if (!this._isReady) {
-			return;
+			return this;
 		}
 		this._width = size && size.width || parseInt(window.getComputedStyle(this._container).width, 10);
 		this._height = size && size.height || parseInt(window.getComputedStyle(this._container).height, 10);
@@ -10078,6 +10087,7 @@ var PanoViewer = function (_Component) {
 		this._yawPitchControl.option("aspectRatio", this._aspectRatio);
 
 		this.lookAt({}, 0);
+		return this;
 	};
 
 	/**
@@ -10154,13 +10164,15 @@ var PanoViewer = function (_Component) {
   * @ko 컨트롤 가능한 Yaw 구간을 반환합니다.
   * @method eg.view360.PanoViewer#setYawRange
   * @param {Array} range
+  * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
   * @example
   * panoViewer.setYawRange([-90, 90]);
   */
 
 
 	PanoViewer.prototype.setYawRange = function setYawRange(yawRange) {
-		return this._yawPitchControl.option("yawRange", yawRange);
+		this._yawPitchControl.option("yawRange", yawRange);
+		return this;
 	};
 
 	/**
@@ -10168,25 +10180,29 @@ var PanoViewer = function (_Component) {
   * @ko 컨트롤 가능한 Pitch 구간을 설정합니다.
   * @method eg.view360.PanoViewer#setPitchRange
   * @param {Array} range
+  * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
   * @example
   * panoViewer.setPitchRange([-40, 40]);
   */
 
 
 	PanoViewer.prototype.setPitchRange = function setPitchRange(pitchRange) {
-		return this._yawPitchControl.option("pitchRange", pitchRange);
+		this._yawPitchControl.option("pitchRange", pitchRange);
+		return this;
 	};
 
 	/**
   * Specifies whether to display the pole by limiting the pitch range. If it is true, pole point can be displayed. If it is false, it is not displayed.
   * @ko pitch 범위를 제한하여 극점을 표시할지를 지정합니다. true 인 경우 극점까지 표현할 수 있으며 false 인 경우 극점까지 표시하지 않습니다.
-  * @method eg.view360.PanoViewer#setPitchRange
+  * @method eg.view360.PanoViewer#setShowPolePoint
   * @param {Boolean} showPolePoint
+  * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
   */
 
 
 	PanoViewer.prototype.setShowPolePoint = function setShowPolePoint(showPolePoint) {
-		return this._yawPitchControl.option("showPolePoint", showPolePoint);
+		this._yawPitchControl.option("showPolePoint", showPolePoint);
+		return this;
 	};
 
 	/**
@@ -10198,6 +10214,7 @@ var PanoViewer = function (_Component) {
   * @param {Number} orientation.pitch Target pitch in degree <ko>목표 pitch (degree 단위)</ko>
   * @param {Number} orientation.fov Target vertical fov in degree <ko>목표 수직 fov (degree 단위)</ko>
   * @param {Number} duration Animation duration in milliseconds <ko>애니메이션 시간 (밀리 초)</ko>
+  * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
   * @example
   * // Change the yaw angle (absolute angle) to 30 degrees for one second.
   * panoViewer.lookAt({yaw: 30}, 1000);
@@ -10206,7 +10223,7 @@ var PanoViewer = function (_Component) {
 
 	PanoViewer.prototype.lookAt = function lookAt(orientation, duration) {
 		if (!this._isReady) {
-			return;
+			return this;
 		}
 
 		var yaw = orientation.yaw !== undefined ? orientation.yaw : this._yaw;
@@ -10224,6 +10241,7 @@ var PanoViewer = function (_Component) {
 		if (duration === 0) {
 			this._photoSphereRenderer.render(yaw, pitch, fov);
 		}
+		return this;
 	};
 
 	PanoViewer.prototype._activate = function _activate() {
@@ -10330,6 +10348,7 @@ var PanoViewer = function (_Component) {
   * Destroy viewer. Remove all registered event listeners and remove viewer canvas.
   * @ko 뷰어 인스턴스를 해제합니다. 모든 등록된 이벤트리스너를 제거하고 뷰어 캔버스를 삭제합니다.
   * @method eg.view360.PanoViewer#destroy
+  * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
   */
 
 
@@ -10340,6 +10359,8 @@ var PanoViewer = function (_Component) {
 			this._yawPitchControl.destroy();
 			this._yawPitchControl = null;
 		}
+
+		return this;
 	};
 
 	/**
