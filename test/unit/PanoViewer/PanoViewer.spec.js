@@ -601,7 +601,7 @@ describe("PanoViewer", function() {
 	});
 
 	describe("Return value of setter", function() {
-		it("should returns PanoViewer instance when setter is called.", () => {
+		it("should return instance of PanoViewer when setter is called.", () => {
 			// Given
 			let target;
 			let panoViewer;
