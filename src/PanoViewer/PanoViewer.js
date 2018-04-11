@@ -20,9 +20,9 @@ export default class PanoViewer extends Component {
 	 * @param {HTMLElement} container The container element for the renderer. <ko>렌더러의 컨테이너 엘리먼트</ko>
 	 * @param {Object} config
 	 *
-	 * @param {String|Image} config.image Input image url or element<ko>입력 이미지 URL 혹은 엘리먼트(image 와 video 둘 중 하나만 설정한다.)</ko>
-	 * @param {String|HTMLVideoElement} config.video Input video url or element<ko>입력 비디오 URL 혹은 엘리먼트(image 와 video 둘 중 하나만 설정한다.)</ko>
-	 * @param {String} [config.projectionType=equirectangular] The type of projection: equirectangular, cubemap <ko>Projection 유형 : equirectangular, cubemap</ko>
+	 * @param {String|Image} config.image Input image url or element (Use only image property or video property)<ko>입력 이미지 URL 혹은 엘리먼트(image 와 video 둘 중 하나만 설정)</ko>
+	 * @param {String|HTMLVideoElement} config.video Input video url or element(Use only image property or video property)<ko>입력 비디오 URL 혹은 엘리먼트(image 와 video 둘 중 하나만 설정)</ko>
+	 * @param {String} [config.projectionType=equirectangular] The type of projection: equirectangular, cubemap <br/>{@link eg.view360.PanoViewer.PROJECTION_TYPE}<ko>Projection 유형 : equirectangular, cubemap <br/>{@link eg.view360.PanoViewer.PROJECTION_TYPE}</ko>
 	 * @param {Object} config.cubemapConfig config cubemap projection layout. <ko>cubemap projection type 의 레이아웃을 설정한다.</ko>
 	 * @param {Number} [config.width=width of container] the viewer's width. (in px) <ko>뷰어의 너비 (px 단위)</ko>
 	 * @param {Number} [config.height=height of container] the viewer's height.(in px) <ko>뷰어의 높이 (px 단위)</ko>
@@ -33,11 +33,24 @@ export default class PanoViewer extends Component {
 	 * @param {Boolean} [config.showPolePoint=false] If false, the pole is not displayed inside the viewport <ko>false 인 경우, 극점은 뷰포트 내부에 표시되지 않습니다</ko>
 	 * @param {Boolean} [config.useZoom=true] When true, enables zoom with the wheel and Pinch gesture <ko>true 일 때 휠 및 집기 제스춰로 확대 / 축소 할 수 있습니다.</ko>
 	 * @param {Boolean} [config.useKeyboard=true] When true, enables the keyboard move key control: awsd, arrow keys <ko>true 이면 키보드 이동 키 컨트롤을 활성화합니다: awsd, 화살표 키</ko>
-	 * @param {String} [config.gyroMode=yawPitch] Enables control through device motion. ("none", "yawPitch") <ko>디바이스 움직임을 통한 컨트롤을 활성화 합니다. ("none", "yawPitch") </ko>
+	 * @param {String} [config.gyroMode=yawPitch] Enables control through device motion. ("none", "yawPitch", "VR") <br/>{@link eg.view360.PanoViewer.GYRO_MODE} <ko>디바이스 움직임을 통한 컨트롤을 활성화 합니다. ("none", "yawPitch", "VR") <br/>{@link eg.view360.PanoViewer.GYRO_MODE} </ko>
 	 * @param {Array} [config.yawRange=[-180, 180]] Range of controllable Yaw values <ko>제어 가능한 Yaw 값의 범위</ko>
 	 * @param {Array} [config.pitchRange=[-90, 90]] Range of controllable Pitch values <ko>제어 가능한 Pitch 값의 범위</ko>
 	 * @param {Array} [config.fovRange=[30, 110]] Range of controllable vertical field of view values <ko>제어 가능한 수직 field of view 값의 범위</ko>
-	 * @param {Number} [config.touchDirection= PanoViewer.TOUCH_DIRECTION.ALL(6)] Direction of touch that can be controlled by user {@link eg.PanoViewer.TOUCH_DIRECTION}<ko>사용자가 터치로 조작 가능한 방향 {@link eg.PanoViewer.TOUCH_DIRECTION}</ko>
+	 * @param {Number} [config.touchDirection= {@link eg.view360.PanoViewer.TOUCH_DIRECTION.ALL}(6)] Direction of touch that can be controlled by user <br/>{@link eg.view360.PanoViewer.TOUCH_DIRECTION}<ko>사용자가 터치로 조작 가능한 방향 <br/>{@link eg.view360.PanoViewer.TOUCH_DIRECTION}</ko>
+	 *
+	 * @example
+	 *
+	 * // create PanoViewer with option
+	 * var PanoViewer = eg.view360.PanoViewer;
+	 * // Area where the image will be displayed(HTMLElement)
+	 * var container = document.getElementById("myPanoViewer");
+	 *
+	 * var panoViewer = new PanoViewer(container, {
+	 *     // If projectionType is not specified, the default is "equirectangular".
+	 *     // Specifies an image of the "equirectangular" type.
+	 *     image: "/path/to/image/image.jpg"
+	 *});
 	 */
 	constructor(container, options = {}) {
 		super();
@@ -119,10 +132,13 @@ export default class PanoViewer extends Component {
 	}
 
 	/**
-		* Getting the video element that the viewer is currently playing. You can use this for playback.
+		* Get the video element that the viewer is currently playing. You can use this for playback.
 		* @ko 뷰어가 현재 사용 중인 비디오 요소를 얻습니다. 이 요소를 이용해 비디오의 컨트롤을 할 수 있습니다.
 		* @method eg.view360.PanoViewer#getVideo
 		* @return {HTMLVideoElement} HTMLVideoElement<ko>HTMLVideoElement</ko>
+		* @example
+		* var videoTag = panoViewer.getVideo();
+		* videoTag.play(); // play video!
 		*/
 	getVideo() {
 		if (!this._isVideo) {
@@ -133,37 +149,39 @@ export default class PanoViewer extends Component {
 	}
 
 	/**
-	 * Setting the video information to be used by the viewer.
-	 * @ko 뷰어가 사용할 이미지 정보를 설정 합니다.
+	 * Set the video information to be used by the viewer.
+	 * @ko 뷰어가 사용할 이미지 정보를 설정합니다.
 	 * @method eg.view360.PanoViewer#setVideo
-	 * @param {String|HTMLVideoElement|Object} video Input video url or element or config object<ko>입력 비디오 URL 혹은 엘리먼트 혹은 설정객체를 활용(image 와 video 둘 중 하나만 설정한다.)</ko>
+	 * @param {String|HTMLVideoElement|Object} video Input video url or element or config object<ko>입력 비디오 URL 혹은 엘리먼트 혹은 설정객체를 활용(image 와 video 둘 중 하나만 설정)</ko>
 	 * @param {Object} param
-	 * @param {String} [param.projectionType="equirectangular"] Projection Type<ko>프로젝션 타입</ko>
-	 * @param {Object} param.cubemapConfig config cubemap projection layout. <ko>cubemap projection type 의 레이아웃을 설정한다.</ko>
+	 * @param {String} [param.projectionType={@link eg.view360.PanoViewer.PROJECTION_TYPE.EQUIRECTANGULAR}("equirectangular")] Projection Type<ko>프로젝션 타입</ko>
+	 * @param {Object} param.cubemapConfig config cubemap projection layout. <ko>cubemap projection type 의 레이아웃 설정</ko>
 	 *
-	 * @return {PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
+	 * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
+	 * @example
+	 * panoViewer.setVideo("/path/to/video/video.mp4", {
+	 *     projectionType: eg.view360.PanoViewer.PROJECTION_TYPE.EQUIRECTANGULAR
+	 * });
 	 */
 	setVideo(video, param = {}) {
-		if (!video) {
-			return this;
-		}
-
-		this.setImage(
-			video,
-			{
+		if (video) {
+			this.setImage(video, {
 				projectionType: param.projectionType,
 				isVideo: true,
 				cubemapConfig: param.cubemapConfig
-			}
-		);
+			});
+		}
+
 		return this;
 	}
 
 	/**
-	 * Getting the image information that the viewer is currently using.
+	 * Get the image information that the viewer is currently using.
 	 * @ko 뷰어가 현재 사용하고있는 이미지 정보를 얻습니다.
 	 * @method eg.view360.PanoViewer#getImage
 	 * @return {Image} Image Object<ko>이미지 객체</ko>
+	 * @example
+	 * var imageObj = panoViewer.getImage();
 	 */
 	getImage() {
 		if (this._isVideo) {
@@ -174,15 +192,19 @@ export default class PanoViewer extends Component {
 	}
 
 	/**
-	 * Setting the image information to be used by the viewer.
-	 * @ko 뷰어가 사용할 이미지 정보를 설정 합니다.
+	 * Set the image information to be used by the viewer.
+	 * @ko 뷰어가 사용할 이미지 정보를 설정합니다.
 	 * @method eg.view360.PanoViewer#setImage
 	 * @param {String|Image|Object} image Input image url or element or config object<ko>입력 이미지 URL 혹은 엘리먼트 혹은 설정객체를 활용(image 와 video 둘 중 하나만 설정한다.)</ko>
 	 * @param {Object} param Additional information<ko>이미지 추가 정보</ko>
 	 * @param {String} [param.projectionType="equirectangular"] Projection Type<ko>프로젝션 타입</ko>
-	 * @param {Object} param.cubemapConfig config cubemap projection layout. <ko>cubemap projection type 의 레이아웃을 설정한다.</ko>
+	 * @param {Object} param.cubemapConfig config cubemap projection layout. <ko>cubemap projection type 레이아웃</ko>
 	 *
-	 * @return {PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
+	 * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
+	 * @example
+	 * panoViewer.setImage("/path/to/image/image.png", {
+	 *     projectionType: eg.view360.PanoViewer.PROJECTION_TYPE.CUBEMAP
+	 * });
 	 */
 	setImage(image, param = {}) {
 		const cubemapConfig = Object.assign({
@@ -201,27 +223,26 @@ export default class PanoViewer extends Component {
 			return this;
 		}
 
-		if (!image) {
-			return this;
+		if (image) {
+			this._image = image;
+			this._isVideo = isVideo;
+			this._projectionType = param.projectionType || PROJECTION_TYPE.EQUIRECTANGULAR;
+			this._cubemapConfig = cubemapConfig;
+
+			this._deactivate();
+			this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType, this._cubemapConfig);
 		}
-
-		this._image = image;
-		this._isVideo = isVideo;
-		this._projectionType = param.projectionType || PROJECTION_TYPE.EQUIRECTANGULAR;
-		this._cubemapConfig = cubemapConfig;
-
-		this._deactivate();
-		this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType, this._cubemapConfig);
 
 		return this;
 	}
 
 	/**
-	 * Can set whether the renderer always updates the texture and renders.
-	 * @ko 렌더러가 항상 텍스쳐를 갱신하고 화면을 렌더링 할지 여부를 설정할 수 있다.
+	 * Set whether the renderer always updates the texture and renders.
+	 * @ko 렌더러가 항상 텍스쳐를 갱신하고 화면을 렌더링 할지 여부를 설정할 수 있습니다.
 	 *
 	 * @method eg.view360.PanoViewer#keepUpdate
-	 * @param {Boolean} doUpdate When true, viewer will always update texture and render, when false viewer will not update texture and render only camera config is changed.<ko>True면, 항상 텍스쳐를 갱신하고 화면을 그린다. False 면 텍스쳐 갱신은 하지 않으며, 카메라 요소에 변화가 있을 때에만 화면을 그린다.</ko>
+	 * @param {Boolean} doUpdate When true viewer will always update texture and render, when false viewer will not update texture and render only camera config is changed.<ko>true면 항상 텍스쳐를 갱신하고 화면을 그리는 반면, false면 텍스쳐 갱신은 하지 않으며, 카메라 요소에 변화가 있을 때에만 화면을 그립니다.</ko>
+	 * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
 	 */
 	keepUpdate(doUpdate) {
 		this._photoSphereRenderer.keepUpdate(doUpdate);
@@ -230,9 +251,10 @@ export default class PanoViewer extends Component {
 
 	/**
 	 * Get projection type (equirectangular/cube)
-	 * @ko 프로젝션 타입(Equirectangular 혹은 Cube)을 반환한다.
+	 * @ko 프로젝션 타입(Equirectangular 혹은 Cube)을 반환합니다.
 	 *
 	 * @method eg.view360.PanoViewer#getProjectionType
+	 * @return {String} {@link eg.view360.PanoViewer.PROJECTION_TYPE}
 	 */
 	getProjectionType() {
 		return this._projectionType;
@@ -321,13 +343,20 @@ export default class PanoViewer extends Component {
 		 * 		15: RENDERING_CONTEXT_LOST: WebGL context lost 발생
 		 * </ko>
 		 * @param {String} param.message Error message <ko>에러 메시지</ko>
-		 *
+		 * @see {@link eg.view360.PanoViewer.ERROR_TYPE}
 		 * @example
 		 *
 		 * viwer.on({
 		 *	"error" : function(evt) {
 		 *		// evt.type === 13
-		 *		// evt.messaeg === "failed to bind texture"
+		 *		// evt.message === "failed to bind texture"
+		 * });
+		 *
+		 * // constant can be used
+		 * viwer.on({
+		 *	eg.view360.PanoViewer.EVENTS.ERROR : function(evt) {
+		 *		// evt.type === eg.view360.PanoViewer.ERROR_TYPE.FAIL_BIND_TEXTURE
+		 *		// evt.message === "failed to bind texture"
 		 * });
 		 */
 
@@ -378,17 +407,16 @@ export default class PanoViewer extends Component {
 	}
 
 	/**
-	 * When set true, enables zoom with the wheel and Pinch gesture
-	 * @ko true 로 설정 시 휠 및 집기 동작으로 확대 / 축소 할 수 있습니다.
+	 * When set true, enables zoom with the wheel or pinch gesture. However, in the case of touch, pinch works only when the touchDirection setting is {@link eg.view360.PanoViewer.TOUCH_DIRECTION.ALL}.
+	 * @ko true 로 설정 시 휠 혹은 집기 동작으로 확대/축소 할 수 있습니다. false 설정 시 확대/축소 기능을 비활성화 합니다. 단, 터치인 경우 touchDirection 설정이 {@link eg.view360.PanoViewer.TOUCH_DIRECTION.ALL} 인 경우에만 pinch 가 동작합니다.
 	 * @method eg.view360.PanoViewer#setUseZoom
 	 * @param {Boolean} useZoom
+	 * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
 	 */
 	setUseZoom(useZoom) {
-		if (typeof useZoom !== "boolean") {
-			return;
-		}
+		typeof useZoom !== "boolean" && this._yawPitchControl.option("useZoom", useZoom);
 
-		this._yawPitchControl.option("useZoom", useZoom);
+		return this;
 	}
 
 	/**
@@ -396,52 +424,67 @@ export default class PanoViewer extends Component {
 	 * @ko true이면 키보드 이동 키 컨트롤을 활성화합니다. (awsd, 화살표 키)
 	 * @method eg.view360.PanoViewer#setUseKeyboard
 	 * @param {Boolean} useKeyboard
+	 * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
 	 */
 	setUseKeyboard(useKeyboard) {
 		this._yawPitchControl.option("useKeyboard", useKeyboard);
+		return this;
 	}
 
 	/**
-	 * Enables control through device motion. ("none", "yawPitch")
-	 * @ko 디바이스 움직임을 통한 컨트롤을 활성화 합니다. ("none", "yawPitch")
+	 * Enables control through device motion. ("none", "yawPitch", "VR")
+	 * @ko 디바이스 움직임을 통한 컨트롤을 활성화 합니다. ("none", "yawPitch", "VR")
 	 * @method eg.view360.PanoViewer#setGyroMode
-	 * @param {String} gyroMode
+	 * @param {String} gyroMode {@link eg.view360.PanoViewer.GYRO_MODE}
+	 * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
+	 * @example
+	 * panoViewer.setGyroMode("yawPitch");
+	 * //equivalent
+	 * panoViewer.setGyroMode(eg.view360.PanoViewer.GYRO_MODE.YAWPITCH);
 	 */
 	setGyroMode(gyroMode) {
 		this._yawPitchControl.option("gyroMode", gyroMode);
+		return this;
 	}
 
 	/**
-	 * Setting the range of controllable FOV values
-	 * @ko 제어 가능한 FOV 값의 범위 설정
+	 * Set the range of controllable FOV values
+	 * @ko 제어 가능한 FOV 구간을 설정합니다.
 	 * @method eg.view360.PanoViewer#setFovRange
 	 * @param {Array} range
+	 * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
+	 * @example
+	 * panoViewer.setFovRange([50, 90]);
 	 */
 	setFovRange(range) {
 		this._yawPitchControl.option("fovRange", range);
+		return this;
 	}
 
 	/**
 	 * Getting the range of controllable FOV values
-	 * @ko 제어 가능한 FOV 값의 범위 가져 오기
+	 * @ko 제어 가능한 FOV 구간을 반환합니다.
 	 * @method eg.view360.PanoViewer#getFovRange
 	 * @return {Array}
+	 * @example
+	 * var range = panoViewer.getFovRange(); //[50, 90]
 	 */
 	getFovRange() {
 		return this._yawPitchControl.option("fovRange");
 	}
 
 	/**
-	 * Update size of canvas element by it's container element's or specified size.
-	 * @ko 캔버스 엘리먼트의 크기를 컨테이너 엘리먼트의 크기나 지정된 크기로 업데이트합니다.
+	 * Update size of canvas element by it's container element's or specified size. If size is not specified, the size of the container area is obtained and updated to that size.
+	 * @ko 캔버스 엘리먼트의 크기를 컨테이너 엘리먼트의 크기나 지정된 크기로 업데이트합니다. 만약 size 가 지정되지 않으면 컨테이너 영역의 크기를 얻어와 해당 크기로 갱신합니다.
 	 * @method eg.view360.PanoViewer#updateViewportDimensions
 	 * @param {Object} [size]
 	 * @param {Number} [size.width=width of container]
 	 * @param {Number} [size.height=height of container]
+	 * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
 	 */
 	updateViewportDimensions(size) {
 		if (!this._isReady) {
-			return;
+			return this;
 		}
 		this._width = (size && size.width) ||
 			parseInt(window.getComputedStyle(this._container).width, 10);
@@ -452,11 +495,12 @@ export default class PanoViewer extends Component {
 		this._yawPitchControl.option("aspectRatio", this._aspectRatio);
 
 		this.lookAt({}, 0);
+		return this;
 	}
 
 	/**
-	 * Get the vertical field of view
-	 * @ko 뷰어의 수직 field of view 값을 가져옵니다.
+	 * Get the current field of view(FOV)
+	 * @ko 현재 field of view(FOV) 값을 반환합니다.
 	 * @method eg.view360.PanoViewer#getFov
 	 * @return {Number}
 	 */
@@ -474,7 +518,7 @@ export default class PanoViewer extends Component {
 
 	/**
 	 * Get current yaw value
-	 * @ko 뷰어의 yaw 값을 가져옵니다.
+	 * @ko 현재 yaw 값을 반환합니다.
 	 * @method eg.view360.PanoViewer#getYaw
 	 * @return {Number}
 	 */
@@ -484,7 +528,7 @@ export default class PanoViewer extends Component {
 
 	/**
 	 * Get current pitch value
-	 * @ko 뷰어의 pitch 값을 가져옵니다.
+	 * @ko 현재 pitch 값을 반환합니다.
 	 * @method eg.view360.PanoViewer#getPitch
 	 * @return {Number}
 	 */
@@ -494,7 +538,7 @@ export default class PanoViewer extends Component {
 
 	/**
 	 * Get the range of controllable Yaw values
-	 * @ko 컨트롤 가능한 Yaw 구간을 가져옵니다.
+	 * @ko 컨트롤 가능한 Yaw 구간을 반환합니다.
 	 * @method eg.view360.PanoViewer#getYawRange
 	 * @return {Array}
 	 */
@@ -513,13 +557,17 @@ export default class PanoViewer extends Component {
 	}
 
 	/**
-	 * Set the range of controllable Yaw values
-	 * @ko 컨트롤 가능한 Yaw 구간을 설정합니다.
+	 * Set the range of controllable yaw
+	 * @ko 컨트롤 가능한 Yaw 구간을 반환합니다.
 	 * @method eg.view360.PanoViewer#setYawRange
 	 * @param {Array} range
+	 * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
+	 * @example
+	 * panoViewer.setYawRange([-90, 90]);
 	 */
 	setYawRange(yawRange) {
-		return this._yawPitchControl.option("yawRange", yawRange);
+		this._yawPitchControl.option("yawRange", yawRange);
+		return this;
 	}
 
 	/**
@@ -527,19 +575,25 @@ export default class PanoViewer extends Component {
 	 * @ko 컨트롤 가능한 Pitch 구간을 설정합니다.
 	 * @method eg.view360.PanoViewer#setPitchRange
 	 * @param {Array} range
+	 * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
+	 * @example
+	 * panoViewer.setPitchRange([-40, 40]);
 	 */
 	setPitchRange(pitchRange) {
-		return this._yawPitchControl.option("pitchRange", pitchRange);
+		this._yawPitchControl.option("pitchRange", pitchRange);
+		return this;
 	}
 
 	/**
-	 * If false, the pole is not displayed inside the viewport
-	 * @ko false 인 경우, 폴은 뷰포트 내부에 표시되지 않습니다.
-	 * @method eg.view360.PanoViewer#setPitchRange
+	 * Specifies whether to display the pole by limiting the pitch range. If it is true, pole point can be displayed. If it is false, it is not displayed.
+	 * @ko pitch 범위를 제한하여 극점을 표시할지를 지정합니다. true 인 경우 극점까지 표현할 수 있으며 false 인 경우 극점까지 표시하지 않습니다.
+	 * @method eg.view360.PanoViewer#setShowPolePoint
 	 * @param {Boolean} showPolePoint
+	 * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
 	 */
 	setShowPolePoint(showPolePoint) {
-		return this._yawPitchControl.option("showPolePoint", showPolePoint);
+		this._yawPitchControl.option("showPolePoint", showPolePoint);
+		return this;
 	}
 
 	/**
@@ -551,10 +605,14 @@ export default class PanoViewer extends Component {
 	 * @param {Number} orientation.pitch Target pitch in degree <ko>목표 pitch (degree 단위)</ko>
 	 * @param {Number} orientation.fov Target vertical fov in degree <ko>목표 수직 fov (degree 단위)</ko>
 	 * @param {Number} duration Animation duration in milliseconds <ko>애니메이션 시간 (밀리 초)</ko>
+	 * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
+	 * @example
+	 * // Change the yaw angle (absolute angle) to 30 degrees for one second.
+	 * panoViewer.lookAt({yaw: 30}, 1000);
 	 */
 	lookAt(orientation, duration) {
 		if (!this._isReady) {
-			return;
+			return this;
 		}
 
 		const yaw = orientation.yaw !== undefined ? orientation.yaw : this._yaw;
@@ -572,6 +630,7 @@ export default class PanoViewer extends Component {
 		if (duration === 0) {
 			this._photoSphereRenderer.render(yaw, pitch, fov);
 		}
+		return this;
 	}
 
 	_activate() {
@@ -636,15 +695,15 @@ export default class PanoViewer extends Component {
 
 	/**
 	 * Set touch direction by which user can control.
-	 * @ko 사용자가 조작가능한 터치 방향을 지정한다.
+	 * @ko 사용자가 조작가능한 터치 방향을 지정합니다.
 	 * @method eg.view360.PanoViewer#setTouchDirection
-	 * @param {Number} direction of the touch. {@link eg.PanoViewer.TOUCH_DIRECTION}<ko>컨트롤 가능한 방향 {@link eg.PanoViewer.TOUCH_DIRECTION}</ko>
-	 * @return {eg.PanoViewer} PanoViewer instance
+	 * @param {Number} direction of the touch. {@link eg.view360.PanoViewer.TOUCH_DIRECTION}<ko>컨트롤 가능한 방향 {@link eg.view360.PanoViewer.TOUCH_DIRECTION}</ko>
+	 * @return {eg.view360.PanoViewer} PanoViewer instance
 	 * @example
 	 *
 	 * panoViewer = new PanoViewer(el);
 	 * // Limit the touch direction to the yaw direction only.
-	 * panoViewer.setTouchDirection(PanoViewer.TOUCH_DIRECTION.YAW);
+	 * panoViewer.setTouchDirection(eg.view360.PanoViewer.TOUCH_DIRECTION.YAW);
 	 */
 	setTouchDirection(direction) {
 		if (PanoViewer._isValidTouchDirection(direction)) {
@@ -658,7 +717,7 @@ export default class PanoViewer extends Component {
 	 * Returns touch direction by which user can control
 	 * @ko 사용자가 조작가능한 터치 방향을 반환한다.
 	 * @method eg.view360.PanoViewer#getTouchDirection
-	 * @return {Number} direction of the touch. {@link eg.PanoViewer.TOUCH_DIRECTION}<ko>컨트롤 가능한 방향 {@link eg.PanoViewer.TOUCH_DIRECTION}</ko>
+	 * @return {Number} direction of the touch. {@link eg.view360.PanoViewer.TOUCH_DIRECTION}<ko>컨트롤 가능한 방향 {@link eg.view360.PanoViewer.TOUCH_DIRECTION}</ko>
 	 * @example
 	 *
 	 * panoViewer = new PanoViewer(el);
@@ -671,8 +730,9 @@ export default class PanoViewer extends Component {
 
 	/**
 	 * Destroy viewer. Remove all registered event listeners and remove viewer canvas.
-	 * @ko 뷰어 인스턴스를 해제합니다. 모든 등록된 이벤트리스너를 제거하고 뷰어 캔버스를 삭제한다.
+	 * @ko 뷰어 인스턴스를 해제합니다. 모든 등록된 이벤트리스너를 제거하고 뷰어 캔버스를 삭제합니다.
 	 * @method eg.view360.PanoViewer#destroy
+	 * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
 	 */
 	destroy() {
 		this._deactivate();
@@ -681,8 +741,18 @@ export default class PanoViewer extends Component {
 			this._yawPitchControl.destroy();
 			this._yawPitchControl = null;
 		}
+
+		return this;
 	}
 
+	/**
+	 * Check whether the current environment supports the WebGL
+	 * @ko 현재 브라우저 환경이 WebGL 을 지원하는지 여부를 확인합니다.
+	 * @function isWebGLAvailable
+	 * @memberof eg.view360.PanoViewer
+	 * @return {Boolean} WebGL support <ko>WebGL 지원여부</ko>
+	 * @static
+	 */
 	static isWebGLAvailable() {
 		return WebGLUtils.isWebGLAvailable();
 	}
@@ -736,20 +806,23 @@ export default class PanoViewer extends Component {
 
 PanoViewer.ERROR_TYPE = ERROR_TYPE;
 PanoViewer.EVENTS = EVENTS;
+PanoViewer.PROJECTION_TYPE = PROJECTION_TYPE;
+PanoViewer.GYRO_MODE = GYRO_MODE;
+// It should be deprecated!
 PanoViewer.ProjectionType = PROJECTION_TYPE;
 /**
  * Constant value for touch directions
  * @ko 터치 방향에 대한 상수 값.
  * @namespace
  * @name TOUCH_DIRECTION
- * @memberof eg.PanoViewer
+ * @memberof eg.view360.PanoViewer
  */
 PanoViewer.TOUCH_DIRECTION = {
 	/**
 	 * Constant value for none direction.
 	 * @ko none 방향에 대한 상수 값.
 	 * @name NONE
-	 * @memberof eg.PanoViewer.TOUCH_DIRECTION
+	 * @memberof eg.view360.PanoViewer.TOUCH_DIRECTION
 	 * @constant
 	 * @type {Number}
 	 * @default 1
@@ -759,7 +832,7 @@ PanoViewer.TOUCH_DIRECTION = {
 	 * Constant value for horizontal(yaw) direction.
 	 * @ko horizontal(yaw) 방향에 대한 상수 값.
 	 * @name YAW
-	 * @memberof eg.PanoViewer.TOUCH_DIRECTION
+	 * @memberof eg.view360.PanoViewer.TOUCH_DIRECTION
 	 * @constant
 	 * @type {Number}
 	 * @default 6
@@ -769,7 +842,7 @@ PanoViewer.TOUCH_DIRECTION = {
 	 * Constant value for vertical direction.
 	 * @ko vertical(pitch) 방향에 대한 상수 값.
 	 * @name PITCH
-	 * @memberof eg.PanoViewer.TOUCH_DIRECTION
+	 * @memberof eg.view360.PanoViewer.TOUCH_DIRECTION
 	 * @constant
 	 * @type {Number}
 	 * @default 24
@@ -779,7 +852,7 @@ PanoViewer.TOUCH_DIRECTION = {
 	 * Constant value for all direction.
 	 * @ko all 방향에 대한 상수 값.
 	 * @name ALL
-	 * @memberof eg.PanoViewer.TOUCH_DIRECTION
+	 * @memberof eg.view360.PanoViewer.TOUCH_DIRECTION
 	 * @constant
 	 * @type {Number}
 	 * @default 30
