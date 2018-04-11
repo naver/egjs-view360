@@ -599,4 +599,35 @@ describe("PanoViewer", function() {
 			})
 		});
 	});
+
+	describe("Return value of setter", function() {
+		it("should returns PanoViewer instance when setter is called.", () => {
+			// Given
+			let target;
+			let panoViewer;
+			let returnValues = [];
+
+			target = sandbox();
+			target.innerHTML = `<div"></div>`;
+			panoViewer = new PanoViewer(target);
+
+			// When
+			returnValues.push(panoViewer.keepUpdate(false));
+			returnValues.push(panoViewer.setGyroMode("VR"));
+			returnValues.push(panoViewer.setFovRange([40, 50]));
+			returnValues.push(panoViewer.updateViewportDimensions());
+			returnValues.push(panoViewer.setYawRange([-40, 40]));
+			returnValues.push(panoViewer.setPitchRange([-40, 40]));
+			returnValues.push(panoViewer.setShowPolePoint(false));
+			returnValues.push(panoViewer.lookAt());
+			returnValues.push(panoViewer.setTouchDirection(PanoViewer.TOUCH_DIRECTION.NONE));
+			returnValues.push(panoViewer.destroy());
+
+			// Then
+			const foundIndex = returnValues.findIndex(ret => ret instanceof PanoViewer === false);
+			expect(foundIndex).to.be.equal(-1);
+
+			cleanup();
+		});
+	});
 });
