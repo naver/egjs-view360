@@ -164,18 +164,14 @@ export default class PanoViewer extends Component {
 	 * });
 	 */
 	setVideo(video, param = {}) {
-		if (!video) {
-			return this;
-		}
-
-		this.setImage(
-			video,
-			{
+		if (video) {
+			this.setImage(video, {
 				projectionType: param.projectionType,
 				isVideo: true,
 				cubemapConfig: param.cubemapConfig
-			}
-		);
+			});
+		}
+
 		return this;
 	}
 
@@ -227,17 +223,15 @@ export default class PanoViewer extends Component {
 			return this;
 		}
 
-		if (!image) {
-			return this;
+		if (image) {
+			this._image = image;
+			this._isVideo = isVideo;
+			this._projectionType = param.projectionType || PROJECTION_TYPE.EQUIRECTANGULAR;
+			this._cubemapConfig = cubemapConfig;
+
+			this._deactivate();
+			this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType, this._cubemapConfig);
 		}
-
-		this._image = image;
-		this._isVideo = isVideo;
-		this._projectionType = param.projectionType || PROJECTION_TYPE.EQUIRECTANGULAR;
-		this._cubemapConfig = cubemapConfig;
-
-		this._deactivate();
-		this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType, this._cubemapConfig);
 
 		return this;
 	}
@@ -420,11 +414,8 @@ export default class PanoViewer extends Component {
 	 * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
 	 */
 	setUseZoom(useZoom) {
-		if (typeof useZoom !== "boolean") {
-			return this;
-		}
+		typeof useZoom !== "boolean" && this._yawPitchControl.option("useZoom", useZoom);
 
-		this._yawPitchControl.option("useZoom", useZoom);
 		return this;
 	}
 
