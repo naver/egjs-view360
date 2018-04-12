@@ -37,16 +37,23 @@ subComponents:
   #   - name: tool2
   #     image:
   #     url:
+  examples:
+    - name: Basic
+      image: assets/img/basic_panoviewer_thumb.png
+      url: assets/html/panoviewer_basic_example.html
   projects:
+    - name: Naver TV
+      image: ./assets/img/naver_tv.png
+      url: https://tv.naver.com
     - name: Naver Blog
       image: ./assets/img/naver_blog.png
-      url: http://blog.naver.com
+      url: https://blog.naver.com
     - name: Naver Post
       image: ./assets/img/naver_post.png
-      url: http://post.naver.com
+      url: https://post.naver.com
     - name: Naver Real Estate
       image: ./assets/img/naver_realestate.png
-      url: http://land.naver.com
+      url: https://land.naver.com
     - name: Naver Partner Square
       image: ./assets/img/naver_partner_square.jpg
       url: https://partners.naver.com/
@@ -66,4 +73,11 @@ subComponents:
   examples:
     - name: Basic
       image: assets/img/basic_spinview_thumb.gif
-      url: assets/html/spinviewer.html
+      url: assets/html/spinviewer_basic_example.html
+  projects:
+    - name: Naver Shopping
+      image: ./assets/img/naver_shopping.jpg
+      url: https://shopping.naver.com
+    - name: Naver Smart Store
+      image: ./assets/img/naver_smartstore.jpg
+      url: https://sell.smartstore.naver.com/#/home/about
