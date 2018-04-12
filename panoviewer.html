@@ -50,8 +50,8 @@
                     <img class="egjs_logo" src="./common/img/type_black.svg"/>
                     view360
                 </a><!--//logo-->
-                <a href="https://github.com/naver/egjs-view360/releases/tag/2.0.3">
-                    <span class="version">2.0.3</span>
+                <a href="https://github.com/naver/egjs-view360/releases/tag/3.0.0">
+                    <span class="version">3.0.0</span>
                 </a>
             </div>
             <div class="pull-right home">
@@ -89,33 +89,36 @@
 				<h2 class="title text-center">Showcase</h2>
 				
 				<div>
-    <style>
-    #panoviewer-showcase {
-        position: relative;
-        width: 100%;
-        height: 400px;
-        margin: 0 auto;
-    }    
-    </style>
-    <div id="panoviewer-showcase">
+		<style>
+		#panoviewer-showcase {
+				position: relative;
+				width: 100%;
+				height: 400px;
+				margin: 0 auto;
+		}    
+		</style>
+		<div id="panoviewer-showcase"></div>
+		<script>
+			var LOOKAT_DURATION = 1000;
+			var container = document.getElementById("panoviewer-showcase");
+			var PanoViewer = eg.view360.PanoViewer;
+			var panoViewer = new PanoViewer(container, {
+				yaw: 180,
+				image: "./assets/img/test_equi.png"
+			}).on("ready", function() {
+				panoViewer.lookAt({
+					yaw: 0
+				}, LOOKAT_DURATION);
 
-    </div>
-    <script>
-        var container = document.getElementById("panoviewer-showcase");
-        var PanoViewer = eg.view360.PanoViewer;
-        var panoViewer = new PanoViewer(container, {
-            yaw: 90,
-            image: "./assets/img/test_equi.png"
-        }).on("resume", function() {
-            panoViewer.lookAt({
-                yaw: 0
-            }, 1000);
-        });
-        panoViewer.resume();
-        window.addEventListener("resize", function() {
-            panoViewer.updateViewportDimensions();
-        })
-    </script>
+				// Set resize event handler just after lookat is done
+				// Because it may fire resize event when page loaded and it makes lookAt being stop.
+				setTimeout(function() {
+					window.addEventListener("resize", function() {
+						panoViewer.updateViewportDimensions();
+					});
+				}, LOOKAT_DURATION);
+			});
+		</script>
 </div>
 
 			</div>
@@ -129,6 +132,8 @@
 						<a href="#getting-started">Getting Started </a>
 						
 						
+						
+							/ <a href="#examples">Examples </a>
 						
 						
 							/ <a href="#projects">Projects </a>
@@ -144,8 +149,31 @@
 				
 				<h3 id="supported">Supported</h3>
 <ul>
-  <li>Equirectangular, merged cubic panorama images</li>
-  <li>Device motion control for web service</li>
+  <li>Projection Type
+    <ul>
+      <li>Equirectangular</li>
+      <li>Cubemap</li>
+    </ul>
+  </li>
+  <li>Video Support (<code class="highlighter-rouge">v3.x</code>)</li>
+  <li>Various Cubemap
+    <ul>
+      <li>Layout: 1 x 6, 6 x 1, 2 x 3, 3 x 2 (<code class="highlighter-rouge">v3.x</code>)</li>
+      <li>6 Indivisual Image (<code class="highlighter-rouge">v3.x</code>)</li>
+      <li>6 Merged Image</li>
+    </ul>
+  </li>
+  <li>Device motion(Gyro Sensor) control
+    <ul>
+      <li>yawPitch Mode</li>
+      <li>VR Mode (use yaw, pitch, roll of devicemotion) (<code class="highlighter-rouge">v3.x</code>)</li>
+    </ul>
+  </li>
+  <li>Touch Direction Control (<code class="highlighter-rouge">v3.x</code>)
+    <ul>
+      <li>It enables native scroll (except VR Mode)</li>
+    </ul>
+  </li>
   <li>WebGL based renderer</li>
 </ul>
 
@@ -178,56 +206,85 @@
 <h4 id="npm">npm</h4>
 <p>In case using npm,</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm install @egjs/view360 <span class="nt">--save</span>
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>npm install @egjs/view360 --save
+</code></pre>
+</div>
 
 <h4 id="script-tag">script tag</h4>
 <p>In case using script tag,
 Download the latest version of view360.js and include using the script tag</p>
 
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<div class="language-html highlighter-rouge"><pre class="highlight"><code>
 <span class="c">&lt;!--script src="/path/to/js/release/latest/dist/PanoViewer/release/latest/dist/PanoViewer/view360.panoviewer.pkgd.min.js"&gt;&lt;/script--&gt;</span>
 <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"//naver.github.io/egjs-view360/release/latest/dist/PanoViewer/view360.panoviewer.pkgd.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p><a href="//naver.github.io/egjs-view360/release/latest/dist/PanoViewer/view360.panoviewer.pkgd.min.js">Download link</a></p>
 
 <h3 id="usage">Usage</h3>
 
-<h4 id="1-set-up-your-container-element">1. Set up your Container Element</h4>
+<h4 id="set-up-your-container-element">1. Set up your Container Element</h4>
 
 <p>Your container element’s dimensions should be defined.</p>
 
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"myPanoViewer"</span><span class="nt">&gt;&lt;/div&gt;</span>
-</code></pre></div></div>
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"myPanoViewer"</span><span class="nt">&gt;&lt;/div&gt;</span>
+</code></pre>
+</div>
 
-<h4 id="2-import-module">2. Import Module</h4>
+<h4 id="import-module">2. Import Module</h4>
 
 <h5 id="es5">ES5</h5>
 
-<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Use global namespace</span>
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="c1">// Use global namespace</span>
 <span class="kd">var</span> <span class="nx">PanoViewer</span> <span class="o">=</span> <span class="nx">eg</span><span class="p">.</span><span class="nx">view360</span><span class="p">.</span><span class="nx">PanoViewer</span><span class="p">;</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <h5 id="es6">ES6+</h5>
 
-<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Or use es6 import</span>
-<span class="k">import</span> <span class="p">{</span><span class="nx">PanoViewer</span><span class="p">}</span> <span class="k">from</span> <span class="s2">"@egjs/view360"</span><span class="p">;</span>
-</code></pre></div></div>
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="c1">// Or use es6 import</span>
+<span class="kr">import</span> <span class="p">{</span><span class="nx">PanoViewer</span><span class="p">}</span> <span class="nx">from</span> <span class="s2">"@egjs/view360"</span><span class="p">;</span>
+</code></pre>
+</div>
 
-<h4 id="3-initialize-panoviewer">3. Initialize PanoViewer</h4>
-<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<h4 id="initialize-panoviewer">3. Initialize PanoViewer</h4>
+<div class="language-js highlighter-rouge"><pre class="highlight"><code>
 <span class="c1">// create PanoViewer with option</span>
-<span class="kd">const</span> <span class="nx">panoViewer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">PanoViewer</span><span class="p">(</span>
+<span class="kr">const</span> <span class="nx">panoViewer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">PanoViewer</span><span class="p">(</span>
   <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">"myPanoViewer"</span><span class="p">),</span>
   <span class="p">{</span>
     <span class="na">image</span><span class="p">:</span> <span class="s2">"/path/to/image/image.jpg"</span>
   <span class="p">}</span>
 <span class="p">);</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>For more information about API, please visit the <strong><a href="//naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.html">link</a></strong>.</p>
 
+			</div>
+		</div>
+	</section>
+	
+	
+	<section id="examples" class="docs section">
+		<div class="container">
+			<div class="docs-inner">
+				<h2 class="title text-center">Examples</h2>
+				<ul class="link_list">
+				
+				<li class="link_item">
+					<a href="assets/html/panoviewer_basic_example.html" class="td_a">
+						<div class="link_item_image">
+							<img src="assets/img/basic_panoviewer_thumb.png" width="166" height="108">
+						</div>
+						<div class="link_item_title">
+							<span class="">Basic</span>
+						</div>
+					</a>
+				</li>
+				
+				</ul>
 			</div>
 		</div>
 	</section>
@@ -242,7 +299,18 @@ Download the latest version of view360.js and include using the script tag</p>
 				<ul class="link_list">
 				
 				<li class="link_item">
-					<a href="http://blog.naver.com" class="td_a">
+					<a href="https://tv.naver.com" class="td_a">
+						<div class="link_item_image">
+							<img src="./assets/img/naver_tv.png" width="108" height="108">
+						</div>
+						<div class="link_item_title">
+							<span class="">Naver TV</span>
+						</div>
+					</a>
+				</li>
+				
+				<li class="link_item">
+					<a href="https://blog.naver.com" class="td_a">
 						<div class="link_item_image">
 							<img src="./assets/img/naver_blog.png" width="108" height="108">
 						</div>
@@ -253,7 +321,7 @@ Download the latest version of view360.js and include using the script tag</p>
 				</li>
 				
 				<li class="link_item">
-					<a href="http://post.naver.com" class="td_a">
+					<a href="https://post.naver.com" class="td_a">
 						<div class="link_item_image">
 							<img src="./assets/img/naver_post.png" width="108" height="108">
 						</div>
@@ -264,7 +332,7 @@ Download the latest version of view360.js and include using the script tag</p>
 				</li>
 				
 				<li class="link_item">
-					<a href="http://land.naver.com" class="td_a">
+					<a href="https://land.naver.com" class="td_a">
 						<div class="link_item_image">
 							<img src="./assets/img/naver_realestate.png" width="108" height="108">
 						</div>

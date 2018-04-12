@@ -1,4 +1,3 @@
-<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <div>
 	<style>
 		#spinviewer-showcase {
@@ -12,7 +11,7 @@
 			position: absolute;
 			top: 20px;
 			right: 20px;
-			background-image: url("https://naver.github.io/egjs-view360/assets/img/sp_detail.png");
+			background-image: url("./assets/img/sp_detail.png");
 			background-size: 556px 474px;
 			background-position: 0px -366px;
 			width: 52px;
@@ -22,19 +21,18 @@
 	<div id="spinviewer-showcase">
 		<div class="logo_360"></div>
 	</div>
-	<script type="text/javascript" src="https://naver.github.io/egjs-view360/release/latest/dist/SpinViewer/view360.spinviewer.pkgd.js"></script>
 	<script>
 		var container = document.getElementById("spinviewer-showcase");
 		var SpinViewer = eg.view360.SpinViewer;
 		var spinViewer = new SpinViewer(container, {
-			imageUrl: "../img/spin_demo.jpg",
+			imageUrl: "./assets/img/spin_demo.jpg",
 			rowCount: 47,
 			scale: 1,
 			width: "100%"
 		});
 
 		spinViewer.on("load", function() {
-			this.spinBy({angle: 360, duration: 1000});
+			this.spinBy(360, {duration: 3000});
 		});
 	</script>
 </div>
