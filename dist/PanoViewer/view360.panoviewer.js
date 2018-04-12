@@ -3988,15 +3988,14 @@ var PanoViewer = function (_Component) {
 	PanoViewer.prototype.setVideo = function setVideo(video) {
 		var param = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-		if (!video) {
-			return this;
+		if (video) {
+			this.setImage(video, {
+				projectionType: param.projectionType,
+				isVideo: true,
+				cubemapConfig: param.cubemapConfig
+			});
 		}
 
-		this.setImage(video, {
-			projectionType: param.projectionType,
-			isVideo: true,
-			cubemapConfig: param.cubemapConfig
-		});
 		return this;
 	};
 
@@ -4054,17 +4053,15 @@ var PanoViewer = function (_Component) {
 			return this;
 		}
 
-		if (!image) {
-			return this;
+		if (image) {
+			this._image = image;
+			this._isVideo = isVideo;
+			this._projectionType = param.projectionType || _consts.PROJECTION_TYPE.EQUIRECTANGULAR;
+			this._cubemapConfig = cubemapConfig;
+
+			this._deactivate();
+			this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType, this._cubemapConfig);
 		}
-
-		this._image = image;
-		this._isVideo = isVideo;
-		this._projectionType = param.projectionType || _consts.PROJECTION_TYPE.EQUIRECTANGULAR;
-		this._cubemapConfig = cubemapConfig;
-
-		this._deactivate();
-		this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType, this._cubemapConfig);
 
 		return this;
 	};
@@ -4253,11 +4250,8 @@ var PanoViewer = function (_Component) {
 
 
 	PanoViewer.prototype.setUseZoom = function setUseZoom(useZoom) {
-		if (typeof useZoom !== "boolean") {
-			return this;
-		}
+		typeof useZoom !== "boolean" && this._yawPitchControl.option("useZoom", useZoom);
 
-		this._yawPitchControl.option("useZoom", useZoom);
 		return this;
 	};
 

@@ -1,7 +1,7 @@
 ### Supported
 * Sprite image of (n x m) Grid style 
 * Auto resize
-* Various input devices (Keyboard, Mouse, Touch, Motion(`Comming Soon`)...)
+* Various input devices (Keyboard, Mouse, Touch)
 * Manual Spin
 
 ### Browser support
