@@ -5,7 +5,7 @@
  * @egjs/view360 JavaScript library
  * 
  * 
- * @version 3.0.0-rc
+ * @version 3.0.0
  * 
  * All-in-one packaged file for ease use of '@egjs/view360' with below dependencies.
  * NOTE: This is not an official distribution file and is only for user convenience.
@@ -8106,7 +8106,7 @@ var Axes = /** @class */ (function (_super) {
         this.disconnect();
         this.em.destroy();
     };
-    Axes.VERSION = "3.0.0-rc";
+    Axes.VERSION = "3.0.0";
     /**
      * @name eg.Axes.TRANSFORM
      * @desc Returns the transform attribute with CSS vendor prefixes.
@@ -10500,7 +10500,7 @@ var _PanoViewer2 = _interopRequireDefault(_PanoViewer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-var VERSION = "3.0.0-rc";
+var VERSION = "3.0.0";
 
 exports.PanoViewer = _PanoViewer2["default"];
 exports.VERSION = VERSION;
@@ -10830,7 +10830,7 @@ var _SpriteImage2 = _interopRequireDefault(_SpriteImage);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-var VERSION = "3.0.0-rc";
+var VERSION = "3.0.0";
 
 exports.SpinViewer = _SpinViewer2["default"];
 exports.SpriteImage = _SpriteImage2["default"];
@@ -13075,7 +13075,7 @@ var YawPitchControl = function (_Component) {
 	return YawPitchControl;
 }(_component2["default"]);
 
-YawPitchControl.VERSION = "3.0.0-rc";
+YawPitchControl.VERSION = "3.0.0";
 exports["default"] = YawPitchControl;
 
 /***/ }),
@@ -14996,7 +14996,7 @@ var _PanoViewer = __webpack_require__(34);
 
 var _SpinViewer = __webpack_require__(36);
 
-var VERSION = "3.0.0-rc";
+var VERSION = "3.0.0";
 
 exports.YawPitchControl = _YawPitchControl.YawPitchControl;
 exports.PanoViewer = _PanoViewer.PanoViewer;

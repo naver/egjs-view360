@@ -5,7 +5,7 @@
  * @egjs/view360 JavaScript library
  * 
  * 
- * @version 3.0.0-rc
+ * @version 3.0.0
  * 
  * All-in-one packaged file for ease use of '@egjs/view360' with below dependencies.
  * NOTE: This is not an official distribution file and is only for user convenience.
@@ -4471,7 +4471,7 @@ var Axes = /** @class */ (function (_super) {
         this.disconnect();
         this.em.destroy();
     };
-    Axes.VERSION = "3.0.0-rc";
+    Axes.VERSION = "3.0.0";
     /**
      * @name eg.Axes.TRANSFORM
      * @desc Returns the transform attribute with CSS vendor prefixes.
@@ -6180,7 +6180,7 @@ var _SpriteImage2 = _interopRequireDefault(_SpriteImage);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-var VERSION = "3.0.0-rc";
+var VERSION = "3.0.0";
 
 exports.SpinViewer = _SpinViewer2["default"];
 exports.SpriteImage = _SpriteImage2["default"];
