@@ -20,9 +20,9 @@ subComponents:
   distPath: release/latest/dist/PanoViewer/
   dists:
     - filename: view360.panoviewer.pkgd.js
-      size: 390
+      size: 435
     - filename: view360.panoviewer.pkgd.min.js
-      size: 147
+      size: 166
   # examples:
   #   - name: ex1
   #     image:
@@ -67,9 +67,9 @@ subComponents:
   distPath: release/latest/dist/SpinViewer/
   dists:
     - filename: view360.spinviewer.pkgd.js
-      size: 203
+      size: 206
     - filename: view360.spinviewer.pkgd.min.js
-      size: 60
+      size: 62
   examples:
     - name: Basic
       image: assets/img/basic_spinview_thumb.gif
