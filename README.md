@@ -3,6 +3,10 @@
 egjs-view360 is a 360 integrated viewing solution from **inside-out view** to **outside-in view**. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.
 
 ## `NEW` v3.0 Released
+Play 360 video with VR motion control.
+
+![](https://user-images.githubusercontent.com/3903575/38671092-6a4494a0-3e85-11e8-9eca-9619a2545801.gif)
+
 
 For more information, visit [3.0 Change Notes](https://github.com/naver/egjs-view360/wiki/3.0.0-Change-Notes)/[Korean](https://github.com/naver/egjs-view360/wiki/3.0.0-Change-Notes-%7C-%ED%95%9C%EA%B5%AD%EC%96%B4)
 
