@@ -1546,6 +1546,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*! Hammer.JS - v2.0.7 - 2016-04-22
  * Licensed under the MIT license */
 (function(window, document, exportName, undefined) {
   'use strict';
+
 var VENDOR_PREFIXES = ['', 'webkit', 'Moz', 'MS', 'ms', 'o'];
 var TEST_ELEMENT = document.createElement('div');
 
@@ -3246,7 +3247,7 @@ inherit(AttrRecognizer, Recognizer, {
      * @returns {Boolean} recognized
      */
     attrTest: function(input) {
-		var optionPointers = this.options.pointers;
+        var optionPointers = this.options.pointers;
         return optionPointers === 0 || input.pointers.length === optionPointers;
     },
 
@@ -3323,7 +3324,7 @@ inherit(PanRecognizer, AttrRecognizer, {
         var x = input.deltaX;
         var y = input.deltaY;
 
-		// lock to axis?
+        // lock to axis?
         if (!(direction & options.direction)) {
             if (options.direction & DIRECTION_HORIZONTAL) {
                 direction = (x === 0) ? DIRECTION_NONE : (x < 0) ? DIRECTION_LEFT : DIRECTION_RIGHT;
@@ -3340,12 +3341,12 @@ inherit(PanRecognizer, AttrRecognizer, {
     },
 
     attrTest: function(input) {
-        var ret = AttrRecognizer.prototype.attrTest.call(this, input) &&
-			(this.state & STATE_BEGAN || (!(this.state & STATE_BEGAN) && this.directionTest(input)));
-		return ret;
+        return AttrRecognizer.prototype.attrTest.call(this, input) &&
+            (this.state & STATE_BEGAN || (!(this.state & STATE_BEGAN) && this.directionTest(input)));
     },
 
     emit: function(input) {
+
         this.pX = input.deltaX;
         this.pY = input.deltaY;
 
@@ -3904,7 +3905,7 @@ Manager.prototype = {
             //      this can be setup with the `recognizeWith()` method on the recognizer.
             if (session.stopped !== FORCED_STOP && ( // 1
                     !curRecognizer || recognizer == curRecognizer || // 2
-					recognizer.canRecognizeWith(curRecognizer))) { // 3
+                    recognizer.canRecognizeWith(curRecognizer))) { // 3
                 recognizer.recognize(inputData);
             } else {
                 recognizer.reset();
@@ -9730,15 +9731,14 @@ var PanoViewer = function (_Component) {
 	PanoViewer.prototype.setVideo = function setVideo(video) {
 		var param = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-		if (!video) {
-			return this;
+		if (video) {
+			this.setImage(video, {
+				projectionType: param.projectionType,
+				isVideo: true,
+				cubemapConfig: param.cubemapConfig
+			});
 		}
 
-		this.setImage(video, {
-			projectionType: param.projectionType,
-			isVideo: true,
-			cubemapConfig: param.cubemapConfig
-		});
 		return this;
 	};
 
@@ -9796,17 +9796,15 @@ var PanoViewer = function (_Component) {
 			return this;
 		}
 
-		if (!image) {
-			return this;
+		if (image) {
+			this._image = image;
+			this._isVideo = isVideo;
+			this._projectionType = param.projectionType || _consts.PROJECTION_TYPE.EQUIRECTANGULAR;
+			this._cubemapConfig = cubemapConfig;
+
+			this._deactivate();
+			this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType, this._cubemapConfig);
 		}
-
-		this._image = image;
-		this._isVideo = isVideo;
-		this._projectionType = param.projectionType || _consts.PROJECTION_TYPE.EQUIRECTANGULAR;
-		this._cubemapConfig = cubemapConfig;
-
-		this._deactivate();
-		this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType, this._cubemapConfig);
 
 		return this;
 	};
@@ -9995,11 +9993,8 @@ var PanoViewer = function (_Component) {
 
 
 	PanoViewer.prototype.setUseZoom = function setUseZoom(useZoom) {
-		if (typeof useZoom !== "boolean") {
-			return this;
-		}
+		typeof useZoom !== "boolean" && this._yawPitchControl.option("useZoom", useZoom);
 
-		this._yawPitchControl.option("useZoom", useZoom);
 		return this;
 	};
 
