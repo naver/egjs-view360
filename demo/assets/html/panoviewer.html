@@ -9,15 +9,24 @@
 		</style>
 		<div id="panoviewer-showcase"></div>
 		<script>
-				var container = document.getElementById("panoviewer-showcase");
-				var PanoViewer = eg.view360.PanoViewer;
-				var panoViewer = new PanoViewer(container, {
-					yaw: 180,
-					image: "./assets/img/test_equi.png"
-				}).on("ready", function() {
-					panoViewer.lookAt({
-						yaw: 0
-					}, 2000);
-				});
+			var LOOKAT_DURATION = 1000;
+			var container = document.getElementById("panoviewer-showcase");
+			var PanoViewer = eg.view360.PanoViewer;
+			var panoViewer = new PanoViewer(container, {
+				yaw: 180,
+				image: "./assets/img/test_equi.png"
+			}).on("ready", function() {
+				panoViewer.lookAt({
+					yaw: 0
+				}, LOOKAT_DURATION);
+
+				// Set resize event handler just after lookat is done
+				// Because it may fire resize event when page loaded and it makes lookAt being stop.
+				setTimeout(function() {
+					window.addEventListener("resize", function() {
+						panoViewer.updateViewportDimensions();
+					});
+				}, LOOKAT_DURATION);
+			});
 		</script>
 </div>

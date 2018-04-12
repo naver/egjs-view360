@@ -11,9 +11,8 @@
 		<style>
 			#panoviewer-showcase {
 				position: relative;
-				width: 100%;
-				max-width: 400px;
-				height: 400px;
+				width: 320px;
+				height: 320px;
 				margin: 0 auto;
 			}
 		</style>
@@ -50,13 +49,6 @@ var panoViewer = new eg.view360.PanoViewer(container, {
 			var panoViewer = new PanoViewer(container, {
 				yaw: 180,
 				image: "../img/test_equi.png"
-			}).on("ready", function() {
-				panoViewer.lookAt({
-					yaw: 0
-				}, 2000);
-				// window.addEventListener("resize", function() {
-				// 	panoViewer.updateViewportDimensions();
-				// });
 			});
 		</script>
 	</body>
