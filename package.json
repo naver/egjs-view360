@@ -94,5 +94,16 @@
 		"webpack-merge": "^4.1.0",
 		"write-file-webpack-plugin": "^4.1.0",
 		"xml2js": "^0.4.19"
-	}
+	},
+	"keywords": [
+		"360-photo",
+		"360-video",
+		"view360",
+		"panorama",
+		"spinner",
+		"webgl",
+		"device-orientation",
+		"touch",
+		"VR"
+	]
 }
