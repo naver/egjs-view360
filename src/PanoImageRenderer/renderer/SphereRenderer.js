@@ -1,5 +1,6 @@
 import Agent from "@egjs/agent";
 import Renderer from "./Renderer.js";
+import WebGLUtils from "../WebGLUtils";
 
 const agent = Agent();
 const isIE11 = agent.browser.name === "ie" && agent.browser.version === "11.0";
@@ -71,7 +72,7 @@ export default class SphereRenderer extends Renderer {
 	}
 
 	static updateTexture(gl, image) {
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._getPixelSource(image));
+		WebGLUtils.texImage2D(gl, gl.TEXTURE_2D, this._getPixelSource(image));
 	}
 
 	static bindTexture(gl, texture, image) {

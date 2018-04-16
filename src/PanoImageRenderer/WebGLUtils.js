@@ -161,4 +161,23 @@ export default class WebGLUtils {
 
 		return WEBGL_ERROR_CODE[code];
 	}
+
+
+	/**
+	 * This function is wrapper for texImage2D to handle exceptions on texImage2D.
+	 * Purpose is to prevent service from being stopped by script error.
+	 *
+	 * @param {*} gl
+	 * @param {*} target
+	 * @param {*} pixels
+	 */
+	static texImage2D(gl, target, pixels) {
+		try {
+			gl.texImage2D(target, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+		} catch (error) {
+			/* eslint-disable no-console */
+			console.error("WebGLUtils.texImage2D error:", error);
+			/* eslint-enable no-console */
+		}
+	}
 }
