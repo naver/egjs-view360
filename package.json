@@ -104,6 +104,9 @@
 		"webgl",
 		"device-orientation",
 		"touch",
-		"VR"
+		"VR",
+		"3D",
+		"canvas",
+		"360"
 	]
 }
