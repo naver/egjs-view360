@@ -1,5 +1,6 @@
 import Agent from "@egjs/agent";
 import Renderer from "./Renderer.js";
+import WebGLUtils from "../WebGLUtils";
 import {util} from "../../utils/math-util.js";
 
 export default class CubeRenderer extends Renderer {
@@ -163,9 +164,7 @@ export default class CubeRenderer extends Renderer {
 				for (let surfaceIdx = 0; surfaceIdx < 6; surfaceIdx++) {
 					const tileIdx = orderMap[baseOrder[surfaceIdx]];
 
-					gl.texImage2D(
-						gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, 0, gl.RGBA,
-						gl.RGBA, gl.UNSIGNED_BYTE, image[tileIdx]);
+					WebGLUtils.texImage2D(gl, gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, image[tileIdx]);
 				}
 			} else {
 				const maxCubeMapTextureSize = CubeRenderer.getMaxCubeMapTextureSize(gl, image);
@@ -176,10 +175,7 @@ export default class CubeRenderer extends Renderer {
 						image, tileIdx, maxCubeMapTextureSize
 					);
 
-					gl.texImage2D(
-						gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, 0, gl.RGBA,
-						gl.RGBA, gl.UNSIGNED_BYTE, tile
-					);
+					WebGLUtils.texImage2D(gl, gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, tile);
 				}
 			}
 		} catch (e) {

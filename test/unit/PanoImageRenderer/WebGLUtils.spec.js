@@ -72,4 +72,34 @@ describe("WebglUtils", function() {
 			expect(context.getContextAttributes().antialias).to.be.equal(false);
 		});
 	});
+
+	describe("#texImage2D", function() {
+		IT("should not fire exception despite of error", () => {
+			// Given
+			const WIDTH = 150;
+			const HEIGHT = 150;
+
+			// 3D Canvas to draw (Dest Image)
+			const canvas = document.createElement("canvas");
+
+			canvas.width = WIDTH;
+			canvas.height = HEIGHT;
+
+			const gl = WebGLUtils.getWebglContext(canvas);
+			let exceptionOccurs = false;
+
+			// When
+			try {
+				// Invalid pixels info
+				WebGLUtils.texImage2D(gl, gl.TEXTURE_2D, 0);
+				// no parameter
+				WebGLUtils.texImage2D();
+			} catch(e) {
+				exceptionOccurs = true;
+			}
+
+			// Then
+			expect(exceptionOccurs).to.be.equal(false);
+		});
+	});
 });
