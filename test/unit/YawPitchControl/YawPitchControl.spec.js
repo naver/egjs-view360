@@ -15,7 +15,8 @@ import {
 	KEYMAP,
 	GYRO_MODE,
 	YAW_RANGE_HALF,
-	CIRCULAR_PITCH_RANGE_HALF
+	CIRCULAR_PITCH_RANGE_HALF,
+	MC_MAXIMUM_DURATION
 } from "../../../src/YawPitchControl/consts";
 import YawPitchControl from "../../../src/YawPitchControl/YawPitchControl";
 import TestHelper from "./testHelper";
@@ -1732,6 +1733,77 @@ describe("YawPitchControl", function() {
 			// Cleanup
 			yawpitchControl.destroy();
 			el.remove();
+		});
+	});
+
+	describe("Animation Duration Test", () => {
+		let target;
+		let inst;
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+			inst = new YawPitchControl({
+				element: target
+			});
+			inst.enable();
+		});
+
+		afterEach(() => {
+			inst && inst.destroy();
+			cleanup();
+		});
+
+
+		it("should not animate more than 1000 ms after user releases touch", done => {
+			// Given
+			const MARGIN = 100;
+			const VERY_STRONG_HORIZONTAL_MOVEMENT = {
+				pos: [0, 0],
+				deltaX: 300,
+				deltaY: 0,
+				duration: 100,
+				easing: "expo"
+			};
+
+			let before;
+			let after;
+
+			inst.on("animationEnd", then);
+
+			// When
+			Simulator.gestures.pan(target, VERY_STRONG_HORIZONTAL_MOVEMENT, () => {
+				before = new Date().getTime();
+			});
+
+			// Then
+			function then() {
+				after = new Date().getTime();
+				const diff = after - before;
+
+				expect(diff).to.be.lessThan(MC_MAXIMUM_DURATION);
+				done();
+			}
+		});
+
+		it("should animate for duration of lookAt parameter although it is more than 1000ms", done => {
+			// Given
+			const DURATION = 3000;
+
+			inst.on("animationEnd", then);
+
+			// When
+			let before;
+			let after;
+
+			before = new Date().getTime();
+			inst.lookAt({yaw: 180}, DURATION);
+
+			// Then
+			function then() {
+				after = new Date().getTime();
+				expect(after - before).to.be.above(DURATION);
+				done();
+			}
 		});
 	});
 
