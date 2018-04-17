@@ -601,7 +601,7 @@ describe("PanoViewer", function() {
 	});
 
 	describe("Return value of setter", function() {
-		it("should return instance of PanoViewer when setter is called.", () => {
+		IT("should return instance of PanoViewer when setter is called.", () => {
 			// Given
 			let target;
 			let panoViewer;
@@ -619,6 +619,8 @@ describe("PanoViewer", function() {
 			returnValues.push(panoViewer.setYawRange([-40, 40]));
 			returnValues.push(panoViewer.setPitchRange([-40, 40]));
 			returnValues.push(panoViewer.setShowPolePoint(false));
+			returnValues.push(panoViewer.setUseKeyboard(false));
+			returnValues.push(panoViewer.setUseZoom(false));
 			returnValues.push(panoViewer.lookAt());
 			returnValues.push(panoViewer.setTouchDirection(PanoViewer.TOUCH_DIRECTION.NONE));
 			returnValues.push(panoViewer.destroy());
