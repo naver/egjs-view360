@@ -4,6 +4,7 @@ egjs-view360 is a 360 integrated viewing solution from **inside-out view** to **
 
 ## `NEW` v3.0 Released
 Play 360 video with VR motion control.
+> Following movie was recorded on iPhone7+(It's REAL!)
 
 ![](https://user-images.githubusercontent.com/3903575/38671092-6a4494a0-3e85-11e8-9eca-9619a2545801.gif)
 
