@@ -117,6 +117,9 @@ const YawPitchControl = class YawPitchControl extends Component {
 		})
 		.on({
 			hold: evt => {
+				// Restore maximumDuration not to be spin too mush.
+				this.axes.options.maximumDuration = MC_MAXIMUM_DURATION;
+
 				this.trigger("hold", {isTrusted: evt.isTrusted});
 			},
 			change: evt => {
@@ -586,6 +589,9 @@ const YawPitchControl = class YawPitchControl extends Component {
 		const y = yaw === undefined ? 0 : yaw - pos.yaw;
 		const p = pitch === undefined ? 0 : pitch - pos.pitch;
 		const f = fov === undefined ? 0 : fov - pos.fov;
+
+		// Allow duration of animation to have more than MC_MAXIMUM_DURATION.
+		this.axes.options.maximumDuration = Infinity;
 
 		this.axes.setBy({
 			yaw: y,
