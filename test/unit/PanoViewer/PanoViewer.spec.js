@@ -204,6 +204,7 @@ describe("PanoViewer", function() {
 				const projectionType = panoViewer.getProjectionType();
 
 				expect(video).to.not.be.null;
+				expect(panoViewer.getImage()).to.be.null;
 				expect(projectionType).to.equal(PanoViewer.ProjectionType.EQUIRECTANGULAR);
 				done();
 			});

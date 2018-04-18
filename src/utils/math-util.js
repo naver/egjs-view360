@@ -158,9 +158,7 @@ function getRotationDelta(prevQ, curQ, rotateKind) {
 		(vec3.length(projectedPrevPoint) * vec3.length(curPoint));
 
 	// defensive block
-	if (trigonometricRatio > 1) {
-		trigonometricRatio = 1;
-	}
+	trigonometricRatio > 1 && (trigonometricRatio = 1);
 
 	const theta = Math.acos(trigonometricRatio);
 
