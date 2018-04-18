@@ -414,7 +414,7 @@ export default class PanoViewer extends Component {
 	 * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
 	 */
 	setUseZoom(useZoom) {
-		typeof useZoom !== "boolean" && this._yawPitchControl.option("useZoom", useZoom);
+		typeof useZoom === "boolean" && this._yawPitchControl.option("useZoom", useZoom);
 
 		return this;
 	}
