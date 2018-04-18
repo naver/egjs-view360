@@ -640,9 +640,7 @@ function getRotationDelta(prevQ, curQ, rotateKind) {
 	var trigonometricRatio = (projectedPrevPoint[0] * curPoint[0] + projectedPrevPoint[1] * curPoint[1] + projectedPrevPoint[2] * curPoint[2]) / (_vec2["default"].length(projectedPrevPoint) * _vec2["default"].length(curPoint));
 
 	// defensive block
-	if (trigonometricRatio > 1) {
-		trigonometricRatio = 1;
-	}
+	trigonometricRatio > 1 && (trigonometricRatio = 1);
 
 	var theta = Math.acos(trigonometricRatio);
 
@@ -9661,7 +9659,7 @@ var PanoViewer = function (_Component) {
 
 
 	PanoViewer.prototype.setUseZoom = function setUseZoom(useZoom) {
-		typeof useZoom !== "boolean" && this._yawPitchControl.option("useZoom", useZoom);
+		typeof useZoom === "boolean" && this._yawPitchControl.option("useZoom", useZoom);
 
 		return this;
 	};

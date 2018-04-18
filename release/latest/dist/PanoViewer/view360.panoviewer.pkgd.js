@@ -5,7 +5,7 @@
  * @egjs/view360 JavaScript library
  * 
  * 
- * @version 3.0.1-snapshot
+ * @version 3.0.1
  * 
  * All-in-one packaged file for ease use of '@egjs/view360' with below dependencies.
  * NOTE: This is not an official distribution file and is only for user convenience.
@@ -640,9 +640,7 @@ function getRotationDelta(prevQ, curQ, rotateKind) {
 	var trigonometricRatio = (projectedPrevPoint[0] * curPoint[0] + projectedPrevPoint[1] * curPoint[1] + projectedPrevPoint[2] * curPoint[2]) / (_vec2["default"].length(projectedPrevPoint) * _vec2["default"].length(curPoint));
 
 	// defensive block
-	if (trigonometricRatio > 1) {
-		trigonometricRatio = 1;
-	}
+	trigonometricRatio > 1 && (trigonometricRatio = 1);
 
 	var theta = Math.acos(trigonometricRatio);
 
@@ -7774,7 +7772,7 @@ var Axes = /** @class */ (function (_super) {
         this.disconnect();
         this.em.destroy();
     };
-    Axes.VERSION = "3.0.1-snapshot";
+    Axes.VERSION = "3.0.1";
     /**
      * @name eg.Axes.TRANSFORM
      * @desc Returns the transform attribute with CSS vendor prefixes.
@@ -9661,7 +9659,7 @@ var PanoViewer = function (_Component) {
 
 
 	PanoViewer.prototype.setUseZoom = function setUseZoom(useZoom) {
-		typeof useZoom !== "boolean" && this._yawPitchControl.option("useZoom", useZoom);
+		typeof useZoom === "boolean" && this._yawPitchControl.option("useZoom", useZoom);
 
 		return this;
 	};
@@ -10168,7 +10166,7 @@ var _PanoViewer2 = _interopRequireDefault(_PanoViewer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-var VERSION = "3.0.1-snapshot";
+var VERSION = "3.0.1";
 
 exports.PanoViewer = _PanoViewer2["default"];
 exports.VERSION = VERSION;
@@ -12427,7 +12425,7 @@ var YawPitchControl = function (_Component) {
 	return YawPitchControl;
 }(_component2["default"]);
 
-YawPitchControl.VERSION = "3.0.1-snapshot";
+YawPitchControl.VERSION = "3.0.1";
 exports["default"] = YawPitchControl;
 
 /***/ }),
