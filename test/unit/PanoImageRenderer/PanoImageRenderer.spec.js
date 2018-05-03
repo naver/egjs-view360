@@ -197,172 +197,175 @@ describe("PanoImageRenderer", function() {
 			});
 	});
 
-    describe("adaptive devicePixelRatio", function() {
-        IT("when devicePixelRatio is 1, should use 1", function() {
-            // Given
-            var MockedPanoImageRenderer = PanoImageRendererInjector(
-                {
-                    "./browser": {
-                        devicePixelRatio: 1
-                    }
-                }
-            ).default;
+	describe("adaptive devicePixelRatio", function() {
+		IT("when devicePixelRatio is 1, should use 1", function() {
+			// Given
+			var MockedPanoImageRenderer = PanoImageRendererInjector({
+				"./browser": {
+					devicePixelRatio: 1
+				}}).default;
 
-            let inst = this.inst;
+			let inst = this.inst;
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_equi.jpg";
 
-            // When
-            inst = new MockedPanoImageRenderer(sourceImg, 200, 200, false, {
+			// When
+			inst = new MockedPanoImageRenderer(sourceImg, 200, 200, false, {
 				initialYaw: 0,
 				initialpitch: 0,
 				imageType: "equirectangular",
 				fieldOfView: 65
 			});
 
-            // Then
-            expect(inst.canvas.width).to.be.equal(200);
-            expect(inst.canvas.height).to.be.equal(200);
-        });
-        IT("when devicePixelRatio is 2, should use 2", function() {
-            // Given
-            var MockedPanoImageRenderer = PanoImageRendererInjector(
-                {
-                    "./browser": {
-                        devicePixelRatio: 2
-                    }
-                }
-            ).default;
-
-            let inst = this.inst;
-			const sourceImg = new Image();
-
-			sourceImg.src = "./images/test_equi.jpg";
-
-            // When
-            inst = new MockedPanoImageRenderer(sourceImg, 200, 200, false, {
-				initialYaw: 0,
-				initialpitch: 0,
-				imageType: "equirectangular",
-				fieldOfView: 65
-			});
-
-            // Then
-            expect(inst.canvas.width).to.be.equal(400);
-            expect(inst.canvas.height).to.be.equal(400);
+			// Then
+			expect(inst.canvas.width).to.be.equal(200);
+			expect(inst.canvas.height).to.be.equal(200);
 		});
-        IT("when devicePixelRatio is 3, should use 2", function() {
-            // Given
-            var MockedPanoImageRenderer = PanoImageRendererInjector(
-                {
-                    "./browser": {
-                        devicePixelRatio: 3
-                    }
-                }
-            ).default;
 
-            let inst = this.inst;
+		IT("when devicePixelRatio is 2, should use 2", function() {
+			// Given
+			var MockedPanoImageRenderer = PanoImageRendererInjector(
+					{
+							"./browser": {
+									devicePixelRatio: 2
+							}
+					}
+			).default;
+
+			let inst = this.inst;
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_equi.jpg";
 
-            // When
-            inst = new MockedPanoImageRenderer(sourceImg, 200, 200, false, {
+			// When
+			inst = new MockedPanoImageRenderer(sourceImg, 200, 200, false, {
 				initialYaw: 0,
 				initialpitch: 0,
 				imageType: "equirectangular",
 				fieldOfView: 65
 			});
 
-            // Then
-            expect(inst.canvas.width).to.be.equal(400);
-            expect(inst.canvas.height).to.be.equal(400);
+			// Then
+			expect(inst.canvas.width).to.be.equal(400);
+			expect(inst.canvas.height).to.be.equal(400);
 		});
-    });
 
-    describe("error event", function() {
-        IT("Should trigger error event when invalis image url", function(done) {
+		IT("when devicePixelRatio is 3, should use 2", function() {
+			// Given
+			var MockedPanoImageRenderer = PanoImageRendererInjector(
+					{
+							"./browser": {
+									devicePixelRatio: 3
+							}
+					}
+			).default;
+
+			let inst = this.inst;
+			const sourceImg = new Image();
+
+			sourceImg.src = "./images/test_equi.jpg";
+
+			// When
+			inst = new MockedPanoImageRenderer(sourceImg, 200, 200, false, {
+				initialYaw: 0,
+				initialpitch: 0,
+				imageType: "equirectangular",
+				fieldOfView: 65
+			});
+
+			// Then
+			expect(inst.canvas.width).to.be.equal(400);
+			expect(inst.canvas.height).to.be.equal(400);
+		});
+	});
+
+	describe("error event", function() {
+		IT("Should trigger error event when invalis image url", function(done) {
 			// Given
 			let inst = this.inst;
 			const sourceImg = new Image();
-            sourceImg.src = "./images/test_cube_not_exist.jpg";
+						sourceImg.src = "./images/test_cube_not_exist.jpg";
 
-            // When
+						// When
 			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
 				initialYaw: 0,
 				initialpitch: 0,
 				imageType: "cubemap",
 				fieldOfView: 65
-            }, DEBUG_CONTEXT_ATTRIBUTES);
-            inst.on("error", when);
+			}, DEBUG_CONTEXT_ATTRIBUTES);
 
-            function when(e) {
-                // Then
-                expect(e.type).to.be.equal(12);
-                done();
-            }
-        });
-    });
+			inst.on("error", when);
 
-    describe("renderingcontextlost event", function() {
-        IT("Should trigger renderingcontextlost event when lost context", function(done) {
+			function when(e) {
+					// Then
+					expect(e.type).to.be.equal(12);
+					done();
+			}
+		});
+	});
+
+	describe("renderingcontextlost event", function() {
+		IT("Should trigger renderingcontextlost event when lost context", function(done) {
 			// Given
 			let inst = this.inst;
 			const sourceImg = new Image();
-            sourceImg.src = "./images/test_cube.jpg";
+						sourceImg.src = "./images/test_cube.jpg";
 
-            // When
+						// When
 			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
 				initialYaw: 0,
 				initialpitch: 0,
 				imageType: "cubemap",
 				fieldOfView: 65
-            }, DEBUG_CONTEXT_ATTRIBUTES);
-            inst.on("renderingContextLost", when);
+			}, DEBUG_CONTEXT_ATTRIBUTES);
 
-            for(var i=0;i<16;i++) {
-                new PanoImageRenderer(sourceImg, 200, 200, false, {
-                    initialYaw: 0,
-                    initialpitch: 0,
-                    imageType: "cubemap",
-                    fieldOfView: 65
-                }, DEBUG_CONTEXT_ATTRIBUTES);
-            }
+			inst.on("renderingContextLost", when);
 
-            function when(e) {
-                // Then
-                expect(inst.hasRenderingContext()).to.be.equal(false);
-                done();
-            }
-        });
-    });
+			for(var i=0;i<16;i++) {
+					new PanoImageRenderer(sourceImg, 200, 200, false, {
+							initialYaw: 0,
+							initialpitch: 0,
+							imageType: "cubemap",
+							fieldOfView: 65
+					}, DEBUG_CONTEXT_ATTRIBUTES);
+			}
 
-    describe("render without throwing exception", function() {
-        IT("Should not render internaly when calling render without image loaded", function() {
+			function when(e) {
+					// Then
+					expect(inst.hasRenderingContext()).to.be.equal(false);
+					done();
+			}
+		});
+	});
+
+	describe("render without throwing exception", function() {
+		IT("Should not render internaly when calling render without image loaded", function() {
 			// Given
 			let inst = this.inst;
-            let isDrawCalled = false;
+			let isDrawCalled = false;
 			const sourceImg = new Image();
-            sourceImg.src = "./images/test_cube_not_exist.jpg";
+			sourceImg.src = "./images/test_cube_not_exist.jpg";
+
 			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
 				initialYaw: 0,
 				initialpitch: 0,
 				imageType: "cubemap",
 				fieldOfView: 65
-            }, DEBUG_CONTEXT_ATTRIBUTES);
-            inst._draw = function() {
-                isDrawCalled = true;
-                PanoImageRenderer.prototype._draw.call(inst);
-            };
+			}, DEBUG_CONTEXT_ATTRIBUTES);
 
-            // When
-            inst.render(0, 0, 65);
+			inst._draw = function() {
+				isDrawCalled = true;
+				PanoImageRenderer.prototype._draw.call(inst);
+			};
 
-            // Then
-            expect(isDrawCalled).to.be.equal(false);
-        });
-    });
+			// When
+			inst.render(0, 0, 65);
+
+			// Then
+			expect(isDrawCalled).to.be.equal(false);
+		});
+	});
 
 	describe("Cubemap Rendering", function() {
 		describe("separated tiles", function() {
@@ -1003,7 +1006,7 @@ describe("PanoImageRenderer", function() {
 			}
 		});
 
-        IT("yaw: 0, pitch:0, fov:65 : video IE11", function(done) {
+		IT("yaw: 0, pitch:0, fov:65 : video IE11", function(done) {
 			// Given
 			let inst = this.inst;
 			const sourceImg = document.createElement("video");
@@ -1194,8 +1197,9 @@ describe("PanoImageRenderer", function() {
 				// Then
 				expect(isDrawCalled).to.be.equal(false);
 				done();
-            });
-        });
+			});
+		});
+
 		IT("should not update video texture after keepUpdate(false) called", function(done) {
 			// Given
 			let inst = this.inst;
