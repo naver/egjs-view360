@@ -489,7 +489,7 @@ export default class PanoViewer extends Component {
 
 		let containerSize;
 
-		if (!size || !size.width || !size.height) {
+		if (!size !== undefined || size.width !== undefined || size.height !== undefined) {
 			containerSize = window.getComputedStyle(this._container);
 		}
 
@@ -507,6 +507,7 @@ export default class PanoViewer extends Component {
 		this._aspectRatio = w / h;
 		this._photoSphereRenderer.updateViewportDimensions(w, h);
 		this._yawPitchControl.option("aspectRatio", this._aspectRatio);
+		this._yawPitchControl.updatePanScale({height: h});
 
 		this.lookAt({}, 0);
 		return this;

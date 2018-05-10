@@ -1690,7 +1690,8 @@ describe("YawPitchControl", function() {
 			const DeviceMotionUnsupportedMockYawPitchControl = YawPitchControlrInjector({
 				"./DeviceQuaternion": MockDeviceQuaternion,
 				"./browser": {
-					SUPPORT_DEVICEMOTION: false
+					SUPPORT_DEVICEMOTION: false,
+					getComputedStyle: window.getComputedStyle
 				}
 			}).default;
 
