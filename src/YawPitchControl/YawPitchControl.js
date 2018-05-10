@@ -124,7 +124,6 @@ const YawPitchControl = class YawPitchControl extends Component {
 			},
 			change: evt => {
 				if (evt.delta.fov !== 0) {
-					this._setPanScale(evt.pos.fov);
 					this._updateControlScale(evt);
 				}
 				this._triggerChange(evt);
@@ -410,6 +409,12 @@ const YawPitchControl = class YawPitchControl extends Component {
 			pitch: p,
 		}, 0);
 
+		// TODO: Is there more reasonable code to replace 'following call' here?
+		// _setPanScale should be affected by fov or element's height.
+		// But interface for checking height of element doesn't exist.
+		// So it's impossible to call _setPanScale on height changes.
+		// Currently following code is called by YawPichControl option changes whom PanoViewer.updateViewportDimensions triggers.
+		this._setPanScale(fov);
 		return this;
 	}
 
