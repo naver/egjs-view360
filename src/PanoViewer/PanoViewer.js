@@ -486,12 +486,26 @@ export default class PanoViewer extends Component {
 		if (!this._isReady) {
 			return this;
 		}
-		this._width = (size && size.width) ||
-			parseInt(window.getComputedStyle(this._container).width, 10);
-		this._height = (size && size.height) ||
-									parseInt(window.getComputedStyle(this._container).height, 10);
-		this._aspectRatio = this._width / this._height;
-		this._photoSphereRenderer.updateViewportDimensions(this._width, this._height);
+
+		let containerSize;
+
+		if (!size || !size.width || !size.height) {
+			containerSize = window.getComputedStyle(this._container);
+		}
+
+		const w = (size && size.width) || parseInt(containerSize.width, 10);
+		const h = (size && size.height) || parseInt(containerSize.height, 10);
+
+		// Skip if viewport is not changed.
+		if (w === this._width && h === this._height) {
+			return this;
+		}
+
+		this._width = w;
+		this._height = h;
+
+		this._aspectRatio = w / h;
+		this._photoSphereRenderer.updateViewportDimensions(w, h);
 		this._yawPitchControl.option("aspectRatio", this._aspectRatio);
 
 		this.lookAt({}, 0);
