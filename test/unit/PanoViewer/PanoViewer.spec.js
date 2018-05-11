@@ -459,7 +459,7 @@ describe("PanoViewer", function() {
 		IT("should update panScale if updateViewportDimension is called with other height value.", done => {
 			const HORIZONTAL_MOVE = {
 				pos: [30, 30],
-				deltaX: 150,
+				deltaX: 100, /* Small value is set to prevent angle from being over 360 */
 				deltaY: 0,
 				duration: 100,
 				easing: "linear"
