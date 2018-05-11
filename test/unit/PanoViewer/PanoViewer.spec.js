@@ -36,6 +36,9 @@ describe("PanoViewer", function() {
 	const deviceRatio = window.devicePixelRatio;
 	const suffix = `_${deviceRatio}x.png`;
 
+	/**
+	 * Function Test
+	 */
 	describe("constructor", function() {
 		let target;
 		let panoViewer;
@@ -376,6 +379,134 @@ describe("PanoViewer", function() {
 		});
 	});
 
+	describe("#updateViewportDimension", function() {
+		let target;
+		let panoViewer;
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div style="width:200px;height:200px"></div>`;
+
+			panoViewer = new PanoViewer(target, {
+				image: "./images/test_equi.png"
+			});
+		});
+
+		afterEach(() => {
+			cleanup();
+
+			if (!panoViewer) {
+				return;
+			}
+			panoViewer.destroy();
+			panoViewer = null;
+		});
+
+		IT("should set viewport(canvas) size as parameter or set container size if size property is not exist", done => {
+			panoViewer.on("ready", () => {
+				// Given
+				const canvas = target.querySelector("canvas");
+				const containerSize = window.getComputedStyle(target);
+				const containerW = parseInt(containerSize.width, 10);
+				const containerH = parseInt(containerSize.height, 10);
+				const expectedResult = [
+					{width: 150, height: 100},
+					{width: 120, height: containerH},
+					{width: containerW, height: 160},
+					{width: containerW, height: containerH}
+				];
+				let resultSizeArray = [];
+
+				// When
+				panoViewer.updateViewportDimensions({width: 150, height: 100});
+				resultSizeArray.push({width: canvas.width, height: canvas.height});
+				panoViewer.updateViewportDimensions({width: 120});
+				resultSizeArray.push({width: canvas.width, height: canvas.height});
+				panoViewer.updateViewportDimensions({height: 160});
+				resultSizeArray.push({width: canvas.width, height: canvas.height});
+				panoViewer.updateViewportDimensions();
+				resultSizeArray.push({width: canvas.width, height: canvas.height});
+
+				// Then
+				resultSizeArray.forEach((size, index) => {
+					expect(size.width).to.be.equal(expectedResult[index].width);
+					expect(size.height).to.be.equal(expectedResult[index].height);
+				});
+
+				done();
+			});
+		});
+
+		IT("should not change size if viewport size is not changed", done => {
+			panoViewer.on("ready", () => {
+				// Given
+				const canvas = target.querySelector("canvas");
+				const containerSize = window.getComputedStyle(target);
+				const containerW = parseInt(containerSize.width, 10);
+				const containerH = parseInt(containerSize.height, 10);
+
+				// When
+				panoViewer.updateViewportDimensions({width: containerW, height: containerH});
+
+				// Then
+				expect(canvas.width).to.be.equal(containerW);
+				expect(canvas.height).to.be.equal(containerH);
+
+				done();
+			});
+		});
+
+		IT("should update panScale if updateViewportDimension is called with other height value.", done => {
+			const HORIZONTAL_MOVE = {
+				pos: [30, 30],
+				deltaX: 100, /* Small value is set to prevent angle from being over 360 */
+				deltaY: 0,
+				duration: 100,
+				easing: "linear"
+			};
+
+			panoViewer.on("ready", () => {
+				// Given
+				let currYaw = panoViewer.getYaw();
+				let prevYaw = currYaw;
+				let basisDeltaYaw;
+				let smallerHeightDeltaYaw;
+				let biggerHeightDeltaYaw;
+
+				Simulator.gestures.pan(target, HORIZONTAL_MOVE, () => {
+					currYaw = panoViewer.getYaw();
+					basisDeltaYaw = Math.abs(currYaw - prevYaw);
+					prevYaw = currYaw;
+
+					// When
+					// Update height smaller than first height(200).
+					panoViewer.updateViewportDimensions({width: 100, height: 100});
+					Simulator.gestures.pan(target, HORIZONTAL_MOVE, () => {
+						currYaw = panoViewer.getYaw();
+						smallerHeightDeltaYaw = Math.abs(currYaw - prevYaw);
+						prevYaw = currYaw;
+
+						// Update height bigger than first height(200).
+						panoViewer.updateViewportDimensions({width: 300, height: 300});
+						Simulator.gestures.pan(target, HORIZONTAL_MOVE, () => {
+							currYaw = panoViewer.getYaw();
+							biggerHeightDeltaYaw = Math.abs(currYaw - prevYaw);
+							prevYaw = currYaw;
+
+							// Then
+							expect(smallerHeightDeltaYaw).to.be.above(basisDeltaYaw);
+							expect(biggerHeightDeltaYaw).to.be.below(basisDeltaYaw);
+
+							done();
+						});
+					});
+				});
+			});
+		});
+	});
+	/**
+	 * Event Test
+	 */
 	describe("viewChange event", function() {
 		let target;
 		let panoViewer;
@@ -511,6 +642,9 @@ describe("PanoViewer", function() {
 		});
 	});
 
+	/**
+	 * Touch Test
+	 */
 	describe("Touch Direction Test", () => {
 		let target;
 

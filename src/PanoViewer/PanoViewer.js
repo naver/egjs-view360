@@ -482,17 +482,32 @@ export default class PanoViewer extends Component {
 	 * @param {Number} [size.height=height of container]
 	 * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
 	 */
-	updateViewportDimensions(size) {
+	updateViewportDimensions(size = {width: undefined, height: undefined}) {
 		if (!this._isReady) {
 			return this;
 		}
-		this._width = (size && size.width) ||
-			parseInt(window.getComputedStyle(this._container).width, 10);
-		this._height = (size && size.height) ||
-									parseInt(window.getComputedStyle(this._container).height, 10);
-		this._aspectRatio = this._width / this._height;
-		this._photoSphereRenderer.updateViewportDimensions(this._width, this._height);
+
+		let containerSize;
+
+		if (size.width === undefined || size.height === undefined) {
+			containerSize = window.getComputedStyle(this._container);
+		}
+
+		const width = size.width || parseInt(containerSize.width, 10);
+		const height = size.height || parseInt(containerSize.height, 10);
+
+		// Skip if viewport is not changed.
+		if (width === this._width && height === this._height) {
+			return this;
+		}
+
+		this._width = width;
+		this._height = height;
+
+		this._aspectRatio = width / height;
+		this._photoSphereRenderer.updateViewportDimensions(width, height);
 		this._yawPitchControl.option("aspectRatio", this._aspectRatio);
+		this._yawPitchControl.updatePanScale({height});
 
 		this.lookAt({}, 0);
 		return this;

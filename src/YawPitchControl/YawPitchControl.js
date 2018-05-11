@@ -124,8 +124,8 @@ const YawPitchControl = class YawPitchControl extends Component {
 			},
 			change: evt => {
 				if (evt.delta.fov !== 0) {
-					this._setPanScale(evt.pos.fov);
 					this._updateControlScale(evt);
+					this.updatePanScale();
 				}
 				this._triggerChange(evt);
 			},
@@ -140,12 +140,22 @@ const YawPitchControl = class YawPitchControl extends Component {
 		});
 	}
 
-	_setPanScale(fov) {
-		const areaHeight = parseInt(getComputedStyle(this._element).height, 10);
+	/**
+	 * Update Pan Scale
+	 *
+	 * Scale(Sensitivity) values of panning is related with fov and height.
+	 * If at least one of them is changed, this function need to be called.
+	 * @param {*} param
+	 */
+	updatePanScale(param = {}) {
+		const fov = this.axes.get().fov;
+		const areaHeight = param.height || parseInt(getComputedStyle(this._element).height, 10);
 		const scale = MC_BIND_SCALE[0] * fov / this._initialFov * PAN_SCALE / areaHeight;
 
 		this.axesPanInput.options.scale = [scale, scale];
 		this.axes.options.deceleration = MC_DECELERATION * fov / MAX_FIELD_OF_VIEW;
+
+		return this;
 	}
 
 	/*
@@ -217,6 +227,11 @@ const YawPitchControl = class YawPitchControl extends Component {
 				key === "yawRange" || key === "pitchRange"
 			)) {
 			this._updateControlScale();
+
+			// If fov is changed, update pan scale
+			if (keys.indexOf("fov") >= 0) {
+				this.updatePanScale();
+			}
 		}
 
 		if (keys.some(key => key === "fovRange")) {
@@ -237,6 +252,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 					fov: nextFov
 				}, 0);
 				this._updateControlScale();
+				this.updatePanScale();
 			}
 		}
 
@@ -540,7 +556,8 @@ const YawPitchControl = class YawPitchControl extends Component {
 		// touchDirection is decided by parameter is valid string (Ref. Axes.connect)
 		this._applyOptions(Object.keys(this.options), this.options);
 
-		this._setPanScale(this.getFov());
+		// TODO: Is this code is needed? Check later.
+		this.updatePanScale();
 
 		return this;
 	}
