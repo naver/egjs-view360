@@ -1295,6 +1295,41 @@ describe("YawPitchControl", function() {
 			});
 
 		});
+
+		describe("fovRange Test", () => {
+			let yawpitch;
+			let target;
+
+			beforeEach(() => {
+				target = sandbox();
+				target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+
+				yawpitch = new YawPitchControl({element: target});
+			});
+
+			afterEach(() => {
+				cleanup();
+				yawpitch.destroy();
+			});
+
+			it("should update panScale if fov is changed by fovRange's change", () => {
+				// Given
+				const prevFov = yawpitch.getFov();
+				const prevPanScale = yawpitch.axesPanInput.options.scale;
+
+				// When
+				yawpitch.option("fovRange", [prevFov + 10, prevFov + 30]);
+
+				// Then
+				const currFov = yawpitch.getFov();
+				const currPanScale = yawpitch.axesPanInput.options.scale;
+
+				console.log(prevFov, currFov, prevPanScale, currPanScale);
+
+				expect(currFov).to.not.equal(prevFov);
+				expect(prevPanScale).to.not.equal(currPanScale);
+			});
+		});
 	});
 
 	describe("Pitch adjustment", function() {
