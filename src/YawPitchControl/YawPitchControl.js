@@ -145,12 +145,11 @@ const YawPitchControl = class YawPitchControl extends Component {
 	 *
 	 * Scale(Sensitivity) values of panning is related with fov and height.
 	 * If at least one of them is changed, this function need to be called.
-	 * @param {*} param0
+	 * @param {*} param
 	 */
-	updatePanScale(param) {
+	updatePanScale(param = {}) {
 		const fov = this.axes.get().fov;
-		const areaHeight =
-			(param && param.height) || parseInt(getComputedStyle(this._element).height, 10);
+		const areaHeight = param.height || parseInt(getComputedStyle(this._element).height, 10);
 		const scale = MC_BIND_SCALE[0] * fov / this._initialFov * PAN_SCALE / areaHeight;
 
 		this.axesPanInput.options.scale = [scale, scale];

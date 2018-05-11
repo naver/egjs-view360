@@ -1324,8 +1324,6 @@ describe("YawPitchControl", function() {
 				const currFov = yawpitch.getFov();
 				const currPanScale = yawpitch.axesPanInput.options.scale;
 
-				console.log(prevFov, currFov, prevPanScale, currPanScale);
-
 				expect(currFov).to.not.equal(prevFov);
 				expect(prevPanScale).to.not.equal(currPanScale);
 			});
