@@ -149,7 +149,8 @@ const YawPitchControl = class YawPitchControl extends Component {
 	 */
 	updatePanScale(param) {
 		const fov = this.axes.get().fov;
-		const areaHeight = (param && param.height) || parseInt(getComputedStyle(this._element).height, 10);
+		const areaHeight =
+			(param && param.height) || parseInt(getComputedStyle(this._element).height, 10);
 		const scale = MC_BIND_SCALE[0] * fov / this._initialFov * PAN_SCALE / areaHeight;
 
 		this.axesPanInput.options.scale = [scale, scale];
