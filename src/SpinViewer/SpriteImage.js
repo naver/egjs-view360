@@ -1,5 +1,17 @@
 import Component from "@egjs/component";
 
+const TRANSFORM = (function() {
+	const bodyStyle = (document.head || document.getElementsByTagName("head")[0]).style;
+	const target = ["transform", "webkitTransform", "msTransform", "mozTransform"];
+
+	for (let i = 0, len = target.length; i < len; i++) {
+		if (target[i] in bodyStyle) {
+			return target[i];
+		}
+	}
+	return "";
+})();
+
 /**
  * @class eg.view360.SpriteImage
  * @classdesc A module that displays a single or continuous image of any one of the "sprite images". SpinViewer internally uses SpriteImage to show each frame of the sprite image.
@@ -128,8 +140,14 @@ export default class SpriteImage extends Component {
 	static _createBgDiv(img, rowCount, colCount, autoHeight) {
 		const el = document.createElement("div");
 
-		el.style.backgroundImage = `url(${img.src})`;
-		el.style.backgroundSize = `${colCount * 100}% ${rowCount * 100}%`;
+		el.style.position = "relative";
+		el.style.overflow = "hidden";
+
+		img.style.position = "absolute";
+		img.style.width = `${colCount * 100}%`;
+		img.style.height = `${rowCount * 100}%`;
+
+		el.appendChild(img);
 
 		const unitWidth = img.width / colCount;
 		const unitHeight = img.height / rowCount;
@@ -192,8 +210,8 @@ export default class SpriteImage extends Component {
 			return;
 		}
 
-		if (this._bg) {
-			this._bg.style.backgroundPosition = `${-col * 100}% ${-row * 100}%`;
+		if (this._image) {
+			this._image.style[TRANSFORM] = `translate(${-(col / this._colCount * 100)}%, ${-(row / this._rowCount * 100)}%`;
 		}
 
 		this._colRow = [col, row];
