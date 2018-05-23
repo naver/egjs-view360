@@ -1,5 +1,17 @@
 import SpriteImage from "../../../src/SpinViewer/SpriteImage";
 
+const TRANSFORM = (function() {
+	const bodyStyle = (document.head || document.getElementsByTagName("head")[0]).style;
+	const target = ["transform", "webkitTransform", "msTransform", "mozTransform"];
+
+	for (let i = 0, len = target.length; i < len; i++) {
+		if (target[i] in bodyStyle) {
+			return target[i];
+		}
+	}
+	return "";
+})();
+
 describe("SpriteImage", function() {
 	describe("create", function() {
 		var target
@@ -59,18 +71,24 @@ describe("SpriteImage", function() {
 			target.innerHTML = `<div"></div>`;
 		});
 
+		afterEach(() => {
+			cleanup();
+		});
+
 		it("should set background position correctly", (done) => {
+			const TOTAL_ROW = 10;
+			const TOTAL_COL = 10;
 			let o = new SpriteImage(target, {
 				imageUrl: "./images/SpinViewer/whale.png",
-				colCount: 10,
-				rowCount: 10
+				colCount: TOTAL_COL,
+				rowCount: TOTAL_ROW
 			});
 
 			o.on("load", e => {
-				for (let y = 0; y < 10; y++) {
-					for (let x = 0; x < 10; x++) {
+				for (let y = 0; y < TOTAL_ROW; y++) {
+					for (let x = 0; x < TOTAL_COL; x++) {
 						o.setColRow(x, y);
-						assert(e.bgElement.style.backgroundPosition === `${-x * 100}% ${-y * 100}%`);
+						assert(e.bgElement.querySelector("img").style[TRANSFORM] === `translate(${-x / TOTAL_COL * 100}%, ${-y / TOTAL_ROW * 100}%)`);
 					}
 				}
 				done();
@@ -87,7 +105,7 @@ describe("SpriteImage", function() {
 
 			o.on("load", e => {
 				o.setColRow(1, 1);
-				assert(e.bgElement.style.backgroundPosition === "0% 0%");
+				assert(e.bgElement.querySelector("img").style[TRANSFORM] === `translate(0%, 0%)`);
 				done();
 			});
 		});
