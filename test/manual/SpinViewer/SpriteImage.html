@@ -1,59 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Manual Test : Spin Viewer</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi">
-<!--<link rel="stylesheet" type="text/css" href="./css/main.css">-->
-<style>
-</style>
+  <meta charset="UTF-8">
+  <title>Manual Test : Spin Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi">
+  <meta name="description" content="SpriteImage">
+	<meta name="author" content="egjs">
+	<link rel="stylesheet" href="../css/semantic.min.css">
+  <style>
+  </style>
 </head>
-<body style="border:1px solid">
-  <h2>Sprite Images</h2>
-  <h3>Vertical (1 x 30) Sprites</h3>
-  <h4>Interval: 60, playCount: 5</h4>
-  <div id="vertical-sprites"></div>
-  <button onclick="play('vertical')">play</button><button onclick="stop('vertical')">stop</button>
-  <h3>Horizontal (8 x 1) Sprites</h3>
-  <h4>Interval: 100, playCount: 10</h4>
-  <div id="horizontal-sprites"></div>
-  <button onclick="play('horizontal')">play</button><button onclick="stop('horizontal')">stop</button>
-  <h3>Grid (10 x 10) Sprites </h3>
-  <h4>Interval: 16, playCount: Infinity</h4>
-  <div id="smurf-sprites"></div>
-  <button onclick="play('grid')">play</button><button onclick="stop('grid')">stop</button>
+<body>
+  <div class="ui main container">
+    <h1 class="ui block header">Manual Test - Sprite Image</h1>
+    <!-- Vertical Sprites-->
+    <div class="ui orange segment">
+      <h2 class="ui header">Vertical (1 x 48) Sprites</h2>
+      <div class="ui divider"></div>
+      <h3>Construct Options</h3>
+      <ul class="ui list">
+        <li>rowCount: 48</li>
+        <li>width: 100%</li>
+        <li>autoHeight: true</li>
+        <li>frameIndex: 29</li>
+      </ul>
+      <h3>Play Options</h3>
+      <ul class="ui list">
+        <li>interval: 60</li>
+        <li>playCount: 5</li>
+      </ul>
+      <div class="ui basic segment" id="vertical-sprites"></div>
+      <div class="extra content">
+        <div class="ui labeled icon buttons">
+          <button onclick="stop('vertical')" class="ui button"><i class="pause icon"></i>Pause</button>
+          <button onclick="play('vertical')" class="ui button"><i class="play icon"></i>Play</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Horizontal Sprites-->
+    <div class="ui red segment">
+      <h2 class="ui header">Horizontal (8 x 1) Sprites</h2>
+      <div class="ui divider"></div>
+      <h3>Construct Options</h3>
+      <ul class="ui list">
+        <li>colCount: 8</li>
+        <li>width: 200 (without px)</li>
+        <li>height: 300 (without px)</li>
+        <li>autoHeight: false</li>
+      </ul>
+      <h3>Play Options</h3>
+      <ul class="ui list">
+        <li>interval: 100</li>
+        <li>playCount: 10</li>
+      </ul>
+      <div class="ui basic segment" id="horizontal-sprites"></div>
+      <div class="extra content">
+        <div class="ui labeled icon buttons">
+          <button onclick="stop('horizontal')" class="ui button"><i class="pause icon"></i>Pause</button>
+          <button onclick="play('horizontal')" class="ui button"><i class="play icon"></i>Play</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid Sprites-->
+    <div class="ui green segment">
+      <h2 class="ui header">Grid (10 x 10) Sprites</h2>
+      <div class="ui divider"></div>
+      <h3>Construct Options</h3>
+      <ul class="ui list">
+        <li>colCount: 10</li>
+        <li>rowCount: 10</li>
+        <li>width: 200px</li>
+        <li>autoHeight: false</li>
+      </ul>
+      <h3>Play Options</h3>
+      <ul class="ui list">
+        <li>interval: 16</li>
+      </ul>
+      <div class="ui basic segment" id="grid-sprites"></div>
+      <div class="extra content">
+        <div class="ui labeled icon buttons">
+          <button onclick="stop('grid')" class="ui button"><i class="pause icon"></i>Pause</button>
+          <button onclick="play('grid')" class="ui button"><i class="play icon"></i>Play</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 <script src="../../../dist/SpinViewer/view360.spinviewer.pkgd.js"></script>
 <script>
+  var playOptions = {
+    "vertical": {interval: 60, playCount: 5},
+    "horizontal": {interval: 100, playCount: 10},
+    "grid":{interval: 16}
+  }
+  
   var verticalSpriteImage = new eg.view360.SpriteImage(document.getElementById("vertical-sprites"), {
-    imageUrl: "https://cdn-images-1.medium.com/max/1600/1*xNzblAPNVp3Octq-dm5TKQ.jpeg",
-    rowCount: 30,
-    width: "80%",
+    imageUrl: "../img/SpinViewer/foodwindow.jpg",
+    rowCount: 48,
+    width: "100%",
     autoHeight: true,
     frameIndex: 29
   });
 
-  verticalSpriteImage.play({interval: 60, playCount: 5});
+  verticalSpriteImage.play(playOptions["vertical"]);
 
   var horizontalSpriteImage = new eg.view360.SpriteImage(document.getElementById("horizontal-sprites"), {
     imageUrl: "https://cdn.codeandweb.com/blog/2014/11/05/animate-sprites-in-css-with-texturepacker/capguy-walk.png",
     colCount: 8,
-    width: "100px",
-    height: "120px",
+    width: 200,
+    height: 300,
     autoHeight: false
   });
 
-  horizontalSpriteImage.play({interval: 100, playCount: 10});
+  horizontalSpriteImage.play(playOptions["horizontal"]);
   
-  var gridSpriteImage = new eg.view360.SpriteImage(document.getElementById("smurf-sprites"), {
+  var gridSpriteImage = new eg.view360.SpriteImage(document.getElementById("grid-sprites"), {
     imageUrl: "http://static.whale.naver.net/58rebrand/whale.png",
     rowCount: 10,
     colCount: 10,
-    width: "150px",
+    width: "200px",
     autoHeight: true
   });
 
-  gridSpriteImage.play({interval: 16});
+  gridSpriteImage.play(playOptions["grid"]);
 
   var sprites = {
     "vertical": verticalSpriteImage,
@@ -62,7 +133,7 @@
   };
 
   function play(type) {
-    sprites[type].play();
+    sprites[type].play(playOptions[type]);
   }
 
   function stop(type) {
