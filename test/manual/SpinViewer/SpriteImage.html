@@ -102,9 +102,9 @@
     width: "100%",
     autoHeight: true,
     frameIndex: 29
+  }).on("load", function() {
+    verticalSpriteImage.play(playOptions["vertical"]);
   });
-
-  verticalSpriteImage.play(playOptions["vertical"]);
 
   var horizontalSpriteImage = new eg.view360.SpriteImage(document.getElementById("horizontal-sprites"), {
     imageUrl: "https://cdn.codeandweb.com/blog/2014/11/05/animate-sprites-in-css-with-texturepacker/capguy-walk.png",
@@ -112,19 +112,19 @@
     width: 200,
     height: 300,
     autoHeight: false
+  }).on("load", function() {
+    horizontalSpriteImage.play(playOptions["horizontal"]);
   });
 
-  horizontalSpriteImage.play(playOptions["horizontal"]);
-  
   var gridSpriteImage = new eg.view360.SpriteImage(document.getElementById("grid-sprites"), {
     imageUrl: "http://static.whale.naver.net/58rebrand/whale.png",
     rowCount: 10,
     colCount: 10,
     width: "200px",
     autoHeight: true
+  }).on("load", function() {
+    gridSpriteImage.play(playOptions["grid"]);
   });
-
-  gridSpriteImage.play(playOptions["grid"]);
 
   var sprites = {
     "vertical": verticalSpriteImage,
