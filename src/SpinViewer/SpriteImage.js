@@ -135,7 +135,8 @@ export default class SpriteImage extends Component {
 		img.style.position = "absolute";
 		img.style.width = `${colCount * 100}%`;
 		img.style.height = `${rowCount * 100}%`;
-
+		/** Prevent image from being dragged on IE10, IE11, Safari especially */
+		img.ondragstart = () => (false); // img.style.pointerEvents = "none";
 		// Use hardware accelerator if available
 		SUPPORT_WILLCHANGE && (img.style.willChange = "transform");
 
