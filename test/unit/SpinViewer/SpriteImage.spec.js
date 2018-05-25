@@ -1,16 +1,5 @@
 import SpriteImage from "../../../src/SpinViewer/SpriteImage";
-
-const TRANSFORM = (function() {
-	const bodyStyle = (document.head || document.getElementsByTagName("head")[0]).style;
-	const target = ["transform", "webkitTransform", "msTransform", "mozTransform"];
-
-	for (let i = 0, len = target.length; i < len; i++) {
-		if (target[i] in bodyStyle) {
-			return target[i];
-		}
-	}
-	return "";
-})();
+import {TRANSFORM, SUPPORT_WILLCHANGE} from "../../../src/SpinViewer/browser";
 
 describe("SpriteImage", function() {
 	describe("create", function() {
@@ -18,6 +7,10 @@ describe("SpriteImage", function() {
 		beforeEach(() => {
 			target = sandbox();
 			target.innerHTML = `<div"></div>`;
+		});
+
+		afterEach(() => {
+			cleanup();
 		});
 
 		it("should make instance", () => {
@@ -61,6 +54,23 @@ describe("SpriteImage", function() {
 				assert(callback.called === true, "callback should be called");
 				done();
 			}, 500);
+		});
+
+		it("should have will-change property be transform if possible", done => {
+			// Given
+			// When
+			let o = new SpriteImage(target, {
+				imageUrl: "./images/SpinViewer/whale.png"
+			});
+
+			o.on("load", e => {
+				if (SUPPORT_WILLCHANGE) {
+					expect(e.bgElement.querySelector("img").style.willChange).to.be.equal("transform");
+				} else {
+					expect(true);
+				}
+				done();
+			});
 		});
 	});
 
