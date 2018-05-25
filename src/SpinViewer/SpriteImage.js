@@ -1,16 +1,5 @@
 import Component from "@egjs/component";
-
-const TRANSFORM = (function() {
-	const bodyStyle = (document.head || document.getElementsByTagName("head")[0]).style;
-	const target = ["transform", "webkitTransform", "msTransform", "mozTransform"];
-
-	for (let i = 0, len = target.length; i < len; i++) {
-		if (target[i] in bodyStyle) {
-			return target[i];
-		}
-	}
-	return "";
-})();
+import {TRANSFORM, SUPPORT_WILLCHANGE} from "./browser";
 
 /**
  * @class eg.view360.SpriteImage
@@ -147,6 +136,9 @@ export default class SpriteImage extends Component {
 		img.style.width = `${colCount * 100}%`;
 		img.style.height = `${rowCount * 100}%`;
 
+		// Use hardware accelerator if available
+		SUPPORT_WILLCHANGE && (img.style.willChange = "transform");
+
 		el.appendChild(img);
 
 		const unitWidth = img.width / colCount;
@@ -210,8 +202,9 @@ export default class SpriteImage extends Component {
 			return;
 		}
 
-		if (this._image) {
-			this._image.style[TRANSFORM] = `translate(${-(col / this._colCount * 100)}%, ${-(row / this._rowCount * 100)}%`;
+		if (this._image && TRANSFORM) {
+			// NOTE: Currently, do not apply translate3D for using layer hack. Do we need layer hack for old browser?
+			this._image.style[TRANSFORM] = `translate(${-(col / this._colCount * 100)}%, ${-(row / this._rowCount * 100)}%)`;
 		}
 
 		this._colRow = [col, row];
