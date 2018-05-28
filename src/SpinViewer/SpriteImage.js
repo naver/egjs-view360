@@ -1,5 +1,5 @@
 import Component from "@egjs/component";
-import {TRANSFORM, SUPPORT_WILLCHANGE} from "../utils/browser";
+import {TRANSFORM, SUPPORT_WILLCHANGE} from "../utils/browserFeature";
 
 /**
  * @class eg.view360.SpriteImage

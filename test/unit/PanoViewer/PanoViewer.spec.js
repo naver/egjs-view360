@@ -240,13 +240,11 @@ describe("PanoViewer", function() {
 	describe("static", function() {
 		IT("should isGyroSensorAvailable return false when DeviceMotionEvent not exist.", function(done) {
 			// Given
-			var MockedPanoViewer = PanoViewerInjector(
-				{
-					"../utils/browser": {
-						DeviceMotionEvent: null
-					}
+			var MockedPanoViewer = PanoViewerInjector({
+				"../utils/browserFeature": {
+					DeviceMotionEvent: null
 				}
-			).default;
+			}).default;
 
 			MockedPanoViewer.isGyroSensorAvailable(function(isGyroSensorAvailable) {
 				expect(isGyroSensorAvailable).to.be.false;

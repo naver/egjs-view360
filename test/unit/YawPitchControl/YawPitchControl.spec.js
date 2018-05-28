@@ -1464,25 +1464,24 @@ describe("YawPitchControl", function() {
 			let errorThrown = false;
 
 			// When
-            try {
-				var MockYawPitchControl = YawPitchControlrInjector(
-					{
-						"../utils/browser": {
-							getComputedStyle: window.getComputedStyle,
-							SUPPORT_TOUCH: false,
-							SUPPORT_DEVICEMOTION: false
-						}
+			try {
+				var MockYawPitchControl = YawPitchControlrInjector({
+					"../utils/browserFeature": {
+						getComputedStyle: window.getComputedStyle,
+						SUPPORT_TOUCH: false,
+						SUPPORT_DEVICEMOTION: false
 					}
-				).default;
+				}).default;
+
 				new MockYawPitchControl({
 					element: target
 				})
-            } catch (e) {
-                errorThrown = true;
+			} catch (e) {
+				errorThrown = true;
 			}
 
-            // Then
-            expect(errorThrown).to.not.ok;
+			// Then
+			expect(errorThrown).to.not.ok;
 		});
 	});
 
@@ -1722,7 +1721,7 @@ describe("YawPitchControl", function() {
 			// Given
 			const DeviceMotionUnsupportedMockYawPitchControl = YawPitchControlrInjector({
 				"./DeviceQuaternion": MockDeviceQuaternion,
-				"../utils/browser": {
+				"../utils/browserFeature": {
 					SUPPORT_DEVICEMOTION: false,
 					getComputedStyle: window.getComputedStyle
 				}
