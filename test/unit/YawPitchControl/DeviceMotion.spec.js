@@ -1,6 +1,6 @@
 import DeviceMotionInjector from "inject-loader!../../../src/YawPitchControl/input/DeviceMotion";
 
-import {window} from "../../../src/YawPitchControl/browser";
+import {window} from "../../../src/utils/browser";
 import DeviceMotion from "../../../src/YawPitchControl/input/DeviceMotion";
 import TestHelper from "./testHelper";
 

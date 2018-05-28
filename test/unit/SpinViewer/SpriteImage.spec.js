@@ -1,5 +1,5 @@
 import SpriteImage from "../../../src/SpinViewer/SpriteImage";
-import {TRANSFORM, SUPPORT_WILLCHANGE} from "../../../src/SpinViewer/browser";
+import {TRANSFORM, SUPPORT_WILLCHANGE} from "../../../src/utils/browser";
 
 describe("SpriteImage", function() {
 	describe("create", function() {

@@ -201,7 +201,7 @@ describe("PanoImageRenderer", function() {
 		IT("when devicePixelRatio is 1, should use 1", function() {
 			// Given
 			var MockedPanoImageRenderer = PanoImageRendererInjector({
-				"./browser": {
+				"../utils/browser": {
 					devicePixelRatio: 1
 				}}).default;
 
@@ -227,7 +227,7 @@ describe("PanoImageRenderer", function() {
 			// Given
 			var MockedPanoImageRenderer = PanoImageRendererInjector(
 					{
-							"./browser": {
+							"../utils/browser": {
 									devicePixelRatio: 2
 							}
 					}
@@ -255,7 +255,7 @@ describe("PanoImageRenderer", function() {
 			// Given
 			var MockedPanoImageRenderer = PanoImageRendererInjector(
 					{
-							"./browser": {
+							"../utils/browser": {
 									devicePixelRatio: 3
 							}
 					}

@@ -1,4 +1,4 @@
-import {window} from "../../../src/YawPitchControl/browser";
+import {window} from "../../../src/utils/browser";
 import FusionPoseSensor from "../../../src/YawPitchControl/input/FusionPoseSensor";
 import TestHelper from "./testHelper";
 import devicemotionSample from "./devicemotionSample";

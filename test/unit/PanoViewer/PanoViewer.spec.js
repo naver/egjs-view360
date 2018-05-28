@@ -242,7 +242,7 @@ describe("PanoViewer", function() {
 			// Given
 			var MockedPanoViewer = PanoViewerInjector(
 				{
-					"./browser": {
+					"../utils/browser": {
 						DeviceMotionEvent: null
 					}
 				}

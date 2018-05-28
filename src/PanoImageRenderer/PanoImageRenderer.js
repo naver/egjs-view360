@@ -5,7 +5,7 @@ import WebGLUtils from "./WebGLUtils";
 import CubeRenderer from "./renderer/CubeRenderer";
 import SphereRenderer from "./renderer/SphereRenderer";
 import {glMatrix, mat4, quat} from "../utils/math-util.js";
-import {devicePixelRatio} from "./browser";
+import {devicePixelRatio} from "../utils/browser";
 import {PROJECTION_TYPE} from "../PanoViewer/consts";
 
 const ImageType = PROJECTION_TYPE;

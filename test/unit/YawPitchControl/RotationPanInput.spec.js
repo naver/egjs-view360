@@ -1,4 +1,4 @@
-import {window} from "../../../src/YawPitchControl/browser";
+import {window} from "../../../src/utils/browser";
 import RotationPanInput from "../../../src/YawPitchControl/input/RotationPanInput";
 import RotationPanInputInjector from "inject-loader!../../../src/YawPitchControl/input/RotationPanInput";
 

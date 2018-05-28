@@ -1,4 +1,4 @@
-import {window} from "./browser";
+import {window} from "../utils/browser";
 import {glMatrix} from "../utils/math-util";
 
 // Singleton

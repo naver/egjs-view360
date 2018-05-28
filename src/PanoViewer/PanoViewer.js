@@ -1,7 +1,7 @@
 import Component from "@egjs/component";
 import {
 	DeviceMotionEvent
-} from "./browser";
+} from "../utils/browser";
 
 import {YawPitchControl} from "../YawPitchControl";
 import {PanoImageRenderer} from "../PanoImageRenderer";

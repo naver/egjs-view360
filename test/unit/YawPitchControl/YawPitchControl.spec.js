@@ -1467,7 +1467,7 @@ describe("YawPitchControl", function() {
             try {
 				var MockYawPitchControl = YawPitchControlrInjector(
 					{
-						"./browser": {
+						"../utils/browser": {
 							getComputedStyle: window.getComputedStyle,
 							SUPPORT_TOUCH: false,
 							SUPPORT_DEVICEMOTION: false
@@ -1722,7 +1722,7 @@ describe("YawPitchControl", function() {
 			// Given
 			const DeviceMotionUnsupportedMockYawPitchControl = YawPitchControlrInjector({
 				"./DeviceQuaternion": MockDeviceQuaternion,
-				"./browser": {
+				"../utils/browser": {
 					SUPPORT_DEVICEMOTION: false,
 					getComputedStyle: window.getComputedStyle
 				}
@@ -1835,7 +1835,7 @@ describe("YawPitchControl", function() {
 			// Then
 			function then() {
 				after = new Date().getTime();
-				expect(after - before).to.be.above(DURATION);
+				expect(after - before).to.satisfy(time => time >= DURATION);
 				done();
 			}
 		});
