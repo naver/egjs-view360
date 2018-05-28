@@ -1,4 +1,5 @@
 import Component from "@egjs/component";
+import {TRANSFORM, SUPPORT_WILLCHANGE} from "../utils/browserFeature";
 
 /**
  * @class eg.view360.SpriteImage
@@ -128,8 +129,18 @@ export default class SpriteImage extends Component {
 	static _createBgDiv(img, rowCount, colCount, autoHeight) {
 		const el = document.createElement("div");
 
-		el.style.backgroundImage = `url(${img.src})`;
-		el.style.backgroundSize = `${colCount * 100}% ${rowCount * 100}%`;
+		el.style.position = "relative";
+		el.style.overflow = "hidden";
+
+		img.style.position = "absolute";
+		img.style.width = `${colCount * 100}%`;
+		img.style.height = `${rowCount * 100}%`;
+		/** Prevent image from being dragged on IE10, IE11, Safari especially */
+		img.ondragstart = () => (false); // img.style.pointerEvents = "none";
+		// Use hardware accelerator if available
+		SUPPORT_WILLCHANGE && (img.style.willChange = "transform");
+
+		el.appendChild(img);
 
 		const unitWidth = img.width / colCount;
 		const unitHeight = img.height / rowCount;
@@ -192,8 +203,9 @@ export default class SpriteImage extends Component {
 			return;
 		}
 
-		if (this._bg) {
-			this._bg.style.backgroundPosition = `${-col * 100}% ${-row * 100}%`;
+		if (this._image && TRANSFORM) {
+			// NOTE: Currently, do not apply translate3D for using layer hack. Do we need layer hack for old browser?
+			this._image.style[TRANSFORM] = `translate(${-(col / this._colCount * 100)}%, ${-(row / this._rowCount * 100)}%)`;
 		}
 
 		this._colRow = [col, row];

@@ -6,39 +6,45 @@
 <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi"> -->
 <!-- minimal-scale=1.0 makes bug on old chromium -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi">
-<!--<link rel="stylesheet" type="text/css" href="./css/main.css">-->
+<link rel="stylesheet" href="../css/semantic.min.css">
 <style>
-  #message {
-    border: 1px solid red;
-    background-color: yellow;
-    display:none;
-  }
-
-  #slider {
-    width: 50%;
-    height: 25px;
-  }
-
-  #slider-val {
-    display: inline-block;
-    position: relative;
-    width: 60px;
-    color: #fff;
-    line-height: 20px;
-    text-align: center;
-    border-radius: 3px;
-    background: #2c3e50;
-    padding: 5px 10px;
-    margin-left: 8px;
-  }
 </style>
 </head>
 <body>
-  <h2>eg.view360.SpinViewer</h2>
-  <h3>Mini Bag</h3>
-  <div id="message">GUIDE: Scale GUI is not available on <span>Android 2.3.</span></div>
-  <div id="product-360"></div>
+  <!-- Minimal HTML -->
+  <!-- <div id="product-360" class="ui segment"></div>
   <input id="slider" type="range" min="0" max="359"><span id="slider-val">0</span>
+  <div id="option-control"></div> -->
+
+  <!-- Semantic UI HTML -->
+  <div class="ui container">
+    <h1 class="ui block header">Manual Test - SpinViewer</h1>
+    <div id="message" style="display:none">GUIDE: Scale GUI is not available on <span>Android 2.3.</span></div>
+    <div id="test-area" class="ui red segment">
+      <h2 class="ui header">
+        Vertical (1 x 24) Sprites
+      </h2>
+      <div class="ui divider"></div>
+      <h3>options</h3>
+      <ul class="ui list">
+        <li>rowCount: 24</li>
+        <li>width: 100%</li>
+        <li>scale: 1</li>
+      </ul>
+      <div id="option-control" class="ui segment">
+        <div class="ui top attached label">Chaing Options</div>
+      </div>
+      <div id="product-360" class="ui segment">
+        Rotate by touch or slider
+      </div>
+      <div class="extra content">
+        <div class="ui big right pointing label">
+          <i class="icon compass outline"></i><span id="slider-val"></span>
+        </div>
+        <input id="slider" style="width:50%; height: 25px"type="range" min="0" max="359">
+      </div>
+    </div>
+  </div>
 </body>
 <!-- Shim for Android 2.3 and IE8 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.1.5/es5-shim.min.js"></script>
@@ -55,25 +61,27 @@
   var options = {
     imageUrl: "../img/SpinViewer/bag360.jpg",
     rowCount: 24,
-    width: "50%",
+    width: "100%",
     scale: 1
   };
+  var container = document.getElementById("product-360");
   if (window.navigator.userAgent.indexOf("Android 2.3") < 0) {
-    var gui = new dat.GUI({autoPlace:true});
+    var gui = new dat.GUI({autoPlace:false});
     gui.add(options, "scale", 0, 2).step(0.1).onFinishChange(function(value) {
       // viewer.setScale(value);
       viewer.setScale(getScaleByWidth());
     });
+    document.getElementById("option-control").appendChild(gui.domElement);
   } else {
     document.getElementById("message").style.display = "block";
   }
 
-  viewer = new eg.view360.SpinViewer(document.getElementById("product-360"), options);
+  viewer = new eg.view360.SpinViewer(container, options);
   viewer.setScale(getScaleByWidth());//Temporary code
   viewer.on({
     "load": function(e) {
       // console.log("load event fired - e.target", e.target, "e.bgElement", e.bgElement);
-      viewer.spinBy(360, {duration: 300});
+      viewer.spinBy(360, {duration: 3000});
     },
     "change": function(e) {
       // console.log(e.frameIndex, e.colRow, e.angle);
@@ -100,7 +108,7 @@
 
     return {
       setVal: function(angle) {
-        const ang = Math.round(angle);
+        var ang = Math.round(angle);
         slider.value = ang;
         sliderVal.innerHTML = ang;
       }

@@ -1,7 +1,7 @@
 import Component from "@egjs/component";
 import Agent from "@egjs/agent";
 import {vec3} from "../../utils/math-util";
-import {window} from "../browser";
+import {window} from "../../utils/browser";
 
 const STILLNESS_THRESHOLD = 200; // millisecond
 

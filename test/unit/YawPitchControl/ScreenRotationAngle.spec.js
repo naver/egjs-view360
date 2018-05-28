@@ -1,5 +1,5 @@
 import TestHelper from "./testHelper";
-import {window} from "../../../src/YawPitchControl/browser";
+import {window} from "../../../src/utils/browser";
 import ScreenRotationAngle from "../../../src/YawPitchControl/ScreenRotationAngle";
 import ScreenRotationAngleInjector from "inject-loader!../../../src/YawPitchControl/ScreenRotationAngle";
 
@@ -86,7 +86,7 @@ describe("ScreenRotationAngle", function() {
 
 		it("should return rotated angles when screen is rotated.", done => {
 			// Given
-			const ScreenRotationAngle90 = ScreenRotationAngleInjector({"./browser": {
+			const ScreenRotationAngle90 = ScreenRotationAngleInjector({"../utils/browser": {
 				"window": window
 			}}).default;
 
@@ -113,7 +113,7 @@ describe("ScreenRotationAngle", function() {
 
 		it("should return rotated angles when screen is rotated && screen.orientation.angle is undefined", done => {
 			// Given
-			const MockScreenRotationAngle = ScreenRotationAngleInjector({"./browser": {
+			const MockScreenRotationAngle = ScreenRotationAngleInjector({"../utils/browser": {
 				"window": window
 			}}).default;
 
@@ -152,7 +152,7 @@ describe("ScreenRotationAngle", function() {
 
 		it("should return 0 if screen.orientation.angle and window.orientation is undefiend", done => {
 			// Given
-			const ScreenRotationAngleUndefined = ScreenRotationAngleInjector({"./browser": {
+			const ScreenRotationAngleUndefined = ScreenRotationAngleInjector({"../utils/browser": {
 				"window": window,
 			}}).default;
 			const sr3 = new ScreenRotationAngleUndefined();

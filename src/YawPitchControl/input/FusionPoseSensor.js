@@ -3,7 +3,7 @@ import agent from "@egjs/agent";
 import PosePredictor from "webvr-polyfill/src/sensor-fusion/pose-predictor";
 import MathUtil from "webvr-polyfill/src/math-util";
 import Util from "webvr-polyfill/src/util";
-import {window} from "../browser";
+import {window} from "../../utils/browser";
 import {quat} from "../../utils/math-util";
 import DeviceMotion from "./DeviceMotion";
 import ComplementaryFilter from "./ComplementaryFilter";

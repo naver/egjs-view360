@@ -61,7 +61,7 @@ export default class SpinViewer extends Component {
 				 *
 				 * viwer.on({
 				 *	"load" : function(evt) {
-				 *		this.spinBy({angle: 360, duration: 300});
+				 *		this.spinBy(360, {duration: 300});
 				 *	}
 				 * });
 				 */
