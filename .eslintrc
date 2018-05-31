@@ -8,6 +8,7 @@
     "rules": {
         "comma-dangle": "off",
         "import/prefer-default-export": "off",
-        "linebreak-style": 0
+        "linebreak-style": 0,
+        "array-element-newline": "off"
     }
 }
