@@ -49,7 +49,7 @@ export default class FusionPoseSensor extends Component {
 		this.worldToScreenQ = new MathUtil.Quaternion();
 		this.originalPoseAdjustQ = new MathUtil.Quaternion();
 		this.originalPoseAdjustQ.setFromAxisAngle(new MathUtil.Vector3(0, 0, 1),
-												-window.orientation * Math.PI / 180);
+			-window.orientation * Math.PI / 180);
 
 		this._setScreenTransform();
 		// Adjust this filter for being in landscape mode.

@@ -1,11 +1,14 @@
-var webpack = require("webpack");
-var pkg = require("./package.json");
-var path = require("path");
-var StringReplacePlugin = require("string-replace-webpack-plugin");
+const webpack = require("webpack");
+const pkg = require("./package.json");
+const path = require("path");
+const StringReplacePlugin = require("string-replace-webpack-plugin");
+const Stylish = require("webpack-stylish");
 
-var config = {
+const config = {
 	entry: {
-		"view360": "./src/index.js"
+		"view360": "./src/index.js",
+		"SpinViewer/view360.spinviewer": "./src/SpinViewer/index.js",
+		"PanoViewer/view360.panoviewer": "./src/PanoViewer/index.js"
 	},
 	output: {
 		path: path.resolve(__dirname, "dist"),
@@ -15,42 +18,53 @@ var config = {
 		umdNamedDefine: true
 	},
 	externals: {
-		"@egjs/component" : {
+		"@egjs/component": {
 			commonjs: "@egjs/component",
 			commonjs2: "@egjs/component",
 			amd: "@egjs/component",
 			root: [pkg.namespace.eg, "Component"]
 		},
-		"@egjs/axes" : {
+		"@egjs/axes": {
 			commonjs: "@egjs/axes",
 			commonjs2: "@egjs/axes",
 			amd: "@egjs/axes",
 			root: [pkg.namespace.eg, "Axes"]
 		}
 	},
+	mode: "none",
 	devtool: "cheap-source-map",
 	module: {
-		rules: [{
-			test: /\.js$/,
-			exclude: /node_modules/,
-			loader: "babel-loader"
-		},
-		{
-			test: /(\.js)$/,
-			loader: StringReplacePlugin.replace({
-				replacements: [{
-					pattern: /#__VERSION__#/ig,
-					replacement: function (match, p1, offset, string) {
-						return pkg.version;
-					}
-				}]
-			})
-		}]
+		rules: [
+			{
+				test: /\.js$/,
+				exclude: /node_modules/,
+				loader: "babel-loader"
+			},
+			{
+				test: /\.js$/,
+				loader: StringReplacePlugin.replace({
+					replacements: [
+						{
+							pattern: /#__VERSION__#/ig,
+							replacement: (match, p1, offset, string) => pkg.version
+						}
+					]
+				})
+			}
+		]
 	},
-	plugins: [new StringReplacePlugin()]
+	plugins: [
+		new webpack.optimize.ModuleConcatenationPlugin(),
+		new StringReplacePlugin(),
+		new Stylish()
+	],
+	stats: "minimal"
 };
 
-module.exports = function (env) {
-	env = env || "development";
-	return require("./config/webpack.config." + env + ".js")(config);
+module.exports = (env, argv) => {
+	const mode = (env && env.mode) || "development";
+
+	/* eslint-disable import/no-dynamic-require */
+	return require(`./config/webpack.config.${mode}.js`)(config, env);
+	/* eslint-enable import/no-dynamic-require */
 };

@@ -45,9 +45,8 @@ export default class WheelInput extends Component {
 			return;
 		}
 
-		this.observer.change(this, event, toAxis(this.axes, [
-			(event.deltaY < 0 ? -1 : 1) * this.options.scale
-		]));
+		this.observer.change(this, event, toAxis(this.axes,
+			[(event.deltaY < 0 ? -1 : 1) * this.options.scale]));
 	}
 	_attachEvent() {
 		this.element.addEventListener("wheel", this._onWheel, false);

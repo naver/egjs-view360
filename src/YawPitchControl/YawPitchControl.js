@@ -114,8 +114,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 			yaw: opt.yaw,
 			pitch: opt.pitch,
 			fov: opt.fov
-		})
-		.on({
+		}).on({
 			hold: evt => {
 				// Restore maximumDuration not to be spin too mush.
 				this.axes.options.maximumDuration = MC_MAXIMUM_DURATION;
@@ -223,9 +222,9 @@ const YawPitchControl = class YawPitchControl extends Component {
 	_applyOptions(keys, prevOptions) {
 		// If one of below is changed, call updateControlScale()
 		if (keys.some(key =>
-				key === "showPolePoint" || key === "fov" || key === "aspectRatio" ||
-				key === "yawRange" || key === "pitchRange"
-			)) {
+			key === "showPolePoint" || key === "fov" || key === "aspectRatio" ||
+			key === "yawRange" || key === "pitchRange"
+		)) {
 			this._updateControlScale();
 
 			// If fov is changed, update pan scale
@@ -480,7 +479,8 @@ const YawPitchControl = class YawPitchControl extends Component {
 		// Round value as movableCood do.
 		return [
 			(yawRange[0] * MAGIC_NUMBER) + halfHorizontalFov,
-			(yawRange[1] * MAGIC_NUMBER) - halfHorizontalFov].map(v => +v.toFixed(5));
+			(yawRange[1] * MAGIC_NUMBER) - halfHorizontalFov
+		].map(v => +v.toFixed(5));
 	}
 
 	_triggerChange(evt) {
@@ -503,14 +503,18 @@ const YawPitchControl = class YawPitchControl extends Component {
 
 	// TODO: makes constant to be logic
 	static adjustAspectRatio(input) {
-		const inputRange = [0.520, 0.540, 0.563, 0.570, 0.584, 0.590, 0.609, 0.670,
+		const inputRange = [
+			0.520, 0.540, 0.563, 0.570, 0.584, 0.590, 0.609, 0.670,
 			0.702, 0.720, 0.760, 0.780, 0.820, 0.920, 0.970, 1.00, 1.07, 1.14, 1.19,
 			1.25, 1.32, 1.38, 1.40, 1.43, 1.53, 1.62, 1.76, 1.77, 1.86, 1.96, 2.26,
-			2.30, 2.60, 3.00, 5.00, 6.00];
-		const outputRange = [0.510, 0.540, 0.606, 0.560, 0.628, 0.630, 0.647, 0.710,
+			2.30, 2.60, 3.00, 5.00, 6.00
+		];
+		const outputRange = [
+			0.510, 0.540, 0.606, 0.560, 0.628, 0.630, 0.647, 0.710,
 			0.736, 0.757, 0.780, 0.770, 0.800, 0.890, 0.975, 1.00, 1.07, 1.10, 1.15,
 			1.18, 1.22, 1.27, 1.30, 1.33, 1.39, 1.45, 1.54, 1.55, 1.58, 1.62, 1.72,
-			1.82, 1.92, 2.00, 2.24, 2.30];
+			1.82, 1.92, 2.00, 2.24, 2.30
+		];
 
 		let rangeIdx = -1;
 

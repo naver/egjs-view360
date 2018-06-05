@@ -97,33 +97,33 @@ export default class CubeRenderer extends Renderer {
 		const elemSize = 3;
 		const vertexPerTile = 4;
 		const textureCoordData =
-		vertexOrder.split("")
-		.map(face => tileConfig[order.indexOf(face)])
-		.map((config, i) => {
-			const rotation = parseInt(config.rotation / 90, 10);
-			const ordermap_ = config.flipHorizontal ? [0, 1, 2, 3] : [1, 0, 3, 2];
+			vertexOrder.split("")
+				.map(face => tileConfig[order.indexOf(face)])
+				.map((config, i) => {
+					const rotation = parseInt(config.rotation / 90, 10);
+					const ordermap_ = config.flipHorizontal ? [0, 1, 2, 3] : [1, 0, 3, 2];
 
-			for (let r = 0; r < Math.abs(rotation); r++) {
-				if ((config.flipHorizontal && rotation > 0) ||
-					(!config.flipHorizontal && rotation < 0)) {
-					ordermap_.push(ordermap_.shift());
-				} else {
-					ordermap_.unshift(ordermap_.pop());
-				}
-			}
+					for (let r = 0; r < Math.abs(rotation); r++) {
+						if ((config.flipHorizontal && rotation > 0) ||
+							(!config.flipHorizontal && rotation < 0)) {
+							ordermap_.push(ordermap_.shift());
+						} else {
+							ordermap_.unshift(ordermap_.pop());
+						}
+					}
 
-			const elemPerTile = elemSize * vertexPerTile;
-			const tileVertex = base.slice(i * elemPerTile, i * elemPerTile + elemPerTile);
-			const tileTemp = [];
+					const elemPerTile = elemSize * vertexPerTile;
+					const tileVertex = base.slice(i * elemPerTile, i * elemPerTile + elemPerTile);
+					const tileTemp = [];
 
-			for (let j = 0; j < vertexPerTile; j++) {
-				tileTemp[ordermap_[j]] = tileVertex.splice(0, elemSize);
-			}
-			return tileTemp;
-		})
-		.join()
-		.split(",")
-		.map(v => parseInt(v, 10));
+					for (let j = 0; j < vertexPerTile; j++) {
+						tileTemp[ordermap_[j]] = tileVertex.splice(0, elemSize);
+					}
+					return tileTemp;
+				})
+				.join()
+				.split(",")
+				.map(v => parseInt(v, 10));
 
 		return textureCoordData;
 	}
