@@ -12,7 +12,7 @@ const userAgent = win.navigator.userAgent;
 const SUPPORT_TOUCH = "ontouchstart" in win;
 const SUPPORT_DEVICEMOTION = "ondevicemotion" in win;
 const DeviceMotionEvent = win.DeviceMotionEvent;
-const devicePixelRatio = window.devicePixelRatio;
+const devicePixelRatio = win.devicePixelRatio;
 
 const TRANSFORM = (function() {
 	const docStyle = doc.documentElement.style;
@@ -27,8 +27,8 @@ const TRANSFORM = (function() {
 })();
 
 // check for will-change support
-const SUPPORT_WILLCHANGE = global.CSS && global.CSS.supports &&
-	global.CSS.supports("will-change", "transform");
+const SUPPORT_WILLCHANGE = win.CSS && win.CSS.supports &&
+	win.CSS.supports("will-change", "transform");
 
 export {
 	Float32Array,
