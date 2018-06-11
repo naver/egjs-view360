@@ -18,4 +18,4 @@ vec2.copy = function(out, a) {
     return out;
 };
 
-module.exports = vec2;
+export default vec2;
