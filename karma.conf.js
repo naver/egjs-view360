@@ -13,7 +13,7 @@ module.exports = function(config) {
 			"./test/unit/util.js",
       "./test/unit/**/*.spec.js",
       {pattern: "./test/manual/img/**/*.*", watched: false, included: false, served: true},
-      {pattern: "./test/img/*.*", watched: false, included: false, served: true},
+      // {pattern: "./test/img/*.*", watched: false, included: false, served: true},
     ],
 
 		proxies: {
@@ -28,7 +28,8 @@ module.exports = function(config) {
     },
 
     webpack: {
-      devtool: "inline-source-map",
+			devtool: "inline-source-map",
+			mode: "none",
       module: {
           rules: [
               {
