@@ -229,4 +229,4 @@ mat4.perspective = function (out, fovy, aspect, near, far) {
     return out;
 };
 
-module.exports = mat4;
+export default mat4;

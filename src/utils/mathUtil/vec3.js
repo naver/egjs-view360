@@ -204,4 +204,4 @@ vec3.rotateZ = function(out, a, b, c){
 	return out;
 };
 
-module.exports = vec3;
+export default vec3;

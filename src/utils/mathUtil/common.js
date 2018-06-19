@@ -21,4 +21,4 @@ glMatrix.toDegree = function(a){
 // glMatrix.EPSILON = 0.000001;
 glMatrix.EPSILON = 0.0001;
 
-module.exports = glMatrix;
+export default glMatrix;

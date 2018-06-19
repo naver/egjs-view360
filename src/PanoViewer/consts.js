@@ -184,7 +184,7 @@ const PROJECTION_TYPE = {
 	CUBEMAP: "cubemap"
 };
 
-module.exports = {
+export {
 	GYRO_MODE,
 	EVENTS,
 	ERROR_TYPE,
