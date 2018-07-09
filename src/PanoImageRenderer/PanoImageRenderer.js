@@ -3,6 +3,7 @@ import ImageLoader from "./ImageLoader";
 import VideoLoader from "./VideoLoader";
 import WebGLUtils from "./WebGLUtils";
 import CubeRenderer from "./renderer/CubeRenderer";
+import CubeStripRenderer from "./renderer/CubeStripRenderer";
 import SphereRenderer from "./renderer/SphereRenderer";
 import {glMatrix, mat4, quat} from "../utils/math-util.js";
 import {devicePixelRatio} from "../utils/browserFeature";
@@ -133,7 +134,18 @@ export default class PanoImageRenderer extends Component {
 
 		this._imageType = imageType;
 		this._isCubeMap = imageType === ImageType.CUBEMAP;
-		this._renderer = this._isCubeMap ? CubeRenderer : SphereRenderer;
+		switch (imageType) {
+			case ImageType.CUBEMAP:
+				this._renderer = CubeRenderer;
+				break;
+			case ImageType.CUBESTRIP:
+				this._renderer = CubeStripRenderer;
+				break;
+			default:
+				this._renderer = SphereRenderer;
+				break;
+		}
+
 		this._initWebGL();
 	}
 
@@ -306,18 +318,22 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	_initWebGL() {
+		let gl;
+
 		// TODO: Following code does need to be executed only if width/height, cubicStrip property is changed.
 		try {
 			this._initRenderingContext();
+			gl = this.context;
+
 			this.updateViewportDimensions(this.width, this.height);
 
 			if (this.shaderProgram) {
-				this.context.deleteProgram(this.shaderProgram);
+				gl.deleteProgram(this.shaderProgram);
 			}
 
-			this.shaderProgram = this._initShaderProgram(this.context);
+			this.shaderProgram = this._initShaderProgram(gl);
 			if (!this.shaderProgram) {
-				throw new Error(`Failed to intialize shaders: ${WebGLUtils.getErrorNameFromWebGLErrorCode(this.context.getError())}`);
+				throw new Error(`Failed to intialize shaders: ${WebGLUtils.getErrorNameFromWebGLErrorCode(gl.getError())}`);
 			}
 
 			// Buffers for shader
@@ -331,14 +347,19 @@ export default class PanoImageRenderer extends Component {
 			return;
 		}
 		// 캔버스를 투명으로 채운다.
-		this.context.clearColor(0, 0, 0, 0);
-		const textureTarget = this._isCubeMap ? this.context.TEXTURE_CUBE_MAP : this.context.TEXTURE_2D;
+		gl.clearColor(0, 0, 0, 0);
+		const textureTarget = this._isCubeMap ? gl.TEXTURE_CUBE_MAP : gl.TEXTURE_2D;
 
 		if (this.texture) {
-			this.context.deleteTexture(this.texture);
+			gl.deleteTexture(this.texture);
 		}
 
-		this.texture = WebGLUtils.createTexture(this.context, textureTarget);
+		this.texture = WebGLUtils.createTexture(gl, textureTarget);
+
+		if (!this._isCubeMap) {
+			gl.enable(gl.CULL_FACE);
+			gl.enable(gl.DEPTH_TEST);
+		}
 	}
 
 	_initRenderingContext() {

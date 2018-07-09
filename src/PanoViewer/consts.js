@@ -181,7 +181,19 @@ const PROJECTION_TYPE = {
 	 * @type {String}
 	 * @default cubemap
 	 */
-	CUBEMAP: "cubemap"
+	CUBEMAP: "cubemap",
+	/**
+	 * Constant value for cubestrip type.
+	 * Cubestrip is a format for a single image with a combination of six cube faces. It is almost identical to cubemap, but it is implemented in a different way. It aims at better performance and efficiency. In addition, it automatically detects and supports EAC.
+	 *
+	 * @ko cubemap 에 대한 상수 값.Cubestrip 은 cube 면이 6개가 조합된 조합을 한장의 이미지를 위한 포맷이다. cubemap 과 사용방법이 거의 동일하지만 다른 방식으로 구현되었다. 보다 좋은 성능과 효율성을 목적으로 한다. 더불어 자동으로 EAC 를 감지하고 지원한다.
+	 * @name CUBESTRIP
+	 * @memberof eg.view360.PanoViewer.PROJECTION_TYPE
+	 * @constant
+	 * @type {String}
+	 * @default cubestrip
+	 */
+	CUBESTRIP: "cubestrip"
 };
 
 export {
