@@ -18,4 +18,10 @@ export default class Renderer {
 	 *
 	 *  - bindTexture
 	 */
+	static getDimension(pixelSource) {
+		const width = pixelSource.naturalWidth || pixelSource.videoWidth;
+		const height = pixelSource.naturalHeight || pixelSource.videoHeight;
+
+		return {width, height};
+	}
 }

@@ -406,6 +406,7 @@ export default class PanoImageRenderer extends Component {
 		shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
 		shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
 		shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
+
 		gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 
 		// clear buffer
@@ -435,6 +436,15 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	_bindTexture() {
+		// Detect if it is EAC Format while CUBESTRIP mode.
+		// We assume it is EAC if image is not 3/2 ratio.
+		if (this._imageType === ImageType.CUBESTRIP) {
+			const {width, height} = this._renderer.getDimension(this._image);
+			const isEAC = width && height && width / height !== 1.5;
+
+			this.context.uniform1f(this.context.getUniformLocation(this.shaderProgram, "uIsEAC"), isEAC);
+		}
+
 		this._renderer.bindTexture(
 			this.context,
 			this.texture,

@@ -1,7 +1,6 @@
 import Agent from "@egjs/agent";
 import Renderer from "./Renderer.js";
 import WebGLUtils from "../WebGLUtils";
-// import {util} from "../../utils/math-util.js";
 
 const agent = Agent();
 const isIE11 = agent.browser.name === "ie" && agent.browser.version === "11.0";
@@ -29,13 +28,14 @@ export default class FastCubeRenderer extends Renderer {
 			precision mediump float;
 			varying highp vec2 vTextureCoord;
 			uniform sampler2D uSampler;
+			uniform bool uIsEAC;
+
 			const vec2 OPERATE_COORDS_RANGE = vec2(-1.0, 1.0);
 			const vec2 TEXTURE_COORDS_RANGE = vec2(0.0, 1.0);
 			// vector type is used for initializing values instead of array.
 			const vec4 TEXTURE_DIVISION_X = vec4(0.0, 1.0 / 3.0, 2.0 / 3.0, 1.0);
 			const vec3 TEXTURE_DIVISION_Y = vec3(0.0, 1.0 / 2.0, 1.0);
 			const float EAC_CONST = 2.0 / PI;
-			bool isEAC = true;
 
 			float scale(vec2 domainRange, vec2 targetRange, float val) {
 				float unit = 1.0 / (domainRange[1] - domainRange[0]);
@@ -46,7 +46,7 @@ export default class FastCubeRenderer extends Renderer {
 				float transformedCoordX;
 				float transformedCoordY;
 
-				if (isEAC) {
+				if (uIsEAC) {
 					vec2 orgTextureRangeX;
 					vec2 orgTextureRangeY;
 
@@ -130,7 +130,7 @@ export default class FastCubeRenderer extends Renderer {
 	}
 
 	static getIndexData() {
-		// 한번만 계산하도록 수정하기
+		// TODO: 한번만 계산하도록 수정하기
 		const indices = (() => {
 			const indexData = [];
 
@@ -151,6 +151,7 @@ export default class FastCubeRenderer extends Renderer {
 	}
 
 	static getTextureCoordData(imageConfig) {
+		// TODO:
 		const cols = 3;
 		const rows = 2;
 		const order = imageConfig.order || "RLUDBF"; // "LFRDBU";
@@ -172,9 +173,9 @@ export default class FastCubeRenderer extends Renderer {
 
 		const tileConfigs = this._extractTileConfig(imageConfig);
 
-		// // Transform Coord By Flip & Rotation
+		// Transform Coord By Flip & Rotation
 		coords = coords
-		// 	// shrink coord to avoid pixel bleeding
+		// shrink coord to avoid pixel bleeding
 			.map(coord => this._shrinkCoord(coord))
 			.map((coord, i) => this._transformCoord(coord, tileConfigs[i]));
 
@@ -200,18 +201,11 @@ export default class FastCubeRenderer extends Renderer {
 		return tileConfig;
 	}
 
-	static _getDimension(pixelSource) {
-		const width = pixelSource.naturalWidth || pixelSource.videoWidth;
-		const height = pixelSource.naturalHeight || pixelSource.videoHeight;
-
-		return {width, height};
-	}
-
 	static _getPixelSource(image) {
 		if (!pixelCanvas) {
 			return image;
 		}
-		const {width, height} = this._getDimension(image);
+		const {width, height} = this.getDimension(image);
 
 		if (pixelCanvas.width !== width) {
 			pixelCanvas.width = width;
@@ -232,7 +226,7 @@ export default class FastCubeRenderer extends Renderer {
 
 	static bindTexture(gl, texture, image) {
 		// Make sure image isn't too big
-		const {width, height} = this._getDimension(image);
+		const {width, height} = this.getDimension(image);
 		const size = Math.max(width, height);
 		const maxSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
 
