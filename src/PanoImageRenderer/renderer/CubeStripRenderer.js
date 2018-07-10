@@ -154,7 +154,7 @@ export default class FastCubeRenderer extends Renderer {
 		// TODO:
 		const cols = 3;
 		const rows = 2;
-		const order = imageConfig.order || "RLUDBF"; // "LFRDBU";
+		const order = imageConfig.order || "RLUDFB";
 		let coords = [];
 
 		// 텍스쳐의 좌표는 윗쪽이 큰 값을 가지므로 row 는 역순으로 넣는다.
@@ -260,9 +260,6 @@ export default class FastCubeRenderer extends Renderer {
 
 		if (tileConfig.rotation) {
 			newCoord = this._rotateCoord(newCoord, tileConfig.rotation);
-			console.log("rotation applied", tileConfig.rotation);
-		} else {
-			console.log("rotation not applied");
 		}
 
 		return newCoord;
