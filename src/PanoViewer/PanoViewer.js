@@ -92,7 +92,8 @@ export default class PanoViewer extends Component {
 		this._isVideo = !!options.video;
 		this._projectionType = options.projectionType || PROJECTION_TYPE.EQUIRECTANGULAR;
 		this._cubemapConfig = Object.assign({
-			order: "RLUDBF",
+			/* RLUDBF is abnormal, we use it on CUBEMAP only for backward compatibility*/
+			order: this._projectionType === PROJECTION_TYPE.CUBEMAP ? "RLUDBF" : "RLUDFB",
 			tileConfig: {
 				flipHirozontal: false,
 				rotation: 0

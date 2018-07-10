@@ -53,7 +53,9 @@ export default class PanoImageRenderer extends Component {
 		this._lastYaw = null;
 		this._lastPitch = null;
 		this._lastFieldOfView = null;
-
+		// TODO: change the initial yaw of equirectangular
+		// It's better to process in on shader.
+		this._initialYaw = 0;
 		this.pMatrix = mat4.create();
 		this.mvMatrix = mat4.create();
 
@@ -93,7 +95,8 @@ export default class PanoImageRenderer extends Component {
 		this._isVideo = isVideo;
 		this._imageConfig = Object.assign(
 			{
-				order: "RLUDBF",
+				/* RLUDBF is abnormal, we use it on CUBEMAP only */
+				order: (imageType === ImageType.CUBEMAP) ? "RLUDBF" : "RLUDFB",
 				tileConfig: {
 					flipHirozontal: false,
 					rotation: 0
@@ -143,6 +146,7 @@ export default class PanoImageRenderer extends Component {
 				break;
 			default:
 				this._renderer = SphereRenderer;
+				this._initialYaw = 90;
 				break;
 		}
 
@@ -356,7 +360,8 @@ export default class PanoImageRenderer extends Component {
 
 		this.texture = WebGLUtils.createTexture(gl, textureTarget);
 
-		if (!this._isCubeMap) {
+		if (this._imageType === ImageType.CUBESTRIP) {
+			// TODO: Apply following options on other projection type.
 			gl.enable(gl.CULL_FACE);
 			gl.enable(gl.DEPTH_TEST);
 		}
@@ -529,8 +534,7 @@ export default class PanoImageRenderer extends Component {
 
 		mat4.identity(this.mvMatrix);
 		mat4.rotateX(this.mvMatrix, this.mvMatrix, -glMatrix.toRadian(pitch));
-		mat4.rotateY(this.mvMatrix, this.mvMatrix,
-			-glMatrix.toRadian(yaw - (this._isCubeMap ? 0 : 90)));
+		mat4.rotateY(this.mvMatrix, this.mvMatrix, -glMatrix.toRadian(yaw - this._initialYaw));
 
 		this._draw();
 
