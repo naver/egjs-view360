@@ -100,17 +100,17 @@ export default class FastCubeRenderer extends Renderer {
 				1, 1, -1,
 				-1, 1, -1,
 
-				// top
-				1, 1, 1,
-				-1, 1, 1,
+				// up
 				-1, 1, -1,
 				1, 1, -1,
+				1, 1, 1,
+				-1, 1, 1,
 
-				// bottom
-				1, -1, -1,
-				-1, -1, -1,
+				// down
 				-1, -1, 1,
 				1, -1, 1,
+				1, -1, -1,
+				-1, -1, -1,
 
 				// right
 				1, -1, -1,
@@ -151,7 +151,7 @@ export default class FastCubeRenderer extends Renderer {
 	}
 
 	static getTextureCoordData(imageConfig) {
-		// TODO:
+		// TODO: make it cols, rows as config.
 		const cols = 3;
 		const rows = 2;
 		const order = imageConfig.order || "RLUDFB";
