@@ -49,7 +49,7 @@ export default class SphereRenderer extends Renderer {
 		if (!pixelCanvas) {
 			return image;
 		}
-		const {width, height} = this._getDimension(image);
+		const {width, height} = this.getDimension(image);
 
 		if (pixelCanvas.width !== width) {
 			pixelCanvas.width = width;
@@ -64,20 +64,13 @@ export default class SphereRenderer extends Renderer {
 		return pixelCanvas;
 	}
 
-	static _getDimension(pixelSource) {
-		const width = pixelSource.naturalWidth || pixelSource.videoWidth;
-		const height = pixelSource.naturalHeight || pixelSource.videoHeight;
-
-		return {width, height};
-	}
-
 	static updateTexture(gl, image) {
 		WebGLUtils.texImage2D(gl, gl.TEXTURE_2D, this._getPixelSource(image));
 	}
 
 	static bindTexture(gl, texture, image) {
 		// Make sure image isn't too big
-		const {width, height} = this._getDimension(image);
+		const {width, height} = this.getDimension(image);
 		const size = Math.max(width, height);
 		const maxSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
 
