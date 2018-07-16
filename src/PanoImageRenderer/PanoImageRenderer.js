@@ -363,7 +363,7 @@ export default class PanoImageRenderer extends Component {
 		if (this._imageType === ImageType.CUBESTRIP) {
 			// TODO: Apply following options on other projection type.
 			gl.enable(gl.CULL_FACE);
-			gl.enable(gl.DEPTH_TEST);
+			// gl.enable(gl.DEPTH_TEST);
 		}
 	}
 
