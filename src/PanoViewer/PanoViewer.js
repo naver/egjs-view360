@@ -60,7 +60,7 @@ export default class PanoViewer extends Component {
 	 * cubemapConfig: {
 	 * 	order: "LFRDBU",
 	 * 	tileConfig: [
-	 * 		{rotation: 0}, {rotation: 0}, {rotation: 0}, {rotation: 90}, {rotation: -90}, {rotation: 90}
+	 * 		tileConfig: [{rotation: 0}, {rotation: 0}, {rotation: 0}, {rotation: 0}, {rotation: -90}, {rotation: 180}]
 	 * 	]
 	 * }
 	 */
