@@ -3,11 +3,11 @@ import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 import PanoImageRendererInjector from "inject-loader!../../../src/PanoImageRenderer/PanoImageRenderer";
 import {glMatrix, quat} from "../../../src/utils/math-util.js";
 
-
+import RendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/Renderer";
 import SphereRendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/SphereRenderer";
 import TestHelper from "../YawPitchControl/testHelper";
 
-const SphereRendererOnIE11 = SphereRendererInjector(
+const RendererOnIE11 = RendererInjector(
 	{
 		"@egjs/agent": function() {
 			return {
@@ -17,6 +17,12 @@ const SphereRendererOnIE11 = SphereRendererInjector(
 				}
 			};
 		}
+	}
+).default;
+
+const SphereRendererOnIE11 = SphereRendererInjector(
+	{
+		"./Renderer": RendererOnIE11
 	}
 ).default;
 

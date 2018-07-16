@@ -9,6 +9,7 @@
         "comma-dangle": "off",
         "import/prefer-default-export": "off",
         "linebreak-style": 0,
-        "array-element-newline": "off"
+        "array-element-newline": "off",
+        "class-methods-use-this": "off"
     }
 }

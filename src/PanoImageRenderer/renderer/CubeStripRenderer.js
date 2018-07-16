@@ -1,14 +1,9 @@
-import Agent from "@egjs/agent";
+
 import Renderer from "./Renderer.js";
 import WebGLUtils from "../WebGLUtils";
 
-const agent = Agent();
-const isIE11 = agent.browser.name === "ie" && agent.browser.version === "11.0";
-let pixelCanvas;
-let pixelContext;
-
-export default class FastCubeRenderer extends Renderer {
-	static getVertexShaderSource() {
+export default class CubeStripRenderer extends Renderer {
+	getVertexShaderSource() {
 		return `
 			attribute vec3 aVertexPosition;
 			attribute vec2 aTextureCoord;
@@ -21,7 +16,7 @@ export default class FastCubeRenderer extends Renderer {
 			}`;
 	}
 
-	static getFragmentShaderSource() {
+	getFragmentShaderSource() {
 		return `
 			#define PI 3.14159265359
 
@@ -85,7 +80,7 @@ export default class FastCubeRenderer extends Renderer {
 			}`;
 	}
 
-	static getVertexPositionData() {
+	getVertexPositionData() {
 		if (!this._vertices) {
 			this._vertices = [
 				// back
@@ -129,7 +124,7 @@ export default class FastCubeRenderer extends Renderer {
 		return this._vertices;
 	}
 
-	static getIndexData() {
+	getIndexData() {
 		// TODO: 한번만 계산하도록 수정하기
 		const indices = (() => {
 			const indexData = [];
@@ -150,7 +145,7 @@ export default class FastCubeRenderer extends Renderer {
 		return indices;
 	}
 
-	static getTextureCoordData(imageConfig) {
+	getTextureCoordData(imageConfig) {
 		// TODO: make it cols, rows as config.
 		const cols = 3;
 		const rows = 2;
@@ -186,45 +181,11 @@ export default class FastCubeRenderer extends Renderer {
 			.reduce((acc, val) => acc.concat(val), []);
 	}
 
-	static _extractTileConfig(imageConfig) {
-		let tileConfig =
-			Array.isArray(imageConfig.tileConfig) ?
-				imageConfig.tileConfig : Array(...Array(6)).map(() => imageConfig.tileConfig);
-
-		tileConfig = tileConfig.map(
-			config => Object.assign({
-				flipHorizontal: false,
-				rotation: 0
-			}, config)
-		);
-
-		return tileConfig;
-	}
-
-	static _getPixelSource(image) {
-		if (!pixelCanvas) {
-			return image;
-		}
-		const {width, height} = this.getDimension(image);
-
-		if (pixelCanvas.width !== width) {
-			pixelCanvas.width = width;
-		}
-
-		if (pixelCanvas.height !== height) {
-			pixelCanvas.height = height;
-		}
-
-		pixelContext.drawImage(image, 0, 0);
-
-		return pixelCanvas;
-	}
-
-	static updateTexture(gl, image) {
+	updateTexture(gl, image) {
 		WebGLUtils.texImage2D(gl, gl.TEXTURE_2D, this._getPixelSource(image));
 	}
 
-	static bindTexture(gl, texture, image) {
+	bindTexture(gl, texture, image) {
 		// Make sure image isn't too big
 		const {width, height} = this.getDimension(image);
 		const size = Math.max(width, height);
@@ -237,12 +198,8 @@ export default class FastCubeRenderer extends Renderer {
 			return;
 		}
 
-		if (isIE11 && image instanceof HTMLVideoElement) {
-			pixelCanvas = document.createElement("canvas");
-			pixelCanvas.width = width;
-			pixelCanvas.height = height;
-			pixelContext = pixelCanvas.getContext("2d");
-		}
+		// Pixel Source for IE11 & Video
+		this._initPixelSource(image);
 
 		gl.activeTexture(gl.TEXTURE0);
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -251,7 +208,7 @@ export default class FastCubeRenderer extends Renderer {
 		this.updateTexture(gl, image);
 	}
 
-	static _transformCoord(coord, tileConfig) {
+	_transformCoord(coord, tileConfig) {
 		let newCoord = coord.slice();
 
 		if (tileConfig.flipHorizontal) {
@@ -265,7 +222,7 @@ export default class FastCubeRenderer extends Renderer {
 		return newCoord;
 	}
 
-	static _shrinkCoord(coord) {
+	_shrinkCoord(coord) {
 		const SHRINK_Y = 0.00;
 		const SHRINK_X = 0.00;
 
@@ -277,7 +234,7 @@ export default class FastCubeRenderer extends Renderer {
 		];
 	}
 
-	static _rotateCoord(coord, rotationAngle) {
+	_rotateCoord(coord, rotationAngle) {
 		const SIZE = 2; // coord means x,y coordinates. Two values(x, y) makes a one coord.
 		const shiftCount = parseInt(rotationAngle / 90, 10) % 4;
 
@@ -299,7 +256,7 @@ export default class FastCubeRenderer extends Renderer {
 		return rotatedCoord;
 	}
 
-	static _flipHorizontalCoord(coord) {
+	_flipHorizontalCoord(coord) {
 		return [
 			coord[2], coord[3],
 			coord[0], coord[1],

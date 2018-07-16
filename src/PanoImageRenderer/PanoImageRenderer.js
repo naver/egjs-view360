@@ -139,13 +139,13 @@ export default class PanoImageRenderer extends Component {
 		this._isCubeMap = imageType === ImageType.CUBEMAP;
 		switch (imageType) {
 			case ImageType.CUBEMAP:
-				this._renderer = CubeRenderer;
+				this._renderer = new CubeRenderer();
 				break;
 			case ImageType.CUBESTRIP:
-				this._renderer = CubeStripRenderer;
+				this._renderer = new CubeStripRenderer();
 				break;
 			default:
-				this._renderer = SphereRenderer;
+				this._renderer = new SphereRenderer();
 				this._initialYaw = 90;
 				break;
 		}
@@ -348,6 +348,7 @@ export default class PanoImageRenderer extends Component {
 				message: "no webgl support"
 			});
 			this.destroy();
+			console.error(e); // eslint-disable-line no-console
 			return;
 		}
 		// 캔버스를 투명으로 채운다.
