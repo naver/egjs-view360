@@ -266,7 +266,7 @@ export default class FastCubeRenderer extends Renderer {
 	}
 
 	static _shrinkCoord(coord) {
-		const SHRINK_Y = 0.0015;
+		const SHRINK_Y = 0.00;
 		const SHRINK_X = 0.00;
 
 		return [
