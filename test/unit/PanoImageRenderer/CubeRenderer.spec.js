@@ -1,6 +1,7 @@
 import CubeRenderer from "../../../src/PanoImageRenderer/renderer/CubeRenderer";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 import CubeRendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/CubeRenderer";
+import Renderer from "../../../src/PanoImageRenderer/renderer/Renderer";
 
 const WEBGL_AVAILABILITY = WebGLUtils.isWebGLAvailable();
 const IT = WEBGL_AVAILABILITY ? it : it.skip;
@@ -29,7 +30,7 @@ describe("CubeRenderer", () => {
 	const deviceRatio = window.devicePixelRatio;
 	const suffix = `_${deviceRatio}x.png`;
 
-	describe("static", () => {
+	describe("Methods", () => {
 
 		describe("getMaxCubeMapTextureSize", () => {
 			let canvas = null;
@@ -50,8 +51,10 @@ describe("CubeRenderer", () => {
 				const img = new Image();
 				img.src = "./images/test_cube_2x3_LRUDBF.jpg";
 				img.onload = function() {
+					// Given
+					const renderer = new CubeRenderer();
 					// When
-					const textureSize = CubeRenderer.getMaxCubeMapTextureSize(gl, img);
+					const textureSize = renderer.getMaxCubeMapTextureSize(gl, img);
 
 					// Then
 					expect(textureSize).to.be.equal(1536);
@@ -61,7 +64,7 @@ describe("CubeRenderer", () => {
 
 			IT("should return 512 on ios 8 when input size is 1536", done => {
 				// Given
-				let MockedCubeRenderer = CubeRendererInjector(
+				const MockedCubeRenderer = CubeRendererInjector(
 					{
 						"@egjs/agent": function() {
 							return {
@@ -81,7 +84,8 @@ describe("CubeRenderer", () => {
 				img.src = "./images/test_cube_2x3_LRUDBF.jpg";
 				img.onload = function() {
 					// When
-					const textureSize = MockedCubeRenderer.getMaxCubeMapTextureSize(gl, img);
+					const renderer = new MockedCubeRenderer();
+					const textureSize = renderer.getMaxCubeMapTextureSize(gl, img);
 
 					// Then
 					expect(textureSize).to.be.equal(512);
@@ -90,7 +94,7 @@ describe("CubeRenderer", () => {
 			});
 			IT("should return 1024 on ios 9 when input size is 1536", done => {
 				// Given
-				let MockedCubeRenderer = CubeRendererInjector(
+				const MockedCubeRenderer = CubeRendererInjector(
 					{
 						"@egjs/agent": function() {
 							return {
@@ -110,7 +114,8 @@ describe("CubeRenderer", () => {
 				img.src = "./images/test_cube_2x3_LRUDBF.jpg";
 				img.onload = function() {
 					// When
-					const textureSize = MockedCubeRenderer.getMaxCubeMapTextureSize(gl, img);
+					const renderer = new MockedCubeRenderer();
+					const textureSize = renderer.getMaxCubeMapTextureSize(gl, img);
 
 					// Then
 					expect(textureSize).to.be.equal(1024);
@@ -119,7 +124,7 @@ describe("CubeRenderer", () => {
 			});
 			IT("should return 2048 on ie11 when input size is 1536", done => {
 				// Given
-				let MockedCubeRenderer = CubeRendererInjector(
+				const MockedCubeRenderer = CubeRendererInjector(
 					{
 						"@egjs/agent": function() {
 							return {
@@ -140,7 +145,8 @@ describe("CubeRenderer", () => {
 				img.src = "./images/test_cube_2x3_LRUDBF.jpg";
 				img.onload = function() {
 					// When
-					const textureSize = MockedCubeRenderer.getMaxCubeMapTextureSize(gl, img);
+					const renderer = new MockedCubeRenderer();
+					const textureSize = renderer.getMaxCubeMapTextureSize(gl, img);
 
 					// Then
 					expect(textureSize).to.be.equal(2048);
@@ -149,7 +155,7 @@ describe("CubeRenderer", () => {
 			});
 			IT("should return 1024 on ie11 when input size is 1024", done => {
 				// Given
-				let MockedCubeRenderer = CubeRendererInjector(
+				const MockedCubeRenderer = CubeRendererInjector(
 					{
 						"@egjs/agent": function() {
 							return {
@@ -170,7 +176,8 @@ describe("CubeRenderer", () => {
 				img.src = "./images/test_cube_2x3_LRUDBF_1024.jpg";
 				img.onload = function() {
 					// When
-					const textureSize = MockedCubeRenderer.getMaxCubeMapTextureSize(gl, img);
+					const renderer = new MockedCubeRenderer();
+					const textureSize = renderer.getMaxCubeMapTextureSize(gl, img);
 
 					// Then
 					expect(textureSize).to.be.equal(1024);
@@ -183,6 +190,7 @@ describe("CubeRenderer", () => {
 		describe("extractTileFromImage", () => {
 			IT("1x6 LRUDBF", done => {
 				// Given
+				const cubeRenderer = new CubeRenderer();
 				const cubestripImg = new Image();
 
 				cubestripImg.src = "./images/test_cube_1x6_LRUDBF.jpg";
@@ -190,12 +198,12 @@ describe("CubeRenderer", () => {
 					// When & Then
 					renderAndCompareSequentially(
 						[
-							[CubeRenderer.extractTileFromImage(cubestripImg, 0, 1536), `./images/test_cube_r.png`],
-							[CubeRenderer.extractTileFromImage(cubestripImg, 1, 1536), `./images/test_cube_l.png`],
-							[CubeRenderer.extractTileFromImage(cubestripImg, 2, 1536), `./images/test_cube_u.png`],
-							[CubeRenderer.extractTileFromImage(cubestripImg, 3, 1536), `./images/test_cube_d.png`],
-							[CubeRenderer.extractTileFromImage(cubestripImg, 4, 1536), `./images/test_cube_b.png`],
-							[CubeRenderer.extractTileFromImage(cubestripImg, 5, 1536), `./images/test_cube_f.png`]
+							[cubeRenderer.extractTileFromImage(cubestripImg, 0, 1536), `./images/test_cube_r.png`],
+							[cubeRenderer.extractTileFromImage(cubestripImg, 1, 1536), `./images/test_cube_l.png`],
+							[cubeRenderer.extractTileFromImage(cubestripImg, 2, 1536), `./images/test_cube_u.png`],
+							[cubeRenderer.extractTileFromImage(cubestripImg, 3, 1536), `./images/test_cube_d.png`],
+							[cubeRenderer.extractTileFromImage(cubestripImg, 4, 1536), `./images/test_cube_b.png`],
+							[cubeRenderer.extractTileFromImage(cubestripImg, 5, 1536), `./images/test_cube_f.png`]
 						]
 					).then(() => {
 						done();
@@ -205,6 +213,7 @@ describe("CubeRenderer", () => {
 
 			IT("2x3 LRUDBF", done => {
 				// Given
+				const cubeRenderer = new CubeRenderer();
 				const cubestripImg = new Image();
 
 				cubestripImg.src = "./images/test_cube_2x3_LRUDBF.jpg";
@@ -212,12 +221,12 @@ describe("CubeRenderer", () => {
 					// When & Then
 					renderAndCompareSequentially(
 						[
-							[CubeRenderer.extractTileFromImage(cubestripImg, 0, 1536), `./images/test_cube_r.png`],
-							[CubeRenderer.extractTileFromImage(cubestripImg, 1, 1536), `./images/test_cube_l.png`],
-							[CubeRenderer.extractTileFromImage(cubestripImg, 2, 1536), `./images/test_cube_u.png`],
-							[CubeRenderer.extractTileFromImage(cubestripImg, 3, 1536), `./images/test_cube_d.png`],
-							[CubeRenderer.extractTileFromImage(cubestripImg, 4, 1536), `./images/test_cube_b.png`],
-							[CubeRenderer.extractTileFromImage(cubestripImg, 5, 1536), `./images/test_cube_f.png`]
+							[cubeRenderer.extractTileFromImage(cubestripImg, 0, 1536), `./images/test_cube_r.png`],
+							[cubeRenderer.extractTileFromImage(cubestripImg, 1, 1536), `./images/test_cube_l.png`],
+							[cubeRenderer.extractTileFromImage(cubestripImg, 2, 1536), `./images/test_cube_u.png`],
+							[cubeRenderer.extractTileFromImage(cubestripImg, 3, 1536), `./images/test_cube_d.png`],
+							[cubeRenderer.extractTileFromImage(cubestripImg, 4, 1536), `./images/test_cube_b.png`],
+							[cubeRenderer.extractTileFromImage(cubestripImg, 5, 1536), `./images/test_cube_f.png`]
 						]
 					).then(() => {
 						done();
@@ -227,6 +236,7 @@ describe("CubeRenderer", () => {
 
 			IT("3x2 LRUDBF", done => {
 				// Given
+				const cubeRenderer = new CubeRenderer();
 				const cubestripImg = new Image();
 
 				cubestripImg.src = "./images/test_cube_3x2_LRUDBF.jpg";
@@ -234,12 +244,12 @@ describe("CubeRenderer", () => {
 					// When & Then
 					renderAndCompareSequentially(
 						[
-							[CubeRenderer.extractTileFromImage(cubestripImg, 0, 1536), `./images/test_cube_r.png`],
-							[CubeRenderer.extractTileFromImage(cubestripImg, 1, 1536), `./images/test_cube_l.png`],
-							[CubeRenderer.extractTileFromImage(cubestripImg, 2, 1536), `./images/test_cube_u.png`],
-							[CubeRenderer.extractTileFromImage(cubestripImg, 3, 1536), `./images/test_cube_d.png`],
-							[CubeRenderer.extractTileFromImage(cubestripImg, 4, 1536), `./images/test_cube_b.png`],
-							[CubeRenderer.extractTileFromImage(cubestripImg, 5, 1536), `./images/test_cube_f.png`]
+							[cubeRenderer.extractTileFromImage(cubestripImg, 0, 1536), `./images/test_cube_r.png`],
+							[cubeRenderer.extractTileFromImage(cubestripImg, 1, 1536), `./images/test_cube_l.png`],
+							[cubeRenderer.extractTileFromImage(cubestripImg, 2, 1536), `./images/test_cube_u.png`],
+							[cubeRenderer.extractTileFromImage(cubestripImg, 3, 1536), `./images/test_cube_d.png`],
+							[cubeRenderer.extractTileFromImage(cubestripImg, 4, 1536), `./images/test_cube_b.png`],
+							[cubeRenderer.extractTileFromImage(cubestripImg, 5, 1536), `./images/test_cube_f.png`]
 						]
 					).then(() => {
 						done();
@@ -249,6 +259,7 @@ describe("CubeRenderer", () => {
 
 			IT("3x2 LRUDBF video", done => {
 				// Given
+				const cubeRenderer = new CubeRenderer();
 				const cubestripVideo = document.createElement("video");
 
 				cubestripVideo.crossOrigin = "anonymous";
@@ -260,12 +271,12 @@ describe("CubeRenderer", () => {
 					// When & Then
 					renderAndCompareSequentially(
 						[
-							[CubeRenderer.extractTileFromImage(cubestripVideo, 0, 1536), `./images/test_cube_r.png`, 5],
-							[CubeRenderer.extractTileFromImage(cubestripVideo, 1, 1536), `./images/test_cube_l.png`, 5],
-							[CubeRenderer.extractTileFromImage(cubestripVideo, 2, 1536), `./images/test_cube_u.png`, 5],
-							[CubeRenderer.extractTileFromImage(cubestripVideo, 3, 1536), `./images/test_cube_d.png`, 5],
-							[CubeRenderer.extractTileFromImage(cubestripVideo, 4, 1536), `./images/test_cube_b.png`, 5],
-							[CubeRenderer.extractTileFromImage(cubestripVideo, 5, 1536), `./images/test_cube_f.png`, 5]
+							[cubeRenderer.extractTileFromImage(cubestripVideo, 0, 1536), `./images/test_cube_r.png`, 5],
+							[cubeRenderer.extractTileFromImage(cubestripVideo, 1, 1536), `./images/test_cube_l.png`, 5],
+							[cubeRenderer.extractTileFromImage(cubestripVideo, 2, 1536), `./images/test_cube_u.png`, 5],
+							[cubeRenderer.extractTileFromImage(cubestripVideo, 3, 1536), `./images/test_cube_d.png`, 5],
+							[cubeRenderer.extractTileFromImage(cubestripVideo, 4, 1536), `./images/test_cube_b.png`, 5],
+							[cubeRenderer.extractTileFromImage(cubestripVideo, 5, 1536), `./images/test_cube_f.png`, 5]
 						]
 					).then(() => {
 						done();
@@ -275,6 +286,7 @@ describe("CubeRenderer", () => {
 
 			IT("6x1 LRUDBF", done => {
 				// Given
+				const cubeRenderer = new CubeRenderer();
 				const cubestripImg = new Image();
 
 				cubestripImg.src = "./images/test_cube_6x1_LRUDBF.jpg";
@@ -282,18 +294,36 @@ describe("CubeRenderer", () => {
 					// When & Then
 					renderAndCompareSequentially(
 						[
-							[CubeRenderer.extractTileFromImage(cubestripImg, 0, 1536), `./images/test_cube_r.png`],
-							[CubeRenderer.extractTileFromImage(cubestripImg, 1, 1536), `./images/test_cube_l.png`],
-							[CubeRenderer.extractTileFromImage(cubestripImg, 2, 1536), `./images/test_cube_u.png`],
-							[CubeRenderer.extractTileFromImage(cubestripImg, 3, 1536), `./images/test_cube_d.png`],
-							[CubeRenderer.extractTileFromImage(cubestripImg, 4, 1536), `./images/test_cube_b.png`],
-							[CubeRenderer.extractTileFromImage(cubestripImg, 5, 1536), `./images/test_cube_f.png`]
+							[cubeRenderer.extractTileFromImage(cubestripImg, 0, 1536), `./images/test_cube_r.png`],
+							[cubeRenderer.extractTileFromImage(cubestripImg, 1, 1536), `./images/test_cube_l.png`],
+							[cubeRenderer.extractTileFromImage(cubestripImg, 2, 1536), `./images/test_cube_u.png`],
+							[cubeRenderer.extractTileFromImage(cubestripImg, 3, 1536), `./images/test_cube_d.png`],
+							[cubeRenderer.extractTileFromImage(cubestripImg, 4, 1536), `./images/test_cube_b.png`],
+							[cubeRenderer.extractTileFromImage(cubestripImg, 5, 1536), `./images/test_cube_f.png`]
 						]
 					).then(() => {
 						done();
 					});
 				};
 			});
+		});
+	});
+
+	describe("Events", () => {
+		it("should fire error events if invalid calls occur", done => {
+			// Given
+			const cubeRenderer = new CubeRenderer();
+
+			cubeRenderer.on(Renderer.EVENTS.ERROR, then);
+
+			// When
+			cubeRenderer.updateTexture(0, 0, {}); // invalid parameter
+
+			// Then
+			function then(e) {
+				expect(e.message).to.be.a("string");
+				done();
+			}
 		});
 	});
 });

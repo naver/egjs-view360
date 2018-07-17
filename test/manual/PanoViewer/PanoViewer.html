@@ -11,7 +11,7 @@
   outline: none;
   width: 300px;
   height: 300px;
-    margin: 0 auto;
+  margin: 0 auto;
 }
 
 .inner-content > * {
@@ -91,6 +91,25 @@ var object = {
 };
 
 var presets = {
+  "360_cubestrip": {
+    "yaw": 0,
+    "pitch": 0,
+    "fov": 65,
+    "yawRangeSize": 360,
+    "pitchRangeSize": 180,
+    "fovMin": 30,
+    "fovMax": 110,
+    "showPolePoint": true,
+    "useZoom": true,
+    "useKeyboard": true,
+    "gyroMode": "yawPitch",
+    "image": "../img/test_cube_3x2_LRUDBF.jpg",
+    "projectionType": "cubestrip",
+    "touchDirection": eg.view360.PanoViewer.TOUCH_DIRECTION.ALL,
+    "cubemapConfig": {
+      order: "LRUDBF"
+    }
+  },
   "360_cube": {
     "yaw": 0,
     "pitch": 0,
@@ -183,7 +202,7 @@ function parse_query_string(query) {
 
 var parsed_qs = parse_query_string(location.search.replace("?", ""));
 
-var INITIAL_PRESET = parsed_qs.preset || "360_cube";
+var INITIAL_PRESET = parsed_qs.preset || "360_cubestrip";
 
 for (var i in presets[INITIAL_PRESET]) {
   object[i] = presets[INITIAL_PRESET][i];
@@ -194,6 +213,9 @@ var json = {
   load: {
     "preset": INITIAL_PRESET,
     "remembered": {
+      "360_cubestrip": {
+        "0": presets["360_cubestrip"]
+      },
       "360_cube": {
         "0": presets["360_cube"]
       },

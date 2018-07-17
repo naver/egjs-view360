@@ -3,10 +3,12 @@ import ImageLoader from "./ImageLoader";
 import VideoLoader from "./VideoLoader";
 import WebGLUtils from "./WebGLUtils";
 import CubeRenderer from "./renderer/CubeRenderer";
+import CubeStripRenderer from "./renderer/CubeStripRenderer";
 import SphereRenderer from "./renderer/SphereRenderer";
 import {glMatrix, mat4, quat} from "../utils/math-util.js";
 import {devicePixelRatio} from "../utils/browserFeature";
 import {PROJECTION_TYPE} from "../PanoViewer/consts";
+import Renderer from "./renderer/Renderer";
 
 const ImageType = PROJECTION_TYPE;
 
@@ -34,7 +36,8 @@ const EVENTS = {
 const ERROR_TYPE = {
 	INVALID_DEVICE: 10,
 	NO_WEBGL: 11,
-	FAIL_IMAGE_LOAD: 12
+	FAIL_IMAGE_LOAD: 12,
+	RENDERER_ERROR: 13
 };
 
 export default class PanoImageRenderer extends Component {
@@ -52,7 +55,9 @@ export default class PanoImageRenderer extends Component {
 		this._lastYaw = null;
 		this._lastPitch = null;
 		this._lastFieldOfView = null;
-
+		// TODO: change the initial yaw of equirectangular
+		// It's better to process in on shader.
+		this._initialYaw = 0;
 		this.pMatrix = mat4.create();
 		this.mvMatrix = mat4.create();
 
@@ -92,7 +97,8 @@ export default class PanoImageRenderer extends Component {
 		this._isVideo = isVideo;
 		this._imageConfig = Object.assign(
 			{
-				order: "RLUDBF",
+				/* RLUDBF is abnormal, we use it on CUBEMAP only */
+				order: (imageType === ImageType.CUBEMAP) ? "RLUDBF" : "RLUDFB",
 				tileConfig: {
 					flipHirozontal: false,
 					rotation: 0
@@ -133,7 +139,31 @@ export default class PanoImageRenderer extends Component {
 
 		this._imageType = imageType;
 		this._isCubeMap = imageType === ImageType.CUBEMAP;
-		this._renderer = this._isCubeMap ? CubeRenderer : SphereRenderer;
+
+		if (this._renderer) {
+			this._renderer.off();
+		}
+
+		switch (imageType) {
+			case ImageType.CUBEMAP:
+				this._renderer = new CubeRenderer();
+				break;
+			case ImageType.CUBESTRIP:
+				this._renderer = new CubeStripRenderer();
+				break;
+			default:
+				this._renderer = new SphereRenderer();
+				this._initialYaw = 90;
+				break;
+		}
+
+		this._renderer.on(Renderer.EVENTS.ERROR, e => {
+			this.trigger(EVENTS.ERROR, {
+				type: ERROR_TYPE.RENDERER_ERROR,
+				message: e.message
+			});
+		});
+
 		this._initWebGL();
 	}
 
@@ -306,18 +336,22 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	_initWebGL() {
+		let gl;
+
 		// TODO: Following code does need to be executed only if width/height, cubicStrip property is changed.
 		try {
 			this._initRenderingContext();
+			gl = this.context;
+
 			this.updateViewportDimensions(this.width, this.height);
 
 			if (this.shaderProgram) {
-				this.context.deleteProgram(this.shaderProgram);
+				gl.deleteProgram(this.shaderProgram);
 			}
 
-			this.shaderProgram = this._initShaderProgram(this.context);
+			this.shaderProgram = this._initShaderProgram(gl);
 			if (!this.shaderProgram) {
-				throw new Error(`Failed to intialize shaders: ${WebGLUtils.getErrorNameFromWebGLErrorCode(this.context.getError())}`);
+				throw new Error(`Failed to intialize shaders: ${WebGLUtils.getErrorNameFromWebGLErrorCode(gl.getError())}`);
 			}
 
 			// Buffers for shader
@@ -328,17 +362,24 @@ export default class PanoImageRenderer extends Component {
 				message: "no webgl support"
 			});
 			this.destroy();
+			console.error(e); // eslint-disable-line no-console
 			return;
 		}
 		// 캔버스를 투명으로 채운다.
-		this.context.clearColor(0, 0, 0, 0);
-		const textureTarget = this._isCubeMap ? this.context.TEXTURE_CUBE_MAP : this.context.TEXTURE_2D;
+		gl.clearColor(0, 0, 0, 0);
+		const textureTarget = this._isCubeMap ? gl.TEXTURE_CUBE_MAP : gl.TEXTURE_2D;
 
 		if (this.texture) {
-			this.context.deleteTexture(this.texture);
+			gl.deleteTexture(this.texture);
 		}
 
-		this.texture = WebGLUtils.createTexture(this.context, textureTarget);
+		this.texture = WebGLUtils.createTexture(gl, textureTarget);
+
+		if (this._imageType === ImageType.CUBESTRIP) {
+			// TODO: Apply following options on other projection type.
+			gl.enable(gl.CULL_FACE);
+			// gl.enable(gl.DEPTH_TEST);
+		}
 	}
 
 	_initRenderingContext() {
@@ -385,6 +426,7 @@ export default class PanoImageRenderer extends Component {
 		shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
 		shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
 		shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
+
 		gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 
 		// clear buffer
@@ -414,6 +456,15 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	_bindTexture() {
+		// Detect if it is EAC Format while CUBESTRIP mode.
+		// We assume it is EAC if image is not 3/2 ratio.
+		if (this._imageType === ImageType.CUBESTRIP) {
+			const {width, height} = this._renderer.getDimension(this._image);
+			const isEAC = width && height && width / height !== 1.5;
+
+			this.context.uniform1f(this.context.getUniformLocation(this.shaderProgram, "uIsEAC"), isEAC);
+		}
+
 		this._renderer.bindTexture(
 			this.context,
 			this.texture,
@@ -498,8 +549,7 @@ export default class PanoImageRenderer extends Component {
 
 		mat4.identity(this.mvMatrix);
 		mat4.rotateX(this.mvMatrix, this.mvMatrix, -glMatrix.toRadian(pitch));
-		mat4.rotateY(this.mvMatrix, this.mvMatrix,
-			-glMatrix.toRadian(yaw - (this._isCubeMap ? 0 : 90)));
+		mat4.rotateY(this.mvMatrix, this.mvMatrix, -glMatrix.toRadian(yaw - this._initialYaw));
 
 		this._draw();
 
