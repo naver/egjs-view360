@@ -1,6 +1,7 @@
 import CubeRenderer from "../../../src/PanoImageRenderer/renderer/CubeRenderer";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 import CubeRendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/CubeRenderer";
+import Renderer from "../../../src/PanoImageRenderer/renderer/Renderer";
 
 const WEBGL_AVAILABILITY = WebGLUtils.isWebGLAvailable();
 const IT = WEBGL_AVAILABILITY ? it : it.skip;
@@ -29,7 +30,7 @@ describe("CubeRenderer", () => {
 	const deviceRatio = window.devicePixelRatio;
 	const suffix = `_${deviceRatio}x.png`;
 
-	describe("method", () => {
+	describe("Methods", () => {
 
 		describe("getMaxCubeMapTextureSize", () => {
 			let canvas = null;
@@ -305,6 +306,24 @@ describe("CubeRenderer", () => {
 					});
 				};
 			});
+		});
+	});
+
+	describe("Events", () => {
+		it("should fire error events if invalid calls occur", done => {
+			// Given
+			const cubeRenderer = new CubeRenderer();
+
+			cubeRenderer.on(Renderer.EVENTS.ERROR, then);
+
+			// When
+			cubeRenderer.updateTexture(0, 0, {}); // invalid parameter
+
+			// Then
+			function then(e) {
+				expect(e.message).to.be.a("string");
+				done();
+			}
 		});
 	});
 });

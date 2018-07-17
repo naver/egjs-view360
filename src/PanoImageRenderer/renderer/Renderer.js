@@ -1,10 +1,21 @@
+import Component from "@egjs/component";
 import Agent from "@egjs/agent";
 
 const agent = Agent();
 const isIE11 = agent.browser.name === "ie" && agent.browser.version === "11.0";
 
-export default class Renderer {
+const EVENTS = {
+	ERROR: "error"
+};
+
+/**
+ *
+ * Extends Component for firing errors occurs internally.
+ */
+export default class Renderer extends Component {
 	constructor() {
+		super();
+
 		this._pixelCanvas = null;
 		this._pixelContext = null;
 	}
@@ -84,4 +95,16 @@ export default class Renderer {
 
 		return tileConfig;
 	}
+
+	_triggerError(error) {
+		/* eslint-disable no-console */
+		console.error("Renderer Error:", error);
+		/* eslint-enable no-console */
+
+		this.trigger(EVENTS.ERROR, {
+			message: typeof error === "string" ? error : error.message
+		});
+	}
 }
+
+Renderer.EVENTS = EVENTS;

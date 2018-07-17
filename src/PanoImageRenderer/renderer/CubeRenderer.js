@@ -164,9 +164,7 @@ export default class CubeRenderer extends Renderer {
 				}
 			}
 		} catch (e) {
-			/* eslint-disable no-console */
-			console.error("CubeRenderer.updateTexture error:", e);
-			/* eslint-enable no-console */
+			this._triggerError(e);
 		}
 	}
 

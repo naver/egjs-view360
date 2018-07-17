@@ -50,9 +50,7 @@ export default class SphereRenderer extends Renderer {
 		const maxSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
 
 		if (size > maxSize) {
-			/* eslint-disable no-console */
-			console.warn(`Image width(${width}) exceeds device limit(${maxSize}))`);
-			/* eslint-enable no-console */
+			this._triggerError(`Image width(${width}) exceeds device limit(${maxSize}))`);
 			return;
 		}
 

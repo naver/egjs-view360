@@ -8,6 +8,7 @@ import SphereRenderer from "./renderer/SphereRenderer";
 import {glMatrix, mat4, quat} from "../utils/math-util.js";
 import {devicePixelRatio} from "../utils/browserFeature";
 import {PROJECTION_TYPE} from "../PanoViewer/consts";
+import Renderer from "./renderer/Renderer";
 
 const ImageType = PROJECTION_TYPE;
 
@@ -35,7 +36,8 @@ const EVENTS = {
 const ERROR_TYPE = {
 	INVALID_DEVICE: 10,
 	NO_WEBGL: 11,
-	FAIL_IMAGE_LOAD: 12
+	FAIL_IMAGE_LOAD: 12,
+	RENDERER_ERROR: 13
 };
 
 export default class PanoImageRenderer extends Component {
@@ -137,6 +139,11 @@ export default class PanoImageRenderer extends Component {
 
 		this._imageType = imageType;
 		this._isCubeMap = imageType === ImageType.CUBEMAP;
+
+		if (this._renderer) {
+			this._renderer.off();
+		}
+
 		switch (imageType) {
 			case ImageType.CUBEMAP:
 				this._renderer = new CubeRenderer();
@@ -149,6 +156,13 @@ export default class PanoImageRenderer extends Component {
 				this._initialYaw = 90;
 				break;
 		}
+
+		this._renderer.on(Renderer.EVENTS.ERROR, e => {
+			this.trigger(EVENTS.ERROR, {
+				type: ERROR_TYPE.RENDERER_ERROR,
+				message: e.message
+			});
+		});
 
 		this._initWebGL();
 	}
