@@ -3,11 +3,11 @@ import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 import PanoImageRendererInjector from "inject-loader!../../../src/PanoImageRenderer/PanoImageRenderer";
 import {glMatrix, quat} from "../../../src/utils/math-util.js";
 
-
+import RendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/Renderer";
 import SphereRendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/SphereRenderer";
 import TestHelper from "../YawPitchControl/testHelper";
 
-const SphereRendererOnIE11 = SphereRendererInjector(
+const RendererOnIE11 = RendererInjector(
 	{
 		"@egjs/agent": function() {
 			return {
@@ -17,6 +17,12 @@ const SphereRendererOnIE11 = SphereRendererInjector(
 				}
 			};
 		}
+	}
+).default;
+
+const SphereRendererOnIE11 = SphereRendererInjector(
+	{
+		"./Renderer": RendererOnIE11
 	}
 ).default;
 
@@ -38,6 +44,7 @@ function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuat
 		// When
 		if (isQuaternion) {
 			const quaternion = quat.create();
+
 			quat.rotateY(quaternion, quaternion, glMatrix.toRadian(-yaw));
 			quat.rotateX(quaternion, quaternion, glMatrix.toRadian(-pitch));
 			inst.renderWithQuaternion(quaternion, fov);
@@ -56,11 +63,9 @@ function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuat
 function renderAndCompareSequentially(inst, tests) {
 	return new Promise(res => {
 		tests.reduce(
-			(promiseChain, currentTask) => promiseChain.then(() => promiseFactory(inst, ...currentTask)
-		)
-		, Promise.resolve([])).then(() => {
-			res();
-		});
+			(promiseChain, currentTask) => promiseChain.then(() => promiseFactory(inst, ...currentTask)),
+			Promise.resolve([])
+		).then(res);
 	});
 }
 
@@ -1277,7 +1282,7 @@ describe("PanoImageRenderer", function() {
 					});
 			}
 		});
-	})
+	});
 
 	describe("Equirectangular Rendering with Quaternion", () => {
 		IT("should render by quaternion in equirectangular mode", function(done) {
@@ -1314,5 +1319,120 @@ describe("PanoImageRenderer", function() {
 					});
 			}
 		});
-	})
+	});
+
+	describe("CubeStrip Rendering (Only 3x2 is supported currently)", () => {
+		/**
+		 * This order (RLUDFB) is the way Facebook 3x2 Cubemap, Three.js, forgejs uses
+		 */
+		IT("should use order RLUDFB (default)", done => {
+			// Given
+			let inst = this.inst;
+			const sourceImg = new Image();
+
+			sourceImg.src = "./images/test_cube_3x2_RLUDFB.jpg";
+			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
+				imageType: "cubestrip"
+			}, DEBUG_CONTEXT_ATTRIBUTES);
+			inst.on("imageLoaded", when);
+
+			// inst.attachTo(target);
+
+			function when() {
+				// When
+				inst.bindTexture()
+					.then(() => {
+						// Then
+						renderAndCompareSequentially(
+							inst,
+							[
+								[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
+								[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
+								[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
+								[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
+								/**
+								 * We use reversed image because the bottom & up is rendered differently with ProjectionType.CUBEMAP
+								 * But CUBESTRIP is more general way to project on cube
+								 */
+								[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90_reverse${suffix}`, threshold],
+								[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90_reverse${suffix}`, threshold]
+							]
+						).then(done);
+					});
+			}
+		});
+
+		IT("should support cubemap order(RLUDBF), apply rotation on some faces.", done => {
+			// Given
+			let inst = this.inst;
+			const sourceImg = new Image();
+
+			sourceImg.src = "./images/test_cube_3x2_LRUDBF.jpg";
+			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
+				imageType: "cubestrip",
+				"cubemapConfig": {
+					order: "RLUDBF",
+					tileConfig:
+						[{rotation: 0}, {rotation: 0}, {rotation: 180}, {rotation: 180}, {rotation: 0}, {rotation: 0}]
+				}
+			}, DEBUG_CONTEXT_ATTRIBUTES);
+			inst.on("imageLoaded", when);
+
+			function when() {
+				// When
+				inst.bindTexture()
+					.then(() => {
+						// Then
+						renderAndCompareSequentially(
+							inst,
+							[
+								[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
+								[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
+								[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
+								[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
+								[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold + 1],
+								[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
+							]
+						).then(done);
+					});
+			}
+		});
+
+		IT("should support YouTube cubemap format(EAC)", done => {
+			// Given
+			let inst = this.inst;
+			const sourceImg = new Image();
+
+			// Source: https://www.youtube.com/watch?v=8RadEwX29pA ([360 VR] 힐링에세이 ‘쉼표’ _ 경희궁(Gyeonghuigung Palace 慶熙宮) 편)
+			sourceImg.src = "./images/PanoViewer/EAC/EAC_1280x720.jpg";
+			inst = new PanoImageRenderer(sourceImg, 300, 300, false, {
+				imageType: "cubestrip",
+				cubemapConfig: {
+					order: "BLFDRU",
+					tileConfig:
+						[{rotation: 0}, {rotation: 0}, {rotation: 0}, {rotation: 0}, {rotation: -90}, {rotation: 180}]
+				}
+			}, DEBUG_CONTEXT_ATTRIBUTES);
+			inst.on("imageLoaded", when);
+
+			function when() {
+				// When
+				inst.bindTexture()
+					.then(() => {
+						// Then
+						renderAndCompareSequentially(
+							inst,
+							[
+								[0, 0, 90, `./images/PanoViewer/EAC/EAC_1280x720_0_0_90${suffix}`, threshold],
+								[90, 0, 90, `./images/PanoViewer/EAC/EAC_1280x720_90_0_90${suffix}`, threshold],
+								[180, 0, 90, `./images/PanoViewer/EAC/EAC_1280x720_180_0_90${suffix}`, threshold],
+								[270, 0, 90, `./images/PanoViewer/EAC/EAC_1280x720_270_0_90${suffix}`, threshold],
+								[0, 90, 90, `./images/PanoViewer/EAC/EAC_1280x720_0_90_90${suffix}`, threshold + 1],
+								[0, -90, 90, `./images/PanoViewer/EAC/EAC_1280x720_0_-90_90${suffix}`, threshold]
+							]
+						).then(done);
+					});
+			}
+		});
+	});
 });

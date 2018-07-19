@@ -1,26 +1,20 @@
-import Agent from "@egjs/agent";
-import Renderer from "./Renderer.js";
+import Renderer from "./Renderer";
 import WebGLUtils from "../WebGLUtils";
 
-const agent = Agent();
-const isIE11 = agent.browser.name === "ie" && agent.browser.version === "11.0";
-let pixelCanvas;
-let pixelContext;
-
 export default class SphereRenderer extends Renderer {
-	static getVertexPositionData() {
+	getVertexPositionData() {
 		return SphereRenderer._VERTEX_POSITION_DATA;
 	}
 
-	static getIndexData() {
+	getIndexData() {
 		return SphereRenderer._INDEX_DATA;
 	}
 
-	static getTextureCoordData() {
+	getTextureCoordData() {
 		return SphereRenderer._TEXTURE_COORD_DATA;
 	}
 
-	static getVertexShaderSource() {
+	getVertexShaderSource() {
 		return `
 			attribute vec3 aVertexPosition;
 			attribute vec2 aTextureCoord;
@@ -33,7 +27,7 @@ export default class SphereRenderer extends Renderer {
 			}`;
 	}
 
-	static getFragmentShaderSource() {
+	getFragmentShaderSource() {
 		return `
 			varying highp vec2 vTextureCoord;
 			uniform sampler2D uSampler;
@@ -45,61 +39,29 @@ export default class SphereRenderer extends Renderer {
 			}`;
 	}
 
-	static _getPixelSource(image) {
-		if (!pixelCanvas) {
-			return image;
-		}
-		const {width, height} = this._getDimension(image);
-
-		if (pixelCanvas.width !== width) {
-			pixelCanvas.width = width;
-		}
-
-		if (pixelCanvas.height !== height) {
-			pixelCanvas.height = height;
-		}
-
-		pixelContext.drawImage(image, 0, 0);
-
-		return pixelCanvas;
-	}
-
-	static _getDimension(pixelSource) {
-		const width = pixelSource.naturalWidth || pixelSource.videoWidth;
-		const height = pixelSource.naturalHeight || pixelSource.videoHeight;
-
-		return {width, height};
-	}
-
-	static updateTexture(gl, image) {
+	updateTexture(gl, image) {
 		WebGLUtils.texImage2D(gl, gl.TEXTURE_2D, this._getPixelSource(image));
 	}
 
-	static bindTexture(gl, texture, image) {
+	bindTexture(gl, texture, image) {
 		// Make sure image isn't too big
-		const {width, height} = this._getDimension(image);
+		const {width, height} = this.getDimension(image);
 		const size = Math.max(width, height);
 		const maxSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
 
 		if (size > maxSize) {
-			/* eslint-disable no-console */
-			console.warn(`Image width(${width}) exceeds device limit(${maxSize}))`);
-			/* eslint-enable no-console */
+			this._triggerError(`Image width(${width}) exceeds device limit(${maxSize}))`);
 			return;
 		}
 
-		if (isIE11 && image instanceof HTMLVideoElement) {
-			pixelCanvas = document.createElement("canvas");
-			pixelCanvas.width = width;
-			pixelCanvas.height = height;
-			pixelContext = pixelCanvas.getContext("2d");
-		}
+		// Pixel Source for IE11 & Video
+		this._initPixelSource(image);
 
 		gl.activeTexture(gl.TEXTURE0);
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 
-		SphereRenderer.updateTexture(gl, image);
+		this.updateTexture(gl, image);
 	}
 
 	static _initData() {

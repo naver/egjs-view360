@@ -4,7 +4,7 @@ import WebGLUtils from "../WebGLUtils";
 import {util} from "../../utils/math-util.js";
 
 export default class CubeRenderer extends Renderer {
-	static getVertexPositionData() {
+	getVertexPositionData() {
 		CubeRenderer._VERTEX_POSITION_DATA =
 			CubeRenderer._VERTEX_POSITION_DATA !== null ? CubeRenderer._VERTEX_POSITION_DATA : [
 				// back
@@ -47,13 +47,13 @@ export default class CubeRenderer extends Renderer {
 		return CubeRenderer._VERTEX_POSITION_DATA;
 	}
 
-	static getIndexData() {
+	getIndexData() {
 		if (CubeRenderer._INDEX_DATA) {
 			return CubeRenderer._INDEX_DATA;
 		}
 
 		const indexData = [];
-		const vertexPositionData = CubeRenderer.getVertexPositionData();
+		const vertexPositionData = this.getVertexPositionData();
 
 		for (let i = 0; i < (vertexPositionData.length / 3); i += 4) {
 			indexData.push(
@@ -70,30 +70,15 @@ export default class CubeRenderer extends Renderer {
 		return indexData;
 	}
 
-	static extractTileConfig(imageConfig) {
-		let tileConfig =
-			Array.isArray(imageConfig.tileConfig) ?
-				imageConfig.tileConfig : Array(...Array(6)).map(() => imageConfig.tileConfig);
-
-		tileConfig = tileConfig.map(
-			config => Object.assign({
-				flipHorizontal: false,
-				rotation: 0
-			}, config)
-		);
-
-		return tileConfig;
-	}
-
 	static extractOrder(imageConfig) {
 		return imageConfig.order || "RLUDBF";
 	}
 
-	static getTextureCoordData(imageConfig) {
+	getTextureCoordData(imageConfig) {
 		const vertexOrder = "BFUDRL";
 		const order = CubeRenderer.extractOrder(imageConfig);
-		const base = CubeRenderer.getVertexPositionData();
-		const tileConfig = CubeRenderer.extractTileConfig(imageConfig);
+		const base = this.getVertexPositionData();
+		const tileConfig = this._extractTileConfig(imageConfig);
 		const elemSize = 3;
 		const vertexPerTile = 4;
 		const textureCoordData =
@@ -128,7 +113,7 @@ export default class CubeRenderer extends Renderer {
 		return textureCoordData;
 	}
 
-	static getVertexShaderSource() {
+	getVertexShaderSource() {
 		return `
 			attribute vec3 aVertexPosition;
 			attribute vec3 aTextureCoord;
@@ -141,7 +126,7 @@ export default class CubeRenderer extends Renderer {
 			}`;
 	}
 
-	static getFragmentShaderSource() {
+	getFragmentShaderSource() {
 		return `
 			varying highp vec3 vVertexDirectionVector;
 			uniform samplerCube uSampler;
@@ -150,7 +135,7 @@ export default class CubeRenderer extends Renderer {
 			}`;
 	}
 
-	static updateTexture(gl, image, imageConfig) {
+	updateTexture(gl, image, imageConfig) {
 		const baseOrder = "RLUDBF";
 		const order = CubeRenderer.extractOrder(imageConfig);
 		const orderMap = {};
@@ -167,11 +152,11 @@ export default class CubeRenderer extends Renderer {
 					WebGLUtils.texImage2D(gl, gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, image[tileIdx]);
 				}
 			} else {
-				const maxCubeMapTextureSize = CubeRenderer.getMaxCubeMapTextureSize(gl, image);
+				const maxCubeMapTextureSize = this.getMaxCubeMapTextureSize(gl, image);
 
 				for (let surfaceIdx = 0; surfaceIdx < 6; surfaceIdx++) {
 					const tileIdx = orderMap[baseOrder[surfaceIdx]];
-					const tile = CubeRenderer.extractTileFromImage(
+					const tile = this.extractTileFromImage(
 						image, tileIdx, maxCubeMapTextureSize
 					);
 
@@ -179,24 +164,17 @@ export default class CubeRenderer extends Renderer {
 				}
 			}
 		} catch (e) {
-
+			this._triggerError(e);
 		}
 	}
 
-	static bindTexture(gl, texture, image, imageConfig) {
+	bindTexture(gl, texture, image, imageConfig) {
 		gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-		CubeRenderer.updateTexture(gl, image, imageConfig);
+		this.updateTexture(gl, image, imageConfig);
 	}
 
-	static _getDimension(pixelSource) {
-		const width = pixelSource.naturalWidth || pixelSource.videoWidth;
-		const height = pixelSource.naturalHeight || pixelSource.videoHeight;
-
-		return {width, height};
-	}
-
-	static getSourceTileSize(image) {
-		const {width, height} = this._getDimension(image);
+	getSourceTileSize(image) {
+		const {width, height} = this.getDimension(image);
 		const aspectRatio = width / height;
 		let inputTextureSize;
 
@@ -212,9 +190,9 @@ export default class CubeRenderer extends Renderer {
 		return inputTextureSize;
 	}
 
-	static extractTileFromImage(image, tileIdx, outputTextureSize) {
-		const {width} = this._getDimension(image);
-		const inputTextureSize = CubeRenderer.getSourceTileSize(image);
+	extractTileFromImage(image, tileIdx, outputTextureSize) {
+		const {width} = this.getDimension(image);
+		const inputTextureSize = this.getSourceTileSize(image);
 
 		const canvas = document.createElement("canvas");
 
@@ -233,10 +211,10 @@ export default class CubeRenderer extends Renderer {
 		return canvas;
 	}
 
-	static getMaxCubeMapTextureSize(gl, image) {
+	getMaxCubeMapTextureSize(gl, image) {
 		const agent = Agent();
 		const maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
-		let _imageWidth = CubeRenderer.getSourceTileSize(image);
+		let _imageWidth = this.getSourceTileSize(image);
 
 		if (agent.browser.name === "ie" && parseInt(agent.browser.version, 10) === 11) {
 			if (!util.isPowerOfTwo(_imageWidth)) {

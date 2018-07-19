@@ -5,7 +5,7 @@
 	"main": "dist/view360.js",
 	"es2015": "src/index.js",
 	"scripts": {
-		"start": "webpack-dev-server --open",
+		"start": "webpack-dev-server --open --host 0.0.0.0",
 		"build": "webpack --env.mode=production && webpack --env.mode=packaged ",
 		"test": "karma start",
 		"test:chrome": "karma start --chrome",

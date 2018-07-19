@@ -23,7 +23,9 @@ export default class PanoViewer extends Component {
 	 * @param {String|Image} config.image Input image url or element (Use only image property or video property)<ko>입력 이미지 URL 혹은 엘리먼트(image 와 video 둘 중 하나만 설정)</ko>
 	 * @param {String|HTMLVideoElement} config.video Input video url or element(Use only image property or video property)<ko>입력 비디오 URL 혹은 엘리먼트(image 와 video 둘 중 하나만 설정)</ko>
 	 * @param {String} [config.projectionType=equirectangular] The type of projection: equirectangular, cubemap <br/>{@link eg.view360.PanoViewer.PROJECTION_TYPE}<ko>Projection 유형 : equirectangular, cubemap <br/>{@link eg.view360.PanoViewer.PROJECTION_TYPE}</ko>
-	 * @param {Object} config.cubemapConfig config cubemap projection layout. <ko>cubemap projection type 의 레이아웃을 설정한다.</ko>
+	 * @param {Object} config.cubemapConfig config cubemap projection layout. It is applied when projectionType is {@link eg.view360.PanoViewer.PROJECTION_TYPE.CUBEMAP} or {@link eg.view360.PanoViewer.PROJECTION_TYPE.CUBESTRIP}<ko>cubemap projection type 의 레이아웃을 설정한다. 이 설정은 ProjectionType 이 {@link eg.view360.PanoViewer.PROJECTION_TYPE.CUBEMAP} 혹은 {@link eg.view360.PanoViewer.PROJECTION_TYPE.CUBESTRIP} 인 경우에만 적용된다.</ko>
+	 * @param {Object} [config.cubemapConfig.order = "RLUDBF"(ProjectionType === CUBEMAP) | "RLUDFB" (ProjectionType === CUBESTRIP)] Order of cubemap faces <ko>Cubemap 형태의 이미지가 배치된 순서</ko>
+	 * @param {Object} [config.cubemapConfig.tileConfig = {flipHirozontal:false, rotation: 0}] Setting about rotation angle(degree) and whether to flip horizontal for each cubemap faces, if you put this object as a array, you can set each faces with different setting. For example, [{flipHorizontal:false, rotation:90}, {flipHorizontal: true, rotation: 180}, ...]<ko>각 Cubemap 면에 대한 회전 각도/좌우반전 여부 설정, 객체를 배열 형태로 지정하여 각 면에 대한 설정을 다르게 지정할 수도 있다. 예를 들어 [{flipHorizontal:false, rotation:90}, {flipHorizontal: true, rotation: 180}, ...]과 같이 지정할 수 있다.</ko>
 	 * @param {Number} [config.width=width of container] the viewer's width. (in px) <ko>뷰어의 너비 (px 단위)</ko>
 	 * @param {Number} [config.height=height of container] the viewer's height.(in px) <ko>뷰어의 높이 (px 단위)</ko>
 	 *
@@ -40,7 +42,7 @@ export default class PanoViewer extends Component {
 	 * @param {Number} [config.touchDirection= {@link eg.view360.PanoViewer.TOUCH_DIRECTION.ALL}(6)] Direction of touch that can be controlled by user <br/>{@link eg.view360.PanoViewer.TOUCH_DIRECTION}<ko>사용자가 터치로 조작 가능한 방향 <br/>{@link eg.view360.PanoViewer.TOUCH_DIRECTION}</ko>
 	 *
 	 * @example
-	 *
+	 * // PanoViewer Creation
 	 * // create PanoViewer with option
 	 * var PanoViewer = eg.view360.PanoViewer;
 	 * // Area where the image will be displayed(HTMLElement)
@@ -51,6 +53,16 @@ export default class PanoViewer extends Component {
 	 *     // Specifies an image of the "equirectangular" type.
 	 *     image: "/path/to/image/image.jpg"
 	 *});
+	 *
+	 * @example
+	 * // Cubemap Config Setting Example
+	 * // For support Youtube EAC projection, You should set cubemapConfig as follows.
+	 * cubemapConfig: {
+	 * 	order: "LFRDBU",
+	 * 	tileConfig: [
+	 * 		tileConfig: [{rotation: 0}, {rotation: 0}, {rotation: 0}, {rotation: 0}, {rotation: -90}, {rotation: 180}]
+	 * 	]
+	 * }
 	 */
 	constructor(container, options = {}) {
 		super();
@@ -92,7 +104,8 @@ export default class PanoViewer extends Component {
 		this._isVideo = !!options.video;
 		this._projectionType = options.projectionType || PROJECTION_TYPE.EQUIRECTANGULAR;
 		this._cubemapConfig = Object.assign({
-			order: "RLUDBF",
+			/* RLUDBF is abnormal, we use it on CUBEMAP only for backward compatibility*/
+			order: this._projectionType === PROJECTION_TYPE.CUBEMAP ? "RLUDBF" : "RLUDFB",
 			tileConfig: {
 				flipHirozontal: false,
 				rotation: 0

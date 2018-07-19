@@ -3,7 +3,6 @@ import PanoViewer from "../../../src/PanoViewer/PanoViewer";
 import PanoImageRenderer from "../../../src/PanoImageRenderer/PanoImageRenderer";
 import {ERROR_TYPE, EVENTS} from "../../../src/PanoViewer/consts";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
-import { YawPitchControl } from "../../../src/YawPitchControl";
 
 function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2) {
 	return new Promise(res => {
@@ -403,6 +402,7 @@ describe("PanoViewer", function() {
 		IT("should set viewport(canvas) size as parameter or set container size if size property is not exist", done => {
 			panoViewer.on("ready", () => {
 				// Given
+				const PIXEL_RATIO = window.devicePixelRatio;
 				const canvas = target.querySelector("canvas");
 				const containerSize = window.getComputedStyle(target);
 				const containerW = parseInt(containerSize.width, 10);
@@ -427,8 +427,8 @@ describe("PanoViewer", function() {
 
 				// Then
 				resultSizeArray.forEach((size, index) => {
-					expect(size.width).to.be.equal(expectedResult[index].width);
-					expect(size.height).to.be.equal(expectedResult[index].height);
+					expect(size.width / PIXEL_RATIO).to.be.equal(expectedResult[index].width);
+					expect(size.height / PIXEL_RATIO).to.be.equal(expectedResult[index].height);
 				});
 
 				done();
@@ -438,6 +438,7 @@ describe("PanoViewer", function() {
 		IT("should not change size if viewport size is not changed", done => {
 			panoViewer.on("ready", () => {
 				// Given
+				const PIXEL_RATIO = window.devicePixelRatio;
 				const canvas = target.querySelector("canvas");
 				const containerSize = window.getComputedStyle(target);
 				const containerW = parseInt(containerSize.width, 10);
@@ -447,8 +448,8 @@ describe("PanoViewer", function() {
 				panoViewer.updateViewportDimensions({width: containerW, height: containerH});
 
 				// Then
-				expect(canvas.width).to.be.equal(containerW);
-				expect(canvas.height).to.be.equal(containerH);
+				expect(canvas.width / PIXEL_RATIO).to.be.equal(containerW);
+				expect(canvas.height / PIXEL_RATIO).to.be.equal(containerH);
 
 				done();
 			});
