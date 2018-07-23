@@ -1,7 +1,6 @@
 import Component from "@egjs/component";
-import Axes, {PinchInput, MoveKeyInput} from "@egjs/axes";
+import Axes, {PinchInput, MoveKeyInput, WheelInput} from "@egjs/axes";
 import {getComputedStyle, SUPPORT_TOUCH, SUPPORT_DEVICEMOTION} from "../utils/browserFeature";
-import WheelInput from "./input/WheelInput";
 import TiltMotionInput from "./input/TiltMotionInput";
 import RotationPanInput from "./input/RotationPanInput";
 import DeviceQuaternion from "./DeviceQuaternion";
@@ -86,7 +85,7 @@ const YawPitchControl = class YawPitchControl extends Component {
 		const useRotation = opt.gyroMode === GYRO_MODE.VR;
 
 		this.axesPanInput = new RotationPanInput(this._element, {useRotation});
-		this.axesWheelInput = new WheelInput(this._element, {scale: 4});
+		this.axesWheelInput = new WheelInput(this._element, {scale: -4});
 		this.axesTiltMotionInput = null;
 		this.axesPinchInput = SUPPORT_TOUCH ? new PinchInput(this._element, {scale: -1}) : null;
 		this.axesMoveKeyInput = new MoveKeyInput(this._element, {scale: [-6, 6]});
