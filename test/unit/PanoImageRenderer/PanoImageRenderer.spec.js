@@ -341,7 +341,7 @@ describe("PanoImageRenderer", function() {
 	});
 
 	describe("render without throwing exception", function() {
-		IT("Should not render internaly when calling render without image loaded", function() {
+		IT("Should not render internally when calling render without image loaded", function() {
 			// Given
 			let inst = this.inst;
 			let isDrawCalled = false;
