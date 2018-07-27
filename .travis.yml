@@ -10,7 +10,7 @@ before_install:
 install:
   - npm install
 addons:
-  chrome: stable
+  chrome: beta
 cache:
   directories:
     - "node_modules"

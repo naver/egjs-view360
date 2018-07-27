@@ -1400,11 +1400,11 @@ describe("PanoImageRenderer", function() {
 			}
 		});
 
-		IT.only("should support YouTube cubemap format(EAC)", done => {
+		IT("should support YouTube cubemap format(EAC)", done => {
 			// Given
 			let inst = this.inst;
 			const sourceImg = new Image();
-			const thresholdMarginForTravisCi = 15;
+			const thresholdMarginForTravisCi = 15; // TODO: IT'S TEMPORARY CODE FOR PASSING TRAVIS-CI (ON ChromeHeadless 68)
 
 			// Source: https://www.youtube.com/watch?v=8RadEwX29pA ([360 VR] 힐링에세이 ‘쉼표’ _ 경희궁(Gyeonghuigung Palace 慶熙宮) 편)
 			sourceImg.src = "./images/PanoViewer/EAC/EAC_1280x720.jpg";
