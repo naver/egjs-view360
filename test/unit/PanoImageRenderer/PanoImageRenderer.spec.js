@@ -54,6 +54,7 @@ function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuat
 
 		// Then
 		compare(answerFile, inst.canvas, (pct, data) => {
+			console.log("COMPARE ===> ", pct, "DATA", data);
 			expect(pct).to.be.below(threshold);
 			res();
 		});
