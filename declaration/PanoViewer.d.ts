@@ -1,7 +1,7 @@
 import Component from "@egjs/component";
 
 declare class PanoViewer extends Component {
-  constructor(container: HTMLElement, options: object);
+  constructor(container: HTMLElement, param: object);
   destroy(): this;
   getFov(): number;
   getFovRange(): number[];
