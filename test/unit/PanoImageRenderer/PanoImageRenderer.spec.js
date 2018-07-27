@@ -1404,7 +1404,7 @@ describe("PanoImageRenderer", function() {
 			// Given
 			let inst = this.inst;
 			const sourceImg = new Image();
-			const thresholdMarginForTravisCi = 30;
+			const thresholdMarginForTravisCi = 15;
 
 			// Source: https://www.youtube.com/watch?v=8RadEwX29pA ([360 VR] 힐링에세이 ‘쉼표’ _ 경희궁(Gyeonghuigung Palace 慶熙宮) 편)
 			sourceImg.src = "./images/PanoViewer/EAC/EAC_1280x720.jpg";
