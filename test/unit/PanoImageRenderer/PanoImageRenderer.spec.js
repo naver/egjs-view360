@@ -62,6 +62,7 @@ function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuat
 }
 
 function renderAndCompareSequentially(inst, tests) {
+	console.log(">> renderAndCompareSequentially tests:", tests.length, tests);
 	return new Promise(res => {
 		tests.reduce(
 			(promiseChain, currentTask) => promiseChain.then(() => promiseFactory(inst, ...currentTask)),
@@ -1399,7 +1400,7 @@ describe("PanoImageRenderer", function() {
 			}
 		});
 
-		IT("should support YouTube cubemap format(EAC)", done => {
+		IT.only("should support YouTube cubemap format(EAC)", done => {
 			// Given
 			let inst = this.inst;
 			const sourceImg = new Image();

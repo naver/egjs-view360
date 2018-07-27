@@ -20,7 +20,7 @@ export default class CubeStripRenderer extends Renderer {
 		return `
 			#define PI 3.14159265359
 
-			precision mediump float;
+			precision highp float;
 			varying highp vec2 vTextureCoord;
 			uniform sampler2D uSampler;
 			uniform bool uIsEAC;
