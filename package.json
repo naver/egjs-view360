@@ -1,6 +1,6 @@
 {
 	"name": "@egjs/view360",
-	"version": "3.0.2-snapshot",
+	"version": "3.1.0-rc",
 	"description": "360 integrated viewing solution from inside-out view to outside-in view. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.",
 	"main": "dist/view360.js",
 	"es2015": "src/index.js",
