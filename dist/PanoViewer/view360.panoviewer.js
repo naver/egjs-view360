@@ -5,7 +5,7 @@
  * @egjs/view360 JavaScript library
  * 
  * 
- * @version 3.1.0-rc
+ * @version 3.1.0
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -842,7 +842,7 @@ var YawPitchControl = function (_Component) {
 	return YawPitchControl;
 }(_component2["default"]);
 
-YawPitchControl.VERSION = "3.1.0-rc";
+YawPitchControl.VERSION = "3.1.0";
 exports["default"] = YawPitchControl;
 
 /***/ }),
@@ -4657,7 +4657,7 @@ var _PanoViewer2 = _interopRequireDefault(_PanoViewer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-var VERSION = "3.1.0-rc";
+var VERSION = "3.1.0";
 
 exports.PanoViewer = _PanoViewer2["default"];
 exports.VERSION = VERSION;
