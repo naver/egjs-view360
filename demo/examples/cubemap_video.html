@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="../common/css/main.css">
     <link rel="stylesheet" type="text/css" href="../common/css/example.css">
     
-    <script src="../release/3.0.0-rc/dist/view360.pkgd.js"></script>
+    <script src="../release/latest/dist/view360.pkgd.js"></script>
     <style>
     #myPanoViewer {
         position: relative;
@@ -30,7 +30,7 @@
         <a href="./">
             <h1>PanoViewer examples</h1>
         </a>
-        <h2>360 Video (cubemap)</h2>  
+        <h2>360 Video (CUBESTRIP)</h2>  
         <p></p>      
     </header>
     <section>
@@ -55,19 +55,11 @@
     var panoViewer = new PanoViewer(
         container,
         {
-            projectionType: "cubemap",
+            projectionType: "cubestrip",
             video: videoEl,
             showPolePoint: true,
             cubemapConfig: {
-                order: "RLUDFB",
-                tileConfig: [
-                    {flipHorizontal:false, rotation:0},
-                    {flipHorizontal:false, rotation:0},
-                    {flipHorizontal:false, rotation:180},
-                    {flipHorizontal:false, rotation:180},
-                    {flipHorizontal:false, rotation:0},
-                    {flipHorizontal:false, rotation:0},
-                ]
+                order: "RLUDFB"
             }
         }
     );        

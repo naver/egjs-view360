@@ -13,7 +13,7 @@
     <style>
     #myPanoViewer {
         position: relative;
-        width: 100%;
+        width: 692px;
         height: 391px;
     }
     </style>
@@ -24,28 +24,32 @@
         <a href="./">
             <h1>PanoViewer examples</h1>
         </a>
-        <h2>Responsive</h2>  
+        <h2>360 Image (vertical cubestrip)</h2>  
         <p></p>      
     </header>
     <section>
-            <div id="myPanoViewer">
-                <div id="compass"></div>
-            </div>
+            <div id="myPanoViewer"></div>
     </section>
     <script>
-        var PanoViewer = eg.view360.PanoViewer;
-        var container = document.getElementById("myPanoViewer");
-
-        var panoViewer = new PanoViewer(
-            container,
-            {
-                image: "./img/equi.jpg"
-            }
-        );
-
-        window.addEventListener("resize", function() {
-            panoViewer.updateViewportDimensions();
-        });
+    // create PanoViewer with option
+    var PanoViewer = eg.view360.PanoViewer;
+    var container = document.getElementById("myPanoViewer");
+        
+    var panoViewer = new PanoViewer(
+        container, {
+            projectionType: "cubemap",
+            cubemapConfig: {
+              tileConfig: [{
+                flipHorizontal: true, rotation: 0},
+                {flipHorizontal: true, rotation: 0},
+                {flipHorizontal: true, rotation: 0},
+                {flipHorizontal: true, rotation: 0},
+                {flipHorizontal: true, rotation: 0},
+                {flipHorizontal: true, rotation: 0}]
+            },
+            image: "./img/cube.jpg"
+        }
+    );
 </script>
 
 </body>
