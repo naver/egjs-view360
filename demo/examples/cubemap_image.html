@@ -24,11 +24,13 @@
         <a href="./">
             <h1>PanoViewer examples</h1>
         </a>
-        <h2>360 Image (cubemap)</h2>  
-        <p></p>      
+        <h2>360 Image 3x2 CubeStrip</h2>
+        <h2>ProjectionType: CUBEMAP</h2>  
     </header>
     <section>
-            <div id="myPanoViewer"></div>
+        <div id="myPanoViewer"></div>
+        <h3>Source Image (3x2 Cubestrip)</h3>
+        <img src="./img/test_cube_3x2_RLUDFB.jpg" style="width: 300px">
     </section>
     <script>
     // create PanoViewer with option
@@ -36,13 +38,9 @@
     var container = document.getElementById("myPanoViewer");
         
     var panoViewer = new PanoViewer(
-        container,
-        {
+        container, {
             projectionType: "cubemap",
-            image: "./img/cube.jpg",
-            cubemapConfig: {
-                tileConfig: {flipHorizontal:true, rotation:0}
-            }
+            image: "./img/test_cube_3x2_RLUDFB.jpg"
         }
     );
 </script>
