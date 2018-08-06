@@ -6,7 +6,7 @@ sudo: false
 install:
   - npm install
 addons:
-  chrome: beta
+  chrome: stable
 cache:
   directories:
     - "node_modules"
