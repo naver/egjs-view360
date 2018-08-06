@@ -50,8 +50,8 @@ module.exports = function(config) {
     browsers: [],
     customLaunchers: {
       ChromeHeadlessGL: {
-        base: 'ChromeHeadless',
-        flags: ['--disable-gpu', '--use-gl=osmesa']
+        base: 'Chrome',
+				flags: ["--no-sandbox", "--enable-webgl", "--ignore-gpu-blacklist"]
       }
     },
     reporters: ["mocha"],
