@@ -24,13 +24,13 @@
         <a href="./">
             <h1>PanoViewer examples</h1>
         </a>
-        <h2>360 Image 3x2 CubeStrip</h2>
-        <h2>ProjectionType: CUBEMAP</h2>  
+        <h2>360 Image (vertical cubestrip)</h2>
+        <h2>ProjectionType: CUBEMAP</h2>
     </header>
     <section>
-        <div id="myPanoViewer"></div>
-        <h3>Source Image (3x2 Cubestrip)</h3>
-        <img src="./img/test_cube_3x2_RLUDFB.jpg" style="width: 300px">
+      <div id="myPanoViewer"></div>
+      <h3>Source Image (Vertical Cubestrip)</h3>
+      <img src="./img/cube.jpg" style="width: 150px">
     </section>
     <script>
     // create PanoViewer with option
@@ -40,7 +40,10 @@
     var panoViewer = new PanoViewer(
         container, {
             projectionType: "cubemap",
-            image: "./img/test_cube_3x2_RLUDFB.jpg"
+            cubemapConfig: {
+              tileConfig: {flipHorizontal: true, rotation: 0}
+            },
+            image: "./img/cube.jpg"
         }
     );
 </script>

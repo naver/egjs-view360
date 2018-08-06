@@ -2,14 +2,28 @@
 
 egjs-view360 is a 360 integrated viewing solution from **inside-out view** to **outside-in view**. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.
 
-## `NEW` v3.0 Released
-Play 360 video with VR motion control.
-> Following movie was recorded on iPhone 6+(It's REAL!)
+## `NEW` v3.1 Released
 
-![](https://user-images.githubusercontent.com/3903575/38671092-6a4494a0-3e85-11e8-9eca-9619a2545801.gif)
+  1. More faster Cubemap
+  2. More quality Cubemap (EAC)
+  3. TypeScript Definition
+
+For more information, visit [3.1 Change Notes](https://github.com/naver/egjs-view360/releases/tag/3.1.0)
 
 
-For more information, visit [3.0 Change Notes](https://github.com/naver/egjs-view360/wiki/3.0.0-Change-Notes)/[Korean](https://github.com/naver/egjs-view360/wiki/3.0.0-Change-Notes-%7C-%ED%95%9C%EA%B5%AD%EC%96%B4)
+## What view360 can do?
+
+  1. Play various (Image / Video) **360 contents**
+     - Equirectangular
+     - Cubemap with user custom setting
+       - Also support YouTube **EAC** (Cubemap) Format
+     - Sprite image captured around target object.
+  1. Control with various input type
+     - Support **motion control** applying [sensor fusion and pose prediction](http://smus.com/sensor-fusion-prediction-webvr/) of [webvr-polyfill](https://github.com/immersive-web/webvr-polyfill)
+     - Touch (Panning, Pinch-Zoom)
+     - Mouse Move, Wheel
+     - Keyboard (Arrow key, AWDS Key)
+  
 
 ## Components
 egjs-view360 provides the following components.
@@ -18,15 +32,26 @@ egjs-view360 provides the following components.
 |---|---|---|
 |View|Inside-out|Outside-in|
 |Example| <img width="412" src="https://raw.githubusercontent.com/naver/egjs-view360/master/demo/assets/img/panoviewer_thumbnail.gif">|<img width="300" src="https://raw.githubusercontent.com/naver/egjs-view360/master/demo/assets/img/basic_spinview_thumb.gif">|
-### [PanoViewer](https://naver.github.io/egjs-view360/panoviewer.html)
+
+### [PanoViewer](https://naver.github.io/egjs-view360/panoviewer.html) ([Wiki Doc](https://github.com/naver/egjs-view360/wiki/PanoViewer-3.0-User-Guide))
+
+> Following movie was recorded on iPhone 6+(It's REAL!)
+
+![](https://user-images.githubusercontent.com/3903575/38671092-6a4494a0-3e85-11e8-9eca-9619a2545801.gif)
+
 It is a component that supports the **inside-out viewing** method in which observer becomes the center of the world and looks around. Full 360 photos & videos taken with a 360-degree camera, as well as panoramic photos taken with a mobile phone. Touch, mouse, and keyboard, as well as sophisticated customized motion sensing support, provide immersive immersion in virtual reality.
 
-### [SpinViewer](https://naver.github.io/egjs-view360/spinviewer.html)
+
+### [SpinViewer](https://naver.github.io/egjs-view360/spinviewer.html) ([Wiki Doc](https://github.com/naver/egjs-view360/wiki/SpinViewer-3-User-Guide))
+
+![](https://raw.githubusercontent.com/naver/egjs-view360/master/demo/assets/img/basic_spinview_thumb.gif)
+
 It is a component that supports the **outside-in viewing** method in which the object is centered and the observer can turn around and observe the object. All you need to do is create a sprite image of objects from multiple angles. By giving images to components, we'll give you the experience of turning things around as if they were in your hands.
 
 ## Documents
 - [Get Started and Demos](https://naver.github.io/egjs-view360)
 - [API documentation](https://naver.github.io/egjs-view360/release/latest/doc/)
+- [Wiki doc](https://github.com/naver/egjs-view360/wiki)
 
 ## Download and Installation
 

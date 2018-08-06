@@ -1,9 +1,10 @@
 {
 	"name": "@egjs/view360",
-	"version": "3.0.2-snapshot",
+	"version": "3.1.0-snapshot",
 	"description": "360 integrated viewing solution from inside-out view to outside-in view. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.",
 	"main": "dist/view360.js",
 	"es2015": "src/index.js",
+	"types": "declaration/index.d.ts",
 	"scripts": {
 		"start": "webpack-dev-server --open --host 0.0.0.0",
 		"build": "webpack --env.mode=production && webpack --env.mode=packaged ",

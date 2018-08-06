@@ -238,7 +238,7 @@ export default class SpinViewer extends Component {
 
 	/**
 	 * Returns current angles
-	 * @ko 지정된 각도(angle)만큼 일정 시간동안(duration) 회전하는 효과를 준다.
+	 * @ko 현재 각도를 반환한다.
 	 *
 	 * @return {Number} Current angle <ko>현재 각도</ko>
 	 */
