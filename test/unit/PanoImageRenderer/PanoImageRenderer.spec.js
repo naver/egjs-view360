@@ -1261,7 +1261,7 @@ describe("PanoImageRenderer", function() {
 				cubemapConfig: {
 					tileConfig: tileConfigForCubestrip
 				}
-			});
+			}, DEBUG_CONTEXT_ATTRIBUTES);
 			inst.on("imageLoaded", when);
 
 			function when() {
@@ -1299,7 +1299,7 @@ describe("PanoImageRenderer", function() {
 				initialpitch: 0,
 				imageType: "equirectangular",
 				fieldOfView: 65
-			});
+			}, DEBUG_CONTEXT_ATTRIBUTES);
 			inst.on("imageLoaded", when);
 			function when() {
 				// When
