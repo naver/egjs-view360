@@ -35,7 +35,8 @@ const WEBGL_AVAILABILITY = WebGLUtils.isWebGLAvailable();
 const IT = WEBGL_AVAILABILITY ? it : it.skip;
 const DEBUG_CONTEXT_ATTRIBUTES = {
 	preserveDrawingBuffer: true,
-	antialias: false
+	antialias: false,
+	premultipliedAlpha: false
 };
 const USE_QUATERNION = true;
 
