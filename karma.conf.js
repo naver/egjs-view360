@@ -23,7 +23,7 @@ module.exports = function(config) {
     client: {
       mocha: {
         opts: "./mocha.opts",
-        timeout: "20000"
+        timeout: "60000"
       }
     },
 
