@@ -66,7 +66,8 @@ module.exports = function(config) {
     }
   };
 
-  karmaConfig.browsers.push(config.chrome ? "Chrome" : "ChromeHeadlessGL");
+	// karmaConfig.browsers.push(config.chrome ? "Chrome" : "ChromeHeadlessGL");
+	karmaConfig.browsers.push("ChromeHeadlessGL");
 
   if(config.coverage) {
     karmaConfig.reporters.push("coverage-istanbul");
