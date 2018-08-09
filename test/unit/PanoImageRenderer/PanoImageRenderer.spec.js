@@ -511,7 +511,7 @@ describe("PanoImageRenderer", function() {
 				}
 			});
 
-			IT("multiple img url: flip", function(done) {
+			IT.skip("multiple img url: flip", function(done) {
 				// Given
 				const inst = new PanoImageRenderer([
 					"./images/test_cube_r.png",
