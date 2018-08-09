@@ -55,7 +55,7 @@ function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuat
 
 		// Then
 		compare(answerFile, inst.canvas, (pct, data) => {
-			console.log("COMPARE ===> ", pct, "DATA", data);
+			// console.log("COMPARE ===> ", pct, "DATA", data);
 			expect(pct).to.be.below(threshold);
 			res();
 		});
@@ -63,7 +63,7 @@ function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuat
 }
 
 function renderAndCompareSequentially(inst, tests) {
-	console.log(">> renderAndCompareSequentially tests:", tests.length, tests);
+	// console.log(">> renderAndCompareSequentially tests:", tests.length, tests);
 	return new Promise(res => {
 		tests.reduce(
 			(promiseChain, currentTask) => promiseChain.then(() => promiseFactory(inst, ...currentTask)),
@@ -561,7 +561,7 @@ describe("PanoImageRenderer", function() {
 				}
 			});
 
-			IT.skip("multiple img url: flip rotation", function(done) {
+			IT("multiple img url: flip rotation", function(done) {
 				// Given
 				const inst = new PanoImageRenderer([
 					"./images/test_cube_r_hflip.png",
