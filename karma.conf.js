@@ -50,8 +50,14 @@ module.exports = function(config) {
     browsers: [],
     customLaunchers: {
       ChromeHeadlessGL: {
-        base: 'ChromeHeadless',
-        flags: ['--disable-gpu', '--use-gl=osmesa']
+        base: 'Chrome',
+        flags: [
+					'--headless',
+					'--hide-scrollbars',
+					'--mute-audio',
+					// Without a remote debugging port, Google Chrome exits immediately.
+					'--remote-debugging-port=9222'
+				]
       }
     },
     reporters: ["mocha"],
