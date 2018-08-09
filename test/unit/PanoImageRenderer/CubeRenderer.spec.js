@@ -257,7 +257,7 @@ describe("CubeRenderer", () => {
 				};
 			});
 
-			IT("3x2 LRUDBF video", done => {
+			IT.skip("3x2 LRUDBF video", done => {
 				// Given
 				const cubeRenderer = new CubeRenderer();
 				const cubestripVideo = document.createElement("video");
