@@ -511,7 +511,7 @@ describe("PanoImageRenderer", function() {
 				}
 			});
 
-			IT.skip("multiple img url: flip", function(done) {
+			IT("multiple img url: flip", function(done) {
 				// Given
 				const inst = new PanoImageRenderer([
 					"./images/test_cube_r.png",
@@ -561,7 +561,7 @@ describe("PanoImageRenderer", function() {
 				}
 			});
 
-			IT("multiple img url: flip rotation", function(done) {
+			IT.skip("multiple img url: flip rotation", function(done) {
 				// Given
 				const inst = new PanoImageRenderer([
 					"./images/test_cube_r_hflip.png",
