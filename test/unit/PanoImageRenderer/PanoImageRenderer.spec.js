@@ -35,7 +35,8 @@ const WEBGL_AVAILABILITY = WebGLUtils.isWebGLAvailable();
 const IT = WEBGL_AVAILABILITY ? it : it.skip;
 const DEBUG_CONTEXT_ATTRIBUTES = {
 	preserveDrawingBuffer: true,
-	antialias: false
+	antialias: false,
+	premultipliedAlpha: false
 };
 const USE_QUATERNION = true;
 
@@ -54,6 +55,7 @@ function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuat
 
 		// Then
 		compare(answerFile, inst.canvas, (pct, data) => {
+			// console.log("COMPARE ===> ", pct, "DATA", data);
 			expect(pct).to.be.below(threshold);
 			res();
 		});
@@ -61,6 +63,7 @@ function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuat
 }
 
 function renderAndCompareSequentially(inst, tests) {
+	// console.log(">> renderAndCompareSequentially tests:", tests.length, tests);
 	return new Promise(res => {
 		tests.reduce(
 			(promiseChain, currentTask) => promiseChain.then(() => promiseFactory(inst, ...currentTask)),
@@ -341,7 +344,7 @@ describe("PanoImageRenderer", function() {
 	});
 
 	describe("render without throwing exception", function() {
-		IT("Should not render internaly when calling render without image loaded", function() {
+		IT("Should not render internally when calling render without image loaded", function() {
 			// Given
 			let inst = this.inst;
 			let isDrawCalled = false;
@@ -1258,7 +1261,7 @@ describe("PanoImageRenderer", function() {
 				cubemapConfig: {
 					tileConfig: tileConfigForCubestrip
 				}
-			});
+			}, DEBUG_CONTEXT_ATTRIBUTES);
 			inst.on("imageLoaded", when);
 
 			function when() {
@@ -1296,7 +1299,7 @@ describe("PanoImageRenderer", function() {
 				initialpitch: 0,
 				imageType: "equirectangular",
 				fieldOfView: 65
-			});
+			}, DEBUG_CONTEXT_ATTRIBUTES);
 			inst.on("imageLoaded", when);
 			function when() {
 				// When

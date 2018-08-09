@@ -23,7 +23,7 @@ module.exports = function(config) {
     client: {
       mocha: {
         opts: "./mocha.opts",
-        timeout: "20000"
+        timeout: "60000"
       }
     },
 
@@ -50,8 +50,16 @@ module.exports = function(config) {
     browsers: [],
     customLaunchers: {
       ChromeHeadlessGL: {
-        base: 'ChromeHeadless',
-        flags: ['--disable-gpu', '--use-gl=osmesa']
+        base: 'Chrome',
+        flags: [
+					'--headless',
+					'--hide-scrollbars',
+					'--mute-audio',
+					'--no-sandbox',
+  				'--disable-setuid-sandbox',
+					// Without a remote debugging port, Google Chrome exits immediately.
+					'--remote-debugging-port=9222'
+				]
       }
     },
     reporters: ["mocha"],
@@ -60,7 +68,8 @@ module.exports = function(config) {
     }
   };
 
-  karmaConfig.browsers.push(config.chrome ? "Chrome" : "ChromeHeadlessGL");
+	// karmaConfig.browsers.push(config.chrome ? "Chrome" : "ChromeHeadlessGL");
+	karmaConfig.browsers.push("ChromeHeadlessGL");
 
   if(config.coverage) {
     karmaConfig.reporters.push("coverage-istanbul");

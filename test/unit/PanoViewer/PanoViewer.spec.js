@@ -131,7 +131,8 @@ describe("PanoViewer", function() {
 								constructor(image, width, height, isVideo, sphericalConfig) {
 									super(image, width, height, isVideo, sphericalConfig, {
 										preserveDrawingBuffer: true,
-										antialias: false
+										antialias: false,
+										premultipliedAlpha: false
 									});
 								}
 							}
