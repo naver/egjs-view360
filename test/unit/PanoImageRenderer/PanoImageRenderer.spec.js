@@ -1,5 +1,8 @@
-import PanoImageRenderer from "../../../src/PanoImageRenderer/PanoImageRenderer";
+// import {expect} from "chai";
+import PanoImageRendererForUnitTest from "../PanoImageRendererForUnitTest";
+import {compare, createPanoImageRenderer} from "../util";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
+import PanoImageRendererForUnitTestInjector from "inject-loader!../PanoImageRendererForUnitTest";
 import PanoImageRendererInjector from "inject-loader!../../../src/PanoImageRenderer/PanoImageRenderer";
 import {glMatrix, quat} from "../../../src/utils/math-util.js";
 
@@ -9,14 +12,12 @@ import TestHelper from "../YawPitchControl/testHelper";
 
 const RendererOnIE11 = RendererInjector(
 	{
-		"@egjs/agent": function() {
-			return {
-				browser: {
-					name: "ie",
-					version: "11.0"
-				}
-			};
-		}
+		"@egjs/agent": () => ({
+			browser: {
+				name: "ie",
+				version: "11.0"
+			}
+		})
 	}
 ).default;
 
@@ -31,12 +32,15 @@ const PanoImageRendererOnIE11 = PanoImageRendererInjector(
 		"./renderer/SphereRenderer": SphereRendererOnIE11
 	}
 ).default;
+
+const PanoImageRendererOnIE11ForTest = PanoImageRendererForUnitTestInjector(
+	{
+		"../../src/PanoImageRenderer/PanoImageRenderer": PanoImageRendererOnIE11
+	}
+).default;
+
 const WEBGL_AVAILABILITY = WebGLUtils.isWebGLAvailable();
 const IT = WEBGL_AVAILABILITY ? it : it.skip;
-const DEBUG_CONTEXT_ATTRIBUTES = {
-	preserveDrawingBuffer: true,
-	antialias: false
-};
 const USE_QUATERNION = true;
 
 function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuaternion) {
@@ -71,59 +75,44 @@ function renderAndCompareSequentially(inst, tests) {
 
 const threshold = 3;
 
-describe("PanoImageRenderer", function() {
+describe("PanoImageRenderer", () => {
 	console.log(WEBGL_AVAILABILITY ? "gl available" : "no gl");
 	const deviceRatio = window.devicePixelRatio;
 	const suffix = `_${deviceRatio}x.png`;
 
-	describe("#constructor", function() {
-		IT("Instance", function() {
+	describe("#constructor", () => {
+		IT("Instance", () => {
 			// Given
 			// When
-			this.inst = new PanoImageRenderer("./images/test_equi.png", 200, 200, false, {
-					yaw: 0,
-					pitch: 0,
-					imageType: "equirectangular",
-					fieldOfView: 65
-				}, DEBUG_CONTEXT_ATTRIBUTES);
+			const inst = createPanoImageRenderer("./images/test_equi.png", false, "equirectangular");
 
 			// Then
-			expect(this.inst).to.be.exist;
+			expect(inst).to.be.exist;
 		});
 	});
 
-	describe("#setImage", function () {
-		IT("should fire error when image is invalid", function(done) {
+	describe("#setImage", () => {
+		IT("should fire error when image is invalid", done => {
 			// Given
-			this.inst = new PanoImageRenderer(null, 200, 200, false, {
-				yaw: 0,
-				pitch: 0,
-				imageType: "equirectangular",
-				fieldOfView: 65
-			}, DEBUG_CONTEXT_ATTRIBUTES);
+			const inst = createPanoImageRenderer(null, false, "equirectangular");
 
 			// When
-			this.inst.setImage({
+			inst.setImage({
 				image: "./images/invalid.png"
 			});
 
 			// Then
-			this.inst.on("error", () => done());
+			inst.on("error", () => done());
 		});
 	});
 
-	describe("#isImageLoaded", function() {
+	describe("#isImageLoaded", () => {
 		IT("should return false before image loaded", () => {
 			// Given
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_equi.png";
-			const inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-				initialYaw: 0,
-				initialpitch: 0,
-				imageType: "equirectangular",
-				fieldOfView: 65
-			}, DEBUG_CONTEXT_ATTRIBUTES);
+			const inst = createPanoImageRenderer(sourceImg, false, "equirectangular");
 
 			// When
 			const isImageLoaded = inst.isImageLoaded();
@@ -132,17 +121,12 @@ describe("PanoImageRenderer", function() {
 			expect(isImageLoaded).to.be.false;
 		});
 
-		IT("should return true after image loaded", (done) => {
+		IT("should return true after image loaded", done => {
 			// Given
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_equi.png";
-			const inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-				initialYaw: 0,
-				initialpitch: 0,
-				imageType: "equirectangular",
-				fieldOfView: 65
-			}, DEBUG_CONTEXT_ATTRIBUTES);
+			const inst = createPanoImageRenderer(sourceImg, false, "equirectangular");
 
 			inst.on("imageLoaded", () => {
 				// When
@@ -159,12 +143,7 @@ describe("PanoImageRenderer", function() {
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_equi.png";
-			const inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-				initialYaw: 0,
-				initialpitch: 0,
-				imageType: "equirectangular",
-				fieldOfView: 65
-			}, DEBUG_CONTEXT_ATTRIBUTES);
+			const inst = createPanoImageRenderer(sourceImg, false, "equirectangular");
 
 			inst.once("imageLoaded", () => {
 				// When
@@ -180,43 +159,38 @@ describe("PanoImageRenderer", function() {
 		});
 
 		IT("should return false when set another image before the first image loaded", () => {
-				// Given
-				const sourceImg = new Image();
+			// Given
+			const sourceImg = new Image();
 
-				sourceImg.src = "./images/test_equi.png";
-				const inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-					initialYaw: 0,
-					initialpitch: 0,
-					imageType: "equirectangular",
-					fieldOfView: 65
-				}, DEBUG_CONTEXT_ATTRIBUTES);
+			sourceImg.src = "./images/test_equi.png";
+			const inst = createPanoImageRenderer(sourceImg, false, "equirectangular");
 
-				// When
-				inst.setImage({
-					image: "./images/test_equi_0_0_65.png"
-				});
-				const isImageLoaded = inst.isImageLoaded();
-
-				// Then
-				expect(isImageLoaded).to.be.false;
+			// When
+			inst.setImage({
+				image: "./images/test_equi_0_0_65.png"
 			});
+			const isImageLoaded = inst.isImageLoaded();
+
+			// Then
+			expect(isImageLoaded).to.be.false;
+		});
 	});
 
-	describe("adaptive devicePixelRatio", function() {
-		IT("when devicePixelRatio is 1, should use 1", function() {
+	describe("adaptive devicePixelRatio", () => {
+		IT("when devicePixelRatio is 1, should use 1", () => {
 			// Given
-			var MockedPanoImageRenderer = PanoImageRendererInjector({
+			const MockedPanoImageRenderer = PanoImageRendererInjector({
 				"../utils/browserFeature": {
 					devicePixelRatio: 1
-				}}).default;
+				}
+			}).default;
 
-			let inst = this.inst;
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_equi.jpg";
 
 			// When
-			inst = new MockedPanoImageRenderer(sourceImg, 200, 200, false, {
+			const inst = new MockedPanoImageRenderer(sourceImg, 200, 200, false, {
 				initialYaw: 0,
 				initialpitch: 0,
 				imageType: "equirectangular",
@@ -228,21 +202,20 @@ describe("PanoImageRenderer", function() {
 			expect(inst.canvas.height).to.be.equal(200);
 		});
 
-		IT("when devicePixelRatio is 2, should use 2", function() {
+		IT("when devicePixelRatio is 2, should use 2", () => {
 			// Given
-			var MockedPanoImageRenderer = PanoImageRendererInjector({
+			const MockedPanoImageRenderer = PanoImageRendererInjector({
 				"../utils/browserFeature": {
 					devicePixelRatio: 2
 				}
 			}).default;
 
-			let inst = this.inst;
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_equi.jpg";
 
 			// When
-			inst = new MockedPanoImageRenderer(sourceImg, 200, 200, false, {
+			const inst = new MockedPanoImageRenderer(sourceImg, 200, 200, false, {
 				initialYaw: 0,
 				initialpitch: 0,
 				imageType: "equirectangular",
@@ -254,21 +227,20 @@ describe("PanoImageRenderer", function() {
 			expect(inst.canvas.height).to.be.equal(400);
 		});
 
-		IT("when devicePixelRatio is 3, should use 2", function() {
+		IT("when devicePixelRatio is 3, should use 2", () => {
 			// Given
-			var MockedPanoImageRenderer = PanoImageRendererInjector({
+			const MockedPanoImageRenderer = PanoImageRendererInjector({
 				"../utils/browserFeature": {
 					devicePixelRatio: 3
 				}
 			}).default;
 
-			let inst = this.inst;
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_equi.jpg";
 
 			// When
-			inst = new MockedPanoImageRenderer(sourceImg, 200, 200, false, {
+			const inst = new MockedPanoImageRenderer(sourceImg, 200, 200, false, {
 				initialYaw: 0,
 				initialpitch: 0,
 				imageType: "equirectangular",
@@ -281,81 +253,61 @@ describe("PanoImageRenderer", function() {
 		});
 	});
 
-	describe("error event", function() {
-		IT("Should trigger error event when invalis image url", function(done) {
+	describe("error event", () => {
+		IT("Should trigger error event when invalis image url", done => {
 			// Given
-			let inst = this.inst;
 			const sourceImg = new Image();
-						sourceImg.src = "./images/test_cube_not_exist.jpg";
 
-						// When
-			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-				initialYaw: 0,
-				initialpitch: 0,
-				imageType: "cubemap",
-				fieldOfView: 65
-			}, DEBUG_CONTEXT_ATTRIBUTES);
+			sourceImg.src = "./images/test_cube_not_exist.jpg";
+
+			// When
+			const inst = createPanoImageRenderer(sourceImg, false, "cubemap");
 
 			inst.on("error", when);
 
 			function when(e) {
-					// Then
-					expect(e.type).to.be.equal(12);
-					done();
+				// Then
+				expect(e.type).to.be.equal(12);
+				done();
 			}
 		});
 	});
 
-	describe("renderingcontextlost event", function() {
-		IT("Should trigger renderingcontextlost event when lost context", function(done) {
+	describe("renderingcontextlost event", () => {
+		IT("Should trigger renderingcontextlost event when lost context", done => {
 			// Given
-			let inst = this.inst;
 			const sourceImg = new Image();
-						sourceImg.src = "./images/test_cube.jpg";
 
-						// When
-			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-				initialYaw: 0,
-				initialpitch: 0,
-				imageType: "cubemap",
-				fieldOfView: 65
-			}, DEBUG_CONTEXT_ATTRIBUTES);
+			sourceImg.src = "./images/test_cube.jpg";
+
+			// When
+			const inst = createPanoImageRenderer(sourceImg, false, "cubemap");
 
 			inst.on("renderingContextLost", when);
 
-			for(var i=0;i<16;i++) {
-					new PanoImageRenderer(sourceImg, 200, 200, false, {
-							initialYaw: 0,
-							initialpitch: 0,
-							imageType: "cubemap",
-							fieldOfView: 65
-					}, DEBUG_CONTEXT_ATTRIBUTES);
+			for (let i = 0; i < 16; i++) {
+				createPanoImageRenderer(sourceImg, false, "cubemap");
 			}
 
 			function when(e) {
-					// Then
-					expect(inst.hasRenderingContext()).to.be.equal(false);
-					done();
+				// Then
+				expect(inst.hasRenderingContext()).to.be.equal(false);
+				done();
 			}
 		});
 	});
 
-	describe("render without throwing exception", function() {
-		IT("Should not render internaly when calling render without image loaded", function() {
+	describe("render without throwing exception", () => {
+		IT("Should not render internaly when calling render without image loaded", () => {
 			// Given
-			let inst = this.inst;
 			let isDrawCalled = false;
 			const sourceImg = new Image();
+
 			sourceImg.src = "./images/test_cube_not_exist.jpg";
 
-			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-				initialYaw: 0,
-				initialpitch: 0,
-				imageType: "cubemap",
-				fieldOfView: 65
-			}, DEBUG_CONTEXT_ATTRIBUTES);
+			const inst = createPanoImageRenderer(sourceImg, false, "cubemap");
 
-			inst._draw = function() {
+			inst._draw = () => {
 				isDrawCalled = true;
 				PanoImageRenderer.prototype._draw.call(inst);
 			};
@@ -368,23 +320,18 @@ describe("PanoImageRenderer", function() {
 		});
 	});
 
-	describe("Cubemap Rendering", function() {
-		describe("separated tiles", function() {
-			IT("multiple img url", function(done) {
+	describe("Cubemap Rendering", () => {
+		describe("separated tiles", () => {
+			IT("multiple img url", done => {
 				// Given
-				const inst = new PanoImageRenderer([
+				const inst = createPanoImageRenderer([
 					"./images/test_cube_r.png",
 					"./images/test_cube_l.png",
 					"./images/test_cube_u.png",
 					"./images/test_cube_d.png",
 					"./images/test_cube_b.png",
 					"./images/test_cube_f.png"
-				], 200, 200, false, {
-					initialYaw: 0,
-					initialpitch: 0,
-					imageType: "cubemap",
-					fieldOfView: 65
-				}, DEBUG_CONTEXT_ATTRIBUTES);
+				], false, "cubemap");
 
 				inst.on("imageLoaded", when);
 
@@ -410,7 +357,7 @@ describe("PanoImageRenderer", function() {
 				}
 			});
 
-			IT("multiple img elements", function(done) {
+			IT("multiple img elements", done => {
 				// Given
 				const imgs = [
 					"./images/test_cube_r.png",
@@ -426,12 +373,7 @@ describe("PanoImageRenderer", function() {
 					return img;
 				});
 
-				const inst = new PanoImageRenderer(imgs, 200, 200, false, {
-					initialYaw: 0,
-					initialpitch: 0,
-					imageType: "cubemap",
-					fieldOfView: 65
-				}, DEBUG_CONTEXT_ATTRIBUTES);
+				const inst = createPanoImageRenderer(imgs, false, "cubemap");
 
 				inst.on("imageLoaded", when);
 
@@ -457,32 +399,26 @@ describe("PanoImageRenderer", function() {
 				}
 			});
 
-			IT("multiple img url: order", function(done) {
+			IT("multiple img url: order", done => {
 				// Given
-				const inst = new PanoImageRenderer([
+				const inst = createPanoImageRenderer([
 					"./images/test_cube_l.png",
 					"./images/test_cube_r.png",
 					"./images/test_cube_u.png",
 					"./images/test_cube_b.png",
 					"./images/test_cube_d.png",
 					"./images/test_cube_f.png"
-				], 200, 200, false, {
-					initialYaw: 0,
-					initialpitch: 0,
-					imageType: "cubemap",
-					fieldOfView: 65,
-					cubemapConfig: {
-						order: "LRUBDF", // RLUDBF,
-						tileConfig: [
-							{flipHorizontal: false, rotation: 0},
-							{flipHorizontal: false, rotation: 0},
-							{flipHorizontal: false, rotation: 0},
-							{flipHorizontal: false, rotation: 0},
-							{flipHorizontal: false, rotation: 0},
-							{flipHorizontal: false, rotation: 0}
-						]
-					}
-				}, DEBUG_CONTEXT_ATTRIBUTES);
+				], false, "cubemap", {
+					order: "LRUBDF", // RLUDBF,
+					tileConfig: [
+						{flipHorizontal: false, rotation: 0},
+						{flipHorizontal: false, rotation: 0},
+						{flipHorizontal: false, rotation: 0},
+						{flipHorizontal: false, rotation: 0},
+						{flipHorizontal: false, rotation: 0},
+						{flipHorizontal: false, rotation: 0}
+					]
+				});
 
 				inst.on("imageLoaded", when);
 
@@ -508,31 +444,26 @@ describe("PanoImageRenderer", function() {
 				}
 			});
 
-			IT("multiple img url: flip", function(done) {
+			IT("multiple img url: flip", done => {
 				// Given
-				const inst = new PanoImageRenderer([
+				const cubemapConfig = {
+					tileConfig: [
+						{flipHorizontal: false, rotation: 0},
+						{flipHorizontal: false, rotation: 0},
+						{flipHorizontal: false, rotation: 0},
+						{flipHorizontal: false, rotation: 0},
+						{flipHorizontal: false, rotation: 0},
+						{flipHorizontal: true, rotation: 0}
+					]
+				};
+				const inst = createPanoImageRenderer([
 					"./images/test_cube_r.png",
 					"./images/test_cube_l.png",
 					"./images/test_cube_u.png",
 					"./images/test_cube_d.png",
 					"./images/test_cube_b.png",
 					"./images/test_cube_f_hflip.png"
-				], 200, 200, false, {
-					initialYaw: 0,
-					initialpitch: 0,
-					imageType: "cubemap",
-					fieldOfView: 65,
-					cubemapConfig: {
-						tileConfig: [
-							{flipHorizontal: false, rotation: 0},
-							{flipHorizontal: false, rotation: 0},
-							{flipHorizontal: false, rotation: 0},
-							{flipHorizontal: false, rotation: 0},
-							{flipHorizontal: false, rotation: 0},
-							{flipHorizontal: true, rotation: 0}
-						]
-					}
-				}, DEBUG_CONTEXT_ATTRIBUTES);
+				], false, "cubemap", cubemapConfig);
 
 				inst.on("imageLoaded", when);
 
@@ -558,31 +489,26 @@ describe("PanoImageRenderer", function() {
 				}
 			});
 
-			IT("multiple img url: flip rotation", function(done) {
+			IT("multiple img url: flip rotation", done => {
 				// Given
-				const inst = new PanoImageRenderer([
+				const cubemapConfig = {
+					tileConfig: [
+						{flipHorizontal: true, rotation: 0},
+						{flipHorizontal: true, rotation: 0},
+						{flipHorizontal: true, rotation: 180},
+						{flipHorizontal: true, rotation: 180},
+						{flipHorizontal: true, rotation: 0},
+						{flipHorizontal: true, rotation: 0}
+					]
+				};
+				const inst = createPanoImageRenderer([
 					"./images/test_cube_r_hflip.png",
 					"./images/test_cube_l_hflip.png",
 					"./images/test_cube_u_hflip_180.png",
 					"./images/test_cube_d_hflip_180.png",
 					"./images/test_cube_b_hflip.png",
 					"./images/test_cube_f_hflip.png"
-				], 200, 200, false, {
-					initialYaw: 0,
-					initialpitch: 0,
-					imageType: "cubemap",
-					fieldOfView: 65,
-					cubemapConfig: {
-						tileConfig: [
-							{flipHorizontal: true, rotation: 0},
-							{flipHorizontal: true, rotation: 0},
-							{flipHorizontal: true, rotation: 180},
-							{flipHorizontal: true, rotation: 180},
-							{flipHorizontal: true, rotation: 0},
-							{flipHorizontal: true, rotation: 0}
-						]
-					}
-				}, DEBUG_CONTEXT_ATTRIBUTES);
+				], false, "cubemap", cubemapConfig);
 
 				inst.on("imageLoaded", when);
 
@@ -609,19 +535,14 @@ describe("PanoImageRenderer", function() {
 			});
 		});
 
-		describe("cubestrip", function() {
-			IT("cubestrip 1x6", function(done) {
+		describe("cubestrip", () => {
+			IT("cubestrip 1x6", done => {
 				// Given
-				let inst = this.inst;
 				const sourceImg = new Image();
 
 				sourceImg.src = "./images/test_cube_1x6_LRUDBF.jpg";
-				inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-					initialYaw: 0,
-					initialpitch: 0,
-					imageType: "cubemap",
-					fieldOfView: 65
-				}, DEBUG_CONTEXT_ATTRIBUTES);
+				const inst = createPanoImageRenderer(sourceImg, false, "cubemap");
+
 				inst.on("imageLoaded", when);
 
 				function when() {
@@ -646,22 +567,16 @@ describe("PanoImageRenderer", function() {
 				}
 			});
 
-			IT("cubestrip 1x6: flip rotate", function(done) {
+			IT("cubestrip 1x6: flip rotate", done => {
 				// Given
 				const tileConfigForCubestrip = {flipHorizontal: true, rotation: 0};
-				let inst = this.inst;
 				const sourceImg = new Image();
 
 				sourceImg.src = "./images/test_cube_1x6_naver.jpg";
-				inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-					initialYaw: 0,
-					initialpitch: 0,
-					imageType: "cubemap",
-					fieldOfView: 65,
-					cubemapConfig: {
-						tileConfig: tileConfigForCubestrip
-					}
-				}, DEBUG_CONTEXT_ATTRIBUTES);
+				const inst = createPanoImageRenderer(sourceImg, false, "cubemap", {
+					tileConfig: tileConfigForCubestrip
+				});
+
 				inst.on("imageLoaded", when);
 
 				function when() {
@@ -686,7 +601,7 @@ describe("PanoImageRenderer", function() {
 				}
 			});
 
-			IT("cubestrip 1x6: rotate", function(done) {
+			IT("cubestrip 1x6: rotate", done => {
 				// Given
 				const tileConfigForCubestrip = [
 					{flipHorizontal: false, rotation: 0},
@@ -696,20 +611,15 @@ describe("PanoImageRenderer", function() {
 					{flipHorizontal: false, rotation: 180},
 					{flipHorizontal: false, rotation: 180}
 				];
-				let inst = this.inst;
 				const sourceImg = new Image();
 
 				sourceImg.src = "./images/test_cube_1x6_krpano.jpg";
-				inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-					initialYaw: 0,
-					initialpitch: 0,
-					imageType: "cubemap",
-					fieldOfView: 65,
-					cubemapConfig: {
-						order: "LFRBUD",
-						tileConfig: tileConfigForCubestrip
-					}
-				}, DEBUG_CONTEXT_ATTRIBUTES);
+
+				const inst = createPanoImageRenderer(sourceImg, false, "cubemap", {
+					order: "LFRBUD",
+					tileConfig: tileConfigForCubestrip
+				});
+
 				inst.on("imageLoaded", when);
 
 				function when() {
@@ -734,18 +644,14 @@ describe("PanoImageRenderer", function() {
 				}
 			});
 
-			IT("cubestrip 3x2", function(done) {
+			IT("cubestrip 3x2", done => {
 				// Given
-				let inst = this.inst;
 				const sourceImg = new Image();
 
 				sourceImg.src = "./images/test_cube_3x2_LRUDBF.jpg";
-				inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-					initialYaw: 0,
-					initialpitch: 0,
-					imageType: "cubemap",
-					fieldOfView: 65
-				}, DEBUG_CONTEXT_ATTRIBUTES);
+
+				const inst = createPanoImageRenderer(sourceImg, false, "cubemap");
+
 				inst.on("imageLoaded", when);
 
 				function when() {
@@ -771,9 +677,8 @@ describe("PanoImageRenderer", function() {
 			});
 
 			// This test will fail on iOS safari, because video will not start load with out use interaction.
-			IT("cubestrip 3x2: video", function(done) {
+			IT("cubestrip 3x2: video", done => {
 				// Given
-				let inst = this.inst;
 				const isVideo = true;
 				const video = document.createElement("video");
 
@@ -782,12 +687,7 @@ describe("PanoImageRenderer", function() {
 				video.setAttribute("webkit-playsinline", "");
 				video.setAttribute("playsinline", "");
 
-				inst = new PanoImageRenderer(video, 200, 200, isVideo, {
-					initialYaw: 0,
-					initialpitch: 0,
-					imageType: "cubemap",
-					fieldOfView: 65
-				}, DEBUG_CONTEXT_ATTRIBUTES);
+				const inst = createPanoImageRenderer(video, isVideo, "cubemap");
 
 				video.addEventListener("loadeddata", when);
 
@@ -813,18 +713,14 @@ describe("PanoImageRenderer", function() {
 				}
 			});
 
-			IT("cubestrip 2x3", function(done) {
+			IT("cubestrip 2x3", done => {
 				// Given
-				let inst = this.inst;
 				const sourceImg = new Image();
 
 				sourceImg.src = "./images/test_cube_2x3_LRUDBF.jpg";
-				inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-					initialYaw: 0,
-					initialpitch: 0,
-					imageType: "cubemap",
-					fieldOfView: 65
-				}, DEBUG_CONTEXT_ATTRIBUTES);
+
+				const inst = createPanoImageRenderer(sourceImg, false, "cubemap");
+
 				inst.on("imageLoaded", when);
 
 				function when() {
@@ -849,18 +745,13 @@ describe("PanoImageRenderer", function() {
 				}
 			});
 
-			IT("cubestrip 6x1", function(done) {
+			IT("cubestrip 6x1", done => {
 				// Given
-				let inst = this.inst;
 				const sourceImg = new Image();
 
 				sourceImg.src = "./images/test_cube_6x1_LRUDBF.jpg";
-				inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-					initialYaw: 0,
-					initialpitch: 0,
-					imageType: "cubemap",
-					fieldOfView: 65
-				}, DEBUG_CONTEXT_ATTRIBUTES);
+				const inst = createPanoImageRenderer(sourceImg, false, "cubemap");
+
 				inst.on("imageLoaded", when);
 
 				function when() {
@@ -885,9 +776,8 @@ describe("PanoImageRenderer", function() {
 				}
 			});
 
-			IT("cubestrip 6x1: flip", function(done) {
+			IT("cubestrip 6x1: flip", done => {
 				// Given
-				let inst = this.inst;
 				const tileConfigForCubestrip = [
 					{flipHorizontal: false, rotation: 0},
 					{flipHorizontal: false, rotation: 0},
@@ -899,16 +789,12 @@ describe("PanoImageRenderer", function() {
 				const sourceImg = new Image();
 
 				sourceImg.src = "./images/test_cube_6x1_krpano.jpg";
-				inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-					initialYaw: 0,
-					initialpitch: 0,
-					imageType: "cubemap",
-					fieldOfView: 65,
-					cubemapConfig: {
-						tileConfig: tileConfigForCubestrip,
-						order: "LFRBUD"
-					}
-				}, DEBUG_CONTEXT_ATTRIBUTES);
+
+				const inst = createPanoImageRenderer(sourceImg, false, "cubemap", {
+					tileConfig: tileConfigForCubestrip,
+					order: "LFRBUD"
+				});
+
 				inst.on("imageLoaded", when);
 
 				function when() {
@@ -935,20 +821,49 @@ describe("PanoImageRenderer", function() {
 		});
 	});
 
-	describe("Equirectangular Rendering with yaw / pitch", function() {
-		IT("should render properly by yaw, pitch, fov", function(done) {
+	describe("Equirectangular Rendering with yaw / pitch", () => {
+		IT("should render properly by yaw, pitch, fov", done => {
 			// Given
-			let inst = this.inst;
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_equi.jpg";
-			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-				initialYaw: 0,
-				initialpitch: 0,
+			const inst = createPanoImageRenderer(sourceImg, false, "equirectangular");
+
+			inst.on("imageLoaded", when);
+
+			function when() {
+				// When
+				inst.bindTexture()
+					.then(() => {
+						// Then
+						renderAndCompareSequentially(
+							inst,
+							[
+								[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
+								[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
+								[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
+								[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
+								[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
+								[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
+							]
+						).then(done);
+					});
+			}
+		});
+
+
+		IT("yaw: 0, pitch:0, fov:65 : IE11", done => {
+			// Given
+			const sourceImg = new Image();
+
+			sourceImg.src = "./images/test_equi.jpg";
+			const inst = new PanoImageRendererOnIE11ForTest(sourceImg, 200, 200, false, {
 				imageType: "equirectangular",
 				fieldOfView: 65
-			}, DEBUG_CONTEXT_ATTRIBUTES);
+			});
+
 			inst.on("imageLoaded", when);
+
 			function when() {
 				// When
 				inst.bindTexture()
@@ -971,45 +886,8 @@ describe("PanoImageRenderer", function() {
 			}
 		});
 
-
-		IT("yaw: 0, pitch:0, fov:65 : IE11", function(done) {
+		IT("yaw: 0, pitch:0, fov:65 : video IE11", done => {
 			// Given
-			let inst = this.inst;
-			const sourceImg = new Image();
-
-			sourceImg.src = "./images/test_equi.jpg";
-			inst = new PanoImageRendererOnIE11(sourceImg, 200, 200, false, {
-				initialYaw: 0,
-				initialpitch: 0,
-				imageType: "equirectangular",
-				fieldOfView: 65
-			}, DEBUG_CONTEXT_ATTRIBUTES);
-			inst.on("imageLoaded", when);
-			function when() {
-				// When
-				inst.bindTexture()
-					.then(() => {
-						// Then
-						renderAndCompareSequentially(
-							inst,
-							[
-								[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
-								[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
-								[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
-								[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
-								[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
-								[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
-							]
-						).then(() => {
-							done();
-						});
-					});
-			}
-		});
-
-		IT("yaw: 0, pitch:0, fov:65 : video IE11", function(done) {
-			// Given
-			let inst = this.inst;
 			const sourceImg = document.createElement("video");
 
 			sourceImg.src = "./images/test_equi.mp4";
@@ -1017,12 +895,10 @@ describe("PanoImageRenderer", function() {
 			const isVideo = true;
 			const threshold = 7;
 
-			inst = new PanoImageRendererOnIE11(sourceImg, 200, 200, isVideo, {
-				initialYaw: 0,
-				initialpitch: 0,
+			const inst = new PanoImageRendererOnIE11ForTest(sourceImg, 200, 200, isVideo, {
 				imageType: "equirectangular",
 				fieldOfView: 65
-			}, DEBUG_CONTEXT_ATTRIBUTES);
+			});
 
 			// inst.on("imageLoaded", when); // 2018.02.26. imageLoaded does not gaurantee video is playable. (spec changed)
 			sourceImg.addEventListener("loadeddata", when);
@@ -1049,9 +925,8 @@ describe("PanoImageRenderer", function() {
 			}
 		});
 
-		IT("yaw: 0, pitch:0, fov:65 : video IE11 change video size after loaded", function(done) {
+		IT("yaw: 0, pitch:0, fov:65 : video IE11 change video size after loaded", done => {
 			// Given
-			let inst = this.inst;
 			const sourceImg = document.createElement("video");
 
 			sourceImg.src = "./images/test_equi_512.mp4";
@@ -1059,23 +934,21 @@ describe("PanoImageRenderer", function() {
 			const isVideo = true;
 			const threshold = 7;
 
-			inst = new PanoImageRendererOnIE11(sourceImg, 200, 200, isVideo, {
-				initialYaw: 0,
-				initialpitch: 0,
+			const inst = new PanoImageRendererOnIE11ForTest(sourceImg, 200, 200, isVideo, {
 				imageType: "equirectangular",
 				fieldOfView: 65
-			}, DEBUG_CONTEXT_ATTRIBUTES);
+			});
 
 			// inst.once("imageLoaded", onFirstLoad); // 2018.02.26. imageLoaded does not gaurantee video is playable. (spec changed)
 			TestHelper.once(sourceImg, "loadeddata", onFirstLoad)
 
 			function onFirstLoad() {
 				inst.bindTexture()
-				.then(() => {
-					// When
-					TestHelper.once(sourceImg, "loadeddata", when);
-					sourceImg.src = "./images/test_equi.mp4";
-				});
+					.then(() => {
+						// When
+						TestHelper.once(sourceImg, "loadeddata", when);
+						sourceImg.src = "./images/test_equi.mp4";
+					});
 			}
 
 			function when() {
@@ -1096,9 +969,8 @@ describe("PanoImageRenderer", function() {
 			}
 		});
 
-		IT("yaw: 0, pitch:0, fov:65 : video", function(done) {
+		IT("yaw: 0, pitch:0, fov:65 : video", done => {
 			// Given
-			let inst = this.inst;
 			const sourceImg = document.createElement("video");
 
 			sourceImg.src = "./images/test_equi.mp4";
@@ -1107,16 +979,10 @@ describe("PanoImageRenderer", function() {
 			const threshold = 7;
 
 			sourceImg.src = "./images/test_equi.mp4";
-			inst = new PanoImageRenderer(sourceImg, 200, 200, isVideo, {
-				initialYaw: 0,
-				initialpitch: 0,
-				imageType: "equirectangular",
-				fieldOfView: 65
-			}, DEBUG_CONTEXT_ATTRIBUTES);
+			const inst = createPanoImageRenderer(sourceImg, isVideo, "equirectangular");
 
 			// inst.on("imageLoaded", when); // 2018.02.26. imageLoaded does not gaurantee video is playable. (spec changed)
 			sourceImg.addEventListener("loadeddata", when);
-
 
 			function when() {
 				// When
@@ -1140,19 +1006,15 @@ describe("PanoImageRenderer", function() {
 			}
 		});
 
-		IT("yaw: 0, pitch:0, fov:65 -> 30", function(done) {
+		IT("yaw: 0, pitch:0, fov:65 -> 30", done => {
 			// Given
-			let inst = this.inst;
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_equi.jpg";
-			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-				initialYaw: 0,
-				initialpitch: 0,
-				imageType: "equirectangular",
-				fieldOfView: 65
-			}, DEBUG_CONTEXT_ATTRIBUTES);
+			const inst = createPanoImageRenderer(sourceImg, false, "equirectangular");
+
 			inst.on("imageLoaded", when);
+
 			function when() {
 				// When
 				inst.bindTexture()
@@ -1160,35 +1022,30 @@ describe("PanoImageRenderer", function() {
 						inst.render(0, 0, 65);
 						inst.render(0, 0, 30);
 						// Then
-						compare(`./images/PanoViewer/test_equi_0_0_30${suffix}`, inst.canvas, function(pct) {
-								expect(pct).to.be.below(threshold);
-								done();
-							});
+						compare(`./images/PanoViewer/test_equi_0_0_30${suffix}`, inst.canvas, pct => {
+							expect(pct).to.be.below(threshold);
+							done();
+						});
 					});
 			}
 		});
 	});
 
 	describe("#keepUpdate", () => {
-		IT("Should not render internaly when calling render when it doesn't need.", function(done) {
+		IT("Should not render internaly when calling render when it doesn't need.", done => {
 			// Given
-			let inst = this.inst;
 			let isDrawCalled = false;
 			const sourceImg = new Image();
+
 			sourceImg.src = "./images/test_cube.jpg";
 
-			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-				initialYaw: 0,
-				initialpitch: 0,
-				imageType: "cubemap",
-				fieldOfView: 65
-			}, DEBUG_CONTEXT_ATTRIBUTES);
+			const inst = createPanoImageRenderer(sourceImg, false, "cubemap");
 
 			inst.on("imageLoaded", () => {
 				inst.render(0, 0, 65);
-				inst._draw = function() {
+				inst._draw = () => {
 					isDrawCalled = true;
-					PanoImageRenderer.prototype._draw.call(inst);
+					PanoImageRendererForUnitTest.prototype._draw.call(inst);
 				};
 
 				// When
@@ -1201,9 +1058,8 @@ describe("PanoImageRenderer", function() {
 			});
 		});
 
-		IT("should not update video texture after keepUpdate(false) called", function(done) {
+		IT("should not update video texture after keepUpdate(false) called", done => {
 			// Given
-			let inst = this.inst;
 			const sourceImg = document.createElement("video");
 
 			sourceImg.src = "./images/PanoViewer/pano.mp4";
@@ -1211,12 +1067,7 @@ describe("PanoImageRenderer", function() {
 			const isVideo = true;
 			const threshold = 7;
 
-			inst = new PanoImageRenderer(sourceImg, 200, 200, isVideo, {
-				initialYaw: 90,
-				initialpitch: 0,
-				imageType: "equirectangular",
-				fieldOfView: 65
-			}, DEBUG_CONTEXT_ATTRIBUTES);
+			const inst = createPanoImageRenderer(sourceImg, isVideo, "equirectangular");
 
 			sourceImg.addEventListener("loadeddata", when);
 
@@ -1226,16 +1077,11 @@ describe("PanoImageRenderer", function() {
 						// When
 						inst.keepUpdate(false);
 
-						setTimeout(function() {
+						setTimeout(() => {
 							// Then
 							renderAndCompareSequentially(
-								inst,
-								[
-									[0, 0, 65, `./images/PanoViewer/pano_0_0_65${suffix}`, threshold],
-								]
-							).then(() => {
-								done();
-							});
+								inst, [[0, 0, 65, `./images/PanoViewer/pano_0_0_65${suffix}`, threshold]]
+							).then(done);
 						}, 1000);
 					});
 			}
@@ -1243,22 +1089,17 @@ describe("PanoImageRenderer", function() {
 	});
 
 	describe("Cubemap Rendering with Quaternion", () => {
-		IT("should render by quaternion in cubemap mode", function(done) {
+		IT("should render by quaternion in cubemap mode", done => {
 			// Given
 			const tileConfigForCubestrip = {flipHorizontal: true, rotation: 0};
-			let inst = this.inst;
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_cube_1x6_naver.jpg";
-			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-				initialYaw: 0,
-				initialpitch: 0,
-				imageType: "cubemap",
-				fieldOfView: 65,
-				cubemapConfig: {
-					tileConfig: tileConfigForCubestrip
-				}
+
+			const inst = createPanoImageRenderer(sourceImg, false, "cubemap", {
+				tileConfig: tileConfigForCubestrip
 			});
+
 			inst.on("imageLoaded", when);
 
 			function when() {
@@ -1276,28 +1117,22 @@ describe("PanoImageRenderer", function() {
 								[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold, USE_QUATERNION],
 								[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold, USE_QUATERNION]
 							]
-						).then(() => {
-							done();
-						});
+						).then(done);
 					});
 			}
 		});
 	});
 
 	describe("Equirectangular Rendering with Quaternion", () => {
-		IT("should render by quaternion in equirectangular mode", function(done) {
+		IT("should render by quaternion in equirectangular mode", done => {
 			// Given
-			let inst = this.inst;
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_equi.jpg";
-			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-				initialYaw: 0,
-				initialpitch: 0,
-				imageType: "equirectangular",
-				fieldOfView: 65
-			});
+			const inst = createPanoImageRenderer(sourceImg, false, "equirectangular");
+
 			inst.on("imageLoaded", when);
+
 			function when() {
 				// When
 				inst.bindTexture()
@@ -1327,13 +1162,11 @@ describe("PanoImageRenderer", function() {
 		 */
 		IT("should use order RLUDFB (default)", done => {
 			// Given
-			let inst = this.inst;
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_cube_3x2_RLUDFB.jpg";
-			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-				imageType: "cubestrip"
-			}, DEBUG_CONTEXT_ATTRIBUTES);
+			const inst = createPanoImageRenderer(sourceImg, false, "cubestrip");
+
 			inst.on("imageLoaded", when);
 
 			// inst.attachTo(target);
@@ -1364,18 +1197,14 @@ describe("PanoImageRenderer", function() {
 
 		IT("should support cubemap order(RLUDBF), apply rotation on some faces.", done => {
 			// Given
-			let inst = this.inst;
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_cube_3x2_LRUDBF.jpg";
-			inst = new PanoImageRenderer(sourceImg, 200, 200, false, {
-				imageType: "cubestrip",
-				"cubemapConfig": {
-					order: "RLUDBF",
-					tileConfig:
-						[{rotation: 0}, {rotation: 0}, {rotation: 180}, {rotation: 180}, {rotation: 0}, {rotation: 0}]
-				}
-			}, DEBUG_CONTEXT_ATTRIBUTES);
+			const inst = createPanoImageRenderer(sourceImg, false, "cubestrip", {
+				order: "RLUDBF",
+				tileConfig: [{rotation: 0}, {rotation: 0}, {rotation: 180}, {rotation: 180}, {rotation: 0}, {rotation: 0}]
+			});
+
 			inst.on("imageLoaded", when);
 
 			function when() {
@@ -1400,21 +1229,16 @@ describe("PanoImageRenderer", function() {
 
 		IT("should support YouTube cubemap format(EAC)", done => {
 			// Given
-			let inst = this.inst;
-			// TODO: Temporary code until https://github.com/naver/egjs-view360/issues/225 is solved.
-			const TEMPORARY_MARGIN_FOR_TRAVIS_FAILURE = 15;
 			const sourceImg = new Image();
 
 			// Source: https://www.youtube.com/watch?v=8RadEwX29pA ([360 VR] 힐링에세이 ‘쉼표’ _ 경희궁(Gyeonghuigung Palace 慶熙宮) 편)
 			sourceImg.src = "./images/PanoViewer/EAC/EAC_1280x720.jpg";
-			inst = new PanoImageRenderer(sourceImg, 300, 300, false, {
-				imageType: "cubestrip",
-				cubemapConfig: {
-					order: "BLFDRU",
-					tileConfig:
-						[{rotation: 0}, {rotation: 0}, {rotation: 0}, {rotation: 0}, {rotation: -90}, {rotation: 180}]
-				}
-			}, DEBUG_CONTEXT_ATTRIBUTES);
+			const inst = createPanoImageRenderer(sourceImg, false, "cubestrip", {
+				order: "BLFDRU",
+				tileConfig:
+					[{rotation: 0}, {rotation: 0}, {rotation: 0}, {rotation: 0}, {rotation: -90}, {rotation: 180}]
+			}, {width: 300, height: 300});
+
 			inst.on("imageLoaded", when);
 
 			function when() {
@@ -1425,12 +1249,12 @@ describe("PanoImageRenderer", function() {
 						renderAndCompareSequentially(
 							inst,
 							[
-								[0, 0, 90, `./images/PanoViewer/EAC/EAC_1280x720_0_0_90${suffix}`, threshold + TEMPORARY_MARGIN_FOR_TRAVIS_FAILURE],
-								[90, 0, 90, `./images/PanoViewer/EAC/EAC_1280x720_90_0_90${suffix}`, threshold + TEMPORARY_MARGIN_FOR_TRAVIS_FAILURE],
-								[180, 0, 90, `./images/PanoViewer/EAC/EAC_1280x720_180_0_90${suffix}`, threshold + TEMPORARY_MARGIN_FOR_TRAVIS_FAILURE],
-								[270, 0, 90, `./images/PanoViewer/EAC/EAC_1280x720_270_0_90${suffix}`, threshold + TEMPORARY_MARGIN_FOR_TRAVIS_FAILURE],
-								[0, 90, 90, `./images/PanoViewer/EAC/EAC_1280x720_0_90_90${suffix}`, threshold + TEMPORARY_MARGIN_FOR_TRAVIS_FAILURE],
-								[0, -90, 90, `./images/PanoViewer/EAC/EAC_1280x720_0_-90_90${suffix}`, threshold + TEMPORARY_MARGIN_FOR_TRAVIS_FAILURE]
+								[0, 0, 90, `./images/PanoViewer/EAC/EAC_1280x720_0_0_90${suffix}`, threshold],
+								[90, 0, 90, `./images/PanoViewer/EAC/EAC_1280x720_90_0_90${suffix}`, threshold],
+								[180, 0, 90, `./images/PanoViewer/EAC/EAC_1280x720_180_0_90${suffix}`, threshold],
+								[270, 0, 90, `./images/PanoViewer/EAC/EAC_1280x720_270_0_90${suffix}`, threshold],
+								[0, 90, 90, `./images/PanoViewer/EAC/EAC_1280x720_0_90_90${suffix}`, threshold],
+								[0, -90, 90, `./images/PanoViewer/EAC/EAC_1280x720_0_-90_90${suffix}`, threshold]
 							]
 						).then(done);
 					});
