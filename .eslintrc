@@ -11,5 +11,8 @@
         "linebreak-style": 0,
         "array-element-newline": "off",
         "class-methods-use-this": "off"
+    },
+    "env": {
+        "mocha": true
     }
 }
