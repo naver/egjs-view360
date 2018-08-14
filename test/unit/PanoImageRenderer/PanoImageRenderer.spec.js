@@ -273,27 +273,43 @@ describe("PanoImageRenderer", () => {
 		});
 	});
 
-	describe("renderingcontextlost event", () => {
+	describe("renderingcontextlost / renderingcontextrestore event", () => {
 		IT("Should trigger renderingcontextlost event when lost context", done => {
 			// Given
+			const REQUIRED_WEBGL_CONTEXT_COUNT_FOR_CONTEXT_LOST = 16;
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_cube.jpg";
+			const inst = createPanoImageRenderer(sourceImg, false, "cubemap");
+			/**
+			 * Cache the context. beacuse it can not be acquired after context-lost
+			 * https://stackoverflow.com/questions/37186897/webglcontextrestored-event-not-firing-after-context-lost
+			 */
+			const loseContext = inst.context.getExtension("WEBGL_lose_context");
+			let hasRenderingContextAfterLost;
+
+			inst.on("renderingContextLost", () => {
+				hasRenderingContextAfterLost = inst.hasRenderingContext();
+
+				// Force restore context after context lost. It should be fired after some timeout.
+				// https://stackoverflow.com/questions/28135551/webgl-context-lost-and-not-restored
+				setTimeout(() => loseContext.restoreContext(), 100);
+			});
+			inst.on("renderingContextRestore", thenFunc);
 
 			// When
-			const inst = createPanoImageRenderer(sourceImg, false, "cubemap");
-
-			inst.on("renderingContextLost", when);
-
-			for (let i = 0; i < 16; i++) {
+			for (let i = 0; i < REQUIRED_WEBGL_CONTEXT_COUNT_FOR_CONTEXT_LOST; i++) {
+				// Following code triggers webgl context lost.
 				createPanoImageRenderer(sourceImg, false, "cubemap");
 			}
 
-			function when(e) {
-				// Then
-				expect(inst.hasRenderingContext()).to.be.equal(false);
+			// Then
+			function thenFunc(e) {
+				expect(hasRenderingContextAfterLost).to.be.false;
+				expect(inst.hasRenderingContext()).to.be.true;
+
 				done();
-			}
+			};
 		});
 	});
 
