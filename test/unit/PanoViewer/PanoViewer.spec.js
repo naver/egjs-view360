@@ -727,7 +727,7 @@ describe("PanoViewer", () => {
 			const returnValues = [];
 			const target = sandbox();
 
-			target.innerHTML = `<div"></div>`;
+			target.innerHTML = `<div></div>`;
 
 			const panoViewer = new PanoViewer(target);
 
