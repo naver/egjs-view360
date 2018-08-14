@@ -1,3 +1,4 @@
+import {compare} from "../util";
 import CubeRenderer from "../../../src/PanoImageRenderer/renderer/CubeRenderer";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 import CubeRendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/CubeRenderer";
@@ -49,6 +50,7 @@ describe("CubeRenderer", () => {
 			IT("should return 1536 on chrome when input size is 1536", done => {
 				// Given
 				const img = new Image();
+
 				img.src = "./images/test_cube_2x3_LRUDBF.jpg";
 				img.onload = function() {
 					// Given

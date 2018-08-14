@@ -1,6 +1,7 @@
 import PanoViewerInjector from "inject-loader!../../../src/PanoViewer/PanoViewer";
+import {compare} from "../util";
 import PanoViewer from "../../../src/PanoViewer/PanoViewer";
-import PanoImageRenderer from "../../../src/PanoImageRenderer/PanoImageRenderer";
+import PanoImageRendererForUnitTest from "../PanoImageRendererForUnitTest";
 import {ERROR_TYPE, EVENTS} from "../../../src/PanoViewer/consts";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 
@@ -23,14 +24,11 @@ function renderAndCompareSequentially(inst, tests) {
 	return new Promise(res => {
 		tests.reduce(
 			(promiseChain, currentTask) => promiseChain.then(() => promiseFactory(inst, ...currentTask)
-		)
-		, Promise.resolve([])).then(() => {
-			res();
-		});
+			), Promise.resolve([])).then(res);
 	});
 }
 
-describe("PanoViewer", function() {
+describe("PanoViewer", () => {
 	let IT = WebGLUtils.isWebGLAvailable() ? it : it.skip;
 	const deviceRatio = window.devicePixelRatio;
 	const suffix = `_${deviceRatio}x.png`;
@@ -38,7 +36,7 @@ describe("PanoViewer", function() {
 	/**
 	 * Function Test
 	 */
-	describe("constructor", function() {
+	describe("constructor", () => {
 		let target;
 		let panoViewer;
 
@@ -67,7 +65,7 @@ describe("PanoViewer", function() {
 		// 	});
 		// });
 
-		IT("should use one resource (image or video) property #2 (both property used)", function(done) {
+		IT("should use one resource (image or video) property #2 (both property used)", done => {
 			panoViewer = new PanoViewer(target, {
 				image: "imageurl-or-imagetag-or-imageobj",
 				video: "videotag"
@@ -79,23 +77,24 @@ describe("PanoViewer", function() {
 			});
 		});
 
-		IT("should recognize image is not video", function() {
+		IT("should recognize image is not video", () => {
 			panoViewer = new PanoViewer(target, {
 				image: "./images/test_equi.png"
 			});
 			expect(panoViewer.getVideo()).to.be.null;
 		});
 
-		IT("should work with video", function(done) {
+		IT("should work with video", done => {
 			// given
-			var videlEl = document.createElement("video");
+			const videlEl = document.createElement("video");
+			let readyTriggered = false;
+
 			videlEl.setAttribute("src", "./images/PanoViewer/pano.mp4");
-			var readyTriggered = false;
 
 			// when
 			panoViewer = new PanoViewer(target, {
 				video: videlEl
-			}).on("ready", function() {
+			}).on("ready", () => {
 				readyTriggered = true;
 				// then
 				expect(readyTriggered).to.be.true;
@@ -104,13 +103,14 @@ describe("PanoViewer", function() {
 
 		});
 
-		IT("should work with video when src defined after initiate PanoViewer", function(done) {
+		IT("should work with video when src defined after initiate PanoViewer", done => {
 			// given
-			var videlEl = document.createElement("video");
-			var readyTriggered = false;
+			const videlEl = document.createElement("video");
+			let readyTriggered = false;
+
 			panoViewer = new PanoViewer(target, {
 				video: videlEl
-			}).on("ready", function() {
+			}).on("ready", () => {
 				readyTriggered = true;
 				// then
 				expect(readyTriggered).to.be.true;
@@ -123,23 +123,11 @@ describe("PanoViewer", function() {
 
 		IT("should config cubemap layout", done => {
 			// Given
-			var MockedPanoViewer = PanoViewerInjector(
-				{
-					"../PanoImageRenderer": {
-						PanoImageRenderer: (function() {
-							class WrapedPanoImageRenderer extends PanoImageRenderer {
-								constructor(image, width, height, isVideo, sphericalConfig) {
-									super(image, width, height, isVideo, sphericalConfig, {
-										preserveDrawingBuffer: true,
-										antialias: false
-									});
-								}
-							}
-							return WrapedPanoImageRenderer;
-						})()
-					}
+			const MockedPanoViewer = PanoViewerInjector({
+				"../PanoImageRenderer": {
+					PanoImageRenderer: PanoImageRendererForUnitTest
 				}
-            ).default;
+			}).default;
 
 			panoViewer = new MockedPanoViewer(target, {
 				projectionType: "cubemap",
@@ -174,7 +162,7 @@ describe("PanoViewer", function() {
 		});
 	});
 
-	describe("#setVideo/getVideo", function() {
+	describe("#setVideo/getVideo", () => {
 		let target;
 		let panoViewer;
 
@@ -193,7 +181,7 @@ describe("PanoViewer", function() {
 			panoViewer = null;
 		});
 
-		IT("should set video content", function(done) {
+		IT("should set video content", done => {
 			// Given
 			panoViewer = new PanoViewer(target);
 
@@ -217,7 +205,7 @@ describe("PanoViewer", function() {
 			});
 		});
 
-		IT("should not set different content type and should persist previous status", function(done) {
+		IT("should not set different content type and should persist previous status", done => {
 			// Given
 			panoViewer = new PanoViewer(target, {
 				image: "./images/test_equi.png"
@@ -236,23 +224,23 @@ describe("PanoViewer", function() {
 		});
 	});
 
-	describe("static", function() {
-		IT("should isGyroSensorAvailable return false when DeviceMotionEvent not exist.", function(done) {
+	describe("static", () => {
+		IT("should isGyroSensorAvailable return false when DeviceMotionEvent not exist.", done => {
 			// Given
-			var MockedPanoViewer = PanoViewerInjector({
+			const MockedPanoViewer = PanoViewerInjector({
 				"../utils/browserFeature": {
 					DeviceMotionEvent: null
 				}
 			}).default;
 
-			MockedPanoViewer.isGyroSensorAvailable(function(isGyroSensorAvailable) {
+			MockedPanoViewer.isGyroSensorAvailable(isGyroSensorAvailable => {
 				expect(isGyroSensorAvailable).to.be.false;
 				done();
 			});
 		});
 	});
 
-	describe("#setImage/getImage", function() {
+	describe("#setImage/getImage", () => {
 		let target;
 		let panoViewer;
 
@@ -271,7 +259,7 @@ describe("PanoViewer", function() {
 			panoViewer = null;
 		});
 
-		IT("should set image content", function(done) {
+		IT("should set image content", done => {
 			// Given
 			panoViewer = new PanoViewer(target);
 
@@ -299,7 +287,7 @@ describe("PanoViewer", function() {
 		});
 
 		// Currently not available
-		IT("should replace image of other projection type", function(done) {
+		IT("should replace image of other projection type", done => {
 			// Given
 			panoViewer = new PanoViewer(target, {
 				image: "./images/test_equi.png"
@@ -330,7 +318,7 @@ describe("PanoViewer", function() {
 		});
 	});
 
-	describe("#lookAt", function() {
+	describe("#lookAt", () => {
 		let target;
 
 		beforeEach(() => {
@@ -344,21 +332,21 @@ describe("PanoViewer", function() {
 
 		IT("should 'lookAt' works after ready event", done => {
 			// Given
-			const FIRST_REQ_DIR = {yaw: 10, pitch: 10};
-			const SECOND_REQ_DIR = {yaw: 20, pitch: 20};
+			const FIRST_REQ_DIR = { yaw: 10, pitch: 10 };
+			const SECOND_REQ_DIR = { yaw: 20, pitch: 20 };
 			const panoViewer = new PanoViewer(target, {
 				image: "./images/test_equi.png"
 			});
 
 			// When
-			const firstDir = {yaw: panoViewer.getYaw(), pitch:panoViewer.getPitch()};
+			const firstDir = {yaw: panoViewer.getYaw(), pitch: panoViewer.getPitch()};
 
 			panoViewer.lookAt(FIRST_REQ_DIR, 0);
-			const dir1 = {yaw: panoViewer.getYaw(), pitch:panoViewer.getPitch()};
+			const dir1 = {yaw: panoViewer.getYaw(), pitch: panoViewer.getPitch()};
 
 			panoViewer.on(PanoViewer.EVENTS.READY, e => {
 				panoViewer.lookAt(SECOND_REQ_DIR, 0);
-				const dir2 = {yaw: panoViewer.getYaw(), pitch:panoViewer.getPitch()};
+				const dir2 = {yaw: panoViewer.getYaw(), pitch: panoViewer.getPitch()};
 
 				// Then
 				expect(dir1.yaw).to.equal(firstDir.yaw);
@@ -376,7 +364,7 @@ describe("PanoViewer", function() {
 		});
 	});
 
-	describe("#updateViewportDimension", function() {
+	describe("#updateViewportDimension", () => {
 		let target;
 		let panoViewer;
 
@@ -413,7 +401,7 @@ describe("PanoViewer", function() {
 					{width: containerW, height: 160},
 					{width: containerW, height: containerH}
 				];
-				let resultSizeArray = [];
+				const resultSizeArray = [];
 
 				// When
 				panoViewer.updateViewportDimensions({width: 150, height: 100});
@@ -445,7 +433,7 @@ describe("PanoViewer", function() {
 				const containerH = parseInt(containerSize.height, 10);
 
 				// When
-				panoViewer.updateViewportDimensions({width: containerW, height: containerH});
+				panoViewer.updateViewportDimensions({ width: containerW, height: containerH });
 
 				// Then
 				expect(canvas.width / PIXEL_RATIO).to.be.equal(containerW);
@@ -479,14 +467,14 @@ describe("PanoViewer", function() {
 
 					// When
 					// Update height smaller than first height(200).
-					panoViewer.updateViewportDimensions({width: 100, height: 100});
+					panoViewer.updateViewportDimensions({ width: 100, height: 100 });
 					Simulator.gestures.pan(target, HORIZONTAL_MOVE, () => {
 						currYaw = panoViewer.getYaw();
 						smallerHeightDeltaYaw = Math.abs(currYaw - prevYaw);
 						prevYaw = currYaw;
 
 						// Update height bigger than first height(200).
-						panoViewer.updateViewportDimensions({width: 300, height: 300});
+						panoViewer.updateViewportDimensions({ width: 300, height: 300 });
 						Simulator.gestures.pan(target, HORIZONTAL_MOVE, () => {
 							currYaw = panoViewer.getYaw();
 							biggerHeightDeltaYaw = Math.abs(currYaw - prevYaw);
@@ -506,7 +494,7 @@ describe("PanoViewer", function() {
 	/**
 	 * Event Test
 	 */
-	describe("viewChange event", function() {
+	describe("viewChange event", () => {
 		let target;
 		let panoViewer;
 
@@ -572,7 +560,7 @@ describe("PanoViewer", function() {
 				}, 1000);
 
 				function then(e) {
-				// Then
+					// Then
 					expect(isTrustedOnChange).to.be.false;
 					done();
 				}
@@ -580,7 +568,7 @@ describe("PanoViewer", function() {
 		});
 	});
 
-	describe("event flow", function() {
+	describe("event flow", () => {
 		let target;
 		let photo360Viewer;
 
@@ -632,10 +620,8 @@ describe("PanoViewer", function() {
 			}
 		}
 
-		IT("should follow event order on create", function(done) {
-			var order = [
-				PanoViewer.EVENTS.READY
-			];
+		IT("should follow event order on create", done => {
+			const order = [PanoViewer.EVENTS.READY];
 
 			startEventLogTest(order, done);
 		});
@@ -726,6 +712,7 @@ describe("PanoViewer", function() {
 
 			exceptionList.forEach(expectDir => {
 				let panoViewer = new PanoViewer(target);
+
 				panoViewer.setTouchDirection(expectDir);
 
 				expect(panoViewer.getTouchDirection()).to.be.equal(PanoViewer.TOUCH_DIRECTION.ALL);
@@ -734,16 +721,15 @@ describe("PanoViewer", function() {
 		});
 	});
 
-	describe("Return value of setter", function() {
+	describe("Return value of setter", () => {
 		IT("should return instance of PanoViewer when setter is called.", () => {
 			// Given
-			let target;
-			let panoViewer;
-			let returnValues = [];
+			const returnValues = [];
+			const target = sandbox();
 
-			target = sandbox();
-			target.innerHTML = `<div"></div>`;
-			panoViewer = new PanoViewer(target);
+			target.innerHTML = `<div></div>`;
+
+			const panoViewer = new PanoViewer(target);
 
 			// When
 			returnValues.push(panoViewer.keepUpdate(false));

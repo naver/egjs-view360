@@ -1,3 +1,5 @@
+import PanoImageRendererForUnitTest from "./PanoImageRendererForUnitTest";
+
 const resemble = window.resemble;
 
 function getImageBlob(path, callback) {
@@ -27,8 +29,25 @@ function compare(path, canvas, callback) {
 					const pct = parseFloat(data.misMatchPercentage);
 
 					callback(pct, data);
-				}
-			);		
+				});
 		}, "image/png");
 	});
 }
+
+
+function createPanoImageRenderer(image, isVideo, projectionType, cubemapConfig = {},
+	options = {fieldOfView: 65, width: 200, height: 200}) {
+	const sphericalConfig = {
+		fieldOfView: options.fieldOfView,
+		imageType: projectionType,
+		cubemapConfig
+	};
+
+	return new PanoImageRendererForUnitTest(
+		image, options.width, options.height, isVideo, sphericalConfig);
+}
+
+export {
+	compare,
+	createPanoImageRenderer
+};
