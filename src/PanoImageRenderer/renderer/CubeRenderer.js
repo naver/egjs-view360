@@ -4,6 +4,8 @@ import WebGLUtils from "../WebGLUtils";
 import {util} from "../../utils/math-util.js";
 
 export default class CubeRenderer extends Renderer {
+	static _VERTEX_POSITION_DATA = null;
+	static _INDEX_DATA = null;
 	getVertexPositionData() {
 		CubeRenderer._VERTEX_POSITION_DATA =
 			CubeRenderer._VERTEX_POSITION_DATA !== null ? CubeRenderer._VERTEX_POSITION_DATA : [
@@ -240,6 +242,3 @@ export default class CubeRenderer extends Renderer {
 		return Math.min(maxCubeMapTextureSize, _imageWidth);
 	}
 }
-
-CubeRenderer._VERTEX_POSITION_DATA = null;
-CubeRenderer._INDEX_DATA = null;

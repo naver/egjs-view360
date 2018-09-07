@@ -12,6 +12,7 @@ const EVENT = {
 };
 
 export default class ImageLoader extends Component {
+	static STATUS = STATUS;
 	constructor(image) {
 		// Super constructor
 		super();
@@ -144,5 +145,3 @@ export default class ImageLoader extends Component {
 		this._loadStatus = STATUS.NONE;
 	}
 }
-
-ImageLoader.STATUS = STATUS;

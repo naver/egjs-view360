@@ -41,6 +41,8 @@ const ERROR_TYPE = {
 };
 
 export default class PanoImageRenderer extends Component {
+	static EVENTS = EVENTS;
+	static ERROR_TYPE = ERROR_TYPE;
 	constructor(image, width, height, isVideo, sphericalConfig, renderingContextAttributes) {
 		// Super constructor
 		super();
@@ -576,6 +578,3 @@ export default class PanoImageRenderer extends Component {
 		}
 	}
 }
-
-PanoImageRenderer.EVENTS = EVENTS;
-PanoImageRenderer.ERROR_TYPE = ERROR_TYPE;
