@@ -274,7 +274,15 @@ describe("PanoImageRenderer", () => {
 	});
 
 	describe("renderingcontextlost / renderingcontextrestore event", () => {
-		IT("Should trigger renderingcontextlost event when lost context", done => {
+		/**
+		 * Skip this test after Chrome 69 update.
+		 *
+		 * it fails on Chrome Headless 69 of TRAVIS because "webglcontextlost" is not fired
+		 * although webgl context is created more than 16.
+		 *
+		 * But it is working well on Chrome & Chrome Headless 69 of PC (Mac OS X)
+		 */
+		it.skip("Should trigger renderingcontextlost event when lost context", done => {
 			// Given
 			const REQUIRED_WEBGL_CONTEXT_COUNT_FOR_CONTEXT_LOST = 16;
 			const sourceImg = new Image();
@@ -309,7 +317,41 @@ describe("PanoImageRenderer", () => {
 				expect(inst.hasRenderingContext()).to.be.true;
 
 				done();
-			};
+			}
+		});
+
+		/**
+		 * Above test case is replaced with following test case since Chrome 69 updates.
+		 */
+		IT("Should trigger renderingcontextlost event when lost context", done => {
+			// Given
+			const sourceImg = new Image();
+
+			sourceImg.src = "./images/test_cube.jpg";
+			const inst = createPanoImageRenderer(sourceImg, false, "cubemap");
+
+			const loseContext = inst.context.getExtension("WEBGL_lose_context");
+			let hasRenderingContextAfterLost;
+
+			inst.on("renderingContextLost", () => {
+				hasRenderingContextAfterLost = inst.hasRenderingContext();
+
+				// Force restore context after context lost. It should be fired after some timeout.
+				// https://stackoverflow.com/questions/28135551/webgl-context-lost-and-not-restored
+				setTimeout(() => loseContext.restoreContext(), 100);
+			});
+			inst.on("renderingContextRestore", thenFunc);
+
+			// When
+			loseContext.loseContext();
+
+			// Then
+			function thenFunc(e) {
+				expect(hasRenderingContextAfterLost).to.be.false;
+				expect(inst.hasRenderingContext()).to.be.true;
+
+				done();
+			}
 		});
 	});
 
