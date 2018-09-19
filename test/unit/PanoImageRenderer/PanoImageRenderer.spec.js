@@ -273,7 +273,7 @@ describe("PanoImageRenderer", () => {
 		});
 	});
 
-	describe("renderingcontextlost / renderingcontextrestore event", () => {
+	describe.skip"renderingcontextlost / renderingcontextrestore event", () => {
 		/**
 		 * Skip this test after Chrome 69 update.
 		 *
@@ -944,7 +944,7 @@ describe("PanoImageRenderer", () => {
 			}
 		});
 
-		IT.only("yaw: 0, pitch:0, fov:65 : video IE11", done => {
+		IT("yaw: 0, pitch:0, fov:65 : video IE11", done => {
 			// Given
 			const sourceImg = document.createElement("video");
 
