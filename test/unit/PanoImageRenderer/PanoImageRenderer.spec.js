@@ -951,7 +951,6 @@ describe("PanoImageRenderer", () => {
 			sourceImg.src = "./images/test_equi.mp4";
 			sourceImg.load();
 			const isVideo = true;
-			const threshold = 7;
 
 			const inst = new PanoImageRendererOnIE11ForTest(sourceImg, 200, 200, isVideo, {
 				imageType: "equirectangular",
@@ -1036,9 +1035,7 @@ describe("PanoImageRenderer", () => {
 			sourceImg.src = "./images/test_equi.mp4";
 			sourceImg.load();
 			const isVideo = true;
-			const threshold = 7;
 
-			sourceImg.src = "./images/test_equi.mp4";
 			const inst = createPanoImageRenderer(sourceImg, isVideo, "equirectangular");
 
 			// inst.on("imageLoaded", when); // 2018.02.26. imageLoaded does not gaurantee video is playable. (spec changed)
@@ -1048,6 +1045,8 @@ describe("PanoImageRenderer", () => {
 				// When
 				inst.bindTexture()
 					.then(() => {
+						console.log("video loaded");
+
 						// Then
 						renderAndCompareSequentially(
 							inst,
