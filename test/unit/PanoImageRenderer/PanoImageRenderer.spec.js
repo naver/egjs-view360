@@ -944,7 +944,7 @@ describe("PanoImageRenderer", () => {
 			}
 		});
 
-		IT("yaw: 0, pitch:0, fov:65 : video IE11", done => {
+		IT.only("yaw: 0, pitch:0, fov:65 : video IE11", done => {
 			// Given
 			const sourceImg = document.createElement("video");
 
@@ -965,6 +965,8 @@ describe("PanoImageRenderer", () => {
 				// When
 				inst.bindTexture()
 					.then(() => {
+						console.log("video loaded");
+
 						// Then
 						renderAndCompareSequentially(
 							inst,
