@@ -273,7 +273,7 @@ describe("PanoImageRenderer", () => {
 		});
 	});
 
-	describe.skip"renderingcontextlost / renderingcontextrestore event", () => {
+	describe.skip("renderingcontextlost / renderingcontextrestore event", () => {
 		/**
 		 * Skip this test after Chrome 69 update.
 		 *
