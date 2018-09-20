@@ -951,7 +951,7 @@ describe("PanoImageRenderer", () => {
 			sourceImg.src = "./images/test_equi.mp4";
 			sourceImg.load();
 			const isVideo = true;
-			const thresholdMargin = 2; /* Exceptional Case */
+			const thresholdMargin = 4; /* Exceptional Case */
 
 			const inst = new PanoImageRendererOnIE11ForTest(sourceImg, 200, 200, isVideo, {
 				imageType: "equirectangular",
@@ -992,7 +992,7 @@ describe("PanoImageRenderer", () => {
 			sourceImg.src = "./images/test_equi_512.mp4";
 			sourceImg.load();
 			const isVideo = true;
-			const threshold = 7;
+			const thresholdMargin = 4; /* Exceptional Case */
 
 			const inst = new PanoImageRendererOnIE11ForTest(sourceImg, 200, 200, isVideo, {
 				imageType: "equirectangular",
@@ -1016,12 +1016,12 @@ describe("PanoImageRenderer", () => {
 				renderAndCompareSequentially(
 					inst,
 					[
-						[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
-						[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
-						[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
-						[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
-						[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
-						[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
+						[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold + thresholdMargin],
+						[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold + thresholdMargin],
+						[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold + thresholdMargin],
+						[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold + thresholdMargin],
+						[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold + thresholdMargin],
+						[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold + thresholdMargin]
 					]
 				).then(() => {
 					done();
@@ -1036,7 +1036,7 @@ describe("PanoImageRenderer", () => {
 			sourceImg.src = "./images/test_equi.mp4";
 			sourceImg.load();
 			const isVideo = true;
-			const thresholdMargin = 2; /* Exceptional Case */
+			const thresholdMargin = 4; /* Exceptional Case */
 
 			const inst = createPanoImageRenderer(sourceImg, isVideo, "equirectangular");
 
