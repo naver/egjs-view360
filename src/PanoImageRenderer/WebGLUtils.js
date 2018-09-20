@@ -63,15 +63,6 @@ export default class WebGLUtils {
 		return buffer;
 	}
 
-	static bindBufferToAttribute(gl, buffer, attr) {
-		if (buffer === null || attr === null) {
-			return;
-		}
-
-		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-		gl.vertexAttribPointer(attr, buffer.itemSize, gl.FLOAT, false, 0, 0);
-	}
-
 	static getWebglContext(canvas, userContextAttributes) {
 		const webglIdentifiers = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
 		let context = null;
