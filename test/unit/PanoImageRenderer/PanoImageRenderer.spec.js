@@ -343,7 +343,7 @@ describe("PanoImageRenderer", () => {
 			inst.on("renderingContextRestore", thenFunc);
 
 			// When
-			loseContext.loseContext();
+			inst.forceContextLoss();
 
 			// Then
 			function thenFunc(e) {
