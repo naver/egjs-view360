@@ -1,13 +1,6 @@
-import {YawPitchControl} from "./YawPitchControl";
-import {PanoViewer} from "./PanoViewer";
-import {SpinViewer, SpriteImage} from "./SpinViewer";
-
-const VERSION = "#__VERSION__#";
-
 export {
-	YawPitchControl,
-	PanoViewer,
-	SpinViewer,
-	SpriteImage,
-	VERSION
-};
+	default as VERSION
+} from "./version";
+export {PanoViewer} from "./PanoViewer";
+export {SpinViewer, SpriteImage} from "./SpinViewer";
+export {YawPitchControl} from "./YawPitchControl";

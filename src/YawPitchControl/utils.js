@@ -1,6 +1,4 @@
-const util = {};
-
-function toAxis(source, offset) {
+export function toAxis(source, offset) {
 	return offset.reduce((acc, v, i) => {
 		if (source[i]) {
 			acc[source[i]] = v;
@@ -8,8 +6,3 @@ function toAxis(source, offset) {
 		return acc;
 	}, {});
 }
-
-util.toAxis = toAxis;
-
-export default util;
-export {toAxis};

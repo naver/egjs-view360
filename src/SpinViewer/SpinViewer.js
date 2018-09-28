@@ -1,6 +1,7 @@
 import Component from "@egjs/component";
 import Axes, {PanInput} from "@egjs/axes";
 import SpriteImage from "./SpriteImage";
+import {VERSION} from "../version";
 
 const DEFAULT_PAN_SCALE = 0.21;
 
@@ -31,6 +32,17 @@ const DEFAULT_PAN_SCALE = 0.21;
  * });
  */
 export default class SpinViewer extends Component {
+	/**
+	 * Version info string
+	 * @ko 버전정보 문자열
+	 * @name VERSION
+	 * @static
+	 * @type {String}
+	 * @example
+	 * eg.view360.SpinViewer.VERSION;  // ex) 3.0.1
+	 * @memberof eg.view360.SpinViewer
+	 */
+	static VERSION = VERSION;
 	constructor(element, options) {
 		super();
 

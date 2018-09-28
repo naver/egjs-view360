@@ -1,6 +1,6 @@
 import Component from "@egjs/component";
 import {TRANSFORM, SUPPORT_WILLCHANGE} from "../utils/browserFeature";
-
+import {VERSION} from "../version";
 /**
  * @class eg.view360.SpriteImage
  * @classdesc A module that displays a single or continuous image of any one of the "sprite images". SpinViewer internally uses SpriteImage to show each frame of the sprite image.
@@ -31,6 +31,7 @@ import {TRANSFORM, SUPPORT_WILLCHANGE} from "../utils/browserFeature";
  * });
  */
 export default class SpriteImage extends Component {
+	static VERSION = VERSION;
 	constructor(element, options) {
 		super();
 		const opt = options || {};

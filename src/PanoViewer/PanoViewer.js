@@ -8,8 +8,76 @@ import {PanoImageRenderer} from "../PanoImageRenderer";
 import WebGLUtils from "../PanoImageRenderer/WebGLUtils";
 import {ERROR_TYPE, EVENTS, GYRO_MODE, PROJECTION_TYPE} from "./consts";
 import {glMatrix} from "../utils/math-util.js";
+import {VERSION} from "../version";
 
 export default class PanoViewer extends Component {
+	/**
+	 * Version info string
+	 * @ko 버전정보 문자열
+	 * @name VERSION
+	 * @static
+	 * @type {String}
+	 * @example
+	 * eg.view360.PanoViewer.VERSION;  // ex) 3.0.1
+	 * @memberof eg.view360.PanoViewer
+	 */
+	static VERSION = VERSION;
+	static ERROR_TYPE = ERROR_TYPE;
+	static EVENTS = EVENTS;
+	static PROJECTION_TYPE = PROJECTION_TYPE;
+	static GYRO_MODE = GYRO_MODE;
+	// It should be deprecated!
+	static ProjectionType = PROJECTION_TYPE;
+	/**
+	 * Constant value for touch directions
+	 * @ko 터치 방향에 대한 상수 값.
+	 * @namespace
+	 * @name TOUCH_DIRECTION
+	 * @memberof eg.view360.PanoViewer
+	 */
+	static TOUCH_DIRECTION = {
+		/**
+		 * Constant value for none direction.
+		 * @ko none 방향에 대한 상수 값.
+		 * @name NONE
+		 * @memberof eg.view360.PanoViewer.TOUCH_DIRECTION
+		 * @constant
+		 * @type {Number}
+		 * @default 1
+		 */
+		NONE: YawPitchControl.TOUCH_DIRECTION_NONE,
+		/**
+		 * Constant value for horizontal(yaw) direction.
+		 * @ko horizontal(yaw) 방향에 대한 상수 값.
+		 * @name YAW
+		 * @memberof eg.view360.PanoViewer.TOUCH_DIRECTION
+		 * @constant
+		 * @type {Number}
+		 * @default 6
+		 */
+		YAW: YawPitchControl.TOUCH_DIRECTION_YAW,
+		/**
+		 * Constant value for vertical direction.
+		 * @ko vertical(pitch) 방향에 대한 상수 값.
+		 * @name PITCH
+		 * @memberof eg.view360.PanoViewer.TOUCH_DIRECTION
+		 * @constant
+		 * @type {Number}
+		 * @default 24
+		 */
+		PITCH: YawPitchControl.TOUCH_DIRECTION_PITCH,
+		/**
+		 * Constant value for all direction.
+		 * @ko all 방향에 대한 상수 값.
+		 * @name ALL
+		 * @memberof eg.view360.PanoViewer.TOUCH_DIRECTION
+		 * @constant
+		 * @type {Number}
+		 * @default 30
+		 */
+		ALL: YawPitchControl.TOUCH_DIRECTION_ALL
+	};
+
 	/**
 	 * @classdesc 360 media viewer
 	 * @ko 360 미디어 뷰어
@@ -831,59 +899,3 @@ export default class PanoViewer extends Component {
 		});
 	}
 }
-
-PanoViewer.ERROR_TYPE = ERROR_TYPE;
-PanoViewer.EVENTS = EVENTS;
-PanoViewer.PROJECTION_TYPE = PROJECTION_TYPE;
-PanoViewer.GYRO_MODE = GYRO_MODE;
-// It should be deprecated!
-PanoViewer.ProjectionType = PROJECTION_TYPE;
-/**
- * Constant value for touch directions
- * @ko 터치 방향에 대한 상수 값.
- * @namespace
- * @name TOUCH_DIRECTION
- * @memberof eg.view360.PanoViewer
- */
-PanoViewer.TOUCH_DIRECTION = {
-	/**
-	 * Constant value for none direction.
-	 * @ko none 방향에 대한 상수 값.
-	 * @name NONE
-	 * @memberof eg.view360.PanoViewer.TOUCH_DIRECTION
-	 * @constant
-	 * @type {Number}
-	 * @default 1
-	 */
-	NONE: YawPitchControl.TOUCH_DIRECTION_NONE,
-	/**
-	 * Constant value for horizontal(yaw) direction.
-	 * @ko horizontal(yaw) 방향에 대한 상수 값.
-	 * @name YAW
-	 * @memberof eg.view360.PanoViewer.TOUCH_DIRECTION
-	 * @constant
-	 * @type {Number}
-	 * @default 6
-	 */
-	YAW: YawPitchControl.TOUCH_DIRECTION_YAW,
-	/**
-	 * Constant value for vertical direction.
-	 * @ko vertical(pitch) 방향에 대한 상수 값.
-	 * @name PITCH
-	 * @memberof eg.view360.PanoViewer.TOUCH_DIRECTION
-	 * @constant
-	 * @type {Number}
-	 * @default 24
-	 */
-	PITCH: YawPitchControl.TOUCH_DIRECTION_PITCH,
-	/**
-	 * Constant value for all direction.
-	 * @ko all 방향에 대한 상수 값.
-	 * @name ALL
-	 * @memberof eg.view360.PanoViewer.TOUCH_DIRECTION
-	 * @constant
-	 * @type {Number}
-	 * @default 30
-	 */
-	ALL: YawPitchControl.TOUCH_DIRECTION_ALL
-};

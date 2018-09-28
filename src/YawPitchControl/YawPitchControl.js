@@ -19,12 +19,17 @@ import {
 	PAN_SCALE,
 	YAW_RANGE_HALF,
 	PITCH_RANGE_HALF,
-	CIRCULAR_PITCH_RANGE_HALF
+	CIRCULAR_PITCH_RANGE_HALF,
+	CONTROL_MODE_VR,
+	CONTROL_MODE_YAWPITCH,
+	TOUCH_DIRECTION_NONE,
 } from "./consts";
+import VERSION from "../version";
 
 const DEFAULT_YAW_RANGE = [-YAW_RANGE_HALF, YAW_RANGE_HALF];
 const DEFAULT_PITCH_RANGE = [-PITCH_RANGE_HALF, PITCH_RANGE_HALF];
 const CIRCULAR_PITCH_RANGE = [-CIRCULAR_PITCH_RANGE_HALF, CIRCULAR_PITCH_RANGE_HALF];
+
 /**
  * A module used to provide coordinate based on yaw/pitch orientation. This module receives user touch action, keyboard, mouse and device orientation(if it exists) as input, then combines them and converts it to yaw/pitch coordinates.
  *
@@ -33,7 +38,15 @@ const CIRCULAR_PITCH_RANGE = [-CIRCULAR_PITCH_RANGE_HALF, CIRCULAR_PITCH_RANGE_H
  *
  * @support {"ie": "10+", "ch" : "latest", "ff" : "latest",  "sf" : "latest", "edge" : "latest", "ios" : "7+", "an" : "2.3+ (except 3.x)"}
  */
-const YawPitchControl = class YawPitchControl extends Component {
+export default class YawPitchControl extends Component {
+	static VERSION = VERSION;
+	// Expose DeviceOrientationControls sub module for test purpose
+	static CONTROL_MODE_VR = CONTROL_MODE_VR;
+	static CONTROL_MODE_YAWPITCH = CONTROL_MODE_YAWPITCH;
+	static TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_ALL;
+	static TOUCH_DIRECTION_YAW = TOUCH_DIRECTION_YAW;
+	static TOUCH_DIRECTION_PITCH = TOUCH_DIRECTION_PITCH;
+	static TOUCH_DIRECTION_NONE = TOUCH_DIRECTION_NONE;
 	/**
 	 * @param {Object} options The option object of the eg.YawPitch module
 	 * @param {Element}[options.element=null] element A base element for the eg.YawPitch module
@@ -649,7 +662,4 @@ const YawPitchControl = class YawPitchControl extends Component {
 		this.axesMoveKeyInput && this.axesMoveKeyInput.destroy();
 		this._deviceQuaternion && this._deviceQuaternion.destroy();
 	}
-};
-
-YawPitchControl.VERSION = "#__VERSION__#";
-export default YawPitchControl;
+}
