@@ -5,6 +5,7 @@ import WebGLUtils from "./WebGLUtils";
 import CubeRenderer from "./renderer/CubeRenderer";
 import CubeStripRenderer from "./renderer/CubeStripRenderer";
 import SphereRenderer from "./renderer/SphereRenderer";
+import CylinderRenderer from "./renderer/CylinderRenderer";
 import {glMatrix, mat4, quat} from "../utils/math-util.js";
 import {devicePixelRatio} from "../utils/browserFeature";
 import {PROJECTION_TYPE} from "../PanoViewer/consts";
@@ -152,6 +153,9 @@ export default class PanoImageRenderer extends Component {
 				break;
 			case ImageType.CUBESTRIP:
 				this._renderer = new CubeStripRenderer();
+				break;
+			case "panorama":
+				this._renderer = new CylinderRenderer();
 				break;
 			default:
 				this._renderer = new SphereRenderer();
