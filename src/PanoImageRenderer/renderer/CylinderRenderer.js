@@ -78,31 +78,31 @@ export default class CylinderRenderer extends Renderer {
 
 	updateShaderData({aspectRatio = CylinderRenderer.MIN_ASPECT_RATIO_FOR_FULL_PANORAMA}) {
 		let lngIdx;
-		let maxRadian;
+		let cylinderMaxRadian;
 		let halfCylinderY;
 
 		if (aspectRatio >= CylinderRenderer.MIN_ASPECT_RATIO_FOR_FULL_PANORAMA) {
 			const fov = 360 / aspectRatio;
 
-			maxRadian = 2 * Math.PI; // 360 deg
+			cylinderMaxRadian = 2 * Math.PI; // 360 deg
 			halfCylinderY = Math.tan(glMatrix.toRadian(fov / 2));
 		} else {
-			maxRadian = aspectRatio;
-			halfCylinderY = 0.5;// Range of cylinder is [-0.5, 0.5]. So its length is 1
+			cylinderMaxRadian = aspectRatio;
+			halfCylinderY = 0.5;// Range of cylinder is [-0.5, 0.5] to make height to 1.
 		}
 
 		const CYLIDER_Y = [-halfCylinderY, halfCylinderY];
+		const startAngleForCenterAlign = Math.PI / 2 + (2 * Math.PI - cylinderMaxRadian) / 2; // Math.PI / 2 start point when cylinderMaxRadian is 2 phi(360)
 
-		// console.log("maxRadian:", maxRadian * (180 / Math.PI), "CYLIDER_Y", CYLIDER_Y);
-
+		// console.log("cylinderMaxRadian:", glMatrix.toDegree(cylinderMaxRadian), "CYLIDER_Y", CYLIDER_Y, "start angle", glMatrix.toDegree(startAngleForCenterAlign));
 		for (let yIdx = 0, yLength = CYLIDER_Y.length; yIdx < yLength/* bottom & top */; yIdx++) {
 			for (lngIdx = 0; lngIdx <= longitudeBands; lngIdx++) {
-				const angle = (lngIdx / longitudeBands - 0.5) * maxRadian;
+				const angle = startAngleForCenterAlign + (lngIdx / longitudeBands * cylinderMaxRadian);
 				const x = Math.cos(angle);
 				const y = CYLIDER_Y[yIdx];
 				const z = Math.sin(angle);
 				const u = lngIdx / longitudeBands;
-				const v = yIdx / (yLength - 1);
+				const v = yIdx;
 
 				textureCoordData.push(u, v);
 				vertexPositionData.push(x, y, z);

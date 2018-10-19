@@ -375,23 +375,30 @@ export default class PanoViewer extends Component {
 			// update fov by aspect ratio
 			const image = this._photoSphereRenderer.getContent();
 			const aspectRatio = image.naturalWidth / image.naturalHeight;
-			let calcFov = (360 / aspectRatio).toFixed(5); // Make it 5 fixed as axes does.
+			let isCircular;
+			let yawSize;
+			let calcFov;
 
 			if (aspectRatio < 6) {
+				yawSize = glMatrix.toDegree(aspectRatio);
+				isCircular = false;
 				// 0.5 means ratio of half height of cylinder(0.5) and radius of cylider(1). 0.5/1 = 0.5
 				calcFov = glMatrix.toDegree(Math.atan(0.5)) * 2;
+			} else {
+				yawSize = 360;
+				isCircular = true;
+				calcFov = (360 / aspectRatio).toFixed(5); // Make it 5 fixed as axes does.
 			}
 
-			// console.log("calcFov", calcFov, "aspectRatio", image.naturalWidth, image.naturalHeight);
-			// const calcPitchByOneDirection = (180 - calcFov) / 2;
+			// console.log("calcFov", calcFov, "aspectRatio", image.naturalWidth, image.naturalHeight, "yawSize", yawSize);
 			this.lookAt({fov: calcFov});
 
 			const minFov = (this._yawPitchControl.option("fovRange"))[0];
 
 			// this option should be called after fov is set.
 			this._yawPitchControl.option({
-				"yawRange": [0, 360],
-				"isCircular": true,
+				"yawRange": [-yawSize / 2, yawSize / 2],
+				isCircular,
 				"pitchRange": [-calcFov / 2, calcFov / 2],
 				"fovRange": [minFov, calcFov]
 			});
