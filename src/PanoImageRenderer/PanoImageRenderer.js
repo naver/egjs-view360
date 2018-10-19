@@ -154,7 +154,7 @@ export default class PanoImageRenderer extends Component {
 			case ImageType.CUBESTRIP:
 				this._renderer = new CubeStripRenderer();
 				break;
-			case "panorama":
+			case ImageType.PANORAMA:
 				this._renderer = new CylinderRenderer();
 				break;
 			default:
@@ -359,9 +359,6 @@ export default class PanoImageRenderer extends Component {
 			if (!this.shaderProgram) {
 				throw new Error(`Failed to intialize shaders: ${WebGLUtils.getErrorNameFromWebGLErrorCode(gl.getError())}`);
 			}
-
-			// Buffers for shader
-			this._initBuffers();
 		} catch (e) {
 			this.trigger(EVENTS.ERROR, {
 				type: ERROR_TYPE.NO_WEBGL,
@@ -469,7 +466,16 @@ export default class PanoImageRenderer extends Component {
 			const isEAC = width && height && width / height !== 1.5;
 
 			this.context.uniform1f(this.context.getUniformLocation(this.shaderProgram, "uIsEAC"), isEAC);
+		} else if (this._imageType === ImageType.PANORAMA) {
+			const {width, height} = this._renderer.getDimension(this._image);
+			const aspectRatio = width && height && width / height;
+
+			this._renderer.updateShaderData({aspectRatio});
 		}
+
+		// intialize shader buffers after image is loaded.(by updateShaderData)
+		// because buffer may be differ by image size.(eg. CylinderRenderer)
+		this._initBuffers();
 
 		this._renderer.bindTexture(
 			this.context,

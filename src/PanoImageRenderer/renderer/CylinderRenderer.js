@@ -1,48 +1,19 @@
 import Renderer from "./Renderer";
 import WebGLUtils from "../WebGLUtils";
+import {glMatrix} from "../../utils/math-util.js";
 
 // const latitudeBands = 60;
 const longitudeBands = 60;
-const radius = 1;
 
 const textureCoordData = [];
 const vertexPositionData = [];
 const indexData = [];
 
-let lngIdx;
-
-const MAX_CYLIDER_Y = Math.tan(30 * Math.PI / 180);
-const MIN_CYLIDER_Y = -MAX_CYLIDER_Y;
-
-const CYLIDER_Y = [MIN_CYLIDER_Y, MAX_CYLIDER_Y];
-
-for (let yIdx = 0, yLength = CYLIDER_Y.length; yIdx < yLength/* bottom & top */; yIdx++) {
-	for (lngIdx = 0; lngIdx <= longitudeBands; lngIdx++) {
-		const phi = (lngIdx / longitudeBands - 0.5) * 2 * Math.PI;
-		const sinPhi = Math.sin(phi);
-		const cosPhi = Math.cos(phi);
-		const x = cosPhi;
-		const y = CYLIDER_Y[yIdx];
-		const z = sinPhi;
-		const u = lngIdx / longitudeBands;
-		const v = yIdx / (yLength - 1);
-
-		textureCoordData.push(u, v);
-		vertexPositionData.push(radius * x, radius * y, radius * z);
-
-		if (yIdx === 0 && lngIdx < longitudeBands) {
-			const a = lngIdx;
-			const b = a + longitudeBands + 1;
-
-			indexData.push(a, b, a + 1, b, b + 1, a + 1);
-		}
-	}
-}
-
 export default class CylinderRenderer extends Renderer {
 	static _VERTEX_POSITION_DATA = vertexPositionData;
 	static _TEXTURE_COORD_DATA = textureCoordData;
 	static _INDEX_DATA = indexData;
+	static MIN_ASPECT_RATIO_FOR_FULL_PANORAMA = 6;
 	getVertexPositionData() {
 		return CylinderRenderer._VERTEX_POSITION_DATA;
 	}
@@ -103,5 +74,46 @@ export default class CylinderRenderer extends Renderer {
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 
 		this.updateTexture(gl, image);
+	}
+
+	updateShaderData({aspectRatio = CylinderRenderer.MIN_ASPECT_RATIO_FOR_FULL_PANORAMA}) {
+		let lngIdx;
+		let maxRadian;
+		let halfCylinderY;
+
+		if (aspectRatio >= CylinderRenderer.MIN_ASPECT_RATIO_FOR_FULL_PANORAMA) {
+			const fov = 360 / aspectRatio;
+
+			maxRadian = 2 * Math.PI; // 360 deg
+			halfCylinderY = Math.tan(glMatrix.toRadian(fov / 2));
+		} else {
+			maxRadian = aspectRatio;
+			halfCylinderY = 0.5;// Range of cylinder is [-0.5, 0.5]. So its length is 1
+		}
+
+		const CYLIDER_Y = [-halfCylinderY, halfCylinderY];
+
+		// console.log("maxRadian:", maxRadian * (180 / Math.PI), "CYLIDER_Y", CYLIDER_Y);
+
+		for (let yIdx = 0, yLength = CYLIDER_Y.length; yIdx < yLength/* bottom & top */; yIdx++) {
+			for (lngIdx = 0; lngIdx <= longitudeBands; lngIdx++) {
+				const angle = (lngIdx / longitudeBands - 0.5) * maxRadian;
+				const x = Math.cos(angle);
+				const y = CYLIDER_Y[yIdx];
+				const z = Math.sin(angle);
+				const u = lngIdx / longitudeBands;
+				const v = yIdx / (yLength - 1);
+
+				textureCoordData.push(u, v);
+				vertexPositionData.push(x, y, z);
+
+				if (yIdx === 0 && lngIdx < longitudeBands) {
+					const a = lngIdx;
+					const b = a + longitudeBands + 1;
+
+					indexData.push(a, b, a + 1, b, b + 1, a + 1);
+				}
+			}
+		}
 	}
 }
