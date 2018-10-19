@@ -1162,7 +1162,8 @@ describe("PanoImageRenderer", () => {
 			srcVideo.currentTime = 1;
 			inst.keepUpdate(true);
 
-			await TestHelper.wait();
+			// Video frame is updated very slowly on CI Evironment(Ubuntu 14). So apply moderately large timeout.
+			await TestHelper.wait(1000);
 
 			// Then
 			/**
