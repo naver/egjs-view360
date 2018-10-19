@@ -3,6 +3,7 @@ import WebGLUtils from "../WebGLUtils";
 import {glMatrix} from "../../utils/math-util.js";
 
 // const latitudeBands = 60;
+const MIN_ASPECT_RATIO_FOR_FULL_PANORAMA = 6;
 const longitudeBands = 60;
 
 const textureCoordData = [];
@@ -13,7 +14,7 @@ export default class CylinderRenderer extends Renderer {
 	static _VERTEX_POSITION_DATA = vertexPositionData;
 	static _TEXTURE_COORD_DATA = textureCoordData;
 	static _INDEX_DATA = indexData;
-	static MIN_ASPECT_RATIO_FOR_FULL_PANORAMA = 6;
+
 	getVertexPositionData() {
 		return CylinderRenderer._VERTEX_POSITION_DATA;
 	}
@@ -76,12 +77,12 @@ export default class CylinderRenderer extends Renderer {
 		this.updateTexture(gl, image);
 	}
 
-	updateShaderData({aspectRatio = CylinderRenderer.MIN_ASPECT_RATIO_FOR_FULL_PANORAMA}) {
+	updateShaderData({aspectRatio = MIN_ASPECT_RATIO_FOR_FULL_PANORAMA}) {
 		let lngIdx;
 		let cylinderMaxRadian;
 		let halfCylinderY;
 
-		if (aspectRatio >= CylinderRenderer.MIN_ASPECT_RATIO_FOR_FULL_PANORAMA) {
+		if (aspectRatio >= MIN_ASPECT_RATIO_FOR_FULL_PANORAMA) {
 			const fov = 360 / aspectRatio;
 
 			cylinderMaxRadian = 2 * Math.PI; // 360 deg
