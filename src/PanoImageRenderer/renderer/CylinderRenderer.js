@@ -92,6 +92,11 @@ export default class CylinderRenderer extends Renderer {
 			halfCylinderY = 0.5;// Range of cylinder is [-0.5, 0.5] to make height to 1.
 		}
 
+		// intialize shader data before update
+		textureCoordData.length = 0;
+		vertexPositionData.length = 0;
+		indexData.length = 0;
+
 		const CYLIDER_Y = [-halfCylinderY, halfCylinderY];
 		const startAngleForCenterAlign = Math.PI / 2 + (2 * Math.PI - cylinderMaxRadian) / 2; // Math.PI / 2 start point when cylinderMaxRadian is 2 phi(360)
 
