@@ -1,5 +1,4 @@
 // import {expect} from "chai";
-import "babel-polyfill";
 import PanoImageRendererForUnitTest from "../PanoImageRendererForUnitTest";
 import {compare, createPanoImageRenderer} from "../util";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
