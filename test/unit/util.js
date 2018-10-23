@@ -1,4 +1,5 @@
 import PanoImageRendererForUnitTest from "./PanoImageRendererForUnitTest";
+import {glMatrix, quat} from "../../src/utils/math-util.js";
 
 const resemble = window.resemble;
 
@@ -47,7 +48,41 @@ function createPanoImageRenderer(image, isVideo, projectionType, cubemapConfig =
 		image, options.width, options.height, isVideo, sphericalConfig);
 }
 
+function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuaternion) {
+	return new Promise(res => {
+		// When
+		if (isQuaternion) {
+			const quaternion = quat.create();
+
+			quat.rotateY(quaternion, quaternion, glMatrix.toRadian(-yaw));
+			quat.rotateX(quaternion, quaternion, glMatrix.toRadian(-pitch));
+			inst.renderWithQuaternion(quaternion, fov);
+		} else {
+			inst.render(yaw, pitch, fov);
+		}
+
+		// Then
+		compare(answerFile, inst.canvas, (pct, data) => {
+			res({
+				success: pct < threshold,
+				difference: pct,
+				threshold
+			});
+		});
+	});
+}
+
+function renderAndCompareSequentially(inst, tests) {
+	return new Promise(res => {
+		tests.reduce(
+			(promiseChain, currentTask) => promiseChain.then(() => promiseFactory(inst, ...currentTask)),
+			Promise.resolve([])
+		).then(res);
+	});
+}
+
 export {
 	compare,
-	createPanoImageRenderer
+	createPanoImageRenderer,
+	renderAndCompareSequentially
 };

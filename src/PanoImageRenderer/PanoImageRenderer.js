@@ -524,7 +524,7 @@ export default class PanoImageRenderer extends Component {
 
 		let outQ;
 
-		if (!this._isCubeMap) {
+		if (this._imageType === ImageType.EQUIRECTANGULAR) {
 			// TODO: Remove this yaw revision by correcting shader
 			outQ = quat.rotateY(quat.create(), quaternion, glMatrix.toRadian(90));
 		} else {
@@ -586,5 +586,12 @@ export default class PanoImageRenderer extends Component {
 			gl.drawElements(
 				gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 		}
+	}
+
+	/**
+	 * Returns projection renderer by each type
+	 */
+	getProjectionRenderer() {
+		return this._renderer;
 	}
 }
