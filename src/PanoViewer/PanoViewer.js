@@ -184,6 +184,11 @@ export default class PanoViewer extends Component {
 		this._width = options.width || parseInt(window.getComputedStyle(container).width, 10);
 		this._height = options.height || parseInt(window.getComputedStyle(container).height, 10);
 
+		/**
+		 * Cache the direction for the performance in renderLoop
+		 *
+		 * This value should be updated by "change" event of YawPitchControl.
+		 */
 		this._yaw = options.yaw || 0;
 		this._pitch = options.pitch || 0;
 		this._fov = options.fov || 65;
@@ -366,42 +371,46 @@ export default class PanoViewer extends Component {
 					type: ERROR_TYPE.FAIL_BIND_TEXTURE,
 					message: "failed to bind texture"
 				});
-			})
-			.then(() => this._doPostProcessingAfterBinding());
+			});
 	}
 
-	_doPostProcessingAfterBinding() {
+	/**
+	 * update values of YawPitchControl if needed.
+	 * For example, In Panorama mode, initial fov and pitchRange is changed by aspect ratio of image.
+	 *
+	 * This function should be called after isReady status is true.
+	 */
+	_updateYawPitchIfNeeded() {
 		if (this._projectionType === PanoViewer.ProjectionType.PANORAMA) {
 			// update fov by aspect ratio
 			const image = this._photoSphereRenderer.getContent();
 			const aspectRatio = image.naturalWidth / image.naturalHeight;
 			let isCircular;
 			let yawSize;
-			let calcFov;
+			let maxFov;
 
 			if (aspectRatio < 6) {
 				yawSize = glMatrix.toDegree(aspectRatio);
 				isCircular = false;
 				// 0.5 means ratio of half height of cylinder(0.5) and radius of cylider(1). 0.5/1 = 0.5
-				calcFov = glMatrix.toDegree(Math.atan(0.5)) * 2;
+				maxFov = glMatrix.toDegree(Math.atan(0.5)) * 2;
 			} else {
 				yawSize = 360;
 				isCircular = true;
-				calcFov = (360 / aspectRatio).toFixed(5); // Make it 5 fixed as axes does.
+				maxFov = (360 / aspectRatio); // Make it 5 fixed as axes does.
 			}
 
-			// console.log("calcFov", calcFov, "aspectRatio", image.naturalWidth, image.naturalHeight, "yawSize", yawSize);
-			this.lookAt({fov: calcFov});
-
+			// console.log("_updateYawPitchIfNeeded", maxFov, "aspectRatio", image.naturalWidth, image.naturalHeight, "yawSize", yawSize);
 			const minFov = (this._yawPitchControl.option("fovRange"))[0];
 
 			// this option should be called after fov is set.
 			this._yawPitchControl.option({
 				"yawRange": [-yawSize / 2, yawSize / 2],
 				isCircular,
-				"pitchRange": [-calcFov / 2, calcFov / 2],
-				"fovRange": [minFov, calcFov]
+				"pitchRange": [-maxFov / 2, maxFov / 2],
+				"fovRange": [minFov, maxFov]
 			});
+			this.lookAt({fov: maxFov});
 		}
 	}
 
@@ -773,6 +782,10 @@ export default class PanoViewer extends Component {
 		this.updateViewportDimensions();
 
 		this._isReady = true;
+
+		// update yawPitchControl after isReady status is true.
+		this._updateYawPitchIfNeeded();
+
 		this._triggerEvent(EVENTS.READY);
 		this._startRender();
 	}

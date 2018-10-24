@@ -1,4 +1,5 @@
 import {createPanoImageRenderer, renderAndCompareSequentially} from "../util";
+import PanoViewer from "../../../src/PanoViewer/PanoViewer";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 import {PROJECTION_TYPE} from "../../../src/PanoViewer/consts";
 import CylinderRenderer from "../../../src/PanoImageRenderer/renderer/CylinderRenderer";
@@ -127,6 +128,58 @@ describe("CylinderRenderer", () => {
 			// Then
 			expect(result1.success).to.be.equal(true);
 			expect(result2.success).to.be.equal(true);
+		});
+	});
+
+	describe("PanoViewer Test", () => {
+		function calcMaxFov(viewer) {
+			const image = viewer.getImage();
+			const aspectRatio = image.naturalWidth / image.naturalHeight;
+
+			return +(aspectRatio < 6 ?
+				glMatrix.toDegree(Math.atan(0.5)) * 2 : (360 / aspectRatio)).toFixed(5); // Make it 5 fixed as axes does.
+		}
+
+		it("Fov, FovRange should be updated by image's aspect ratio", async () => {
+			const target = sandbox();
+
+			/**
+			 * Given / When
+			 *
+			 * Set image of different aspect ratio each time.
+			 */
+			// More or equal than 6 : 1
+			const viewer = new PanoViewer(target, {
+				image: "./images/PanoViewer/Panorama/half-panorama.jpg",
+				projectionType: PROJECTION_TYPE.PANORAMA
+			});
+
+			await new Promise(res => viewer.on("ready", res));
+
+			const fov1 = viewer.getFov();
+			const maxFov1 = +viewer.getFovRange()[1].toFixed(5);
+			const maxFovByAspectRatio1 = calcMaxFov(viewer);
+
+
+			// Set less than 6:1
+			viewer.setImage("./images/PanoViewer/Panorama/smartphone-panorama-picture.jpg", {
+				projectionType: PROJECTION_TYPE.PANORAMA
+			});
+
+			await new Promise(res => viewer.on("ready", res));
+
+			const fov2 = viewer.getFov();
+			const maxFov2 = +viewer.getFovRange()[1].toFixed(5);
+			const maxFovByAspectRatio2 = calcMaxFov(viewer);
+
+			// Then
+			expect(maxFov1).to.be.equal(maxFovByAspectRatio1);
+			expect(maxFov1).to.be.equal(fov1);
+
+			expect(maxFov2).to.be.equal(maxFovByAspectRatio2);
+			expect(maxFov2).to.be.equal(fov2);
+
+			cleanup();
 		});
 	});
 });
