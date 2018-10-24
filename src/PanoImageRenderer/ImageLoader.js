@@ -102,9 +102,15 @@ export default class ImageLoader extends Component {
 	}
 
 	static isMaybeLoaded(image) {
-		return image instanceof Image ?
-			image.complete && image.naturalWidth !== 0 :
-			!image.some(img => !img.complete || img.naturalWidth === 0);
+		let result = false;
+
+		if (image instanceof Image) {
+			result = image.complete && image.naturalWidth !== 0;
+		} else if (image instanceof Array) {
+			result = !image.some(img => !img.complete || img.naturalWidth === 0);
+		}
+
+		return result;
 	}
 
 	onceLoaded(target, onload, onerror) {
