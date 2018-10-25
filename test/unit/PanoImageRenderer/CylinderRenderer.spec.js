@@ -140,7 +140,7 @@ describe("CylinderRenderer", () => {
 				glMatrix.toDegree(Math.atan(0.5)) * 2 : (360 / aspectRatio)).toFixed(5); // Make it 5 fixed as axes does.
 		}
 
-		it("Fov, FovRange should be updated by image's aspect ratio", async () => {
+		it("Fov, FovRange, pitchRange, yawRange should be updated by image's aspect ratio", async () => {
 			const target = sandbox();
 
 			/**
@@ -159,7 +159,8 @@ describe("CylinderRenderer", () => {
 			const fov1 = viewer.getFov();
 			const maxFov1 = +viewer.getFovRange()[1].toFixed(5);
 			const maxFovByAspectRatio1 = calcMaxFov(viewer);
-
+			const pitchRange1 = viewer.getPitchRange();
+			const yawRange1 = viewer.getYawRange();
 
 			// Set less than 6:1
 			viewer.setImage("./images/PanoViewer/Panorama/smartphone-panorama-picture.jpg", {
@@ -171,13 +172,19 @@ describe("CylinderRenderer", () => {
 			const fov2 = viewer.getFov();
 			const maxFov2 = +viewer.getFovRange()[1].toFixed(5);
 			const maxFovByAspectRatio2 = calcMaxFov(viewer);
+			const pitchRange2 = viewer.getPitchRange();
+			const yawRange2 = viewer.getYawRange();
 
 			// Then
 			expect(maxFov1).to.be.equal(maxFovByAspectRatio1);
 			expect(maxFov1).to.be.equal(fov1);
+			expect(maxFov1).to.be.equal(+(pitchRange1[1] - pitchRange1[0]).toFixed(5));
+			expect(yawRange1[1] - yawRange1[0]).to.be.below(360);
 
 			expect(maxFov2).to.be.equal(maxFovByAspectRatio2);
 			expect(maxFov2).to.be.equal(fov2);
+			expect(maxFov2).to.be.equal(+(pitchRange2[1] - pitchRange2[0]).toFixed(5));
+			expect(yawRange2[1] - yawRange2[0]).to.be.equal(360);
 
 			cleanup();
 		});
