@@ -4,6 +4,7 @@ import WebGLUtils from "../WebGLUtils";
 const latitudeBands = 60;
 const longitudeBands = 60;
 const radius = 2;
+const ANGLE_CORRECTION_FOR_CENTER_ALIGN = -0.5 * Math.PI;
 
 const textureCoordData = [];
 const vertexPositionData = [];
@@ -17,7 +18,7 @@ for (latIdx = 0; latIdx <= latitudeBands; latIdx++) {
 	const cosTheta = Math.cos(theta);
 
 	for (lngIdx = 0; lngIdx <= longitudeBands; lngIdx++) {
-		const phi = (lngIdx / longitudeBands - 0.5) * 2 * Math.PI;
+		const phi = (lngIdx / longitudeBands - 0.5) * 2 * Math.PI + ANGLE_CORRECTION_FOR_CENTER_ALIGN;
 		const sinPhi = Math.sin(phi);
 		const cosPhi = Math.cos(phi);
 		const x = cosPhi * cosTheta;

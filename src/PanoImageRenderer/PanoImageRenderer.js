@@ -58,9 +58,7 @@ export default class PanoImageRenderer extends Component {
 		this._lastYaw = null;
 		this._lastPitch = null;
 		this._lastFieldOfView = null;
-		// TODO: change the initial yaw of equirectangular
-		// It's better to process in on shader.
-		this._initialYaw = 0;
+
 		this.pMatrix = mat4.create();
 		this.mvMatrix = mat4.create();
 
@@ -159,7 +157,6 @@ export default class PanoImageRenderer extends Component {
 				break;
 			default:
 				this._renderer = new SphereRenderer();
-				this._initialYaw = 90;
 				break;
 		}
 
@@ -522,16 +519,7 @@ export default class PanoImageRenderer extends Component {
 			this.updateFieldOfView(fieldOfView);
 		}
 
-		let outQ;
-
-		if (this._imageType === ImageType.EQUIRECTANGULAR) {
-			// TODO: Remove this yaw revision by correcting shader
-			outQ = quat.rotateY(quat.create(), quaternion, glMatrix.toRadian(90));
-		} else {
-			outQ = quaternion;
-		}
-
-		this.mvMatrix = mat4.fromQuat(mat4.create(), outQ);
+		this.mvMatrix = mat4.fromQuat(mat4.create(), quaternion);
 
 		this._draw();
 
@@ -561,7 +549,7 @@ export default class PanoImageRenderer extends Component {
 
 		mat4.identity(this.mvMatrix);
 		mat4.rotateX(this.mvMatrix, this.mvMatrix, -glMatrix.toRadian(pitch));
-		mat4.rotateY(this.mvMatrix, this.mvMatrix, -glMatrix.toRadian(yaw - this._initialYaw));
+		mat4.rotateY(this.mvMatrix, this.mvMatrix, -glMatrix.toRadian(yaw));
 
 		this._draw();
 
