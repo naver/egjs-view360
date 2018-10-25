@@ -196,7 +196,7 @@ export default class PanoViewer extends Component {
 		this._gyroMode = options.gyroMode || GYRO_MODE.YAWPITCH;
 		this._quaternion = null;
 
-		this._aspectRatio = this._width / this._height;
+		this._aspectRatio = this._height !== 0 ? this._width / this._height : 1;
 		const fovRange = options.fovRange || [30, 110];
 		const touchDirection = PanoViewer._isValidTouchDirection(options.touchDirection) ?
 			options.touchDirection : YawPitchControl.TOUCH_DIRECTION_ALL;
@@ -405,6 +405,7 @@ export default class PanoViewer extends Component {
 
 			// this option should be called after fov is set.
 			this._yawPitchControl.option({
+				"fov": maxFov, /* parameter for internal validation for pitchrange */
 				"yawRange": [-yawSize / 2, yawSize / 2],
 				isCircular,
 				"pitchRange": [-maxFov / 2, maxFov / 2],
