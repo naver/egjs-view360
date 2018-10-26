@@ -81,8 +81,20 @@ function renderAndCompareSequentially(inst, tests) {
 	});
 }
 
+function calcFovOfPanormaImage(image) {
+	let aspectRatio = image.naturalWidth / image.naturalHeight;
+
+	if (aspectRatio < 1) {
+		aspectRatio = 1 / aspectRatio;
+	}
+
+	return +(aspectRatio < 6 ?
+		glMatrix.toDegree(Math.atan(0.5)) * 2 : (360 / aspectRatio)).toFixed(5); // Make it 5 fixed as axes does.
+}
+
 export {
 	compare,
 	createPanoImageRenderer,
-	renderAndCompareSequentially
+	renderAndCompareSequentially,
+	calcFovOfPanormaImage
 };

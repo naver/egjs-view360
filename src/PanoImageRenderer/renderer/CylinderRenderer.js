@@ -77,10 +77,25 @@ export default class CylinderRenderer extends Renderer {
 		this.updateTexture(gl, image);
 	}
 
-	updateShaderData({aspectRatio = MIN_ASPECT_RATIO_FOR_FULL_PANORAMA}) {
+	updateShaderData({imageAspectRatio = MIN_ASPECT_RATIO_FOR_FULL_PANORAMA}) {
 		let lngIdx;
 		let cylinderMaxRadian;
 		let halfCylinderY;
+		let rotated;
+		let aspectRatio;
+
+		// Exception case: orientation is rotated.
+		if (imageAspectRatio < 1) {
+			/**
+			 * If rotated is true, we assume that image is rotated counter clockwise.
+			 * TODO: If there's other rotation, it is need to implement by each rotation.
+			 */
+			rotated = true;
+			aspectRatio = 1 / imageAspectRatio;
+		} else {
+			rotated = false;
+			aspectRatio = imageAspectRatio;
+		}
 
 		if (aspectRatio >= MIN_ASPECT_RATIO_FOR_FULL_PANORAMA) {
 			const fov = 360 / aspectRatio;
@@ -107,8 +122,18 @@ export default class CylinderRenderer extends Renderer {
 				const x = Math.cos(angle);
 				const y = CYLIDER_Y[yIdx];
 				const z = Math.sin(angle);
-				const u = lngIdx / longitudeBands;
-				const v = yIdx;
+				let u;
+				let v;
+
+				if (rotated) {
+					// Rotated 90 degree (counter clock wise)
+					u = 1 - yIdx; // yLength - yIdx;
+					v = lngIdx / longitudeBands;
+				} else {
+				// 	// Normal case (Not rotated)
+					u = lngIdx / longitudeBands;
+					v = yIdx;
+				}
 
 				textureCoordData.push(u, v);
 				vertexPositionData.push(x, y, z);

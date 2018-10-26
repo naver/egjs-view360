@@ -465,9 +465,9 @@ export default class PanoImageRenderer extends Component {
 			this.context.uniform1f(this.context.getUniformLocation(this.shaderProgram, "uIsEAC"), isEAC);
 		} else if (this._imageType === ImageType.PANORAMA) {
 			const {width, height} = this._renderer.getDimension(this._image);
-			const aspectRatio = width && height && width / height;
+			const imageAspectRatio = width && height && width / height;
 
-			this._renderer.updateShaderData({aspectRatio});
+			this._renderer.updateShaderData({imageAspectRatio});
 		}
 
 		// intialize shader buffers after image is loaded.(by updateShaderData)

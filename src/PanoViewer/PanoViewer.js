@@ -384,20 +384,26 @@ export default class PanoViewer extends Component {
 		if (this._projectionType === PanoViewer.ProjectionType.PANORAMA) {
 			// update fov by aspect ratio
 			const image = this._photoSphereRenderer.getContent();
-			const aspectRatio = image.naturalWidth / image.naturalHeight;
+			let imageAspectRatio = image.naturalWidth / image.naturalHeight;
 			let isCircular;
 			let yawSize;
 			let maxFov;
 
-			if (aspectRatio < 6) {
-				yawSize = glMatrix.toDegree(aspectRatio);
+			// If height is larger than width, then we assume it's rotated by 90 degree.
+			if (imageAspectRatio < 1) {
+				// So inverse the aspect ratio.
+				imageAspectRatio = 1 / imageAspectRatio;
+			}
+
+			if (imageAspectRatio < 6) {
+				yawSize = glMatrix.toDegree(imageAspectRatio);
 				isCircular = false;
 				// 0.5 means ratio of half height of cylinder(0.5) and radius of cylider(1). 0.5/1 = 0.5
 				maxFov = glMatrix.toDegree(Math.atan(0.5)) * 2;
 			} else {
 				yawSize = 360;
 				isCircular = true;
-				maxFov = (360 / aspectRatio); // Make it 5 fixed as axes does.
+				maxFov = (360 / imageAspectRatio); // Make it 5 fixed as axes does.
 			}
 
 			// console.log("_updateYawPitchIfNeeded", maxFov, "aspectRatio", image.naturalWidth, image.naturalHeight, "yawSize", yawSize);

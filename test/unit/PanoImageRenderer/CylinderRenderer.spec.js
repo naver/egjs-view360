@@ -1,4 +1,4 @@
-import {createPanoImageRenderer, renderAndCompareSequentially} from "../util";
+import {createPanoImageRenderer, renderAndCompareSequentially, calcFovOfPanormaImage} from "../util";
 import PanoViewer from "../../../src/PanoViewer/PanoViewer";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 import {PROJECTION_TYPE} from "../../../src/PanoViewer/consts";
@@ -90,10 +90,8 @@ describe("CylinderRenderer", () => {
 
 		function calcMaxFov(renderer) {
 			const image = renderer.getContent();
-			const aspectRatio = image.naturalWidth / image.naturalHeight;
 
-			return (aspectRatio < 6 ?
-				glMatrix.toDegree(Math.atan(0.5)) * 2 : (360 / aspectRatio)).toFixed(5); // Make it 5 fixed as axes does.
+			return calcFovOfPanormaImage(image);
 		}
 
 		IT("Test if image is aligned center by different aspect ratio.", async () => {
@@ -129,27 +127,60 @@ describe("CylinderRenderer", () => {
 			expect(result1.success).to.be.equal(true);
 			expect(result2.success).to.be.equal(true);
 		});
+
+		IT("Rotated panorma should be corrected as normal panorama renders", async () => {
+			// Given
+			// When
+			/**
+			 * If Panorama is rotated
+			 */
+			const renderer = createPanoImageRenderer("./images/PanoViewer/Panorama/rotated-panorama.jpg", false, PROJECTION_TYPE.PANORAMA, {});
+
+			await renderer.bindTexture();
+			const maxFov = calcMaxFov(renderer);
+
+			renderer.render();
+			const result1 = await renderAndCompareSequentially(renderer, [[0, 0, maxFov, `./images/PanoViewer/Panorama/smartphone-panorama-picture-init${suffix}`]]);
+
+			console.log(result1);
+			// Then
+			expect(result1.success).to.be.equal(true);
+		});
 	});
 
 	describe("PanoViewer Test", () => {
+		let target;
+		let viewer;
+
 		function calcMaxFov(viewer) {
 			const image = viewer.getImage();
-			const aspectRatio = image.naturalWidth / image.naturalHeight;
 
-			return +(aspectRatio < 6 ?
-				glMatrix.toDegree(Math.atan(0.5)) * 2 : (360 / aspectRatio)).toFixed(5); // Make it 5 fixed as axes does.
+			return calcFovOfPanormaImage(image);
 		}
 
-		it("Fov, FovRange, pitchRange, yawRange should be updated by image's aspect ratio", async () => {
-			const target = sandbox();
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div"></div>`;
+		});
 
+		afterEach(() => {
+			cleanup();
+
+			if (!viewer) {
+				return;
+			}
+			viewer.destroy();
+			viewer = null;
+		});
+
+		IT("Fov, FovRange, pitchRange, yawRange should be updated by image's aspect ratio", async () => {
 			/**
 			 * Given / When
 			 *
 			 * Set image of different aspect ratio each time.
 			 */
 			// More or equal than 6 : 1
-			const viewer = new PanoViewer(target, {
+			viewer = new PanoViewer(target, {
 				image: "./images/PanoViewer/Panorama/half-panorama.jpg",
 				projectionType: PROJECTION_TYPE.PANORAMA
 			});
@@ -185,8 +216,26 @@ describe("CylinderRenderer", () => {
 			expect(maxFov2).to.be.equal(fov2);
 			expect(maxFov2).to.be.equal(+(pitchRange2[1] - pitchRange2[0]).toFixed(5));
 			expect(yawRange2[1] - yawRange2[0]).to.be.equal(360);
+		});
 
-			cleanup();
+		IT("Rotated panorama's yaw range follows original panorama's yaw range.", async () => {
+			/**
+			 * Given / When
+			 *
+			 * If panorama image ratio is less than 1, we assume it's rotated.
+			 */
+			viewer = new PanoViewer(target, {
+				image: "./images/PanoViewer/Panorama/rotated-panorama.jpg", // inverse of aspect ratio is larger than 6:1
+				projectionType: PROJECTION_TYPE.PANORAMA
+			});
+
+			await new Promise(res => viewer.on("ready", res));
+
+			const yawRange = viewer.getYawRange();
+
+			// Then
+			// yaw range should be 360. because its intended ratio is more than 6
+			expect(yawRange[1] - yawRange[0]).to.be.equal(360);
 		});
 	});
 });
