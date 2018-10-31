@@ -6,6 +6,7 @@ module.exports = config => {
 
 		// list of files / patterns to load in the browser
 		files: [
+			"./node_modules/babel-polyfill/dist/polyfill.js",
 			"./node_modules/resemblejs/resemble.js",
 			"./node_modules/lite-fixture/index.js",
 			"./node_modules/hammer-simulator/index.js",

@@ -46,6 +46,24 @@ export default class Renderer extends Component {
 		return {width, height};
 	}
 
+	/**
+	 * Update data used by shader
+	 * 	-
+	 *
+	 *
+	 * @param {*} param
+	 */
+	updateShaderData(param) {
+		/*
+		* Update following data in implementation layer.
+		* If the data is not changed, it does not need to implement this function.
+		*
+		* - _VERTEX_POSITION_DATA
+		* - _TEXTURE_COORD_DATA
+		* - _INDEX_DATA
+		*/
+	}
+
 	_initPixelSource(image) {
 		if (!isIE11 || !(image instanceof HTMLVideoElement)) {
 			return;

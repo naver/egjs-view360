@@ -5,6 +5,7 @@ import WebGLUtils from "./WebGLUtils";
 import CubeRenderer from "./renderer/CubeRenderer";
 import CubeStripRenderer from "./renderer/CubeStripRenderer";
 import SphereRenderer from "./renderer/SphereRenderer";
+import CylinderRenderer from "./renderer/CylinderRenderer";
 import {glMatrix, mat4, quat} from "../utils/math-util.js";
 import {devicePixelRatio} from "../utils/browserFeature";
 import {PROJECTION_TYPE} from "../PanoViewer/consts";
@@ -57,9 +58,7 @@ export default class PanoImageRenderer extends Component {
 		this._lastYaw = null;
 		this._lastPitch = null;
 		this._lastFieldOfView = null;
-		// TODO: change the initial yaw of equirectangular
-		// It's better to process in on shader.
-		this._initialYaw = 0;
+
 		this.pMatrix = mat4.create();
 		this.mvMatrix = mat4.create();
 
@@ -153,9 +152,11 @@ export default class PanoImageRenderer extends Component {
 			case ImageType.CUBESTRIP:
 				this._renderer = new CubeStripRenderer();
 				break;
+			case ImageType.PANORAMA:
+				this._renderer = new CylinderRenderer();
+				break;
 			default:
 				this._renderer = new SphereRenderer();
-				this._initialYaw = 90;
 				break;
 		}
 
@@ -355,9 +356,6 @@ export default class PanoImageRenderer extends Component {
 			if (!this.shaderProgram) {
 				throw new Error(`Failed to intialize shaders: ${WebGLUtils.getErrorNameFromWebGLErrorCode(gl.getError())}`);
 			}
-
-			// Buffers for shader
-			this._initBuffers();
 		} catch (e) {
 			this.trigger(EVENTS.ERROR, {
 				type: ERROR_TYPE.NO_WEBGL,
@@ -465,7 +463,16 @@ export default class PanoImageRenderer extends Component {
 			const isEAC = width && height && width / height !== 1.5;
 
 			this.context.uniform1f(this.context.getUniformLocation(this.shaderProgram, "uIsEAC"), isEAC);
+		} else if (this._imageType === ImageType.PANORAMA) {
+			const {width, height} = this._renderer.getDimension(this._image);
+			const imageAspectRatio = width && height && width / height;
+
+			this._renderer.updateShaderData({imageAspectRatio});
 		}
+
+		// intialize shader buffers after image is loaded.(by updateShaderData)
+		// because buffer may be differ by image size.(eg. CylinderRenderer)
+		this._initBuffers();
 
 		this._renderer.bindTexture(
 			this.context,
@@ -512,16 +519,7 @@ export default class PanoImageRenderer extends Component {
 			this.updateFieldOfView(fieldOfView);
 		}
 
-		let outQ;
-
-		if (!this._isCubeMap) {
-			// TODO: Remove this yaw revision by correcting shader
-			outQ = quat.rotateY(quat.create(), quaternion, glMatrix.toRadian(90));
-		} else {
-			outQ = quaternion;
-		}
-
-		this.mvMatrix = mat4.fromQuat(mat4.create(), outQ);
+		this.mvMatrix = mat4.fromQuat(mat4.create(), quaternion);
 
 		this._draw();
 
@@ -551,7 +549,7 @@ export default class PanoImageRenderer extends Component {
 
 		mat4.identity(this.mvMatrix);
 		mat4.rotateX(this.mvMatrix, this.mvMatrix, -glMatrix.toRadian(pitch));
-		mat4.rotateY(this.mvMatrix, this.mvMatrix, -glMatrix.toRadian(yaw - this._initialYaw));
+		mat4.rotateY(this.mvMatrix, this.mvMatrix, -glMatrix.toRadian(yaw));
 
 		this._draw();
 
@@ -576,5 +574,12 @@ export default class PanoImageRenderer extends Component {
 			gl.drawElements(
 				gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 		}
+	}
+
+	/**
+	 * Returns projection renderer by each type
+	 */
+	getProjectionRenderer() {
+		return this._renderer;
 	}
 }

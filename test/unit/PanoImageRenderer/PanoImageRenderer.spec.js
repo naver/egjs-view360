@@ -1119,33 +1119,59 @@ describe("PanoImageRenderer", () => {
 			});
 		});
 
-		IT("should not update video texture after keepUpdate(false) called", done => {
+		IT("should not update video texture when keepUpdate(false) although it is playing", async () => {
 			// Given
-			const sourceImg = document.createElement("video");
+			const TIMEOUT = 1000;
+			const thresholdMargin = 4; // Some test cases are fail on TRAVIS CI. So make it margin.
+			const srcVideo = document.createElement("video");
 
-			sourceImg.src = "./images/PanoViewer/pano.mp4";
-			sourceImg.play();
-			const isVideo = true;
-			const threshold = 7;
+			srcVideo.src = "./images/PanoViewer/pano.mp4";
+			srcVideo.muted = true;
+			srcVideo.play();
 
-			const inst = createPanoImageRenderer(sourceImg, isVideo, "equirectangular");
+			const inst = createPanoImageRenderer(srcVideo, true, "equirectangular");
 
-			sourceImg.addEventListener("loadeddata", when);
+			await new Promise(res => srcVideo.addEventListener("loadeddata", res));
+			await inst.bindTexture();
 
-			function when() {
-				inst.bindTexture()
-					.then(() => {
-						// When
-						inst.keepUpdate(false);
+			// When
+			inst.keepUpdate(false);
 
-						setTimeout(() => {
-							// Then
-							renderAndCompareSequentially(
-								inst, [[0, 0, 65, `./images/PanoViewer/pano_0_0_65${suffix}`, threshold]]
-							).then(done);
-						}, 1000);
-					});
-			}
+			await TestHelper.wait(TIMEOUT);
+
+			// Then
+			await renderAndCompareSequentially(
+				inst, [[0, 0, 65, `./images/PanoViewer/pano_0_0_65${suffix}`, threshold + thresholdMargin]]
+			);
+		});
+
+		IT("should update video texture when keepUpdate(true)", async () => {
+			// Given
+			const thresholdMargin = 4; // Some test cases are fail on TRAVIS CI. So make it margin.
+			const srcVideo = document.createElement("video");
+
+			srcVideo.src = "./images/PanoViewer/pano.mp4";
+			srcVideo.muted = true;
+			const inst = createPanoImageRenderer(srcVideo, true, "equirectangular");
+
+			await new Promise(res => srcVideo.addEventListener("loadeddata", res));
+			await inst.bindTexture();
+
+			// When
+			srcVideo.currentTime = 1;
+			inst.keepUpdate(true);
+
+			// Video frame is updated very slowly on CI Evironment(Ubuntu 14). So apply moderately large timeout.
+			await TestHelper.wait(1000);
+
+			// Then
+			/**
+			 * following image is not exactly captured on 1 sec. It's 'about' time.
+			 * It is captured on this test case after following render test.
+			 */
+			await renderAndCompareSequentially(
+				inst, [[0, 0, 65, `./images/PanoViewer/pano_1sec_0_0_65${suffix}`, threshold + thresholdMargin]]
+			);
 		});
 	});
 

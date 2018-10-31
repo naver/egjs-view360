@@ -184,6 +184,11 @@ export default class PanoViewer extends Component {
 		this._width = options.width || parseInt(window.getComputedStyle(container).width, 10);
 		this._height = options.height || parseInt(window.getComputedStyle(container).height, 10);
 
+		/**
+		 * Cache the direction for the performance in renderLoop
+		 *
+		 * This value should be updated by "change" event of YawPitchControl.
+		 */
 		this._yaw = options.yaw || 0;
 		this._pitch = options.pitch || 0;
 		this._fov = options.fov || 65;
@@ -191,7 +196,7 @@ export default class PanoViewer extends Component {
 		this._gyroMode = options.gyroMode || GYRO_MODE.YAWPITCH;
 		this._quaternion = null;
 
-		this._aspectRatio = this._width / this._height;
+		this._aspectRatio = this._height !== 0 ? this._width / this._height : 1;
 		const fovRange = options.fovRange || [30, 110];
 		const touchDirection = PanoViewer._isValidTouchDirection(options.touchDirection) ?
 			options.touchDirection : YawPitchControl.TOUCH_DIRECTION_ALL;
@@ -360,12 +365,60 @@ export default class PanoViewer extends Component {
 
 		this._photoSphereRenderer
 			.bindTexture()
-			.then(() => this._activate(), () => {
+			.then(() => this._activate())
+			.catch(() => {
 				this._triggerEvent(EVENTS.ERROR, {
 					type: ERROR_TYPE.FAIL_BIND_TEXTURE,
 					message: "failed to bind texture"
 				});
 			});
+	}
+
+	/**
+	 * update values of YawPitchControl if needed.
+	 * For example, In Panorama mode, initial fov and pitchRange is changed by aspect ratio of image.
+	 *
+	 * This function should be called after isReady status is true.
+	 */
+	_updateYawPitchIfNeeded() {
+		if (this._projectionType === PanoViewer.ProjectionType.PANORAMA) {
+			// update fov by aspect ratio
+			const image = this._photoSphereRenderer.getContent();
+			let imageAspectRatio = image.naturalWidth / image.naturalHeight;
+			let isCircular;
+			let yawSize;
+			let maxFov;
+
+			// If height is larger than width, then we assume it's rotated by 90 degree.
+			if (imageAspectRatio < 1) {
+				// So inverse the aspect ratio.
+				imageAspectRatio = 1 / imageAspectRatio;
+			}
+
+			if (imageAspectRatio < 6) {
+				yawSize = glMatrix.toDegree(imageAspectRatio);
+				isCircular = false;
+				// 0.5 means ratio of half height of cylinder(0.5) and radius of cylider(1). 0.5/1 = 0.5
+				maxFov = glMatrix.toDegree(Math.atan(0.5)) * 2;
+			} else {
+				yawSize = 360;
+				isCircular = true;
+				maxFov = (360 / imageAspectRatio); // Make it 5 fixed as axes does.
+			}
+
+			// console.log("_updateYawPitchIfNeeded", maxFov, "aspectRatio", image.naturalWidth, image.naturalHeight, "yawSize", yawSize);
+			const minFov = (this._yawPitchControl.option("fovRange"))[0];
+
+			// this option should be called after fov is set.
+			this._yawPitchControl.option({
+				"fov": maxFov, /* parameter for internal validation for pitchrange */
+				"yawRange": [-yawSize / 2, yawSize / 2],
+				isCircular,
+				"pitchRange": [-maxFov / 2, maxFov / 2],
+				"fovRange": [minFov, maxFov]
+			});
+			this.lookAt({fov: maxFov});
+		}
 	}
 
 	_bindRendererHandler() {
@@ -736,6 +789,10 @@ export default class PanoViewer extends Component {
 		this.updateViewportDimensions();
 
 		this._isReady = true;
+
+		// update yawPitchControl after isReady status is true.
+		this._updateYawPitchIfNeeded();
+
 		this._triggerEvent(EVENTS.READY);
 		this._startRender();
 	}
