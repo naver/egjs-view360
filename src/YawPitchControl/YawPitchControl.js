@@ -246,7 +246,13 @@ export default class YawPitchControl extends Component {
 		}
 
 		if (keys.some(key => key === "fovRange")) {
-			const fovRange = this.options.fovRange;
+			/**
+			 * Temporary Fix Code
+			 * Changed float number as toFixed(5) format for temporary.
+			 *
+			 * TODO: it should not use toFixed(5) after axes.js is fixed.
+			 */
+			const fovRange = this.options.fovRange.map(v => +v.toFixed(5));
 			const prevFov = this.axes.get().fov;
 			let nextFov = this.axes.get().fov;
 

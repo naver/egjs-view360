@@ -193,7 +193,21 @@ const PROJECTION_TYPE = {
 	 * @type {String}
 	 * @default cubestrip
 	 */
-	CUBESTRIP: "cubestrip"
+	CUBESTRIP: "cubestrip",
+	/**
+	 * Constant value for PANORAMA type.
+	 *
+	 * PANORAMA is a format for a panorma image which is taken from smartphone.
+	 *
+	 * @ko PANORAMA 에 대한 상수값. 파노라마는 스마트 폰에서 가져온 파노라마 이미지의 형식입니다.
+	 *
+	 * @name PANORAMA
+	 * @memberof eg.view360.PanoViewer.PROJECTION_TYPE
+	 * @constant
+	 * @type {String}
+	 * @default panorama
+	 */
+	PANORAMA: "panorama"
 };
 
 export {
