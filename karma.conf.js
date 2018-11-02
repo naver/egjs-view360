@@ -6,7 +6,6 @@ module.exports = config => {
 
 		// list of files / patterns to load in the browser
 		files: [
-			"./node_modules/babel-polyfill/dist/polyfill.js",
 			"./node_modules/resemblejs/resemble.js",
 			"./node_modules/lite-fixture/index.js",
 			"./node_modules/hammer-simulator/index.js",
@@ -36,6 +35,17 @@ module.exports = config => {
 						test: /\.js$/,
 						exclude: /node_modules/,
 						loader: "babel-loader",
+						options: {
+							"presets": [
+								[
+									"@babel/preset-env", {
+										"targets": {"chrome": "55"},
+										"debug": true
+									}
+								]
+							],
+							"plugins": ["@babel/plugin-transform-modules-commonjs"]
+						}
 					}
 				]
 			}
