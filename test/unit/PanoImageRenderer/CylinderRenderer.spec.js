@@ -1,6 +1,6 @@
 import {createPanoImageRenderer, renderAndCompareSequentially, calcFovOfPanormaImage} from "../util";
 import PanoViewer from "../../../src/PanoViewer/PanoViewer";
-import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
+import WebGLUtils, {setMaxTextureSizeForTestOnlyPurpose} from "../../../src/PanoImageRenderer/WebGLUtils";
 import {PROJECTION_TYPE} from "../../../src/PanoViewer/consts";
 import CylinderRenderer from "../../../src/PanoImageRenderer/renderer/CylinderRenderer";
 import {glMatrix} from "../../../src/utils/math-util.js";
@@ -150,11 +150,11 @@ describe("CylinderRenderer", () => {
 
 	describe("Big image over texture limit", () => {
 		beforeEach(() => {
-			WebGLUtils.setMaxTextureSizeForTestOnlyPurpose(4096);
+			setMaxTextureSizeForTestOnlyPurpose(4096);
 		});
 
 		afterEach(() => {
-			WebGLUtils.setMaxTextureSizeForTestOnlyPurpose(null);
+			setMaxTextureSizeForTestOnlyPurpose(null);
 		});
 
 		IT("If image is bigger than texture size, than image size should be resized below the texture size.", async () => {

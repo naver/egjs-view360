@@ -177,14 +177,18 @@ export default class WebGLUtils {
 		// WARN: MAX_TEXTURE_SIZE_FOR_TEST is used for test
 		return MAX_TEXTURE_SIZE_FOR_TEST || gl.getParameter(gl.MAX_TEXTURE_SIZE);
 	}
-
-	/**
-	 * This function should not be used in service code. It's provided only for test purpose.
-	 * It should be set to null or 0 when test is done.
-	 *
-	 * @param {Number} size
-	 */
-	static setMaxTextureSizeForTestOnlyPurpose(size) {
-		MAX_TEXTURE_SIZE_FOR_TEST = size;
-	}
 }
+
+/**
+ * This function should not be used in service code. It's provided only for test purpose.
+ * It should be set to null or 0 when test is done.
+ *
+ * @param {Number} size
+ */
+function setMaxTextureSizeForTestOnlyPurpose(size) {
+	MAX_TEXTURE_SIZE_FOR_TEST = size;
+}
+
+export {
+	setMaxTextureSizeForTestOnlyPurpose
+};
