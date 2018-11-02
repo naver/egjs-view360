@@ -17,6 +17,7 @@ export default class Renderer extends Component {
 	constructor() {
 		super();
 
+		this._forceDimension = null;
 		this._pixelCanvas = null;
 		this._pixelContext = null;
 	}
@@ -64,17 +65,23 @@ export default class Renderer extends Component {
 		*/
 	}
 
-	_initPixelSource(image) {
-		if (!isIE11 || !(image instanceof HTMLVideoElement)) {
-			return;
+	/**
+	 *
+	 * @param {HTMLImageElement | HTMLVideoElement} image
+	 * @param {Object = {width, height}} forceDimension Forced dimension to resize
+	 */
+	_initPixelSource(image, forceDimension) {
+		const isIE11Video = isIE11 && (image instanceof HTMLVideoElement);
+
+		if (isIE11Video || forceDimension) {
+			const {width, height} = forceDimension || this.getDimension(image);
+
+			this._pixelCanvas = document.createElement("canvas");
+			this._pixelCanvas.width = width;
+			this._pixelCanvas.height = height;
+			this._pixelContext = this._pixelCanvas.getContext("2d");
 		}
-
-		const {width, height} = this.getDimension(image);
-
-		this._pixelCanvas = document.createElement("canvas");
-		this._pixelCanvas.width = width;
-		this._pixelCanvas.height = height;
-		this._pixelContext = this._pixelCanvas.getContext("2d");
+		this._forceDimension = forceDimension;
 	}
 
 	_getPixelSource(image) {
@@ -84,18 +91,27 @@ export default class Renderer extends Component {
 
 		/**
 		 * IE11 && Video
+		 * or
+		 * Dimension is forced (Image is larger than texture size.)
 		 */
-		const {width, height} = this.getDimension(image);
+		const contentDimension = this.getDimension(image);
+		const textureDimension = this._forceDimension || contentDimension;
 
-		if (this._pixelCanvas.width !== width) {
-			this._pixelCanvas.width = width;
+		if (this._pixelCanvas.width !== textureDimension.width) {
+			this._pixelCanvas.width = textureDimension.width;
 		}
 
-		if (this._pixelCanvas.height !== height) {
-			this._pixelCanvas.height = height;
+		if (this._pixelCanvas.height !== textureDimension.height) {
+			this._pixelCanvas.height = textureDimension.height;
 		}
 
-		this._pixelContext.drawImage(image, 0, 0);
+		if (this._forceDimension) {
+			this._pixelContext.drawImage(image,
+				0, 0, contentDimension.width, contentDimension.height,
+				0, 0, textureDimension.width, textureDimension.height);
+		} else {
+			this._pixelContext.drawImage(image, 0, 0);
+		}
 
 		return this._pixelCanvas;
 	}

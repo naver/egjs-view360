@@ -148,6 +148,37 @@ describe("CylinderRenderer", () => {
 		});
 	});
 
+	describe("Big image over texture limit", () => {
+		beforeEach(() => {
+			WebGLUtils.setMaxTextureSizeForTestOnlyPurpose(4096);
+		});
+
+		afterEach(() => {
+			WebGLUtils.setMaxTextureSizeForTestOnlyPurpose(null);
+		});
+
+		IT("If image is bigger than texture size, than image size should be resized below the texture size.", async () => {
+			// Given
+			// When
+			/**
+			 * If Panorama is rotated
+			 */
+			const renderer = createPanoImageRenderer("./images/PanoViewer/Panorama/smartphone-panorama-picture.jpg", false, PROJECTION_TYPE.PANORAMA, {});
+
+			await renderer.bindTexture();
+
+			const projRenderer = renderer.getProjectionRenderer();
+			const maxSize = WebGLUtils.getMaxTextureSize(); // param 'gl' can be absent when test mode
+			const content = projRenderer._getPixelSource(renderer.getContent());
+
+			// Then
+			// Image should be converted to canvas.
+			expect(content instanceof HTMLCanvasElement).to.be.equal(true);
+			expect(content.width <= maxSize).to.be.ok;
+			expect(content.height <= maxSize).to.be.ok;
+		})
+	});
+
 	describe("PanoViewer Test", () => {
 		let target;
 		let viewer;

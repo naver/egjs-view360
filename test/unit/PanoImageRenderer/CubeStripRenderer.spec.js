@@ -11,7 +11,7 @@ describe("CubeStripRenderer", () => {
 			// Given
 			const canvas = document.createElement("canvas");
 			const gl = WebGLUtils.getWebglContext(canvas);
-			const MAX_SIZE = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+			const MAX_SIZE = WebGLUtils.getMaxTextureSize(gl);
 			const cubeRenderer = new CubeStripRenderer();
 
 			cubeRenderer.on(Renderer.EVENTS.ERROR, then);

@@ -11,6 +11,7 @@ const WEBGL_ERROR_CODE = {
 };
 
 let webglAvailability = null;
+let MAX_TEXTURE_SIZE_FOR_TEST = null;
 
 export default class WebGLUtils {
 	static createShader(gl, type, source) {
@@ -170,5 +171,20 @@ export default class WebGLUtils {
 			console.error("WebGLUtils.texImage2D error:", error);
 			/* eslint-enable no-console */
 		}
+	}
+
+	static getMaxTextureSize(gl) {
+		// WARN: MAX_TEXTURE_SIZE_FOR_TEST is used for test
+		return MAX_TEXTURE_SIZE_FOR_TEST || gl.getParameter(gl.MAX_TEXTURE_SIZE);
+	}
+
+	/**
+	 * This function should not be used in service code. It's provided only for test purpose.
+	 * It should be set to null or 0 when test is done.
+	 *
+	 * @param {Number} size
+	 */
+	static setMaxTextureSizeForTestOnlyPurpose(size) {
+		MAX_TEXTURE_SIZE_FOR_TEST = size;
 	}
 }
