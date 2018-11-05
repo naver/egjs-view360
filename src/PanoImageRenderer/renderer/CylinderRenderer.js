@@ -60,15 +60,23 @@ export default class CylinderRenderer extends Renderer {
 		// Make sure image isn't too big
 		const {width, height} = this.getDimension(image);
 		const size = Math.max(width, height);
-		const maxSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+		const maxSize = WebGLUtils.getMaxTextureSize(gl);
+		let resizeDimension;
 
 		if (size > maxSize) {
-			this._triggerError(`Image width(${width}) exceeds device limit(${maxSize}))`);
-			return;
+			this._triggerError(`Image width(${width}) exceeds device texture limit(${maxSize}))`);
+
+			// Request resizing texture.
+			/**
+			 * TODO: Is it need to apply on another projection type?
+			 */
+			resizeDimension = width > height ?
+				{width: maxSize, height: maxSize * height / width} :
+				{width: maxSize * width / height, height: maxSize};
 		}
 
-		// Pixel Source for IE11 & Video
-		this._initPixelSource(image);
+		// Pixel Source for IE11 & Video or resizing needed
+		this._initPixelSource(image, resizeDimension);
 
 		gl.activeTexture(gl.TEXTURE0);
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);

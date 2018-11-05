@@ -189,7 +189,7 @@ export default class CubeStripRenderer extends Renderer {
 		// Make sure image isn't too big
 		const {width, height} = this.getDimension(image);
 		const size = Math.max(width, height);
-		const maxSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+		const maxSize = WebGLUtils.getMaxTextureSize(gl);
 
 		if (size > maxSize) {
 			this._triggerError(`Image width(${width}) exceeds device limit(${maxSize}))`);

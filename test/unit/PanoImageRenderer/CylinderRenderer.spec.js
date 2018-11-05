@@ -1,6 +1,6 @@
 import {createPanoImageRenderer, renderAndCompareSequentially, calcFovOfPanormaImage} from "../util";
 import PanoViewer from "../../../src/PanoViewer/PanoViewer";
-import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
+import WebGLUtils, {setMaxTextureSizeForTestOnlyPurpose} from "../../../src/PanoImageRenderer/WebGLUtils";
 import {PROJECTION_TYPE} from "../../../src/PanoViewer/consts";
 import CylinderRenderer from "../../../src/PanoImageRenderer/renderer/CylinderRenderer";
 import {glMatrix} from "../../../src/utils/math-util.js";
@@ -146,6 +146,37 @@ describe("CylinderRenderer", () => {
 			// Then
 			expect(result1.success).to.be.equal(true);
 		});
+	});
+
+	describe("Big image over texture limit", () => {
+		beforeEach(() => {
+			setMaxTextureSizeForTestOnlyPurpose(4096);
+		});
+
+		afterEach(() => {
+			setMaxTextureSizeForTestOnlyPurpose(null);
+		});
+
+		IT("If image is bigger than texture size, than image size should be resized below the texture size.", async () => {
+			// Given
+			// When
+			/**
+			 * If Panorama is rotated
+			 */
+			const renderer = createPanoImageRenderer("./images/PanoViewer/Panorama/smartphone-panorama-picture.jpg", false, PROJECTION_TYPE.PANORAMA, {});
+
+			await renderer.bindTexture();
+
+			const projRenderer = renderer.getProjectionRenderer();
+			const maxSize = WebGLUtils.getMaxTextureSize(); // param 'gl' can be absent when test mode
+			const content = projRenderer._getPixelSource(renderer.getContent());
+
+			// Then
+			// Image should be converted to canvas.
+			expect(content instanceof HTMLCanvasElement).to.be.equal(true);
+			expect(content.width <= maxSize).to.be.ok;
+			expect(content.height <= maxSize).to.be.ok;
+		})
 	});
 
 	describe("PanoViewer Test", () => {
