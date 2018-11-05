@@ -735,7 +735,7 @@ describe("PanoImageRenderer", () => {
 			});
 
 			// This test will fail on iOS safari, because video will not start load with out use interaction.
-			IT("cubestrip 3x2: video", done => {
+			IT.only("cubestrip 3x2: video", done => {
 				// Given
 				const isVideo = true;
 				const video = document.createElement("video");
@@ -944,7 +944,7 @@ describe("PanoImageRenderer", () => {
 			}
 		});
 
-		IT("yaw: 0, pitch:0, fov:65 : video IE11", done => {
+		IT.only("yaw: 0, pitch:0, fov:65 : video IE11", done => {
 			// Given
 			const sourceImg = document.createElement("video");
 
@@ -985,7 +985,7 @@ describe("PanoImageRenderer", () => {
 			}
 		});
 
-		IT("yaw: 0, pitch:0, fov:65 : video IE11 change video size after loaded", done => {
+		IT.only("yaw: 0, pitch:0, fov:65 : video IE11 change video size after loaded", done => {
 			// Given
 			const sourceImg = document.createElement("video");
 
@@ -1029,7 +1029,7 @@ describe("PanoImageRenderer", () => {
 			}
 		});
 
-		IT("yaw: 0, pitch:0, fov:65 : video", done => {
+		IT.only("yaw: 0, pitch:0, fov:65 : video", done => {
 			// Given
 			const sourceImg = document.createElement("video");
 
@@ -1119,7 +1119,7 @@ describe("PanoImageRenderer", () => {
 			});
 		});
 
-		IT("should not update video texture when keepUpdate(false) although it is playing", async () => {
+		IT.only("should not update video texture when keepUpdate(false) although it is playing", async () => {
 			// Given
 			const TIMEOUT = 1000;
 			const thresholdMargin = 4; // Some test cases are fail on TRAVIS CI. So make it margin.
@@ -1145,7 +1145,7 @@ describe("PanoImageRenderer", () => {
 			);
 		});
 
-		IT("should update video texture when keepUpdate(true)", async () => {
+		IT.only("should update video texture when keepUpdate(true)", async () => {
 			// Given
 			const thresholdMargin = 4; // Some test cases are fail on TRAVIS CI. So make it margin.
 			const srcVideo = document.createElement("video");
