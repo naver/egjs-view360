@@ -79,12 +79,9 @@ function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuat
 }
 
 function renderAndCompareSequentially(inst, tests) {
-	return new Promise((res, rej) => {
-		tests.reduce(
-			(promiseChain, currentTask) => promiseChain.then(() => promiseFactory(inst, ...currentTask)),
-			Promise.resolve([])
-		).then(res, rej);
-	});
+	return tests.reduce((chain, task) => chain.then(() => promiseFactory(inst, ...task)),
+		Promise.resolve([])
+	);
 }
 
 function calcFovOfPanormaImage(image) {
@@ -98,9 +95,22 @@ function calcFovOfPanormaImage(image) {
 		glMatrix.toDegree(Math.atan(0.5)) * 2 : (360 / aspectRatio)).toFixed(5); // Make it 5 fixed as axes does.
 }
 
+function isVideoLoaded(video) {
+	return new Promise(res => {
+		/* Ref https://www.w3schools.com/tags/av_prop_readystate.asp */
+		// If it is already loaded.
+		if (video.readyState >= 2) {
+			res();
+		}
+
+		video.addEventListener("loadeddata", res);
+	});
+}
+
 export {
 	compare,
 	createPanoImageRenderer,
 	renderAndCompareSequentially,
-	calcFovOfPanormaImage
+	calcFovOfPanormaImage,
+	isVideoLoaded
 };

@@ -1,10 +1,9 @@
 // import {expect} from "chai";
 import PanoImageRendererForUnitTest from "../PanoImageRendererForUnitTest";
-import {compare, createPanoImageRenderer, renderAndCompareSequentially} from "../util";
+import {compare, createPanoImageRenderer, renderAndCompareSequentially, isVideoLoaded} from "../util";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 import PanoImageRendererForUnitTestInjector from "inject-loader!../PanoImageRendererForUnitTest";
 import PanoImageRendererInjector from "inject-loader!../../../src/PanoImageRenderer/PanoImageRenderer";
-
 import RendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/Renderer";
 import SphereRendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/SphereRenderer";
 import TestHelper from "../YawPitchControl/testHelper";
@@ -690,7 +689,7 @@ describe("PanoImageRenderer", () => {
 
 				const inst = createPanoImageRenderer(video, isVideo, "cubemap");
 
-				await new Promise(res => video.addEventListener("loadeddata", res));
+				await isVideoLoaded(video);
 
 				// When
 				await inst.bindTexture();
@@ -889,7 +888,7 @@ describe("PanoImageRenderer", () => {
 			});
 
 			// inst.on("imageLoaded", when); // 2018.02.26. imageLoaded does not gaurantee video is playable. (spec changed)
-			await new Promise(res => sourceImg.addEventListener("loadeddata", res));
+			await isVideoLoaded(sourceImg);
 
 			// When
 			await inst.bindTexture();
@@ -925,14 +924,14 @@ describe("PanoImageRenderer", () => {
 			});
 
 			// inst.once("imageLoaded", onFirstLoad); // 2018.02.26. imageLoaded does not gaurantee video is playable. (spec changed)
-			await new Promise(res => TestHelper.once(sourceImg, "loadeddata", res));
+			await isVideoLoaded(sourceImg);
 
 			// onFirstLoad
 			await inst.bindTexture();
 
 			// When
 			sourceImg.src = "./images/test_equi.mp4";
-			await new Promise(res => TestHelper.once(sourceImg, "loadeddata", res));
+			await isVideoLoaded(sourceImg);
 
 			// Then
 			const result = await renderAndCompareSequentially(
@@ -962,7 +961,7 @@ describe("PanoImageRenderer", () => {
 			const inst = createPanoImageRenderer(sourceImg, isVideo, "equirectangular");
 
 			// inst.on("imageLoaded", when); // 2018.02.26. imageLoaded does not gaurantee video is playable. (spec changed)
-			await new Promise(res => sourceImg.addEventListener("loadeddata", res));
+			await isVideoLoaded(sourceImg);
 
 			// When
 			await inst.bindTexture();
@@ -1049,7 +1048,7 @@ describe("PanoImageRenderer", () => {
 
 			const inst = createPanoImageRenderer(srcVideo, true, "equirectangular");
 
-			await new Promise(res => srcVideo.addEventListener("loadeddata", res));
+			await isVideoLoaded(srcVideo);
 			await inst.bindTexture();
 
 			// When
@@ -1072,7 +1071,7 @@ describe("PanoImageRenderer", () => {
 			srcVideo.muted = true;
 			const inst = createPanoImageRenderer(srcVideo, true, "equirectangular");
 
-			await new Promise(res => srcVideo.addEventListener("loadeddata", res));
+			await isVideoLoaded(srcVideo);
 			await inst.bindTexture();
 
 			// When
