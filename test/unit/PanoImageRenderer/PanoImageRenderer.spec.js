@@ -1,10 +1,9 @@
 // import {expect} from "chai";
 import PanoImageRendererForUnitTest from "../PanoImageRendererForUnitTest";
-import {compare, createPanoImageRenderer} from "../util";
+import {compare, createPanoImageRenderer, renderAndCompareSequentially} from "../util";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 import PanoImageRendererForUnitTestInjector from "inject-loader!../PanoImageRendererForUnitTest";
 import PanoImageRendererInjector from "inject-loader!../../../src/PanoImageRenderer/PanoImageRenderer";
-import {glMatrix, quat} from "../../../src/utils/math-util.js";
 
 import RendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/Renderer";
 import SphereRendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/SphereRenderer";
@@ -42,36 +41,6 @@ const PanoImageRendererOnIE11ForTest = PanoImageRendererForUnitTestInjector(
 const WEBGL_AVAILABILITY = WebGLUtils.isWebGLAvailable();
 const IT = WEBGL_AVAILABILITY ? it : it.skip;
 const USE_QUATERNION = true;
-
-function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuaternion) {
-	return new Promise(res => {
-		// When
-		if (isQuaternion) {
-			const quaternion = quat.create();
-
-			quat.rotateY(quaternion, quaternion, glMatrix.toRadian(-yaw));
-			quat.rotateX(quaternion, quaternion, glMatrix.toRadian(-pitch));
-			inst.renderWithQuaternion(quaternion, fov);
-		} else {
-			inst.render(yaw, pitch, fov);
-		}
-
-		// Then
-		compare(answerFile, inst.canvas, (pct, data) => {
-			expect(pct).to.be.below(threshold);
-			res();
-		});
-	});
-}
-
-function renderAndCompareSequentially(inst, tests) {
-	return new Promise(res => {
-		tests.reduce(
-			(promiseChain, currentTask) => promiseChain.then(() => promiseFactory(inst, ...currentTask)),
-			Promise.resolve([])
-		).then(res);
-	});
-}
 
 const threshold = 3;
 
@@ -380,7 +349,7 @@ describe("PanoImageRenderer", () => {
 
 	describe("Cubemap Rendering", () => {
 		describe("separated tiles", () => {
-			IT("multiple img url", done => {
+			IT("multiple img url", async () => {
 				// Given
 				const inst = createPanoImageRenderer([
 					"./images/test_cube_r.png",
@@ -391,31 +360,28 @@ describe("PanoImageRenderer", () => {
 					"./images/test_cube_f.png"
 				], false, "cubemap");
 
-				inst.on("imageLoaded", when);
+				await new Promise(res => inst.on("imageLoaded", res));
 
-				function when() {
-					// When
-					inst.bindTexture()
-						.then(() => {
-							// Then
-							renderAndCompareSequentially(
-								inst,
-								[
-									[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
-									[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
-									[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
-									[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
-									[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
-									[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
-								]
-							).then(() => {
-								done();
-							});
-						});
-				}
+				// When
+				await inst.bindTexture();
+
+				// Then
+				const result = await renderAndCompareSequentially(
+					inst,
+					[
+						[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
+						[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
+						[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
+						[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
+						[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
+						[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
+					]
+				);
+
+				expect(result.success).to.be.equal(true);
 			});
 
-			IT("multiple img elements", done => {
+			IT("multiple img elements", async () => {
 				// Given
 				const imgs = [
 					"./images/test_cube_r.png",
@@ -433,31 +399,28 @@ describe("PanoImageRenderer", () => {
 
 				const inst = createPanoImageRenderer(imgs, false, "cubemap");
 
-				inst.on("imageLoaded", when);
+				await new Promise(res => inst.on("imageLoaded", res));
 
-				function when() {
-					// When
-					inst.bindTexture()
-						.then(() => {
-							// Then
-							renderAndCompareSequentially(
-								inst,
-								[
-									[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
-									[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
-									[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
-									[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
-									[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
-									[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
-								]
-							).then(() => {
-								done();
-							});
-						});
-				}
+				// When
+				await inst.bindTexture();
+
+				// Then
+				const result = await renderAndCompareSequentially(
+					inst,
+					[
+						[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
+						[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
+						[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
+						[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
+						[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
+						[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
+					]
+				);
+
+				expect(result.success).to.be.equal(true);
 			});
 
-			IT("multiple img url: order", done => {
+			IT("multiple img url: order", async () => {
 				// Given
 				const inst = createPanoImageRenderer([
 					"./images/test_cube_l.png",
@@ -478,31 +441,28 @@ describe("PanoImageRenderer", () => {
 					]
 				});
 
-				inst.on("imageLoaded", when);
+				await new Promise(res => inst.on("imageLoaded", res));
 
-				function when() {
-					// When
-					inst.bindTexture()
-						.then(() => {
-							// Then
-							renderAndCompareSequentially(
-								inst,
-								[
-									[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
-									[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
-									[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
-									[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
-									[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
-									[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
-								]
-							).then(() => {
-								done();
-							});
-						});
-				}
+				// When
+				await inst.bindTexture();
+
+				// Then
+				const result = await renderAndCompareSequentially(
+					inst,
+					[
+						[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
+						[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
+						[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
+						[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
+						[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
+						[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
+					]
+				);
+
+				expect(result.success).to.be.equal(true);
 			});
 
-			IT("multiple img url: flip", done => {
+			IT("multiple img url: flip", async () => {
 				// Given
 				const cubemapConfig = {
 					tileConfig: [
@@ -523,31 +483,28 @@ describe("PanoImageRenderer", () => {
 					"./images/test_cube_f_hflip.png"
 				], false, "cubemap", cubemapConfig);
 
-				inst.on("imageLoaded", when);
+				await new Promise(res => inst.on("imageLoaded", res));
 
-				function when() {
-					// When
-					inst.bindTexture()
-						.then(() => {
-							// Then
-							renderAndCompareSequentially(
-								inst,
-								[
-									[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
-									[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
-									[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
-									[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
-									[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
-									[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
-								]
-							).then(() => {
-								done();
-							});
-						});
-				}
+				// When
+				await inst.bindTexture();
+
+				// Then
+				const result = await renderAndCompareSequentially(
+					inst,
+					[
+						[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
+						[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
+						[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
+						[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
+						[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
+						[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
+					]
+				);
+
+				expect(result.success).to.be.equal(true);
 			});
 
-			IT("multiple img url: flip rotation", done => {
+			IT("multiple img url: flip rotation", async () => {
 				// Given
 				const cubemapConfig = {
 					tileConfig: [
@@ -568,64 +525,58 @@ describe("PanoImageRenderer", () => {
 					"./images/test_cube_f_hflip.png"
 				], false, "cubemap", cubemapConfig);
 
-				inst.on("imageLoaded", when);
+				await new Promise(res => inst.on("imageLoaded", res));
 
-				function when() {
-					// When
-					inst.bindTexture()
-						.then(() => {
-							// Then
-							renderAndCompareSequentially(
-								inst,
-								[
-									[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
-									[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
-									[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
-									[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
-									[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
-									[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
-								]
-							).then(() => {
-								done();
-							});
-						});
-				}
+				// When
+				await inst.bindTexture();
+
+				// Then
+				const result = await renderAndCompareSequentially(
+					inst,
+					[
+						[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
+						[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
+						[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
+						[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
+						[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
+						[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
+					]
+				);
+
+				expect(result.success).to.be.equal(true);
 			});
 		});
 
 		describe("cubestrip", () => {
-			IT("cubestrip 1x6", done => {
+			IT("cubestrip 1x6", async () => {
 				// Given
 				const sourceImg = new Image();
 
 				sourceImg.src = "./images/test_cube_1x6_LRUDBF.jpg";
 				const inst = createPanoImageRenderer(sourceImg, false, "cubemap");
 
-				inst.on("imageLoaded", when);
+				await new Promise(res => inst.on("imageLoaded", res));
 
-				function when() {
-					// When
-					inst.bindTexture()
-						.then(() => {
-							// Then
-							renderAndCompareSequentially(
-								inst,
-								[
-									[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, 2],
-									[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, 2],
-									[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, 2],
-									[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, 2],
-									[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, 2],
-									[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, 2]
-								]
-							).then(() => {
-								done();
-							});
-						});
-				}
+				// When
+				await inst.bindTexture();
+
+				// Then
+				const result = await renderAndCompareSequentially(
+					inst,
+					[
+						[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, 2],
+						[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, 2],
+						[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, 2],
+						[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, 2],
+						[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, 2],
+						[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, 2]
+					]
+				);
+
+				expect(result.success).to.be.equal(true);
 			});
 
-			IT("cubestrip 1x6: flip rotate", done => {
+			IT("cubestrip 1x6: flip rotate", async () => {
 				// Given
 				const tileConfigForCubestrip = {flipHorizontal: true, rotation: 0};
 				const sourceImg = new Image();
@@ -635,31 +586,28 @@ describe("PanoImageRenderer", () => {
 					tileConfig: tileConfigForCubestrip
 				});
 
-				inst.on("imageLoaded", when);
+				await new Promise(res => inst.on("imageLoaded", res));
 
-				function when() {
-					// When
-					inst.bindTexture()
-						.then(() => {
-							// Then
-							renderAndCompareSequentially(
-								inst,
-								[
-									[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
-									[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
-									[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
-									[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
-									[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
-									[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
-								]
-							).then(() => {
-								done();
-							});
-						});
-				}
+				// When
+				await inst.bindTexture();
+
+				// Then
+				const result = await renderAndCompareSequentially(
+					inst,
+					[
+						[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
+						[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
+						[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
+						[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
+						[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
+						[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
+					]
+				);
+
+				expect(result.success).to.be.equal(true);
 			});
 
-			IT("cubestrip 1x6: rotate", done => {
+			IT("cubestrip 1x6: rotate", async () => {
 				// Given
 				const tileConfigForCubestrip = [
 					{flipHorizontal: false, rotation: 0},
@@ -678,31 +626,29 @@ describe("PanoImageRenderer", () => {
 					tileConfig: tileConfigForCubestrip
 				});
 
-				inst.on("imageLoaded", when);
+				await new Promise(res => inst.on("imageLoaded", res));
 
-				function when() {
-					// When
-					inst.bindTexture()
-						.then(() => {
-							// Then
-							renderAndCompareSequentially(
-								inst,
-								[
-									[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
-									[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
-									[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
-									[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
-									[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
-									[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
-								]
-							).then(() => {
-								done();
-							});
-						});
-				}
+
+				// When
+				await inst.bindTexture();
+
+				// Then
+				const result = await renderAndCompareSequentially(
+					inst,
+					[
+						[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
+						[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
+						[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
+						[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
+						[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
+						[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
+					]
+				);
+
+				expect(result.success).to.be.equal(true);
 			});
 
-			IT("cubestrip 3x2", done => {
+			IT("cubestrip 3x2", async () => {
 				// Given
 				const sourceImg = new Image();
 
@@ -710,32 +656,29 @@ describe("PanoImageRenderer", () => {
 
 				const inst = createPanoImageRenderer(sourceImg, false, "cubemap");
 
-				inst.on("imageLoaded", when);
+				await new Promise(res => inst.on("imageLoaded", res));
 
-				function when() {
-					// When
-					inst.bindTexture()
-						.then(() => {
-							// Then
-							renderAndCompareSequentially(
-								inst,
-								[
-									[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
-									[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
-									[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
-									[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
-									[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
-									[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
-								]
-							).then(() => {
-								done();
-							});
-						});
-				}
+				// When
+				await inst.bindTexture();
+
+				// Then
+				const result = await renderAndCompareSequentially(
+					inst,
+					[
+						[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
+						[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
+						[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
+						[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
+						[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
+						[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
+					]
+				);
+
+				expect(result.success).to.be.equal(true);
 			});
 
 			// This test will fail on iOS safari, because video will not start load with out use interaction.
-			IT.only("cubestrip 3x2: video", done => {
+			IT("cubestrip 3x2: video", async () => {
 				// Given
 				const isVideo = true;
 				const video = document.createElement("video");
@@ -747,28 +690,25 @@ describe("PanoImageRenderer", () => {
 
 				const inst = createPanoImageRenderer(video, isVideo, "cubemap");
 
-				video.addEventListener("loadeddata", when);
+				await new Promise(res => video.addEventListener("loadeddata", res));
 
-				function when() {
-					// When
-					inst.bindTexture()
-						.then(() => {
-							// Then
-							renderAndCompareSequentially(
-								inst,
-								[
-									[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, 6],
-									[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, 6],
-									[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, 6],
-									[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, 6],
-									[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, 6],
-									[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, 6]
-								]
-							).then(() => {
-								done();
-							});
-						});
-				}
+				// When
+				await inst.bindTexture();
+
+				// Then
+				const result = await renderAndCompareSequentially(
+					inst,
+					[
+						[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, 6],
+						[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, 6],
+						[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, 6],
+						[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, 6],
+						[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, 6],
+						[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, 6]
+					]
+				);
+
+				expect(result.success).to.be.equal(true);
 			});
 
 			IT("cubestrip 2x3", done => {
@@ -803,38 +743,35 @@ describe("PanoImageRenderer", () => {
 				}
 			});
 
-			IT("cubestrip 6x1", done => {
+			IT("cubestrip 6x1", async () => {
 				// Given
 				const sourceImg = new Image();
 
 				sourceImg.src = "./images/test_cube_6x1_LRUDBF.jpg";
 				const inst = createPanoImageRenderer(sourceImg, false, "cubemap");
 
-				inst.on("imageLoaded", when);
+				await new Promise(res => inst.on("imageLoaded", res));
 
-				function when() {
-					// When
-					inst.bindTexture()
-						.then(() => {
-							// Then
-							renderAndCompareSequentially(
-								inst,
-								[
-									[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
-									[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
-									[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
-									[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
-									[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
-									[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
-								]
-							).then(() => {
-								done();
-							});
-						});
-				}
+				// When
+				await inst.bindTexture()
+
+				// Then
+				const result = await renderAndCompareSequentially(
+					inst,
+					[
+						[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
+						[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
+						[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
+						[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
+						[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
+						[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
+					]
+				);
+
+				expect(result.success).to.be.equal(true);
 			});
 
-			IT("cubestrip 6x1: flip", done => {
+			IT("cubestrip 6x1: flip", async () => {
 				// Given
 				const tileConfigForCubestrip = [
 					{flipHorizontal: false, rotation: 0},
@@ -853,64 +790,60 @@ describe("PanoImageRenderer", () => {
 					order: "LFRBUD"
 				});
 
-				inst.on("imageLoaded", when);
+				await new Promise(res => inst.on("imageLoaded", res));
 
-				function when() {
-					// When
-					inst.bindTexture()
-						.then(() => {
-							// Then
-							renderAndCompareSequentially(
-								inst,
-								[
-									[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
-									[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
-									[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
-									[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
-									[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
-									[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
-								]
-							).then(() => {
-								done();
-							});
-						});
-				}
+				// When
+				await inst.bindTexture()
+
+				// Then
+				const result = await renderAndCompareSequentially(
+					inst,
+					[
+						[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
+						[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
+						[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
+						[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
+						[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
+						[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
+					]
+				);
+
+				expect(result.success).to.be.equal(true);
 			});
 		});
 	});
 
 	describe("Equirectangular Rendering with yaw / pitch", () => {
-		IT("should render properly by yaw, pitch, fov", done => {
+		IT("should render properly by yaw, pitch, fov", async () => {
 			// Given
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_equi.jpg";
 			const inst = createPanoImageRenderer(sourceImg, false, "equirectangular");
 
-			inst.on("imageLoaded", when);
+			await new Promise(res => inst.on("imageLoaded", res));
 
-			function when() {
-				// When
-				inst.bindTexture()
-					.then(() => {
-						// Then
-						renderAndCompareSequentially(
-							inst,
-							[
-								[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
-								[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
-								[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
-								[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
-								[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
-								[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
-							]
-						).then(done);
-					});
-			}
+			// When
+			await inst.bindTexture();
+
+			// Then
+			const result = await renderAndCompareSequentially(
+				inst,
+				[
+					[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
+					[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
+					[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
+					[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
+					[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
+					[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
+				]
+			);
+
+			expect(result.success).to.be.equal(true);
 		});
 
 
-		IT("yaw: 0, pitch:0, fov:65 : IE11", done => {
+		IT("yaw: 0, pitch:0, fov:65 : IE11", async () => {
 			// Given
 			const sourceImg = new Image();
 
@@ -920,31 +853,28 @@ describe("PanoImageRenderer", () => {
 				fieldOfView: 65
 			});
 
-			inst.on("imageLoaded", when);
+			await new Promise(res => inst.on("imageLoaded", res));
 
-			function when() {
-				// When
-				inst.bindTexture()
-					.then(() => {
-						// Then
-						renderAndCompareSequentially(
-							inst,
-							[
-								[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
-								[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
-								[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
-								[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
-								[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
-								[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
-							]
-						).then(() => {
-							done();
-						});
-					});
-			}
+			// When
+			await inst.bindTexture();
+
+			// Then
+			const result = await renderAndCompareSequentially(
+				inst,
+				[
+					[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
+					[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
+					[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
+					[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
+					[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold],
+					[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
+				]
+			);
+
+			expect(result.success).to.be.equal(true);
 		});
 
-		IT.only("yaw: 0, pitch:0, fov:65 : video IE11", done => {
+		IT("yaw: 0, pitch:0, fov:65 : video IE11", async () => {
 			// Given
 			const sourceImg = document.createElement("video");
 
@@ -959,33 +889,28 @@ describe("PanoImageRenderer", () => {
 			});
 
 			// inst.on("imageLoaded", when); // 2018.02.26. imageLoaded does not gaurantee video is playable. (spec changed)
-			sourceImg.addEventListener("loadeddata", when);
+			await new Promise(res => sourceImg.addEventListener("loadeddata", res));
 
-			function when(e) {
-				// When
-				inst.bindTexture()
-					.then(() => {
-						console.log("video loaded");
+			// When
+			await inst.bindTexture();
 
-						// Then
-						renderAndCompareSequentially(
-							inst,
-							[
-								[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold + thresholdMargin],
-								[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold + thresholdMargin],
-								[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold + thresholdMargin],
-								[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold + thresholdMargin],
-								[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold + thresholdMargin],
-								[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold + thresholdMargin]
-							]
-						).then(() => {
-							done();
-						});
-					});
-			}
+			// Then
+			const result = await renderAndCompareSequentially(
+				inst,
+				[
+					[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold + thresholdMargin],
+					[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold + thresholdMargin],
+					[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold + thresholdMargin],
+					[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold + thresholdMargin],
+					[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold + thresholdMargin],
+					[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold + thresholdMargin]
+				]
+			);
+
+			expect(result.success).to.be.equal(true);
 		});
 
-		IT.only("yaw: 0, pitch:0, fov:65 : video IE11 change video size after loaded", done => {
+		IT("yaw: 0, pitch:0, fov:65 : video IE11 change video size after loaded", async () => {
 			// Given
 			const sourceImg = document.createElement("video");
 
@@ -1000,36 +925,32 @@ describe("PanoImageRenderer", () => {
 			});
 
 			// inst.once("imageLoaded", onFirstLoad); // 2018.02.26. imageLoaded does not gaurantee video is playable. (spec changed)
-			TestHelper.once(sourceImg, "loadeddata", onFirstLoad)
+			await new Promise(res => TestHelper.once(sourceImg, "loadeddata", res));
 
-			function onFirstLoad() {
-				inst.bindTexture()
-					.then(() => {
-						// When
-						TestHelper.once(sourceImg, "loadeddata", when);
-						sourceImg.src = "./images/test_equi.mp4";
-					});
-			}
+			// onFirstLoad
+			await inst.bindTexture();
 
-			function when() {
-				// Then
-				renderAndCompareSequentially(
-					inst,
-					[
-						[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold + thresholdMargin],
-						[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold + thresholdMargin],
-						[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold + thresholdMargin],
-						[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold + thresholdMargin],
-						[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold + thresholdMargin],
-						[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold + thresholdMargin]
-					]
-				).then(() => {
-					done();
-				});
-			}
+			// When
+			sourceImg.src = "./images/test_equi.mp4";
+			await new Promise(res => TestHelper.once(sourceImg, "loadeddata", res));
+
+			// Then
+			const result = await renderAndCompareSequentially(
+				inst,
+				[
+					[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold + thresholdMargin],
+					[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold + thresholdMargin],
+					[180, 0, 190, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold + thresholdMargin],
+					[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold + thresholdMargin],
+					[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold + thresholdMargin],
+					[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold + thresholdMargin]
+				]
+			);
+
+			expect(result.success).to.be.equal(true);
 		});
 
-		IT.only("yaw: 0, pitch:0, fov:65 : video", done => {
+		IT("yaw: 0, pitch:0, fov:65 : video", async () => {
 			// Given
 			const sourceImg = document.createElement("video");
 
@@ -1041,30 +962,27 @@ describe("PanoImageRenderer", () => {
 			const inst = createPanoImageRenderer(sourceImg, isVideo, "equirectangular");
 
 			// inst.on("imageLoaded", when); // 2018.02.26. imageLoaded does not gaurantee video is playable. (spec changed)
-			sourceImg.addEventListener("loadeddata", when);
+			await new Promise(res => sourceImg.addEventListener("loadeddata", res));
 
-			function when() {
-				// When
-				inst.bindTexture()
-					.then(() => {
-						console.log("video loaded");
+			// When
+			await inst.bindTexture();
 
-						// Then
-						renderAndCompareSequentially(
-							inst,
-							[
-								[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold + thresholdMargin],
-								[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold + thresholdMargin],
-								[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold + thresholdMargin],
-								[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold + thresholdMargin],
-								[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold + thresholdMargin],
-								[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold + thresholdMargin]
-							]
-						).then(() => {
-							done();
-						});
-					});
-			}
+			console.log("video loaded");
+
+			// Then
+			const result = await renderAndCompareSequentially(
+				inst,
+				[
+					[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold + thresholdMargin],
+					[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold + thresholdMargin],
+					[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold + thresholdMargin],
+					[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold + thresholdMargin],
+					[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold + thresholdMargin],
+					[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold + thresholdMargin]
+				]
+			);
+
+			expect(result.success).to.be.equal(true);
 		});
 
 		IT("yaw: 0, pitch:0, fov:65 -> 30", done => {
@@ -1119,7 +1037,7 @@ describe("PanoImageRenderer", () => {
 			});
 		});
 
-		IT.only("should not update video texture when keepUpdate(false) although it is playing", async () => {
+		IT("should not update video texture when keepUpdate(false) although it is playing", async () => {
 			// Given
 			const TIMEOUT = 1000;
 			const thresholdMargin = 4; // Some test cases are fail on TRAVIS CI. So make it margin.
@@ -1145,7 +1063,7 @@ describe("PanoImageRenderer", () => {
 			);
 		});
 
-		IT.only("should update video texture when keepUpdate(true)", async () => {
+		IT("should update video texture when keepUpdate(true)", async () => {
 			// Given
 			const thresholdMargin = 4; // Some test cases are fail on TRAVIS CI. So make it margin.
 			const srcVideo = document.createElement("video");
@@ -1176,7 +1094,7 @@ describe("PanoImageRenderer", () => {
 	});
 
 	describe("Cubemap Rendering with Quaternion", () => {
-		IT("should render by quaternion in cubemap mode", done => {
+		IT("should render by quaternion in cubemap mode", async () => {
 			// Given
 			const tileConfigForCubestrip = {flipHorizontal: true, rotation: 0};
 			const sourceImg = new Image();
@@ -1187,59 +1105,55 @@ describe("PanoImageRenderer", () => {
 				tileConfig: tileConfigForCubestrip
 			});
 
-			inst.on("imageLoaded", when);
+			await new Promise(res => inst.on("imageLoaded", res));
 
-			function when() {
-				// When
-				inst.bindTexture()
-					.then(() => {
-						// Then
-						renderAndCompareSequentially(
-							inst,
-							[
-								[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold, USE_QUATERNION],
-								[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold, USE_QUATERNION],
-								[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold, USE_QUATERNION],
-								[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold, USE_QUATERNION],
-								[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold, USE_QUATERNION],
-								[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold, USE_QUATERNION]
-							]
-						).then(done);
-					});
-			}
+			// When
+			await inst.bindTexture();
+
+			// Then
+			const result = await renderAndCompareSequentially(
+				inst,
+				[
+					[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold, USE_QUATERNION],
+					[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold, USE_QUATERNION],
+					[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold, USE_QUATERNION],
+					[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold, USE_QUATERNION],
+					[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold, USE_QUATERNION],
+					[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold, USE_QUATERNION]
+				]
+			);
+
+			expect(result.success).to.be.equal(true);
 		});
 	});
 
 	describe("Equirectangular Rendering with Quaternion", () => {
-		IT("should render by quaternion in equirectangular mode", done => {
+		IT("should render by quaternion in equirectangular mode", async () => {
 			// Given
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_equi.jpg";
 			const inst = createPanoImageRenderer(sourceImg, false, "equirectangular");
 
-			inst.on("imageLoaded", when);
+			await new Promise(res => inst.on("imageLoaded", res));
 
-			function when() {
-				// When
-				inst.bindTexture()
-					.then(() => {
-						// Then
-						renderAndCompareSequentially(
-							inst,
-							[
-								[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold, USE_QUATERNION],
-								[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold, USE_QUATERNION],
-								[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold, USE_QUATERNION],
-								[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold, USE_QUATERNION],
-								[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold, USE_QUATERNION],
-								[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold, USE_QUATERNION]
-							]
-						).then(() => {
-							done();
-						});
-					});
-			}
+			// When
+			await inst.bindTexture();
+
+			// Then
+			const result = await renderAndCompareSequentially(
+				inst,
+				[
+					[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold, USE_QUATERNION],
+					[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold, USE_QUATERNION],
+					[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold, USE_QUATERNION],
+					[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold, USE_QUATERNION],
+					[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold, USE_QUATERNION],
+					[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold, USE_QUATERNION]
+				]
+			);
+
+			expect(result.success).to.be.equal(true);
 		});
 	});
 
@@ -1247,74 +1161,73 @@ describe("PanoImageRenderer", () => {
 		/**
 		 * This order (RLUDFB) is the way Facebook 3x2 Cubemap, Three.js, forgejs uses
 		 */
-		IT("should use order RLUDFB (default)", done => {
+		IT("should use order RLUDFB (default)", async () => {
 			// Given
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_cube_3x2_RLUDFB.jpg";
 			const inst = createPanoImageRenderer(sourceImg, false, "cubestrip");
 
-			inst.on("imageLoaded", when);
+			await new Promise(res => inst.on("imageLoaded", res));
 
 			// inst.attachTo(target);
+			// When
+			await inst.bindTexture();
 
-			function when() {
-				// When
-				inst.bindTexture()
-					.then(() => {
-						// Then
-						renderAndCompareSequentially(
-							inst,
-							[
-								[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
-								[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
-								[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
-								[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
-								/**
-								 * We use reversed image because the bottom & up is rendered differently with ProjectionType.CUBEMAP
-								 * But CUBESTRIP is more general way to project on cube
-								 */
-								[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90_reverse${suffix}`, threshold],
-								[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90_reverse${suffix}`, threshold]
-							]
-						).then(done);
-					});
-			}
+			// Then
+			const result = await renderAndCompareSequentially(
+				inst,
+				[
+					[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
+					[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
+					[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
+					[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
+					/**
+					 * We use reversed image because the bottom & up is rendered differently with ProjectionType.CUBEMAP
+					 * But CUBESTRIP is more general way to project on cube
+					 */
+					[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90_reverse${suffix}`, threshold],
+					[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90_reverse${suffix}`, threshold]
+				]
+			);
+
+			expect(result.success).to.be.equal(true);
 		});
 
-		IT("should support cubemap order(RLUDBF), apply rotation on some faces.", done => {
+		IT("should support cubemap order(RLUDBF), apply rotation on some faces.", async () => {
 			// Given
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_cube_3x2_LRUDBF.jpg";
 			const inst = createPanoImageRenderer(sourceImg, false, "cubestrip", {
 				order: "RLUDBF",
-				tileConfig: [{rotation: 0}, {rotation: 0}, {rotation: 180}, {rotation: 180}, {rotation: 0}, {rotation: 0}]
+				tileConfig:
+				[{rotation: 0}, {rotation: 0}, {rotation: 180}, {rotation: 180}, {rotation: 0}, {rotation: 0}]
 			});
 
-			inst.on("imageLoaded", when);
+			await new Promise(res => inst.on("imageLoaded", res));
 
-			function when() {
-				// When
-				inst.bindTexture()
-					.then(() => {
-						// Then
-						renderAndCompareSequentially(
-							inst,
-							[
-								[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
-								[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
-								[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
-								[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
-								[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold + 1],
-								[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
-							]
-						).then(done);
-					});
-			}
+
+			// When
+			await inst.bindTexture();
+
+			// Then
+			const result = await renderAndCompareSequentially(
+				inst,
+				[
+					[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold],
+					[90, 0, 90, `./images/PanoViewer/test_cube_90_0_90${suffix}`, threshold],
+					[180, 0, 90, `./images/PanoViewer/test_cube_180_0_90${suffix}`, threshold],
+					[270, 0, 90, `./images/PanoViewer/test_cube_270_0_90${suffix}`, threshold],
+					[0, 90, 90, `./images/PanoViewer/test_cube_0_90_90${suffix}`, threshold + 1],
+					[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, threshold]
+				]
+			);
+
+			expect(result.success).to.be.equal(true);
 		});
 
-		IT("should support YouTube cubemap format(EAC)", done => {
+		IT("should support YouTube cubemap format(EAC)", async () => {
 			// Given
 			const sourceImg = new Image();
 
@@ -1326,26 +1239,25 @@ describe("PanoImageRenderer", () => {
 					[{rotation: 0}, {rotation: 0}, {rotation: 0}, {rotation: 0}, {rotation: -90}, {rotation: 180}]
 			}, {width: 300, height: 300});
 
-			inst.on("imageLoaded", when);
+			await new Promise(res => inst.on("imageLoaded", res));
 
-			function when() {
-				// When
-				inst.bindTexture()
-					.then(() => {
-						// Then
-						renderAndCompareSequentially(
-							inst,
-							[
-								[0, 0, 90, `./images/PanoViewer/EAC/EAC_1280x720_0_0_90${suffix}`, threshold],
-								[90, 0, 90, `./images/PanoViewer/EAC/EAC_1280x720_90_0_90${suffix}`, threshold],
-								[180, 0, 90, `./images/PanoViewer/EAC/EAC_1280x720_180_0_90${suffix}`, threshold],
-								[270, 0, 90, `./images/PanoViewer/EAC/EAC_1280x720_270_0_90${suffix}`, threshold],
-								[0, 90, 90, `./images/PanoViewer/EAC/EAC_1280x720_0_90_90${suffix}`, threshold],
-								[0, -90, 90, `./images/PanoViewer/EAC/EAC_1280x720_0_-90_90${suffix}`, threshold]
-							]
-						).then(done);
-					});
-			}
+			// When
+			await inst.bindTexture();
+
+			// Then
+			const result = await renderAndCompareSequentially(
+				inst,
+				[
+					[0, 0, 90, `./images/PanoViewer/EAC/EAC_1280x720_0_0_90${suffix}`, threshold],
+					[90, 0, 90, `./images/PanoViewer/EAC/EAC_1280x720_90_0_90${suffix}`, threshold],
+					[180, 0, 90, `./images/PanoViewer/EAC/EAC_1280x720_180_0_90${suffix}`, threshold],
+					[270, 0, 90, `./images/PanoViewer/EAC/EAC_1280x720_270_0_90${suffix}`, threshold],
+					[0, 90, 90, `./images/PanoViewer/EAC/EAC_1280x720_0_90_90${suffix}`, threshold],
+					[0, -90, 90, `./images/PanoViewer/EAC/EAC_1280x720_0_-90_90${suffix}`, threshold]
+				]
+			);
+
+			expect(result.success).to.be.equal(true);
 		});
 	});
 });
