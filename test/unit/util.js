@@ -49,7 +49,7 @@ function createPanoImageRenderer(image, isVideo, projectionType, cubemapConfig =
 }
 
 function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuaternion) {
-	return new Promise(res => {
+	return new Promise((res, rej) => {
 		// When
 		if (isQuaternion) {
 			const quaternion = quat.create();
@@ -63,22 +63,25 @@ function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuat
 
 		// Then
 		compare(answerFile, inst.canvas, (pct, data) => {
-			res({
+			const result = {
 				success: pct < threshold,
 				difference: pct,
 				threshold
-			});
+			};
+
+			if (pct < threshold) {
+				res(result);
+			} else {
+				rej(result);
+			}
 		});
 	});
 }
 
 function renderAndCompareSequentially(inst, tests) {
-	return new Promise(res => {
-		tests.reduce(
-			(promiseChain, currentTask) => promiseChain.then(() => promiseFactory(inst, ...currentTask)),
-			Promise.resolve([])
-		).then(res);
-	});
+	return tests.reduce((chain, task) => chain.then(() => promiseFactory(inst, ...task)),
+		Promise.resolve([])
+	);
 }
 
 function calcFovOfPanormaImage(image) {
@@ -92,9 +95,22 @@ function calcFovOfPanormaImage(image) {
 		glMatrix.toDegree(Math.atan(0.5)) * 2 : (360 / aspectRatio)).toFixed(5); // Make it 5 fixed as axes does.
 }
 
+function isVideoLoaded(video) {
+	return new Promise(res => {
+		/* Ref https://www.w3schools.com/tags/av_prop_readystate.asp */
+		// If it is already loaded.
+		if (video.readyState >= 2) {
+			res();
+		}
+
+		video.addEventListener("loadeddata", res);
+	});
+}
+
 export {
 	compare,
 	createPanoImageRenderer,
 	renderAndCompareSequentially,
-	calcFovOfPanormaImage
+	calcFovOfPanormaImage,
+	isVideoLoaded
 };
