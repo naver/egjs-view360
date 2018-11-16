@@ -1,41 +1,19 @@
 {
-    "env": {
-        "esm": {
-            "presets": [ 
-                [
-                    "@babel/preset-env", 
-                    {
-                        "loose": true,
-                        "modules": false
-                    }
-                ]
-            ],
-            "plugins": [
-                "@daybrush/babel-plugin-no-side-effect-class-properties",
-                ["@babel/plugin-proposal-class-properties", {"loose": true}],
-                "transform-es3-property-literals",
-                "transform-es3-member-expression-literals",
-                "transform-object-assign",
-                "es6-promise"
-            ]
-        },
-        "common": {
-            "presets": [ 
-                [
-                    "@babel/preset-env", 
-                    {
-                        "loose": true,
-                        "modules": "commonjs"
-                    }
-                ]
-            ],
-            "plugins": [
-                ["@babel/plugin-proposal-class-properties", {"loose": true}],
-                "transform-es3-property-literals",
-                "transform-es3-member-expression-literals",
-                "transform-object-assign",
-                "es6-promise"
-            ]
-        }
-    }
+    "presets": [ 
+        [
+            "@babel/preset-env", 
+            {
+                "loose": true,
+                "modules": false
+            }
+        ]
+    ],
+    "plugins": [
+        ["@babel/plugin-proposal-class-properties", {"loose": true}],
+        "transform-es3-property-literals",
+        "transform-es3-member-expression-literals",
+        "transform-object-assign",
+        "es6-promise"
+    ]
 }
+

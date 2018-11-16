@@ -1,6 +1,7 @@
 import PanoViewer from "./PanoViewer";
+import {VERSION} from "../version";
 
-export {default as VERSION} from "../version";
 export {
-	PanoViewer
+	PanoViewer,
+	VERSION
 };

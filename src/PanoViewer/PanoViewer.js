@@ -3,8 +3,8 @@ import {
 	DeviceMotionEvent
 } from "../utils/browserFeature";
 
-import {YawPitchControl} from "../YawPitchControl";
-import {PanoImageRenderer} from "../PanoImageRenderer";
+import YawPitchControl from "../YawPitchControl/YawPitchControl";
+import PanoImageRenderer from "../PanoImageRenderer/PanoImageRenderer";
 import WebGLUtils from "../PanoImageRenderer/WebGLUtils";
 import {ERROR_TYPE, EVENTS, GYRO_MODE, PROJECTION_TYPE} from "./consts";
 import {glMatrix} from "../utils/math-util.js";
