@@ -1,4 +1,5 @@
 const merge = require("./merge").merge;
+const banner = require("./banner").common;
 const pkgConfigList = require("./rollup.config.pkgd");
 
 const defaultConfig = {
@@ -7,8 +8,9 @@ const defaultConfig = {
 		globals: {
 			"@egjs/axes": "eg.Axes",
 			"@egjs/component": "eg.Component"
-		}
-	}
+		},
+		banner
+	},
 };
 
 const devConfigList = pkgConfigList.map(config => {

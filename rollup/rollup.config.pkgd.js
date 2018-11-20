@@ -57,7 +57,7 @@ Object.keys(pkgType).forEach(key => {
 	});
 });
 
-const pkgList = Object.keys(pkgType).map(key => pkgType[key]);
+const pkgList = Object.values(pkgType);
 
 /**
  * view360.pkgd.js
