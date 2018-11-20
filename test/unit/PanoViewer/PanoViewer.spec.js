@@ -124,9 +124,7 @@ describe("PanoViewer", () => {
 		IT("should config cubemap layout", done => {
 			// Given
 			const MockedPanoViewer = PanoViewerInjector({
-				"../PanoImageRenderer": {
-					PanoImageRenderer: PanoImageRendererForUnitTest
-				}
+				"../PanoImageRenderer/PanoImageRenderer": PanoImageRendererForUnitTest
 			}).default;
 
 			panoViewer = new MockedPanoViewer(target, {

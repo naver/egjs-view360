@@ -1,1 +1,5 @@
-module.exports = "#__VERSION__#";
+const VERSION = "#__VERSION__#";
+
+export {
+	VERSION
+};

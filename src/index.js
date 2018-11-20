@@ -1,6 +1,10 @@
+import PanoViewer from "./PanoViewer/PanoViewer";
+import {SpinViewer, SpriteImage} from "./SpinViewer/index";
+import {VERSION} from "./version";
+
 export {
-	default as VERSION
-} from "./version";
-export {PanoViewer} from "./PanoViewer";
-export {SpinViewer, SpriteImage} from "./SpinViewer";
-export {YawPitchControl} from "./YawPitchControl";
+	PanoViewer,
+	SpinViewer,
+	SpriteImage,
+	VERSION
+};
