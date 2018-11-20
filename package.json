@@ -9,7 +9,8 @@
 	"scripts": {
 		"start": "webpack-dev-server --open --host 0.0.0.0",
 		"build:webpack": "webpack --env.mode=production && webpack --env.mode=packaged",
-		"build": "rollup -c",
+		"build": "rm -rf ./dist && rollup -c && npm run printsizes",
+		"printsizes": "print-sizes ./dist --exclude=\\.map",
 		"test": "karma start",
 		"test:chrome": "karma start --chrome",
 		"lint": "eslint src",
@@ -93,6 +94,7 @@
 		"lite-fixture": "^1.0.2",
 		"marked": "^0.4.0",
 		"mocha": "^5.2.0",
+		"print-sizes": "0.0.3",
 		"replace-in-file": "^3.4.2",
 		"resemblejs": "^2.10.3",
 		"rollup": "^0.67.1",
