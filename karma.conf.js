@@ -36,6 +36,7 @@ module.exports = config => {
 						exclude: /node_modules/,
 						loader: "babel-loader",
 						options: {
+							"babelrc": false,
 							"presets": [
 								[
 									"@babel/preset-env", {
@@ -44,7 +45,10 @@ module.exports = config => {
 									}
 								]
 							],
-							"plugins": ["@babel/plugin-transform-modules-commonjs"]
+							"plugins": [
+								"@babel/plugin-transform-modules-commonjs",
+								["@babel/plugin-proposal-class-properties", {"loose": true}],
+							]
 						}
 					}
 				]
