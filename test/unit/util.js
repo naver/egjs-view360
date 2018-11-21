@@ -38,7 +38,7 @@ function compare(path, canvas, callback) {
 
 function createPanoViewerForRenderingTest(target, options) {
 	const TestPanoViewer = PanoViewerInjector({
-		"../PanoImageRenderer": {
+		"../PanoImageRenderer/PanoImageRenderer": {
 			PanoImageRenderer: PanoImageRendererForUnitTest
 		}
 	}).default;
