@@ -60,8 +60,12 @@ function createPanoImageRenderer(image, isVideo, projectionType, cubemapConfig =
 
 function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuaternion) {
 	return new Promise((res, rej) => {
-		// When
-		if (isQuaternion) {
+		const canvas = inst.canvas || inst._photoSphereRenderer.canvas;
+
+		// inst is PanoViewer
+		if (inst.lookAt) {
+			inst.lookAt({yaw, pitch, fov});
+		} else if (isQuaternion) {
 			const quaternion = quat.create();
 
 			quat.rotateY(quaternion, quaternion, glMatrix.toRadian(-yaw));
@@ -72,7 +76,7 @@ function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuat
 		}
 
 		// Then
-		compare(answerFile, inst.canvas, (diff, data) => {
+		compare(answerFile, canvas, (diff, data) => {
 			const result = {
 				success: diff < threshold,
 				difference: diff,
