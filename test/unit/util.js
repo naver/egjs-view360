@@ -1,3 +1,4 @@
+import PanoViewerInjector from "inject-loader!../../src/PanoViewer/PanoViewer";
 import PanoImageRendererForUnitTest from "./PanoImageRendererForUnitTest";
 import {glMatrix, quat} from "../../src/utils/math-util.js";
 
@@ -35,6 +36,15 @@ function compare(path, canvas, callback) {
 	});
 }
 
+function createPanoViewerForRenderingTest(target, options) {
+	const TestPanoViewer = PanoViewerInjector({
+		"../PanoImageRenderer": {
+			PanoImageRenderer: PanoImageRendererForUnitTest
+		}
+	}).default;
+
+	return new TestPanoViewer(target, options);
+}
 
 function createPanoImageRenderer(image, isVideo, projectionType, cubemapConfig = {},
 	options = {fieldOfView: 65, width: 200, height: 200}) {
@@ -62,14 +72,14 @@ function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuat
 		}
 
 		// Then
-		compare(answerFile, inst.canvas, (pct, data) => {
+		compare(answerFile, inst.canvas, (diff, data) => {
 			const result = {
-				success: pct < threshold,
-				difference: pct,
+				success: diff < threshold,
+				difference: diff,
 				threshold
 			};
 
-			if (pct < threshold) {
+			if (result.success) {
 				res(result);
 			} else {
 				rej(result);
@@ -109,6 +119,7 @@ function isVideoLoaded(video) {
 
 export {
 	compare,
+	createPanoViewerForRenderingTest,
 	createPanoImageRenderer,
 	renderAndCompareSequentially,
 	calcFovOfPanormaImage,

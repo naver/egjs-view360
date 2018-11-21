@@ -1,7 +1,6 @@
 import PanoViewerInjector from "inject-loader!../../../src/PanoViewer/PanoViewer";
-import {compare} from "../util";
+import {compare, createPanoViewerForRenderingTest} from "../util";
 import PanoViewer from "../../../src/PanoViewer/PanoViewer";
-import PanoImageRendererForUnitTest from "../PanoImageRendererForUnitTest";
 import {ERROR_TYPE, EVENTS} from "../../../src/PanoViewer/consts";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 
@@ -123,13 +122,7 @@ describe("PanoViewer", () => {
 
 		IT("should config cubemap layout", done => {
 			// Given
-			const MockedPanoViewer = PanoViewerInjector({
-				"../PanoImageRenderer": {
-					PanoImageRenderer: PanoImageRendererForUnitTest
-				}
-			}).default;
-
-			panoViewer = new MockedPanoViewer(target, {
+			panoViewer = createPanoViewerForRenderingTest(target, {
 				projectionType: "cubemap",
 				width: 200,
 				height: 200,
