@@ -9,14 +9,15 @@
     <link rel="stylesheet" type="text/css" href="../../common/css/main.css">
     <link rel="stylesheet" type="text/css" href="../../common/css/example.css">
     
-    <script src="../../../node_modules/hammerjs/hammer.js"></script>
+    <script src="../../../node_modules/@egjs/hammerjs/dist/hammer.js"></script>
     <script src="../../../node_modules/@egjs/component/dist/component.js"></script>
     <script src="../../../node_modules/@egjs/axes/dist/axes.js"></script>
     <script src="../../../dist/view360.js"></script>
     <style>
     #myPanoViewer {
         position: relative;
-        width: 692px;
+        width: 100%;
+        max-width: 692px;
         height: 391px;
     }
     </style>
@@ -40,6 +41,7 @@
         
     var panoViewer = new PanoViewer(container, {
             image: "../img/PanoViewer/Panorama/smartphone-panorama-picture.jpg",
+            // image: "../img/PanoViewer/Panorama/IMG_0115.jpg",
             projectionType: "panorama"
         }
     );
