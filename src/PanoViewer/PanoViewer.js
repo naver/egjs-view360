@@ -907,7 +907,7 @@ export default class PanoViewer extends Component {
 	 * @static
 	 */
 	static isWebGLAvailable() {
-		return WebGLUtils.isWebGLAvailable();
+		return WebGLUtils.isWebGLAvailable() && WebGLUtils.isStableWebGL();
 	}
 
 	/**

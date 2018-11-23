@@ -3,6 +3,7 @@ import {compare, createPanoViewerForRenderingTest} from "../util";
 import PanoViewer from "../../../src/PanoViewer/PanoViewer";
 import {ERROR_TYPE, EVENTS} from "../../../src/PanoViewer/consts";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
+import WebglUtilsInjector from "inject-loader!../../../src/PanoImageRenderer/WebGLUtils";
 
 function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2) {
 	return new Promise(res => {
@@ -230,6 +231,41 @@ describe("PanoViewer", () => {
 				expect(isGyroSensorAvailable).to.be.false;
 				done();
 			});
+		});
+
+		IT("#isWebGLAvailable", () => {
+			const stableBrowsers = [
+				{os: {name: "android", version: "6"}, browser: {name: "chrome"}},
+				{os: {name: "android", version: "4.4"}, browser: {name: "chrome"}},
+				{os: {name: "ios", version: "9"}, browser: {name: "safari"}}
+			];
+
+			const unstableBrowsers = [
+				{os: {name: "android", version: "4.3"}, browser: {name: "chrome"}},
+				{os: {name: "android", version: "4.4"}, browser: {name: "samsung internet"}}
+			];
+
+			const isAvailable = browserList => {
+				return browserList.map(agentInfo => {
+					// Given
+					const MockWebglUtils = WebglUtilsInjector({
+						"@egjs/agent": () => agentInfo
+					}).default;
+
+					// Given
+					const MockedPanoViewer = PanoViewerInjector({
+						"../PanoImageRenderer/WebGLUtils": MockWebglUtils
+					}).default;
+
+					return MockedPanoViewer.isWebGLAvailable();
+				});
+			};
+
+			const result1 = isAvailable(stableBrowsers);
+			const result2 = isAvailable(unstableBrowsers);
+
+			expect(result1.every(v => v === true)).to.be.true;
+			expect(result2.every(v => v === false)).to.be.true;
 		});
 	});
 
