@@ -1,3 +1,4 @@
+import PanoViewerInjector from "inject-loader!../../src/PanoViewer/PanoViewer";
 import PanoImageRendererForUnitTest from "./PanoImageRendererForUnitTest";
 import {glMatrix, quat} from "../../src/utils/math-util.js";
 
@@ -35,6 +36,13 @@ function compare(path, canvas, callback) {
 	});
 }
 
+function createPanoViewerForRenderingTest(target, options) {
+	const TestPanoViewer = PanoViewerInjector({
+		"../PanoImageRenderer/PanoImageRenderer": PanoImageRendererForUnitTest
+	}).default;
+
+	return new TestPanoViewer(target, options);
+}
 
 function createPanoImageRenderer(image, isVideo, projectionType, cubemapConfig = {},
 	options = {fieldOfView: 65, width: 200, height: 200}) {
@@ -50,8 +58,12 @@ function createPanoImageRenderer(image, isVideo, projectionType, cubemapConfig =
 
 function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuaternion) {
 	return new Promise((res, rej) => {
-		// When
-		if (isQuaternion) {
+		const canvas = inst.canvas || inst._photoSphereRenderer.canvas;
+
+		// inst is PanoViewer
+		if (inst.lookAt) {
+			inst.lookAt({yaw, pitch, fov});
+		} else if (isQuaternion) {
 			const quaternion = quat.create();
 
 			quat.rotateY(quaternion, quaternion, glMatrix.toRadian(-yaw));
@@ -62,14 +74,14 @@ function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuat
 		}
 
 		// Then
-		compare(answerFile, inst.canvas, (pct, data) => {
+		compare(answerFile, canvas, (diff, data) => {
 			const result = {
-				success: pct < threshold,
-				difference: pct,
+				success: diff < threshold,
+				difference: diff,
 				threshold
 			};
 
-			if (pct < threshold) {
+			if (result.success) {
 				res(result);
 			} else {
 				rej(result);
@@ -109,6 +121,7 @@ function isVideoLoaded(video) {
 
 export {
 	compare,
+	createPanoViewerForRenderingTest,
 	createPanoImageRenderer,
 	renderAndCompareSequentially,
 	calcFovOfPanormaImage,

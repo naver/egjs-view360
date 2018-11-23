@@ -177,6 +177,22 @@ var presets = {
     "image": "../img/pano_288.png",
     "projectionType": "equirectangular",
     "touchDirection": eg.view360.PanoViewer.TOUCH_DIRECTION.ALL
+  },
+  "stereoscopic_equi": {
+    "yaw": 0,
+    "pitch": 0,
+    "fov": 65,
+    "yawRangeSize": 360,
+    "pitchRangeSize": 180,
+    "fovMin": 30,
+    "fovMax": 110,
+    "showPolePoint": true,
+    "useZoom": true,
+    "useKeyboard": true,
+    "gyroMode": "yawPitch",
+    "image": "../img/PanoViewer/Stereoscopic/stereoscopic1.png",
+    "projectionType": "stereoequi",
+    "touchDirection": eg.view360.PanoViewer.TOUCH_DIRECTION.ALL
   }
 };
 
@@ -208,27 +224,18 @@ for (var i in presets[INITIAL_PRESET]) {
   object[i] = presets[INITIAL_PRESET][i];
 }
 
+var remembered = {};
+for (var key in presets) {
+  remembered[key] = {
+    0: presets[key]
+  }
+}
+
 var json = {
   closeOnTop: true,
   load: {
     "preset": INITIAL_PRESET,
-    "remembered": {
-      "360_cubestrip": {
-        "0": presets["360_cubestrip"]
-      },
-      "360_cube": {
-        "0": presets["360_cube"]
-      },
-      "360_equi": {
-        "0": presets["360_equi"]
-      },
-      "pano_360": {
-        "0": presets["pano_360"]
-      },
-      "pano_288": {
-        "0": presets["pano_288"]
-      }
-    },
+    "remembered": remembered,
     "closed": false,
     "folders": {
       "Yaw/Pitch/Fov": {
@@ -475,6 +482,7 @@ function render() {
 }
 
 gui.closed = true;
+window.panoViewer = panoViewer;
 })();
 </script>
 </html>

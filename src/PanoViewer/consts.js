@@ -207,7 +207,21 @@ const PROJECTION_TYPE = {
 	 * @type {String}
 	 * @default panorama
 	 */
-	PANORAMA: "panorama"
+	PANORAMA: "panorama",
+	/**
+	 * Constant value for EQUI_STEREOSCOPY type.
+	 *
+	 * Constant value for EQUI_STEREOSCOPY. Stereoscopy image format of EQUIRECTANGULAR. It is an experimental function to show a stereoscopic type equirectangular image on a plane. It does not support stereoscopic viewing function through special visual equipment at present.
+	 *
+	 * @ko EQUI_STEREOSCOPY 에 대한 상수값. EQUIRECTANGULAR 의 Stereoscopy 이미지 형식입니다. Stereoscopic 형태의 equirectangular 이미지를 평면에 보여주기 위한 실험적인 기능으로 현재는 특수한 시각 장비를 통한 입체적인 보기 기능은 지원하지 않습니다.
+	 *
+	 * @name PANORAMA
+	 * @memberof eg.view360.PanoViewer.PROJECTION_TYPE
+	 * @constant
+	 * @type {String}
+	 * @default stereoequi
+	 */
+	STEREOSCOPIC_EQUI: "stereoequi",
 };
 
 export {
