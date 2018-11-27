@@ -1,27 +1,24 @@
-/* .panoviewer-control {
+.fullscreen-container {
 	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
 	z-index: 100;
-    position: absolute;
-    color: white;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    top: 0;
-} */
-
-.panoviewer-control .camera {
-    position: absolute;
-    right: 13px;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(0,0,0,.6);
-    border-radius: 100px;
 }
-.panoviewer-control .pie,.camera {
-    height: 50px;
-    width: 50px;
+.enterfs {
+  display: block;
 }
-
+.fullscreen-container .enterfs {
+	display: none;
+}
+.exitfs {
+	display: none;
+}
+.fullscreen-container .exitfs {
+	display: block;
+}
 
 .panoviewer-control button {
   background-color: rgba(0,0,0,.6);
@@ -31,4 +28,25 @@
   margin: 5px;
   padding: 5px;
   outline: none;
+  font-size: 20px;
+}
+
+.panoviewer-control {
+  text-align: center;
+  position: absolute;
+  font-weight: 300;
+  right: 0px;
+  z-index: 1;
+}
+.panoviewer-control .camera {
+    position: absolute;
+    right: 13px;
+    /* top: 50%;
+    transform: translateY(-50%); */
+    background-color: rgba(0,0,0,.6);
+    border-radius: 100px;
+}
+.panoviewer-control .pie,.camera {
+    height: 50px;
+    width: 50px;
 }

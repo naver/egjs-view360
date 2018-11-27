@@ -12,7 +12,9 @@
     <script src="../../../node_modules/@egjs/axes/dist/axes.js"></script>
     <script src="../../../dist/view360.js"></script> -->
     <script src="../../../dist/PanoViewer/view360.panoviewer.pkgd.min.js"></script>
+    
     <script src="../lib/jquery-3.3.1.min.js"></script>
+    <script src="../lib/screenfull.js"></script>
     <script src="../lib/util.js"></script>
     <script src="../lib/PieView.js"></script>
     <style>
@@ -43,12 +45,17 @@
         <h2>Select your panorama picture taken on smartphone</h2>
     </header>
     <div class="photo360-container">
-        <div class="photo360" id="myPanoViewer"></div>
-        <div class="panoviewer-control">
-            <div class="camera"></div>
+        <div class="photo360" id="myPanoViewer">
+            <div class="panoviewer-control">
+                <button class="enterfs">전체화면 진입</button>
+                <button class="exitfs">전체화면 탈출</button>
+                <div class="camera"></div>
+            </div>
         </div>
     </div>
     <input id="the-file-input" type="file">
+    <div class="fullscreen-container">
+    </div>
     <script>
         // create PanoViewer with option
         var pieRadius = 20;
@@ -98,6 +105,50 @@
 
             // when the file is read it triggers the onload event above.
             reader.readAsDataURL(this.files[0]);
+        });
+
+        // Full Screen Support
+        var originalContainer = document.getElementsByClassName("photo360-container")[0];
+        var fullscreenContainer = document.getElementsByClassName("fullscreen-container")[0];
+
+        function changeMode(mode) {
+            var rootNode = container.parentNode.removeChild(container);
+            var requestFullscreen;
+
+            if (screenfull.enabled) {
+                requestFullscreen = screenfull.isFullscreen;
+            } else {
+                requestFullscreen = mode === "full";
+            }
+                
+            if (requestFullscreen) {
+                fullscreenContainer.appendChild(rootNode);
+	            fullscreenContainer.style.display = "block";
+            } else {
+                originalContainer.appendChild(rootNode);
+	            fullscreenContainer.style.display = "none";
+            }
+
+            // resize event is not triggered.
+            !screenfull.enabled && panoViewer.updateViewportDimensions();
+        }
+
+        screenfull.enabled && screenfull.on("change", changeMode);
+
+        document.querySelector(".enterfs").addEventListener("click", function() {
+            if (screenfull.enabled) {
+                screenfull.request();
+            } else {
+                changeMode("full");
+            }
+        });
+
+        document.querySelector(".exitfs").addEventListener("click", function() {
+            if (screenfull.enabled) {
+                screenfull.exit();
+            } else {
+                changeMode("orignal");
+            }
         });
     </script>
 
