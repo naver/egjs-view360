@@ -233,7 +233,7 @@ describe("PanoViewer", () => {
 			});
 		});
 
-		IT("#isWebGLAvailable", () => {
+		IT("#isSupported", () => {
 			const stableBrowsers = [
 				{os: {name: "android", version: "6"}, browser: {name: "chrome"}},
 				{os: {name: "android", version: "4.4"}, browser: {name: "chrome"}},
@@ -257,7 +257,7 @@ describe("PanoViewer", () => {
 						"../PanoImageRenderer/WebGLUtils": MockWebglUtils
 					}).default;
 
-					return MockedPanoViewer.isWebGLAvailable();
+					return MockedPanoViewer.isSupported();
 				});
 			};
 

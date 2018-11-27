@@ -899,6 +899,18 @@ export default class PanoViewer extends Component {
 	}
 
 	/**
+	 * Check whether the current environment can execute PanoViewer
+	 * @ko 현재 브라우저 환경에서 PanoViewer 실행이 가능한지 여부를 반환합니다.
+	 * @function isSupported
+	 * @memberof eg.view360.PanoViewer
+	 * @return {Boolean} PanoViewer executable <ko>PanoViewer 실행가능 여부</ko>
+	 * @static
+	 */
+	static isSupported() {
+		return WebGLUtils.isWebGLAvailable() && WebGLUtils.isStableWebGL();
+	}
+
+	/**
 	 * Check whether the current environment supports the WebGL
 	 * @ko 현재 브라우저 환경이 WebGL 을 지원하는지 여부를 확인합니다.
 	 * @function isWebGLAvailable
@@ -907,7 +919,7 @@ export default class PanoViewer extends Component {
 	 * @static
 	 */
 	static isWebGLAvailable() {
-		return WebGLUtils.isWebGLAvailable() && WebGLUtils.isStableWebGL();
+		return WebGLUtils.isWebGLAvailable();
 	}
 
 	/**
