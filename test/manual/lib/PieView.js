@@ -48,7 +48,7 @@ PieView.prototype.render = function(state) {
 	this._pie.setAttribute("d", anim);
 
 	this._$navigator.css({
-		transform: "rotateZ(" + (state.direction - state.fov / 2) + "deg)"
+		transform: "rotateZ(" + (-state.direction - state.fov / 2) + "deg)"
 	});
 };
 
