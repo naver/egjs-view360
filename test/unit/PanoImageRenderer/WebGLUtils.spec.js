@@ -4,67 +4,58 @@ import WebglUtilsInjector from "inject-loader!../../../src/PanoImageRenderer/Web
 const WEBGL_AVAILABILITY = WebGLUtils.isWebGLAvailable();
 const IT = WEBGL_AVAILABILITY ? it : it.skip;
 
-describe("WebglUtils", function() {
-	describe("#isWebGLAvailable", function() {
+describe("WebglUtils", () => {
+	describe("#isWebGLAvailable", () => {
 		IT("isWebGLAvailable", () => {
-            // Given
+			// Given
 			// When
-            const webglAvailability = WebGLUtils.isWebGLAvailable();
+			const webglAvailability = WebGLUtils.isWebGLAvailable();
 
 			// Then
 			expect(webglAvailability).to.be.true;
 		});
-    });
-
-	describe("#isStableWebGL", function() {
-
-        [
-            {os: {name: "android", version: "6"}, browser: {name: "chrome"}},
-            {os: {name: "android", version: "4.4"}, browser: {name: "chrome"}},
-            {os: {name: "ios", version: "9"}, browser: {name: "safari"}}
-        ].forEach(agentInfo => {
-            it("on stable browser: " + JSON.stringify(agentInfo), () => {
-                // Given
-                var MockWebglUtils = WebglUtilsInjector(
-                    {
-                        "@egjs/agent": function() {
-                            return agentInfo;
-                        }
-                    }
-                ).default;
-
-                // When
-                const isStableWebGL = MockWebglUtils.isStableWebGL();
-
-                // Then
-                expect(isStableWebGL).to.be.true;
-            });
-        });
-
-        [
-            {os: {name: "android", version: "4.3"}, browser: {name: "chrome"}},
-            {os: {name: "android", version: "4.4"}, browser: {name: "samsung internet"}}
-        ].forEach(agentInfo => {
-            it("on unstable browser: " + JSON.stringify(agentInfo), () => {
-                // Given
-                var MockWebglUtils = WebglUtilsInjector(
-                    {
-                        "@egjs/agent": function() {
-                            return agentInfo;
-                        }
-                    }
-                ).default;
-
-                // When
-                const isStableWebGL = MockWebglUtils.isStableWebGL();
-
-                // Then
-                expect(isStableWebGL).to.be.false;
-            });
-        })
 	});
 
-	describe("#getWebglContext", function() {
+	describe("#isStableWebGL", () => {
+		[
+			{os: {name: "android", version: "6"}, browser: {name: "chrome"}},
+			{os: {name: "android", version: "4.4"}, browser: {name: "chrome"}},
+			{os: {name: "ios", version: "9"}, browser: {name: "safari"}}
+		].forEach(agentInfo => {
+			it(`on stable browser: ${JSON.stringify(agentInfo)}`, () => {
+				// Given
+				const MockWebglUtils = WebglUtilsInjector({
+					"@egjs/agent": () => agentInfo
+				}).default;
+
+				// When
+				const isStableWebGL = MockWebglUtils.isStableWebGL();
+
+				// Then
+				expect(isStableWebGL).to.be.true;
+			});
+		});
+
+		[
+			{os: {name: "android", version: "4.3"}, browser: {name: "chrome"}},
+			{os: {name: "android", version: "4.4"}, browser: {name: "samsung internet"}}
+		].forEach(agentInfo => {
+			it(`on unstable browser: ${JSON.stringify(agentInfo)}`, () => {
+				// Given
+				const MockWebglUtils = WebglUtilsInjector({
+					"@egjs/agent": () => agentInfo
+				}).default;
+
+				// When
+				const isStableWebGL = MockWebglUtils.isStableWebGL();
+
+				// Then
+				expect(isStableWebGL).to.be.false;
+			});
+		});
+	});
+
+	describe("#getWebglContext", () => {
 		IT("should have attribute antialias false as a default", () => {
 			const canvas = document.createElement("canvas");
 			const context = WebGLUtils.getWebglContext(canvas);
@@ -73,7 +64,7 @@ describe("WebglUtils", function() {
 		});
 	});
 
-	describe("#texImage2D", function() {
+	describe("#texImage2D", () => {
 		IT("should not fire exception despite of error", () => {
 			// Given
 			const WIDTH = 150;
@@ -94,7 +85,7 @@ describe("WebglUtils", function() {
 				WebGLUtils.texImage2D(gl, gl.TEXTURE_2D, 0);
 				// no parameter
 				WebGLUtils.texImage2D();
-			} catch(e) {
+			} catch (e) {
 				exceptionOccurs = true;
 			}
 
