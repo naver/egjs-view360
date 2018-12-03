@@ -5,21 +5,35 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
     <title>Panorama</title>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="../../common/css/main.css">
-    <link rel="stylesheet" type="text/css" href="../../common/css/example.css">
-    
+    <link rel="stylesheet" type="text/css" href="../css/panoviewer-control.css">
+
     <script src="../../../node_modules/@egjs/hammerjs/dist/hammer.js"></script>
     <script src="../../../node_modules/@egjs/component/dist/component.js"></script>
     <script src="../../../node_modules/@egjs/axes/dist/axes.js"></script>
     <script src="../../../dist/view360.js"></script>
+    <!-- <script src="../../../dist/PanoViewer/view360.panoviewer.pkgd.min.js"></script> -->
+    
+    <script src="../lib/jquery-3.3.1.min.js"></script>
+    <script src="../lib/screenfull.js"></script>
+    <script src="../lib/util.js"></script>
+    <script src="../lib/PieView.js"></script>
     <style>
-    #myPanoViewer {
+    .photo360-container {
         position: relative;
         width: 100%;
         max-width: 692px;
         height: 391px;
     }
+
+    .photo360 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+    }
+
     </style>
 </head>
 
@@ -28,25 +42,115 @@
         <a href="./">
             <h1>Panorama Example</h1>
         </a>
-        <h2>Panorama pictures taken on Smartphone (not 360 camera like Samsung Gear 360)</h2>
+        <h2>Select your panorama picture taken on smartphone</h2>
     </header>
-    <section>
-        <h2>6:1 aspect ratio</h2>
-        <div id="myPanoViewer"></div>
-    </section>
+    <div class="photo360-container">
+        <div class="photo360" id="myPanoViewer">
+            <div class="panoviewer-control">
+                <button class="enterfs">전체화면 진입</button>
+                <button class="exitfs">전체화면 탈출</button>
+                <div class="camera"></div>
+            </div>
+        </div>
+    </div>
+    <input id="the-file-input" type="file">
+    <div class="fullscreen-container">
+    </div>
     <script>
-    // create PanoViewer with option
-    var PanoViewer = eg.view360.PanoViewer;
-    var container = document.getElementById("myPanoViewer");
-        
-    var panoViewer = new PanoViewer(container, {
-            image: "../img/PanoViewer/Panorama/smartphone-panorama-picture.jpg",
-            // image: "../img/PanoViewer/Panorama/IMG_0115.jpg",
+        // create PanoViewer with option
+        var pieRadius = 20;
+        var pieView = new PieView(document.querySelector(".camera"));
+        var PanoViewer = eg.view360.PanoViewer;
+        var container = document.getElementById("myPanoViewer");
+        var panoViewer = new PanoViewer(container, {
+            image: "../img/PanoViewer/Panorama/half-panorama.jpg",
             projectionType: "panorama"
         }
-    );
-    panoViewer.updateViewportDimensions();
-</script>
+        ).on({
+            "ready": function () {
+                var yawRange = panoViewer.getYawRange();
+                pieView.setState(panoViewer.getYaw(), panoViewer._getHFov(), yawRange[1] - yawRange[0]);
+            },
+            "viewChange": function (e) {
+                var hfov = panoViewer._getHFov();
+                pieView.setState(e.yaw,  hfov);
+            },
+            "error": function(e) {
+                console.error(e);
+            }
+        });
+
+        // resize handler
+        window.addEventListener("resize", debounce(function() {
+            panoViewer.updateViewportDimensions();
+            
+            var yaw = panoViewer.getYaw();
+            var hfov = panoViewer._getHFov();
+            pieView.setState(yaw,  hfov);
+        }));
+
+        // create file input
+        var fileInput = document.getElementById("the-file-input");
+        fileInput.addEventListener("change", function (e) {
+            // generate a new FileReader object
+            var reader = new FileReader();
+
+            // inject an image with the src url
+            reader.onload = function (event) {
+                the_url = event.target.result;
+
+                panoViewer.setImage(the_url, { projectionType: "panorama" });
+                panoViewer.updateViewportDimensions();
+            }
+
+            // when the file is read it triggers the onload event above.
+            reader.readAsDataURL(this.files[0]);
+        });
+
+        // Full Screen Support
+        var originalContainer = document.getElementsByClassName("photo360-container")[0];
+        var fullscreenContainer = document.getElementsByClassName("fullscreen-container")[0];
+
+        function changeMode(mode) {
+            var rootNode = container.parentNode.removeChild(container);
+            var requestFullscreen;
+
+            if (screenfull.enabled) {
+                requestFullscreen = screenfull.isFullscreen;
+            } else {
+                requestFullscreen = mode === "full";
+            }
+                
+            if (requestFullscreen) {
+                fullscreenContainer.appendChild(rootNode);
+	            fullscreenContainer.style.display = "block";
+            } else {
+                originalContainer.appendChild(rootNode);
+	            fullscreenContainer.style.display = "none";
+            }
+
+            // resize event is not triggered.
+            !screenfull.enabled && panoViewer.updateViewportDimensions();
+        }
+
+        screenfull.enabled && screenfull.on("change", changeMode);
+
+        document.querySelector(".enterfs").addEventListener("click", function() {
+            if (screenfull.enabled) {
+                screenfull.request();
+            } else {
+                changeMode("full");
+            }
+        });
+
+        document.querySelector(".exitfs").addEventListener("click", function() {
+            if (screenfull.enabled) {
+                screenfull.exit();
+            } else {
+                changeMode("orignal");
+            }
+        });
+    </script>
 
 </body>
 
