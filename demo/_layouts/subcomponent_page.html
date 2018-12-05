@@ -35,7 +35,7 @@
 {% include subcomponent_header.html %}
 <section id="promo" class="promo section">
 		<div class="container">
-			<div class="hero-image" style="background-image: url(./assets/img/{{ subComponent.name }}.png)">
+			<div class="hero-image" style="background-image: url({{ subComponent.ogimage }})">
 			</div>
 			<h2 class="title">	
 				<span class="highlight">{{ subComponent.name }}</span>
@@ -55,7 +55,7 @@
 		<div class="container">
 			<div class="docs-inner">				
 				<h2 class="title text-center">Showcase</h2>
-				{% capture demo %}{% include_relative {{ subComponent.name | downcase }}_demo.md %}{% endcapture %}
+				{% capture demo %}{% include_relative {{ page.demo }} %}{% endcapture %}
 				{{ demo | markdownify }}
 			</div>
 		</div>
@@ -84,7 +84,7 @@
 		<div class="container">
 			<div class="docs-inner">
 				<h2 class="title text-center">Features</h2>
-				{% capture started %}{% include_relative {{ subComponent.name | downcase }}_features.md %}{% endcapture %}
+				{% capture started %}{% include_relative {{ page.features }} %}{% endcapture %}
 				{{ started | markdownify }}
 			</div>
 		</div>
@@ -93,7 +93,7 @@
 		<div class="container">
 			<div class="docs-inner">
 				<h2 class="title text-center">Getting Started</h2>
-				{% capture started %}{% include_relative {{ subComponent.name | downcase }}_started.md %}{% endcapture %}
+				{% capture started %}{% include_relative {{ page.started }} %}{% endcapture %}
 				{{ started | markdownify }}
 			</div>
 		</div>

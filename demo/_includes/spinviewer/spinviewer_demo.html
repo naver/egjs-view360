@@ -11,11 +11,12 @@
 			position: absolute;
 			top: 20px;
 			right: 20px;
-			background-image: url("./assets/img/sp_detail.png");
+			background-image: url("./common/img/sp_detail.png");
 			background-size: 556px 474px;
 			background-position: 0px -366px;
 			width: 52px;
 			height: 52px;
+			z-index: 1;
 		}
 	</style>
 	<div id="spinviewer-showcase">
@@ -25,7 +26,7 @@
 		var container = document.getElementById("spinviewer-showcase");
 		var SpinViewer = eg.view360.SpinViewer;
 		var spinViewer = new SpinViewer(container, {
-			imageUrl: "./assets/img/spin_demo.jpg",
+			imageUrl: "./common/img/spinviewer/spin_demo.jpg",
 			rowCount: 47,
 			scale: 1,
 			width: "100%"

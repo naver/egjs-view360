@@ -12,7 +12,7 @@ js:
 subComponents:
 - name: PanoViewer
   desc: A panoramic media viewer for the mobile web ↪️🌐↩️
-  ogimage: ../assets/img/PanoViewer.png
+  ogimage: ./common/img/PanoViewer.png
   hashtags:
     - photoSphere
     - panorama
@@ -39,27 +39,27 @@ subComponents:
   #     url:
   examples:
     - name: Basic
-      image: assets/img/basic_panoviewer_thumb.png
-      url: assets/html/panoviewer_basic_example.html
+      image: common/img/thumbnail/basic_panoviewer_thumb.png
+      url: examples/panoviewer_basic_example.html
   projects:
     - name: Naver TV
-      image: ./assets/img/naver_tv.png
+      image: ./common/img/thumbnail/naver_tv.png
       url: https://tv.naver.com
     - name: Naver Blog
-      image: ./assets/img/naver_blog.png
+      image: ./common/img/thumbnail/naver_blog.png
       url: https://blog.naver.com
     - name: Naver Post
-      image: ./assets/img/naver_post.png
+      image: ./common/img/thumbnail/naver_post.png
       url: https://post.naver.com
     - name: Naver Real Estate
-      image: ./assets/img/naver_realestate.png
+      image: ./common/img/thumbnail/naver_realestate.png
       url: https://land.naver.com
     - name: Naver Partner Square
-      image: ./assets/img/naver_partner_square.jpg
+      image: ./common/img/thumbnail/naver_partner_square.jpg
       url: https://partners.naver.com/
 - name: SpinViewer
   desc: Object 360 photo viewer ↪️👠↩️
-  ogimage: ../assets/img/SpinViewer.png
+  ogimage: ../common/img/SpinViewer.png
   hashtags:
     - product
     - turntable
@@ -72,12 +72,12 @@ subComponents:
       size: 62
   examples:
     - name: Basic
-      image: assets/img/basic_spinview_thumb.gif
-      url: assets/html/spinviewer_basic_example.html
+      image: common/img/thumbnail/basic_spinview_thumb.gif
+      url: examples/spinviewer_basic_example.html
   projects:
     - name: Naver Shopping
-      image: ./assets/img/naver_shopping.jpg
+      image: ./common/img/thumbnail/naver_shopping.jpg
       url: https://shopping.naver.com
     - name: Naver Smart Store
-      image: ./assets/img/naver_smartstore.jpg
+      image: ./common/img/thumbnail/naver_smartstore.jpg
       url: https://sell.smartstore.naver.com/#/home/about
