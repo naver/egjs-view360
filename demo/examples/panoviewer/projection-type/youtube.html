@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>Panorama</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/main.css">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/example.css">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/PanoControls.css">
+    
+    <script src="../../../common/js/jquery-2.2.4.js"></script>
+    <script src="../../../common/js/screenfull.min.js"></script>
+    <script src="../../../common/js/PieView.js"></script>
+    <script src="../../../release/latest/dist/view360.pkgd.js"></script>
+    <script src="../../../common/js/PanoControls.js"></script>
+</head>
+<body>
+    <header>
+      <a href="./">
+          <h1>Youtube Format(EAC)</h1>
+      </a>
+    </header>
+    <div class="panoviewer-container">
+        <div class="panoviewer" id="myPanoViewer"></div>
+    </div>
+    <h3><a href="https://www.cosmicorbiters.com/toob-loober-for-youtube">Source Image (EAC - Youtube Video)</a></h3>
+    <img src="./img/youtube.png" style="width: 300px">
+    <script>
+        // create PanoViewer with option
+        var PanoViewer = eg.view360.PanoViewer;
+        var container = document.getElementById("myPanoViewer");
+        var panoViewer = new PanoViewer(container, {
+            image: "./img/youtube.png",
+            projectionType: "cubestrip",
+            cubemapConfig: {
+                order: "BLFDRU",
+                tileConfig: [{rotation: 0}, {rotation: 0}, {rotation: 0}, {rotation: 0}, {rotation: -90}, {rotation: 180}]
+            }
+        });
+
+        PanoControls.init(container, panoViewer);
+        PanoControls.showLoading();
+    </script>
+
+</body>
+
+</html>

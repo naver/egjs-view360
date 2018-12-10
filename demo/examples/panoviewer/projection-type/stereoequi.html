@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>Panorama</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/main.css">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/example.css">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/PanoControls.css">
+    
+    <script src="../../../common/js/jquery-2.2.4.js"></script>
+    <script src="../../../common/js/screenfull.min.js"></script>
+    <script src="../../../common/js/PieView.js"></script>
+    <script src="../../../release/latest/dist/view360.pkgd.js"></script>
+    <script src="../../../common/js/PanoControls.js"></script>
+</head>
+<body>
+    <header>
+      <a href="./">
+          <h1>Stereoscopic Equirectangular (Top & Bottom)</h1>
+      </a>
+    </header>
+    <div class="panoviewer-container">
+        <div class="panoviewer" id="myPanoViewer"></div>
+    </div>
+    <h3><a href="https://pixabay.com/ko/%EC%83%8C-%ED%94%84%EB%9E%80-%EC%8B%9C%EC%8A%A4-%EC%BD%94-%EC%BA%98%EB%A6%AC%ED%8F%AC%EB%8B%88%EC%95%84-%EB%8F%84%EC%8B%9C-%EB%A7%8C-%EB%8B%A4%EB%A6%AC-%EC%97%AC%ED%96%89-%EA%B1%B4%EC%B6%95%EB%AC%BC-2131951/">Source Image (Stereoscopic Equirectangular)</a></h3>
+    <img src="./img/stereoequi.png" style="width: 300px">
+    <script>
+        // create PanoViewer with option
+        var PanoViewer = eg.view360.PanoViewer;
+        var container = document.getElementById("myPanoViewer");
+        var panoViewer = new PanoViewer(container, {
+            image: "./img/stereoequi.png",
+            projectionType: "stereoequi"
+        });
+
+        PanoControls.init(container, panoViewer);
+        PanoControls.showLoading();
+    </script>
+
+</body>
+
+</html>
