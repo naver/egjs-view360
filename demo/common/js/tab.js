@@ -1,23 +1,30 @@
 /* eslint-disable */
 
 var Tab = {
-	$tabs: $(".tabs"),
+	$tabs: $(".tab"),
 	currentTab: "",
 	close: function(tab) {
-		var scrollView = $(".tab-" + tab);
+		var $tab = $(".tab[data-tab=\"" + tab + "\"]");
 	
-		scrollView.removeClass("appear");
+		$tab.removeClass("show appear");
 	},
 	open: function open(tab) {
-		if (Tab.currentTab === name) {
+		if (Tab.currentTab === tab) {
 			return;
 		}
-		var scrollView = $(".tab-" + tab);
+		var $tab = $(".tab[data-tab=\"" + tab + "\"]");
 		var currentTab = Tab.currentTab;
 	
-		scrollView.addClass("appear");
 		Tab.currentTab = tab;
 		Tab.$tabs.css("display", "none");
 		currentTab && Tab.close(currentTab);
+
+		$tab.addClass("show");
+
+		requestAnimationFrame(function () {
+			requestAnimationFrame(function () {
+				$tab.addClass("appear");
+			});
+		});
 	}
 };
