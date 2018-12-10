@@ -11,6 +11,8 @@ github:
   user: naver
   repo: egjs-view360 
 js:
+  - common/js/tab.js
+  - common/js/hash.js
 subComponents:
 - name: PanoViewer
   desc: A panoramic media viewer for the mobile web ↪️🌐↩️

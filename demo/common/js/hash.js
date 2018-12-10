@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 (function() {
 	var headers = $("h1[id], h2[id], h3[id]");
 	
