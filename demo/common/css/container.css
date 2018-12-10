@@ -1,3 +1,26 @@
 .container, section.section .container {
   max-width: 900px;
 }
+section .container .docs-inner {
+  max-width: 900px;
+}
+section .container .docs-inner h2.title {
+  font-size: 50px;
+  text-align: left;
+}
+.section.tab {
+  padding: 20px 0px;
+  display: none;
+  opacity: 0;
+  transition: opacity ease 1s;
+  transition-property: opacity, transform;
+  transition-delay: 0.2s;
+  transform: translateY(-30px);
+}
+.tab.show {
+  display: block;
+}
+.tab.appear {
+  opacity: 1;
+  transform: translateY(0px);
+}
