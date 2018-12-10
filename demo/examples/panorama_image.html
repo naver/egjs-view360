@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>Panorama</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../common/css/main.css">
+    <link rel="stylesheet" type="text/css" href="../common/css/example.css">
+    <link rel="stylesheet" type="text/css" href="../common/css/PanoControls.css">
+    
+    <script src="../common/js/jquery-2.2.4.js"></script>
+    <script src="../common/js/screenfull.min.js"></script>
+    <script src="../common/js/PieView.js"></script>
+    <script src="../release/latest/dist/view360.pkgd.js"></script>
+    <script src="../common/js/PanoControls.js"></script>
+    <style>
+    .photo360-container {
+        position: relative;
+        width: 100%;
+        max-width: 692px;
+        height: 391px;
+    }
+
+    .photo360 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        outline: none;
+    }
+    </style>
+</head>
+
+<body>
+    <header>
+      <a href="./">
+          <h1>Smartphone Panorama</h1>
+      </a>
+    </header>
+    <div class="photo360-container">
+        <div class="photo360" id="myPanoViewer"></div>
+    </div>
+    <h2>Select your panorama picture taken on smartphone</h2>
+    <input id="the-file-input" type="file">
+    <script>
+        // create PanoViewer with option
+        var PanoViewer = eg.view360.PanoViewer;
+        var container = document.getElementById("myPanoViewer");
+        var panoViewer = new PanoViewer(container, {
+            image: "./img/smartphone-panorama-picture.jpg",
+            projectionType: "panorama"
+        });
+
+        PanoControls.init(container, panoViewer);
+        PanoControls.showLoading();
+
+        // create file input
+        var fileInput = document.getElementById("the-file-input");
+        fileInput.addEventListener("change", function (e) {
+            PanoControls.showLoading();
+
+            // generate a new FileReader object
+            var reader = new FileReader();
+
+            // inject an image with the src url
+            reader.onload = function (event) {
+                the_url = event.target.result;
+
+                panoViewer.setImage(the_url, {projectionType: "panorama"});
+                panoViewer.updateViewportDimensions();
+            }
+
+            // when the file is read it triggers the onload event above.
+            reader.readAsDataURL(this.files[0]);
+        });
+    </script>
+
+</body>
+
+</html>
