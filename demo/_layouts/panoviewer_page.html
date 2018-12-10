@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+{% include subcomponent_head.html %}
+{% for css in site.data.egjs.css %}
+	<link rel="stylesheet" href="{{ css }}">
+{% endfor %}
+{% for dist in site.data.egjs.dist %}
+	<script src="{{ dist }}"></script>
+{% endfor %}
+<script>
+	var homeUrl = window.location.href;
+	if (homeUrl.indexOf("#") !== -1) {
+		homeUrl = homeUrl.substr(0, homeUrl.indexOf("#"));
+	}
+	homeUrl = homeUrl
+		.replace("/index.html", "/")
+		.replace("/gallery.html", "/");
+	if (homeUrl[homeUrl.length-1] !== "/") {
+		homeUrl += "/";
+	};
+	window.HOMELINK = homeUrl;
+	window.LIBLINK = [];
+	{% for dist in site.data.egjs.dist %}
+	window.LIBLINK.push(window.HOMELINK + "{{ dist }}");
+	{% endfor %}
+</script>
+<body>
+
+{% for subComponent in site.data.egjs.subComponents %}
+{% if subComponent.name == page.subComponentName %}
+	{% assign subComponent = subComponent %}
+{% endif %}
+{% endfor %}
+
+{% include subcomponent_header.html %}
+<section id="promo" class="promo section">
+		<div class="container">
+			<div class="hero-image" style="background-image: url(./assets/img/{{ subComponent.name }}.png)">
+			</div>
+			<h2 class="title">	
+				<span class="highlight">{{ subComponent.name }}</span>
+			</h2>
+			<p class="intro">{{ subComponent.desc }}<br/>
+				<span class="hashtag">		
+					{% for hashtag in subComponent.hashtags %}
+					#{{ hashtag }} 
+					{% endfor %}
+				</span>
+			</p>
+		</div>
+	</section>
+<div>
+	{% include nav.html %}
+	<section id="home" class="tab docs section" data-tab="home" id="home">
+	</section>
+	<section id="projections" class="tab docs section" data-tab="projections" id="projections">
+	</section>
+	<section id="features" class="docs section tab" data-tab="features">
+		<div class="container">
+			<div class="docs-inner">
+				<h2 class="title text-center">Features</h2>
+				{% capture started %}{% include_relative {{ subComponent.name | downcase }}_features.md %}{% endcapture %}
+				{{ started | markdownify }}
+			</div>
+		</div>
+	</section>
+	<section id="started" class="docs section tab" data-tab="started">
+		<div class="container">
+			<div class="docs-inner">
+				<h2 class="title text-center">Getting Started</h2>
+				{% capture started %}{% include_relative {{ subComponent.name | downcase }}_started.md %}{% endcapture %}
+				{{ started | markdownify }}
+			</div>
+		</div>
+	</section>
+	{% if subComponent.examples %}
+	{% assign examples = subComponent.examples %}
+	<section id="examples" class="docs section">
+		<div class="container">
+			<div class="docs-inner">
+				<h2 class="title text-center">Examples</h2>
+				<ul class="link_list">
+				{% for example in examples %}
+				<li class="link_item">
+					<a href="{{ example.url }}" class="td_a">
+						<div class="link_item_image">
+							<img src="{{ example.image }}" width="166" height="108">
+						</div>
+						<div class="link_item_title">
+							<span class="">{{ example.name }}</span>
+						</div>
+					</a>
+				</li>
+				{% endfor %}
+				</ul>
+			</div>
+		</div>
+	</section>
+	{% endif %}
+	{% if subComponent.tools %}
+	{% assign tools = subComponent.tools %}
+		<section id="tools" class="docs section">
+			<div class="container">
+				<div class="docs-inner">
+					<h2 class="title text-center">Tools</h2>
+					<ul class="link_list">
+					{% for tool in tools %}
+					<li class="link_item">
+						<a href="{{ tool.url }}" class="td_a">
+							<div class="link_item_image">
+								<img src="{{ tool.image }}" width="108" height="108">
+							</div>
+							<div class="link_item_title">
+								<span class="">{{ tool.name }}</span>
+							</div>
+						</a>
+					</li>
+					{% endfor %}
+					</ul>
+				</div>
+			</div>
+		</section>
+	{% endif %}
+	{% if subComponent.projects %}
+	{% assign projects = subComponent.projects %}
+	<section id="projects" class="docs section">
+		<div class="container">
+			<div class="docs-inner">
+				<h2 class="title text-center">Projects</h2>
+				<ul class="link_list">
+				{% for project in projects %}
+				<li class="link_item">
+					<a href="{{ project.url }}" class="td_a">
+						<div class="link_item_image">
+							<img src="{{ project.image }}" width="108" height="108">
+						</div>
+						<div class="link_item_title">
+							<span class="">{{ project.name }}</span>
+						</div>
+					</a>
+				</li>
+				{% endfor %}
+				</ul>
+				<p><br/>Don't see your project? Post an <strong><a href="https://github.com/{{ site.data.egjs.github.user }}/{{ site.data.egjs.github.repo }}/issues/new"/>issue</a></strong> with <i>built-with-view360</i> label  over on the <strong><a href="https://github.com/{{ site.data.egjs.github.user }}/{{ site.data.egjs.github.repo }}/"/>github page</a></strong>.					
+			</div>	
+			</p>		
+		</div>
+	</section>
+	{% endif %}
+
+</div>
+{% include subcomponent_footer.html %}
+{% for js in site.data.egjs.js %}
+	<script src="{{ js }}"></script>
+{% endfor %}
+</body>
+</html>
