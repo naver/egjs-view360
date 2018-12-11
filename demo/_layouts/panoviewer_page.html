@@ -52,9 +52,64 @@
 <div>
 	{% include nav.html %}
 	<section id="home" class="tab docs section" data-tab="home" id="home">
+		<ul class="list">
+			{% for projection in subComponent.projections %}
+			{% for demo in projection.demos %}
+			<li>
+				<a href="{{demo.link}}">
+					<p class="image-area">
+						<img src="./common/img/{{demo.image}}" class="image" alt="{{demo.name}}'s image"/>
+					</p>
+					<p class="title">{{demo.name}}</p>
+					<p class="description">{{demo.description}}</p>
+				</a>
+			</li>
+			{% endfor %}
+			{% endfor %}
+		</ul>
 	</section>
-	<section id="projections" class="tab docs section" data-tab="projections" id="projections">
-	</section>
+	<section id="projections" class="tab docs section" data-tab="projections">
+			<div class="container">
+				<div class="docs-inner">
+					<h2 class="title">Projection Types</h2>
+					<p>PanoViewer offers five projection types. You can see video with the projection.</p>
+				</div>
+			</div>
+		</section>
+		<section id="list" class="tab docs section" data-tab="projections">
+			<div class="list">
+				<ul class="container">
+					{% for projection in subComponent.projections %}
+					<li class="item">
+						<a href="#{{projection.id}}">
+							<p>{{projection.name}}</p>
+						</a>
+					</li>
+					{% endfor %}			
+				</ul>
+			</div>
+		</section>
+		{% for projection in subComponent.projections %}
+		<section id="{{projection.id}}" class="tab projection docs section" data-tab="projections">
+			<div class="container">
+					<div class="docs-inner">
+						<h3 class="title">{{projection.name}}</h3>
+						<img src="./common/img/{{projection.image}}" class="image" alt="{{projection.name}}'s image"/>
+						<p class="description">{{projection.description}}</p>
+						<ul class="demos">
+							{% for demo in projection.demos %}
+							<li>
+								<a href="{{demo.link}}">
+									<img src="./common/img/{{demo.image}}" alt="{{demo.name}}'s image"/>
+									<p>{{demo.name}}</p>
+								</a>
+							</li>
+							{% endfor %}
+						</ul>
+					</div>
+				</div>
+		</section>
+		{% endfor %}
 	<section id="features" class="docs section tab" data-tab="features">
 		<div class="container">
 			<div class="docs-inner">
@@ -73,54 +128,6 @@
 			</div>
 		</div>
 	</section>
-	{% if subComponent.examples %}
-	{% assign examples = subComponent.examples %}
-	<section id="examples" class="docs section">
-		<div class="container">
-			<div class="docs-inner">
-				<h2 class="title text-center">Examples</h2>
-				<ul class="link_list">
-				{% for example in examples %}
-				<li class="link_item">
-					<a href="{{ example.url }}" class="td_a">
-						<div class="link_item_image">
-							<img src="{{ example.image }}" width="166" height="108">
-						</div>
-						<div class="link_item_title">
-							<span class="">{{ example.name }}</span>
-						</div>
-					</a>
-				</li>
-				{% endfor %}
-				</ul>
-			</div>
-		</div>
-	</section>
-	{% endif %}
-	{% if subComponent.tools %}
-	{% assign tools = subComponent.tools %}
-		<section id="tools" class="docs section">
-			<div class="container">
-				<div class="docs-inner">
-					<h2 class="title text-center">Tools</h2>
-					<ul class="link_list">
-					{% for tool in tools %}
-					<li class="link_item">
-						<a href="{{ tool.url }}" class="td_a">
-							<div class="link_item_image">
-								<img src="{{ tool.image }}" width="108" height="108">
-							</div>
-							<div class="link_item_title">
-								<span class="">{{ tool.name }}</span>
-							</div>
-						</a>
-					</li>
-					{% endfor %}
-					</ul>
-				</div>
-			</div>
-		</section>
-	{% endif %}
 	{% if subComponent.projects %}
 	{% assign projects = subComponent.projects %}
 	<section id="projects" class="docs section">
