@@ -4,11 +4,15 @@ desc: Build immersive 360 media experience on your website
 ogimage: http://naver.github.io/egjs/img/og.png
 dist:
 - release/latest/dist/view360.pkgd.min.js
+css:
+- ../common/css/container.css
 GA: UA-70842526-23
 github:
   user: naver
   repo: egjs-view360 
 js:
+  - common/js/tab.js
+  - common/js/hash.js
 subComponents:
 - name: PanoViewer
   desc: A panoramic media viewer for the mobile web ↪️🌐↩️
@@ -57,6 +61,92 @@ subComponents:
     - name: Naver Partner Square
       image: ./common/img/thumbnail/naver_partner_square.jpg
       url: https://partners.naver.com/
+  projections:
+    - name: Equirectangular
+      id: equirectangular
+      image: equirectangular.png
+      description: The equirectangular projection (also called the equidistant cylindrical projection, geographic projection, or la carte parallélogrammatique projection, and which includes the special case of the plate carrée projection or geographic projection) is a simple map projection attributed to Marinus of Tyre, who Ptolemy claims invented the projection about AD 100.
+      demos:
+        - name: demo1
+          image: equirectangular.png
+          description: 11111`2121212121212121212121212121212121
+          link: demo1.html
+        - name: demo2
+          image: equirectangular.png
+          description: 11111`2121212121212121212121212121212121
+          link: demo1.html
+        - name: demo3
+          image: equirectangular.png
+          description: 11111`2121212121212121212121212121212121
+          link: demo1.html
+    - name: Cubemap
+      id: cubemap
+      image: cubemap.jpg
+      description: asdasdasd
+      demos:
+        - name: demo1
+          image: equirectangular.png
+          description: 111
+          link: demo1.html
+        - name: demo2
+          image: equirectangular.png
+          description: 111
+          link: demo1.html
+        - name: demo3
+          image: equirectangular.png
+          description: 111
+          link: demo1.html
+    - name: Cubestrip
+      id: cubestrip
+      image: cubestrip.png
+      description: Cubestrip is a format for a single image with a combination of six cube faces. It is almost identical to cubemap, but it is implemented in a different way. It aims at better performance and efficiency. In addition, it automatically detects and supports EAC.
+      demos:
+        - name: demo1
+          image: equirectangular.png
+          description: 11111`2121212121212121211`212121212121212121212121212121212112121212121212121
+          link: demo1.html
+        - name: demo2
+          image: equirectangular.png
+          description: 11111`21212111`21212121212121212121212121212121212121212121212121212121212121
+          link: demo1.html
+        - name: demo3
+          image: equirectangular.png
+          description: 11111`2121212121212121211`212121212121212121212121212121212112121212121212121
+          link: demo1.html
+    - name: Panorama
+      id: panorama
+      image: panorama.png
+      description: asdasdasdasd
+      demos:
+        - name: demo1
+          image: equirectangular.png
+          description: 111`2121212121212121212121212121212121
+          link: demo1.html
+        - name: demo2
+          image: equirectangular.png
+          description: 11111`2121212121212121212121212121212121
+          link: demo1.html
+        - name: demo3
+          image: equirectangular.png
+          description: 11111`2121212121212121212121212121212121
+          link: demo1.html
+    - name: Stereoscopic Equirectangular
+      id: stereo
+      image: stereo.png
+      description: asdasdasdas
+      demos:
+        - name: demo1
+          image: equirectangular.png
+          description: 111
+          link: demo1.html
+        - name: demo2
+          image: equirectangular.png
+          description: 111
+          link: demo1.html
+        - name: demo3
+          image: equirectangular.png
+          description: 111
+          link: demo1.html
 - name: SpinViewer
   desc: Object 360 photo viewer ↪️👠↩️
   ogimage: ../common/img/SpinViewer.png
