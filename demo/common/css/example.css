@@ -39,4 +39,26 @@ header h1 {
     height: 100%;
     margin: 0;
     outline: none;
+    background-color:#bcbec0;
+    -webkit-animation: color-fade 3s infinite;
+    -moz-animation: color-fade 3s infinite;
+    animation: color-fade 3s infinite;
+}
+
+@keyframes color-fade {
+    0% { background: #bcbec0; }
+    50% { background: #777777; }
+    0% { background: #bcbec0; }
+}
+
+@-moz-keyframes color-fade {
+    0% { background: #bcbec0; }
+    50% { background: #777777; }
+    0% { background: #bcbec0; }
+}
+
+@-webkit-keyframes color-fade {
+    0% { background: #bcbec0; }
+    50% { background: #777777; }
+    0% { background: #bcbec0; }
 }

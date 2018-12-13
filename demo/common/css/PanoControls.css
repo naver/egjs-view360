@@ -97,3 +97,61 @@
 .image360_loading.is-loading {
   display: block;
 }
+
+
+/**
+ *
+ */
+ .gyroTouchOptions {
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  text-align: right;
+}
+
+.optionSet {
+  /* position: absolute;
+  bottom:0px;
+  right: 0px; */
+}
+
+.optionSet .option {
+  border: 1px;
+  border-radius: 3px;
+  background-color: rgb(188, 188, 207);
+  color: white;
+  padding: 10px;
+  margin: 5px 0px;
+  display: inline-block;
+}
+
+.optionSet .option:hover {
+  background-color: rgb(73, 73, 201);
+}
+
+.optionSet .option.selected {
+  background-color: rgb(175, 64, 226);
+}
+
+.selectGroup {
+  position: relative;
+  display: inline-block;
+}
+
+.selectGroup .option{
+  border-radius: 15px;
+}
+
+.statusButton.option {
+  position: relative;
+  background-color:#7fbeff;
+  margin: 5px;
+}
+
+.statusButton.option:hover{
+  background-color: #7f1e1f;
+}
+
+.selectGroup.hide {
+  display: none;
+}
