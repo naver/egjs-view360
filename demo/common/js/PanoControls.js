@@ -5,7 +5,16 @@ var PanoControls = (function() {
 	 *
 	 * @param {HTMLElement} target
 	 */
-	function init(target, panoViewer) {
+	function init(target, panoViewer, options) {
+		if (!PieView) {
+			console.warn("PieView is not initialized.");
+			return;
+		};
+
+		if (options && (options.enableTouchOption || options.enableGyroOption)) {
+			GyroTouchOptions(target, panoViewer, options);
+		}
+
 		_initControlHTML(target);
 
 		/**
@@ -44,7 +53,7 @@ var PanoControls = (function() {
 		var fullscreenContainer = document.getElementsByClassName("fullscreen-container")[0];
 
 		function changeMode(mode) {
-				var rootNode = container.parentNode.removeChild(container);
+				var rootNode = target.parentNode.removeChild(target);
 				var requestFullscreen;
 
 				if (screenfull.enabled) {
@@ -54,10 +63,10 @@ var PanoControls = (function() {
 				}
 
 				if (requestFullscreen) {
-						fullscreenContainer.appendChild(rootNode);
+					fullscreenContainer.appendChild(rootNode);
 					fullscreenContainer.style.display = "block";
 				} else {
-						originalContainer.appendChild(rootNode);
+					originalContainer.appendChild(rootNode);
 					fullscreenContainer.style.display = "none";
 				}
 

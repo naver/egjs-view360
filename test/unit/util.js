@@ -112,10 +112,22 @@ function isVideoLoaded(video) {
 		/* Ref https://www.w3schools.com/tags/av_prop_readystate.asp */
 		// If it is already loaded.
 		if (video.readyState >= 2) {
+			console.log("debug: isVideodLoaded - readyState", video.readyState);
 			res();
+			return;
 		}
 
-		video.addEventListener("loadeddata", res);
+		console.log("debug: isVideoLoaded - addEventListener");
+		video.addEventListener("loadeddata", () => {
+			console.log("debug: isVideoLoaded - event(loadeddata)");
+			res();
+		});
+
+		["loadstart", "durationchange", "loadedmetadata", "canplay"].forEach(eventName => {
+			video.addEventListener(eventName, () => {
+				console.log(`debug: isVideoLoaded - event(${eventName})`);
+			});
+		});
 	});
 }
 
