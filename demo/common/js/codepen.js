@@ -86,8 +86,9 @@ $.ajax({
 
   var data = {
     title: $html.find("title").text(),
+    description: $html.find("title").text(),
     private: false,
-    header: "<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi'>",
+    head: "<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi'>",
     html: htmlText,
     html_pre_processor: "none",
     css: cssText,
