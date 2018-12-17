@@ -48,10 +48,12 @@ a {
   height: 100%;
 }
 
-p.info {
-  margin: 10px auto;
-  max-width: 450px;
+.infos {
+  display: inline-block;
+  max-width: 600px;
   text-align: left;
+}
+p.info {
   /* white-space: nowrap; */
 }
 
