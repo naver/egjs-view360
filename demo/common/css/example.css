@@ -42,7 +42,7 @@ header h1 {
     background-color:#bcbec0;
 }
 
-.panoviewer.loading{
+.panoviewer.loading {
     -webkit-animation: color-fade 3s infinite;
     -moz-animation: color-fade 3s infinite;
     animation: color-fade 3s infinite;

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>PanoViewer - Motion</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/main.css">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/example.css">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/PanoControls.css">
+    <style>
+        .message {
+            box-shadow: 0 0 0 1px #e0b4b4 inset, 0 0 0 0 transparent;
+            background-color: #fff6f6;
+            color: #9f3a38;
+            margin: 1em 0;
+            padding: 1em 1.5em;
+            width: 100%;
+            max-width: 692px;
+        }
+
+        .message.blink {
+            animation: blinker 3s linear infinite;
+        }
+
+        @keyframes blinker {
+            50% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+      <a href="./">
+          <h1>Device Motion (Gyro Mode)</h1>
+      </a>
+    </header>
+    <div class="message blink" style="display:none">
+        Gyro mode can be tested on <span style="font-size: 1.14em;color:#912d2b">Mobile Device</span> (gyro enabled)
+    </div>
+    <div class="panoviewer-container">
+        <div id="panoSet">
+            <div class="panoviewer" id="myPanoViewer"></div>
+        </div>
+    </div>
+    <h3>Source Image (Stereoscopic Equirectangular)</h3>
+    <img src="./g70-4096-center-align.jpg" style="width: 300px">
+    <script>
+      window.onload = function() {
+        if (navigator.userAgent.indexOf("Mobi") === -1) {
+            document.querySelector(".message.blink").style.display = "block";
+        }
+
+        // create PanoViewer with option
+        var PanoViewer = eg.view360.PanoViewer;
+        var container = document.getElementById("myPanoViewer");
+        var panoViewer = new PanoViewer(container, {
+            image: "./g70-4096-center-align.jpg",
+            projectionType: "equirectangular"
+        });
+
+        var panoviewerSet = document.getElementById("panoSet");
+        PanoControls.init(panoviewerSet, panoViewer, {enableGyroOption: true, enableTouchOption: true});
+        PanoControls.showLoading();
+      };
+    </script>
+    <script src="../../../common/js/jquery-2.2.4.js"></script>
+    <script src="../../../common/js/screenfull.min.js"></script>
+    <script src="../../../common/js/PieView.js"></script>
+    <script src="../../../common/js/GyroTouchOptions.js"></script>
+    <script src="../../../release/latest/dist/view360.pkgd.js"></script>
+    <script src="../../../common/js/PanoControls.js"></script>
+</body>
+
+</html>
