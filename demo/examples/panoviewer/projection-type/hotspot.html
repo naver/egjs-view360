@@ -7,7 +7,7 @@
     <title>eg.view360 examples HotSpot</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="../../../common/css/main.css">
-    <link rel="stylesheet" type="text/css" href="../../../common/css/example.css">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/highlight.css">
     <link rel="stylesheet" type="text/css" href="../../../common/css/PanoControls.css">
 
     <script src="../../../common/js/jquery-2.2.4.js"></script>
@@ -20,9 +20,12 @@
         body {
             text-align: center;
         }
-
-        h1 {
+        header {
+            padding: 10px;
+        }
+        header h1 {
             text-align: center;
+            font-size: 60px;
         }
         a {
             color: #333;
@@ -201,7 +204,7 @@
             font-weight: bold;
         }
 
-        p.info .value, .emphasis.value {
+        p.info .value {
             vertical-align: middle;
             font-weight: 300;
             background: #eee;
@@ -281,24 +284,6 @@
             bottom: 0;
             margin: auto;
         }
-        .source {
-            margin: 10px auto;
-            width: 100%;
-            max-width: 800px;
-            border: 1px solid #ccc;
-            background: #f5f5f5;
-            padding: 10px;
-        }
-        .source pre {
-            font-size: 13px;
-            text-align: left;
-            font-family: Menlo,Monaco,Consolas,"Courier New",monospace;;
-        }
-        .source .emphasis.value {
-            font-size: 13px;
-            margin: 0;
-            padding: 0;
-        }
     </style>
 </head>
 
@@ -320,10 +305,10 @@
 </header>
 <h2>Drag and rotate the photo. An anchor will follow.</h2>
 <p class="info">
-    <span class="head">projection:</span> <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.PROJECTION_TYPE.html#.CUBEMAP"><span class="value">CUBEMAP</span></a>
+    <span class="head">projection:</span> <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.PROJECTION_TYPE.html#.CUBEMAP" target="_blank"><span class="value">CUBEMAP</span></a>
 </p>
 <p class="info">
-    <span class="head">source:</span> <a href="./img/bookcube1.jpg"><span class="value">bookcube1.jpg</span></a>,  <a href="./img/bookcube1.jpg"><span class="value">bookcube2.jpg</span></a>
+    <span class="head">source:</span> <a href="./img/bookcube1.jpg" target="_blank"><span class="value">bookcube1.jpg</span></a>,  <a href="./img/bookcube1.jpg" target="_blank"><span class="value">bookcube2.jpg</span></a>
 </p>
 
 <div class="pano-viewer" data-page="1">
@@ -345,12 +330,21 @@
 </div>
 <div class="source">
 <pre>
+function load(target, page) {
+    <span class="comment">// next image</span>
+    viewer.setImage(<a href="./img/bookcube2.jpg" target="_blank"><span class="emphasis value" target="_blank">"./img/bookcube2.jpg"</span></a>, {
+        projectionType: eg.view360.PanoViewer.PROJECTION_TYPE.CUBEMAP,
+        cubemapConfig: {
+            <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.html" target="_blank"><span class="emphasis value">tileConfig: { flipHorizontal: true, rotation: 0 },</span></a>
+        }
+    });
+}
 var viewer = new eg.view360.PanoViewer(container, {
     image:  <a href="./img/bookcube1.jpg" target="_blank"><span class="emphasis value">"./img/bookcube1.jpg"</span></a>,
     useZoom: false,
     projectionType: <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.PROJECTION_TYPE.html#.CUBEMAP" target="_blank"><span class="emphasis value">eg.view360.PanoViewer.PROJECTION_TYPE.CUBEMAP</span></a>,
     cubemapConfig: {
-        <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.html" target="_blank"><span class="emphasis value">tileConfig: { flipHorizontal: true, rotation: 0 },</span></a>
+        <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.html" target="_blank"><span class="emphasis value">tileConfig: { flipHorizontal: true, rotation: 0 }</span></a>
     }
 }).on("ready", function (e) {
     setHotspotOffsets(viewer);
