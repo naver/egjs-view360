@@ -11,7 +11,12 @@ var PanoControls = (function() {
 			return;
 		};
 
-		var panoEl = target.querySelector(".panoviewer");
+		var panoEl;
+		if (target.classList.contains("panoviewer")) {
+			panoEl = target;
+		} else {
+			panoEl = target.querySelector(".panoviewer");
+		}
 		panoEl.classList.add("loading");
 
 		if (options && (options.enableTouchOption || options.enableGyroOption)) {
@@ -76,7 +81,7 @@ var PanoControls = (function() {
 				}
 
 				// resize event is not triggered.
-				!screenfull.enabled && panoViewer.updateViewportDimensions();
+				panoViewer.updateViewportDimensions();
 		}
 
 		screenfull.enabled && screenfull.on("change", changeMode);
