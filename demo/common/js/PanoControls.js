@@ -50,6 +50,7 @@ var PanoControls = (function() {
 		 * Full Screen Handler
 		 */
 		var originalContainer = target.parentElement;
+		var nextElementSibling = target.nextElementSibling;
 		var fullscreenContainer = document.getElementsByClassName("fullscreen-container")[0];
 
 		function changeMode(mode) {
@@ -66,7 +67,7 @@ var PanoControls = (function() {
 					fullscreenContainer.appendChild(rootNode);
 					fullscreenContainer.style.display = "block";
 				} else {
-					originalContainer.appendChild(rootNode);
+					originalContainer.insertBefore(rootNode, nextElementSibling);
 					fullscreenContainer.style.display = "none";
 				}
 
