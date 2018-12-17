@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <title>eg.view360 examples HotSpot</title>
+    <title>eg.view360 examples Responsive</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="../../../common/css/main.css">
     <link rel="stylesheet" type="text/css" href="../../../common/css/demo.css">
@@ -117,61 +117,104 @@
                 transform: rotate(0deg);
             }
         }
+        .viewer.container219:before {
+            padding-top: 45%;
+        }
+        .viewer.cube:before {
+            padding-top: 100%;
+        }
+        .buttons button {
+            border: 1px solid #ddd;
+            margin: 5px;
+            padding: 10px;
+            border-radius: 0;
+            font-size: 14px;
+        }
     </style>
 </head>
 
 <body>
-<header>
-    <h1>Responsive</h1>
-    <div class="icon">
-        <div class="resizer">
+    <header>
+        <h1>Responsive</h1>
+        <div class="icon">
+            <div class="resizer">
+            </div>
+            <div class="resizer-window">
+                <div class="direction top left"></div>
+                <div class="direction top right"></div>
+                <div class="direction bottom left"></div>
+                <div class="direction bottom right"></div>
+            </div>
         </div>
-        <div class="resizer-window">
-            <div class="direction top left"></div>
-            <div class="direction top right"></div>
-            <div class="direction bottom left"></div>
-            <div class="direction bottom right"></div>
-        </div>
+    </header>
+    <h2>Rotate the screen or click the button to resize the viewer.</h2>
+    <div class="infos">
+        <p class="info">
+            <span class="head">projection</span>: <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.PROJECTION_TYPE.html" target="_blank"><span
+                    class="value">PANORAMA</span></a>
+        </p>
+        <p class="info">
+            <span class="head">image</span>: <a href="./img/panorama.jpg" target="_blank"><span
+                    class="value">panorama.jpg</span></a>
+        </p>
     </div>
-</header>
-<h2>Rotate the screen or click the button to resize the viewer.</h2>
-
-<div class="viewer">
     <div class="buttons">
-        <button>10:6</button>
-        <button>Cube</button>
+        <button onclick="removeClass('cube');addClass('container219');resize();">21:9 Container</button>
+        <button onclick="removeClass('cube');removeClass('container219');resize();">10:6 Container</button>
+        <button onclick="removeClass('container219');addClass('cube');resize();">Cube Container</button>
     </div>
-    <div class="container"></div>
-</div>
-<div class="source">
-<pre>
-var container = document.getElementById("myPanoViewer");
+    <div class="viewer">
 
-var panoViewer = new eg.view360.PanoViewer(container,
-    {
-        image: <a href="./img/equi.jpg" target="_blank"><span class="value emphasis">"./img/equi.jpg"</span></a>
-    }
-);
+        <div class="container"></div>
+    </div>
+    <div class="source">
+        <pre>
+var panoViewer = new eg.view360.PanoViewer(container, {
+    image: <a href="./img/panormama.jpg" target="_blank"><span class="value emphasis">"./img/panorama.jpg"</span></a>,
+    projectionType: <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.PROJECTION_TYPE.html" target="_blank"><span
+        class="value emphasis">"panorama"</span></a>,
+    useZoom: false
+});
 
 window.addEventListener(<span class="value emphasis">"resize"</span>, function() {
     <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.html#updateViewportDimensions" target="_blank"><span class="value emphasis">panoViewer.updateViewportDimensions();</span></a>
 });
 </pre>
-</div>
+    </div>
 </body>
 <script>
-var container = document.querySelector(".viewer .container");
-var panoViewer = new eg.view360.PanoViewer(container,
-    {
-        image: "./img/equi.jpg"
+    function addClass(className) {
+        if (viewer.classList) {
+            viewer.classList.add(className);
+        } else {
+            viewer.className += " " + className;
+        }
     }
-);
+    function removeClass(className) {
+        if (viewer.classList) {
+            viewer.classList.remove(className);
+        } else {
+            var reg = new RegExp("(\\s|^)" + className + "(\\s|$)");
 
-window.addEventListener("resize", function() {
-    panoViewer.updateViewportDimensions();
-});
+            viewer.className = viewer.className.replace(reg, " ");
+        }
+    }
+    function resize() {
+        panoViewer.updateViewportDimensions();
+    }
+    var viewer = document.querySelector(".viewer");
+    var container = viewer.querySelector(".container");
+    var panoViewer = new eg.view360.PanoViewer(container,
+        {
+            image: "./img/panorama.jpg",
+            projectionType: "panorama",
+            useZoom: false,
+        }
+    );
 
-PanoControls.init(container, panoViewer);
-PanoControls.showLoading();
+    window.addEventListener("resize", resize);
+
+    PanoControls.init(container, panoViewer);
+    PanoControls.showLoading();
 </script>
 </html>
