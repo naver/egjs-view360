@@ -11,6 +11,9 @@ var PanoControls = (function() {
 			return;
 		};
 
+		var panoEl = target.querySelector(".panoviewer");
+		panoEl.classList.add("loading");
+
 		if (options && (options.enableTouchOption || options.enableGyroOption)) {
 			GyroTouchOptions(target, panoViewer, options);
 		}
@@ -24,6 +27,8 @@ var PanoControls = (function() {
 		panoViewer.on({
 			"ready": function () {
 				// console.log("ready");
+				panoEl.classList.remove("loading");
+
 				var yawRange = panoViewer.getYawRange();
 				pieView.setState(panoViewer.getYaw(), panoViewer._getHFov(), yawRange[1] - yawRange[0]);
 				showLoading(false);

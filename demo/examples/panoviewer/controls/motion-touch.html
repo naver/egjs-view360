@@ -33,7 +33,7 @@
 <body>
     <header>
       <a href="./">
-          <h1>Device Motion (Gyro Mode)</h1>
+          <h1>Device Motion (Gyro Mode) & Touch</h1>
       </a>
     </header>
     <div class="message blink" style="display:none">
@@ -44,8 +44,8 @@
             <div class="panoviewer" id="myPanoViewer"></div>
         </div>
     </div>
-    <h3>Source Image (Stereoscopic Equirectangular)</h3>
-    <img src="./g70-4096-center-align.jpg" style="width: 300px">
+    <h3>Source Image (Equirectangular)</h3>
+    <img src="./equi-car-inside.jpg" style="width: 300px">
     <script>
       window.onload = function() {
         if (navigator.userAgent.indexOf("Mobi") === -1) {
@@ -56,7 +56,7 @@
         var PanoViewer = eg.view360.PanoViewer;
         var container = document.getElementById("myPanoViewer");
         var panoViewer = new PanoViewer(container, {
-            image: "./g70-4096-center-align.jpg",
+            image: "./equi-car-inside.jpg",
             projectionType: "equirectangular"
         });
 
