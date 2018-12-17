@@ -7,6 +7,7 @@
     <title>eg.view360 examples HotSpot</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="../../../common/css/main.css">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/demo.css">
     <link rel="stylesheet" type="text/css" href="../../../common/css/highlight.css">
     <link rel="stylesheet" type="text/css" href="../../../common/css/PanoControls.css">
 
@@ -17,29 +18,11 @@
     <script src="../../../release/latest/dist/view360.pkgd.js"></script>
     <script src="../../../common/js/PanoControls.js"></script>
     <style>
-        body {
-            text-align: center;
-        }
-        header {
-            padding: 10px;
-        }
-        header h1 {
-            text-align: center;
-            font-size: 60px;
-        }
-        a {
-            color: #333;
-        }
         .icon {
-            position: relative;
-            width: 100px;
-            height: 100px;
             background: #70B5E0;
             border-radius: 50%;
-            margin: 10px auto;
             box-shadow: inset -15px -15px 0px 0px rgba(0, 0, 0, 0.1);
         }
-
         .anchor {
             position: absolute;
             width: 24px;
@@ -161,59 +144,6 @@
                 margin-top: -20px;
             }
         }
-
-        .pano-viewer {
-            position: relative;
-            width: 100%;
-            /* height: 400px; */
-            max-width: 800px;
-            margin: 0px auto;
-            overflow: hidden;
-        }
-        .fullscreen-container .pano-viewer {
-            max-width: none;
-            height: 100%;
-        }
-
-        .pano-viewer:before {
-            position: relative;
-            display: block;
-            content: "";
-            padding-top: 60%;
-            width: 100%;
-        }
-
-        .pano-viewer .container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        p.info {
-            margin: 10px auto;
-            max-width: 450px;
-            text-align: left;
-            /* white-space: nowrap; */
-        }
-
-        p.info .head {
-            display: inline-block;
-            padding-bottom: 5px;
-            font-weight: bold;
-        }
-
-        p.info .value {
-            vertical-align: middle;
-            font-weight: 300;
-            background: #eee;
-            padding: 0px 6px;
-            font-weight: bold;
-            font-size: 14px;
-            text-decoration: underline;
-        }
-
         .hotspot {
             position: absolute;
             top: 0;
@@ -257,11 +187,11 @@
             color: #fff;
         }
 
-        .pano-viewer[data-page="1"] .hotspot[data-page="1"] {
+        .viewer[data-page="1"] .hotspot[data-page="1"] {
             display: block;
         }
 
-        .pano-viewer[data-page="2"] .hotspot[data-page="2"] {
+        .viewer[data-page="2"] .hotspot[data-page="2"] {
             display: block;
         }
 
@@ -311,7 +241,7 @@
     <span class="head">source:</span> <a href="./img/bookcube1.jpg" target="_blank"><span class="value">bookcube1.jpg</span></a>,  <a href="./img/bookcube1.jpg" target="_blank"><span class="value">bookcube2.jpg</span></a>
 </p>
 
-<div class="pano-viewer" data-page="1">
+<div class="viewer" data-page="1">
     <div class="container"></div>
     <div class="layer" onclick="closeLayer(event);">
         <img src="./img/book1.jpg" />
@@ -356,8 +286,8 @@ var viewer = new eg.view360.PanoViewer(container, {
 </body>
 <script>
     var layer = document.querySelector(".layer");
-    var panoviewer = document.querySelector(".pano-viewer");
-    var container = document.querySelector(".pano-viewer .container");
+    var panoviewer = document.querySelector(".viewer");
+    var container = document.querySelector(".viewer .container");
     var hotspots = Array.prototype.slice.call(document.querySelectorAll(".hotspot"));
     var currentPage = "1";
 
