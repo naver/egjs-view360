@@ -78,7 +78,7 @@ $.ajax({
   jsText = jsText.replace(/"\.\//g, "\"" + href + "/");
 
   var jsPaths = $scriptFiles.toArray().map(function (el) {
-    return resolvePath(el.getAttribute("src"));
+    return resolvePath(href, el.getAttribute("src"));
   });
   var cssPaths = $cssFiles.toArray().map(function (el) {
     return resolvePath(href, el.getAttribute("href"));
