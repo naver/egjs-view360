@@ -118,15 +118,22 @@ function isVideoLoaded(video) {
 		}
 
 		console.log("debug: isVideoLoaded - addEventListener");
-		video.addEventListener("loadeddata", () => {
-			console.log("debug: isVideoLoaded - event(loadeddata)");
+
+		function loadEventHandler(e) {
+			console.log(`debug: isVideoLoaded - event(${e.type}, timestamp(${new Date()}, target=${e.target}))`);
+			video.removeEventListener("loadeddata", loadEventHandler);
 			res();
-		});
+		}
+
+		video.addEventListener("loadeddata", loadEventHandler);
+
+		function etcEventHandler(e) {
+			video.removeEventListener(e.type, etcEventHandler);
+			console.log(`debug: isVideoLoaded - event(${e.type}, timestamp(${new Date()}))`);
+		}
 
 		["loadstart", "durationchange", "loadedmetadata", "canplay"].forEach(eventName => {
-			video.addEventListener(eventName, () => {
-				console.log(`debug: isVideoLoaded - event(${eventName})`);
-			});
+			video.addEventListener(eventName, etcEventHandler);
 		});
 	});
 }
