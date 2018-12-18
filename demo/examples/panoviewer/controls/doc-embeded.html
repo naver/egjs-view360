@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>PanoViewer - Direction Key / Mouse Wheel Zoom</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/main.css">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/example.css">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/PanoControls.css">
+    <style>
+      #wiki-body {
+        width: 100%;
+        max-width: 400px;
+        border: 1px dotted;
+        background-color: #f8f9fa;
+      }
+      #touchDirectionToggleButton {
+        background-color: #4CAF50; /* Green */
+        border: none;
+        color: white;
+        /* padding: 15px 32px; */
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+      }
+    </style>
+</head>
+<body>
+    <header>
+      <h1>Document Embeded - Scroll</h1>
+    </header>
+    <div id="wiki-body" class="mt-4 flex-auto min-width-0 gollum-markdown-content instapaper_body">
+      <div style="color:red">
+        Scroll this page by touch on a mobile device or by wheel-scroll on a PC
+        <div style="color:blue">The page doesn't scroll when you focus on viewer area. But by clicking this <button id="touchDirectionToggleButton">BUTTON</button>. You can scroll the page although focused on viewer.</div>
+      </div>
+      <!-- PanoViewer AREA-->
+      <div class="panoviewer-container">
+          <div id="panoSet">
+              <div class="panoviewer" id="myPanoViewer"></div>
+          </div>
+      </div>
+      <blockquote>
+        <div class="markdown-body">
+            <p><strong>related option</strong></p>
+        <ul>
+        <li>touchDirection</li>
+        </ul>
+        <p>If you want to disable touch recognition or apply only horizontal or vertical direction. You can use <code>touchDirection</code> option.</p>
+        <h2>Constraint Touch Recognition to Selected Direction</h2>
+        <p>You can set constraint for touch recognition by direction. You can choose between horizontal or vertical constraint.
+        If you want to control only the camera's yaw angle by the gesture, you can use <code>PanoViewer.TOUCH_DIRECTION.YAW</code> as a value of <code>touchDirection</code> option.</p>
+        <p>Also you can use the setter method.</p>
+                <h2>Disabling Touch Recognition</h2>
+        <p>If you want to disable touch recognition, you can set the <code>touchDirection</code> option with <code>PanoViewer.TOUCH_DIRECTION.NONE</code> value at the constructor.</p>
+        <p>Or you can use the setter method.</p>
+        <h2>Enabling Touch Recognition</h2>
+        <p>Touch recognition is enabled by default. You can also define the option for enabling touch recognition explicitly to the constructor.</p>
+        <p>Or you can use the setter method.</p>
+      </blockquote>
+    </div>
+    <h3><a href="./equi-car-inside.jpg">Source Image (Equirectangular)</h3>
+</body>
+<script src="../../../common/js/jquery-2.2.4.js"></script>
+<script src="../../../common/js/screenfull.min.js"></script>
+<script src="../../../common/js/PieView.js"></script>
+<script src="../../../common/js/GyroTouchOptions.js"></script>
+<script src="../../../release/latest/dist/view360.pkgd.js"></script>
+<script src="../../../common/js/PanoControls.js"></script>
+<script>
+  window.onload = function() {
+    // create PanoViewer with option
+    var restrict = false;
+    var PanoViewer = eg.view360.PanoViewer;
+    var container = document.getElementById("myPanoViewer");
+    var panoViewer = new PanoViewer(container, {
+        image: "./equi-car-inside.jpg",
+        projectionType: "equirectangular"
+    });
+
+    document.getElementById("touchDirectionToggleButton").addEventListener("click", function() {
+      if (restrict) {
+        panoViewer.setTouchDirection(PanoViewer.TOUCH_DIRECTION.ALL);
+        panoViewer.setUseZoom(true);
+      } else {
+        panoViewer.setTouchDirection(PanoViewer.TOUCH_DIRECTION.YAW);
+        panoViewer.setUseZoom(false);
+      }
+      
+      restrict = !restrict;
+      alert("Scroll " + (restrict ? "Enabled" : "Disabled"));
+    });
+    
+    var panoviewerSet = document.getElementById("panoSet");
+    PanoControls.init(panoviewerSet, panoViewer);
+    PanoControls.showLoading();
+  };
+</script>
+</html>

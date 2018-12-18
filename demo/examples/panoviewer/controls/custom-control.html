@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>PanoViewer - Custom Control</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/main.css">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/example.css">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/PanoControls.css">
+    <style>
+        .custom-control {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            display: inline-block;
+        }
+        .btn {
+            width: 48px;
+            height: 48px;
+            color: rgb(57, 63, 73);
+            background-color: rgb(248, 249, 250);
+            opacity: 0.5;
+            position: relative;
+            text-align: center;
+            display: inline-block;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            cursor: pointer;
+        }
+        .btn:active {
+            background-color: aquamarine;
+        }
+        /* .btn.up {top: 0; left:0; right: 0; margin: auto}
+        .btn.down {bottom: 0; left:0; right: 0; margin: auto}
+        .btn.left {left:0; top: 0;bottom: 0; margin:auto}
+        .btn.right {right: 0; top: 0;bottom: 0; margin:auto}
+        .btn.around {left: 0;right: 0; top: 0;bottom: 0; margin:auto} */
+        .btn.around.playing {background-color:blue}
+    </style>
+</head>
+<body>
+    <header>
+      <a href="./">
+          <h1>Custom Control</h1>
+      </a>
+    </header>
+    <div class="panoviewer-container">
+        <div id="panoSet">
+            <div class="panoviewer" id="myPanoViewer"></div>
+            <div class="custom-control">
+                <div class="btn left">
+                        <svg class="feather feather-chevron-left sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </div>
+                <div class="btn right">
+                    <svg class="feather feather-chevron-right sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+                <div class="btn up">
+                    <svg class="feather feather-chevron-up sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                </div>
+                <div class="btn down">
+                    <svg class="feather feather-chevron-down sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+                <div class="btn zoom-in">
+                    <svg class="feather feather-zoom-in sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                </div>
+
+                <div class="btn zoom-out">
+                    <svg class="feather feather-zoom-out sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                </div>
+                <div class="btn around">
+                    <svg class="feather feather-rotate-ccw sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3>Source Image (Equirectangular)</h3>
+    <img src="./equi-car-inside.jpg" style="width: 300px">
+    <script>
+      window.onload = function() {
+        // create PanoViewer with option
+        var PanoViewer = eg.view360.PanoViewer;
+        var container = document.getElementById("myPanoViewer");
+        var panoViewer = new PanoViewer(container, {
+            image: "./equi-car-inside.jpg",
+            projectionType: "equirectangular"
+        }).on("ready", function() {
+            
+        });
+
+        var panoviewerSet = document.getElementById("panoSet");
+        PanoControls.init(panoviewerSet, panoViewer);
+        PanoControls.showLoading();
+
+        /**
+         *
+         */
+        var isAutoCruising = false;
+        var rafId = 0;
+        var lookAroundButton = document.querySelector(".custom-control .around");
+
+        document.querySelector(".custom-control").addEventListener("click", function(e) {
+            var btn;
+            if (e.target.tagName.toLowerCase() === "svg") {
+                btn = e.target.parentNode;
+            } else {
+                btn = e.target.parentNode.parentNode;
+            }
+            var btnClass = btn.classList;
+
+            console.log(e.target);
+
+            if (btnClass.contains("around")) {
+                toggleLookAround();
+                return;
+            }
+            var currentYaw = panoViewer.getYaw();
+            var currentPitch = panoViewer.getPitch();
+            var currentFov = panoViewer.getFov();
+            var fovDiff = 5;
+            var moveAngle = 30;
+            var duration = 300;
+            isAutoCruising && toggleLookAround();
+            
+            if (btnClass.contains("up")) {
+                panoViewer.lookAt({pitch: currentPitch + moveAngle}, duration);
+            } else if (btnClass.contains("right")) {
+                panoViewer.lookAt({yaw: currentYaw - moveAngle}, duration);
+            } else if (btnClass.contains("down")) {
+                panoViewer.lookAt({pitch: currentPitch - moveAngle}, duration);
+            } else if (btnClass.contains("left")) {
+                panoViewer.lookAt({yaw: currentYaw + moveAngle}, duration);
+            } else if (btnClass.contains("zoom-in")) {
+                panoViewer.lookAt({fov: currentFov - fovDiff}, duration);
+            } else if ((btnClass.contains("zoom-out"))) {
+                panoViewer.lookAt({fov: currentFov + fovDiff}, duration);
+            };
+        });
+        
+        function toggleLookAround() {
+            var start = new Date().getTime();
+            
+            if(isAutoCruising) {
+                window.cancelAnimationFrame(rafId);
+                isAutoCruising = false;
+                lookAroundButton.classList.remove("playing")
+                return;
+            };
+            
+            var pitch = panoViewer.getPitch();
+            var yaw = panoViewer.getYaw();
+            var delta = 0;
+
+            function lookAround() {
+                delta = (new Date().getTime() - start);
+                panoViewer.lookAt({
+                    yaw: yaw + (delta / 100) % 360,
+                    pitch: pitch
+                }, 0);
+
+                isAutoCruising && (rafId = window.requestAnimationFrame(lookAround));
+            }
+            
+            rafId = window.requestAnimationFrame(lookAround)
+            isAutoCruising = true;
+            lookAroundButton.classList.add("playing")
+        }
+      };
+    </script>
+    <script src="../../../common/js/jquery-2.2.4.js"></script>
+    <script src="../../../common/js/screenfull.min.js"></script>
+    <script src="../../../common/js/PieView.js"></script>
+    <script src="../../../common/js/GyroTouchOptions.js"></script>
+    <script src="../../../release/latest/dist/view360.pkgd.js"></script>
+    <script src="../../../common/js/PanoControls.js"></script>
+</body>
+
+</html>

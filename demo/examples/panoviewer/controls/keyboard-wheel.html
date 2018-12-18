@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>PanoViewer - Direction Key / Mouse Wheel Zoom</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/main.css">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/example.css">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/PanoControls.css">
+</head>
+<body>
+    <header>
+      <a href="./">
+          <h1>Direction key & Wheel Zoom</h1>
+      </a>
+    </header>
+    <div class="panoviewer-container">
+        <div id="panoSet">
+            <div class="panoviewer" id="myPanoViewer"></div>
+        </div>
+    </div>
+    <img src="./keyboard-wheel-logo.png" style="width:50%;max-width: 345px;">
+    <h3><a href="./equi-car-inside.jpg">Source Image (Equirectangular)</h3>
+    <script>
+      window.onload = function() {
+        // create PanoViewer with option
+        var PanoViewer = eg.view360.PanoViewer;
+        var container = document.getElementById("myPanoViewer");
+        var panoViewer = new PanoViewer(container, {
+            image: "./equi-car-inside.jpg",
+            projectionType: "equirectangular"
+        });
+
+        container.focus();
+        
+        var panoviewerSet = document.getElementById("panoSet");
+        PanoControls.init(panoviewerSet, panoViewer);
+        PanoControls.showLoading();
+      };
+    </script>
+    <script src="../../../common/js/jquery-2.2.4.js"></script>
+    <script src="../../../common/js/screenfull.min.js"></script>
+    <script src="../../../common/js/PieView.js"></script>
+    <script src="../../../common/js/GyroTouchOptions.js"></script>
+    <script src="../../../release/latest/dist/view360.pkgd.js"></script>
+    <script src="../../../common/js/PanoControls.js"></script>
+</body>
+
+</html>

@@ -11,6 +11,19 @@ var PanoControls = (function() {
 			return;
 		};
 
+		var panoEl;
+		if (target.classList.contains("panoviewer")) {
+			panoEl = target;
+		} else {
+			panoEl = target.querySelector(".panoviewer");
+		}
+		if (!panoEl) {
+			console.warn("panoviewer should have classname of 'panoviewer'");
+			return;
+		}
+
+		panoEl.classList.add("loading");
+
 		if (options && (options.enableTouchOption || options.enableGyroOption)) {
 			GyroTouchOptions(target, panoViewer, options);
 		}
@@ -24,6 +37,8 @@ var PanoControls = (function() {
 		panoViewer.on({
 			"ready": function () {
 				// console.log("ready");
+				panoEl.classList.remove("loading");
+
 				var yawRange = panoViewer.getYawRange();
 				pieView.setState(panoViewer.getYaw(), panoViewer._getHFov(), yawRange[1] - yawRange[0]);
 				showLoading(false);
@@ -72,7 +87,7 @@ var PanoControls = (function() {
 				}
 
 				// resize event is not triggered.
-				!screenfull.enabled && panoViewer.updateViewportDimensions();
+				panoViewer.updateViewportDimensions();
 		}
 
 		screenfull.enabled && screenfull.on("change", changeMode);
@@ -108,8 +123,14 @@ var PanoControls = (function() {
 	}
 
 	function showLoading(isVisible) {
+		var loadingEl = document.querySelector(".image360_loading");
+
+		if (!loadingEl){
+			console.warn("loading layer does not exist.");
+			return;
+		}
 		var visible = (isVisible == undefined || isVisible == true) ? true : false;
-		var loadingClassList = document.querySelector(".image360_loading").classList;
+		var loadingClassList = loadingEl.classList;
 
 		if (visible) {
 			loadingClassList.add("is-loading");
