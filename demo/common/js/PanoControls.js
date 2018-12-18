@@ -20,7 +20,8 @@ var PanoControls = (function() {
 		/**
 		 * Navigator Handler
 		 */
-		var pieView = new PieView(document.querySelector(".camera"));
+		var pieEl = document.querySelector(".camera");
+		var pieView = new PieView(pieEl);
 		panoViewer.on({
 			"ready": function () {
 				var yawRange = panoViewer.getYawRange();
@@ -32,6 +33,13 @@ var PanoControls = (function() {
 					pieView.setState(e.yaw,  hfov);
 					// console.log("viewChange");
 			}
+		});
+
+		/**
+		 * When clicking on pie, set to default direction.
+		 */
+		pieEl.addEventListener("click", function() {
+			panoViewer.lookAt({yaw: 0, pitch: 0}, 400);
 		});
 
 		/**

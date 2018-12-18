@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>eg.view360.SpinViewer Basic Example</title>
+		<meta name="description" content="SpinViewer">
+		<meta name="author" content="egjs">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+		<link rel="stylesheet" href="../common/css/bootstrap.min.css">
+		<link rel="stylesheet" href="../common/css/docs.css">
+		<style>
+			#panoviewer-showcase {
+				position: relative;
+				width: 320px;
+				height: 320px;
+				margin: 0 auto;
+				outline: none; /* Axes apply tabindex=0 if use KeyMove */
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="bs-docs-section">
+				<h1 class="page-header"><a></a>PanoViewer</h1>
+				<p class="lead">
+					You can rotate by touch or motion (gyro).
+				</p>
+				<div class="bs-example">
+					<div id="panoviewer-showcase"></div>
+				</div>
+				<p>
+					For more code, you can use developer tools of browser.
+				</p>
+				<figure class="highlight">
+					<pre>
+						<code class="language-js" data-lang="js">
+var panoViewer = new eg.view360.PanoViewer(container, {
+	image: "../common/img/panoviewer/test_equi_4096.jpg"
+});
+						</code>
+					</pre>
+				</figure>
+			</div>
+		</div>
+		
+		<script src="../release/latest/dist/view360.pkgd.js"></script>
+		<script>
+			var container = document.getElementById("panoviewer-showcase");
+			var PanoViewer = eg.view360.PanoViewer;
+			var panoViewer = new PanoViewer(container, {
+				image: "../common/img/panoviewer/test_equi_4096.jpg"
+			});
+		</script>
+	</body>
+</html>
