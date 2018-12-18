@@ -67,7 +67,7 @@ $.ajax({
   $html.find("a[href]").toArray().forEach(function (el) {
     el.setAttribute("href", resolvePath(href, el.getAttribute("href")));
   });
-  $html.find("img[src]").toArray().forEach(function (el) {
+  $html.find("img[src], source[src], video[src]").toArray().forEach(function (el) {
     el.setAttribute("src", resolvePath(href, el.getAttribute("src")));
   });
 
