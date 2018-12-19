@@ -44,7 +44,7 @@ subComponents:
   examples:
     - name: Basic
       image: common/img/thumbnail/basic_panoviewer_thumb.png
-      url: examples/panoviewer_basic_example.html
+      url: examples/panoviewer/panoviewer_basic_example.html
   projects:
     - name: Naver TV
       image: ./common/img/thumbnail/naver_tv.png
@@ -163,7 +163,7 @@ subComponents:
   examples:
     - name: Basic
       image: common/img/thumbnail/basic_spinview_thumb.gif
-      url: examples/spinviewer_basic_example.html
+      url: examples/spinviewer/spinviewer_basic_example.html
   projects:
     - name: Naver Shopping
       image: ./common/img/thumbnail/naver_shopping.jpg
