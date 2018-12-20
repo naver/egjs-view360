@@ -72,3 +72,7 @@ p.info .value {
   font-size: 14px;
   text-decoration: underline;
 }
+
+p.info img {
+  width: 100px;
+}
