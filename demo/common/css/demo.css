@@ -1,3 +1,5 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700);
+
 body {
   text-align: center;
 }
@@ -73,6 +75,13 @@ p.info .value {
   text-decoration: underline;
 }
 
+.button.light {
+  border: 1px solid #ddd;
+  margin: 5px;
+  padding: 10px;
+  border-radius: 0;
+  font-size: 14px;
+}
 p.info img {
   width: 100px;
 }
