@@ -58,7 +58,7 @@ a {
   content: "";
   padding-top: 60%;
   width: 100%;
-  z-index: 0;
+  z-index: -1;
 }
 
 .viewer .container {
@@ -128,7 +128,7 @@ p.info img {
   white-space: pre-wrap;
 }
 
-.source .emphasis {
+.source span, .source a {
   font-size: 13px;
   margin: 0;
   padding: 0;

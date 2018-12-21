@@ -72,7 +72,7 @@ $.ajax({
   });
 
   var htmlText = removeMargin($body.html().replace("\n", ""));
-  var cssText = removeMargin($style.html().replace("\n", ""));
+  var cssText = removeMargin(($style.html() || "").replace("\n", ""));
   var jsText = removeMargin($script.html().replace("\n", ""));
 
   jsText = jsText.replace(/"\.\//g, "\"" + href + "/");
