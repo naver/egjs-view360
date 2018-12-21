@@ -6,36 +6,93 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
     <title>PanoViewer examples</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="../../../common/css/main.css">
-    <link rel="stylesheet" type="text/css" href="../../../common/css/example.css">
-    
+    <link rel="stylesheet" type="text/css" href="../../../common/css/demo.css">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/PanoControls.css">
+
     <script src="../../../release/latest/dist/view360.pkgd.js"></script>
+    <script src="../../../common/js/jquery-2.2.4.js"></script>
+    <script src="../../../common/js/codepen.js"></script>
+    <script src="../../../common/js/PanoControls.js"></script>
+    <script src="../../../common/js/screenfull.min.js"></script>
+    <script src="../../../common/js/PieView.js"></script>
+
     <style>
-    #myPanoViewer {
-        position: relative;
-        width: 692px;
-        height: 391px;
+    .icon .d180 {
+        position: absolute;
+        top: 25px;
+        width: 100px;
+        height: 50px;
+        border-radius: 50% / 100% 100% 0% 0%;
+        box-sizing: border-box;
+        border: 3px solid #aaa;
+        border-bottom: 0;
+        overflow: hidden;
+    }
+    .icon .d180:before {
+        position: absolute;
+        content: "";
+        width: 60px;
+        height: 56px;
+        box-sizing: border-box;
+        border: 3px solid #e55;
+        background:  #f88;
+        transform-origin: 0% 100%;
+        left: 50%;
+        bottom: 0;
+        transform: rotate(-45deg);
+        animation: rotate 2s infinite alternate ease-in-out;
+    }
+    @keyframes rotate {
+        0% {
+            transform: rotate(-15deg);
+        }
+        100% {
+            transform: rotate(-75deg);
+        }
     }
     </style>
 </head>
 
 <body>
     <header>
-        <a href="./">
-            <h1>PanoViewer examples</h1>
-        </a>
-        <h2>360 Image (partial equirectangular, horizontal 270° FOV * vertical 70° FOV)</h2>  
-        <p>View partial panorama image by setting yawRange, pitchRange, fovRange</p>      
+        <h1>360 Image<br/>(partial 270°)</h1>  
+        <div class="icon">
+            <div class="d180"></div>
+        </div>
+        <h2>View partial panorama image by setting yawRange, pitchRange, fovRange</h2>
+        <div class="infos">
+            <p class="info">
+                <span class="head">projection</span>: <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.PROJECTION_TYPE.html#.EQUIRECTANGULAR" target="_blank"><span class="value">EQUIRECTANGULAR</span></a>
+            </p>
+            <p class="info">
+                <span class="head">image</span>: <a href="../../img/partial_equi.png" target="_blank"><span class="value">partial_equi.png</span></a>
+            </p>
+        </div>
     </header>
     <section>
-            <div id="myPanoViewer"></div>
+            <div id="myPanoViewer" class="viewer"></div>
     </section>
+    <div class="source">
+        <pre>
+<span class="comment">// create PanoViewer with option</span>
+var container = document.getElementById("myPanoViewer");
+    
+var panoViewer = new eg.view360.PanoViewer(
+    container,
+    {
+        image: <a href="../../img/partial_equi.png" target="_blank"><span class="value emphasis">"../../img/partial_equi.png"</span></a>,
+        yawRange: <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.html" target="_blank"><span class="value emphasis">[-135, 135]</span></a>, <span class="comment">// horizontal FOV by degree is 270.</span> 
+        pitchRange: <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.html" target="_blank"><span class="value emphasis">[-35, 35]</span></a>, <span class="comment">// vertical FOV by degree is 70.</span>
+        fovRange: <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.html" target="_blank"><span class="value emphasis">[30, 70]</span></a> <span class="comment">// max fov should vertical FOV of the image. 70</span>
+    }
+);</pre>
+    </div>
     <script>
     // create PanoViewer with option
     var PanoViewer = eg.view360.PanoViewer;
     var container = document.getElementById("myPanoViewer");
         
-    var panoViewer = new PanoViewer(
+    var panoViewer = new eg.view360.PanoViewer(
         container,
         {
             image: "../../img/partial_equi.png",
@@ -44,6 +101,7 @@
             fovRange: [30, 70] // max fov should vertical FOV of the image. 70
         }
     );
+    PanoControls.init(container, panoViewer);
 </script>
 
 </body>

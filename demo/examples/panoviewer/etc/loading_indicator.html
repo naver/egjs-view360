@@ -6,21 +6,12 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
     <title>PanoViewer examples</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="../../../common/css/main.css">
     <link rel="stylesheet" type="text/css" href="../../../common/css/demo.css">
-    <link rel="stylesheet" type="text/css" href="../../../common/css/highlight.css">
     <script src="../../../release/latest/dist/view360.pkgd.js"></script>
     <script src="../../../common/js/jquery-2.2.4.js"></script>
     <script src="../../../common/js/codepen.js"></script>
     
     <style>
-    #myPanoViewer {
-        position: relative;
-        width: 692px;
-        height: 391px;
-        text-align: center;
-        margin: 0px auto;
-    }
     .icon {
         text-align: center;
         line-height: 100px;
@@ -65,18 +56,18 @@
         <h2>The loading indicator appears until view360 loading.</h2>  
         <div class="infos">
             <p class="info">
-                <span class="head">projection</span>: <span class="value">EQUIRECTANGULAR</span>
+                <span class="head">projection</span>: <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.PROJECTION_TYPE.html#.EQUIRECTANGULAR" target="_blank"><span class="value">EQUIRECTANGULAR</span></a>
             </p>
             <p class="info">
-                <span class="head">image</span>: <a href="./img/plane.png"><span class="value">./img/planet.png</span></a>
+                <span class="head">image</span>: <a href="./img/planet.png" target="_blank"><span class="value">./img/planet.png</span></a>
             </p>
             <p class="info">
-                <span class="head">source</span>: <a href="https://www.youtube.com/watch?v=C-DdsrBNI4s"><span class="value">https://www.youtube.com/watch?v=C-DdsrBNI4s</span></a>
+                <span class="head">source</span>: <a href="https://www.youtube.com/watch?v=C-DdsrBNI4s" target="_blank"><span class="value">https://www.youtube.com/watch?v=C-DdsrBNI4s</span></a>
             </p>
         </div>
     </header>
     <section>
-        <div id="myPanoViewer">
+        <div id="myPanoViewer" class="viewer">
             <button class="button light">Show view360</button>
             <img class="loading" style="display: none; margin: 0px auto;" src="../../img/loading_icon.gif"/>
         </div>
@@ -86,7 +77,6 @@
 var loadingIcon = document.querySelector(".loading");
 loadingIcon.style.display = "block";
 
-var PanoViewer = eg.view360.PanoViewer;
 var container = document.getElementById("myPanoViewer");
     
 var panoViewer = new PanoViewer(container, {
@@ -103,10 +93,9 @@ panoViewer.on("ready", function() {
             e.target.style.display = "none";
             loadingIcon.style.display = "block";
 
-            var PanoViewer = eg.view360.PanoViewer;
             var container = document.getElementById("myPanoViewer");
                 
-            var panoViewer = new PanoViewer(
+            var panoViewer = new eg.view360.PanoViewer(
                 container,
                 {
                     projectionType: "equirectangular",
