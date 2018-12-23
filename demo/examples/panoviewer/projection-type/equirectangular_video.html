@@ -4,11 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
     <title>Video Tag (Equirectangular)</title>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="../../../common/css/main.css">
     <link rel="stylesheet" type="text/css" href="../../../common/css/demo.css">
-    <link rel="stylesheet" type="text/css" href="../../../common/css/highlight.css">
-    
+    <script src="../../../common/js/jquery-2.2.4.js"></script>
+    <script src="../../../common/js/codepen.js"></script>
     <script src="../../../release/latest/dist/view360.pkgd.js"></script>
     <style>
     </style>
@@ -31,10 +29,10 @@
     </div>
 
     <div class="viewer">
-        <div class="container"></div>
         <video id="pano_video" style="display:block;position:absolute" controls loop preload="auto" crossorigin="anonymous" autoplay muted>
-                <source src="../../img/equi.mp4" type="video/mp4" />
+            <source src="../../img/equi.mp4" type="video/mp4" />
         </video>
+        <div class="container"></div>
     </div>
     <div class="source">
         <pre>
