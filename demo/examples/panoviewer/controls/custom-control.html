@@ -22,6 +22,9 @@
             right: 0;
             display: inline-block;
         }
+        .btns {
+            display: inline-block;
+        }
         .btn {
             width: 48px;
             height: 48px;
@@ -96,6 +99,16 @@
             stroke: #B8392A;
             transform: rotate(90deg);
         }
+        @media screen and (max-width: 500px) {
+            .btns {
+                display: block;
+                text-align: right;
+            }
+            .btn, .btn svg {
+                width: 30px;
+                height: 30px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -121,27 +134,31 @@
         <div id="panoSet">
             <div class="panoviewer container" id="myPanoViewer"></div>
             <div class="custom-control">
-                <div class="btn left">
-                    <svg class="feather feather-chevron-left sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                <div class="btns">
+                    <div class="btn left">
+                        <svg class="feather feather-chevron-left sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        </div>
+                    <div class="btn right">
+                        <svg class="feather feather-chevron-right sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </div>
-                <div class="btn right">
-                    <svg class="feather feather-chevron-right sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    <div class="btn up">
+                        <svg class="feather feather-chevron-up sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                    </div>
+                    <div class="btn down">
+                        <svg class="feather feather-chevron-down sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
                 </div>
-                <div class="btn up">
-                    <svg class="feather feather-chevron-up sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"></polyline></svg>
-                </div>
-                <div class="btn down">
-                    <svg class="feather feather-chevron-down sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                </div>
-                <div class="btn zoom-in">
-                    <svg class="feather feather-zoom-in sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
-                </div>
+                <div class="btns">
+                    <div class="btn zoom-in">
+                        <svg class="feather feather-zoom-in sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                    </div>
 
-                <div class="btn zoom-out">
-                    <svg class="feather feather-zoom-out sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
-                </div>
-                <div class="btn around">
-                    <svg class="feather feather-rotate-ccw sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                    <div class="btn zoom-out">
+                        <svg class="feather feather-zoom-out sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                    </div>
+                    <div class="btn around">
+                        <svg class="feather feather-rotate-ccw sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                    </div>
                 </div>
             </div>
         </div>
