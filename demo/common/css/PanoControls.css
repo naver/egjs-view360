@@ -28,7 +28,12 @@
   margin: 5px;
   padding: 5px;
   outline: none;
-  font-size: 20px;
+  font-size: 0px;
+  margin-bottom: 10px;
+}
+.panoviewer-control button svg {
+  width: 30px;
+  height: 30px;
 }
 
 .panoviewer-control {
@@ -36,20 +41,20 @@
   position: absolute;
   font-weight: 300;
   top: 0px;
-  right: 0px;
+  right: 5px;
   z-index: 1;
 }
 .panoviewer-control .camera {
     position: absolute;
-    right: 13px;
+    right: 5px;
     /* top: 50%;
     transform: translateY(-50%); */
     background-color: rgba(0,0,0,.6);
     border-radius: 100px;
 }
 .panoviewer-control .pie,.camera {
-    height: 50px;
-    width: 50px;
+    height: 40px;
+    width: 40px;
 }
 
 .image360_loading,
