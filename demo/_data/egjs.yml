@@ -50,7 +50,7 @@ subComponents:
   projections:
     - name: Equirectangular
       id: equirectangular
-      image: panoviewer/equirectangular.png
+      image: ../../examples/panoviewer/etc/img/test_equi_4096.jpg
       description: The equirectangular projection (also called the equidistant cylindrical projection, geographic projection, or la carte parallélogrammatique projection, and which includes the special case of the plate carrée projection or geographic projection) is a simple map projection attributed to Marinus of Tyre, who Ptolemy claims invented the projection about AD 100.
       demos:
         - name: Synchronize
@@ -104,15 +104,10 @@ subComponents:
           image: panoviewer/initial.png
           description: Setting the initial view
           link: examples/panoviewer/controls/setting_initial_view.html
-        - name: view360 with Loading Indicator
-          image: panoviewer/loading.png
-          description: The loading indicator appears until view360 loading.
-          link: examples/panoviewer/etc/loading_indicator.html
-          sort: 6
         - name: 360 Image (partial 270°)
           image: panoviewer/partial.png
           description: View partial panorama image by setting yawRange, pitchRange, fovRange
-          link: examplespanoviewer/etc/partial_panorama.html
+          link: examples/panoviewer/etc/partial_panorama.html
           sort: 15
     - name: Cubemap
       id: cubemap
@@ -153,14 +148,19 @@ subComponents:
           sort: 3
     - name: Panorama
       id: panorama
-      image: panorama.png
-      description: asdasdasdasd
+      image: ../../examples/panoviewer/etc/img/panorama.jpg
+      description: A panorama is any wide-angle view or representation of a physical space, whether in painting, drawing, photography, film, seismic images or a three-dimensional model.
       demos:
         - name: Smartphone Panorama
           image: panoviewer/panorama.png
           description: Select your panorama picture taken on smartphone
           link: examples/panoviewer/projection-type/panorama_image.html
           sort: 4
+        - name: view360 with Loading Indicator
+          image: panoviewer/loading.png
+          description: The loading indicator appears until view360 loading.
+          link: examples/panoviewer/etc/loading_indicator.html
+          sort: 6
         - name: Responsive
           image: panoviewer/responsive.png
           description: Rotate the screen or click the button to resize the viewer.
@@ -168,8 +168,8 @@ subComponents:
           sort: 7
     - name: Stereoscopic Equirectangular
       id: stereo
-      image: stereo.png
-      description: asdasdasdas
+      image: stereoequi.png
+      description: Stereoscopy image format of EQUIRECTANGULAR. It is an experimental function to show a stereoscopic type equirectangular image on a plane. It does not support stereoscopic viewing function through special visual equipment at present.
       demos:
         - name: Stereoscopic
           image: panoviewer/stereoscopic.png
