@@ -6,10 +6,15 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
     <title>Video URL (Equirectangular)</title>
     <link rel="stylesheet" type="text/css" href="../../../common/css/demo.css">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/PanoControls.css">
+
     <script src="../../../common/js/jquery-2.2.4.js"></script>
     <script src="../../../common/js/codepen.js"></script>
     
     <script src="../../../release/latest/dist/view360.pkgd.js"></script>
+    <script src="../../../common/js/screenfull.min.js"></script>
+    <script src="../../../common/js/PieView.js"></script>
+    <script src="../../../common/js/PanoControls.js"></script>
     <style></style>
 </head>
 
@@ -60,6 +65,8 @@ panoviewer.on("ready", function(e) {
         video.muted = true; // https://developers.google.com/web/updates/2017/09/autoplay-policy-changes
         video.play();
     });
-    </script>
+    PanoControls.init(container, panoViewer);
+    PanoControls.showLoading();
+</script>
 </body>
 </html>
