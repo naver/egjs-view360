@@ -52,21 +52,8 @@
 <div>
 	{% include nav.html %}
 	<section id="home" class="tab docs section" data-tab="home" id="home">
-		<ul class="list">
-			{% for projection in subComponent.projections %}
-			{% for demo in projection.demos %}
-			<li>
-				<a href="{{demo.link}}" target="_blank">
-					<p class="image-area">
-						<img src="./common/img/{{demo.image}}" class="image" alt="{{demo.name}}'s image"/>
-					</p>
-					<p class="title">{{demo.name}}</p>
-					<p class="description">{{demo.description}}</p>
-				</a>
-			</li>
-			{% endfor %}
-			{% endfor %}
-		</ul>
+			<ul class="list">
+			</ul>
 	</section>
 	<section id="projections" class="tab docs section" data-tab="projections">
 		<div class="container">
@@ -160,5 +147,27 @@
 {% for js in site.data.egjs.js %}
 	<script src="{{ js }}"></script>
 {% endfor %}
+<script>
+		var list = [];
+		{% for projection in subComponent.projections %}
+		{% for demo in projection.demos %}
+		list.push({sort: parseInt("{{demo.sort}}" || "0") || 999999, html: '<li>' + 
+			'<a href="{{demo.link}}" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/{{demo.image}}" class="image" alt="{{demo.name}}\'s image"/>' + 
+				'</p>' +
+				'<p class="title">{{demo.name}}</p>' + 
+				'<p class="description">{{demo.description}}</p>' +
+			'</a>' + 
+		'</li>'});
+		{% endfor %}
+		{% endfor %}
+
+		list.sort(function (a, b) {
+			return a.sort < b.sort ? -1 : 1;
+		});
+
+		document.querySelector("#home .list").innerHTML = list.map(function (li) { return li.html; }).join("");
+</script>
 </body>
 </html>
