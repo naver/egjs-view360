@@ -28,7 +28,12 @@
   margin: 5px;
   padding: 5px;
   outline: none;
-  font-size: 20px;
+  font-size: 0px;
+  margin-bottom: 10px;
+}
+.panoviewer-control button svg {
+  width: 30px;
+  height: 30px;
 }
 
 .panoviewer-control {
@@ -36,20 +41,19 @@
   position: absolute;
   font-weight: 300;
   top: 0px;
-  right: 0px;
+  right: 5px;
   z-index: 1;
 }
 .panoviewer-control .camera {
-    position: absolute;
-    right: 13px;
-    /* top: 50%;
-    transform: translateY(-50%); */
+    display: inline-block;
+    margin: 0;
+    padding: 0;
     background-color: rgba(0,0,0,.6);
     border-radius: 100px;
 }
 .panoviewer-control .pie,.camera {
-    height: 50px;
-    width: 50px;
+    height: 40px;
+    width: 40px;
 }
 
 .image360_loading,
@@ -121,9 +125,13 @@
   border-radius: 3px;
   background-color: rgb(188, 188, 207);
   color: white;
-  padding: 10px;
+  padding: 2px;
+  height: 34px;
+  box-sizing: border-box;
+  font-size: 0;
   margin: 5px 0px;
   display: inline-block;
+  vertical-align: middle;
 }
 
 .optionSet .option:hover {
@@ -137,16 +145,40 @@
 .selectGroup {
   position: relative;
   display: inline-block;
+  vertical-align: top;
 }
 
-.selectGroup .option{
-  border-radius: 15px;
+.selectGroup .option {
+  position: relative;
+  border-radius: 5px;
+  font-size: 14px;
+  line-height: 34px;
+  padding: 0px 10px;
+  min-width: 34px;
+  text-align: center;
 }
 
 .statusButton.option {
   position: relative;
   background-color:#7fbeff;
   margin: 5px;
+}
+.selectGroup .option span {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 5px;
+  right: 5px;
+  background: url(../img/arrow.svg) no-repeat;
+  background-size: 100% 100%;
+}
+.selectGroup .option span.vertical {
+  transform: rotate(90deg);
+}
+.statusButton.option svg {
+  width: 40px;
+  fill: #fff;
+  stroke: #fff;
 }
 
 .statusButton.option:hover{
@@ -155,4 +187,24 @@
 
 .selectGroup.hide {
   display: none;
+}
+
+
+@media screen and (max-width: 500px) {
+  .panoviewer-control {
+    right: 0px;
+    top: 0px;
+  }
+  .panoviewer-control button {
+    margin: 5px 5px 5px 0px;
+    padding: 5px;
+    float:right;
+  }
+  .panoviewer-control button svg {
+    width: 20px;
+    height: 20px;
+  }
+  .panoviewer-control .camera {
+    transform: scale(0.7);
+  }
 }

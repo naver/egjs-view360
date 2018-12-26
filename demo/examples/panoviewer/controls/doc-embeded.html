@@ -3,17 +3,45 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <title>PanoViewer - Direction Key / Mouse Wheel Zoom</title>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="../../../common/css/main.css">
-    <link rel="stylesheet" type="text/css" href="../../../common/css/example.css">
+    <title>PanoViewer - DDocument Embeded</title>
+    <script src="../../../common/js/jquery-2.2.4.js"></script>
+    <script src="../../../common/js/codepen.js"></script>
+    <script src="../../../common/js/qrcode.js"></script>
+    <script src="../../../common/js/screenfull.min.js"></script>
+    <script src="../../../common/js/PieView.js"></script>
+    <script src="../../../common/js/GyroTouchOptions.js"></script>
+    <script src="../../../release/latest/dist/view360.pkgd.js"></script>
+    <script src="../../../common/js/PanoControls.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../../../common/css/demo.css">
     <link rel="stylesheet" type="text/css" href="../../../common/css/PanoControls.css">
     <style>
+
+      .wiki-header {
+        margin: 20px;
+      }
+      .wiki-header button#touchDirectionToggleButton {
+        background-color: #209A4B;
+        padding: 4px 7px;
+        border: 0;
+        outline: none;
+      }
+      .wiki-header #touchDirectionToggleButton:hover {
+        background-color: #25BD5B;
+      }
+      button#touchDirectionToggleButton.disable {
+        background: #AF2B22;
+      }
+      button#touchDirectionToggleButton.disable:hover {
+        background: #DF392F;
+      }
       #wiki-body {
         width: 100%;
-        max-width: 400px;
+        max-width: 800px;
+        margin: 0px auto;
         border: 1px dotted;
         background-color: #f8f9fa;
+        text-align: left;
       }
       #touchDirectionToggleButton {
         background-color: #4CAF50; /* Green */
@@ -25,21 +53,81 @@
         display: inline-block;
         font-size: 16px;
       }
+      .icon {
+        width: 100px;
+        height: 100px;
+        background: #638CE1;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        box-sizing: border-box;
+        padding: 1px;
+        margin-top: 40px;
+      }
+      .icon:before {
+        position: absolute;
+        content: "";
+        width: 70px;
+        height: 30px;
+        bottom: 100%;
+        left: 0;
+        background: inherit;
+        border-top-left-radius: 10px;
+      }
+      .icon:after {
+        position: absolute;
+        content: "";
+        border-left: 30px solid #83aCf1;
+        border-top: 30px solid transparent;
+        bottom: 100%;
+        right: 0;
+      }
+      .icon p {
+        background: #eee;
+        min-height: 10px;
+        margin: 7px 5px;
+        border-radius: 5px;
+      }
+      .icon p.video {
+        background: #f99;
+        color: white;
+        padding: 5px;
+      }
+      blockquote {
+        margin: 20px;
+      }
     </style>
 </head>
 <body>
     <header>
       <h1>Document Embeded - Scroll</h1>
+      <div class="icon">
+        <p></p>
+        <p class="video">360</p>
+        <p></p>
+        <p></p>
+      </div>
+
+      <div class="infos">
+          <p class="info">
+              <span class="head">projection:</span> <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.PROJECTION_TYPE.html#.EQUIRECTANGULAR" target="_blank"><span class="value">EQUIRECTANGULAR</span></a>
+          </p>
+          <p class="info">
+              <span class="head">source:</span> <a href="https://commons.wikimedia.org/wiki/File:Veste_Oberhaus_(Passau,_full_spherical_panoramic_image,_equirectangular_projection).jpg" target="_blank"><span class="value">Veste Oberhaus</span></a>
+          </p>
+          <p class="info">
+              <span class="head">image:</span> <a href="./veste.jpg" target="_blank"><img src="./veste.jpg" style="width: 300px"></a>
+          </p>
+      </div>
     </header>
     <div id="wiki-body" class="mt-4 flex-auto min-width-0 gollum-markdown-content instapaper_body">
-      <div style="color:red">
-        Scroll this page by touch on a mobile device or by wheel-scroll on a PC
-        <div style="color:blue">The page doesn't scroll when you focus on viewer area. But by clicking this <button id="touchDirectionToggleButton">BUTTON</button>. You can scroll the page although focused on viewer.</div>
+      <div class="wiki-header" style="color:red">
+        <p>Scroll this page by touch on a mobile device or by wheel-scroll on a PC</p>
+        <div style="color: #333;">The page doesn't scroll when you focus on viewer area. But by clicking this <button id="touchDirectionToggleButton">Enable Scroll</button>. You can scroll the page although focused on viewer.</div>
       </div>
       <!-- PanoViewer AREA-->
-      <div class="panoviewer-container">
+      <div class="panoviewer-container viewer">
           <div id="panoSet">
-              <div class="panoviewer" id="myPanoViewer"></div>
+              <div class="panoviewer container" id="myPanoViewer"></div>
           </div>
       </div>
       <blockquote>
@@ -61,41 +149,59 @@
         <p>Or you can use the setter method.</p>
       </blockquote>
     </div>
-    <h3><a href="./equi-car-inside.jpg">Source Image (Equirectangular)</h3>
-</body>
-<script src="../../../common/js/jquery-2.2.4.js"></script>
-<script src="../../../common/js/screenfull.min.js"></script>
-<script src="../../../common/js/PieView.js"></script>
-<script src="../../../common/js/GyroTouchOptions.js"></script>
-<script src="../../../release/latest/dist/view360.pkgd.js"></script>
-<script src="../../../common/js/PanoControls.js"></script>
-<script>
-  window.onload = function() {
-    // create PanoViewer with option
-    var restrict = false;
-    var PanoViewer = eg.view360.PanoViewer;
-    var container = document.getElementById("myPanoViewer");
-    var panoViewer = new PanoViewer(container, {
-        image: "./equi-car-inside.jpg",
-        projectionType: "equirectangular"
-    });
+    <div class="source">
+      <pre>
+// create PanoViewer with option
+var restrict = false;
+var PanoViewer = eg.view360.PanoViewer;
+var container = document.getElementById("myPanoViewer");
+var panoViewer = new PanoViewer(container, {
+    image: "./veste.jpg",
+    projectionType: "equirectangular"
+});
 
-    document.getElementById("touchDirectionToggleButton").addEventListener("click", function() {
-      if (restrict) {
-        panoViewer.setTouchDirection(PanoViewer.TOUCH_DIRECTION.ALL);
-        panoViewer.setUseZoom(true);
-      } else {
-        panoViewer.setTouchDirection(PanoViewer.TOUCH_DIRECTION.YAW);
-        panoViewer.setUseZoom(false);
-      }
-      
-      restrict = !restrict;
-      alert("Scroll " + (restrict ? "Enabled" : "Disabled"));
-    });
+document.getElementById("touchDirectionToggleButton").addEventListener("click", function() {
+  if (restrict) {
+    panoViewer.<a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.html#setTouchDirection">setTouchDirection(PanoViewer.TOUCH_DIRECTION.ALL)</a>;
+    panoViewer.<a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.html#setUseZoom">setUseZoom(true)</a>;
+  } else {
+    panoViewer.<a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.html#setTouchDirection">setTouchDirection(PanoViewer.TOUCH_DIRECTION.YAW)</a>;
+    panoViewer.<a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.html#setUseZoom">setUseZoom(false)</a>;
+  }
+  
+  restrict = !restrict;
+});</pre>
+    </div>
+</body>
+<script>
+  // create PanoViewer with option
+  var restrict = false;
+  var PanoViewer = eg.view360.PanoViewer;
+  var container = document.getElementById("myPanoViewer");
+  var panoViewer = new PanoViewer(container, {
+      image: "./veste.jpg",
+      projectionType: "equirectangular"
+  });
+
+  document.getElementById("touchDirectionToggleButton").addEventListener("click", function(e) {
+    var target = e.currentTarget;
+    if (restrict) {
+      target.className = "";
+      target.innerHTML = "Enable Scroll";
+      panoViewer.setTouchDirection(PanoViewer.TOUCH_DIRECTION.ALL);
+      panoViewer.setUseZoom(true);
+    } else {
+      target.className = "disable";
+      target.innerHTML = "Disable Scroll";
+      panoViewer.setTouchDirection(PanoViewer.TOUCH_DIRECTION.YAW);
+      panoViewer.setUseZoom(false);
+    }
     
-    var panoviewerSet = document.getElementById("panoSet");
-    PanoControls.init(panoviewerSet, panoViewer);
-    PanoControls.showLoading();
-  };
+    restrict = !restrict;
+  });
+  
+  var panoviewerSet = document.getElementById("panoSet");
+  PanoControls.init(panoviewerSet, panoViewer);
+  PanoControls.showLoading();
 </script>
 </html>

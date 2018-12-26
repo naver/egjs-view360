@@ -1,50 +1,216 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
     <title>PanoViewer - Direction Key / Mouse Wheel Zoom</title>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="../../../common/css/main.css">
-    <link rel="stylesheet" type="text/css" href="../../../common/css/example.css">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/demo.css">
     <link rel="stylesheet" type="text/css" href="../../../common/css/PanoControls.css">
-</head>
-<body>
-    <header>
-      <a href="./">
-          <h1>Direction key & Wheel Zoom</h1>
-      </a>
-    </header>
-    <div class="panoviewer-container">
-        <div id="panoSet">
-            <div class="panoviewer" id="myPanoViewer"></div>
-        </div>
-    </div>
-    <img src="./keyboard-wheel-logo.png" style="width:50%;max-width: 345px;">
-    <h3><a href="./equi-car-inside.jpg">Source Image (Equirectangular)</h3>
-    <script>
-      window.onload = function() {
-        // create PanoViewer with option
-        var PanoViewer = eg.view360.PanoViewer;
-        var container = document.getElementById("myPanoViewer");
-        var panoViewer = new PanoViewer(container, {
-            image: "./equi-car-inside.jpg",
-            projectionType: "equirectangular"
-        });
-
-        container.focus();
-        
-        var panoviewerSet = document.getElementById("panoSet");
-        PanoControls.init(panoviewerSet, panoViewer);
-        PanoControls.showLoading();
-      };
-    </script>
     <script src="../../../common/js/jquery-2.2.4.js"></script>
+    <script src="../../../common/js/codepen.js"></script>
+    <script src="../../../common/js/qrcode.js"></script>
     <script src="../../../common/js/screenfull.min.js"></script>
     <script src="../../../common/js/PieView.js"></script>
     <script src="../../../common/js/GyroTouchOptions.js"></script>
     <script src="../../../release/latest/dist/view360.pkgd.js"></script>
     <script src="../../../common/js/PanoControls.js"></script>
+    <style>
+        .icon {
+            width: 310px;
+            height: 160px;
+            font-weight: bold;
+            padding: 0;
+        }
+        .input-item {
+            display: inline-block;
+            min-width: 150px;
+            padding-top: 5px;
+            margin-bottom: 10px;
+            list-style: none;
+            vertical-align: top;
+            cursor: pointer;
+            text-align: center;
+        }
+        .input-item .logo {
+            display: block;
+            position: relative;
+            width: 150px;
+            height: 110px;
+        }
+        .input-item p {
+            margin: 5px;
+        }
+        .logo.WheelInput .mouse {
+            position: absolute;
+            width: 40px;
+            height: 60px;
+            border-radius: 20px;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            margin: auto;
+            border: 2px solid #999;
+            background: #fff;
+            overflow: hidden;
+        }
+        .logo.WheelInput .mouse .wheel {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            left: 0;
+            right: 0;
+            bottom: 10%;
+            margin: auto;
+            background: #999;
+            animation: wheel 6s ease-in-out 0s infinite forwards;
+        }
+        @keyframes wheel {
+            0% {
+                bottom: 10%;
+            }
+            20% {
+                bottom: 70%;
+            }
+            50% {
+                bottom: 70%;
+            }
+            70% {
+                bottom: 10%;
+            }
+        }
+        .logo.MoveKeyInput .arrow-key {
+            width: 30px;
+            height: 30px;
+            position: absolute;
+            border-radius: 5px;
+            border: 2px solid #999;
+            background: #fff;
+            color: #999;
+            text-align: center;
+            left: 50%;
+            margin-left: -15px;
+            top: 50%;
+            animation: key 12s linear 0s infinite forwards;
+        }
+        .logo.MoveKeyInput .arrow-key span {
+            position: absolute;
+            display: block;
+            top: 0;
+            width: 100%;
+            bottom: 0;
+            height: 20px;
+            margin: auto;
+        }
+        .logo.MoveKeyInput .arrow-key.arrow-key-left {
+            margin-left: -55px;
+        }
+        .logo.MoveKeyInput .arrow-key.arrow-key-top {
+            margin-top: -39px;
+        }
+        .logo.MoveKeyInput .arrow-key.arrow-key-right {
+            margin-left: 25px;
+        }
+        .logo.MoveKeyInput .logo-input-area .arrow-key.arrow-key-top {
+            animation-delay: 3s;
+        }
+        .logo.MoveKeyInput .logo-input-area .arrow-key.arrow-key-left {
+            animation-delay: 6s;
+        }
+        .logo.MoveKeyInput .logo-input-area .arrow-key.arrow-key-bottom {
+            animation-delay: 9s;
+        }
+        .logo.MoveKeyInput .logo-view-area .object {
+            animation: move 12s ease-in-out 0s infinite forwards;
+        }
+        @keyframes key {
+            0% {
+                background: #fff;
+                color: #999;
+            }
+            5% {
+                background: #999;
+                color: white;
+            }
+            10% {
+                background: #fff;
+                color: #999;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Direction key & Wheel Zoom</h1>
+        <ul class="icon">
+            <li class="input-item WheelInput">
+                <div class="logo WheelInput" id="WheelInput">
+                    <div class="logo-input-area">
+                        <div class="mouse">
+                            <div class="wheel"></div>
+                        </div>
+                    </div>
+                </div>
+                <p>WheelInput</p>
+            </li>
+            <li class="input-item MoveKeyInput">
+                <div class="logo MoveKeyInput" id="MoveKeyInput">
+                    <div class="logo-input-area">
+                        <div class="arrow-key arrow-key-left"><span>◄</span></div>
+                        <div class="arrow-key arrow-key-top"><span>▲</span></div>
+                        <div class="arrow-key arrow-key-right"><span>►</span></div>
+                        <div class="arrow-key arrow-key-bottom"><span>▼</span></div>
+                    </div>
+                </div>
+                <p>MoveKeyInput</p>
+            </li>
+        </ul>
+        <br />
+        <div class="infos">
+            <p class="info">
+                <span class="head">projection</span>: <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.PROJECTION_TYPE.html#.EQUIRECTANGULAR"
+                    target="_blank"><span class="value">EQUIRECTANGULAR</span></a>
+            </p>
+            <p class="info">
+                <span class="head">source:</span> <a href="https://commons.wikimedia.org/wiki/File:Isabella_Plantation_3_360x180,_London,_UK_-_Diliff.jpg" target="_blank"><span class="value">VIsabella Plantation 3</span></a>
+            </p>
+            <p class="info">
+                <span class="head">image:</span> <a href="./london.jpg" target="_blank"><img src="./london.jpg" style="width: 300px"></a>
+            </p>
+        </div>
+
+    </header>
+    <div class="panoviewer-container viewer">
+        <div id="panoSet">
+            <div class="panoviewer container" id="myPanoViewer"></div>
+        </div>
+    </div>
+    <div class="source">
+        <pre>
+var container = document.getElementById("myPanoViewer");
+var panoViewer = new eg.view360.PanoViewer(container, {
+    image: <a href="./london.jpg" target="_blank">"./london.jpg"</a>,
+    projectionType: <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.PROJECTION_TYPE.html#.EQUIRECTANGULAR" target="_blank">"equirectangular"</a>
+});
+        </pre>
+    </div>
+    <script>
+        // create PanoViewer with option
+        var container = document.getElementById("myPanoViewer");
+        var panoViewer = new eg.view360.PanoViewer(container, {
+            image: "./london.jpg",
+            projectionType: "equirectangular"
+        });
+
+        container.focus();
+
+        var panoviewerSet = document.getElementById("panoSet");
+        PanoControls.init(panoviewerSet, panoViewer);
+        PanoControls.showLoading();
+    </script>
 </body>
 
 </html>

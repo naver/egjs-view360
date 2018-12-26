@@ -27,20 +27,6 @@ subComponents:
       size: 435
     - filename: view360.panoviewer.pkgd.min.js
       size: 166
-  # examples:
-  #   - name: ex1
-  #     image:
-  #     url:
-  #   - name: ex2
-  #     image:
-  #     url:
-  # tools:
-  #   - name: tool1
-  #     image:
-  #     url:
-  #   - name: tool2
-  #     image:
-  #     url:
   examples:
     - name: Basic
       image: common/img/thumbnail/basic_panoviewer_thumb.png
@@ -67,86 +53,129 @@ subComponents:
       image: equirectangular.png
       description: The equirectangular projection (also called the equidistant cylindrical projection, geographic projection, or la carte parallélogrammatique projection, and which includes the special case of the plate carrée projection or geographic projection) is a simple map projection attributed to Marinus of Tyre, who Ptolemy claims invented the projection about AD 100.
       demos:
-        - name: demo1
-          image: equirectangular.png
-          description: 11111`2121212121212121212121212121212121
-          link: demo1.html
-        - name: demo2
-          image: equirectangular.png
-          description: 11111`2121212121212121212121212121212121
-          link: demo1.html
-        - name: demo3
-          image: equirectangular.png
-          description: 11111`2121212121212121212121212121212121
-          link: demo1.html
+        - name: Synchronize
+          image: panoviewer/synchronize.png
+          description: Synchronize the directions of the two contents.
+          link: examples/panoviewer/etc/synchronize.html
+        - name: Video.js with view360
+          image: panoviewer/videojs.png
+          description: You can use video.js with view360.
+          link: examples/panoviewer/etc/videojs.html
+          sort: 2
+        - name: Equirectangular Image
+          image: panoviewer/equirectangular.png
+          description: Supports the most common 360 formats.
+          link: examples/panoviewer/projection-type/equirectangular_image.html
+        - name: Video Tag (Equirectangular)
+          image:  panoviewer/videotag.png
+          description: Loads video by video tag
+          link: examples/panoviewer/projection-type/equirectangular_video.html
+          sort: 11
+        - name: Video URL (Equirectangular)
+          image: panoviewer/videourl.png
+          description: Loads video by URL
+          link: examples/panoviewer/projection-type/equirectangular_video_url.html
+          sort: 12
+        - name: Change direction
+          image: panoviewer/changedirection.png
+          description: Change direction
+          link: examples/panoviewer/controls/change_direction.html
+        - name: Custom Control
+          image: panoviewer/customcontrol.png
+          description: Press the button to take action.
+          link: examples/panoviewer/controls/custom-control.html
+          sort: 14
+        - name: Document Embeded
+          image: panoviewer/document.png
+          description: Scroll this page by touch on a mobile device or by wheel-scroll on a PC
+          link: examples/panoviewer/controls/doc-embeded.html
+          sort: 10
+        - name: Direction key & Wheel Zoom  
+          image: panoviewer/directionkey.png
+          description: Direction key & Wheel Zoom
+          link: examples/panoviewer/controls/keyboard-wheel.html
+          sort: 13
+        - name: Device Motion (Gyro Mode) & Touch
+          image: panoviewer/devicemotion.png
+          description: Gyro mode can be tested on Mobile Device
+          link: examples/panoviewer/controls/motion-touch.html
+          sort: 5
+        - name: Setting the initial view
+          image: panoviewer/initial.png
+          description: Setting the initial view
+          link: examples/panoviewer/controls/setting_initial_view.html
+        - name: 360 Image (partial 270°)
+          image: panoviewer/partial.png
+          description: View partial panorama image by setting yawRange, pitchRange, fovRange
+          link: examples/panoviewer/etc/partial_panorama.html
+          sort: 15
     - name: Cubemap
       id: cubemap
       image: cubemap.jpg
-      description: asdasdasd
+      description: cube mapping is a method of environment mapping that uses the six faces of a cube as the map shape. The environment is projected onto the sides of a cube and stored as six square textures, or unfolded into six regions of a single texture.
       demos:
-        - name: demo1
-          image: equirectangular.png
-          description: 111
-          link: demo1.html
-        - name: demo2
-          image: equirectangular.png
-          description: 111
-          link: demo1.html
-        - name: demo3
-          image: equirectangular.png
-          description: 111
-          link: demo1.html
+        - name: HotSpot
+          image: panoviewer/hotspot.png
+          description: Drag and rotate the photo. An anchor will follow.
+          link: examples/panoviewer/etc/hotspot.html
+          sort: 1
+        - name: 3x2 Cubemap
+          image: panoviewer/cubemap3x2.png
+          description: Support variety cubemap format
+          link: examples/panoviewer/projection-type/cubemap_image.html
+        - name: Customized Cubemap
+          image: panoviewer/customized.png
+          description: Cubemap can have different layout, different order, diffent rotation
+          link: examples/panoviewer/projection-type/verticalcubestrip_image.html
+        - name: Cubemap 3 x 2 Video
+          image: panoviewer/cubemapvideo.png
+          description: Support variety cubemap format
+          link: examples/panoviewer/projection-type/cubemap_video.html
+          sort: 9
     - name: Cubestrip
       id: cubestrip
       image: cubestrip.png
       description: Cubestrip is a format for a single image with a combination of six cube faces. It is almost identical to cubemap, but it is implemented in a different way. It aims at better performance and efficiency. In addition, it automatically detects and supports EAC.
       demos:
-        - name: demo1
-          image: equirectangular.png
-          description: 11111`2121212121212121211`212121212121212121212121212121212112121212121212121
-          link: demo1.html
-        - name: demo2
-          image: equirectangular.png
-          description: 11111`21212111`21212121212121212121212121212121212121212121212121212121212121
-          link: demo1.html
-        - name: demo3
-          image: equirectangular.png
-          description: 11111`2121212121212121211`212121212121212121212121212121212112121212121212121
-          link: demo1.html
+        - name: 3x2 CubeStrip Image
+          image: panoviewer/cubestrip3x2.png
+          description: Support variety cubestrip format
+          link: examples/panoviewer/projection-type/cubestrip_3x2_image.html
+        - name: Youtube (EAC Format)
+          image: panoviewer/youtube.png
+          description: EAC Format(Youtube) is supported also.
+          link: examples/panoviewer/projection-type/youtube.html
+          sort: 3
     - name: Panorama
       id: panorama
-      image: panorama.png
-      description: asdasdasdasd
+      image: ../../examples/panoviewer/etc/img/panorama.jpg
+      description: A panorama is any wide-angle view or representation of a physical space, whether in painting, drawing, photography, film, seismic images or a three-dimensional model.
       demos:
-        - name: demo1
-          image: equirectangular.png
-          description: 111`2121212121212121212121212121212121
-          link: demo1.html
-        - name: demo2
-          image: equirectangular.png
-          description: 11111`2121212121212121212121212121212121
-          link: demo1.html
-        - name: demo3
-          image: equirectangular.png
-          description: 11111`2121212121212121212121212121212121
-          link: demo1.html
+        - name: Smartphone Panorama
+          image: panoviewer/panorama.png
+          description: Select your panorama picture taken on smartphone
+          link: examples/panoviewer/projection-type/panorama_image.html
+          sort: 4
+        - name: view360 with Loading Indicator
+          image: panoviewer/loading.png
+          description: The loading indicator appears until view360 loading.
+          link: examples/panoviewer/etc/loading_indicator.html
+          sort: 6
+        - name: Responsive
+          image: panoviewer/responsive.png
+          description: Rotate the screen or click the button to resize the viewer.
+          link: examples/panoviewer/etc/responsive.html
+          sort: 7
     - name: Stereoscopic Equirectangular
       id: stereo
-      image: stereo.png
-      description: asdasdasdas
+      image: stereoequi.png
+      description: Stereoscopy image format of EQUIRECTANGULAR. It is an experimental function to show a stereoscopic type equirectangular image on a plane. It does not support stereoscopic viewing function through special visual equipment at present.
       demos:
-        - name: demo1
-          image: equirectangular.png
-          description: 111
-          link: demo1.html
-        - name: demo2
-          image: equirectangular.png
-          description: 111
-          link: demo1.html
-        - name: demo3
-          image: equirectangular.png
-          description: 111
-          link: demo1.html
+        - name: Stereoscopic
+          image: panoviewer/stereoscopic.png
+          description: Support Stereoscopic Equirectangular (Top & Bottom)
+          link: examples/panoviewer/projection-type/stereoequi.html
+          sort: 8
 - name: SpinViewer
   desc: Object 360 photo viewer ↪️👠↩️
   ogimage: ../common/img/SpinViewer.png

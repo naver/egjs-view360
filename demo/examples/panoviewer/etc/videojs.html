@@ -5,14 +5,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
     <title>eg.view360 examples Video.js with view360</title>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="../../../common/css/main.css">
     <link rel="stylesheet" type="text/css" href="../../../common/css/demo.css">
-    <link rel="stylesheet" type="text/css" href="../../../common/css/highlight.css">
     <link href="https://vjs.zencdn.net/5.4.6/video-js.css" rel="stylesheet" type="text/css">
 
     <script src="../../../common/js/jquery-2.2.4.js"></script>
     <script src="../../../common/js/codepen.js"></script>
+    <script src="../../../common/js/qrcode.js"></script>
     <script src="https://vjs.zencdn.net/5.4.6/video.js"></script>
     <script src="../../../release/latest/dist/view360.pkgd.js"></script>
     <style>
@@ -128,9 +126,9 @@
 </div>
 <div class="source">
 <pre>
-video = document.querySelector(".viewer video");
+var video = document.querySelector(".viewer video");
 
-<a href="https://videojs.com" traget="_blank"><span class="value emphasis">videojs("video")</span></a>.ready(function () {
+<a href="https://videojs.com" target="_blank"><span class="value emphasis">videojs("video")</span></a>.ready(function () {
     var videoContainer = document.querySelector("#video");
     var view360Container = document.createElement("div");
 
