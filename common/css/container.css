@@ -1,0 +1,216 @@
+.container, section.section .container {
+  max-width: 900px;
+}
+section .container .docs-inner {
+  max-width: 900px;
+}
+section .container .docs-inner h2.title {
+  font-size: 50px;
+  text-align: left;
+}
+.section.tab {
+  padding: 20px 0px;
+  display: none;
+  opacity: 0;
+  transition: opacity ease 1s;
+  transition-property: opacity, transform;
+  transition-delay: 0.2s;
+  transform: translateY(-30px);
+}
+.tab.show {
+  display: block;
+}
+.tab.appear {
+  opacity: 1;
+  transform: translateY(0px);
+}
+#home .list {
+  position: relative;
+  font-size: 0;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+}
+#home .list li {
+  display: inline-block;
+  position: relative;
+  font-size: 14px;
+  width: 350px;
+  margin: 10px;
+  text-align: left;
+  padding: 10px;
+  vertical-align: top;
+  background: #f5f5f5;
+  border-radius: 8px;
+  transition: background-color ease 0.3s;
+}
+#home .list li .image-area {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+#home .list li .image-area img {
+  position: absolute;
+  min-width: 100%;
+  min-height: 100%;
+  max-height: 120%;
+  left: -100%;
+  right: -100%;
+  top: -100%;
+  bottom: -100%;
+  margin: auto;
+  transition: transform ease 0.3s;
+}
+#home .list li .image-area:before {
+  position: absolute;
+  content: "";
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  background: #333;
+  transition: opacity ease 0.3s;
+  z-index: 2;
+}
+#home .list li .image-area:after {
+  position: absolute;
+  content: "";
+  opacity: 0;
+  width: 90px;
+  height: 90px;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  background: url(../img/play.svg) no-repeat;
+  background-size: 100% 100%;
+  transition: opacity ease 0.3s;
+  transition-property: transform, opacity;
+  transform: scale(0.7);
+  z-index: 3;
+}
+#home .list li .title {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 10px 0px;
+}
+#home .list li .description {
+  display: block;
+  font-size: 14px;
+  height: 50px;
+  margin: 10px 0px;
+  word-wrap: break-word;
+  word-break: break-all;
+}
+#home .list a {
+  color: #333;
+  text-decoration: none;
+}
+
+#home .list li:hover {
+  background: #e5e5e5;
+}
+#home .list li:hover .image-area img {
+  transform: scale(1.07);
+}
+#home .list li:hover .image-area:before {
+  opacity: 0.2;
+}
+#home .list li:hover .image-area:after {
+  opacity: 1;
+  transform: scale(1);
+}
+#list .list ul {
+  position: relative;
+  /* width: 100%; */
+  margin: 0px auto;
+  padding: 15px;
+}
+#list .list {
+  position: relative;
+  background: #eee;
+  font-size: 0;
+}
+#list .list .item {
+  padding: 10px 30px 10px 0px;
+  margin-right: 10px;
+  display: inline-block;
+  list-style: none;
+  vertical-align: top;
+  cursor: pointer;
+}
+#list .list .item a {
+  padding: 10px;
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  color: #333;
+  font-weight: bold;
+}
+#list .list .item p {
+  font-size: 15px;
+  padding: 0;
+  margin: 0;
+  /* text-align: center; */
+}
+.projection h3 {
+  font-size: 45px;
+  margin-bottom: 30px;
+}
+.projection {
+  padding: 30px 0;
+  border-bottom: 3px solid #eee;
+}
+.projection .image {
+  display: block;
+  margin: 0px auto;
+  width: 100%;
+}
+.projection .description {
+  margin-top: 20px;
+}
+.projection .demos {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+.projection .demos li {
+  display: inline-block;
+  width: 250px;
+  padding: 10px;
+  text-align: center;
+  vertical-align: top;
+  box-sizing: border-box;
+}
+.projection .demos li p.image-area {
+  display: block;
+  overflow: hidden;
+  border: 1px solid #ccc;
+}
+.projection .demos img {
+  position: relative;
+  min-width: 100%;
+  height: 143px;
+  left: 50%;
+  transform: translate(-50%);
+  /* border-radius: 50%; */
+}
+.projection .demos p {
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+@media screen and (max-width: 400px) {
+  #list .list ul {
+    font-size: 14px;
+    padding-left: 30px;
+  }
+  #list .list li.item {
+    padding: 5px 0px;
+    display: list-item;
+    list-style-type: decimal;
+  }
+}
