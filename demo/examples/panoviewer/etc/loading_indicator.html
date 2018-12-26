@@ -51,6 +51,16 @@
             opacity: 1;
         }
     }
+
+    .viewer .button {
+        background-color:#209A4B;
+        color:white
+    }
+
+    .viewer .button:hover {
+        background-color:#4CAF50;
+        color:white
+    }
     </style>
 </head>
 
@@ -84,6 +94,7 @@ loadingIcon.style.display = "block";
 var container = document.getElementById("myPanoViewer");
     
 var panoViewer = new PanoViewer(container, {
+    projectionType: <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.PROJECTION_TYPE.html" target="_blank"><span class="emphasis value">"panorama"</span></a><span class="comment">/* PanoViewer.PROJECTION_TYPE.PANORAMA */</span>
     image: <a href="./img/panorama2.jpg" target="_blank"><span class="emphasis value">"./img/panorama2.jpg"</span></a>
 });
 
@@ -92,26 +103,29 @@ panoViewer.on("ready", function() {
 });</pre>
     </div>
     <script>
-        document.querySelector(".button").addEventListener("click", function(e) {
-            var loadingIcon = document.querySelector(".loading");
-            e.target.style.display = "none";
-            loadingIcon.style.display = "block";
+        var loadingIcon = document.querySelector(".loading");
 
+        function loadPanoViewer() {
             var container = document.getElementById("myPanoViewer");
-                
-            var panoViewer = new eg.view360.PanoViewer(
-                container,
-                {
-                    projectionType: "panorama",
-                    image: "./img/panorama2.jpg"
-                }
-            );
+            var panoViewer = new eg.view360.PanoViewer(container, {
+                projectionType: "panorama",
+                image: "./img/panorama2.jpg"
+            });
 
             panoViewer.on("ready", function() {
                 loadingIcon.style.display = "none";
                 panoViewer.updateViewportDimensions();
             });
             PanoControls.init(container, panoViewer);
+        }
+
+        document.querySelector(".button").addEventListener("click", function(e) {
+            e.target.style.display = "none";
+            loadingIcon.style.display = "block";
+
+            setTimeout(function() {
+                loadPanoViewer();
+            }, 1000)
         });
 </script>
 

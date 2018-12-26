@@ -34,13 +34,12 @@
             </a>
         </p>
         <p class="info">
-            <span class="head">image</span>: <a href="https://www.cosmicorbiters.com/toob-loober-for-youtube" target="_blank"><img src="./img/youtube.png"></a>
+            <span class="head">source</span>: <a href="https://www.cosmicorbiters.com/toob-loober-for-youtube" target="_blank"><img src="./img/youtube.png"></a>
         </p>
     </div>
 
     
-    <div class="viewer">
-        <div class="container" id="myPanoViewer"></div>
+    <div class="viewer" id="myPanoViewer">
     </div>
 
     <div class="source">
@@ -48,9 +47,9 @@
 var PanoViewer = eg.view360.PanoViewer;
 var container = document.getElementById("myPanoViewer");
 var panoViewer = new PanoViewer(container, {
-    image: "./img/youtube.png",
-    projectionType: "cubestrip",
-    cubemapConfig: {
+    image: <a href="./img/youtube.png" target="_blank"><span class="emphasis value" target="_blank">"./img/youtube.png"</span></a>,
+    projectionType: <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.PROJECTION_TYPE.html"><span class="emphasis value">cubestrip</span></a><span class="comment">/* PanoViewer.PROJECTION_TYPE.CUBESTRIP */</span>,
+   <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.html" target="_blank"><span class="emphasis value">cubemapConfig</span></a>: {
         order: "BLFDRU",
         tileConfig: [{rotation: 0}, {rotation: 0}, {rotation: 0}, {rotation: 0}, {rotation: -90}, {rotation: 180}]
     }

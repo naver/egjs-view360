@@ -24,12 +24,11 @@
                     class="value">STEREOSCOPIC_EQUI</span></a>
         </p>
         <p class="info">
-            <span class="head">image</span>: <a href="https://pixabay.com/ko/%EC%83%8C-%ED%94%84%EB%9E%80-%EC%8B%9C%EC%8A%A4-%EC%BD%94-%EC%BA%98%EB%A6%AC%ED%8F%AC%EB%8B%88%EC%95%84-%EB%8F%84%EC%8B%9C-%EB%A7%8C-%EB%8B%A4%EB%A6%AC-%EC%97%AC%ED%96%89-%EA%B1%B4%EC%B6%95%EB%AC%BC-2131951/" target="_blank"><img src="./img/stereoequi.png"></a>
+            <span class="head">source</span>: <a href="https://pixabay.com/ko/%EC%83%8C-%ED%94%84%EB%9E%80-%EC%8B%9C%EC%8A%A4-%EC%BD%94-%EC%BA%98%EB%A6%AC%ED%8F%AC%EB%8B%88%EC%95%84-%EB%8F%84%EC%8B%9C-%EB%A7%8C-%EB%8B%A4%EB%A6%AC-%EC%97%AC%ED%96%89-%EA%B1%B4%EC%B6%95%EB%AC%BC-2131951/" target="_blank"><img src="./img/stereoequi.png"></a>
         </p>
     </div>
     
-    <div class="viewer">
-        <div class="container" id="myPanoViewer"></div>
+    <div class="viewer" id="myPanoViewer">
     </div>
 
     <div class="source">
@@ -37,8 +36,8 @@
 var PanoViewer = eg.view360.PanoViewer;
 var container = document.getElementById("myPanoViewer");
 var panoViewer = new PanoViewer(container, {
-    image: "./img/stereoequi.png",
-    projectionType: "stereoequi"
+    image: <a href="./img/stereoequi.png" target="_blank"><span class="emphasis value" target="_blank">"./img/stereoequi.png"</span></a>,
+    projectionType: <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.PROJECTION_TYPE.html" target="_blank"><span class="emphasis value">"stereoequi"</span></a><span class="comment">/* PanoViewer.PROJECTION_TYPE.STEREOSCOPIC_EQUI */</span>
 });
         </pre>
     </div>
