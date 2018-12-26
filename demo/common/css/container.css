@@ -183,11 +183,19 @@ section .container .docs-inner h2.title {
   padding: 10px;
   text-align: center;
   vertical-align: top;
+  box-sizing: border-box;
+}
+.projection .demos li p.image-area {
+  display: block;
+  overflow: hidden;
+  border: 1px solid #ccc;
 }
 .projection .demos img {
-  width: 100%;
+  position: relative;
+  min-width: 100%;
   height: 143px;
-  border: 1px solid #ccc;
+  left: 50%;
+  transform: translate(-50%);
   /* border-radius: 50%; */
 }
 .projection .demos p {

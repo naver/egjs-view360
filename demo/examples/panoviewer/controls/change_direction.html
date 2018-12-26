@@ -5,10 +5,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
     <title>PanoViewer examples</title>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="../../../common/css/main.css">
-    <link rel="stylesheet" type="text/css" href="../../../common/css/example.css">
-    
+    <link rel="stylesheet" type="text/css" href="../../../common/css/demo.css">
+    <script src="../../../common/js/jquery-2.2.4.js"></script>
+    <script src="../../../common/js/codepen.js"></script>
+    <script src="../../../common/js/qrcode.js"></script>
     <script src="../../../release/latest/dist/view360.pkgd.js"></script>
     <style>
     #myPanoViewer {
@@ -21,26 +21,65 @@
 
 <body>
     <header>
-        <a href="./">
-            <h1>PanoViewer examples</h1>
-        </a>
-        <h2>Change direction</h2>  
-        <p></p>      
+        <h1>Change direction</h1>
+        <div class="infos">
+            <p class="info">
+                <span class="head">projection</span>: <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.PROJECTION_TYPE.html#.EQUIRECTANGULAR" target="_blank"><span class="value">EQUIRECTANGULAR</span></a>
+            </p>
+            <p class="info">
+                <span class="head">image</span>: <a href= "../../img/equi.jpg" target="_blank"><span class="value">equi.jpg</span></a>
+            </p>
+        </div>     
     </header>
     <section>
-            <div id="myPanoViewer"></div>
-            <br/>
-            <button class="button front">look front (yaw: 0)</button>
-            <button class="button back">look back (yaw: 180)</button>
-            <button class="button zoomin">zoom in (fov 30)</button>
-            <button class="button zoomout">zoom out (fov 110)</button>
+        <div class="buttons">
+            <button class="button light front">look front (yaw: 0)</button>
+            <button class="button light back">look back (yaw: 180)</button>
+            <button class="button light zoomin">zoom in (fov 30)</button>
+            <button class="button light zoomout">zoom out (fov 110)</button>
+        </div>
+        <div id="myPanoViewer" class="viewer"></div>
     </section>
+    <div class="source">
+        <pre>
+var container = document.getElementById("myPanoViewer");
+    
+var panoViewer = new eg.view360.PanoViewer(
+    container,
+    {
+        image: <a href= "../../img/equi.jpg" target="_blank"><span class="value emphasis">"../../img/equi.jpg"</span></a>
+    }
+);
+    
+document.querySelector(".front").addEventListener("click", function() {
+    panoViewer.<a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.html#lookAt"  target="_blank"><span class="value emphasis">lookAt</span></a>({
+        yaw: 0
+    }, 1000);
+});
+document.querySelector(".back").addEventListener("click", function() {
+    panoViewer.<a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.html#lookAt"  target="_blank"><span class="value emphasis">lookAt</span></a>({
+        yaw: 180
+    }, 1000);
+
+});
+document.querySelector(".zoomin").addEventListener("click", function() {
+    panoViewer.<a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.html#lookAt"  target="_blank"><span class="value emphasis">lookAt</span></a>({
+        fov: 30
+    }, 1000);
+
+});
+document.querySelector(".zoomout").addEventListener("click", function() {
+    panoViewer.<a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.html#lookAt"  target="_blank"><span class="value emphasis">lookAt</span></a>({
+        fov: 110
+    }, 1000);
+});
+        </pre>
+    </div>
     <script>
     // create PanoViewer with option
-    var PanoViewer = eg.view360.PanoViewer;
     var container = document.getElementById("myPanoViewer");
         
-    var panoViewer = new PanoViewer(
+    var panoViewer = new eg.view360.PanoViewer(
         container,
         {
             image: "../../img/equi.jpg"
@@ -68,7 +107,6 @@
         panoViewer.lookAt({
             fov: 110
         }, 1000);
-
     });
 </script>
 

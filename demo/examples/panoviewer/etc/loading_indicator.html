@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>PanoViewer examples</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../common/css/demo.css">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/PanoControls.css">
+
+    <script src="../../../release/latest/dist/view360.pkgd.js"></script>
+    <script src="../../../common/js/jquery-2.2.4.js"></script>
+    <script src="../../../common/js/codepen.js"></script>
+    <script src="../../../common/js/qrcode.js"></script>
+
+    <script src="../../../common/js/screenfull.min.js"></script>
+    <script src="../../../common/js/PieView.js"></script>
+    <script src="../../../common/js/PanoControls.js"></script>
+
+    <style>
+    .icon {
+        text-align: center;
+        line-height: 100px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    .icon .dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        background: #aaa;
+        margin: 6px;
+        animation: dot 2s infinite 0s;
+        opacity: 1;
+    }
+    .icon .dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    .icon .dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+    @keyframes dot {
+        0% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>view360 with Loading Indicator</h1>
+        <div class="icon">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+        <h2>The loading indicator appears until view360 loading.</h2>  
+        <div class="infos">
+            <p class="info">
+                <span class="head">projection</span>: <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.PROJECTION_TYPE.html#.PANORAMA" target="_blank"><span class="value">PANORAMA</span></a>
+            </p>
+            <p class="info">
+                <span class="head">image</span>: <a href="./img/panorama2.jpg" target="_blank"><span class="value">panorama2.jpg</span></a>
+            </p>
+        </div>
+    </header>
+    <section>
+        <div id="myPanoViewer" class="viewer">
+            <button class="button light">Show view360</button>
+            <img class="loading" style="display: none; margin: 0px auto;" src="../../img/loading_icon.gif"/>
+        </div>
+    </section>
+    <div class="source">
+        <pre>
+var loadingIcon = document.querySelector(".loading");
+loadingIcon.style.display = "block";
+
+var container = document.getElementById("myPanoViewer");
+    
+var panoViewer = new PanoViewer(container, {
+    image: <a href="./img/panorama2.jpg" target="_blank"><span class="emphasis value">"./img/panorama2.jpg"</span></a>
+});
+
+panoViewer.on("ready", function() {
+    loadingIcon.style.display = "none";
+});</pre>
+    </div>
+    <script>
+        document.querySelector(".button").addEventListener("click", function(e) {
+            var loadingIcon = document.querySelector(".loading");
+            e.target.style.display = "none";
+            loadingIcon.style.display = "block";
+
+            var container = document.getElementById("myPanoViewer");
+                
+            var panoViewer = new eg.view360.PanoViewer(
+                container,
+                {
+                    projectionType: "panorama",
+                    image: "./img/panorama2.jpg"
+                }
+            );
+
+            panoViewer.on("ready", function() {
+                loadingIcon.style.display = "none";
+                panoViewer.updateViewportDimensions();
+            });
+            PanoControls.init(container, panoViewer);
+        });
+</script>
+
+</body>
+
+</html>

@@ -72,7 +72,7 @@ $.ajax({
   });
 
   var htmlText = removeMargin($body.html().replace("\n", ""));
-  var cssText = removeMargin($style.html().replace("\n", ""));
+  var cssText = removeMargin(($style.html() || "").replace("\n", ""));
   var jsText = removeMargin($script.html().replace("\n", ""));
 
   jsText = jsText.replace(/"\.\//g, "\"" + href + "/");
@@ -102,9 +102,9 @@ $.ajax({
     js_external: jsPaths.join(";") // "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js;" + window.LIBLINK.join(";")
   };
   $(document).ready(function () {
-    document.body.insertAdjacentHTML("afterbegin", '<form class="codepenform" action="https://codepen.io/pen/define" method="POST" target="_blank">' +
+    (document.querySelector(".source") || document.body).insertAdjacentHTML("afterbegin", '<form class="codepenform" action="https://codepen.io/pen/define" method="POST" target="_blank">' +
     '<input type="hidden" name="data" value=\'' + JSON.stringify(data).replace(/"/g, "&quot;").replace(/'/g, "&apos;") + '\'>' +
-    '<input type="image" src="../../../common/img/cp-arrow-right' + "-black" + '.svg" width="40" height="40" value="Create New Pen with Prefilled Data" class="codepen-mover-button" style="position:fixed;z-index:5;right: 10px; top: 5px;">' +
+    '<input type="image" src="../../../common/img/cp-arrow-right' + "-black" + '.svg" width="40" height="40" value="Create New Pen with Prefilled Data" class="codepen-mover-button" style="position:absolute;z-index:5;right: 10px; top: 5px;">' +
     '</form>');
   });
 });

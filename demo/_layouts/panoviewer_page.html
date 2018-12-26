@@ -35,7 +35,7 @@
 {% include subcomponent_header.html %}
 <section id="promo" class="promo section">
 		<div class="container">
-			<div class="hero-image" style="background-image: url(./assets/img/{{ subComponent.name }}.png)">
+			<div class="hero-image" style="background-image: url(./common/img/{{ subComponent.name }}.png)">
 			</div>
 			<h2 class="title">	
 				<span class="highlight">{{ subComponent.name }}</span>
@@ -52,21 +52,8 @@
 <div>
 	{% include nav.html %}
 	<section id="home" class="tab docs section" data-tab="home" id="home">
-		<ul class="list">
-			{% for projection in subComponent.projections %}
-			{% for demo in projection.demos %}
-			<li>
-				<a href="{{demo.link}}">
-					<p class="image-area">
-						<img src="./common/img/{{demo.image}}" class="image" alt="{{demo.name}}'s image"/>
-					</p>
-					<p class="title">{{demo.name}}</p>
-					<p class="description">{{demo.description}}</p>
-				</a>
-			</li>
-			{% endfor %}
-			{% endfor %}
-		</ul>
+			<ul class="list">
+			</ul>
 	</section>
 	<section id="projections" class="tab docs section" data-tab="projections">
 		<div class="container">
@@ -99,8 +86,8 @@
 					<ul class="demos">
 						{% for demo in projection.demos %}
 						<li>
-							<a href="{{demo.link}}">
-								<img src="./common/img/{{demo.image}}" alt="{{demo.name}}'s image"/>
+							<a href="{{demo.link}}" target="_blank">
+								<p class="image-area"><img src="./common/img/{{demo.image}}" alt="{{demo.name}}'s image"/></p>
 								<p>{{demo.name}}</p>
 							</a>
 						</li>
@@ -137,7 +124,7 @@
 				<ul class="link_list">
 				{% for project in projects %}
 				<li class="link_item">
-					<a href="{{ project.url }}" class="td_a">
+					<a href="{{ project.url }}" target="_blank" class="td_a">
 						<div class="link_item_image">
 							<img src="{{ project.image }}" width="108" height="108">
 						</div>
@@ -148,7 +135,7 @@
 				</li>
 				{% endfor %}
 				</ul>
-				<p><br/>Don't see your project? Post an <strong><a href="https://github.com/{{ site.data.egjs.github.user }}/{{ site.data.egjs.github.repo }}/issues/new"/>issue</a></strong> with <i>built-with-view360</i> label  over on the <strong><a href="https://github.com/{{ site.data.egjs.github.user }}/{{ site.data.egjs.github.repo }}/"/>github page</a></strong>.					
+				<p><br/>Don't see your project? Post an <strong><a target="_blank" href="https://github.com/{{ site.data.egjs.github.user }}/{{ site.data.egjs.github.repo }}/issues/new"/>issue</a></strong> with <i>built-with-view360</i> label  over on the <strong><a href="https://github.com/{{ site.data.egjs.github.user }}/{{ site.data.egjs.github.repo }}/"/>github page</a></strong>.					
 			</div>	
 			</p>		
 		</div>
@@ -160,5 +147,27 @@
 {% for js in site.data.egjs.js %}
 	<script src="{{ js }}"></script>
 {% endfor %}
+<script>
+		var list = [];
+		{% for projection in subComponent.projections %}
+		{% for demo in projection.demos %}
+		list.push({sort: parseInt("{{demo.sort}}" || "0") || 999999, html: '<li>' + 
+			'<a href="{{demo.link}}" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/{{demo.image}}" class="image" alt="{{demo.name}}\'s image"/>' + 
+				'</p>' +
+				'<p class="title">{{demo.name}}</p>' + 
+				'<p class="description">{{demo.description}}</p>' +
+			'</a>' + 
+		'</li>'});
+		{% endfor %}
+		{% endfor %}
+
+		list.sort(function (a, b) {
+			return a.sort < b.sort ? -1 : 1;
+		});
+
+		document.querySelector("#home .list").innerHTML = list.map(function (li) { return li.html; }).join("");
+</script>
 </body>
 </html>

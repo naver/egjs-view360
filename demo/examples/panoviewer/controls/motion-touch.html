@@ -4,55 +4,131 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
     <title>PanoViewer - Motion</title>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="../../../common/css/main.css">
-    <link rel="stylesheet" type="text/css" href="../../../common/css/example.css">
+    <script src="../../../common/js/jquery-2.2.4.js"></script>
+    <script src="../../../common/js/codepen.js"></script>
+    <script src="../../../common/js/qrcode.js"></script>
+    <script src="../../../common/js/screenfull.min.js"></script>
+    <script src="../../../common/js/PieView.js"></script>
+    <script src="../../../common/js/GyroTouchOptions.js"></script>
+    <script src="../../../release/latest/dist/view360.pkgd.js"></script>
+    <script src="../../../common/js/PanoControls.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../../../common/css/demo.css">
     <link rel="stylesheet" type="text/css" href="../../../common/css/PanoControls.css">
     <style>
         .message {
+            display: block;
+            margin: 10px auto;
             box-shadow: 0 0 0 1px #e0b4b4 inset, 0 0 0 0 transparent;
             background-color: #fff6f6;
             color: #9f3a38;
-            margin: 1em 0;
             padding: 1em 1.5em;
+            box-sizing: border-box;
             width: 100%;
-            max-width: 692px;
+            max-width: 800px;
         }
-
-        .message.blink {
-            animation: blinker 3s linear infinite;
+        .message span {
+            font-weight: bold;
         }
-
-        @keyframes blinker {
-            50% {
-                opacity: 0;
-            }
+        .phone {
+            position: absolute;
+            width: 36px;
+            height: 60px;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            margin: auto;
+            border-radius: 5px;
+            background: #333;
+            transform: rotate(20deg);
+        }
+        .phone:before {
+            position: absolute;
+            content: "";
+            width: 30px;
+            height:40px;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            margin: auto;
+            background: #fff;
+        }
+        .rotate {
+            position: absolute;
+            width: 100%;
+            height: 30px;
+            border-radius: 50%;
+            border: 3px solid #aaa;
+            border-bottom: 0;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            margin: auto;
+            transform: rotate(20deg);
+            z-index: -2;
+            box-sizing: border-box;
+        }
+        .rotate:before, .rotate:after {
+            position: absolute;
+            content: "";
+            border-top: 7px solid transparent;
+            border-bottom: 7px solid transparent;
+            bottom: -5px;
+        }
+        .rotate:before {
+            border-left: 10px solid #aaa;
+            left: 15px;
+            transform: rotate(10deg);
+        }
+        .rotate:after {
+            border-right: 10px solid #aaa;
+            right: 15px;
+            transform: rotate(-10deg);
         }
     </style>
 </head>
 <body>
     <header>
-      <a href="./">
-          <h1>Device Motion (Gyro Mode) & Touch</h1>
-      </a>
+        <h1>Device Motion (Gyro Mode) & Touch</h1>
+        <div class="icon">
+            <div class="phone"></div>
+            <div class="rotate"></div>
+        </div>
+        <div class="infos">
+            <p class="info">
+                <span class="head">projection</span>: <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.PROJECTION_TYPE.html#.EQUIRECTANGULAR" target="_blank"><span class="value">EQUIRECTANGULAR</span></a>
+            </p>
+            <p class="info">
+                <span class="head">image</span>: <a href="./equi-car-inside.jpg" target="_blank"><span class="value">equi-car-inside.jpg</span></a>
+            </p>
+        </div>
     </header>
-    <div class="message blink" style="display:none">
+    <div class="message" style="display: none">
         Gyro mode can be tested on <span style="font-size: 1.14em;color:#912d2b">Mobile Device</span> (gyro enabled)
     </div>
     <div class="message" style="display: none">
-        If you want to know the difference of 2 way and 3 way in gyrMode. Please reference this <a target="_blank" href="https://github.com/naver/egjs-view360/wiki/Changing-the-View-by-Motion">Guide</a>
+        If you want to know the difference of 2 way and 3 way in gyrMode. Please reference this <a target="_blank" href="https://github.com/naver/egjs-view360/wiki/Changing-the-View-by-Motion" target="_blank">Guide</a>
     </div>
-    <div class="panoviewer-container">
+    <div class="panoviewer-container viewer">
         <div id="panoSet">
-            <div class="panoviewer" id="myPanoViewer"></div>
+            <div class="panoviewer container" id="myPanoViewer"></div>
         </div>
     </div>
-    <h3>Source Image (Equirectangular)</h3>
-    <img src="./equi-car-inside.jpg" style="width: 300px">
+<div class="source">
+        <pre>
+var container = document.getElementById("myPanoViewer");
+var panoViewer = new eg.view360.PanoViewer(container, {
+    image: <a href="./equi-car-inside.jpg" target="_blank">"./equi-car-inside.jpg"</a>,
+    projectionType: <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.PROJECTION_TYPE.html#.EQUIRECTANGULAR" target="_blank">"equirectangular"</a>
+});
+        </pre>
+    </div>
     <script>
-      window.onload = function() {
         if (navigator.userAgent.indexOf("Mobi") === -1) {
-            document.querySelector(".message.blink").style.display = "block";
+            document.querySelector(".message").style.display = "block";
         }
 
         // create PanoViewer with option
@@ -66,14 +142,7 @@
         var panoviewerSet = document.getElementById("panoSet");
         PanoControls.init(panoviewerSet, panoViewer, {enableGyroOption: true, enableTouchOption: true});
         PanoControls.showLoading();
-      };
     </script>
-    <script src="../../../common/js/jquery-2.2.4.js"></script>
-    <script src="../../../common/js/screenfull.min.js"></script>
-    <script src="../../../common/js/PieView.js"></script>
-    <script src="../../../common/js/GyroTouchOptions.js"></script>
-    <script src="../../../release/latest/dist/view360.pkgd.js"></script>
-    <script src="../../../common/js/PanoControls.js"></script>
 </body>
 
 </html>
