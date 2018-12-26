@@ -178,16 +178,12 @@
                 <span class="head">source:</span> <a href="https://commons.wikimedia.org/wiki/File:Isabella_Plantation_3_360x180,_London,_UK_-_Diliff.jpg" target="_blank"><span class="value">VIsabella Plantation 3</span></a>
             </p>
             <p class="info">
-                <span class="head">image:</span> <a href="./london.jpg" target="_blank"><img src="./london.jpg" style="width: 300px"></a>
+                <span class="head"></span> <a href="./london.jpg" target="_blank"><img src="./london.jpg" style="width: 300px"></a>
             </p>
         </div>
 
     </header>
-    <div class="panoviewer-container viewer">
-        <div id="panoSet">
-            <div class="panoviewer container" id="myPanoViewer"></div>
-        </div>
-    </div>
+    <div class="viewer" id="myPanoViewer"></div>
     <div class="source">
         <pre>
 var container = document.getElementById("myPanoViewer");
@@ -207,8 +203,7 @@ var panoViewer = new eg.view360.PanoViewer(container, {
 
         container.focus();
 
-        var panoviewerSet = document.getElementById("panoSet");
-        PanoControls.init(panoviewerSet, panoViewer);
+        PanoControls.init(container, panoViewer);
         PanoControls.showLoading();
     </script>
 </body>
