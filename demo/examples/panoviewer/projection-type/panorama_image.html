@@ -51,7 +51,7 @@
                     class="value">PANORAMA</span></a>
         </p>
         <p class="info">
-            <span class="head">image</span>: <a href="../../img/smartphone-panorama-picture.jpg" target="_blank"><img src="../../img/smartphone-panorama-picture.jpg"></a>
+            <span class="head">source</span>: <a href="../../img/smartphone-panorama-picture.jpg" target="_blank"><img src="../../img/smartphone-panorama-picture.jpg"></a>
         </p>
     </div>
     <div class="viewer">
@@ -63,8 +63,8 @@
 var PanoViewer = eg.view360.PanoViewer;
 var container = document.getElementById("myPanoViewer");
 var panoViewer = new PanoViewer(container, {
-    image: "../../img/smartphone-panorama-picture.jpg",
-    projectionType: "panorama"
+    image: <a href="../../img/smartphone-panorama-picture.jpg" target="_blank"><span class="emphasis value">"../../img/smartphone-panorama-picture.jpg"</span></a>,
+    projectionType: <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.PROJECTION_TYPE.html" target="_blank"><span class="emphasis value">"panorama"</span></a><span class="comment">/* PanoViewer.PROJECTION_TYPE.PANORAMA */</span>
 });
         </pre>
     </div>
