@@ -30,10 +30,13 @@
     </div>
 
     <div class="viewer">
-        <video id="pano_video" controls loop preload="auto" crossorigin="anonymous" autoplay muted>
+        <video id="pano_video" playsinline="playsinline" controls loop preload="auto" crossorigin="anonymous">
             <source src="../../img/equi.mp4" type="video/mp4" />
         </video>
         <div class="container"></div>
+        <div class="play-container">
+            <button class="play"></button>
+        </div>
     </div>
     <div class="source">
         <pre>
@@ -56,6 +59,12 @@ var panoViewer = new PanoViewer(container, {
     var panoViewer = new PanoViewer(container, {
         video: videoEl
     });
+    document.querySelector(".play-container .play").addEventListener("click", function () {
+        videoEl.play();
+    });
+    videoEl.addEventListener("play", function () {
+        document.querySelector(".play-container").style.display = "none";
+    })
 </script>
 
 </body>

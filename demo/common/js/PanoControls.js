@@ -102,7 +102,7 @@ var PanoControls = (function() {
 	}
 
 	function _initControlHTML(target) {
-		var svg = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">\
+		var fullscreenSvg = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">\
 		<g>\
 			<path d="M30,5 L5,5 L5,30" fill="transparent" stroke="#fff" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>\
 			<path d="M70,5 L95,5 L95,30" fill="transparent" stroke="#fff" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>\
@@ -110,11 +110,19 @@ var PanoControls = (function() {
 			<path d="M70,95 L95,95 L95,65" fill="transparent" stroke="#fff" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>\
 		</g>\
 		</svg>';
+		var cancelFullscreenSvg = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">\
+		<g>\
+			<path d="M30,5 L30,30 L5,30" fill="transparent" stroke="#fff" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>\
+			<path d="M70,5 L70,30 L95,30" fill="transparent" stroke="#fff" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>\
+			<path d="M30,95 L30,65 L5,65" fill="transparent" stroke="#fff" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>\
+			<path d="M70,95 L70,65 L95,65" fill="transparent" stroke="#fff" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>\
+		</g>\
+		</svg>';
 		var controls = '\
 			<div class="image360_loading"><div class="image360_loadingBar"></div></div>\
 			<div class="panoviewer-control">\
-				<button class="enterfs">' + svg + '</button>\
-				<button class="exitfs">' + svg + '</button>\
+				<button class="enterfs">' + fullscreenSvg + '</button>\
+				<button class="exitfs">' + cancelFullscreenSvg + '</button>\
 				<div class="camera"></div>\
 			</div>';
 
