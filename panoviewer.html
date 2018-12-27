@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
     
     <meta property="og:title" content="PanoViewer">
-    <meta property="og:image" content="../assets/img/PanoViewer.png">
+    <meta property="og:image" content="./common/img/PanoViewer.png">
     <meta name="Description" content="A panoramic media viewer for the mobile web ↪️🌐↩️">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">    
     <link rel="stylesheet" href="./common/css/bootstrap.min.css">
@@ -17,6 +17,8 @@
 </head>
 
 
+
+	<link rel="stylesheet" href="../common/css/container.css">
 
 
 	<script src="release/latest/dist/view360.pkgd.min.js"></script>
@@ -50,8 +52,8 @@
                     <img class="egjs_logo" src="./common/img/type_black.svg"/>
                     view360
                 </a><!--//logo-->
-                <a href="https://github.com/naver/egjs-view360/releases/tag/3.1.0">
-                    <span class="version">3.1.0</span>
+                <a href="https://github.com/naver/egjs-view360/releases/tag/3.2.0-rc">
+                    <span class="version">3.2.0-rc</span>
                 </a>
             </div>
             <div class="pull-right home">
@@ -63,7 +65,7 @@
 </header><!--//header-->
 <section id="promo" class="promo section">
 		<div class="container">
-			<div class="hero-image" style="background-image: url(./assets/img/PanoViewer.png)">
+			<div class="hero-image" style="background-image: url(./common/img/PanoViewer.png)">
 			</div>
 			<h2 class="title">	
 				<span class="highlight">PanoViewer</span>
@@ -82,67 +84,340 @@
 		</div>
 	</section>
 <div>
+	<style>
+	.tabs {
+		list-style: none;
+		padding: 10px 0px;
+		margin: 0;
+		/* text-align: center; */
+		margin: 0px auto;
+	}
+	.tabs li {
+		position: relative;
+		padding: 0px 20px;
+		height: 50px;
+		line-height: 50px;
+		font-weight: bold;
+		box-sizing: border-box;
+		display: inline-block;
+		transition: color ease 0.2s;
+		vertical-align: top;
+		text-decoration: none;
+		color: #999;
+		transition: color ease 0.2s;
+	}
+	.tabs li:before {
+		content: "";
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		transition: background-color ease 0.2s;
+		top: 0;
+		left: 0;
+		z-index: -1;
+		border-radius: 25px;
+	}
+	.tabs li.checked:before {
+		background: #eee;
+	}
+	.tabs li.checked, .tabs li:hover {
+		color: #333;
+	}
+</style>
+<nav>
+	<ul class="tabs container">
+		<li data-tab="home">Home</li>
+		<li data-tab="projections">Projections</li>
+		<li data-tab="features">Features</li>
+		<li data-tab="started">Getting Started</li>
+	</ul>
+</nav>
 
-	<section id="showcase" class="docs section">
+<script>
+	var lis = $(".tabs li");
+	lis.click(function (e) {
+		var target = e.currentTarget;
+		var hash = target.getAttribute("data-tab");
+
+
+		location.hash = hash;
+		lis.removeClass("checked");
+		target.setAttribute('class', "checked");
+		
+		Tab.open(hash);
+		return false;
+	});
+</script>
+	<section id="home" class="tab docs section" data-tab="home" id="home">
+			<ul class="list">
+			</ul>
+	</section>
+	<section id="projections" class="tab docs section" data-tab="projections">
 		<div class="container">
-			<div class="docs-inner">				
-				<h2 class="title text-center">Showcase</h2>
-				
-				<div>
-		<style>
-		#panoviewer-showcase {
-				position: relative;
-				width: 100%;
-				height: 400px;
-				margin: 0 auto;
-		}    
-		</style>
-		<div id="panoviewer-showcase"></div>
-		<script>
-			var LOOKAT_DURATION = 1000;
-			var container = document.getElementById("panoviewer-showcase");
-			var PanoViewer = eg.view360.PanoViewer;
-			var panoViewer = new PanoViewer(container, {
-				yaw: 180,
-				image: "./assets/img/test_equi_4096.jpg"
-			}).on("ready", function() {
-				panoViewer.lookAt({
-					yaw: 0
-				}, LOOKAT_DURATION);
-
-				// Set resize event handler just after lookat is done
-				// Because it may fire resize event when page loaded and it makes lookAt being stop.
-				setTimeout(function() {
-					window.addEventListener("resize", function() {
-						panoViewer.updateViewportDimensions();
-					});
-				}, LOOKAT_DURATION);
-			});
-		</script>
-</div>
-
+			<div class="docs-inner">
+				<h2 class="title">Projection Types</h2>
+				<p>PanoViewer offers five projection types. You can see video with the projection.</p>
 			</div>
 		</div>
 	</section>
-	<section id="index" class="section">
-			<div class="container">
+	<section id="list" class="tab docs section" data-tab="projections">
+		<div class="list">
+			<ul class="container">
+				
+				<li class="item">
+					<a href="#equirectangular">
+						<p>Equirectangular</p>
+					</a>
+				</li>
+				
+				<li class="item">
+					<a href="#cubemap">
+						<p>Cubemap</p>
+					</a>
+				</li>
+				
+				<li class="item">
+					<a href="#cubestrip">
+						<p>Cubestrip</p>
+					</a>
+				</li>
+				
+				<li class="item">
+					<a href="#panorama">
+						<p>Panorama</p>
+					</a>
+				</li>
+				
+				<li class="item">
+					<a href="#stereo">
+						<p>Stereoscopic Equirectangular</p>
+					</a>
+				</li>
+							
+			</ul>
+		</div>
+	</section>
+	
+	<section id="equirectangular" class="tab projection docs section" data-tab="projections">
+		<div class="container">
 				<div class="docs-inner">
-					<p class="text-center">
-						<a href="#features">Features </a>/
-						<a href="#getting-started">Getting Started </a>
+					<h3 class="title">Equirectangular</h3>
+					<img src="./common/img/equirectangular.png" class="image" alt="Equirectangular's image"/>
+					<p class="description">The equirectangular projection (also called the equidistant cylindrical projection, geographic projection, or la carte parallélogrammatique projection, and which includes the special case of the plate carrée projection or geographic projection) is a simple map projection attributed to Marinus of Tyre, who Ptolemy claims invented the projection about AD 100.</p>
+					<ul class="demos">
 						
+						<li>
+							<a href="examples/panoviewer/etc/synchronize.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/synchronize.png" alt="Synchronize's image"/></p>
+								<p>Synchronize</p>
+							</a>
+						</li>
 						
+						<li>
+							<a href="examples/panoviewer/etc/videojs.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/videojs.png" alt="Video.js with view360's image"/></p>
+								<p>Video.js with view360</p>
+							</a>
+						</li>
 						
-							/ <a href="#examples">Examples </a>
+						<li>
+							<a href="examples/panoviewer/projection-type/equirectangular_image.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/equirectangular.png" alt="Equirectangular Image's image"/></p>
+								<p>Equirectangular Image</p>
+							</a>
+						</li>
 						
+						<li>
+							<a href="examples/panoviewer/projection-type/equirectangular_video.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/videotag.png" alt="Video Tag (Equirectangular)'s image"/></p>
+								<p>Video Tag (Equirectangular)</p>
+							</a>
+						</li>
 						
-							/ <a href="#projects">Projects </a>
+						<li>
+							<a href="examples/panoviewer/projection-type/equirectangular_video_url.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/videourl.png" alt="Video URL (Equirectangular)'s image"/></p>
+								<p>Video URL (Equirectangular)</p>
+							</a>
+						</li>
 						
-					</p>
+						<li>
+							<a href="examples/panoviewer/controls/change_direction.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/changedirection.png" alt="Change direction's image"/></p>
+								<p>Change direction</p>
+							</a>
+						</li>
+						
+						<li>
+							<a href="examples/panoviewer/controls/custom-control.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/customcontrol.png" alt="Custom Control's image"/></p>
+								<p>Custom Control</p>
+							</a>
+						</li>
+						
+						<li>
+							<a href="examples/panoviewer/controls/doc-embeded.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/document.png" alt="Document Embeded's image"/></p>
+								<p>Document Embeded</p>
+							</a>
+						</li>
+						
+						<li>
+							<a href="examples/panoviewer/controls/keyboard-wheel.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/directionkey.png" alt="Direction key & Wheel Zoom's image"/></p>
+								<p>Direction key & Wheel Zoom</p>
+							</a>
+						</li>
+						
+						<li>
+							<a href="examples/panoviewer/controls/motion-touch.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/devicemotion.png" alt="Device Motion (Gyro Mode) & Touch's image"/></p>
+								<p>Device Motion (Gyro Mode) & Touch</p>
+							</a>
+						</li>
+						
+						<li>
+							<a href="examples/panoviewer/controls/setting_initial_view.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/initial.png" alt="Setting the initial view's image"/></p>
+								<p>Setting the initial view</p>
+							</a>
+						</li>
+						
+						<li>
+							<a href="examples/panoviewer/etc/partial_panorama.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/partial.png" alt="360 Image (partial 270°)'s image"/></p>
+								<p>360 Image (partial 270°)</p>
+							</a>
+						</li>
+						
+					</ul>
 				</div>
 			</div>
-		</section>
-	<section id="features" class="docs section">
+	</section>
+	
+	<section id="cubemap" class="tab projection docs section" data-tab="projections">
+		<div class="container">
+				<div class="docs-inner">
+					<h3 class="title">Cubemap</h3>
+					<img src="./common/img/cubemap.jpg" class="image" alt="Cubemap's image"/>
+					<p class="description">cube mapping is a method of environment mapping that uses the six faces of a cube as the map shape. The environment is projected onto the sides of a cube and stored as six square textures, or unfolded into six regions of a single texture.</p>
+					<ul class="demos">
+						
+						<li>
+							<a href="examples/panoviewer/etc/hotspot.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/hotspot.png" alt="HotSpot's image"/></p>
+								<p>HotSpot</p>
+							</a>
+						</li>
+						
+						<li>
+							<a href="examples/panoviewer/projection-type/cubemap_image.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/cubemap3x2.png" alt="3x2 Cubemap's image"/></p>
+								<p>3x2 Cubemap</p>
+							</a>
+						</li>
+						
+						<li>
+							<a href="examples/panoviewer/projection-type/verticalcubestrip_image.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/customized.png" alt="Customized Cubemap's image"/></p>
+								<p>Customized Cubemap</p>
+							</a>
+						</li>
+						
+						<li>
+							<a href="examples/panoviewer/projection-type/cubemap_video.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/cubemapvideo.png" alt="Cubemap 3 x 2 Video's image"/></p>
+								<p>Cubemap 3 x 2 Video</p>
+							</a>
+						</li>
+						
+					</ul>
+				</div>
+			</div>
+	</section>
+	
+	<section id="cubestrip" class="tab projection docs section" data-tab="projections">
+		<div class="container">
+				<div class="docs-inner">
+					<h3 class="title">Cubestrip</h3>
+					<img src="./common/img/cubestrip.png" class="image" alt="Cubestrip's image"/>
+					<p class="description">Cubestrip is a format for a single image with a combination of six cube faces. It is almost identical to cubemap, but it is implemented in a different way. It aims at better performance and efficiency. In addition, it automatically detects and supports EAC.</p>
+					<ul class="demos">
+						
+						<li>
+							<a href="examples/panoviewer/projection-type/cubestrip_3x2_image.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/cubestrip3x2.png" alt="3x2 CubeStrip Image's image"/></p>
+								<p>3x2 CubeStrip Image</p>
+							</a>
+						</li>
+						
+						<li>
+							<a href="examples/panoviewer/projection-type/youtube.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/youtube.png" alt="Youtube (EAC Format)'s image"/></p>
+								<p>Youtube (EAC Format)</p>
+							</a>
+						</li>
+						
+					</ul>
+				</div>
+			</div>
+	</section>
+	
+	<section id="panorama" class="tab projection docs section" data-tab="projections">
+		<div class="container">
+				<div class="docs-inner">
+					<h3 class="title">Panorama</h3>
+					<img src="./common/img/../../examples/panoviewer/etc/img/panorama.jpg" class="image" alt="Panorama's image"/>
+					<p class="description">A panorama is any wide-angle view or representation of a physical space, whether in painting, drawing, photography, film, seismic images or a three-dimensional model.</p>
+					<ul class="demos">
+						
+						<li>
+							<a href="examples/panoviewer/projection-type/panorama_image.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/panorama.png" alt="Smartphone Panorama's image"/></p>
+								<p>Smartphone Panorama</p>
+							</a>
+						</li>
+						
+						<li>
+							<a href="examples/panoviewer/etc/loading_indicator.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/loading.png" alt="view360 with Loading Indicator's image"/></p>
+								<p>view360 with Loading Indicator</p>
+							</a>
+						</li>
+						
+						<li>
+							<a href="examples/panoviewer/etc/responsive.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/responsive.png" alt="Responsive's image"/></p>
+								<p>Responsive</p>
+							</a>
+						</li>
+						
+					</ul>
+				</div>
+			</div>
+	</section>
+	
+	<section id="stereo" class="tab projection docs section" data-tab="projections">
+		<div class="container">
+				<div class="docs-inner">
+					<h3 class="title">Stereoscopic Equirectangular</h3>
+					<img src="./common/img/stereoequi.png" class="image" alt="Stereoscopic Equirectangular's image"/>
+					<p class="description">Stereoscopy image format of EQUIRECTANGULAR. It is an experimental function to show a stereoscopic type equirectangular image on a plane. It does not support stereoscopic viewing function through special visual equipment at present.</p>
+					<ul class="demos">
+						
+						<li>
+							<a href="examples/panoviewer/projection-type/stereoequi.html" target="_blank">
+								<p class="image-area"><img src="./common/img/panoviewer/stereoscopic.png" alt="Stereoscopic's image"/></p>
+								<p>Stereoscopic</p>
+							</a>
+						</li>
+						
+					</ul>
+				</div>
+			</div>
+	</section>
+	
+	<section id="features" class="docs section tab" data-tab="features">
 		<div class="container">
 			<div class="docs-inner">
 				<h2 class="title text-center">Features</h2>
@@ -154,31 +429,32 @@
       <li>Equirectangular</li>
       <li>Cubemap
         <ul>
-          <li>EAC (Equi Angular Cubemap) (<code class="highlighter-rouge">v3.1</code>)</li>
+          <li>EAC (Equi Angular Cubemap) (<code class="highlighter-rouge">v3.1+</code>)</li>
         </ul>
       </li>
+      <li>Stereoscopic Equirectangular (<code class="highlighter-rouge">v3.2+</code>)</li>
+      <li>Smartphone Panorama (<code class="highlighter-rouge">v3.2+</code>)</li>
     </ul>
   </li>
-  <li>Video Support (<code class="highlighter-rouge">v3</code>)</li>
-  <li>Various Cubemap
+  <li>Video Support (<code class="highlighter-rouge">v3.0+</code>)</li>
+  <li>Customized Cubemap
     <ul>
-      <li>Layout: 1 x 6, 6 x 1, 2 x 3, 3 x 2 (<code class="highlighter-rouge">v3</code>)</li>
-      <li>6 Indivisual Image (<code class="highlighter-rouge">v3</code>)</li>
+      <li>Layout: 1 x 6, 6 x 1, 2 x 3, 3 x 2 (<code class="highlighter-rouge">v3.0+</code>)</li>
+      <li>6 Indivisual Image (<code class="highlighter-rouge">v3.0+</code>)</li>
       <li>6 Merged Image</li>
     </ul>
   </li>
   <li>Device motion(Gyro Sensor) control
     <ul>
-      <li>yawPitch Mode</li>
-      <li>VR Control Mode (use yaw, pitch, roll of devicemotion) (<code class="highlighter-rouge">v3</code>)</li>
+      <li>2 way (yaw, pitch Control)</li>
+      <li>3 way (VR Control) (<code class="highlighter-rouge">v3.0+</code>)</li>
     </ul>
   </li>
-  <li>Touch Direction Control (<code class="highlighter-rouge">v3</code>)
+  <li>Touch Direction Control (<code class="highlighter-rouge">v3.0+</code>)
     <ul>
       <li>It enables native scroll (except VR Control Mode)</li>
     </ul>
   </li>
-  <li>WebGL based renderer</li>
 </ul>
 
 <h3 id="browser-support">Browser support</h3>
@@ -200,7 +476,7 @@
 			</div>
 		</div>
 	</section>
-	<section id="getting-started" class="docs section">
+	<section id="started" class="docs section tab" data-tab="started">
 		<div class="container">
 			<div class="docs-inner">
 				<h2 class="title text-center">Getting Started</h2>
@@ -271,31 +547,6 @@ Download the latest version of view360.js and include using the script tag</p>
 	</section>
 	
 	
-	<section id="examples" class="docs section">
-		<div class="container">
-			<div class="docs-inner">
-				<h2 class="title text-center">Examples</h2>
-				<ul class="link_list">
-				
-				<li class="link_item">
-					<a href="assets/html/panoviewer_basic_example.html" class="td_a">
-						<div class="link_item_image">
-							<img src="assets/img/basic_panoviewer_thumb.png" width="166" height="108">
-						</div>
-						<div class="link_item_title">
-							<span class="">Basic</span>
-						</div>
-					</a>
-				</li>
-				
-				</ul>
-			</div>
-		</div>
-	</section>
-	
-	
-	
-	
 	<section id="projects" class="docs section">
 		<div class="container">
 			<div class="docs-inner">
@@ -303,9 +554,9 @@ Download the latest version of view360.js and include using the script tag</p>
 				<ul class="link_list">
 				
 				<li class="link_item">
-					<a href="https://tv.naver.com" class="td_a">
+					<a href="https://tv.naver.com" target="_blank" class="td_a">
 						<div class="link_item_image">
-							<img src="./assets/img/naver_tv.png" width="108" height="108">
+							<img src="./common/img/thumbnail/naver_tv.png" width="108" height="108">
 						</div>
 						<div class="link_item_title">
 							<span class="">Naver TV</span>
@@ -314,9 +565,9 @@ Download the latest version of view360.js and include using the script tag</p>
 				</li>
 				
 				<li class="link_item">
-					<a href="https://blog.naver.com" class="td_a">
+					<a href="https://blog.naver.com" target="_blank" class="td_a">
 						<div class="link_item_image">
-							<img src="./assets/img/naver_blog.png" width="108" height="108">
+							<img src="./common/img/thumbnail/naver_blog.png" width="108" height="108">
 						</div>
 						<div class="link_item_title">
 							<span class="">Naver Blog</span>
@@ -325,9 +576,9 @@ Download the latest version of view360.js and include using the script tag</p>
 				</li>
 				
 				<li class="link_item">
-					<a href="https://post.naver.com" class="td_a">
+					<a href="https://post.naver.com" target="_blank" class="td_a">
 						<div class="link_item_image">
-							<img src="./assets/img/naver_post.png" width="108" height="108">
+							<img src="./common/img/thumbnail/naver_post.png" width="108" height="108">
 						</div>
 						<div class="link_item_title">
 							<span class="">Naver Post</span>
@@ -336,9 +587,9 @@ Download the latest version of view360.js and include using the script tag</p>
 				</li>
 				
 				<li class="link_item">
-					<a href="https://land.naver.com" class="td_a">
+					<a href="https://land.naver.com" target="_blank" class="td_a">
 						<div class="link_item_image">
-							<img src="./assets/img/naver_realestate.png" width="108" height="108">
+							<img src="./common/img/thumbnail/naver_realestate.png" width="108" height="108">
 						</div>
 						<div class="link_item_title">
 							<span class="">Naver Real Estate</span>
@@ -347,9 +598,9 @@ Download the latest version of view360.js and include using the script tag</p>
 				</li>
 				
 				<li class="link_item">
-					<a href="https://partners.naver.com/" class="td_a">
+					<a href="https://partners.naver.com/" target="_blank" class="td_a">
 						<div class="link_item_image">
-							<img src="./assets/img/naver_partner_square.jpg" width="108" height="108">
+							<img src="./common/img/thumbnail/naver_partner_square.jpg" width="108" height="108">
 						</div>
 						<div class="link_item_title">
 							<span class="">Naver Partner Square</span>
@@ -358,7 +609,7 @@ Download the latest version of view360.js and include using the script tag</p>
 				</li>
 				
 				</ul>
-				<p><br/>Don't see your project? Post an <strong><a href="https://github.com/naver/egjs-view360/issues/new"/>issue</a></strong> with <i>built-with-view360</i> label  over on the <strong><a href="https://github.com/naver/egjs-view360/"/>github page</a></strong>.					
+				<p><br/>Don't see your project? Post an <strong><a target="_blank" href="https://github.com/naver/egjs-view360/issues/new"/>issue</a></strong> with <i>built-with-view360</i> label  over on the <strong><a href="https://github.com/naver/egjs-view360/"/>github page</a></strong>.					
 			</div>	
 			</p>		
 		</div>
@@ -399,5 +650,249 @@ Download the latest version of view360.js and include using the script tag</p>
 </script>
 
 
+	<script src="common/js/tab.js"></script>
+
+	<script src="common/js/hash.js"></script>
+
+<script>
+		var list = [];
+		
+		
+		list.push({sort: parseInt("" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/etc/synchronize.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/synchronize.png" class="image" alt="Synchronize\'s image"/>' + 
+				'</p>' +
+				'<p class="title">Synchronize</p>' + 
+				'<p class="description">Synchronize the directions of the two contents.</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		list.push({sort: parseInt("2" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/etc/videojs.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/videojs.png" class="image" alt="Video.js with view360\'s image"/>' + 
+				'</p>' +
+				'<p class="title">Video.js with view360</p>' + 
+				'<p class="description">You can use video.js with view360.</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		list.push({sort: parseInt("" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/projection-type/equirectangular_image.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/equirectangular.png" class="image" alt="Equirectangular Image\'s image"/>' + 
+				'</p>' +
+				'<p class="title">Equirectangular Image</p>' + 
+				'<p class="description">Supports the most common 360 formats.</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		list.push({sort: parseInt("11" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/projection-type/equirectangular_video.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/videotag.png" class="image" alt="Video Tag (Equirectangular)\'s image"/>' + 
+				'</p>' +
+				'<p class="title">Video Tag (Equirectangular)</p>' + 
+				'<p class="description">Loads video by video tag</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		list.push({sort: parseInt("12" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/projection-type/equirectangular_video_url.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/videourl.png" class="image" alt="Video URL (Equirectangular)\'s image"/>' + 
+				'</p>' +
+				'<p class="title">Video URL (Equirectangular)</p>' + 
+				'<p class="description">Loads video by URL</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		list.push({sort: parseInt("" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/controls/change_direction.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/changedirection.png" class="image" alt="Change direction\'s image"/>' + 
+				'</p>' +
+				'<p class="title">Change direction</p>' + 
+				'<p class="description">Change direction</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		list.push({sort: parseInt("14" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/controls/custom-control.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/customcontrol.png" class="image" alt="Custom Control\'s image"/>' + 
+				'</p>' +
+				'<p class="title">Custom Control</p>' + 
+				'<p class="description">Press the button to take action.</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		list.push({sort: parseInt("10" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/controls/doc-embeded.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/document.png" class="image" alt="Document Embeded\'s image"/>' + 
+				'</p>' +
+				'<p class="title">Document Embeded</p>' + 
+				'<p class="description">Scroll this page by touch on a mobile device or by wheel-scroll on a PC</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		list.push({sort: parseInt("13" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/controls/keyboard-wheel.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/directionkey.png" class="image" alt="Direction key & Wheel Zoom\'s image"/>' + 
+				'</p>' +
+				'<p class="title">Direction key & Wheel Zoom</p>' + 
+				'<p class="description">Direction key & Wheel Zoom</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		list.push({sort: parseInt("5" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/controls/motion-touch.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/devicemotion.png" class="image" alt="Device Motion (Gyro Mode) & Touch\'s image"/>' + 
+				'</p>' +
+				'<p class="title">Device Motion (Gyro Mode) & Touch</p>' + 
+				'<p class="description">Gyro mode can be tested on Mobile Device</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		list.push({sort: parseInt("" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/controls/setting_initial_view.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/initial.png" class="image" alt="Setting the initial view\'s image"/>' + 
+				'</p>' +
+				'<p class="title">Setting the initial view</p>' + 
+				'<p class="description">Setting the initial view</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		list.push({sort: parseInt("15" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/etc/partial_panorama.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/partial.png" class="image" alt="360 Image (partial 270°)\'s image"/>' + 
+				'</p>' +
+				'<p class="title">360 Image (partial 270°)</p>' + 
+				'<p class="description">View partial panorama image by setting yawRange, pitchRange, fovRange</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		
+		
+		list.push({sort: parseInt("1" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/etc/hotspot.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/hotspot.png" class="image" alt="HotSpot\'s image"/>' + 
+				'</p>' +
+				'<p class="title">HotSpot</p>' + 
+				'<p class="description">Drag and rotate the photo. An anchor will follow.</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		list.push({sort: parseInt("" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/projection-type/cubemap_image.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/cubemap3x2.png" class="image" alt="3x2 Cubemap\'s image"/>' + 
+				'</p>' +
+				'<p class="title">3x2 Cubemap</p>' + 
+				'<p class="description">Support variety cubemap format</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		list.push({sort: parseInt("" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/projection-type/verticalcubestrip_image.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/customized.png" class="image" alt="Customized Cubemap\'s image"/>' + 
+				'</p>' +
+				'<p class="title">Customized Cubemap</p>' + 
+				'<p class="description">Cubemap can have different layout, different order, diffent rotation</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		list.push({sort: parseInt("9" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/projection-type/cubemap_video.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/cubemapvideo.png" class="image" alt="Cubemap 3 x 2 Video\'s image"/>' + 
+				'</p>' +
+				'<p class="title">Cubemap 3 x 2 Video</p>' + 
+				'<p class="description">Support variety cubemap format</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		
+		
+		list.push({sort: parseInt("" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/projection-type/cubestrip_3x2_image.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/cubestrip3x2.png" class="image" alt="3x2 CubeStrip Image\'s image"/>' + 
+				'</p>' +
+				'<p class="title">3x2 CubeStrip Image</p>' + 
+				'<p class="description">Support variety cubestrip format</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		list.push({sort: parseInt("3" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/projection-type/youtube.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/youtube.png" class="image" alt="Youtube (EAC Format)\'s image"/>' + 
+				'</p>' +
+				'<p class="title">Youtube (EAC Format)</p>' + 
+				'<p class="description">EAC Format(Youtube) is supported also.</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		
+		
+		list.push({sort: parseInt("4" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/projection-type/panorama_image.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/panorama.png" class="image" alt="Smartphone Panorama\'s image"/>' + 
+				'</p>' +
+				'<p class="title">Smartphone Panorama</p>' + 
+				'<p class="description">Select your panorama picture taken on smartphone</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		list.push({sort: parseInt("6" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/etc/loading_indicator.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/loading.png" class="image" alt="view360 with Loading Indicator\'s image"/>' + 
+				'</p>' +
+				'<p class="title">view360 with Loading Indicator</p>' + 
+				'<p class="description">The loading indicator appears until view360 loading.</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		list.push({sort: parseInt("7" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/etc/responsive.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/responsive.png" class="image" alt="Responsive\'s image"/>' + 
+				'</p>' +
+				'<p class="title">Responsive</p>' + 
+				'<p class="description">Rotate the screen or click the button to resize the viewer.</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		
+		
+		list.push({sort: parseInt("8" || "0") || 999999, html: '<li>' + 
+			'<a href="examples/panoviewer/projection-type/stereoequi.html" target="_blank">' +
+				'<p class="image-area">' + 
+					'<img src="./common/img/panoviewer/stereoscopic.png" class="image" alt="Stereoscopic\'s image"/>' + 
+				'</p>' +
+				'<p class="title">Stereoscopic</p>' + 
+				'<p class="description">Support Stereoscopic Equirectangular (Top & Bottom)</p>' +
+			'</a>' + 
+		'</li>'});
+		
+		
+
+		list.sort(function (a, b) {
+			return a.sort < b.sort ? -1 : 1;
+		});
+
+		document.querySelector("#home .list").innerHTML = list.map(function (li) { return li.html; }).join("");
+</script>
 </body>
 </html>

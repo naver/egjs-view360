@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
     
     <meta property="og:title" content="SpinViewer">
-    <meta property="og:image" content="../assets/img/SpinViewer.png">
+    <meta property="og:image" content="../common/img/SpinViewer.png">
     <meta name="Description" content="Object 360 photo viewer ↪️👠↩️">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|Zilla+Slab:700" rel="stylesheet">    
     <link rel="stylesheet" href="./common/css/bootstrap.min.css">
@@ -17,6 +17,8 @@
 </head>
 
 
+
+	<link rel="stylesheet" href="../common/css/container.css">
 
 
 	<script src="release/latest/dist/view360.pkgd.min.js"></script>
@@ -50,8 +52,8 @@
                     <img class="egjs_logo" src="./common/img/type_black.svg"/>
                     view360
                 </a><!--//logo-->
-                <a href="https://github.com/naver/egjs-view360/releases/tag/3.1.0">
-                    <span class="version">3.1.0</span>
+                <a href="https://github.com/naver/egjs-view360/releases/tag/3.2.0-rc">
+                    <span class="version">3.2.0-rc</span>
                 </a>
             </div>
             <div class="pull-right home">
@@ -63,7 +65,7 @@
 </header><!--//header-->
 <section id="promo" class="promo section">
 		<div class="container">
-			<div class="hero-image" style="background-image: url(./assets/img/SpinViewer.png)">
+			<div class="hero-image" style="background-image: url(../common/img/SpinViewer.png)">
 			</div>
 			<h2 class="title">	
 				<span class="highlight">SpinViewer</span>
@@ -82,14 +84,76 @@
 		</div>
 	</section>
 <div>
+	<style>
+	.tabs {
+		list-style: none;
+		padding: 10px 0px;
+		margin: 0;
+		/* text-align: center; */
+		margin: 0px auto;
+	}
+	.tabs li {
+		position: relative;
+		padding: 0px 20px;
+		height: 50px;
+		line-height: 50px;
+		font-weight: bold;
+		box-sizing: border-box;
+		display: inline-block;
+		transition: color ease 0.2s;
+		vertical-align: top;
+		text-decoration: none;
+		color: #999;
+		transition: color ease 0.2s;
+	}
+	.tabs li:before {
+		content: "";
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		transition: background-color ease 0.2s;
+		top: 0;
+		left: 0;
+		z-index: -1;
+		border-radius: 25px;
+	}
+	.tabs li.checked:before {
+		background: #eee;
+	}
+	.tabs li.checked, .tabs li:hover {
+		color: #333;
+	}
+</style>
+<nav>
+	<ul class="tabs container">
+		<li data-tab="home">Home</li>
+		<li data-tab="projections">Projections</li>
+		<li data-tab="features">Features</li>
+		<li data-tab="started">Getting Started</li>
+	</ul>
+</nav>
 
+<script>
+	var lis = $(".tabs li");
+	lis.click(function (e) {
+		var target = e.currentTarget;
+		var hash = target.getAttribute("data-tab");
+
+
+		location.hash = hash;
+		lis.removeClass("checked");
+		target.setAttribute('class', "checked");
+		
+		Tab.open(hash);
+		return false;
+	});
+</script>
 	<section id="showcase" class="docs section">
 		<div class="container">
 			<div class="docs-inner">				
 				<h2 class="title text-center">Showcase</h2>
 				
-				
-<div>
+				<div>
 	<style>
 		#spinviewer-showcase {
 			position: relative;
@@ -102,11 +166,12 @@
 			position: absolute;
 			top: 20px;
 			right: 20px;
-			background-image: url("./assets/img/sp_detail.png");
+			background-image: url("./common/img/sp_detail.png");
 			background-size: 556px 474px;
 			background-position: 0px -366px;
 			width: 52px;
 			height: 52px;
+			z-index: 1;
 		}
 	</style>
 	<div id="spinviewer-showcase">
@@ -116,7 +181,7 @@
 		var container = document.getElementById("spinviewer-showcase");
 		var SpinViewer = eg.view360.SpinViewer;
 		var spinViewer = new SpinViewer(container, {
-			imageUrl: "./assets/img/spin_demo.jpg",
+			imageUrl: "./common/img/spinviewer/spin_demo.jpg",
 			rowCount: 47,
 			scale: 1,
 			width: "100%"
@@ -256,9 +321,9 @@ Download the latest version of view360.js and include using the script tag</p>
 				<ul class="link_list">
 				
 				<li class="link_item">
-					<a href="assets/html/spinviewer_basic_example.html" class="td_a">
+					<a href="examples/spinviewer/spinviewer_basic_example.html" class="td_a">
 						<div class="link_item_image">
-							<img src="assets/img/basic_spinview_thumb.gif" width="166" height="108">
+							<img src="common/img/thumbnail/basic_spinview_thumb.gif" width="166" height="108">
 						</div>
 						<div class="link_item_title">
 							<span class="">Basic</span>
@@ -283,7 +348,7 @@ Download the latest version of view360.js and include using the script tag</p>
 				<li class="link_item">
 					<a href="https://shopping.naver.com" class="td_a">
 						<div class="link_item_image">
-							<img src="./assets/img/naver_shopping.jpg" width="108" height="108">
+							<img src="./common/img/thumbnail/naver_shopping.jpg" width="108" height="108">
 						</div>
 						<div class="link_item_title">
 							<span class="">Naver Shopping</span>
@@ -294,7 +359,7 @@ Download the latest version of view360.js and include using the script tag</p>
 				<li class="link_item">
 					<a href="https://sell.smartstore.naver.com/#/home/about" class="td_a">
 						<div class="link_item_image">
-							<img src="./assets/img/naver_smartstore.jpg" width="108" height="108">
+							<img src="./common/img/thumbnail/naver_smartstore.jpg" width="108" height="108">
 						</div>
 						<div class="link_item_title">
 							<span class="">Naver Smart Store</span>
@@ -343,6 +408,10 @@ Download the latest version of view360.js and include using the script tag</p>
     ga('send', 'pageview');
 </script>
 
+
+	<script src="common/js/tab.js"></script>
+
+	<script src="common/js/hash.js"></script>
 
 </body>
 </html>

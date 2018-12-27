@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>PanoViewer examples</title>
+    <link rel="stylesheet" type="text/css" href="../../../common/css/demo.css">
+    
+    <script src="../../../release/latest/dist/view360.pkgd.js"></script>
+    <script src="../../../common/js/jquery-2.2.4.js"></script>
+    <script src="../../../common/js/codepen.js"></script>
+    <script src="../../../common/js/qrcode.js"></script>
+    <style></style>
+</head>
+
+<body>
+    <header>
+        <h1>Equirectangular Image</h1>
+    </header>
+    <h2>Supports the most common 360 formats.</h2>
+    
+    <div class="infos">
+        <p class="info">
+            <span class="head">projection</span>: <a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.PROJECTION_TYPE.html" target="_blank"><span
+                    class="value">EQUIRECTANGULAR</span></a>
+        </p>
+        <p class="info">
+            <span class="head">image</span>: <a href="../../img/equi.jpg" target="_blank"><img src="../../img/equi.jpg"></a>
+        </p>
+    </div>
+
+    <div class="viewer">
+        <div class="container"></div>
+    </div>
+
+    <div class="source">
+        <pre>
+var PanoViewer = eg.view360.PanoViewer;
+var container = document.getElementById("myPanoViewer");
+    
+var panoViewer = new PanoViewer(container,{
+    projectionType: "equirectangular", // not mandatory, default value is "equirectangular".
+    image: "../../img/equi.jpg"
+});
+        </pre>
+    </div>
+
+    <script>
+    // create PanoViewer with option
+    var PanoViewer = eg.view360.PanoViewer;
+    var container = document.querySelector(".container");
+        
+    var panoViewer = new PanoViewer(container,{
+        projectionType: "equirectangular", // not mandatory, default value is "equirectangular".
+        image: "../../img/equi.jpg"
+    });
+    </script>
+</body>
+
+</html>
