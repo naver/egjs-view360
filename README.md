@@ -2,19 +2,21 @@
 
 egjs-view360 is a 360 integrated viewing solution from **inside-out view** to **outside-in view**. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.
 
-## `NEW` v3.1 Released
+## `NEW` v3.2 Released
 
-  1. More faster Cubemap
-  2. More quality Cubemap (EAC)
-  3. TypeScript Definition
+  1. Smartphone panorama pictures
+  2. Stereoscopic Equirectangular
+  3. `isSupported()` method added
+  4. Decrease file size. (30% ~ 43% improvements)
 
-For more information, visit [3.1 Change Notes](https://github.com/naver/egjs-view360/releases/tag/3.1.0)
+For more information, visit [3.2 Change Notes](https://github.com/naver/egjs-view360/releases/tag/3.2.0)
 
 
 ## What view360 can do?
 
   1. Play various (Image / Video) **360 contents**
-     - Equirectangular
+     - Smartphone Panorama pictures
+     - Equirectangular (Stereoscopic Also)
      - Cubemap with user custom setting
        - Also support YouTube **EAC** (Cubemap) Format
      - Sprite image captured around target object.
