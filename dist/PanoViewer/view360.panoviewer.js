@@ -3,7 +3,7 @@ Copyright (c) 2017 NAVER Corp.
 @egjs/view360 project is licensed under the MIT license
 @egjs/view360 JavaScript library
 https://github.com/naver/egjs-view360
-@version 3.2.0-rc
+@version 3.2.0
 */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@egjs/axes'), require('@egjs/component')) :
@@ -3145,7 +3145,7 @@ https://github.com/naver/egjs-view360
     VR: "VR"
   };
 
-  var VERSION = "3.2.0-rc";
+  var VERSION = "3.2.0";
 
   var DEFAULT_YAW_RANGE = [-YAW_RANGE_HALF, YAW_RANGE_HALF];
   var DEFAULT_PITCH_RANGE = [-PITCH_RANGE_HALF, PITCH_RANGE_HALF];
