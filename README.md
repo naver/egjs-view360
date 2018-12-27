@@ -2,6 +2,11 @@
 
 egjs-view360 is a 360 integrated viewing solution from **inside-out view** to **outside-in view**. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.
 
+## User Guide
+- [Getting Started and Demos Website](https://naver.github.io/egjs-view360)
+- [API documentation](https://naver.github.io/egjs-view360/release/latest/doc/)
+- [Wiki Guide](https://github.com/naver/egjs-view360/wiki)
+
 ## `NEW` v3.2 Released
 
   1. Smartphone panorama pictures
@@ -49,11 +54,6 @@ It is a component that supports the **inside-out viewing** method in which obser
 ![](https://raw.githubusercontent.com/naver/egjs-view360/master/demo/assets/img/basic_spinview_thumb.gif)
 
 It is a component that supports the **outside-in viewing** method in which the object is centered and the observer can turn around and observe the object. All you need to do is create a sprite image of objects from multiple angles. By giving images to components, we'll give you the experience of turning things around as if they were in your hands.
-
-## Documents
-- [Get Started and Demos](https://naver.github.io/egjs-view360)
-- [API documentation](https://naver.github.io/egjs-view360/release/latest/doc/)
-- [Wiki doc](https://github.com/naver/egjs-view360/wiki)
 
 ## Download and Installation
 

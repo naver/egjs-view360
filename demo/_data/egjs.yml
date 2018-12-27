@@ -5,7 +5,7 @@ ogimage: http://naver.github.io/egjs/img/og.png
 dist:
 - release/latest/dist/view360.pkgd.min.js
 css:
-- ../common/css/container.css
+- ./common/css/container.css
 GA: UA-70842526-23
 github:
   user: naver
@@ -178,7 +178,7 @@ subComponents:
           sort: 8
 - name: SpinViewer
   desc: Object 360 photo viewer ↪️👠↩️
-  ogimage: ../common/img/SpinViewer.png
+  ogimage: ./common/img/SpinViewer.png
   hashtags:
     - product
     - turntable
