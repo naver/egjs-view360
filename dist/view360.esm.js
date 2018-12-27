@@ -4044,7 +4044,7 @@ var PROJECTION_TYPE = {
    *
    * @ko EQUI_STEREOSCOPY 에 대한 상수값. EQUIRECTANGULAR 의 Stereoscopy 이미지 형식입니다. Stereoscopic 형태의 equirectangular 이미지를 평면에 보여주기 위한 실험적인 기능으로 현재는 특수한 시각 장비를 통한 입체적인 보기 기능은 지원하지 않습니다.
    *
-   * @name PANORAMA
+   * @name STEREOSCOPIC_EQUI
    * @memberof eg.view360.PanoViewer.PROJECTION_TYPE
    * @constant
    * @type {String}
