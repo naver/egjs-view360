@@ -33,10 +33,13 @@
     </div>
 
     <div class="viewer">
-        <video id="pano_video" controls loop preload="auto" crossorigin="anonymous" autoplay muted>
+        <video id="pano_video" playsinline="playsinline" controls loop preload="auto" crossorigin="anonymous">
             <source src="../../img/cube_3x2.mp4" type="video/mp4" />
         </video>
         <div class="container"></div>
+        <div class="play-container">
+            <button class="play"></button>
+        </div>
     </div>
 
     <div class="source">
@@ -56,15 +59,23 @@ var panoViewer = new PanoViewer(container, {
 <script>
     // create PanoViewer with option
     var PanoViewer = eg.view360.PanoViewer;
+    var videoEl = document.getElementById("pano_video");
     var container = document.querySelector(".container"); 
 
     var panoViewer = new PanoViewer(container, {
         projectionType: "cubestrip",
-        video: document.getElementById("pano_video"),
+        video: videoEl,
         cubemapConfig: {
             order: "RLUDFB"
         }
     });
+
+    document.querySelector(".play-container .play").addEventListener("click", function () {
+        videoEl.play();
+    });
+    videoEl.addEventListener("play", function () {
+        document.querySelector(".play-container").style.display = "none";
+    })
 </script>
 
 </body>
