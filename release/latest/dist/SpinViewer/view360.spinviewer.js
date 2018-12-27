@@ -3,7 +3,7 @@ Copyright (c) 2017 NAVER Corp.
 @egjs/view360 project is licensed under the MIT license
 @egjs/view360 JavaScript library
 https://github.com/naver/egjs-view360
-@version 3.2.0-rc
+@version 3.2.0
 */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@egjs/axes'), require('@egjs/component')) :
@@ -81,7 +81,7 @@ https://github.com/naver/egjs-view360
 
   var SUPPORT_WILLCHANGE = win.CSS && win.CSS.supports && win.CSS.supports("will-change", "transform");
 
-  var VERSION = "3.2.0-rc";
+  var VERSION = "3.2.0";
 
   /**
    * @class eg.view360.SpriteImage
