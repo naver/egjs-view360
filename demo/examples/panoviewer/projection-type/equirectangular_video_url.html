@@ -36,6 +36,9 @@
 
     <div class="viewer">
         <div class="container"></div>
+        <div class="play-container">
+            <button class="play"></button>
+        </div>
     </div>
 
     <div class="source">
@@ -46,6 +49,7 @@ var panoViewer = new PanoViewer(container, {
 
 panoviewer.on("ready", function(e) {
     var video = panoViewer.getVideo();
+
     video.muted = true;
     video.play();
 });
@@ -62,8 +66,15 @@ panoviewer.on("ready", function(e) {
     
     panoViewer.on("ready", function(e) {
         var video = panoViewer.getVideo();
-        video.muted = true; // https://developers.google.com/web/updates/2017/09/autoplay-policy-changes
-        video.play();
+        document.querySelector(".play-container .play").addEventListener("click", function () {
+            video.play();
+        });
+        video.addEventListener("play", function () {
+            document.querySelector(".play-container").style.display = "none";
+        })
+        video.muted = true;
+        // https://developers.google.com/web/updates/2017/09/autoplay-policy-changes
+        // video.play();
     });
     PanoControls.init(container, panoViewer);
     PanoControls.showLoading();
