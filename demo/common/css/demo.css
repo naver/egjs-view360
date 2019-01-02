@@ -13,7 +13,7 @@ header {
 header h1 {
   font-family: 'Zilla Slab', serif;
   font-weight: bold;
-  margin: 30px 0;
+  margin: 45px 0 30px;
   text-align: center;
   font-size: 60px;
   word-break: break-word;
@@ -220,3 +220,28 @@ p.info img {
   border: 0;
   background-size: 100% 100%;
 }
+
+  header .home {
+    margin: 0;
+    font-size: 26px;
+    background-repeat: no-repeat;
+    width: 198px;
+    height: 27px;
+    position: absolute;
+    text-align: left;
+  }
+  
+  .home img.egjs_logo{
+    width: 34px;
+    display: block;
+    margin-bottom: -8px;
+  }
+
+  .home a {
+    font-family: 'Zilla Slab', serif;
+    line-height: 40px;
+    letter-spacing: -0.8px;
+    text-decoration: none;
+    display: inline-block;
+    color: #2B2B2B;
+  }
