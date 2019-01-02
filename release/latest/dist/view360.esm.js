@@ -2,6 +2,7 @@ import PosePredictor from 'webvr-polyfill/src/sensor-fusion/pose-predictor';
 import Util from 'webvr-polyfill/src/util';
 import MathUtil from 'webvr-polyfill/src/math-util';
 import ComplementaryFilter from 'webvr-polyfill/src/sensor-fusion/complementary-filter';
+import _ESPromise from 'es6-promise';
 import Agent from '@egjs/agent';
 import Axes, { PanInput, PinchInput, MoveKeyInput, WheelInput } from '@egjs/axes';
 import Component from '@egjs/component';
@@ -2450,7 +2451,7 @@ function () {
   return YawPitchControl;
 }();
 
-var _Promise = typeof Promise === 'undefined' ? require('es6-promise').Promise : Promise;
+var _Promise = typeof Promise === 'undefined' ? _ESPromise.Promise : Promise;
 var STATUS = {
   "NONE": 0,
   "LOADING": 1,
@@ -2639,7 +2640,7 @@ function () {
   return ImageLoader;
 }();
 
-var _Promise$1 = typeof Promise === 'undefined' ? require('es6-promise').Promise : Promise;
+var _Promise$1 = typeof Promise === 'undefined' ? _ESPromise.Promise : Promise;
 
 // import Agent from "@egjs/agent";
 
@@ -4053,7 +4054,7 @@ var PROJECTION_TYPE = {
   STEREOSCOPIC_EQUI: "stereoequi"
 };
 
-var _Promise$2 = typeof Promise === 'undefined' ? require('es6-promise').Promise : Promise;
+var _Promise$2 = typeof Promise === 'undefined' ? _ESPromise.Promise : Promise;
 var ImageType = PROJECTION_TYPE;
 var DEVICE_PIXEL_RATIO = devicePixelRatio || 1; // DEVICE_PIXEL_RATIO 가 2를 초과하는 경우는 리소스 낭비이므로 2로 맞춘다.
 
@@ -4631,7 +4632,7 @@ function () {
   return PanoImageRenderer;
 }();
 
-var _Promise$3 = typeof Promise === 'undefined' ? require('es6-promise').Promise : Promise;
+var _Promise$3 = typeof Promise === 'undefined' ? _ESPromise.Promise : Promise;
 
 var PanoViewer =
 /*#__PURE__*/
