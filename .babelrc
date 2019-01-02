@@ -16,7 +16,7 @@
         "transform-es3-property-literals",
         "transform-es3-member-expression-literals",
         "transform-object-assign",
-        "es6-promise"
+        "es6-promise-esm"
     ]
 }
 
