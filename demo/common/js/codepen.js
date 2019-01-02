@@ -75,7 +75,10 @@ $.ajax({
   var cssText = removeMargin(($style.html() || "").replace("\n", ""));
   var jsText = removeMargin($script.html().replace("\n", ""));
 
-  jsText = jsText.replace(/"\.\//g, "\"" + href + "/");
+  // image src in javascript code
+  jsText = jsText.replace(/"(\.+\/[^"]+)"/g,  function (all, source) {
+    return '"' + resolvePath(href, source) + '"';
+  });
 
   var jsPaths = $scriptFiles.toArray().map(function (el) {
     return resolvePath(href, el.getAttribute("src"));
