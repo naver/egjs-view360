@@ -1,31 +1,9 @@
 import Component from "@egjs/component";
-import Agent from "@egjs/agent";
 import {vec3} from "../../utils/math-util";
 import {window} from "../../utils/browser";
+import {isChromeWithoutDeviceMotion, isAndroid} from "../utils";
 
 const STILLNESS_THRESHOLD = 200; // millisecond
-
-/**
- * In Chrome m65, `devicemotion` events are broken but subsequently fixed
- * in 65.0.3325.148. Since many browsers use Chromium, ensure that
- * we scope this detection by branch and build numbers to provide
- * a proper fallback.
- * https://github.com/immersive-web/webvr-polyfill/issues/307
- */
-const isChromeWithoutDeviceMotion = function() {
-	let value = false;
-	const agentInfo = Agent();
-	const browserVersion = agentInfo.browser.version;
-
-	if (agentInfo.browser.name === "chrome" && parseInt(browserVersion, 10) === 65) {
-		const versionToken = browserVersion.split(".");
-		const branch = versionToken[2];
-		const build = versionToken[3];
-
-		value = parseInt(branch, 10) === 3325 && parseInt(build, 10) < 148;
-	}
-	return value;
-};
 
 export default class DeviceMotion extends Component {
 	constructor() {
@@ -35,7 +13,7 @@ export default class DeviceMotion extends Component {
 		this._onChromeWithoutDeviceMotion = this._onChromeWithoutDeviceMotion.bind(this);
 
 		this.isWithoutDeviceMotion = isChromeWithoutDeviceMotion();
-		this.isAndroid = Agent().os.name === "android";
+		this.isAndroid = isAndroid();
 
 		this.stillGyroVec = vec3.create();
 		this.rawGyroVec = vec3.create();

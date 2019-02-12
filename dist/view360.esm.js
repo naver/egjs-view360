@@ -88,6 +88,49 @@ function toAxis(source, offset) {
     return acc;
   }, {});
 }
+/**
+ * Returns a number value indiciating the version of Chrome being used,
+ * or otherwise `null` if not on Chrome.
+ *
+ * Ref: https://github.com/immersive-web/cardboard-vr-display/pull/19
+ */
+
+var getChromeVersion = function () {
+  var match = userAgent.match(/.*Chrome\/([0-9]+)/);
+  var value = match ? parseInt(match[1], 10) : -1;
+  return function () {
+    return value;
+  };
+}();
+/**
+ * In Chrome m65, `devicemotion` events are broken but subsequently fixed
+ * in 65.0.3325.148. Since many browsers use Chromium, ensure that
+ * we scope this detection by branch and build numbers to provide
+ * a proper fallback.
+ * https://github.com/immersive-web/webvr-polyfill/issues/307
+ */
+
+var isChromeWithoutDeviceMotion = function () {
+  var value = false;
+
+  if (getChromeVersion() === 65) {
+    var match = userAgent.match(/.*Chrome\/([0-9.]*)/);
+
+    if (match) {
+      var versionToken = match[1].split(".");
+      var branch = versionToken[2];
+      var build = versionToken[3];
+      value = parseInt(branch, 10) === 3325 && parseInt(build, 10) < 148;
+    }
+  }
+
+  return function () {
+    return value;
+  };
+}();
+var isAndroid = function isAndroid() {
+  return /Android/i.test(userAgent);
+};
 
 /**
  * Original Code
@@ -945,29 +988,6 @@ util.getRotationDelta = getRotationDelta;
 
 var STILLNESS_THRESHOLD = 200; // millisecond
 
-/**
- * In Chrome m65, `devicemotion` events are broken but subsequently fixed
- * in 65.0.3325.148. Since many browsers use Chromium, ensure that
- * we scope this detection by branch and build numbers to provide
- * a proper fallback.
- * https://github.com/immersive-web/webvr-polyfill/issues/307
- */
-
-var isChromeWithoutDeviceMotion = function isChromeWithoutDeviceMotion() {
-  var value = false;
-  var agentInfo = Agent();
-  var browserVersion = agentInfo.browser.version;
-
-  if (agentInfo.browser.name === "chrome" && parseInt(browserVersion, 10) === 65) {
-    var versionToken = browserVersion.split(".");
-    var branch = versionToken[2];
-    var build = versionToken[3];
-    value = parseInt(branch, 10) === 3325 && parseInt(build, 10) < 148;
-  }
-
-  return value;
-};
-
 var DeviceMotion =
 /*#__PURE__*/
 function (_Component) {
@@ -981,7 +1001,7 @@ function (_Component) {
     _this._onDeviceOrientation = _this._onDeviceOrientation.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this._onChromeWithoutDeviceMotion = _this._onChromeWithoutDeviceMotion.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.isWithoutDeviceMotion = isChromeWithoutDeviceMotion();
-    _this.isAndroid = Agent().os.name === "android";
+    _this.isAndroid = isAndroid();
     _this.stillGyroVec = vec3.create();
     _this.rawGyroVec = vec3.create();
     _this.adjustedGyroVec = vec3.create();
@@ -1157,7 +1177,6 @@ ComplementaryFilter.prototype.getOrientation = function () {
 
 var K_FILTER = 0.98;
 var PREDICTION_TIME_S = 0.040;
-var agentInfo = Agent();
 
 var FusionPoseSensor =
 /*#__PURE__*/
@@ -1179,7 +1198,7 @@ function (_Component) {
     _this.isFirefoxAndroid = Util.isFirefoxAndroid();
     _this.isIOS = Util.isIOS(); // Ref https://github.com/immersive-web/cardboard-vr-display/issues/18
 
-    _this.isChromeUsingDegrees = agentInfo.browser.name === "chrome" && parseInt(agentInfo.browser.version, 10) >= 66;
+    _this.isChromeUsingDegrees = getChromeVersion() >= 66;
     _this._isEnabled = false; // Set the filter to world transform, depending on OS.
 
     if (_this.isIOS) {

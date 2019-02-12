@@ -6917,351 +6917,49 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       return acc;
     }, {});
   }
+  /**
+   * Returns a number value indiciating the version of Chrome being used,
+   * or otherwise `null` if not on Chrome.
+   *
+   * Ref: https://github.com/immersive-web/cardboard-vr-display/pull/19
+   */
 
-  /*
-  Copyright (c) 2017 NAVER Corp.
-  @egjs/agent project is licensed under the MIT license
+  var getChromeVersion = function () {
+    var match = userAgent.match(/.*Chrome\/([0-9]+)/);
+    var value = match ? parseInt(match[1], 10) : -1;
+    return function () {
+      return value;
+    };
+  }();
+  /**
+   * In Chrome m65, `devicemotion` events are broken but subsequently fixed
+   * in 65.0.3325.148. Since many browsers use Chromium, ensure that
+   * we scope this detection by branch and build numbers to provide
+   * a proper fallback.
+   * https://github.com/immersive-web/webvr-polyfill/issues/307
+   */
 
-  @egjs/agent JavaScript library
+  var isChromeWithoutDeviceMotion = function () {
+    var value = false;
 
+    if (getChromeVersion() === 65) {
+      var match = userAgent.match(/.*Chrome\/([0-9.]*)/);
 
-  @version 2.1.5
-  */
-  var win$3 = typeof window !== "undefined" && window || {};
-  var RegExp$1 = win$3.RegExp;
-  var navigator$1 = win$3.navigator;
-  var parseRules = {
-    browser: [{
-      criteria: "PhantomJS",
-      identity: "PhantomJS"
-    }, {
-      criteria: /Whale/,
-      identity: "Whale",
-      versionSearch: "Whale"
-    }, {
-      criteria: /Edge/,
-      identity: "Edge",
-      versionSearch: "Edge"
-    }, {
-      criteria: /MSIE|Trident|Windows Phone/,
-      identity: "IE",
-      versionSearch: "IEMobile|MSIE|rv"
-    }, {
-      criteria: /MiuiBrowser/,
-      identity: "MIUI Browser",
-      versionSearch: "MiuiBrowser"
-    }, {
-      criteria: /SamsungBrowser/,
-      identity: "Samsung Internet",
-      versionSearch: "SamsungBrowser"
-    }, {
-      criteria: /SAMSUNG /,
-      identity: "Samsung Internet",
-      versionSearch: "Version"
-    }, {
-      criteria: /Chrome|CriOS/,
-      identity: "Chrome"
-    }, {
-      criteria: /Android/,
-      identity: "Android Browser",
-      versionSearch: "Version"
-    }, {
-      criteria: /iPhone|iPad/,
-      identity: "Safari",
-      versionSearch: "Version"
-    }, {
-      criteria: "Apple",
-      identity: "Safari",
-      versionSearch: "Version"
-    }, {
-      criteria: "Firefox",
-      identity: "Firefox"
-    }],
-    os: [{
-      criteria: /Windows Phone/,
-      identity: "Windows Phone",
-      versionSearch: "Windows Phone"
-    }, {
-      criteria: "Windows 2000",
-      identity: "Window",
-      versionAlias: "5.0"
-    }, {
-      criteria: /Windows NT/,
-      identity: "Window",
-      versionSearch: "Windows NT"
-    }, {
-      criteria: /iPhone|iPad/,
-      identity: "iOS",
-      versionSearch: "iPhone OS|CPU OS"
-    }, {
-      criteria: "Mac",
-      versionSearch: "OS X",
-      identity: "MAC"
-    }, {
-      criteria: /Android/,
-      identity: "Android"
-    }, {
-      criteria: /Tizen/,
-      identity: "Tizen"
-    }, {
-      criteria: /Web0S/,
-      identity: "WebOS"
-    }],
-    // Webview check condition
-    // ios: If has no version information
-    // Android 5.0 && chrome 40+: Presence of "; wv" in userAgent
-    // Under android 5.0: Presence of "NAVER" or "Daum" in userAgent
-    webview: [{
-      criteria: /iPhone|iPad/,
-      browserVersionSearch: "Version",
-      webviewBrowserVersion: /-1/
-    }, {
-      criteria: /iPhone|iPad|Android/,
-      webviewToken: /NAVER|DAUM|; wv/
-    }],
-    defaultString: {
-      browser: {
-        version: "-1",
-        name: "unknown"
-      },
-      os: {
-        version: "-1",
-        name: "unknown"
+      if (match) {
+        var versionToken = match[1].split(".");
+        var branch = versionToken[2];
+        var build = versionToken[3];
+        value = parseInt(branch, 10) === 3325 && parseInt(build, 10) < 148;
       }
     }
+
+    return function () {
+      return value;
+    };
+  }();
+  var isAndroid = function isAndroid() {
+    return /Android/i.test(userAgent);
   };
-
-  function filter(arr, compare) {
-    var result = [];
-
-    for (var i = 0; i < arr.length; i++) {
-      compare(arr[i]) && result.push(arr[i]);
-    }
-
-    return result;
-  }
-
-  function some(arr, compare) {
-    for (var i = 0; i < arr.length; i++) {
-      if (compare(arr[i])) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  var UA = void 0;
-
-  function setUa(ua) {
-    UA = ua;
-  }
-
-  function isMatched(base, target) {
-    return target && target.test ? !!target.test(base) : base.indexOf(target) > -1;
-  }
-
-  function getIdentityStringFromArray(rules, defaultStrings) {
-    var matchedRule = filter(rules, function (rule) {
-      return isMatched(UA, rule.criteria);
-    })[0];
-    return matchedRule && matchedRule.identity || defaultStrings.name;
-  }
-
-  function getRule(rules, targetIdentity) {
-    return filter(rules, function (rule) {
-      var criteria = rule.criteria;
-      var identityMatched = new RegExp(rule.identity, "i").test(targetIdentity);
-
-      if (criteria ? identityMatched && isMatched(UA, criteria) : identityMatched) {
-        return true;
-      } else {
-        return false;
-      }
-    })[0];
-  }
-
-  function getBrowserName() {
-    return getIdentityStringFromArray(parseRules.browser, parseRules.defaultString.browser);
-  }
-
-  function getBrowserRule(browserName) {
-    var rule = getRule(parseRules.browser, browserName);
-
-    if (!rule) {
-      rule = {
-        criteria: browserName,
-        versionSearch: browserName,
-        identity: browserName
-      };
-    }
-
-    return rule;
-  }
-
-  function extractBrowserVersion(versionToken, ua) {
-    var browserVersion = parseRules.defaultString.browser.version;
-    var versionRegexResult = new RegExp("(" + versionToken + ")", "i").exec(ua);
-
-    if (!versionRegexResult) {
-      return browserVersion;
-    }
-
-    var versionTokenIndex = versionRegexResult.index;
-    var verTkn = versionRegexResult[0];
-
-    if (versionTokenIndex > -1) {
-      var versionIndex = versionTokenIndex + verTkn.length + 1;
-      browserVersion = ua.substring(versionIndex).split(" ")[0].replace(/_/g, ".").replace(/;|\)/g, "");
-    }
-
-    return browserVersion;
-  }
-
-  function getBrowserVersion(browserName) {
-    if (!browserName) {
-      return undefined;
-    } // console.log(browserRule);
-    // const versionToken = browserRule ? browserRule.versionSearch : browserName;
-
-
-    var browserRule = getBrowserRule(browserName);
-    var versionToken = browserRule.versionSearch || browserName;
-    var browserVersion = extractBrowserVersion(versionToken, UA);
-    return browserVersion;
-  }
-
-  function isWebview() {
-    var webviewRules = parseRules.webview;
-    var browserVersion = void 0;
-    return some(filter(webviewRules, function (rule) {
-      return isMatched(UA, rule.criteria);
-    }), function (rule) {
-      browserVersion = extractBrowserVersion(rule.browserVersionSearch, UA);
-
-      if (isMatched(UA, rule.webviewToken) || isMatched(browserVersion, rule.webviewBrowserVersion)) {
-        return true;
-      } else {
-        return false;
-      }
-    });
-  }
-
-  function getOSRule(osName) {
-    return getRule(parseRules.os, osName);
-  }
-
-  function getOsName() {
-    return getIdentityStringFromArray(parseRules.os, parseRules.defaultString.os);
-  }
-
-  function getOsVersion(osName) {
-    var osRule = getOSRule(osName) || {};
-    var defaultOSVersion = parseRules.defaultString.os.version;
-    var osVersion = void 0;
-
-    if (!osName) {
-      return undefined;
-    }
-
-    if (osRule.versionAlias) {
-      return osRule.versionAlias;
-    }
-
-    var osVersionToken = osRule.versionSearch || osName;
-    var osVersionRegex = new RegExp("(" + osVersionToken + ")\\s([\\d_\\.]+|\\d_0)", "i");
-    var osVersionRegexResult = osVersionRegex.exec(UA);
-
-    if (osVersionRegexResult) {
-      osVersion = osVersionRegex.exec(UA)[2].replace(/_/g, ".").replace(/;|\)/g, "");
-    }
-
-    return osVersion || defaultOSVersion;
-  }
-
-  function getOs() {
-    var name = getOsName();
-    var version = getOsVersion(name);
-    return {
-      name: name,
-      version: version
-    };
-  }
-
-  function getBrowser() {
-    var name = getBrowserName();
-    var version = getBrowserVersion(name);
-    return {
-      name: name,
-      version: version,
-      webview: isWebview()
-    };
-  }
-
-  function getIsMobile() {
-    return UA.indexOf("Mobi") !== -1;
-  }
-  /**
-   * Copyright (c) NAVER Corp.
-   * egjs-agent projects are licensed under the MIT license
-   */
-
-  /**
-   * @namespace eg.agent
-   */
-
-  /**
-   * Extracts browser and operating system information from the user agent string.
-   * @ko 유저 에이전트 문자열에서 브라우저와 운영체제 정보를 추출한다.
-   * @function eg.agent#agent
-   * @param {String} [userAgent=navigator.userAgent] user agent string to parse <ko>파싱할 유저에이전트 문자열</ko>
-   * @return {Object} agentInfo
-   * @return {Object} agentInfo.os os Operating system information <ko>운영체제 정보</ko>
-   * @return {String} agentInfo.os.name Operating system name (android, ios, window, mac, unknown) <ko>운영체제 이름 (android, ios, window, mac, unknown)</ko>
-   * @return {String} agentInfo.os.version Operating system version <ko>운영체제 버전</ko>
-   * @return {String} agentInfo.browser Browser information <ko>브라우저 정보</ko>
-   * @return {String} agentInfo.browser.name Browser name (safari, chrome, sbrowser, ie, firefox, unknown) <ko>브라우저 이름 (safari, chrome, sbrowser, ie, firefox, unknown)</ko>
-   * @return {String} agentInfo.browser.version Browser version <ko>브라우저 버전 </ko>
-   * @return {Boolean} agentInfo.browser.webview Indicates whether the browser is inapp<ko>웹뷰 브라우저 여부</ko>
-   * @return {Boolean} agentInfo.isMobile Indicates whether the browser is for mobile<ko>모바일 브라우저 여부</ko>
-   * @example
-  import agent from "@egjs/agent";
-
-  const {os, browser, isMobile} = agent();
-   */
-
-
-  function agent() {
-    var ua = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : navigator$1.userAgent;
-    setUa(ua);
-    var agentInfo = {
-      os: getOs(),
-      browser: getBrowser(),
-      isMobile: getIsMobile()
-    };
-    agentInfo.browser.name = agentInfo.browser.name.toLowerCase();
-    agentInfo.os.name = agentInfo.os.name.toLowerCase();
-    agentInfo.os.version = agentInfo.os.version.toLowerCase();
-
-    if (agentInfo.os.name === "ios" && agentInfo.browser.webview) {
-      agentInfo.browser.version = "-1";
-    }
-
-    return agentInfo;
-  }
-  /**
-   * Version info string
-   * @ko 버전정보 문자열
-   * @name VERSION
-   * @static
-   * @type {String}
-   * @example
-   * eg.agent.VERSION;  // ex) 2.2.0
-   * @memberof eg.agent
-   */
-
-
-  agent.VERSION = "2.1.5";
 
   /*
    * Copyright 2016 Google Inc. All Rights Reserved.
@@ -8997,29 +8695,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
   var STILLNESS_THRESHOLD = 200; // millisecond
 
-  /**
-   * In Chrome m65, `devicemotion` events are broken but subsequently fixed
-   * in 65.0.3325.148. Since many browsers use Chromium, ensure that
-   * we scope this detection by branch and build numbers to provide
-   * a proper fallback.
-   * https://github.com/immersive-web/webvr-polyfill/issues/307
-   */
-
-  var isChromeWithoutDeviceMotion = function isChromeWithoutDeviceMotion() {
-    var value = false;
-    var agentInfo = agent();
-    var browserVersion = agentInfo.browser.version;
-
-    if (agentInfo.browser.name === "chrome" && parseInt(browserVersion, 10) === 65) {
-      var versionToken = browserVersion.split(".");
-      var branch = versionToken[2];
-      var build = versionToken[3];
-      value = parseInt(branch, 10) === 3325 && parseInt(build, 10) < 148;
-    }
-
-    return value;
-  };
-
   var DeviceMotion =
   /*#__PURE__*/
   function (_Component) {
@@ -9033,7 +8708,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       _this._onDeviceOrientation = _this._onDeviceOrientation.bind(_assertThisInitialized(_assertThisInitialized(_this)));
       _this._onChromeWithoutDeviceMotion = _this._onChromeWithoutDeviceMotion.bind(_assertThisInitialized(_assertThisInitialized(_this)));
       _this.isWithoutDeviceMotion = isChromeWithoutDeviceMotion();
-      _this.isAndroid = agent().os.name === "android";
+      _this.isAndroid = isAndroid();
       _this.stillGyroVec = vec3.create();
       _this.rawGyroVec = vec3.create();
       _this.adjustedGyroVec = vec3.create();
@@ -9372,7 +9047,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
   var K_FILTER = 0.98;
   var PREDICTION_TIME_S = 0.040;
-  var agentInfo = agent();
 
   var FusionPoseSensor =
   /*#__PURE__*/
@@ -9394,7 +9068,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       _this.isFirefoxAndroid = util.isFirefoxAndroid();
       _this.isIOS = util.isIOS(); // Ref https://github.com/immersive-web/cardboard-vr-display/issues/18
 
-      _this.isChromeUsingDegrees = agentInfo.browser.name === "chrome" && parseInt(agentInfo.browser.version, 10) >= 66;
+      _this.isChromeUsingDegrees = getChromeVersion() >= 66;
       _this._isEnabled = false; // Set the filter to world transform, depending on OS.
 
       if (_this.isIOS) {
@@ -11069,6 +10743,351 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return VideoLoader;
   }();
+
+  /*
+  Copyright (c) 2017 NAVER Corp.
+  @egjs/agent project is licensed under the MIT license
+
+  @egjs/agent JavaScript library
+
+
+  @version 2.1.5
+  */
+  var win$3 = typeof window !== "undefined" && window || {};
+  var RegExp$1 = win$3.RegExp;
+  var navigator$1 = win$3.navigator;
+  var parseRules = {
+    browser: [{
+      criteria: "PhantomJS",
+      identity: "PhantomJS"
+    }, {
+      criteria: /Whale/,
+      identity: "Whale",
+      versionSearch: "Whale"
+    }, {
+      criteria: /Edge/,
+      identity: "Edge",
+      versionSearch: "Edge"
+    }, {
+      criteria: /MSIE|Trident|Windows Phone/,
+      identity: "IE",
+      versionSearch: "IEMobile|MSIE|rv"
+    }, {
+      criteria: /MiuiBrowser/,
+      identity: "MIUI Browser",
+      versionSearch: "MiuiBrowser"
+    }, {
+      criteria: /SamsungBrowser/,
+      identity: "Samsung Internet",
+      versionSearch: "SamsungBrowser"
+    }, {
+      criteria: /SAMSUNG /,
+      identity: "Samsung Internet",
+      versionSearch: "Version"
+    }, {
+      criteria: /Chrome|CriOS/,
+      identity: "Chrome"
+    }, {
+      criteria: /Android/,
+      identity: "Android Browser",
+      versionSearch: "Version"
+    }, {
+      criteria: /iPhone|iPad/,
+      identity: "Safari",
+      versionSearch: "Version"
+    }, {
+      criteria: "Apple",
+      identity: "Safari",
+      versionSearch: "Version"
+    }, {
+      criteria: "Firefox",
+      identity: "Firefox"
+    }],
+    os: [{
+      criteria: /Windows Phone/,
+      identity: "Windows Phone",
+      versionSearch: "Windows Phone"
+    }, {
+      criteria: "Windows 2000",
+      identity: "Window",
+      versionAlias: "5.0"
+    }, {
+      criteria: /Windows NT/,
+      identity: "Window",
+      versionSearch: "Windows NT"
+    }, {
+      criteria: /iPhone|iPad/,
+      identity: "iOS",
+      versionSearch: "iPhone OS|CPU OS"
+    }, {
+      criteria: "Mac",
+      versionSearch: "OS X",
+      identity: "MAC"
+    }, {
+      criteria: /Android/,
+      identity: "Android"
+    }, {
+      criteria: /Tizen/,
+      identity: "Tizen"
+    }, {
+      criteria: /Web0S/,
+      identity: "WebOS"
+    }],
+    // Webview check condition
+    // ios: If has no version information
+    // Android 5.0 && chrome 40+: Presence of "; wv" in userAgent
+    // Under android 5.0: Presence of "NAVER" or "Daum" in userAgent
+    webview: [{
+      criteria: /iPhone|iPad/,
+      browserVersionSearch: "Version",
+      webviewBrowserVersion: /-1/
+    }, {
+      criteria: /iPhone|iPad|Android/,
+      webviewToken: /NAVER|DAUM|; wv/
+    }],
+    defaultString: {
+      browser: {
+        version: "-1",
+        name: "unknown"
+      },
+      os: {
+        version: "-1",
+        name: "unknown"
+      }
+    }
+  };
+
+  function filter(arr, compare) {
+    var result = [];
+
+    for (var i = 0; i < arr.length; i++) {
+      compare(arr[i]) && result.push(arr[i]);
+    }
+
+    return result;
+  }
+
+  function some(arr, compare) {
+    for (var i = 0; i < arr.length; i++) {
+      if (compare(arr[i])) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  var UA = void 0;
+
+  function setUa(ua) {
+    UA = ua;
+  }
+
+  function isMatched(base, target) {
+    return target && target.test ? !!target.test(base) : base.indexOf(target) > -1;
+  }
+
+  function getIdentityStringFromArray(rules, defaultStrings) {
+    var matchedRule = filter(rules, function (rule) {
+      return isMatched(UA, rule.criteria);
+    })[0];
+    return matchedRule && matchedRule.identity || defaultStrings.name;
+  }
+
+  function getRule(rules, targetIdentity) {
+    return filter(rules, function (rule) {
+      var criteria = rule.criteria;
+      var identityMatched = new RegExp(rule.identity, "i").test(targetIdentity);
+
+      if (criteria ? identityMatched && isMatched(UA, criteria) : identityMatched) {
+        return true;
+      } else {
+        return false;
+      }
+    })[0];
+  }
+
+  function getBrowserName() {
+    return getIdentityStringFromArray(parseRules.browser, parseRules.defaultString.browser);
+  }
+
+  function getBrowserRule(browserName) {
+    var rule = getRule(parseRules.browser, browserName);
+
+    if (!rule) {
+      rule = {
+        criteria: browserName,
+        versionSearch: browserName,
+        identity: browserName
+      };
+    }
+
+    return rule;
+  }
+
+  function extractBrowserVersion(versionToken, ua) {
+    var browserVersion = parseRules.defaultString.browser.version;
+    var versionRegexResult = new RegExp("(" + versionToken + ")", "i").exec(ua);
+
+    if (!versionRegexResult) {
+      return browserVersion;
+    }
+
+    var versionTokenIndex = versionRegexResult.index;
+    var verTkn = versionRegexResult[0];
+
+    if (versionTokenIndex > -1) {
+      var versionIndex = versionTokenIndex + verTkn.length + 1;
+      browserVersion = ua.substring(versionIndex).split(" ")[0].replace(/_/g, ".").replace(/;|\)/g, "");
+    }
+
+    return browserVersion;
+  }
+
+  function getBrowserVersion(browserName) {
+    if (!browserName) {
+      return undefined;
+    } // console.log(browserRule);
+    // const versionToken = browserRule ? browserRule.versionSearch : browserName;
+
+
+    var browserRule = getBrowserRule(browserName);
+    var versionToken = browserRule.versionSearch || browserName;
+    var browserVersion = extractBrowserVersion(versionToken, UA);
+    return browserVersion;
+  }
+
+  function isWebview() {
+    var webviewRules = parseRules.webview;
+    var browserVersion = void 0;
+    return some(filter(webviewRules, function (rule) {
+      return isMatched(UA, rule.criteria);
+    }), function (rule) {
+      browserVersion = extractBrowserVersion(rule.browserVersionSearch, UA);
+
+      if (isMatched(UA, rule.webviewToken) || isMatched(browserVersion, rule.webviewBrowserVersion)) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+  }
+
+  function getOSRule(osName) {
+    return getRule(parseRules.os, osName);
+  }
+
+  function getOsName() {
+    return getIdentityStringFromArray(parseRules.os, parseRules.defaultString.os);
+  }
+
+  function getOsVersion(osName) {
+    var osRule = getOSRule(osName) || {};
+    var defaultOSVersion = parseRules.defaultString.os.version;
+    var osVersion = void 0;
+
+    if (!osName) {
+      return undefined;
+    }
+
+    if (osRule.versionAlias) {
+      return osRule.versionAlias;
+    }
+
+    var osVersionToken = osRule.versionSearch || osName;
+    var osVersionRegex = new RegExp("(" + osVersionToken + ")\\s([\\d_\\.]+|\\d_0)", "i");
+    var osVersionRegexResult = osVersionRegex.exec(UA);
+
+    if (osVersionRegexResult) {
+      osVersion = osVersionRegex.exec(UA)[2].replace(/_/g, ".").replace(/;|\)/g, "");
+    }
+
+    return osVersion || defaultOSVersion;
+  }
+
+  function getOs() {
+    var name = getOsName();
+    var version = getOsVersion(name);
+    return {
+      name: name,
+      version: version
+    };
+  }
+
+  function getBrowser() {
+    var name = getBrowserName();
+    var version = getBrowserVersion(name);
+    return {
+      name: name,
+      version: version,
+      webview: isWebview()
+    };
+  }
+
+  function getIsMobile() {
+    return UA.indexOf("Mobi") !== -1;
+  }
+  /**
+   * Copyright (c) NAVER Corp.
+   * egjs-agent projects are licensed under the MIT license
+   */
+
+  /**
+   * @namespace eg.agent
+   */
+
+  /**
+   * Extracts browser and operating system information from the user agent string.
+   * @ko 유저 에이전트 문자열에서 브라우저와 운영체제 정보를 추출한다.
+   * @function eg.agent#agent
+   * @param {String} [userAgent=navigator.userAgent] user agent string to parse <ko>파싱할 유저에이전트 문자열</ko>
+   * @return {Object} agentInfo
+   * @return {Object} agentInfo.os os Operating system information <ko>운영체제 정보</ko>
+   * @return {String} agentInfo.os.name Operating system name (android, ios, window, mac, unknown) <ko>운영체제 이름 (android, ios, window, mac, unknown)</ko>
+   * @return {String} agentInfo.os.version Operating system version <ko>운영체제 버전</ko>
+   * @return {String} agentInfo.browser Browser information <ko>브라우저 정보</ko>
+   * @return {String} agentInfo.browser.name Browser name (safari, chrome, sbrowser, ie, firefox, unknown) <ko>브라우저 이름 (safari, chrome, sbrowser, ie, firefox, unknown)</ko>
+   * @return {String} agentInfo.browser.version Browser version <ko>브라우저 버전 </ko>
+   * @return {Boolean} agentInfo.browser.webview Indicates whether the browser is inapp<ko>웹뷰 브라우저 여부</ko>
+   * @return {Boolean} agentInfo.isMobile Indicates whether the browser is for mobile<ko>모바일 브라우저 여부</ko>
+   * @example
+  import agent from "@egjs/agent";
+
+  const {os, browser, isMobile} = agent();
+   */
+
+
+  function agent() {
+    var ua = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : navigator$1.userAgent;
+    setUa(ua);
+    var agentInfo = {
+      os: getOs(),
+      browser: getBrowser(),
+      isMobile: getIsMobile()
+    };
+    agentInfo.browser.name = agentInfo.browser.name.toLowerCase();
+    agentInfo.os.name = agentInfo.os.name.toLowerCase();
+    agentInfo.os.version = agentInfo.os.version.toLowerCase();
+
+    if (agentInfo.os.name === "ios" && agentInfo.browser.webview) {
+      agentInfo.browser.version = "-1";
+    }
+
+    return agentInfo;
+  }
+  /**
+   * Version info string
+   * @ko 버전정보 문자열
+   * @name VERSION
+   * @static
+   * @type {String}
+   * @example
+   * eg.agent.VERSION;  // ex) 2.2.0
+   * @memberof eg.agent
+   */
+
+
+  agent.VERSION = "2.1.5";
 
   var WEBGL_ERROR_CODE = {
     "0": "NO_ERROR",

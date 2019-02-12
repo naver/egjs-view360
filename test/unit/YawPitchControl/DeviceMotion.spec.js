@@ -1,8 +1,22 @@
 import DeviceMotionInjector from "inject-loader!../../../src/YawPitchControl/input/DeviceMotion";
-
+import UtilsInjector from "inject-loader!../../../src/YawPitchControl/utils";
 import {window} from "../../../src/utils/browser";
 import DeviceMotion from "../../../src/YawPitchControl/input/DeviceMotion";
 import TestHelper from "./testHelper";
+
+const getDeviceMotionWithUA = ua => {
+	const UtilsWithUA = UtilsInjector({
+		"../utils/browserFeature": {
+			userAgent: ua
+		}
+	});
+
+	return DeviceMotionInjector({
+		"../utils": UtilsWithUA,
+	}).default;
+}
+
+const MockedDeviceMotion = getDeviceMotionWithUA("Mozilla/5.0 (Linux; Android 6.0.1; SAMSUNG SM-N910S Build/MMB29K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.162 Mobile Safari/537.36");
 
 describe("DeviceMotion", function() {
 	describe("#constructor", function() {
@@ -99,23 +113,8 @@ describe("DeviceMotion", function() {
 		it("should trigger devicemotion event on android after calling enable()", (done) => {
 			// Given
 			let changed = false;
-			let MockedDeviceMotion = DeviceMotionInjector(
-				{
-					"@egjs/agent": function() {
-						return {
-							os: {
-								name: "android"
-							},
-							browser: {
-								name: "chrome",
-								version: "65.0.3325.162"
-							}
-						};
-					}
-				}
-			).default;
-
 			let inst = new MockedDeviceMotion();
+
 			inst.on("devicemotion", (e) => {
 				changed = true;
 			});
@@ -138,23 +137,8 @@ describe("DeviceMotion", function() {
 		it("should not trigger devicemotion event on android after calling disable()", (done) => {
 			// Given
 			let changed = false;
-			let MockedDeviceMotion = DeviceMotionInjector(
-				{
-					"@egjs/agent": function() {
-						return {
-							os: {
-								name: "android"
-							},
-							browser: {
-								name: "chrome",
-								version: "65.0.3325.162"
-							}
-						};
-					}
-				}
-			).default;
-
 			let inst = new MockedDeviceMotion();
+
 			inst.on("devicemotion", (e) => {
 				changed = true;
 			});
