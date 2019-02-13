@@ -1,18 +1,18 @@
 import DeviceMotionInjector from "inject-loader!../../../src/YawPitchControl/input/DeviceMotion";
-import UtilsInjector from "inject-loader!../../../src/YawPitchControl/utils";
+import ConstsInjector from "inject-loader!../../../src/YawPitchControl/consts";
 import {window} from "../../../src/utils/browser";
 import DeviceMotion from "../../../src/YawPitchControl/input/DeviceMotion";
 import TestHelper from "./testHelper";
 
 const getDeviceMotionWithUA = ua => {
-	const UtilsWithUA = UtilsInjector({
+	const ConstsWithUA = ConstsInjector({
 		"../utils/browserFeature": {
 			userAgent: ua
 		}
 	});
 
 	return DeviceMotionInjector({
-		"../utils": UtilsWithUA,
+		"../consts": ConstsWithUA,
 	}).default;
 }
 

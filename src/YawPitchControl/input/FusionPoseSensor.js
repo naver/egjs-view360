@@ -6,7 +6,7 @@ import {window} from "../../utils/browser";
 import {quat} from "../../utils/math-util";
 import DeviceMotion from "./DeviceMotion";
 import ComplementaryFilter from "./ComplementaryFilter";
-import {CHROME_VERSION} from "../utils";
+import {CHROME_VERSION} from "../consts";
 
 const K_FILTER = 0.98;
 const PREDICTION_TIME_S = 0.040;

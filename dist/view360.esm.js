@@ -88,36 +88,6 @@ function toAxis(source, offset) {
     return acc;
   }, {});
 }
-/**
- * Returns a number value indiciating the version of Chrome being used,
- * or otherwise `null` if not on Chrome.
- *
- * Ref: https://github.com/immersive-web/cardboard-vr-display/pull/19
- */
-
-/**
- * In Chrome m65, `devicemotion` events are broken but subsequently fixed
- * in 65.0.3325.148. Since many browsers use Chromium, ensure that
- * we scope this detection by branch and build numbers to provide
- * a proper fallback.
- * https://github.com/immersive-web/webvr-polyfill/issues/307
- */
-
-var version = -1; // It should not be null because it will be compared with number
-
-var branch = null;
-var build = null;
-var match = /Chrome\/([0-9]+)\.(?:[0-9]*)\.([0-9]*)\.([0-9]*)/i.exec(userAgent);
-
-if (match) {
-  version = parseInt(match[1], 10);
-  branch = match[2];
-  build = match[3];
-}
-
-var CHROME_VERSION = version;
-var IS_CHROME_WITHOUT_DEVICE_MOTION = version === 65 && branch === "3325" && parseInt(build, 10) < 148;
-var IS_ANDROID = /Android/i.test(userAgent);
 
 /**
  * Original Code
@@ -973,6 +943,59 @@ function getRotationDelta(prevQ, curQ, rotateKind) {
 
 util.getRotationDelta = getRotationDelta;
 
+/**
+ * Returns a number value indiciating the version of Chrome being used,
+ * or otherwise `null` if not on Chrome.
+ *
+ * Ref: https://github.com/immersive-web/cardboard-vr-display/pull/19
+ */
+
+/**
+ * In Chrome m65, `devicemotion` events are broken but subsequently fixed
+ * in 65.0.3325.148. Since many browsers use Chromium, ensure that
+ * we scope this detection by branch and build numbers to provide
+ * a proper fallback.
+ * https://github.com/immersive-web/webvr-polyfill/issues/307
+ */
+
+var version = -1; // It should not be null because it will be compared with number
+
+var branch = null;
+var build = null;
+var match = /Chrome\/([0-9]+)\.(?:[0-9]*)\.([0-9]*)\.([0-9]*)/i.exec(userAgent);
+
+if (match) {
+  version = parseInt(match[1], 10);
+  branch = match[2];
+  build = match[3];
+}
+
+var CHROME_VERSION = version;
+var IS_CHROME_WITHOUT_DEVICE_MOTION = version === 65 && branch === "3325" && parseInt(build, 10) < 148;
+var IS_ANDROID = /Android/i.test(userAgent);
+var CONTROL_MODE_VR = 1;
+var CONTROL_MODE_YAWPITCH = 2;
+var TOUCH_DIRECTION_NONE = 1;
+var TOUCH_DIRECTION_YAW = 2;
+var TOUCH_DIRECTION_PITCH = 4;
+var TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_YAW | TOUCH_DIRECTION_PITCH;
+/* Const for MovableCoord */
+
+var MC_DECELERATION = 0.0014;
+var MC_MAXIMUM_DURATION = 1000;
+var MC_BIND_SCALE = [0.20, 0.20];
+var MAX_FIELD_OF_VIEW = 110;
+var PAN_SCALE = 320; // const DELTA_THRESHOLD = 0.015;
+
+var YAW_RANGE_HALF = 180;
+var PITCH_RANGE_HALF = 90;
+var CIRCULAR_PITCH_RANGE_HALF = 180;
+var GYRO_MODE = {
+  NONE: "none",
+  YAWPITCH: "yawPitch",
+  VR: "VR"
+};
+
 var STILLNESS_THRESHOLD = 200; // millisecond
 
 var DeviceMotion =
@@ -1737,29 +1760,6 @@ function (_Component) {
 
   return DeviceQuaternion;
 }(Component);
-
-var CONTROL_MODE_VR = 1;
-var CONTROL_MODE_YAWPITCH = 2;
-var TOUCH_DIRECTION_NONE = 1;
-var TOUCH_DIRECTION_YAW = 2;
-var TOUCH_DIRECTION_PITCH = 4;
-var TOUCH_DIRECTION_ALL = TOUCH_DIRECTION_YAW | TOUCH_DIRECTION_PITCH;
-/* Const for MovableCoord */
-
-var MC_DECELERATION = 0.0014;
-var MC_MAXIMUM_DURATION = 1000;
-var MC_BIND_SCALE = [0.20, 0.20];
-var MAX_FIELD_OF_VIEW = 110;
-var PAN_SCALE = 320; // const DELTA_THRESHOLD = 0.015;
-
-var YAW_RANGE_HALF = 180;
-var PITCH_RANGE_HALF = 90;
-var CIRCULAR_PITCH_RANGE_HALF = 180;
-var GYRO_MODE = {
-  NONE: "none",
-  YAWPITCH: "yawPitch",
-  VR: "VR"
-};
 
 var VERSION = "3.2.1-rc";
 

@@ -3,7 +3,7 @@ import TiltMotionInputInjector from "inject-loader!../../../src/YawPitchControl/
 import FusionPoseSensorInjector from "inject-loader!../../../src/YawPitchControl/input/FusionPoseSensor";
 import DeviceMotionInjector from "inject-loader!../../../src/YawPitchControl/input/DeviceMotion";
 import RotationPanInputInjector from "inject-loader!../../../src/YawPitchControl/input/RotationPanInput";
-import UtilsInjector from "inject-loader!../../../src/YawPitchControl/utils";
+import ConstsInjector from "inject-loader!../../../src/YawPitchControl/consts";
 
 import {
 	CONTROL_MODE_VR,
@@ -31,7 +31,7 @@ import {window} from "../../../src/utils/browser";
 Simulator.setType("pointer");
 
 function getYawPitchControlWithUserAgent(ua) {
-	const UtilsWithUA = UtilsInjector({
+	const ConstsWithUA = ConstsInjector({
 		"../utils/browserFeature": {
 			userAgent: ua
 		}
@@ -40,9 +40,9 @@ function getYawPitchControlWithUserAgent(ua) {
 	return YawPitchControlrInjector({
 		"./input/TiltMotionInput": TiltMotionInputInjector({
 			"./FusionPoseSensor": FusionPoseSensorInjector({
-				"../utils": UtilsWithUA,
+				"../consts": ConstsWithUA,
 				"./DeviceMotion": DeviceMotionInjector({
-					"../utils": UtilsWithUA,
+					"../consts": ConstsWithUA,
 				}).default
 			}).default
 		}).default
