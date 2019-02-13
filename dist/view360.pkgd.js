@@ -6924,13 +6924,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * Ref: https://github.com/immersive-web/cardboard-vr-display/pull/19
    */
 
-  var getChromeVersion = function () {
-    var match = userAgent.match(/.*Chrome\/([0-9]+)/);
-    var value = match ? parseInt(match[1], 10) : -1;
-    return function () {
-      return value;
-    };
-  }();
   /**
    * In Chrome m65, `devicemotion` events are broken but subsequently fixed
    * in 65.0.3325.148. Since many browsers use Chromium, ensure that
@@ -6939,27 +6932,21 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * https://github.com/immersive-web/webvr-polyfill/issues/307
    */
 
-  var isChromeWithoutDeviceMotion = function () {
-    var value = false;
+  var version = -1; // It should not be null because it will be compared with number
 
-    if (getChromeVersion() === 65) {
-      var match = userAgent.match(/.*Chrome\/([0-9.]*)/);
+  var branch = null;
+  var build = null;
+  var match = /Chrome\/([0-9]+)\.(?:[0-9]*)\.([0-9]*)\.([0-9]*)/i.exec(userAgent);
 
-      if (match) {
-        var versionToken = match[1].split(".");
-        var branch = versionToken[2];
-        var build = versionToken[3];
-        value = parseInt(branch, 10) === 3325 && parseInt(build, 10) < 148;
-      }
-    }
+  if (match) {
+    version = parseInt(match[1], 10);
+    branch = match[2];
+    build = match[3];
+  }
 
-    return function () {
-      return value;
-    };
-  }();
-  var isAndroid = function isAndroid() {
-    return /Android/i.test(userAgent);
-  };
+  var CHROME_VERSION = version;
+  var IS_CHROME_WITHOUT_DEVICE_MOTION = version === 65 && branch === "3325" && parseInt(build, 10) < 148;
+  var IS_ANDROID = /Android/i.test(userAgent);
 
   /*
    * Copyright 2016 Google Inc. All Rights Reserved.
@@ -8707,8 +8694,8 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       _this._onDeviceMotion = _this._onDeviceMotion.bind(_assertThisInitialized(_assertThisInitialized(_this)));
       _this._onDeviceOrientation = _this._onDeviceOrientation.bind(_assertThisInitialized(_assertThisInitialized(_this)));
       _this._onChromeWithoutDeviceMotion = _this._onChromeWithoutDeviceMotion.bind(_assertThisInitialized(_assertThisInitialized(_this)));
-      _this.isWithoutDeviceMotion = isChromeWithoutDeviceMotion();
-      _this.isAndroid = isAndroid();
+      _this.isWithoutDeviceMotion = IS_CHROME_WITHOUT_DEVICE_MOTION;
+      _this.isAndroid = IS_ANDROID;
       _this.stillGyroVec = vec3.create();
       _this.rawGyroVec = vec3.create();
       _this.adjustedGyroVec = vec3.create();
@@ -9068,7 +9055,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       _this.isFirefoxAndroid = util.isFirefoxAndroid();
       _this.isIOS = util.isIOS(); // Ref https://github.com/immersive-web/cardboard-vr-display/issues/18
 
-      _this.isChromeUsingDegrees = getChromeVersion() >= 66;
+      _this.isChromeUsingDegrees = CHROME_VERSION >= 66;
       _this._isEnabled = false; // Set the filter to world transform, depending on OS.
 
       if (_this.isIOS) {

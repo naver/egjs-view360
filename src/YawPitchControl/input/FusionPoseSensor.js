@@ -6,7 +6,7 @@ import {window} from "../../utils/browser";
 import {quat} from "../../utils/math-util";
 import DeviceMotion from "./DeviceMotion";
 import ComplementaryFilter from "./ComplementaryFilter";
-import {getChromeVersion} from "../utils";
+import {CHROME_VERSION} from "../utils";
 
 const K_FILTER = 0.98;
 const PREDICTION_TIME_S = 0.040;
@@ -32,7 +32,7 @@ export default class FusionPoseSensor extends Component {
 		this.isIOS = Util.isIOS();
 
 		// Ref https://github.com/immersive-web/cardboard-vr-display/issues/18
-		this.isChromeUsingDegrees = getChromeVersion() >= 66;
+		this.isChromeUsingDegrees = CHROME_VERSION >= 66;
 
 		this._isEnabled = false;
 

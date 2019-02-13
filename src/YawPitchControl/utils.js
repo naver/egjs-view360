@@ -15,13 +15,6 @@ export function toAxis(source, offset) {
  *
  * Ref: https://github.com/immersive-web/cardboard-vr-display/pull/19
  */
-export const getChromeVersion = (() => {
-	const match = userAgent.match(/.*Chrome\/([0-9]+)/);
-	const value = match ? parseInt(match[1], 10) : -1;
-
-	return () => value;
-})();
-
 /**
  * In Chrome m65, `devicemotion` events are broken but subsequently fixed
  * in 65.0.3325.148. Since many browsers use Chromium, ensure that
@@ -29,21 +22,18 @@ export const getChromeVersion = (() => {
  * a proper fallback.
  * https://github.com/immersive-web/webvr-polyfill/issues/307
  */
-export const isChromeWithoutDeviceMotion = (() => {
-	let value = false;
+let version = -1; // It should not be null because it will be compared with number
+let branch = null;
+let build = null;
 
-	if (getChromeVersion() === 65) {
-		const match = userAgent.match(/.*Chrome\/([0-9.]*)/);
+const match = /Chrome\/([0-9]+)\.(?:[0-9]*)\.([0-9]*)\.([0-9]*)/i.exec(userAgent);
 
-		if (match) {
-			const versionToken = match[1].split(".");
-			const branch = versionToken[2];
-			const build = versionToken[3];
+if (match) {
+	version = parseInt(match[1], 10);
+	branch = match[2];
+	build = match[3];
+}
 
-			value = parseInt(branch, 10) === 3325 && parseInt(build, 10) < 148;
-		}
-	}
-	return () => value;
-})();
-
-export const isAndroid = () => /Android/i.test(userAgent);
+export const CHROME_VERSION = version;
+export const IS_CHROME_WITHOUT_DEVICE_MOTION = version === 65 && branch === "3325" && parseInt(build, 10) < 148;
+export const IS_ANDROID = /Android/i.test(userAgent);
