@@ -3,6 +3,7 @@ import TiltMotionInputInjector from "inject-loader!../../../src/YawPitchControl/
 import FusionPoseSensorInjector from "inject-loader!../../../src/YawPitchControl/input/FusionPoseSensor";
 import DeviceMotionInjector from "inject-loader!../../../src/YawPitchControl/input/DeviceMotion";
 import RotationPanInputInjector from "inject-loader!../../../src/YawPitchControl/input/RotationPanInput";
+import ConstsInjector from "inject-loader!../../../src/YawPitchControl/consts";
 
 import {
 	CONTROL_MODE_VR,
@@ -24,67 +25,39 @@ import chrome65Sample from "./chrome65Sample";
 import chrome66Sample from "./chrome66Sample";
 import devicemotionRotateSample from "./devicemotionSampleRotate";
 import {glMatrix, quat} from "../../../src/utils/math-util.js";
+import {window} from "../../../src/utils/browser";
 
 // PanInput works with pointer event first when browser support pointer event.
 Simulator.setType("pointer");
 
-function agentOnChrome65() {
-	return {
-		browser: {
-			"name": "chrome",
-			"version": "65.0.3325.109"
-		},
-		os: {
-			"name": "android"
+function getYawPitchControlWithUserAgent(ua) {
+	const ConstsWithUA = ConstsInjector({
+		"../utils/browserFeature": {
+			userAgent: ua
 		}
-	};
+	});
+
+	return YawPitchControlrInjector({
+		"./input/TiltMotionInput": TiltMotionInputInjector({
+			"./FusionPoseSensor": FusionPoseSensorInjector({
+				"../consts": ConstsWithUA,
+				"./DeviceMotion": DeviceMotionInjector({
+					"../consts": ConstsWithUA,
+				}).default
+			}).default
+		}).default
+	}).default;
 }
 
-function agentOnChrome66() {
-	return {
-		browser: {
-			"name": "chrome",
-			"version": "66.0.3359.30"
-		},
-		os: {
-			"name": "android"
-		}
-	};
-}
+/**
+ * Android Chrome 65.0.3325.109
+ */
+const YawPitchControlOnChrome65 = getYawPitchControlWithUserAgent("Mozilla/5.0 (Linux; Android 6.0.1; SAMSUNG SM-N910S Build/MMB29K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.109 Mobile Safari/537.36");
 
-const YawPitchControlOnChrome65 = YawPitchControlrInjector(
-	{
-		"./input/TiltMotionInput": TiltMotionInputInjector(
-			{
-				"./FusionPoseSensor": FusionPoseSensorInjector(
-					{
-						"@egjs/agent": agentOnChrome65,
-						"./DeviceMotion": DeviceMotionInjector({
-							"@egjs/agent": agentOnChrome65
-						}).default
-					}
-				).default
-			}
-		).default
-	}
-).default;
-
-const YawPitchControlOnChrome66 = YawPitchControlrInjector(
-	{
-		"./input/TiltMotionInput": TiltMotionInputInjector(
-			{
-				"./FusionPoseSensor": FusionPoseSensorInjector(
-					{
-						"@egjs/agent": agentOnChrome66,
-						"./DeviceMotion": DeviceMotionInjector({
-							"@egjs/agent": agentOnChrome66
-						}).default
-					}
-				).default
-			}
-		).default
-	}
-).default;
+/**
+ * Android Chrome 66.0.3359.30
+ */
+const YawPitchControlOnChrome66 = getYawPitchControlWithUserAgent("Mozilla/5.0 (Linux; Android 6.0.1; SAMSUNG SM-N910S Build/MMB29K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.30 Mobile Safari/537.36");
 
 describe("YawPitchControl", function() {
 	describe("constructor", function() {
@@ -1486,7 +1459,6 @@ describe("YawPitchControl", function() {
 	});
 
 	describe("Rotating yaw 45 degree by tilting device", () => {
-		let results = [];
 		let inst = null;
 		let target;
 
@@ -1499,12 +1471,11 @@ describe("YawPitchControl", function() {
 		});
 
 		afterEach(() => {
-			results = [];
 			target.remove();
 			inst.destroy();
 		});
 
-		it("should work on chrome 65 android", (done) => {
+		it("should work on chrome 65 android", done => {
 			// When
 			inst = new YawPitchControlOnChrome65({element: target});
 			inst.enable();
@@ -1519,12 +1490,12 @@ describe("YawPitchControl", function() {
 			});
 
 			function then() {
-				expect(Math.round(Math.abs(inst.get().yaw/10))).to.be.equal(4);
+				expect(Math.round(Math.abs(inst.get().yaw / 10))).to.be.equal(4);
 				done();
 			}
 		});
 
-		it("should work on chrome 66 android", (done) => {
+		it("should work on chrome 66 android", done => {
 			inst = new YawPitchControlOnChrome66({element: target});
 			inst.enable();
 
@@ -1538,7 +1509,7 @@ describe("YawPitchControl", function() {
 			});
 
 			function then() {
-				expect(Math.round(Math.abs(inst.get().yaw/10))).to.be.equal(4);
+				expect(Math.round(Math.abs(inst.get().yaw / 10))).to.be.equal(4);
 				done();
 			}
 		});
