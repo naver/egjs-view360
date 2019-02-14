@@ -1761,7 +1761,7 @@ function (_Component) {
   return DeviceQuaternion;
 }(Component);
 
-var VERSION = "3.2.1-rc";
+var VERSION = "3.2.1";
 
 var DEFAULT_YAW_RANGE = [-YAW_RANGE_HALF, YAW_RANGE_HALF];
 var DEFAULT_PITCH_RANGE = [-PITCH_RANGE_HALF, PITCH_RANGE_HALF];

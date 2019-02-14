@@ -3,7 +3,7 @@ Copyright (c) 2017 NAVER Corp.
 @egjs/view360 project is licensed under the MIT license
 @egjs/view360 JavaScript library
 https://github.com/naver/egjs-view360
-@version 3.2.1-rc
+@version 3.2.1
 All-in-one packaged file for ease use of '@egjs/view360' with below dependencies.
 - @egjs/agent ^2.1.5, @egjs/axes ^2.5.8, @egjs/component ^2.1.2, es6-promise ^4.2.5, webvr-polyfill ^0.9.16
 */
@@ -9631,7 +9631,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     return DeviceQuaternion;
   }(Component);
 
-  var VERSION = "3.2.1-rc";
+  var VERSION = "3.2.1";
 
   var DEFAULT_YAW_RANGE = [-YAW_RANGE_HALF, YAW_RANGE_HALF];
   var DEFAULT_PITCH_RANGE = [-PITCH_RANGE_HALF, PITCH_RANGE_HALF];
