@@ -7,8 +7,13 @@ const win = typeof window !== "undefined" && window.Math === Math ? window : typ
 /* eslint-enable no-new-func, no-nested-ternary */
 
 const doc = win.document;
+const userAgent = win.navigator.userAgent;
+const IS_SAFARI_ON_DESKTOP = userAgent.indexOf("Safari") !== -1 &&
+														userAgent.indexOf("Chrome") === -1 &&
+														userAgent.indexOf("Mac OS X") !== 1;
 
 export {
 	win as window,
-	doc as document
+	doc as document,
+	IS_SAFARI_ON_DESKTOP
 };

@@ -781,4 +781,54 @@ describe("PanoViewer", () => {
 			cleanup();
 		});
 	});
+
+	/**
+	 * Exceptional Case
+	 */
+	describe("Exception Case", () => {
+		let target;
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div"></div>`;
+		});
+
+		afterEach(() => {
+			cleanup();
+		});
+
+		IT("should invoke renderLoopTimer if rendering frame is too delayed on PC Safari Browser", async () => {
+			// Given, When
+			const PanoViewerOnSafari = PanoViewerInjector({
+				"../utils/browser": {
+					IS_SAFARI_ON_DESKTOP: true
+				}
+			}).default;
+
+			const panoViewer = new PanoViewerOnSafari(target, {
+				image: "./images/test_equi.png"
+			});
+
+			/**
+			 * Delaying a frame with '20 ms' by force.
+			 */
+			panoViewer._render = function() {
+				const start = Date.now();
+				let now = start;
+
+				/** */
+				while (now - start < 20) {
+					now = Date.now();
+				}
+			};
+
+			// wait for renering to be occurred.
+			await new Promise(res => setTimeout(res, 100));
+
+			// This cannot be tested by BLACKBOX-TEST
+			expect(panoViewer._rafTimer).to.not.undefined;
+
+			panoViewer.destroy();
+		});
+	});
 });
