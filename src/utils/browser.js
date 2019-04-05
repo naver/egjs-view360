@@ -8,9 +8,10 @@ const win = typeof window !== "undefined" && window.Math === Math ? window : typ
 
 const doc = win.document;
 const userAgent = win.navigator.userAgent;
-const IS_SAFARI_ON_DESKTOP = userAgent.indexOf("Safari") !== -1 &&
-														userAgent.indexOf("Chrome") === -1 &&
-														userAgent.indexOf("Mac OS X") !== 1;
+const IS_SAFARI_ON_DESKTOP =
+	userAgent.indexOf("Safari") !== -1 &&
+	userAgent.indexOf("Chrome") === -1 &&
+	userAgent.indexOf("Mac OS X") !== -1;
 
 export {
 	win as window,
