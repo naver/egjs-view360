@@ -860,13 +860,14 @@ export default class PanoViewer extends Component {
 	_stopRender() {
 		if (this._rafId) {
 			window.cancelAnimationFrame(this._rafId);
-			delete this._rafId;
 		}
 
 		if (this._rafTimer) {
 			clearTimeout(this._rafTimer);
-			delete this._rafTimer;
 		}
+
+		delete this._rafId;
+		delete this._rafTimer;
 	}
 
 	/**
