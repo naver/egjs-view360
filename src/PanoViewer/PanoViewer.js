@@ -9,6 +9,7 @@ import WebGLUtils from "../PanoImageRenderer/WebGLUtils";
 import {ERROR_TYPE, EVENTS, GYRO_MODE, PROJECTION_TYPE} from "./consts";
 import {glMatrix} from "../utils/math-util.js";
 import {VERSION} from "../version";
+import {IS_SAFARI_ON_DESKTOP} from "../utils/browser";
 
 export default class PanoViewer extends Component {
 	/**
@@ -801,11 +802,16 @@ export default class PanoViewer extends Component {
 	 * Register the callback on the raf to call _renderLoop every frame.
 	 */
 	_startRender() {
-		this._renderLoop = this._renderLoop.bind(this);
+		if (IS_SAFARI_ON_DESKTOP) {
+			this._renderLoop = this._renderLoopForNextTick.bind(this);
+		} else {
+			this._renderLoop = this._renderLoop.bind(this);
+		}
+
 		this._rafId = window.requestAnimationFrame(this._renderLoop);
 	}
 
-	_renderLoop() {
+	_render() {
 		if (this._photoSphereRenderer) {
 			if (this._quaternion) {
 				this._photoSphereRenderer.renderWithQuaternion(this._quaternion, this._fov);
@@ -813,14 +819,55 @@ export default class PanoViewer extends Component {
 				this._photoSphereRenderer.render(this._yaw, this._pitch, this._fov);
 			}
 		}
+	}
+
+	_renderLoop() {
+		this._render();
+
 		this._rafId = window.requestAnimationFrame(this._renderLoop);
+	}
+
+	/**
+	 * MacOS X Safari Bug Fix
+	 * This code guarantees that rendering should be occurred.
+	 *
+	 * In MacOS X(10.14.2), Safari (12.0.2)
+	 * The requestAnimationFrame(RAF) callback is called just after previous RAF callback without term
+	 * only if requestAnimationFrame is called for next frame while updating frame is delayed (~over 2ms)
+	 * So browser cannot render the frame and may be freezing.
+	 */
+	_renderLoopForNextTick() {
+		const before = performance.now();
+
+		this._render();
+
+		const diff = performance.now() - before;
+
+		if (this._rafTimer) {
+			clearTimeout(this._rafTimer);
+			this._rafTimer = null;
+		}
+
+		/** Use requestAnimationFrame only if current rendering could be possible over 60fps (1000/60) */
+		if (diff < 16) {
+			this._rafId = window.requestAnimationFrame(this._renderLoop);
+		} else {
+			/** Otherwise, Call setTimeout instead of requestAnimationFrame to gaurantee renering should be occurred*/
+			this._rafTimer = setTimeout(this._renderLoop, 0);
+		}
 	}
 
 	_stopRender() {
 		if (this._rafId) {
 			window.cancelAnimationFrame(this._rafId);
-			delete this._rafId;
 		}
+
+		if (this._rafTimer) {
+			clearTimeout(this._rafTimer);
+		}
+
+		delete this._rafId;
+		delete this._rafTimer;
 	}
 
 	/**
