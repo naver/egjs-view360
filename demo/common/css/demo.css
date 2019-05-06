@@ -70,9 +70,25 @@ a {
   height: 100%;
 }
 
-.viewer canvas {
+.viewer .container-stereo {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
+}
+
+.viewer .container canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.viewer .container-stereo canvas {
+  width: 50%;
+  height: 100%;
+  position: relative !important;
+  display: inline;
+  margin:none !important;
 }
 
 .viewer video {

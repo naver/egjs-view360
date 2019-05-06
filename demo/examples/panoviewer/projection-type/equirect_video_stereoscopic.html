@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"
+        />
+        <title>Video Tag (Equirectangular)</title>
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="../../../common/css/demo.css"
+        />
+        <script src="../../../common/js/jquery-2.2.4.js"></script>
+        <script src="../../../common/js/codepen.js"></script>
+        <script src="../../../common/js/qrcode.js"></script>
+        <script src="../../../release/latest/dist/view360.pkgd.js"></script>
+        <style></style>
+    </head>
+
+    <body>
+        <header>
+            <div class="home">
+                <a href="../../../panoviewer.html">
+                    <img
+                        class="egjs_logo"
+                        src="./../../../common/img/type_black.svg"
+                    />
+                    PanoViewer </a
+                ><!--//logo-->
+            </div>
+            <h1>Video Tag (Equirectangular)</h1>
+        </header>
+        <h2>Loads video by video tag</h2>
+
+        <div class="infos">
+            <p class="info">
+                <span class="head">projection</span>:
+                <a
+                    href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.PROJECTION_TYPE.html"
+                    target="_blank"
+                    ><span class="value">EQUIRECTANGULAR</span></a
+                >
+            </p>
+            <p class="info">
+                <span class="head">video</span>:
+                <a href="../../img/equi.mp4" target="_blank"
+                    ><span class="value"
+                        >Visions - Burano in VR by Maja Wrońska
+                        (https://vimeo.com/244870931)</span
+                    ></a
+                >
+            </p>
+        </div>
+
+        <div class="viewer">
+            <video
+                id="pano_video"
+                playsinline="playsinline"
+                controls
+                loop
+                preload="auto"
+                crossorigin="anonymous"
+            >
+                <source src="../../img/equi.mp4" type="video/mp4" />
+            </video>
+            <div class="container-stereo"></div>
+            <div class="play-container">
+                <button class="play"></button>
+            </div>
+        </div>
+        <div class="source">
+            <pre>
+        var PanoViewer = eg.view360.PanoViewer;
+        var container = document.querySelector(".container"); 
+        var videoEl = document.getElementById("pano_video");
+
+        var panoViewer = new PanoViewer(container, {
+            video: videoEl
+        });
+
+        var panoViewer2 = new PanoViewer(container, {
+            video: videoEl
+        });
+        </pre
+            >
+        </div>
+
+        <script>
+            // create PanoViewer with option
+            var PanoViewer = eg.view360.PanoViewer;
+            var container = document.querySelector(".container-stereo");
+            var videoEl = document.getElementById("pano_video");
+
+            var panoViewer = new PanoViewer(container, {
+                video: videoEl
+            });
+            var panoViewer2 = new PanoViewer(container, {
+                video: videoEl
+            });
+            document
+                .querySelector(".play-container .play")
+                .addEventListener("click", function() {
+                    videoEl.play();
+                });
+            videoEl.addEventListener("play", function() {
+                document.querySelector(".play-container").style.display =
+                    "none";
+            });
+        </script>
+    </body>
+</html>
