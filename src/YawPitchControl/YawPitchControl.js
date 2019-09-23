@@ -24,6 +24,7 @@ import {
 	CONTROL_MODE_YAWPITCH,
 	TOUCH_DIRECTION_NONE,
 } from "./consts";
+import glMatrix from "../utils/mathUtil/common";
 import {VERSION} from "../version";
 
 const DEFAULT_YAW_RANGE = [-YAW_RANGE_HALF, YAW_RANGE_HALF];
@@ -237,12 +238,13 @@ export default class YawPitchControl extends Component {
 			key === "showPolePoint" || key === "fov" || key === "aspectRatio" ||
 			key === "yawRange" || key === "pitchRange"
 		)) {
-			this._updateControlScale();
-
 			// If fov is changed, update pan scale
 			if (keys.indexOf("fov") >= 0) {
+				this.axes.setTo({"fov": this.options.fov});
 				this.updatePanScale();
 			}
+
+			this._updateControlScale();
 		}
 
 		if (keys.some(key => key === "fovRange")) {
@@ -483,21 +485,14 @@ export default class YawPitchControl extends Component {
 		/**
 		 * Panorama mode
 		 */
-		let MAGIC_NUMBER = 1;
-		const ratio = YawPitchControl.adjustAspectRatio(aspectRatio);
-		const halfHorizontalFov = fov / 2 * ratio;
-
-		// TODO: Magic Number Fix!
-		if (horizontalAngle > 290) {
-			MAGIC_NUMBER = 0.794;// horizontalAngle = 286;
-		} else if (horizontalAngle > 125) {
-			MAGIC_NUMBER = 0.98; // horizontalAngle *= 0.98;
-		}
+		// Ref : https://github.com/naver/egjs-view360/issues/290
+		const halfHorizontalFov =
+			glMatrix.toDegree(Math.atan2(aspectRatio, 1 / Math.tan(glMatrix.toRadian(fov / 2))));
 
 		// Round value as movableCood do.
 		return [
-			(yawRange[0] * MAGIC_NUMBER) + halfHorizontalFov,
-			(yawRange[1] * MAGIC_NUMBER) - halfHorizontalFov
+			yawRange[0] + halfHorizontalFov,
+			yawRange[1] - halfHorizontalFov
 		].map(v => +v.toFixed(5));
 	}
 

@@ -1301,6 +1301,48 @@ describe("YawPitchControl", function() {
 				expect(prevPanScale).to.not.equal(currPanScale);
 			});
 		});
+
+		describe("YawRange test by FOV change", function() {
+			let results = [];
+			let inst = null;
+			let target;
+
+			it("should update movable yawRange by fov change", function() {
+				// Given
+				const YAW_RANGE = [-120, 120];
+				target = sandbox();
+
+				// aspect ratio is 1, so fov is same with horizontal fov(hfov)
+				target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+
+				// default fov range is [30, 110], but increase max fovRange for boundary check.
+				inst = new YawPitchControl({
+					element: target,
+					fovRange: [30, 240],
+					yawRange: YAW_RANGE
+				});
+
+				let yaw;
+				let calculatedRangeSize;
+				let expectedRangeSize;
+
+				// When
+				[30, 45, 60, 75, 90, 120, 240].forEach(newFov => {
+					inst.option({"fov": newFov});
+
+					yaw = inst.axes.axis["yaw"];
+					calculatedRangeSize = yaw.range[1] - yaw.range[0];
+					expectedRangeSize = (YAW_RANGE[1] - YAW_RANGE[0]) - inst.getFov();
+
+					// Then
+					expect(calculatedRangeSize).to.be.equal(expectedRangeSize);
+				});
+
+				results = [];
+				target.remove();
+				inst.destroy();
+			});
+		});
 	});
 
 	describe("Pitch adjustment", function() {
