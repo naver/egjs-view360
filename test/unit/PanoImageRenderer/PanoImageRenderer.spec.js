@@ -1030,7 +1030,6 @@ describe("PanoImageRenderer", () => {
 		IT("should not update video texture when keepUpdate(false) although it is playing", async () => {
 			// Given
 			const TIMEOUT = 1000;
-			const thresholdMargin = 4; // Some test cases are fail on TRAVIS CI. So make it margin.
 			const srcVideo = document.createElement("video");
 
 			srcVideo.src = "./images/PanoViewer/pano.mp4";
@@ -1043,14 +1042,41 @@ describe("PanoImageRenderer", () => {
 			await inst.bindTexture();
 
 			// When
+			// render first frame.
+			// We will compare the canvas image after 1 seconds playing.
+			// keepUpdate(false) should not update canvas.
 			inst.keepUpdate(false);
+			inst.render(0, 0, 65);
 
+			let beforeBlob;
+
+			await new Promise(res => {
+				inst.canvas.toBlob(canvasData => {
+					beforeBlob = canvasData.slice();
+					res();
+				}, "image/png");
+			});
+
+			// Waiting for playing 1 seconds
 			await TestHelper.wait(TIMEOUT);
+			inst.render(0, 0, 65);
+
+			let misMatchPercentage;
+
+			await new Promise(res => {
+				inst.canvas.toBlob(afterBlob => {
+					window.resemble(beforeBlob)
+						.compareTo(afterBlob)
+						.onComplete(event => {
+							// if keepUpdate is false, canvas should not be updated. So mismatch percenteage should be 0.
+							misMatchPercentage = parseFloat(event.misMatchPercentage);
+							res();
+						});
+				}, "image/png");
+			});
 
 			// Then
-			await renderAndCompareSequentially(
-				inst, [[0, 0, 65, `./images/PanoViewer/pano_0_0_65${suffix}`, threshold + thresholdMargin]]
-			);
+			expect(misMatchPercentage).to.be.equal(0);
 			srcVideo.remove();
 		});
 
