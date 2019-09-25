@@ -121,21 +121,42 @@ function isVideoLoaded(video) {
 
 		function loadEventHandler(e) {
 			console.log(`debug: isVideoLoaded - event(${e.type}, timestamp(${new Date()}, target=${e.target}))`);
-			video.removeEventListener("loadeddata", loadEventHandler);
-			res();
+			video.removeEventListener("canplay", loadEventHandler);
+			/**
+			 * To guarantee that video is shown (There's no API to check video is renderened.)
+			 * Is there way to video is rendered?
+			 */
+			setTimeout(res, 100);
 		}
 
-		video.addEventListener("loadeddata", loadEventHandler);
+		video.addEventListener("canplay", loadEventHandler);
 
 		function etcEventHandler(e) {
 			video.removeEventListener(e.type, etcEventHandler);
 			console.log(`debug: isVideoLoaded - event(${e.type}, timestamp(${new Date()}))`);
 		}
 
-		["loadstart", "durationchange", "loadedmetadata", "canplay"].forEach(eventName => {
+		["loadstart", "durationchange", "loadedmetadata", "canplay", "loadeddata", "play"].forEach(eventName => {
 			video.addEventListener(eventName, etcEventHandler);
 		});
 	});
+}
+
+function createVideoElement(videoPath) {
+	const video = document.createElement("video");
+
+	video.src = videoPath;
+	video.setAttribute("crossorigin", "anonymous");
+	video.setAttribute("webkit-playsinline", "");
+	video.setAttribute("playsinline", "");
+	// video.setAttribute("autoplay", "");
+	// video.setAttribute("muted", "");
+	/**
+	 * It is not renderable to canvas if video element is not attached to DOM.
+	 */
+	video.style.visibility = "hidden";
+	document.body.appendChild(video);
+	return video;
 }
 
 export {
@@ -144,5 +165,6 @@ export {
 	createPanoImageRenderer,
 	renderAndCompareSequentially,
 	calcFovOfPanormaImage,
-	isVideoLoaded
+	isVideoLoaded,
+	createVideoElement
 };

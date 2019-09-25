@@ -1,6 +1,6 @@
 // import {expect} from "chai";
 import PanoImageRendererForUnitTest from "../PanoImageRendererForUnitTest";
-import {compare, createPanoImageRenderer, renderAndCompareSequentially, isVideoLoaded} from "../util";
+import {compare, createPanoImageRenderer, renderAndCompareSequentially, isVideoLoaded, createVideoElement} from "../util";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 import PanoImageRendererForUnitTestInjector from "inject-loader!../PanoImageRendererForUnitTest";
 import PanoImageRendererInjector from "inject-loader!../../../src/PanoImageRenderer/PanoImageRenderer";
@@ -676,16 +676,11 @@ describe("PanoImageRenderer", () => {
 				expect(result.success).to.be.equal(true);
 			});
 
-			// This test will fail on iOS safari, because video will not start load with out use interaction.
+			// This test will fail on iOS safari, because video will not start load without use interaction.
 			IT("cubestrip 3x2: video", async () => {
 				// Given
 				const isVideo = true;
-				const video = document.createElement("video");
-
-				video.src = "./images/test_cube_3x2_LRUDBF.mp4";
-				video.setAttribute("crossorigin", "anonymous");
-				video.setAttribute("webkit-playsinline", "");
-				video.setAttribute("playsinline", "");
+				const video = createVideoElement("./images/test_cube_3x2_LRUDBF.mp4");
 
 				const inst = createPanoImageRenderer(video, isVideo, "cubemap");
 
@@ -708,6 +703,7 @@ describe("PanoImageRenderer", () => {
 				);
 
 				expect(result.success).to.be.equal(true);
+				video.remove();
 			});
 
 			IT("cubestrip 2x3", done => {
@@ -875,10 +871,7 @@ describe("PanoImageRenderer", () => {
 
 		IT("yaw: 0, pitch:0, fov:65 : video IE11", async () => {
 			// Given
-			const sourceImg = document.createElement("video");
-
-			sourceImg.src = "./images/test_equi.mp4";
-			sourceImg.load();
+			const sourceImg = createVideoElement("./images/test_equi.mp4");
 			const isVideo = true;
 			const thresholdMargin = 4; /* Exceptional Case */
 
@@ -907,14 +900,13 @@ describe("PanoImageRenderer", () => {
 			);
 
 			expect(result.success).to.be.equal(true);
+			inst.destroy();
+			sourceImg.remove();
 		});
 
 		IT("yaw: 0, pitch:0, fov:65 : video IE11 change video size after loaded", async () => {
 			// Given
-			const sourceImg = document.createElement("video");
-
-			sourceImg.src = "./images/test_equi_512.mp4";
-			sourceImg.load();
+			const sourceImg = createVideoElement("./images/test_equi_512.mp4");
 			const isVideo = true;
 			const thresholdMargin = 4; /* Exceptional Case */
 
@@ -947,14 +939,13 @@ describe("PanoImageRenderer", () => {
 			);
 
 			expect(result.success).to.be.equal(true);
+			sourceImg.remove();
+			inst.destroy();
 		});
 
 		IT("yaw: 0, pitch:0, fov:65 : video", async () => {
 			// Given
-			const sourceImg = document.createElement("video");
-
-			sourceImg.src = "./images/test_equi.mp4";
-			sourceImg.load();
+			const sourceImg = createVideoElement("./images/test_equi.mp4");
 			const isVideo = true;
 			const thresholdMargin = 4; /* Exceptional Case */
 
@@ -965,8 +956,6 @@ describe("PanoImageRenderer", () => {
 
 			// When
 			await inst.bindTexture();
-
-			console.log("video loaded");
 
 			// Then
 			const result = await renderAndCompareSequentially(
@@ -982,6 +971,8 @@ describe("PanoImageRenderer", () => {
 			);
 
 			expect(result.success).to.be.equal(true);
+			inst.destroy();
+			sourceImg.remove();
 		});
 
 		IT("yaw: 0, pitch:0, fov:65 -> 30", done => {
@@ -1039,7 +1030,6 @@ describe("PanoImageRenderer", () => {
 		IT("should not update video texture when keepUpdate(false) although it is playing", async () => {
 			// Given
 			const TIMEOUT = 1000;
-			const thresholdMargin = 4; // Some test cases are fail on TRAVIS CI. So make it margin.
 			const srcVideo = document.createElement("video");
 
 			srcVideo.src = "./images/PanoViewer/pano.mp4";
@@ -1052,14 +1042,42 @@ describe("PanoImageRenderer", () => {
 			await inst.bindTexture();
 
 			// When
+			// render first frame.
+			// We will compare the canvas image after 1 seconds playing.
+			// keepUpdate(false) should not update canvas.
 			inst.keepUpdate(false);
+			inst.render(0, 0, 65);
 
+			let beforeBlob;
+
+			await new Promise(res => {
+				inst.canvas.toBlob(canvasData => {
+					beforeBlob = canvasData.slice();
+					res();
+				}, "image/png");
+			});
+
+			// Waiting for playing 1 seconds
 			await TestHelper.wait(TIMEOUT);
+			inst.render(0, 0, 65);
+
+			let misMatchPercentage;
+
+			await new Promise(res => {
+				inst.canvas.toBlob(afterBlob => {
+					window.resemble(beforeBlob)
+						.compareTo(afterBlob)
+						.onComplete(event => {
+							// if keepUpdate is false, canvas should not be updated. So mismatch percenteage should be 0.
+							misMatchPercentage = parseFloat(event.misMatchPercentage);
+							res();
+						});
+				}, "image/png");
+			});
 
 			// Then
-			await renderAndCompareSequentially(
-				inst, [[0, 0, 65, `./images/PanoViewer/pano_0_0_65${suffix}`, threshold + thresholdMargin]]
-			);
+			expect(misMatchPercentage).to.be.equal(0);
+			srcVideo.remove();
 		});
 
 		IT("should update video texture when keepUpdate(true)", async () => {

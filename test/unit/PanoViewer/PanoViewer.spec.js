@@ -529,7 +529,7 @@ describe("PanoViewer", () => {
 
 		beforeEach(() => {
 			target = sandbox();
-			target.innerHTML = `<div></div>`;
+			target.innerHTML = `<div style="width:100px;height:100px"></div>`;
 		});
 
 		afterEach(() => {
