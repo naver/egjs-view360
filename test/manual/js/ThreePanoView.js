@@ -60,7 +60,7 @@
 		}
 
 		const theta = THREE.Math.degToRad(-this._yaw + 180);
-		let phi = THREE.Math.degToRad(90 - this._pitch);
+		const phi = THREE.Math.degToRad(90 - this._pitch);
 
 		this._camera.target.x = 500 * Math.sin(phi) * Math.cos(theta);
 		this._camera.target.y = 500 * Math.cos(phi);
@@ -71,6 +71,3 @@
 
 	global.ThreePanoView = ThreePanoView;
 })(window, window.THREE);
-
-
-
