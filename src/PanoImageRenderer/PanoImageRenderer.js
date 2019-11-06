@@ -1,7 +1,9 @@
+import screenfull from "screenfull";
 import Component from "@egjs/component";
 import ImageLoader from "./ImageLoader";
 import VideoLoader from "./VideoLoader";
 import WebGLUtils from "./WebGLUtils";
+import CardboardDistorter from "./CardboardDistorter";
 import CubeRenderer from "./renderer/CubeRenderer";
 import CubeStripRenderer from "./renderer/CubeStripRenderer";
 import SphereRenderer from "./renderer/SphereRenderer";
@@ -70,6 +72,7 @@ export default class PanoImageRenderer extends Component {
 		this.vertexBuffer = null;
 		this.indexBuffer = null;
 		this.canvas = this._initCanvas(width, height);
+
 		this._renderingContextAttributes = renderingContextAttributes;
 		this._image = null;
 		this._imageConfig = null;
@@ -79,6 +82,10 @@ export default class PanoImageRenderer extends Component {
 
 		this._onContentLoad = 	this._onContentLoad.bind(this);
 		this._onContentError = 	this._onContentError.bind(this);
+
+		// Cardboard distorter for VR rendering
+		this._distorter = null;
+		this._isRenderingVR = false;
 
 		if (image) {
 			this.setImage({
@@ -157,7 +164,9 @@ export default class PanoImageRenderer extends Component {
 				this._renderer = new CylinderRenderer();
 				break;
 			case ImageType.STEREOSCOPIC_EQUI:
-				this._renderer = new VRRenderer();
+				this._renderer = new VRRenderer({
+					config: this.sphericalConfig.stereoequiConfig,
+				});
 				break;
 			default:
 				this._renderer = new SphereRenderer();
@@ -575,7 +584,8 @@ export default class PanoImageRenderer extends Component {
 			indexBuffer: this.indexBuffer,
 			mvMatrix: this.mvMatrix,
 			pMatrix: this.pMatrix,
-			fov: this.fieldOfView
+			fov: this.fieldOfView,
+			isVR: this._isRenderingVR
 		});
 	}
 
@@ -584,5 +594,34 @@ export default class PanoImageRenderer extends Component {
 	 */
 	getProjectionRenderer() {
 		return this._renderer;
+	}
+
+	enterVR(options) {
+		const fullScreenEl = this.canvas;
+
+		screenfull.request(fullScreenEl);
+
+		this._distorter = new CardboardDistorter();
+
+		this._isRenderingVR = true;
+		this._shouldForceDraw = true;
+
+		// Set handler for full screen change
+		screenfull.on("change", e => {
+			if (!screenfull.isFullscreen) {
+				screenfull.off("change");
+				this.exitVR();
+			}
+		});
+	}
+
+	exitVR() {
+		this._distorter && this._distorter.destroy();
+		this._distorter = null;
+
+		this._updateViewport();
+
+		this._isRenderingVR = false;
+		this._shouldForceDraw = true;
 	}
 }

@@ -23,6 +23,9 @@ export default class WebGLUtils {
 
 		if (success) {
 			return shader;
+		} else {
+			// eslint-disable-next-line
+			console.error(gl.getShaderInfoLog(shader));
 		}
 
 		gl.deleteShader(shader);

@@ -46,6 +46,7 @@
 		"@egjs/axes": "^2.5.8",
 		"@egjs/component": "^2.1.2",
 		"es6-promise": "^4.2.5",
+		"screenfull": "^5.0.0",
 		"webvr-polyfill": "^0.9.16"
 	},
 	"devDependencies": {
