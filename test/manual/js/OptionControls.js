@@ -4,10 +4,10 @@
 		this.container = container;
 
 		// container 안에 있는 각종 Input 에 이벤트핸들러를 달아준다.
-        // this.render(yaw, pitch, yawRange, pitchRange);
+		// this.render(yaw, pitch, yawRange, pitchRange);
 	}
 
-    // 상태값을 input 의 외형과 숫자 값 표시에 반영한다.
+	// 상태값을 input 의 외형과 숫자 값 표시에 반영한다.
 	OptionControls.prototype.render = function(yaw, pitch, fov, yawRange, pitchRange, fovRange) {
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 

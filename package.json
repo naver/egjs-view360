@@ -96,7 +96,7 @@
 		"mocha": "^5.2.0",
 		"print-sizes": "0.0.3",
 		"replace-in-file": "^3.4.2",
-		"resemblejs": "^2.10.3",
+		"resemblejs": "^3.2.3",
 		"rollup": "^0.67.1",
 		"rollup-plugin-babel": "^4.0.3",
 		"rollup-plugin-commonjs": "^9.2.0",
