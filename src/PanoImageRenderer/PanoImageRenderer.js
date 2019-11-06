@@ -10,6 +10,7 @@ import {glMatrix, mat4, quat} from "../utils/math-util.js";
 import {devicePixelRatio} from "../utils/browserFeature";
 import {PROJECTION_TYPE} from "../PanoViewer/consts";
 import Renderer from "./renderer/Renderer";
+import VRRenderer from "./renderer/VRRenderer";
 
 const ImageType = PROJECTION_TYPE;
 
@@ -156,7 +157,7 @@ export default class PanoImageRenderer extends Component {
 				this._renderer = new CylinderRenderer();
 				break;
 			case ImageType.STEREOSCOPIC_EQUI:
-				this._renderer = new SphereRenderer({isStereoscopic: true});
+				this._renderer = new VRRenderer();
 				break;
 			default:
 				this._renderer = new SphereRenderer();
@@ -564,19 +565,18 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	_draw() {
-		const gl = this.context;
-
-		gl.uniformMatrix4fv(this.shaderProgram.pMatrixUniform, false, this.pMatrix);
-		gl.uniformMatrix4fv(this.shaderProgram.mvMatrixUniform, false, this.mvMatrix);
-
 		if (this._isVideo && this._keepUpdate) {
 			this._updateTexture();
 		}
-
-		if (this.indexBuffer) {
-			gl.drawElements(
-				gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-		}
+		this._renderer.render({
+			gl: this.context,
+			canvas: this.canvas,
+			shaderProgram: this.shaderProgram,
+			indexBuffer: this.indexBuffer,
+			mvMatrix: this.mvMatrix,
+			pMatrix: this.pMatrix,
+			fov: this.fieldOfView
+		});
 	}
 
 	/**

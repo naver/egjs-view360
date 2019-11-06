@@ -44,12 +44,6 @@ export default class SphereRenderer extends Renderer {
 	static _TEXTURE_COORD_DATA = textureCoordData;
 	static _INDEX_DATA = indexData;
 
-	constructor(config) {
-		super();
-
-		this._isStereoscopic = (config && config.isStereoscopic) || false;
-	}
-
 	getVertexPositionData() {
 		return SphereRenderer._VERTEX_POSITION_DATA;
 	}
@@ -59,13 +53,6 @@ export default class SphereRenderer extends Renderer {
 	}
 
 	getTextureCoordData() {
-		if (this._isStereoscopic) {
-			// Use vertical half size of image.
-			return SphereRenderer._TEXTURE_COORD_DATA.map(
-				(value, index) => (index % 2 === 1 ? value / 2 : value)
-			);
-		}
-
 		return SphereRenderer._TEXTURE_COORD_DATA;
 	}
 

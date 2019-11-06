@@ -21,6 +21,20 @@ export default class Renderer extends Component {
 		this._pixelCanvas = null;
 		this._pixelContext = null;
 	}
+
+	/**
+	 * TODO: FILL
+	 */
+	render({gl, shaderProgram, indexBuffer, mvMatrix, pMatrix}) {
+		gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
+		gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
+
+		if (indexBuffer) {
+			gl.drawElements(
+				gl.TRIANGLES, indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+		}
+	}
+
 	// Define interface for Renderers
 	/**
 	 * Following MUST BE DEFINED on Child of Renderer
