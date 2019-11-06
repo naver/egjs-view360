@@ -85,8 +85,6 @@
         <input type="file" id="file" style="display:none"/>
     </div>
 </body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.5/dat.gui.js"></script>
-<script src="../../../demo/common/js/screenfull.min.js"></script>
 <script src="../../../dist/PanoViewer/view360.panoviewer.pkgd.js"></script>
 <script src="../js/GridView.js"></script>
 <script>
@@ -203,16 +201,7 @@
     }
     
     document.getElementById("fullscreen-toggle").addEventListener("click", function() {
-        var vrDisplay = null;
-        navigator.getVRDisplays().then(function(displays) {
-            console.log(displays);
-            if (displays.length > 0) {
-                vrDisplay = displays[0];
-                vrDisplay.requestPresent([{ source: viewerEl.querySelector("canvas") }]);
-            }
-        }).catch(() => {
-            console.log("no display");
-        });
+        panoViewer.enterVR();
         // screenfull.request(viewerEl);
     });
 

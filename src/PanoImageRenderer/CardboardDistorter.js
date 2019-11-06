@@ -21,4 +21,21 @@ export default class CardboardDistorter {
 			],
 		};
 	}
+
+	destroy() {
+
+	}
+
+	getVertexShaderSource() {
+		return `
+attribute vec3 aPos;
+attribute vec2 aUV;
+void main(){
+	gl_Position=vec4(aPos,1);
+}`;
+	}
+
+	getFragmentShaderSource() {
+
+	}
 }

@@ -101,7 +101,17 @@ const ERROR_TYPE = {
 	 * @type {Number}
 	 * @default 15
 	 */
-	RENDERING_CONTEXT_LOST: 15
+	RENDERING_CONTEXT_LOST: 15,
+	/**
+	 * Current projection type can't render VR contents
+	 * @ko 현재 프로젝션 타입은 VR 렌더링 불가
+	 * @name INVALID_PROJECTION_TYPE_FOR_VR
+	 * @memberof eg.view360.PanoViewer.ERROR_TYPE
+	 * @constant
+	 * @type {Number}
+	 * @default 16
+	 */
+	INVALID_PROJECTION_TYPE_FOR_VR: 16
 };
 
 /**
@@ -224,9 +234,41 @@ const PROJECTION_TYPE = {
 	STEREOSCOPIC_EQUI: "stereoequi",
 };
 
+/**
+ * Constant value for the format of the stereoscopic equirectangular projection type.
+ * See {@link https://samsungvr.com/portal/content/faq_tech_gear_vr} for details.
+ * @ko Stereoscopic equirectangular 프로젝션 타입의 포맷에 대한 상수 값
+ * @namespace
+ * @name STEREO_FORMAT
+ * @memberof eg.view360.PanoViewer
+ */
+const STEREO_FORMAT = {
+	/**
+	 * Constant value for format of top bottom stereoscopic 360 equirectangular projection.
+	 * @ko top bottom stereoscopic 360 equirectangular projection 콘텐츠 포맷에 대한 상수값.
+	 * @name TOP_BOTTOM
+	 * @memberof eg.view360.PanoViewer.STEREO_FORMAT
+	 * @constant
+	 * @type {String}
+	 * @default 3dv
+	 */
+	TOP_BOTTOM: "3dv",
+	/**
+	 * Constant value for format of left right stereoscopic 360 equirectangular projection.
+	 * @ko Left right stereoscopic 360 equirectangular projection 콘텐츠 포맷에 대한 상수값.
+	 * @name LEFT_RIGHT
+	 * @memberof eg.view360.PanoViewer.STEREO_FORMAT
+	 * @constant
+	 * @type {String}
+	 * @default 3dh
+	 */
+	LEFT_RIGHT: "3dh"
+};
+
 export {
 	GYRO_MODE,
 	EVENTS,
 	ERROR_TYPE,
-	PROJECTION_TYPE
+	PROJECTION_TYPE,
+	STEREO_FORMAT
 };
