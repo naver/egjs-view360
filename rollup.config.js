@@ -1,5 +1,6 @@
 const babel = require("rollup-plugin-babel");
 const replace = require("rollup-plugin-replace");
+const json = require("rollup-plugin-json");
 const version = process.env.NIGHTLY || require("./package.json").version;
 const merge = require("./rollup/merge").mergeList;
 const banner = require("./rollup/banner").banner;
@@ -10,7 +11,7 @@ const replaceVersion = replace({
 });
 
 const defaultConfig = {
-	plugins: [babel(), replaceVersion],
+	plugins: [babel(), replaceVersion, json()],
 	output: {
 		name: "eg.view360",
 		banner,

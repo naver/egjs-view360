@@ -58,6 +58,10 @@ util.extractPitchFromQuat = function(quaternion) {
 		Math.sqrt(Math.pow(baseV[0], 2) + Math.pow(baseV[2], 2)));
 };
 
+util.hypot = Math.hypot || function(x, y) {
+	return Math.sqrt(x * x + y * y);
+};
+
 // implement reference
 // the general equation of a plane : http://www.gisdeveloper.co.kr/entry/평면의-공식
 // calculating angle between two vectors : http://darkpgmr.tistory.com/121
