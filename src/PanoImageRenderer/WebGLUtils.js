@@ -38,6 +38,10 @@ export default class WebGLUtils {
 		gl.attachShader(program, vertexShader);
 		gl.attachShader(program, fragmentShader);
 		gl.linkProgram(program);
+
+		gl.deleteShader(vertexShader);
+		gl.deleteShader(fragmentShader);
+
 		const success = gl.getProgramParameter(program, gl.LINK_STATUS);
 
 		if (success) {

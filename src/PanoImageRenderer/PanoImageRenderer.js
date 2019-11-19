@@ -1,9 +1,9 @@
-import screenfull from "screenfull";
+// Must import polyfill to use it here, even if won't be used
+import WebVRPolyfill from "webvr-polyfill"; // eslint-disable-line
 import Component from "@egjs/component";
 import ImageLoader from "./ImageLoader";
 import VideoLoader from "./VideoLoader";
 import WebGLUtils from "./WebGLUtils";
-import CardboardDistorter from "./CardboardDistorter";
 import CubeRenderer from "./renderer/CubeRenderer";
 import CubeStripRenderer from "./renderer/CubeStripRenderer";
 import SphereRenderer from "./renderer/SphereRenderer";
@@ -80,12 +80,21 @@ export default class PanoImageRenderer extends Component {
 		this._shouldForceDraw = false;
 		this._keepUpdate = false; // Flag to specify 'continuous update' on video even when still.
 
+		// VR related
+		this._isRenderingVR = false;
+		window.WebVRConfig = {
+			ROTATE_INSTRUCTIONS_DISABLED: true,
+			CARDBOARD_UI_DISABLED: true,
+			TOUCH_PANNER_DISABLED: true,
+			MOUSE_KEYBOARD_CONTROLS_DISABLED: true,
+			FORCE_ENABLE_VR: true, // FIXME: Only for the debug, delete later
+			ALWAYS_APPEND_POLYFILL_DISPLAY: true, // FIXME: Only for the debug, delete later
+		};
+		this._vrPolyfill = new window.WebVRPolyfill();
+		console.log(this._vrPolyfill);
+
 		this._onContentLoad = 	this._onContentLoad.bind(this);
 		this._onContentError = 	this._onContentError.bind(this);
-
-		// Cardboard distorter for VR rendering
-		this._distorter = null;
-		this._isRenderingVR = false;
 
 		if (image) {
 			this.setImage({
@@ -596,30 +605,38 @@ export default class PanoImageRenderer extends Component {
 		return this._renderer;
 	}
 
+	/**
+	 * @returns Promise
+	 */
 	enterVR(options) {
-		const fullScreenEl = this.canvas;
+		// Only available for the stereoscopic equirectangular projection type
+		if (this._imageType !== PROJECTION_TYPE.STEREOSCOPIC_EQUI) {
+			return Promise.reject(`Only the "${PROJECTION_TYPE.STEREOSCOPIC_EQUI}" is allowed for VR rendering.`);
+		}
 
-		screenfull.request(fullScreenEl);
+		if (this._isRenderingVR) {
+			return Promise.resolve("VR already enabled");
+		}
 
-		this._distorter = new CardboardDistorter();
+		return navigator.getVRDisplays().then(displays => {
+			const vrDisplay = displays.length && displays[0];
 
-		this._isRenderingVR = true;
-		this._shouldForceDraw = true;
+			this._isRenderingVR = true;
+			this._shouldForceDraw = true;
+			this._renderer.setDisplay(vrDisplay);
 
-		// Set handler for full screen change
-		screenfull.on("change", e => {
-			if (!screenfull.isFullscreen) {
-				screenfull.off("change");
-				this.exitVR();
-			}
+			vrDisplay.requestPresent([
+				{
+					source: this.canvas,
+					predistorted: true,
+				}
+			]);
 		});
 	}
 
 	exitVR() {
-		this._distorter && this._distorter.destroy();
-		this._distorter = null;
-
 		this._updateViewport();
+		this._renderer.setDisplay(null);
 
 		this._isRenderingVR = false;
 		this._shouldForceDraw = true;

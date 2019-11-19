@@ -23,7 +23,7 @@ export default class Renderer extends Component {
 	}
 
 	/**
-	 * TODO: FILL
+	 * TODO: FILL DOC
 	 */
 	render({gl, shaderProgram, indexBuffer, mvMatrix, pMatrix}) {
 		gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);

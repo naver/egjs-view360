@@ -5,14 +5,13 @@
     <title>Manual Test : VR</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi">
     <link rel="stylesheet" type="text/css" href="../css/main.css">
-    <link rel="stylesheet" href="../css/semantic.min.css">
-    <script src='https://cdn.jsdelivr.net/npm/webvr-polyfill@0.9.16/build/webvr-polyfill.js'></script>
+    <!-- <link rel="stylesheet" href="../css/semantic.min.css"> -->
     <style>
     #panoviewer-showcase {
         position: relative;
         outline: none;
-        width: 1200px;
-        height: 600px;
+        width: 1280px;
+        height: 720px;
         margin: 0 auto;
     }
 
@@ -68,7 +67,7 @@
         </div>
         <div class="exampleContainer">
             <button id="fullscreen-toggle" class="ui icon button">
-                <i class="expand icon"></i>
+                VR
             </button>
             <div id="panoviewer-showcase"></div>
             <div class="grid-chart">
@@ -104,7 +103,7 @@
             "showPolePoint": true,
             "useZoom": true,
             "useKeyboard": true,
-            "gyroMode": "yawPitch",
+            "gyroMode": "VR",
             "image": "../img/PanoViewer/Stereoscopic/stereoequi.png",
             "projectionType": "stereoequi",
             "touchDirection": eg.view360.PanoViewer.TOUCH_DIRECTION.ALL

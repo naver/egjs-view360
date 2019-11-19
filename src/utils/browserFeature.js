@@ -30,6 +30,9 @@ const TRANSFORM = (function() {
 const SUPPORT_WILLCHANGE = win.CSS && win.CSS.supports &&
 	win.CSS.supports("will-change", "transform");
 
+const screenWidth = Math.max(win.screen.width, win.screen.height) * devicePixelRatio;
+const screenHeight = Math.min(win.screen.width, win.screen.height) * devicePixelRatio;
+
 export {
 	Float32Array,
 	getComputedStyle,
@@ -39,6 +42,8 @@ export {
 	SUPPORT_DEVICEMOTION,
 	SUPPORT_WILLCHANGE,
 	DeviceMotionEvent,
-	devicePixelRatio
+	devicePixelRatio,
+	screenWidth,
+	screenHeight
 };
 
