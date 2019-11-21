@@ -1,4 +1,5 @@
 import SphereRenderer from "./SphereRenderer";
+import Distortion from "../Distortion";
 import {STEREO_FORMAT} from "../../PanoViewer/consts";
 import {util, glMatrix, mat4} from "../../utils/math-util";
 import {screenWidth, screenHeight} from "../../utils/browserFeature";
@@ -139,6 +140,15 @@ export default class VRRenderer extends SphereRenderer {
 
 	setDisplay(vrDisplay) {
 		this._display = vrDisplay;
+
+		if (this._isCardboardDisplay()) {
+			const viewer = this._getDeviceInfo().viewer;
+
+			// Set inverse coefficients if it doesn't have any
+			if (viewer.distortionCoefficients && !viewer.inverseCoefficients) {
+				viewer.inverseCoefficients = Distortion.approximateInverse(viewer.distortionCoefficients);
+			}
+		}
 	}
 
 	// Adopted from googlearchive/vrview (Apache-2.0)
@@ -209,6 +219,12 @@ export default class VRRenderer extends SphereRenderer {
 			'}'
 		].join('\n');
 		/* eslint-enable */
+	}
+
+	_isCardboardDisplay() {
+		const deviceInfo = this._getDeviceInfo();
+
+		return Boolean(deviceInfo && deviceInfo.viewer);
 	}
 
 	_getDeviceInfo() {

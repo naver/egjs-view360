@@ -91,7 +91,6 @@ export default class PanoImageRenderer extends Component {
 			ALWAYS_APPEND_POLYFILL_DISPLAY: true, // FIXME: Only for the debug, delete later
 		};
 		this._vrPolyfill = new window.WebVRPolyfill();
-		console.log(this._vrPolyfill);
 
 		this._onContentLoad = 	this._onContentLoad.bind(this);
 		this._onContentError = 	this._onContentError.bind(this);
