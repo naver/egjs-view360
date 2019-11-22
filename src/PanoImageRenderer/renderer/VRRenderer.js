@@ -1,6 +1,7 @@
 import SphereRenderer from "./SphereRenderer";
 import Distortion from "../Distortion";
 import {STEREO_FORMAT} from "../../PanoViewer/consts";
+import {EYES} from "../consts";
 import {util, glMatrix, mat4} from "../../utils/math-util";
 
 const NO_DISTORTION = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -10,10 +11,6 @@ const DEFAULT_DISTORTION = [
 	1.0560602, -0.58208317, 0.21609078, -0.05444823,
 	0.009177956, -9.904169E-4, 6.183535E-5, -1.6981803E-6
 ];
-const EYES = {
-	LEFT: "left",
-	RIGHT: "right"
-};
 
 // Vertex-based distortion method adopted from googlearchive/vrview (Apache-2.0)
 // https://github.com/googlearchive/vrview/blob/fc8a05bf0d855869e2cdd2c96ee37313a6f1a73f/src/embed/vertex-distorter.js#L112
@@ -22,6 +19,10 @@ export default class VRRenderer extends SphereRenderer {
 		super();
 		this._config = config;
 		this._display = null;
+		this._offsets = {
+			left: 0,
+			right: 0
+		};
 	}
 
 	getVertexShaderSource() {
@@ -91,10 +92,14 @@ export default class VRRenderer extends SphereRenderer {
 				canvas.width * 0.5 / canvas.height,
 				0.1,
 				100);
-			pMatrix[12] += 0.16;
+
+			const leftPMatrix = mat4.copy(mat4.create(), pMatrix);
+
+			leftPMatrix[12] += this._offsets.left[0];
+			leftPMatrix[13] += this._offsets.left[1];
 
 			gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
-			gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
+			gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, leftPMatrix);
 
 			// Render left eye
 			gl.scissor(0, 0, gl.drawingBufferWidth / 2, gl.drawingBufferHeight);
@@ -107,10 +112,13 @@ export default class VRRenderer extends SphereRenderer {
 			}
 
 			// Update uniforms
-			pMatrix[12] -= 0.32;
+			const rightPMatrix = mat4.copy(mat4.create(), pMatrix);
+
+			rightPMatrix[12] += this._offsets.right[0];
+			rightPMatrix[13] += this._offsets.right[1];
 
 			gl.uniform2fv(uDistortionFovOffset, this._getDistortionFovOffset(EYES.RIGHT));
-			gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
+			gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, rightPMatrix);
 
 			// Render right eye
 			gl.scissor(gl.drawingBufferWidth / 2, 0, gl.drawingBufferWidth / 2, gl.drawingBufferHeight);
@@ -131,6 +139,19 @@ export default class VRRenderer extends SphereRenderer {
 
 	setDisplay(vrDisplay) {
 		this._display = vrDisplay;
+
+		if (vrDisplay) {
+			const leftEye = vrDisplay.getEyeParameters(EYES.LEFT);
+			const rightEye = vrDisplay.getEyeParameters(EYES.RIGHT);
+
+			this._offsets.left = leftEye.offset;
+			this._offsets.right = rightEye.offset;
+		} else {
+			this._offsets = {
+				left: [0, 0, 0],
+				right: [0, 0, 0],
+			};
+		}
 	}
 
 	// Adopted from googlearchive/vrview (Apache-2.0)
