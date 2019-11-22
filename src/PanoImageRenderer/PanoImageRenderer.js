@@ -11,6 +11,7 @@ import {devicePixelRatio} from "../utils/browserFeature";
 import {PROJECTION_TYPE} from "../PanoViewer/consts";
 import Renderer from "./renderer/Renderer";
 import VRRenderer from "./renderer/VRRenderer";
+import {EYES} from "./consts";
 
 const ImageType = PROJECTION_TYPE;
 
@@ -633,15 +634,25 @@ export default class PanoImageRenderer extends Component {
 		return navigator.getVRDisplays().then(displays => {
 			const vrDisplay = displays.length && displays[0];
 
-			this._isRenderingVR = true;
-			this._shouldForceDraw = true;
-			this._renderer.setDisplay(vrDisplay);
+			if (!vrDisplay) return;
 
 			vrDisplay.requestPresent([
 				Object.assign({
 					source: this.canvas,
 				}, presentOptions)
-			]);
+			]).then(() => {
+				const canvas = this.canvas;
+
+				const leftEye = vrDisplay.getEyeParameters(EYES.LEFT);
+				const rightEye = vrDisplay.getEyeParameters(EYES.RIGHT);
+
+				canvas.width = Math.max(leftEye.renderWidth, rightEye.renderWidth) * 2;
+				canvas.height = Math.max(leftEye.renderHeight, rightEye.renderHeight);
+
+				this._renderer.setDisplay(vrDisplay);
+				this._isRenderingVR = true;
+				this._shouldForceDraw = true;
+			});
 		});
 	}
 
