@@ -1,5 +1,3 @@
-// Must import polyfill to use it here, even if won't be used
-import WebVRPolyfill from "webvr-polyfill"; // eslint-disable-line
 import Component from "@egjs/component";
 import ImageLoader from "./ImageLoader";
 import VideoLoader from "./VideoLoader";
@@ -82,15 +80,16 @@ export default class PanoImageRenderer extends Component {
 
 		// VR related
 		this._isRenderingVR = false;
-		window.WebVRConfig = {
-			ROTATE_INSTRUCTIONS_DISABLED: true,
-			CARDBOARD_UI_DISABLED: true,
-			TOUCH_PANNER_DISABLED: true,
-			MOUSE_KEYBOARD_CONTROLS_DISABLED: true,
-			FORCE_ENABLE_VR: true, // FIXME: Only for the debug, delete later
-			ALWAYS_APPEND_POLYFILL_DISPLAY: true, // FIXME: Only for the debug, delete later
-		};
-		this._vrPolyfill = new window.WebVRPolyfill();
+
+		// window.WebVRConfig = {
+		// 	ROTATE_INSTRUCTIONS_DISABLED: true,
+		// 	CARDBOARD_UI_DISABLED: true,
+		// 	TOUCH_PANNER_DISABLED: true,
+		// 	MOUSE_KEYBOARD_CONTROLS_DISABLED: true,
+		// 	FORCE_ENABLE_VR: true, // FIXME: Only for the debug, delete later
+		// 	ALWAYS_APPEND_POLYFILL_DISPLAY: true, // FIXME: Only for the debug, delete later
+		// };
+		// new window.WebVRPolyfill();
 
 		this._onContentLoad = 	this._onContentLoad.bind(this);
 		this._onContentError = 	this._onContentError.bind(this);
@@ -607,7 +606,13 @@ export default class PanoImageRenderer extends Component {
 	/**
 	 * @returns Promise
 	 */
-	enterVR(options) {
+	enterVR(options = {}) {
+		const defaultOptions = {
+			predistorted: true,
+		};
+
+		const presentOptions = Object.assign(defaultOptions, options);
+
 		// Only available for the stereoscopic equirectangular projection type
 		if (this._imageType !== PROJECTION_TYPE.STEREOSCOPIC_EQUI) {
 			return Promise.reject(`Only the "${PROJECTION_TYPE.STEREOSCOPIC_EQUI}" is allowed for VR rendering.`);
@@ -615,6 +620,14 @@ export default class PanoImageRenderer extends Component {
 
 		if (this._isRenderingVR) {
 			return Promise.resolve("VR already enabled");
+		}
+
+		// For iOS 13+
+		if (DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === "function") {
+			DeviceMotionEvent.requestPermission()
+				.then(permissionState => {
+					// TODO:
+				});
 		}
 
 		return navigator.getVRDisplays().then(displays => {
@@ -625,10 +638,9 @@ export default class PanoImageRenderer extends Component {
 			this._renderer.setDisplay(vrDisplay);
 
 			vrDisplay.requestPresent([
-				{
+				Object.assign({
 					source: this.canvas,
-					predistorted: true,
-				}
+				}, presentOptions)
 			]);
 		});
 	}

@@ -2,12 +2,17 @@ import SphereRenderer from "./SphereRenderer";
 import Distortion from "../Distortion";
 import {STEREO_FORMAT} from "../../PanoViewer/consts";
 import {util, glMatrix, mat4} from "../../utils/math-util";
-import {screenWidth, screenHeight} from "../../utils/browserFeature";
 
 const NO_DISTORTION = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+// Default distortion values from Google Cardboard V2
+const DEFAULT_DISTORTION = [
+	-0.33836704, -0.18162185, 0.862655, -1.2462051,
+	1.0560602, -0.58208317, 0.21609078, -0.05444823,
+	0.009177956, -9.904169E-4, 6.183535E-5, -1.6981803E-6
+];
 const EYES = {
-	LEFT: 0,
-	RIGHT: 1
+	LEFT: "left",
+	RIGHT: "right"
 };
 
 // Vertex-based distortion method adopted from googlearchive/vrview (Apache-2.0)
@@ -26,17 +31,11 @@ export default class VRRenderer extends SphereRenderer {
 			uniform mat4 uMVMatrix;
 			uniform mat4 uPMatrix;
 			varying highp vec2 vTextureCoord;
-			varying highp vec2 vOriginalPos;
-			varying highp vec2 vDistortedPos;
 			${this._includeDistort()}
-			${this._includeViewport()}
 			void main(void) {
 				vTextureCoord = aTextureCoord;
 				vec4 pos = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-				vOriginalPos = pos.xy;
-				vec4 distorted = Distort(pos);
-				vDistortedPos = distorted.xy;
-				gl_Position = Viewport(distorted);
+				gl_Position = Distort(pos);
 			}`;
 	}
 
@@ -44,21 +43,16 @@ export default class VRRenderer extends SphereRenderer {
 		return `
 			precision highp float;
 			varying highp vec2 vTextureCoord;
-			varying highp vec2 vOriginalPos;
-			varying highp vec2 vDistortedPos;
 			uniform sampler2D uSampler;
 			uniform vec4 uTexScaleOffset;
 			void main(void) {
-				vec2 diff = vDistortedPos - vOriginalPos;
-				float diffVal = step(.55, length(diff));
-
 				vec4 black = vec4(0, 0, 0, 1);
 				vec4 texCol = texture2D(
 					uSampler,
 					vTextureCoord.st * uTexScaleOffset.xy + uTexScaleOffset.zw
 				);
 
-				gl_FragColor = texCol; // (1. - diffVal) * texCol + diffVal * black;
+				gl_FragColor = texCol;
 			}`;
 	}
 
@@ -73,13 +67,11 @@ export default class VRRenderer extends SphereRenderer {
 		const uDistortionMaxFovSquared = gl.getUniformLocation(shaderProgram, "uDistortionMaxFovSquared");
 		const uDistortionFovOffset = gl.getUniformLocation(shaderProgram, "uDistortionFovOffset");
 		const uDistortionFovScale = gl.getUniformLocation(shaderProgram, "uDistortionFovScale");
-		const uViewportTransform = gl.getUniformLocation(shaderProgram, "uViewportTransform");
 
 		gl.uniform1fv(uDistortionCoefficients, this._getDistortionCoefficients());
 		gl.uniform1f(uDistortionMaxFovSquared, this._getDistortionMaxFovSquared());
 		gl.uniform2fv(uDistortionFovOffset, this._getDistortionFovOffset(EYES.LEFT));
 		gl.uniform2fv(uDistortionFovScale, this._getDistortionFovScale());
-		gl.uniformMatrix4fv(uViewportTransform, false, this._getViewportTransform(EYES.LEFT));
 
 		const leftEyeScaleOffset = config.format === STEREO_FORMAT.TOP_BOTTOM ?
 			[1, 0.5, 0, 0] :
@@ -118,7 +110,6 @@ export default class VRRenderer extends SphereRenderer {
 			pMatrix[12] -= 0.32;
 
 			gl.uniform2fv(uDistortionFovOffset, this._getDistortionFovOffset(EYES.RIGHT));
-			gl.uniformMatrix4fv(uViewportTransform, false, this._getViewportTransform(EYES.RIGHT));
 			gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
 
 			// Render right eye
@@ -140,15 +131,6 @@ export default class VRRenderer extends SphereRenderer {
 
 	setDisplay(vrDisplay) {
 		this._display = vrDisplay;
-
-		if (this._isCardboardDisplay()) {
-			const viewer = this._getDeviceInfo().viewer;
-
-			// Set inverse coefficients if it doesn't have any
-			if (viewer.distortionCoefficients && !viewer.inverseCoefficients) {
-				viewer.inverseCoefficients = Distortion.approximateInverse(viewer.distortionCoefficients);
-			}
-		}
 	}
 
 	// Adopted from googlearchive/vrview (Apache-2.0)
@@ -209,30 +191,12 @@ export default class VRRenderer extends SphereRenderer {
 		/* eslint-enable */
 	}
 
-	_includeViewport() {
-		/* eslint-disable */
-		return [
-			'uniform mat4 uViewportTransform;',
-
-			'vec4 Viewport(vec4 point) {',
-				'return uViewportTransform * point;',
-			'}'
-		].join('\n');
-		/* eslint-enable */
-	}
-
-	_isCardboardDisplay() {
-		const deviceInfo = this._getDeviceInfo();
-
-		return Boolean(deviceInfo && deviceInfo.viewer);
-	}
-
-	_getDeviceInfo() {
-		return this._display && this._display.deviceInfo_;
+	_hasPolyfilledDisplay() {
+		return Boolean(this._display && this._display.isPolyfilled);
 	}
 
 	_getDistortionMaxFovSquared() {
-		const fov = this._getFov();
+		const fov = this._getFov(EYES.LEFT);
 		const maxFov = util.hypot(
 			Math.tan(glMatrix.toRadian(Math.max(fov.leftDegrees, fov.rightDegrees))),
 			Math.tan(glMatrix.toRadian(Math.max(fov.downDegrees, fov.upDegrees)))
@@ -242,10 +206,23 @@ export default class VRRenderer extends SphereRenderer {
 	}
 
 	_getDistortionCoefficients() {
-		const deviceInfo = this._getDeviceInfo();
-		const viewer = deviceInfo && deviceInfo.viewer;
+		const display = this._display;
 
-		return viewer ? viewer.inverseCoefficients : NO_DISTORTION;
+		if (this._hasPolyfilledDisplay()) {
+			// Polyfilled display by webvr-polyfill
+			const viewer = display.deviceInfo_.viewer;
+
+			if (viewer.inverseCoefficients) {
+				return viewer.inverseCoefficients;
+			} else if (viewer.distortionCoefficients) {
+				return Distortion.approximateInverse(viewer.distortionCoefficients);
+			} else {
+				return NO_DISTORTION;
+			}
+		}
+
+		// Default distortion values for devices like Gear VR
+		return DEFAULT_DISTORTION;
 	}
 
 	_getDistortionFovOffset(eye) {
@@ -257,7 +234,7 @@ export default class VRRenderer extends SphereRenderer {
 	}
 
 	_getDistortionFovScale() {
-		const fov = this._getFov();
+		const fov = this._getFov(EYES.LEFT);
 
 		const left = Math.tan(glMatrix.toRadian(fov.leftDegrees));
 		const right = Math.tan(glMatrix.toRadian(fov.rightDegrees));
@@ -267,20 +244,10 @@ export default class VRRenderer extends SphereRenderer {
 		return [left + right, up + down];
 	}
 
-	_getShaderMaterial(eye) {
-		const uniforms = this._getUniforms(eye);
+	_getFov(eye) {
+		const display = this._display;
 
-		return {
-			uniforms,
-			vertexShader: this.getVertexShaderSource(),
-			fragmentShader: this.getFragmentShaderSource()
-		};
-	}
-
-	_getFov(eye = EYES.LEFT) {
-		const deviceInfo = this._getDeviceInfo();
-
-		if (!deviceInfo) {
+		if (!display) {
 			return {
 				leftDegrees: -1,
 				rightDegrees: -1,
@@ -289,59 +256,8 @@ export default class VRRenderer extends SphereRenderer {
 			};
 		}
 
-		return eye === EYES.LEFT ?
-			deviceInfo.getFieldOfViewLeftEye(true) :
-			deviceInfo.getFieldOfViewRightEye(true);
-	}
+		const eyeParams = display.getEyeParameters(eye);
 
-	_getViewportTransform(eye = EYES.LEFT) {
-		const deviceInfo = this._getDeviceInfo();
-
-		if (!deviceInfo) {
-			return mat4.create();
-		}
-
-		const leftRect = deviceInfo.getUndistortedViewportLeftEye();
-
-		if (eye === EYES.RIGHT) {
-			leftRect.x = (screenWidth / 2 - leftRect.x) - leftRect.width;
-		}
-
-		const fullLeftRect = {
-			x: 0,
-			y: 0,
-			width: screenWidth / 2,
-			height: screenHeight
-		};
-
-		// Calculate the scaling from full to squashed rectangle.
-		const scale = mat4.create();
-		const scaleX = leftRect.width / fullLeftRect.width;
-		const scaleY = leftRect.height / fullLeftRect.height;
-
-		scale[0] = scaleX;
-		scale[5] = scaleY;
-
-		// Calculate the translation of the eye center in NDC.
-		const center = [
-			leftRect.x + leftRect.width / 2,
-			leftRect.y + leftRect.height / 2
-		];
-		const targetCenter = [
-			fullLeftRect.x + fullLeftRect.width / 2,
-			fullLeftRect.y + fullLeftRect.height / 2
-		];
-
-		center[0] -= targetCenter[0];
-		center[1] -= targetCenter[1];
-
-		const translate = mat4.create();
-		const transX = center[0] / fullLeftRect.width;
-		const transY = center[1] / fullLeftRect.height;
-
-		translate[12] = transX;
-		translate[13] = transY;
-
-		return mat4.multiply(mat4.create(), scale, translate);
+		return eyeParams.fieldOfView;
 	}
 }
