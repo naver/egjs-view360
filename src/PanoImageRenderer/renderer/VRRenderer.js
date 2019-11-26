@@ -18,7 +18,7 @@ export default class VRRenderer extends SphereRenderer {
 	constructor({config}) {
 		super();
 		this._config = config;
-		this._display = null;
+		this._vrDisplay = null;
 		this._offsets = {
 			left: 0,
 			right: 0
@@ -58,7 +58,7 @@ export default class VRRenderer extends SphereRenderer {
 	}
 
 	render(context) {
-		const {gl, canvas, shaderProgram, indexBuffer, mvMatrix, fov, isVR} = context;
+		const {gl, canvas, shaderProgram, indexBuffer, mvMatrix, fov, isRenderingVR} = context;
 		// Texcoord scale & offset
 		// xy: Scale factor, zw: Offset factor
 		const uTexScaleOffset = gl.getUniformLocation(shaderProgram, "uTexScaleOffset");
@@ -81,7 +81,7 @@ export default class VRRenderer extends SphereRenderer {
 			[1, 0.5, 0, 0.5] :
 			[0.5, 1, 0.5, 0];
 
-		if (isVR) {
+		if (isRenderingVR) {
 			// Common
 			gl.enable(gl.SCISSOR_TEST);
 			const pMatrix = mat4.create();
@@ -130,6 +130,8 @@ export default class VRRenderer extends SphereRenderer {
 					gl.TRIANGLES, indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 			}
 			gl.disable(gl.SCISSOR_TEST);
+
+			this._vrDisplay.submitFrame();
 		} else {
 			// Render normally only with left eye
 			gl.uniform4fv(uTexScaleOffset, leftEyeScaleOffset);
@@ -138,7 +140,7 @@ export default class VRRenderer extends SphereRenderer {
 	}
 
 	setDisplay(vrDisplay) {
-		this._display = vrDisplay;
+		this._vrDisplay = vrDisplay;
 
 		if (vrDisplay) {
 			const leftEye = vrDisplay.getEyeParameters(EYES.LEFT);
@@ -213,7 +215,7 @@ export default class VRRenderer extends SphereRenderer {
 	}
 
 	_hasPolyfilledDisplay() {
-		return Boolean(this._display && this._display.isPolyfilled);
+		return Boolean(this._vrDisplay && this._vrDisplay.isPolyfilled);
 	}
 
 	_getDistortionMaxFovSquared() {
@@ -227,7 +229,7 @@ export default class VRRenderer extends SphereRenderer {
 	}
 
 	_getDistortionCoefficients() {
-		const display = this._display;
+		const display = this._vrDisplay;
 
 		if (this._hasPolyfilledDisplay()) {
 			// Polyfilled display by webvr-polyfill
@@ -266,7 +268,7 @@ export default class VRRenderer extends SphereRenderer {
 	}
 
 	_getFov(eye) {
-		const display = this._display;
+		const display = this._vrDisplay;
 
 		if (!display) {
 			return {

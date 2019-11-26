@@ -585,6 +585,10 @@ export default class PanoImageRenderer extends Component {
 		if (this._isVideo && this._keepUpdate) {
 			this._updateTexture();
 		}
+
+		console.log("draw");
+		this.context.bindFramebuffer(this.context.FRAMEBUFFER, null);
+
 		this._renderer.render({
 			gl: this.context,
 			canvas: this.canvas,
@@ -593,7 +597,7 @@ export default class PanoImageRenderer extends Component {
 			mvMatrix: this.mvMatrix,
 			pMatrix: this.pMatrix,
 			fov: this.fieldOfView,
-			isVR: this._isRenderingVR
+			isRenderingVR: this._isRenderingVR
 		});
 	}
 
@@ -609,7 +613,7 @@ export default class PanoImageRenderer extends Component {
 	 */
 	enterVR(options = {}) {
 		const defaultOptions = {
-			predistorted: true,
+			predistorted: false,
 		};
 
 		const presentOptions = Object.assign(defaultOptions, options);
@@ -652,6 +656,10 @@ export default class PanoImageRenderer extends Component {
 				this._renderer.setDisplay(vrDisplay);
 				this._isRenderingVR = true;
 				this._shouldForceDraw = true;
+
+				window.addEventListener("vrdisplaypresentchange", () => {
+					this.exitVR();
+				});
 			});
 		});
 	}
