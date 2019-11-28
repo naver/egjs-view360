@@ -47,7 +47,6 @@ export default class VRRenderer extends SphereRenderer {
 			uniform sampler2D uSampler;
 			uniform vec4 uTexScaleOffset;
 			void main(void) {
-				vec4 black = vec4(0, 0, 0, 1);
 				vec4 texCol = texture2D(
 					uSampler,
 					vTextureCoord.st * uTexScaleOffset.xy + uTexScaleOffset.zw
@@ -156,6 +155,10 @@ export default class VRRenderer extends SphereRenderer {
 		}
 	}
 
+	setOptions(options) {
+		this._options = options;
+	}
+
 	// Adopted from googlearchive/vrview (Apache-2.0)
 	// https://github.com/googlearchive/vrview/blob/fc8a05bf0d855869e2cdd2c96ee37313a6f1a73f/src/embed/vertex-distorter.js#L112
 	_includeDistort() {
@@ -244,8 +247,7 @@ export default class VRRenderer extends SphereRenderer {
 			}
 		}
 
-		// Default distortion values for devices like Gear VR
-		return DEFAULT_DISTORTION;
+		return NO_DISTORTION;
 	}
 
 	_getDistortionFovOffset(eye) {
