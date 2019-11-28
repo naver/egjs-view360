@@ -586,8 +586,24 @@ export default class PanoImageRenderer extends Component {
 			this._updateTexture();
 		}
 
-		console.log("draw");
-		this.context.bindFramebuffer(this.context.FRAMEBUFFER, null);
+		const gl = this.context;
+		const program = this.shaderProgram;
+
+		const vertexBuffer = this.vertexBuffer;
+		const textureCoordBuffer = this.textureCoordBuffer;
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+		gl.enableVertexAttribArray(program.vertexPositionAttribute);
+		gl.vertexAttribPointer(
+			program.vertexPositionAttribute, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0
+		);
+
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+		gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
+		gl.enableVertexAttribArray(program.textureCoordAttribute);
+		gl.vertexAttribPointer(
+			program.textureCoordAttribute, textureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0
+		);
 
 		this._renderer.render({
 			gl: this.context,
@@ -654,6 +670,7 @@ export default class PanoImageRenderer extends Component {
 				canvas.height = Math.max(leftEye.renderHeight, rightEye.renderHeight);
 
 				this._renderer.setDisplay(vrDisplay);
+				this._renderer.setOptions(presentOptions);
 				this._isRenderingVR = true;
 				this._shouldForceDraw = true;
 
