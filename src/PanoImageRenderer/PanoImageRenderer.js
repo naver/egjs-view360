@@ -11,7 +11,7 @@ import {devicePixelRatio} from "../utils/browserFeature";
 import {PROJECTION_TYPE} from "../PanoViewer/consts";
 import Renderer from "./renderer/Renderer";
 import VRRenderer from "./renderer/VRRenderer";
-import {EYES} from "./consts";
+import {EYES, DEFAULT_VR_OPTIONS} from "./consts";
 
 const ImageType = PROJECTION_TYPE;
 
@@ -78,9 +78,6 @@ export default class PanoImageRenderer extends Component {
 		this._imageIsReady = false;
 		this._shouldForceDraw = false;
 		this._keepUpdate = false; // Flag to specify 'continuous update' on video even when still.
-
-		// VR related
-		this._isRenderingVR = false;
 
 		// window.WebVRConfig = {
 		// 	ROTATE_INSTRUCTIONS_DISABLED: true,
@@ -285,6 +282,9 @@ export default class PanoImageRenderer extends Component {
 		if (this._contentLoader) {
 			this._contentLoader.destroy();
 		}
+		if (this._renderer) {
+			this._renderer.destroy();
+		}
 
 		this.detach();
 		this.forceContextLoss();
@@ -420,14 +420,15 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	_initShaderProgram(gl) {
-		const vertexShaderSource = this._renderer.getVertexShaderSource();
+		const defaultAttachments = WebGLUtils.createShaderAttachment();
+		const vertexShaderSource = this._renderer.getVertexShaderSource(defaultAttachments);
 		const vertexShader = WebGLUtils.createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
 
 		if (!vertexShader) {
 			return false;
 		}
 
-		const fragmentShaderSource = this._renderer.getFragmentShaderSource();
+		const fragmentShaderSource = this._renderer.getFragmentShaderSource(defaultAttachments);
 		const fragmentShader = WebGLUtils.createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 
 		if (!fragmentShader) {
@@ -613,7 +614,6 @@ export default class PanoImageRenderer extends Component {
 			mvMatrix: this.mvMatrix,
 			pMatrix: this.pMatrix,
 			fov: this.fieldOfView,
-			isRenderingVR: this._isRenderingVR
 		});
 	}
 
@@ -625,32 +625,39 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	/**
-	 * @returns Promise
+	 * @return Promise
 	 */
 	enterVR(options = {}) {
-		const defaultOptions = {
-			predistorted: false,
-		};
-
-		const presentOptions = Object.assign(defaultOptions, options);
-
-		// Only available for the stereoscopic equirectangular projection type
-		if (this._imageType !== PROJECTION_TYPE.STEREOSCOPIC_EQUI) {
-			return Promise.reject(`Only the "${PROJECTION_TYPE.STEREOSCOPIC_EQUI}" is allowed for VR rendering.`);
+		// webvr-polyfill can add this function to the Navigator
+		if (!navigator.getVRDisplays) {
+			return Promise.reject("VR is not available on this browser.");
+		}
+		if (this._renderer.vr.isPresenting()) {
+			return Promise.resolve("VR already enabled.");
 		}
 
-		if (this._isRenderingVR) {
-			return Promise.resolve("VR already enabled");
-		}
+		const presentOptions = Object.assign({...DEFAULT_VR_OPTIONS
+		}, options);
 
 		// For iOS 13+
 		if (DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === "function") {
-			DeviceMotionEvent.requestPermission()
+			// VR can be enabled only when device motion is enabled
+			return DeviceMotionEvent.requestPermission()
 				.then(permissionState => {
 					// TODO:
+					// return this._requestVRDisplay();
 				});
 		}
 
+		return this._requestVRDisplay(presentOptions);
+	}
+
+	exitVR() {
+		this._renderer.vr.destroy();
+		this._shouldForceDraw = true;
+	}
+
+	_requestVRDisplay(vrOptions) {
 		return navigator.getVRDisplays().then(displays => {
 			const vrDisplay = displays.length && displays[0];
 
@@ -659,9 +666,11 @@ export default class PanoImageRenderer extends Component {
 			vrDisplay.requestPresent([
 				Object.assign({
 					source: this.canvas,
-				}, presentOptions)
+				}, vrOptions)
 			]).then(() => {
 				const canvas = this.canvas;
+
+				this._renderer.vr.enable(vrDisplay, vrOptions);
 
 				const leftEye = vrDisplay.getEyeParameters(EYES.LEFT);
 				const rightEye = vrDisplay.getEyeParameters(EYES.RIGHT);
@@ -669,23 +678,8 @@ export default class PanoImageRenderer extends Component {
 				canvas.width = Math.max(leftEye.renderWidth, rightEye.renderWidth) * 2;
 				canvas.height = Math.max(leftEye.renderHeight, rightEye.renderHeight);
 
-				this._renderer.setDisplay(vrDisplay);
-				this._renderer.setOptions(presentOptions);
-				this._isRenderingVR = true;
 				this._shouldForceDraw = true;
-
-				window.addEventListener("vrdisplaypresentchange", () => {
-					this.exitVR();
-				});
 			});
 		});
-	}
-
-	exitVR() {
-		this._updateViewport();
-		this._renderer.setDisplay(null);
-
-		this._isRenderingVR = false;
-		this._shouldForceDraw = true;
 	}
 }

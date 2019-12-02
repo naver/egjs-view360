@@ -27,9 +27,16 @@ export default class WebGLUtils {
 			// eslint-disable-next-line
 			console.error(gl.getShaderInfoLog(shader));
 		}
-
-		gl.deleteShader(shader);
 		return null;
+	}
+
+	static createShaderAttachment(attach) {
+		return Object.assign({...attach}, {
+			preprocessor: "",
+			variable: "",
+			function: "",
+			main: "",
+		});
 	}
 
 	static createProgram(gl, vertexShader, fragmentShader) {
