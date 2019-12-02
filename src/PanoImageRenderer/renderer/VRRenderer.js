@@ -36,7 +36,8 @@ export default class VRRenderer extends SphereRenderer {
 			void main(void) {
 				vTextureCoord = aTextureCoord;
 				vec4 pos = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-				gl_Position = Distort(pos);
+				pos = Distort(pos);
+				gl_Position = pos;
 			}`;
 	}
 

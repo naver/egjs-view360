@@ -56,29 +56,36 @@ export default class SphereRenderer extends Renderer {
 		return SphereRenderer._TEXTURE_COORD_DATA;
 	}
 
-	getVertexShaderSource() {
+	getVertexShaderSource(attach) {
 		return `
-			attribute vec3 aVertexPosition;
-			attribute vec2 aTextureCoord;
-			uniform mat4 uMVMatrix;
-			uniform mat4 uPMatrix;
-			varying highp vec2 vTextureCoord;
-			void main(void) {
-				gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-				vTextureCoord = aTextureCoord;
-			}`;
+${attach.preprocessor}
+attribute vec3 aVertexPosition;
+attribute vec2 aTextureCoord;
+uniform mat4 uMVMatrix;
+uniform mat4 uPMatrix;
+varying highp vec2 vTextureCoord;
+${attach.variable}
+${attach.function}
+void main(void) {
+	vTextureCoord = aTextureCoord;
+	vec4 pos = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+	${attach.main}
+	gl_Position = pos;
+}`;
 	}
 
-	getFragmentShaderSource() {
+	getFragmentShaderSource(attach) {
 		return `
-			varying highp vec2 vTextureCoord;
-			uniform sampler2D uSampler;
-			void main(void) {
-				gl_FragColor = texture2D(
-					uSampler,
-					vec2(vTextureCoord.s, vTextureCoord.t)
-				);
-			}`;
+${attach.preprocessor}
+varying highp vec2 vTextureCoord;
+uniform sampler2D uSampler;
+${attach.variable}
+${attach.function}
+void main(void) {
+	vec4 col = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+	${attach.main}
+	gl_FragColor = col;
+}`;
 	}
 
 	updateTexture(gl, image) {
