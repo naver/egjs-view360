@@ -47,6 +47,7 @@ void main(void) {
 
 	getFragmentShaderSource(attach) {
 		return `
+precision highp float;
 ${attach.preprocessor}
 varying highp vec2 vTextureCoord;
 uniform sampler2D uSampler;

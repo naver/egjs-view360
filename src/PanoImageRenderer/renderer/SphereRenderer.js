@@ -1,5 +1,6 @@
 import Renderer from "./Renderer";
 import WebGLUtils from "../WebGLUtils";
+import {STEREO_FORMAT} from "../../PanoViewer/consts";
 
 const latitudeBands = 60;
 const longitudeBands = 60;
@@ -44,6 +45,36 @@ export default class SphereRenderer extends Renderer {
 	static _TEXTURE_COORD_DATA = textureCoordData;
 	static _INDEX_DATA = indexData;
 
+	render(ctx) {
+		const {gl, shaderProgram, sphericalConfig} = ctx;
+		const {format} = sphericalConfig.stereoequiConfig;
+
+		let leftEyeScaleOffset;
+		let rightEyeScaleOffset;
+
+		switch (format) {
+			case STEREO_FORMAT.TOP_BOTTOM:
+				leftEyeScaleOffset = [1, 0.5, 0, 0];
+				rightEyeScaleOffset = [1, 0.5, 0, 0.5];
+				break;
+			case STEREO_FORMAT.LEFT_RIGHT:
+				leftEyeScaleOffset = [0.5, 1, 0, 0];
+				rightEyeScaleOffset = [0.5, 1, 0.5, 0];
+				break;
+			default:
+				leftEyeScaleOffset = [1, 1, 0, 0];
+				rightEyeScaleOffset = [1, 1, 0, 0];
+		}
+
+		const uEye = gl.getUniformLocation(shaderProgram, "uEye");
+		const uTexScaleOffset = gl.getUniformLocation(shaderProgram, "uTexScaleOffset");
+
+		gl.uniform4fv(uTexScaleOffset, [...leftEyeScaleOffset, ...rightEyeScaleOffset]);
+		gl.uniform1f(uEye, 0);
+
+		super.render(ctx);
+	}
+
 	getVertexPositionData() {
 		return SphereRenderer._VERTEX_POSITION_DATA;
 	}
@@ -63,11 +94,14 @@ attribute vec3 aVertexPosition;
 attribute vec2 aTextureCoord;
 uniform mat4 uMVMatrix;
 uniform mat4 uPMatrix;
+uniform float uEye;
+uniform vec4 uTexScaleOffset[2];
 varying highp vec2 vTextureCoord;
 ${attach.variable}
 ${attach.function}
 void main(void) {
-	vTextureCoord = aTextureCoord;
+	vec4 scaleOffset = uTexScaleOffset[int(uEye)];
+	vTextureCoord = aTextureCoord.xy * scaleOffset.xy + scaleOffset.zw;
 	vec4 pos = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
 	${attach.main}
 	gl_Position = pos;
@@ -76,13 +110,14 @@ void main(void) {
 
 	getFragmentShaderSource(attach) {
 		return `
+precision highp float;
 ${attach.preprocessor}
 varying highp vec2 vTextureCoord;
 uniform sampler2D uSampler;
 ${attach.variable}
 ${attach.function}
 void main(void) {
-	vec4 col = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+	vec4 col = texture2D(uSampler, vTextureCoord.st);
 	${attach.main}
 	gl_FragColor = col;
 }`;
