@@ -135,6 +135,7 @@ void main(void) {
 
 	getFragmentShaderSource(attach) {
 		return `
+precision highp float;
 ${attach.preprocessor}
 uniform samplerCube uSampler;
 varying highp vec3 vVertexDirectionVector;

@@ -31,12 +31,12 @@ export default class WebGLUtils {
 	}
 
 	static createShaderAttachment(attach) {
-		return Object.assign({...attach}, {
+		return Object.assign({
 			preprocessor: "",
 			variable: "",
 			function: "",
 			main: "",
-		});
+		}, {...attach});
 	}
 
 	static createProgram(gl, vertexShader, fragmentShader) {
@@ -46,6 +46,8 @@ export default class WebGLUtils {
 		gl.attachShader(program, fragmentShader);
 		gl.linkProgram(program);
 
+		gl.detachShader(program, vertexShader);
+		gl.detachShader(program, fragmentShader);
 		gl.deleteShader(vertexShader);
 		gl.deleteShader(fragmentShader);
 

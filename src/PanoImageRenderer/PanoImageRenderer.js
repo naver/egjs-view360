@@ -2,6 +2,8 @@ import Component from "@egjs/component";
 import ImageLoader from "./ImageLoader";
 import VideoLoader from "./VideoLoader";
 import WebGLUtils from "./WebGLUtils";
+import Renderer from "./renderer/Renderer";
+import VRManager from "./vr/VRManager";
 import CubeRenderer from "./renderer/CubeRenderer";
 import CubeStripRenderer from "./renderer/CubeStripRenderer";
 import SphereRenderer from "./renderer/SphereRenderer";
@@ -9,9 +11,8 @@ import CylinderRenderer from "./renderer/CylinderRenderer";
 import {glMatrix, mat4, quat} from "../utils/math-util.js";
 import {devicePixelRatio} from "../utils/browserFeature";
 import {PROJECTION_TYPE} from "../PanoViewer/consts";
-import Renderer from "./renderer/Renderer";
-import VRRenderer from "./renderer/VRRenderer";
 import {EYES, DEFAULT_VR_OPTIONS} from "./consts";
+
 
 const ImageType = PROJECTION_TYPE;
 
@@ -168,11 +169,6 @@ export default class PanoImageRenderer extends Component {
 			case ImageType.PANORAMA:
 				this._renderer = new CylinderRenderer();
 				break;
-			case ImageType.STEREOSCOPIC_EQUI:
-				this._renderer = new VRRenderer({
-					config: this.sphericalConfig.stereoequiConfig,
-				});
-				break;
 			default:
 				this._renderer = new SphereRenderer();
 				break;
@@ -306,6 +302,52 @@ export default class PanoImageRenderer extends Component {
 		return true;
 	}
 
+	swapShaderProgram(vsAttachments, fsAttachments) {
+		const gl = this.context;
+
+		if (this.shaderProgram) {
+			console.log("deleting old", vsAttachments);
+			gl.deleteProgram(this.shaderProgram);
+			this.shaderProgram = null;
+		}
+
+		const renderer = this._renderer;
+		const defaultAttachments = WebGLUtils.createShaderAttachment();
+
+		const vsSource = renderer.getVertexShaderSource(vsAttachments || defaultAttachments);
+		const fsSource = renderer.getFragmentShaderSource(fsAttachments || defaultAttachments);
+
+		const vertexShader = WebGLUtils.createShader(gl, gl.VERTEX_SHADER, vsSource);
+		const fragmentShader = WebGLUtils.createShader(gl, gl.FRAGMENT_SHADER, fsSource);
+
+		const shaderProgram = WebGLUtils.createProgram(gl, vertexShader, fragmentShader);
+
+		if (!shaderProgram) {
+			throw new Error(`Failed to intialize shaders: ${WebGLUtils.getErrorNameFromWebGLErrorCode(gl.getError())}`);
+		}
+
+		gl.useProgram(shaderProgram);
+		shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+		gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+		shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+		shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+		shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
+		shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
+
+		gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
+
+		// clear buffer
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
+		// Use TEXTURE0
+		gl.uniform1i(shaderProgram.samplerUniform, 0);
+
+		if (!shaderProgram) {
+			throw new Error(`Failed to intialize shaders: ${WebGLUtils.getErrorNameFromWebGLErrorCode(gl.getError())}`);
+		}
+
+		this.shaderProgram = shaderProgram;
+	}
+
 	_onWebglcontextlost(e) {
 		e.preventDefault();
 		this.trigger(EVENTS.RENDERING_CONTEXT_LOST);
@@ -369,14 +411,7 @@ export default class PanoImageRenderer extends Component {
 
 			this.updateViewportDimensions(this.width, this.height);
 
-			if (this.shaderProgram) {
-				gl.deleteProgram(this.shaderProgram);
-			}
-
-			this.shaderProgram = this._initShaderProgram(gl);
-			if (!this.shaderProgram) {
-				throw new Error(`Failed to intialize shaders: ${WebGLUtils.getErrorNameFromWebGLErrorCode(gl.getError())}`);
-			}
+			this.swapShaderProgram();
 		} catch (e) {
 			this.trigger(EVENTS.ERROR, {
 				type: ERROR_TYPE.NO_WEBGL,
@@ -417,46 +452,6 @@ export default class PanoImageRenderer extends Component {
 		if (!this.context) {
 			throw new Error("Failed to acquire 3D rendering context");
 		}
-	}
-
-	_initShaderProgram(gl) {
-		const defaultAttachments = WebGLUtils.createShaderAttachment();
-		const vertexShaderSource = this._renderer.getVertexShaderSource(defaultAttachments);
-		const vertexShader = WebGLUtils.createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-
-		if (!vertexShader) {
-			return false;
-		}
-
-		const fragmentShaderSource = this._renderer.getFragmentShaderSource(defaultAttachments);
-		const fragmentShader = WebGLUtils.createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
-
-		if (!fragmentShader) {
-			return false;
-		}
-
-		const shaderProgram = WebGLUtils.createProgram(gl, vertexShader, fragmentShader);
-
-		if (!shaderProgram) {
-			return null;
-		}
-
-		gl.useProgram(shaderProgram);
-		shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-		gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
-		shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-		shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
-		shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
-		shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
-
-		gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
-
-		// clear buffer
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
-		// Use TEXTURE0
-		gl.uniform1i(shaderProgram.samplerUniform, 0);
-
-		return shaderProgram;
 	}
 
 	_initBuffers() {
@@ -614,6 +609,7 @@ export default class PanoImageRenderer extends Component {
 			mvMatrix: this.mvMatrix,
 			pMatrix: this.pMatrix,
 			fov: this.fieldOfView,
+			sphericalConfig: this.sphericalConfig,
 		});
 	}
 
@@ -636,8 +632,7 @@ export default class PanoImageRenderer extends Component {
 			return Promise.resolve("VR already enabled.");
 		}
 
-		const presentOptions = Object.assign({...DEFAULT_VR_OPTIONS
-		}, options);
+		const presentOptions = Object.assign({...DEFAULT_VR_OPTIONS}, options);
 
 		// For iOS 13+
 		if (DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === "function") {
@@ -652,9 +647,11 @@ export default class PanoImageRenderer extends Component {
 		return this._requestVRDisplay(presentOptions);
 	}
 
-	exitVR() {
+	exitVR = () => {
 		this._renderer.vr.destroy();
+		this._updateViewport();
 		this._shouldForceDraw = true;
+		window.removeEventListener(VRManager.DISPLAY_PRESENT_CHANGE, this.exitVR);
 	}
 
 	_requestVRDisplay(vrOptions) {
@@ -670,7 +667,10 @@ export default class PanoImageRenderer extends Component {
 			]).then(() => {
 				const canvas = this.canvas;
 
-				this._renderer.vr.enable(vrDisplay, vrOptions);
+				this._renderer.vr.enable(vrDisplay, {
+					...vrOptions,
+					panoImageRenderer: this,
+				});
 
 				const leftEye = vrDisplay.getEyeParameters(EYES.LEFT);
 				const rightEye = vrDisplay.getEyeParameters(EYES.RIGHT);
@@ -679,6 +679,8 @@ export default class PanoImageRenderer extends Component {
 				canvas.height = Math.max(leftEye.renderHeight, rightEye.renderHeight);
 
 				this._shouldForceDraw = true;
+
+				window.addEventListener(VRManager.DISPLAY_PRESENT_CHANGE, this.exitVR);
 			});
 		});
 	}

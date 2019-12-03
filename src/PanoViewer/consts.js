@@ -235,7 +235,7 @@ const PROJECTION_TYPE = {
 };
 
 /**
- * Constant value for the format of the stereoscopic equirectangular projection type.
+ * A constant value for the format of the stereoscopic equirectangular projection type.
  * See {@link https://samsungvr.com/portal/content/faq_tech_gear_vr} for details.
  * @ko Stereoscopic equirectangular 프로젝션 타입의 포맷에 대한 상수 값
  * @namespace
@@ -244,7 +244,7 @@ const PROJECTION_TYPE = {
  */
 const STEREO_FORMAT = {
 	/**
-	 * Constant value for format of top bottom stereoscopic 360 equirectangular projection.
+	 * A constant value for format of top bottom stereoscopic 360 equirectangular projection.
 	 * @ko top bottom stereoscopic 360 equirectangular projection 콘텐츠 포맷에 대한 상수값.
 	 * @name TOP_BOTTOM
 	 * @memberof eg.view360.PanoViewer.STEREO_FORMAT
@@ -254,7 +254,7 @@ const STEREO_FORMAT = {
 	 */
 	TOP_BOTTOM: "3dv",
 	/**
-	 * Constant value for format of left right stereoscopic 360 equirectangular projection.
+	 * A constant value for format of left right stereoscopic 360 equirectangular projection.
 	 * @ko Left right stereoscopic 360 equirectangular projection 콘텐츠 포맷에 대한 상수값.
 	 * @name LEFT_RIGHT
 	 * @memberof eg.view360.PanoViewer.STEREO_FORMAT
@@ -262,7 +262,17 @@ const STEREO_FORMAT = {
 	 * @type {String}
 	 * @default 3dh
 	 */
-	LEFT_RIGHT: "3dh"
+	LEFT_RIGHT: "3dh",
+	/**
+	 * A constant value specifying media is not in stereoscopic format.
+	 * @ko Stereoscopic 영상이 아닐 경우에 적용하는 상수값.
+	 * @name NONE
+	 * @memberof eg.view360.PanoViewer.STEREO_FORMAT
+	 * @constant
+	 * @type {String}
+	 * @default ""
+	 */
+	NONE: "",
 };
 
 export {

@@ -24,7 +24,7 @@ void main(void) {
 	getFragmentShaderSource(attach) {
 		return `
 #define PI 3.14159265359
-precision mediump float;
+precision highp float;
 ${attach.preprocessor}
 varying highp vec2 vTextureCoord;
 uniform sampler2D uSampler;

@@ -9,7 +9,12 @@
     <link rel="stylesheet" type="text/css" href="../css/main.css">
     <!-- <link rel="stylesheet" href="../css/semantic.min.css"> -->
     <script src='https://cdn.jsdelivr.net/npm/webvr-polyfill@latest/build/webvr-polyfill.js'></script>
-    <script type="text/javascript">new WebVRPolyfill();</script>
+    <script type="text/javascript">
+        new WebVRPolyfill({
+            CARDBOARD_UI_DISABLED: true,
+		 	TOUCH_PANNER_DISABLED: true,
+        });
+    </script>
     <style>
     #panoviewer-showcase {
         position: relative;
@@ -107,9 +112,12 @@
             "useZoom": true,
             "useKeyboard": true,
             "gyroMode": "VR",
-            "image": "../img/PanoViewer/Stereoscopic/stereoequi.png",
+            "image": "../img/PanoViewer/Stereoscopic/p2.png",
             "projectionType": "stereoequi",
-            "touchDirection": eg.view360.PanoViewer.TOUCH_DIRECTION.ALL
+            "touchDirection": eg.view360.PanoViewer.TOUCH_DIRECTION.ALL,
+            stereoequiConfig: {
+                format: "3dv"
+            }
         }
     };
     
@@ -203,7 +211,9 @@
     }
     
     document.getElementById("fullscreen-toggle").addEventListener("click", function() {
-        panoViewer.enterVR();
+        panoViewer.enterVR({
+            predistorted: true,
+        });
     });
 
     window.panoViewer = panoViewer;
