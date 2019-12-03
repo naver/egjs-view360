@@ -78,7 +78,9 @@
             <button id="fullscreen-toggle" class="ui icon button">
                 VR
             </button>
-            <div id="panoviewer-showcase"></div>
+			<div id="panoviewer-showcase"></div>
+			<button id="play">play</button>
+        	<button id="pause">pause</button>
             <div class="grid-chart">
             <div class="state-labels">
             Yaw: <span class="value-placeholder-w1" id="yaw_value"></span>
@@ -89,8 +91,11 @@
             yawRange: <span class="value-placeholder-w2" id="yaw_range_value"></span><br/>
             pitchRange: <span class="value-placeholder-w2" id="pitch_range_value"></span><br/>
             fovRange: [<span class="value-placeholder-w1" id="fov_range_min_value"></span>,<span class="value-placeholder-w1" id="fov_range_max_value"></span>]
-        </div>
-        <input type="file" id="file" style="display:none"/>
+		</div>
+		<video id="videoSrc" style="width:100%;height:400px;display:none" webkit-playsinline playsinline loop crossorigin="anonymous">
+			<source src="../img/PanoViewer/pano.webm" type="video/webm">
+			<source src="../img/PanoViewer/pano.mp4" type="video/mp4">
+		</video>
     </div>
 </body>
 <script src="../../../dist/PanoViewer/view360.panoviewer.pkgd.js"></script>
@@ -98,26 +103,28 @@
 <script>
     (function() {
     var object = {};
-    
+	
+	var videoSrc = document.getElementById("videoSrc");
     var presets = {
         "stereoscopic_equi": {
-            "yaw": 0,
-            "pitch": 0,
-            "fov": 65,
-            "yawRangeSize": 360,
-            "pitchRangeSize": 180,
-            "fovMin": 30,
-            "fovMax": 110,
-            "showPolePoint": true,
-            "useZoom": true,
-            "useKeyboard": true,
+            // "yaw": 0,
+            // "pitch": 0,
+            // "fov": 40,
+            // "yawRangeSize": 360,
+            // "pitchRangeSize": 180,
+            // "fovMin": 30,
+            // "fovMax": 110,
+            // "showPolePoint": true,
+            // "useZoom": true,
+            // "useKeyboard": true,
             "gyroMode": "VR",
-            "image": "../img/PanoViewer/Stereoscopic/p2.png",
-            "projectionType": "stereoequi",
+			// "image": "../img/test_equi_4096.jpg",
+			video: videoSrc,
+    		projectionType: "equirectangular",
             "touchDirection": eg.view360.PanoViewer.TOUCH_DIRECTION.ALL,
-            stereoequiConfig: {
-                format: "3dv"
-            }
+            // stereoequiConfig: {
+            //     format: "3dv"
+            // }
         }
     };
     
@@ -187,7 +194,15 @@
         presets[INITIAL_PRESET]
     ).on("error", function(e) {
         alert("이 브라우저는 webgl 을 지원하지 않습니다. 따라서 PanoViewer 가 동작할 수 없습니다. error: "+ e.type + " " + e.message);
-    });
+    }).on("ready", function() {
+		document.getElementById("play").addEventListener("click", function() {
+			videoSrc.play();
+		});
+
+		document.getElementById("pause").addEventListener("click", function() {
+			videoSrc.pause();
+		});
+	});
     render();
     
     panoViewer.on("viewChange", function(e) {
@@ -212,7 +227,7 @@
     
     document.getElementById("fullscreen-toggle").addEventListener("click", function() {
         panoViewer.enterVR({
-            predistorted: true,
+            predistorted: false,
         });
     });
 

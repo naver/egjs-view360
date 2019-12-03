@@ -66,11 +66,9 @@ export default class SphereRenderer extends Renderer {
 				rightEyeScaleOffset = [1, 1, 0, 0];
 		}
 
-		const uEye = gl.getUniformLocation(shaderProgram, "uEye");
 		const uTexScaleOffset = gl.getUniformLocation(shaderProgram, "uTexScaleOffset");
 
 		gl.uniform4fv(uTexScaleOffset, [...leftEyeScaleOffset, ...rightEyeScaleOffset]);
-		gl.uniform1f(uEye, 0);
 
 		super.render(ctx);
 	}

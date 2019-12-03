@@ -183,7 +183,7 @@ export default class PanoViewer extends Component {
 			}
 		}, options.cubemapConfig);
 		this._stereoequiConfig = Object.assign({
-			format: STEREO_FORMAT.TOP_BOTTOM
+			format: STEREO_FORMAT.NONE
 		}, options.stereoequiConfig);
 
 		// If the width and height are not provided, will use the size of the container.
