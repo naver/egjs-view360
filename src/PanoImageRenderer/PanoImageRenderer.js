@@ -306,7 +306,6 @@ export default class PanoImageRenderer extends Component {
 		const gl = this.context;
 
 		if (this.shaderProgram) {
-			console.log("deleting old", vsAttachments);
 			gl.deleteProgram(this.shaderProgram);
 			this.shaderProgram = null;
 		}
@@ -650,6 +649,7 @@ export default class PanoImageRenderer extends Component {
 	exitVR = () => {
 		this._renderer.vr.destroy();
 		this._updateViewport();
+		this.swapShaderProgram();
 		this._shouldForceDraw = true;
 		window.removeEventListener(VRManager.DISPLAY_PRESENT_CHANGE, this.exitVR);
 	}

@@ -72,18 +72,18 @@ export default class VRManager {
 	_renderStereo(context) {
 		if (this.isPresenting()) {
 			// Setup common
-			const {gl, shaderProgram, fov} = context;
+			const {gl, shaderProgram} = context;
 			const vrDisplay = this._vrDisplay;
 			const width = gl.drawingBufferWidth;
 			const height = gl.drawingBufferHeight;
 			const aspect = (width * 0.5) / height;
 
-			const pMatrix = mat4.perspective(
-				mat4.create(),
-				glMatrix.toRadian(fov),
-				aspect,
-				0.1, 100
-			);
+			// const pMatrix = mat4.perspective(
+			// 	mat4.create(),
+			// 	glMatrix.toRadian(fov * 2),
+			// 	aspect,
+			// 	0.1, 100
+			// );
 			let leftPMatrix;
 			let rightPMatrix;
 
@@ -96,16 +96,18 @@ export default class VRManager {
 			} else {
 				const eyeParamsL = vrDisplay.getEyeParameters(EYES.LEFT);
 				const eyeParamsR = vrDisplay.getEyeParameters(EYES.RIGHT);
+				const fovL = eyeParamsL.fieldOfView;
+				const fovR = eyeParamsR.fieldOfView;
 
 				leftPMatrix = mat4.perspective(
 					mat4.create(),
-					glMatrix.toRadian(eyeParamsL.fieldOfView),
+					glMatrix.toRadian(fovL.topDegrees + fovL.downDegrees),
 					aspect,
 					0.1, 100
 				);
 				rightPMatrix = mat4.perspective(
 					mat4.create(),
-					glMatrix.toRadian(eyeParamsR.fieldOfView),
+					glMatrix.toRadian(fovR.topDegrees + fovR.downDegrees),
 					aspect,
 					0.1, 100
 				);
@@ -144,7 +146,7 @@ export default class VRManager {
 			// Draw left eye
 			this._originalRender(
 				Object.assign({...context}, {
-					pMatrix,
+					pMatrix: leftPMatrix
 				})
 			);
 
@@ -164,7 +166,7 @@ export default class VRManager {
 			// Draw right eye
 			this._originalRender(
 				Object.assign({...context}, {
-					pMatrix,
+					pMatrix: rightPMatrix
 				})
 			);
 
@@ -300,7 +302,6 @@ vec4 Distort(vec4 point) {
 			main: this._includeDistortMain()
 		});
 
-		console.log("injecting");
 		panoImageRenderer.swapShaderProgram(vertexAttachment);
 	}
 }
