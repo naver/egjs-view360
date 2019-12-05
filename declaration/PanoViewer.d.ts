@@ -2,6 +2,7 @@ import Component from "@egjs/component";
 
 declare class PanoViewer extends Component {
   constructor(container: HTMLElement, param: object);
+  static isGyroSensorAvailable(fn: Funciton): boolean;
   destroy(): this;
   getFov(): number;
   getFovRange(): number[];
