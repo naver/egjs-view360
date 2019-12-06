@@ -660,6 +660,10 @@ export default class PanoImageRenderer extends Component {
 
 			if (!vrDisplay) return;
 
+			// predistorted can be enabled only when viewer doesn't have external display
+			vrOptions.predistorted = vrOptions.predistorted &&
+				!vrDisplay.capabilities.hasExternalDisplay;
+
 			vrDisplay.requestPresent([
 				Object.assign({
 					source: this.canvas,
@@ -667,6 +671,7 @@ export default class PanoImageRenderer extends Component {
 			]).then(() => {
 				const canvas = this.canvas;
 
+				this._vrDisplay = vrDisplay;
 				this._renderer.vr.enable(vrDisplay, {
 					...vrOptions,
 					panoImageRenderer: this,
