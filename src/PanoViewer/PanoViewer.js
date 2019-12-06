@@ -366,12 +366,6 @@ export default class PanoViewer extends Component {
 	 * Only works when projection type is Stereo equirectangular
 	 */
 	enterVR(options = {}) {
-		if (this._projectionType !== PROJECTION_TYPE.STEREOSCOPIC_EQUI) {
-			this.trigger(EVENTS.ERROR, {
-				type: ERROR_TYPE.INVALID_PROJECTION_TYPE_FOR_VR,
-				message: `Invalid projection type for VR rendering: ${this._projectionType}`
-			});
-		}
 		this._photoSphereRenderer.enterVR(options);
 	}
 

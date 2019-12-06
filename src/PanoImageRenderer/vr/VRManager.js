@@ -12,6 +12,7 @@ const DEFAULT_DISTORTION = [
 	-0.58821183, 0.5733938, -0.48303202, 0.33299083,
 	-0.17573841, 0.0651772, -0.01488963, 0.001559834
 ];
+const RAD_45 = Math.PI * 0.25;
 
 /**
  * Vertex displacement based VR effect that can be applied to whole renderers
@@ -72,20 +73,15 @@ export default class VRManager {
 	_renderStereo(context) {
 		if (this.isPresenting()) {
 			// Setup common
-			const {gl, shaderProgram} = context;
+			const {gl, shaderProgram, mvMatrix} = context;
 			const vrDisplay = this._vrDisplay;
 			const width = gl.drawingBufferWidth;
 			const height = gl.drawingBufferHeight;
-			const aspect = (width * 0.5) / height;
 
-			// const pMatrix = mat4.perspective(
-			// 	mat4.create(),
-			// 	glMatrix.toRadian(fov * 2),
-			// 	aspect,
-			// 	0.1, 100
-			// );
 			let leftPMatrix;
 			let rightPMatrix;
+			const leftMVMatrix = mat4.copy(mat4.create(), mvMatrix);
+			const rightMVMatrix = mat4.copy(mat4.create(), mvMatrix);
 
 			if (vrDisplay.getFrameData) {
 				const frameData = this._frameData;
@@ -93,24 +89,25 @@ export default class VRManager {
 				vrDisplay.getFrameData(frameData);
 				leftPMatrix = frameData.leftProjectionMatrix;
 				rightPMatrix = frameData.rightProjectionMatrix;
+				// Adopt x, y offset from the matrix
+				leftMVMatrix[12] += frameData.leftViewMatrix[12];
+				leftMVMatrix[13] += frameData.leftViewMatrix[13];
+				rightMVMatrix[12] += frameData.rightViewMatrix[12];
+				rightMVMatrix[13] += frameData.rightViewMatrix[13];
 			} else {
 				const eyeParamsL = vrDisplay.getEyeParameters(EYES.LEFT);
 				const eyeParamsR = vrDisplay.getEyeParameters(EYES.RIGHT);
 				const fovL = eyeParamsL.fieldOfView;
 				const fovR = eyeParamsR.fieldOfView;
+				const offsetL = eyeParamsL.offset;
+				const offsetR = eyeParamsR.offset;
 
-				leftPMatrix = mat4.perspective(
-					mat4.create(),
-					glMatrix.toRadian(fovL.topDegrees + fovL.downDegrees),
-					aspect,
-					0.1, 100
-				);
-				rightPMatrix = mat4.perspective(
-					mat4.create(),
-					glMatrix.toRadian(fovR.topDegrees + fovR.downDegrees),
-					aspect,
-					0.1, 100
-				);
+				leftPMatrix = this._perspectiveFromFov(fovL, vrDisplay.depthNear, vrDisplay.depthFar);
+				rightPMatrix = this._perspectiveFromFov(fovR, vrDisplay.depthNear, vrDisplay.depthFar);
+				leftMVMatrix[12] += offsetL[0];
+				leftMVMatrix[13] += offsetL[1];
+				rightMVMatrix[12] += offsetR[0];
+				rightMVMatrix[13] += offsetR[1];
 			}
 
 			// Eye index, can be used for stereoscopic renderer
@@ -128,8 +125,6 @@ export default class VRManager {
 				gl.uniform2fv(uDistortionFovScale, this._getDistortionFovScale());
 			}
 
-			gl.enable(gl.SCISSOR_TEST);
-
 			// Setup left eye
 			const leftBounds = this._leftBounds;
 			const leftRect = [
@@ -139,14 +134,14 @@ export default class VRManager {
 				Math.round(leftBounds[3] * height)
 			];
 
-			gl.scissor(...leftRect);
 			gl.viewport(...leftRect);
 			gl.uniform1f(uEye, 0);
 
 			// Draw left eye
 			this._originalRender(
 				Object.assign({...context}, {
-					pMatrix: leftPMatrix
+					pMatrix: leftPMatrix,
+					mvMatrix: leftMVMatrix
 				})
 			);
 
@@ -159,18 +154,16 @@ export default class VRManager {
 				Math.round(rightBounds[3] * height)
 			];
 
-			gl.scissor(...rightRect);
 			gl.viewport(...rightRect);
 			gl.uniform1f(uEye, 1);
 
 			// Draw right eye
 			this._originalRender(
 				Object.assign({...context}, {
-					pMatrix: rightPMatrix
+					pMatrix: rightPMatrix,
+					mvMatrix: rightMVMatrix
 				})
 			);
-
-			gl.disable(gl.SCISSOR_TEST);
 
 			vrDisplay.submitFrame();
 		} else {
@@ -282,10 +275,10 @@ vec4 Distort(vec4 point) {
 
 		if (!display) {
 			return {
-				leftDegrees: -1,
-				rightDegrees: -1,
-				downDegrees: -1,
-				upDegrees: -1
+				leftDegrees: 45,
+				rightDegrees: 45,
+				downDegrees: 45,
+				upDegrees: 45
 			};
 		}
 
@@ -303,5 +296,36 @@ vec4 Distort(vec4 point) {
 		});
 
 		panoImageRenderer.swapShaderProgram(vertexAttachment);
+	}
+
+	// Adopted from immersive-web/cardboard-vr-display(Apache-2.0)
+	// https://github.com/immersive-web/cardboard-vr-display/blob/master/src/util.js#L278
+	_perspectiveFromFov(fov, near, far) {
+		const upTan = Math.tan(fov ? glMatrix.toRadian(fov.upDegrees) : RAD_45);
+		const downTan = Math.tan(fov ? glMatrix.toRadian(fov.downDegrees) : RAD_45);
+		const leftTan = Math.tan(fov ? glMatrix.toRadian(fov.leftDegrees) : RAD_45);
+		const rightTan = Math.tan(fov ? glMatrix.toRadian(fov.rightDegrees) : RAD_45);
+		const xScale = 2.0 / (leftTan + rightTan);
+		const yScale = 2.0 / (upTan + downTan);
+
+		const out = mat4.create();
+
+		out[0] = xScale;
+		out[1] = 0.0;
+		out[2] = 0.0;
+		out[3] = 0.0;
+		out[4] = 0.0;
+		out[5] = yScale;
+		out[6] = 0.0;
+		out[7] = 0.0;
+		out[8] = -((leftTan - rightTan) * xScale * 0.5);
+		out[9] = (upTan - downTan) * yScale * 0.5;
+		out[10] = far / (near - far);
+		out[11] = -1.0;
+		out[12] = 0.0;
+		out[13] = 0.0;
+		out[14] = far * near / (near - far);
+		out[15] = 0.0;
+		return out;
 	}
 }

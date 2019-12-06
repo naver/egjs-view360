@@ -102,16 +102,6 @@ const ERROR_TYPE = {
 	 * @default 15
 	 */
 	RENDERING_CONTEXT_LOST: 15,
-	/**
-	 * Current projection type can't render VR contents
-	 * @ko 현재 프로젝션 타입은 VR 렌더링 불가
-	 * @name INVALID_PROJECTION_TYPE_FOR_VR
-	 * @memberof eg.view360.PanoViewer.ERROR_TYPE
-	 * @constant
-	 * @type {Number}
-	 * @default 16
-	 */
-	INVALID_PROJECTION_TYPE_FOR_VR: 16
 };
 
 /**
