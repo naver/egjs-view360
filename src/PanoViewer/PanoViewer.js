@@ -395,7 +395,7 @@ export default class PanoViewer extends Component {
 		this._photoSphereRenderer
 			.bindTexture()
 			.then(() => this._activate())
-			.catch(() => {
+			.catch(e => {
 				this._triggerEvent(EVENTS.ERROR, {
 					type: ERROR_TYPE.FAIL_BIND_TEXTURE,
 					message: "failed to bind texture"
@@ -471,14 +471,14 @@ export default class PanoViewer extends Component {
 			this._triggerEvent(EVENTS.ANIMATION_END, e);
 		});
 
-		this._yawPitchControl.on("change", e => {
-			this._yaw = e.yaw;
-			this._pitch = e.pitch;
-			this._fov = e.fov;
-			this._quaternion = e.quaternion;
+		// this._yawPitchControl.on("change", e => {
+		// 	this._yaw = e.yaw;
+		// 	this._pitch = e.pitch;
+		// 	this._fov = e.fov;
+		// 	this._quaternion = e.quaternion;
 
-			this._triggerEvent(EVENTS.VIEW_CHANGE, e);
-		});
+		// 	this._triggerEvent(EVENTS.VIEW_CHANGE, e);
+		// });
 	}
 
 	_triggerEvent(name, param) {
@@ -840,12 +840,23 @@ export default class PanoViewer extends Component {
 	}
 
 	_render() {
-		if (this._photoSphereRenderer) {
-			if (this._quaternion) {
-				this._photoSphereRenderer.renderWithQuaternion(this._quaternion, this._fov);
-			} else {
-				this._photoSphereRenderer.render(this._yaw, this._pitch, this._fov);
-			}
+		const photoSphereRenderer = this._photoSphereRenderer;
+		const yawPitchControl = this._yawPitchControl;
+
+		if (!photoSphereRenderer) {
+			return;
+		}
+
+		const fov = yawPitchControl.getFov();
+
+		if (yawPitchControl.shouldRenderWithQuaternion()) {
+			const quaternion = yawPitchControl.getQuaternion();
+
+			photoSphereRenderer.renderWithQuaternion(quaternion, fov);
+		} else {
+			const yawPitch = yawPitchControl.getYawPitch();
+
+			photoSphereRenderer.render(yawPitch.yaw, yawPitch.pitch, fov);
 		}
 	}
 

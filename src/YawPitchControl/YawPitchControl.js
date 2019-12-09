@@ -1,12 +1,9 @@
 import Component from "@egjs/component";
 import Axes, {PinchInput, MoveKeyInput, WheelInput} from "@egjs/axes";
 import {getComputedStyle, SUPPORT_TOUCH, SUPPORT_DEVICEMOTION} from "../utils/browserFeature";
-import TiltMotionInput from "./input/TiltMotionInput";
 import RotationPanInput from "./input/RotationPanInput";
 import DeviceQuaternion from "./DeviceQuaternion";
-import {
-	vec2,
-} from "../utils/math-util";
+import {vec2} from "../utils/math-util";
 import {
 	GYRO_MODE,
 	TOUCH_DIRECTION_YAW,
@@ -87,7 +84,7 @@ export default class YawPitchControl extends Component {
 		this._initialFov = opt.fov;
 		this._enabled = false;
 		this._isAnimating = false;
-		this._deviceQuaternion = null;
+		this._deviceQuaternion = new DeviceQuaternion();
 
 		this._initAxes(opt);
 		this.option(opt);
@@ -100,7 +97,6 @@ export default class YawPitchControl extends Component {
 
 		this.axesPanInput = new RotationPanInput(this._element, {useRotation});
 		this.axesWheelInput = new WheelInput(this._element, {scale: -4});
-		this.axesTiltMotionInput = null;
 		this.axesPinchInput = SUPPORT_TOUCH ? new PinchInput(this._element, {scale: -1}) : null;
 		this.axesMoveKeyInput = new MoveKeyInput(this._element, {scale: [-6, 6]});
 
@@ -279,23 +275,10 @@ export default class YawPitchControl extends Component {
 			const isVR = this.options.gyroMode === GYRO_MODE.VR;
 			const isYawPitch = this.options.gyroMode === GYRO_MODE.YAWPITCH;
 
-			// Disconnect first
-			if (this.axesTiltMotionInput) {
-				this.axes.disconnect(this.axesTiltMotionInput);
-				this.axesTiltMotionInput.destroy();
-				this.axesTiltMotionInput = null;
-			}
-
-			if (this._deviceQuaternion) {
-				this._deviceQuaternion.destroy();
-				this._deviceQuaternion = null;
-			}
-
-			if (isVR) {
-				this._initDeviceQuaternion();
-			} else if (isYawPitch) {
-				this.axesTiltMotionInput = new TiltMotionInput(this._element);
-				this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
+			if (!isVR && !isYawPitch) {
+				this._deviceQuaternion.disable();
+			} else {
+				this._deviceQuaternion.enable();
 			}
 
 			this.axesPanInput.setUseRotation(isVR);
@@ -353,13 +336,6 @@ export default class YawPitchControl extends Component {
 		const pitchEnabled = direction & TOUCH_DIRECTION_PITCH ? "pitch" : null;
 
 		this.axes.connect([yawEnabled, pitchEnabled], this.axesPanInput);
-	}
-
-	_initDeviceQuaternion() {
-		this._deviceQuaternion = new DeviceQuaternion();
-		this._deviceQuaternion.on("change", e => {
-			this._triggerChange(e);
-		});
 	}
 
 	_getValidYawRange(newYawRange, newFov, newAspectRatio) {
@@ -508,7 +484,7 @@ export default class YawPitchControl extends Component {
 		event.pitch = pos.pitch;
 		event.fov = pos.fov;
 
-		if (opt.gyroMode === GYRO_MODE.VR && this._deviceQuaternion) {
+		if (opt.gyroMode === GYRO_MODE.VR) {
 			event.quaternion = this._deviceQuaternion.getCombinedQuaternion(pos.yaw, pos.pitch);
 		}
 		this.trigger("change", event);
@@ -634,20 +610,37 @@ export default class YawPitchControl extends Component {
 		}, duration);
 	}
 
-	get() {
-		return this.axes.get();
-	}
+	getYawPitch() {
+		const deviceYawPitchDelta = this._deviceQuaternion.getYawPitchDelta();
 
-	getYaw() {
-		return this.axes.get().yaw;
-	}
+		console.log(deviceYawPitchDelta);
 
-	getPitch() {
-		return this.axes.get().pitch;
+		// Update axes values
+		this.axes.setBy({
+			yaw: deviceYawPitchDelta.yaw,
+			pitch: deviceYawPitchDelta.pitch,
+		});
+
+		const yawPitch = this.axes.get();
+
+		return {
+			yaw: yawPitch.yaw,
+			pitch: yawPitch.pitch,
+		};
 	}
 
 	getFov() {
 		return this.axes.get().fov;
+	}
+
+	getQuaternion() {
+		const pos = this.axes.get();
+
+		return this._deviceQuaternion.getCombinedQuaternion(pos.yaw, pos.pitch);
+	}
+
+	shouldRenderWithQuaternion() {
+		return this.options.gyroMode === GYRO_MODE.VR;
 	}
 
 	/**
@@ -657,7 +650,6 @@ export default class YawPitchControl extends Component {
 		this.axes && this.axes.destroy();
 		this.axisPanInput && this.axisPanInput.destroy();
 		this.axesWheelInput && this.axesWheelInput.destroy();
-		this.axesTiltMotionInput && this.axesTiltMotionInput.destroy();
 		this.axesDeviceOrientationInput && this.axesDeviceOrientationInput.destroy();
 		this.axesPinchInput && this.axesPinchInput.destroy();
 		this.axesMoveKeyInput && this.axesMoveKeyInput.destroy();
