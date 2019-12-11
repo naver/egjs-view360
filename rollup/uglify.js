@@ -1,6 +1,6 @@
-const uglify = require("rollup-plugin-uglify").uglify;
+const {terser} = require("rollup-plugin-terser");
 
-module.exports = uglify({
+module.exports = terser({
 	sourcemap: true,
 	output: {
 		comments: (node, comment) => {

@@ -1,7 +1,7 @@
 import Agent from "@egjs/agent";
 import Renderer from "./Renderer.js";
 import WebGLUtils from "../WebGLUtils";
-import {util} from "../../utils/math-util.js";
+import {util as mathUtil} from "../../utils/math-util.js";
 
 export default class CubeRenderer extends Renderer {
 	static _VERTEX_POSITION_DATA = null;
@@ -230,7 +230,7 @@ void main(void) {
 		let _imageWidth = this.getSourceTileSize(image);
 
 		if (agent.browser.name === "ie" && parseInt(agent.browser.version, 10) === 11) {
-			if (!util.isPowerOfTwo(_imageWidth)) {
+			if (!mathUtil.isPowerOfTwo(_imageWidth)) {
 				for (let i = 1; i < maxCubeMapTextureSize; i *= 2) {
 					if (i < _imageWidth) {
 						continue;
