@@ -1,5 +1,5 @@
 import Component from "@egjs/component";
-import {vec3} from "../../utils/math-util";
+import {vec3} from "gl-matrix";
 import {window} from "../../utils/browser";
 import {IS_CHROME_WITHOUT_DEVICE_MOTION, IS_ANDROID} from "../consts";
 

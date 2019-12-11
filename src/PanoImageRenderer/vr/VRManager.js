@@ -1,5 +1,6 @@
+import {glMatrix, mat4} from "gl-matrix";
 import Distortion from "../Distortion";
-import {util, glMatrix, mat4} from "../../utils/math-util";
+import {util as mathUtil} from "../../utils/math-util";
 import {EYES} from "../consts";
 import WebGLUtils from "../WebGLUtils";
 
@@ -224,7 +225,7 @@ vec4 Distort(vec4 point) {
 
 	_getDistortionMaxFovSquared() {
 		const fov = this._getFov(EYES.LEFT);
-		const maxFov = util.hypot(
+		const maxFov = mathUtil.hypot(
 			Math.tan(glMatrix.toRadian(Math.max(fov.leftDegrees, fov.rightDegrees))),
 			Math.tan(glMatrix.toRadian(Math.max(fov.downDegrees, fov.upDegrees)))
 		);

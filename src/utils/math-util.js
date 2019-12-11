@@ -31,17 +31,17 @@ THE SOFTWARE. */
 // Some minimal math functionality borrowed from gl-Matrix and stripped down
 // for the purposes of this library.
 
-import glMatrix from "./mathUtil/common.js";
-import vec3 from "./mathUtil/vec3.js";
-import vec2 from "./mathUtil/vec2.js";
-import quat from "./mathUtil/quat.js";
-import mat4 from "./mathUtil/mat4.js";
+import {vec3, quat} from "gl-matrix";
 
 function quatToVec3(quaternion) {
 	const baseV = vec3.fromValues(0, 0, 1);
 
 	vec3.transformQuat(baseV, baseV, quaternion);
 	return baseV;
+}
+
+function toDegree(a){
+	return a * 180 / Math.PI;
 }
 
 const util = {};
@@ -183,17 +183,14 @@ function getRotationDelta(prevQ, curQ, rotateKind) {
 
 	const deltaRadian = theta * thetaDirection * rotateDirection;
 
-	return glMatrix.toDegree(deltaRadian);
+	return toDegree(deltaRadian);
 }
+
+util.toDegree = toDegree;
 
 util.getRotationDelta = getRotationDelta;
 
 export {
 	util,
-	glMatrix,
-	mat4,
-	quat,
-	vec2,
-	vec3,
 	ROTATE_CONSTANT,
 };

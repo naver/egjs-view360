@@ -1,4 +1,5 @@
 import Component from "@egjs/component";
+import {glMatrix} from "gl-matrix";
 import {
 	DeviceMotionEvent
 } from "../utils/browserFeature";
@@ -7,7 +8,7 @@ import YawPitchControl from "../YawPitchControl/YawPitchControl";
 import PanoImageRenderer from "../PanoImageRenderer/PanoImageRenderer";
 import WebGLUtils from "../PanoImageRenderer/WebGLUtils";
 import {ERROR_TYPE, EVENTS, GYRO_MODE, PROJECTION_TYPE, STEREO_FORMAT} from "./consts";
-import {glMatrix} from "../utils/math-util.js";
+import {util as mathUtil} from "../utils/math-util.js";
 import {VERSION} from "../version";
 import {IS_SAFARI_ON_DESKTOP} from "../utils/browser";
 
@@ -425,10 +426,10 @@ export default class PanoViewer extends Component {
 			}
 
 			if (imageAspectRatio < 6) {
-				yawSize = glMatrix.toDegree(imageAspectRatio);
+				yawSize = mathUtil.toDegree(imageAspectRatio);
 				isCircular = false;
 				// 0.5 means ratio of half height of cylinder(0.5) and radius of cylider(1). 0.5/1 = 0.5
-				maxFov = glMatrix.toDegree(Math.atan(0.5)) * 2;
+				maxFov = mathUtil.toDegree(Math.atan(0.5)) * 2;
 			} else {
 				yawSize = 360;
 				isCircular = true;
@@ -690,7 +691,7 @@ export default class PanoViewer extends Component {
 	 * Get the horizontal field of view in degree
 	 */
 	_getHFov() {
-		return glMatrix.toDegree(
+		return mathUtil.toDegree(
 			2 * Math.atan(this._aspectRatio * Math.tan(glMatrix.toRadian(this._fov) / 2)));
 	}
 

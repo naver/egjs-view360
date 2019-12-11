@@ -1,6 +1,6 @@
+import {glMatrix} from "gl-matrix";
 import Renderer from "./Renderer";
 import WebGLUtils from "../WebGLUtils";
-import {glMatrix} from "../../utils/math-util.js";
 
 // const latitudeBands = 60;
 const MIN_ASPECT_RATIO_FOR_FULL_PANORAMA = 6;

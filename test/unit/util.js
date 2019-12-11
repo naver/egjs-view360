@@ -1,6 +1,7 @@
+import {glMatrix, quat} from "gl-matrix";
 import PanoViewerInjector from "inject-loader!../../src/PanoViewer/PanoViewer";
 import PanoImageRendererForUnitTest from "./PanoImageRendererForUnitTest";
-import {glMatrix, quat} from "../../src/utils/math-util.js";
+import {util as mathUtil} from "../../src/utils/math-util.js";
 
 const resemble = window.resemble;
 
@@ -104,7 +105,7 @@ function calcFovOfPanormaImage(image) {
 	}
 
 	return +(aspectRatio < 6 ?
-		glMatrix.toDegree(Math.atan(0.5)) * 2 : (360 / aspectRatio)).toFixed(5); // Make it 5 fixed as axes does.
+		mathUtil.toDegree(Math.atan(0.5)) * 2 : (360 / aspectRatio)).toFixed(5); // Make it 5 fixed as axes does.
 }
 
 function isVideoLoaded(video) {

@@ -1,5 +1,5 @@
+import {glMatrix} from "gl-matrix";
 import {window} from "../utils/browser";
-import {glMatrix} from "../utils/math-util";
 
 // Singleton
 let screenRotationAngleInst = null;

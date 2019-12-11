@@ -1,11 +1,8 @@
 import Component from "@egjs/component";
+import {quat} from "gl-matrix";
 import {toAxis} from "../utils";
 import FusionPoseSensor from "./FusionPoseSensor";
-import {
-	util,
-	quat,
-	ROTATE_CONSTANT,
-} from "../../utils/math-util";
+import {util, ROTATE_CONSTANT} from "../../utils/math-util";
 
 function getDeltaYaw(prvQ, curQ) {
 	const yawDeltaByYaw = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.YAW_DELTA_BY_YAW);

@@ -1,9 +1,10 @@
 import Component from "@egjs/component";
 import Axes, {PinchInput, MoveKeyInput, WheelInput} from "@egjs/axes";
+import {vec2, glMatrix} from "gl-matrix";
 import {getComputedStyle, SUPPORT_TOUCH, SUPPORT_DEVICEMOTION} from "../utils/browserFeature";
 import RotationPanInput from "./input/RotationPanInput";
 import DeviceQuaternion from "./DeviceQuaternion";
-import {vec2} from "../utils/math-util";
+import {util as mathUtil} from "../utils/math-util";
 import {
 	GYRO_MODE,
 	TOUCH_DIRECTION_YAW,
@@ -21,7 +22,6 @@ import {
 	CONTROL_MODE_YAWPITCH,
 	TOUCH_DIRECTION_NONE,
 } from "./consts";
-import glMatrix from "../utils/mathUtil/common";
 import {VERSION} from "../version";
 
 const DEFAULT_YAW_RANGE = [-YAW_RANGE_HALF, YAW_RANGE_HALF];
@@ -463,7 +463,7 @@ export default class YawPitchControl extends Component {
 		 */
 		// Ref : https://github.com/naver/egjs-view360/issues/290
 		const halfHorizontalFov =
-			glMatrix.toDegree(Math.atan2(aspectRatio, 1 / Math.tan(glMatrix.toRadian(fov / 2))));
+			mathUtil.toDegree(Math.atan2(aspectRatio, 1 / Math.tan(glMatrix.toRadian(fov / 2))));
 
 		// Round value as movableCood do.
 		return [
@@ -612,8 +612,6 @@ export default class YawPitchControl extends Component {
 
 	getYawPitch() {
 		const deviceYawPitchDelta = this._deviceQuaternion.getYawPitchDelta();
-
-		console.log(deviceYawPitchDelta);
 
 		// Update axes values
 		this.axes.setBy({

@@ -1,4 +1,5 @@
 import Component from "@egjs/component";
+import {glMatrix, mat4, quat} from "gl-matrix";
 import ImageLoader from "./ImageLoader";
 import VideoLoader from "./VideoLoader";
 import WebGLUtils from "./WebGLUtils";
@@ -8,7 +9,6 @@ import CubeRenderer from "./renderer/CubeRenderer";
 import CubeStripRenderer from "./renderer/CubeStripRenderer";
 import SphereRenderer from "./renderer/SphereRenderer";
 import CylinderRenderer from "./renderer/CylinderRenderer";
-import {glMatrix, mat4, quat} from "../utils/math-util.js";
 import {devicePixelRatio} from "../utils/browserFeature";
 import {PROJECTION_TYPE} from "../PanoViewer/consts";
 import {EYES, DEFAULT_VR_OPTIONS} from "./consts";
