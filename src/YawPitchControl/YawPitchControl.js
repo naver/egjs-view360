@@ -616,13 +616,18 @@ export default class YawPitchControl extends Component {
 	 *
 	 * @param {Object} coordinate yaw, pitch, fov
 	 * @param {Number} duration Animation duration. if it is above 0 then it's animated.
-	 */
+	 */	
 	lookAt({yaw, pitch, fov}, duration) {
+		const convToPositive = n=> (n+360*10)%360;
 		const pos = this.axes.get();
 
-		const y = yaw === undefined ? 0 : yaw - pos.yaw;
+		const y = yaw === undefined ? 0 : convToPositive(yaw) - convToPositive(pos.yaw);
 		const p = pitch === undefined ? 0 : pitch - pos.pitch;
 		const f = fov === undefined ? 0 : fov - pos.fov;
+
+		// Chose the shortest direction to turn, ex : Turn 10 left rather than 350 right. 
+		if(y > 180) y -= 360;
+		if(y < -180) y += 360;
 
 		// Allow duration of animation to have more than MC_MAXIMUM_DURATION.
 		this.axes.options.maximumDuration = Infinity;
