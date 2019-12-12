@@ -1,9 +1,7 @@
 import {RelativeOrientationSensor} from "motion-sensors-polyfill";
-import ScreenRotationAngle from "./ScreenRotationAngle";
-import {vec3, glMatrix, quat} from "../utils/math-util";
+import {vec3, glMatrix, quat} from "gl-matrix";
 import {getDeltaYaw, getDeltaPitch} from "./utils";
 
-const ORIGIN_VECTOR = vec3.fromValues(0, 0, 0);
 const X_AXIS_VECTOR = vec3.fromValues(1, 0, 0);
 const Y_AXIS_VECTOR = vec3.fromValues(0, 1, 0);
 const Z_AXIS_VECTOR = vec3.fromValues(0, 0, 1);
@@ -12,29 +10,27 @@ const SENSOR_TO_VR = quat.setAxisAngle(quat.create(), X_AXIS_VECTOR, -Math.PI / 
 
 quat.multiply(
 	SENSOR_TO_VR, SENSOR_TO_VR,
-	quat.setAxisAngle(quat.create(), Z_AXIS_VECTOR, Math.PI / 2)
+	quat.setAxisAngle(quat.create(), Z_AXIS_VECTOR, -Math.PI / 2)
 );
 
 export default class DeviceQuaternion {
 	constructor() {
 		this._enabled = false;
-		this._screenRotationAngle = new ScreenRotationAngle();
 
 		this._sensor = new RelativeOrientationSensor({
 			frequency: 60,
 			referenceFrame: "screen"
 		});
-		// this._sensor.addEventListener("read", this._onSensorRead);
 
 		this._prevQuaternion = null;
 	}
 
 	enable() {
 		if (this._enabled) {
-			return;
+			return Promise.resolve("Sensor already enabled");
 		}
 
-		Promise.all([
+		return Promise.all([
 			navigator.permissions.query({
 				name: "accelerometer"
 			}),
@@ -82,27 +78,41 @@ export default class DeviceQuaternion {
 	}
 
 	getCombinedQuaternion(yaw, pitch) {
-		// TODO: 보는 방향 기준으로 위 방향으로 90도 회전
-		// 거기에 추가로 yaw pitch 적용
 		const currentQuat = this._getOrientation();
 
-		if (!currentQuat) {
-			return this._prevQuaternion || quat.create();
-		} else if (!this._prevQuaternion) {
+		if (!this._prevQuaternion) {
 			this._prevQuaternion = quat.copy(quat.create(), currentQuat);
 			return quat.create();
 		}
 
-		const deviceR = this._screenRotationAngle.getRadian();
+		const unrotateQuat = quat.conjugate(quat.create(), currentQuat);
 
-		// rotate x-axis around z-axis about screen rotation angle.
-		const pitchAxis = vec3.rotateZ(vec3.create(), X_AXIS_VECTOR, ORIGIN_VECTOR, deviceR);
+		// Unrotated device center pos
+		const origDevicePos = vec3.fromValues(0, 0, -1);
+
+		// Device coordinate system
+		const deviceZAxis = vec3.transformQuat(vec3.create(), Z_AXIS_VECTOR, currentQuat);
+
+		const rotatedDevicePos = vec3.transformQuat(vec3.create(), origDevicePos, currentQuat);
+
+		// Because view direction is same with -deviceZAxis
+		const viewXAxis = vec3.cross(vec3.create(), Y_AXIS_VECTOR, deviceZAxis);
+
+		const deviceHorizontalDir = vec3.add(vec3.create(), rotatedDevicePos, viewXAxis);
+		const unrotatedHorizontalDir = vec3.transformQuat(
+			vec3.create(), deviceHorizontalDir, unrotateQuat
+		);
+
+		const pitchAxis = vec3.sub(vec3.create(), unrotatedHorizontalDir, origDevicePos);
+
+		pitchAxis[2] = 0; // Remove z element
+		vec3.normalize(pitchAxis, pitchAxis);
+
 		const yawQ = quat.setAxisAngle(quat.create(), Y_AXIS_VECTOR, glMatrix.toRadian(-yaw));
 		// rotate quaternion around new x-axis about pitch angle.
 		const pitchQ = quat.setAxisAngle(quat.create(), pitchAxis, glMatrix.toRadian(-pitch));
-		const conj = quat.conjugate(quat.create(), currentQuat);
 		// Multiply pitch quaternion -> device quaternion -> yaw quaternion
-		const outQ = quat.multiply(quat.create(), pitchQ, conj);
+		const outQ = quat.multiply(quat.create(), pitchQ, unrotateQuat);
 
 		quat.multiply(outQ, outQ, yawQ);
 		quat.copy(this._prevQuaternion, currentQuat);
@@ -111,11 +121,6 @@ export default class DeviceQuaternion {
 
 	destroy() {
 		this.disable();
-		this._sensor.removeEventListener("read", this._onSensorRead);
-		if (this._screenRotationAngle) {
-			this._screenRotationAngle.unref();
-			this._screenRotationAngle = null;
-		}
 	}
 
 	_getOrientation() {
@@ -124,23 +129,5 @@ export default class DeviceQuaternion {
 		}
 
 		return quat.multiply(quat.create(), SENSOR_TO_VR, this._sensor.quaternion);
-	}
-
-	_onSensorRead = () => {}
-
-	_getScreenAngle() {
-		let screenOrientationAngle;
-
-		if (window.screen && window.screen.orientation && window.screen.orientation.angle !== undefined) {
-			screenOrientationAngle = screen.orientation.angle;
-		} else if (window.orientation !== undefined) {
-			/* iOS */
-			screenOrientationAngle = window.orientation >= 0 ?
-				window.orientation : 360 + window.orientation;
-		} else {
-			screenOrientationAngle = 0;
-		}
-
-		return screenOrientationAngle;
 	}
 }
