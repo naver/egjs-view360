@@ -187,7 +187,6 @@ function getRotationDelta(prevQ, curQ, rotateKind) {
 }
 
 util.toDegree = toDegree;
-
 util.getRotationDelta = getRotationDelta;
 
 export {
