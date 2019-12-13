@@ -95,7 +95,7 @@ export default class YawPitchControl extends Component {
 		const pRange = this._updatePitchRange(opt.pitchRange, opt.fov, opt.showPolePoint);
 		const useRotation = opt.gyroMode === GYRO_MODE.VR;
 
-		this.axesPanInput = new RotationPanInput(this._element, {useRotation});
+		this.axesPanInput = new RotationPanInput(this._element, {useRotation}, this._deviceQuaternion);
 		this.axesWheelInput = new WheelInput(this._element, {scale: -4});
 		this.axesPinchInput = SUPPORT_TOUCH ? new PinchInput(this._element, {scale: -1}) : null;
 		this.axesMoveKeyInput = new MoveKeyInput(this._element, {scale: [-6, 6]});

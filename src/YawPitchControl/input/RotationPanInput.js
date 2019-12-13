@@ -1,5 +1,5 @@
 import Axes, {PanInput} from "@egjs/axes";
-import ScreenRotationAngle from "../ScreenRotationAngle";
+import {vec2} from "gl-matrix";
 
 /**
  * RotationPanInput is extension of PanInput to compensate coordinates by screen rotation angle.
@@ -19,11 +19,11 @@ export default class RotationPanInput extends PanInput {
 	 * @param {Object} [options] The option object
 	 * @param {Boolean} [options.useRotation]  Whether to use rotation(or VR)
 	 */
-	constructor(el, options) {
+	constructor(el, options, deviceQuaternion) {
 		super(el, options);
 
 		this._useRotation = false;
-		this._screenRotationAngle = null;
+		this._deviceQuaternion = deviceQuaternion;
 
 		this.setUseRotation(!!(options && options.useRotation));
 
@@ -32,15 +32,6 @@ export default class RotationPanInput extends PanInput {
 
 	setUseRotation(useRotation) {
 		this._useRotation = useRotation;
-
-		if (this._screenRotationAngle) {
-			this._screenRotationAngle.unref();
-			this._screenRotationAngle = null;
-		}
-
-		if (this._useRotation) {
-			this._screenRotationAngle = new ScreenRotationAngle();
-		}
 	}
 
 	connect(observer) {
@@ -64,10 +55,17 @@ export default class RotationPanInput extends PanInput {
 
 		const offset = super.getOffset(properties, [true, true]);
 		const newOffset = [0, 0];
-		const theta = this._screenRotationAngle.getRadian();
+
+		const rightAxis = this._deviceQuaternion.getDeviceHorizontalRight();
+		const rightAxisVec2 = vec2.fromValues(rightAxis[0], rightAxis[1]);
+		const xAxis = vec2.fromValues(1, 0);
+
+		const det = rightAxisVec2[0] * xAxis[1] - xAxis[0] * rightAxisVec2[1];
+		const theta = -Math.atan2(det, vec2.dot(rightAxisVec2, xAxis));
 		const cosTheta = Math.cos(theta);
 		const sinTheta = Math.sin(theta);
 
+		// RotateZ
 		newOffset[0] = offset[0] * cosTheta - offset[1] * sinTheta;
 		newOffset[1] = offset[1] * cosTheta + offset[0] * sinTheta;
 
@@ -82,10 +80,6 @@ export default class RotationPanInput extends PanInput {
 	}
 
 	destroy() {
-		if (this._useRotation) {
-			this._screenRotationAngle && this._screenRotationAngle.unref();
-		}
-
 		super.destroy();
 	}
 }
