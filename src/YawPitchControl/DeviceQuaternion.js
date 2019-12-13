@@ -78,22 +78,36 @@ export default class DeviceQuaternion {
 	}
 
 	getCombinedQuaternion(yaw, pitch) {
-		const currentQuat = this._getOrientation();
-
 		if (!this._prevQuaternion) {
-			this._prevQuaternion = quat.copy(quat.create(), currentQuat);
+			this._prevQuaternion = quat.copy(quat.create(), this._getOrientation());
 			return quat.create();
 		}
 
+		const currentQuat = this._getOrientation();
+		const pitchAxis = this.getDeviceHorizontalRight(currentQuat);
+
+		const yawQ = quat.setAxisAngle(quat.create(), Y_AXIS_VECTOR, glMatrix.toRadian(yaw));
+		// rotate quaternion around new x-axis about pitch angle.
+		const pitchQ = quat.setAxisAngle(quat.create(), pitchAxis, glMatrix.toRadian(pitch));
+		// Multiply pitch quaternion -> device quaternion -> yaw quaternion
+		const outQ = quat.multiply(quat.create(), yawQ, currentQuat);
+
+		quat.multiply(outQ, outQ, pitchQ);
+		quat.conjugate(outQ, outQ);
+		quat.copy(this._prevQuaternion, currentQuat);
+		return outQ;
+	}
+
+	getDeviceHorizontalRight(quaternion) {
+		const currentQuat = quaternion || this._getOrientation();
 		const unrotateQuat = quat.conjugate(quat.create(), currentQuat);
 
-		// Unrotated device center pos
+		// Assume that unrotated device center pos is at (0, 0, -1)
 		const origDevicePos = vec3.fromValues(0, 0, -1);
+		const rotatedDevicePos = vec3.transformQuat(vec3.create(), origDevicePos, currentQuat);
 
 		// Device coordinate system
 		const deviceZAxis = vec3.transformQuat(vec3.create(), Z_AXIS_VECTOR, currentQuat);
-
-		const rotatedDevicePos = vec3.transformQuat(vec3.create(), origDevicePos, currentQuat);
 
 		// Because view direction is same with -deviceZAxis
 		const viewXAxis = vec3.cross(vec3.create(), Y_AXIS_VECTOR, deviceZAxis);
@@ -103,20 +117,11 @@ export default class DeviceQuaternion {
 			vec3.create(), deviceHorizontalDir, unrotateQuat
 		);
 
-		const pitchAxis = vec3.sub(vec3.create(), unrotatedHorizontalDir, origDevicePos);
+		vec3.sub(unrotatedHorizontalDir, unrotatedHorizontalDir, origDevicePos);
+		unrotatedHorizontalDir[2] = 0; // Remove z element
+		vec3.normalize(unrotatedHorizontalDir, unrotatedHorizontalDir);
 
-		pitchAxis[2] = 0; // Remove z element
-		vec3.normalize(pitchAxis, pitchAxis);
-
-		const yawQ = quat.setAxisAngle(quat.create(), Y_AXIS_VECTOR, glMatrix.toRadian(-yaw));
-		// rotate quaternion around new x-axis about pitch angle.
-		const pitchQ = quat.setAxisAngle(quat.create(), pitchAxis, glMatrix.toRadian(-pitch));
-		// Multiply pitch quaternion -> device quaternion -> yaw quaternion
-		const outQ = quat.multiply(quat.create(), pitchQ, unrotateQuat);
-
-		quat.multiply(outQ, outQ, yawQ);
-		quat.copy(this._prevQuaternion, currentQuat);
-		return outQ;
+		return unrotatedHorizontalDir;
 	}
 
 	destroy() {
