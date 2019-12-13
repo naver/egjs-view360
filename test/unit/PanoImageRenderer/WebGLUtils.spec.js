@@ -1,5 +1,6 @@
-import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
-import WebglUtilsInjector from "inject-loader!../../../src/PanoImageRenderer/WebGLUtils";
+import {expect} from "sinon";
+import WebglUtilsInjector from "inject-loader!../../../src/PanoImageRenderer/WebGLUtils"; // eslint-disable-line import/no-duplicates
+import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils"; // eslint-disable-line import/no-duplicates
 
 const WEBGL_AVAILABILITY = WebGLUtils.isWebGLAvailable();
 const IT = WEBGL_AVAILABILITY ? it : it.skip;

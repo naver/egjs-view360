@@ -1,53 +1,60 @@
+import {expect} from "sinon";
+import {assert} from "chai";
 import SpinViewer from "../../../src/SpinViewer/SpinViewer";
+import {sandbox, cleanup} from "../util";
 
-describe("SpinViewer", function() {
-	describe("event", function() {
-		var target
+describe("SpinViewer", () => {
+	describe("event", () => {
+		let target;
+
 		beforeEach(() => {
 			target = sandbox();
 			target.innerHTML = `<div"></div>`;
 		});
 		// load
-		it("should fire load event when image is vaild", (done) => {
+		it("should fire load event when image is vaild", done => {
 			const COL = 4;
 			const ROW = 3;
-			let inst = new SpinViewer(target, {
+			const inst = new SpinViewer(target, {
 				colCount: COL,
 				rowCount: ROW,
 				imageUrl: "images/SpinViewer/bag360.jpg"
 			});
+
 			inst.on("load", e => {
 				assert(e.target !== null && e.bgElement !== null);
 				done();
 			});
 		});
 		// error
-		it("should fire error event when image is not valid", (done) => {
+		it("should fire error event when image is not valid", done => {
 			const COL = 4;
 			const ROW = 3;
 			const invalidUrl = "images/SpinViewer/bag360.invalid";
-			let inst = new SpinViewer(target, {
+			const inst = new SpinViewer(target, {
 				colCount: COL,
 				rowCount: ROW,
 				imageUrl: invalidUrl
 			});
+
 			inst.on("imageError", e => {
 				assert(e.imageUrl === invalidUrl);
 				done();
 			});
 		});
 		// change
-		it("should fire change event when spin", (done) => {
+		it("should fire change event when spin", done => {
 			const COL = 4;
 			const ROW = 3;
-			let inst = new SpinViewer(target, {
+			const inst = new SpinViewer(target, {
 				colCount: COL,
 				rowCount: ROW,
 				imageUrl: "images/SpinViewer/bag360.jpg"
 			});
+
 			inst.on({
 				"load": e => {
-					inst.spinBy(30, {duration: 0})
+					inst.spinBy(30, {duration: 0});
 				},
 				"change": e => {
 					assert(e.target !== null && e.bgElement !== null);
@@ -57,18 +64,19 @@ describe("SpinViewer", function() {
 			});
 		});
 		// change #2
-		it("should not fire change event when angle is not changed", (done) => {
+		it("should not fire change event when angle is not changed", done => {
 			const COL = 4;
 			const ROW = 3;
 			let called = false;
-			let inst = new SpinViewer(target, {
+			const inst = new SpinViewer(target, {
 				colCount: COL,
 				rowCount: ROW,
 				imageUrl: "images/SpinViewer/bag360.jpg"
 			});
+
 			inst.on({
 				"load": e => {
-					inst.spinBy(0, {duration: 0})
+					inst.spinBy(0, {duration: 0});
 				},
 				"change": e => {
 					called = true;
@@ -83,8 +91,9 @@ describe("SpinViewer", function() {
 		});
 	});
 
-	describe("#setScale", function() {
-		var target
+	describe("#setScale", () => {
+		let target;
+
 		beforeEach(() => {
 			target = sandbox();
 			target.innerHTML = `<div"></div>`;
@@ -92,7 +101,7 @@ describe("SpinViewer", function() {
 
 		it("should update input's scale array", () => {
 			// Given
-			let inst = new SpinViewer(target, {
+			const inst = new SpinViewer(target, {
 				colCount: 3,
 				rowCount: 3
 			});
@@ -110,11 +119,11 @@ describe("SpinViewer", function() {
 
 		it("should not update scale if scale value is invalid", () => {
 			// Given
-			let inst = new SpinViewer(target, {
+			const inst = new SpinViewer(target, {
 				colCount: 3,
 				rowCount: 3
 			});
-			let nextScales = [];
+			const nextScales = [];
 			const prevScale = inst.getScale();
 
 			// When
@@ -129,15 +138,17 @@ describe("SpinViewer", function() {
 		});
 	});
 
-	describe("#spinBy", function() {
-		var target
+	describe("#spinBy", () => {
+		let target;
 		let inst;
+
 		beforeEach(() => {
 			target = sandbox();
 			target.innerHTML = `<div"></div>`;
 
 			const COL = 0;
 			const ROW = 0;
+
 			inst = new SpinViewer(target, {
 				colCount: COL,
 				rowCount: ROW,
@@ -154,23 +165,23 @@ describe("SpinViewer", function() {
 			// Given
 			// When
 			let sync = true;
-			inst.on("change", then);
-			inst.spinTo(100);
-			sync = false;
 
-			// Then
-			function then() {
+			inst.on("change", () => {
+				// Then
 				expect(sync).to.be.equal(true);
 				expect(inst.getAngle()).to.be.equal(100);
 				done();
-			}
+			});
+			inst.spinTo(100);
+			sync = false;
 		});
 
 		it("should not change if param is not specified", done => {
 			// Given
 			// When
 			let changeCount = 0;
-			let prevAngle = inst.getAngle();
+			const prevAngle = inst.getAngle();
+
 			inst.on("change", () => {
 				changeCount = 1;
 			});
@@ -184,15 +195,17 @@ describe("SpinViewer", function() {
 			}, 30);
 		});
 	});
-	describe("#spinTo", function() {
-		var target
+	describe("#spinTo", () => {
+		let target;
 		let inst;
+
 		beforeEach(() => {
 			target = sandbox();
 			target.innerHTML = `<div"></div>`;
 
 			const COL = 0;
 			const ROW = 0;
+
 			inst = new SpinViewer(target, {
 				colCount: COL,
 				rowCount: ROW,
@@ -213,6 +226,7 @@ describe("SpinViewer", function() {
 
 			inst.on("change", evt => {
 				const currAngle = inst.getAngle();
+
 				// Then
 				expect(currAngle).be.equal(NORMAL_ANGLES[i]);
 
@@ -235,11 +249,8 @@ describe("SpinViewer", function() {
 			const EXPECTED_ANGLES = [358, 349, 259, 358, 178, 357, 1, 11, 2];
 
 			// When
-			inst.on("change", then);
-			inst.spinTo(NORMAL_ANGLES[i]);
-
-			// Then
-			function then(evt) {
+			inst.on("change", evt => {
+				// Then
 				const currAngle = inst.getAngle();
 
 				expect(currAngle).be.equal(EXPECTED_ANGLES[i]);
@@ -249,7 +260,8 @@ describe("SpinViewer", function() {
 				} else {
 					done();
 				}
-			}
+			});
+			inst.spinTo(NORMAL_ANGLES[i]);
 		});
 
 		it("should set 0 if angle is not specified", done => {
@@ -275,6 +287,7 @@ describe("SpinViewer", function() {
 				after = new Date().getTime();
 				const currAngle = inst.getAngle();
 				const diff = after - before;
+
 				// Then
 				expect(diff).be.above(100);
 				expect(diff).be.below(150); // timeout margin 50ms: it cannot be accurate because timeout is not accurate.
@@ -283,14 +296,15 @@ describe("SpinViewer", function() {
 			});
 
 			// When
-			before = new Date().getTime();;
+			before = new Date().getTime();
 			inst.spinTo(10, {duration: 100});
 		});
 
 		it("should follow last spinTo if spin is requested again before animationEnd", done => {
 			// Given
 			let animationEndCount = 0;
-			inst.on("animationEnd", function() {
+
+			inst.on("animationEnd", () => {
 				animationEndCount++;
 			});
 			inst.spinTo(100, {duration: 100});

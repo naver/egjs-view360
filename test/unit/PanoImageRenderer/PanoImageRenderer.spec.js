@@ -1,11 +1,12 @@
-// import {expect} from "chai";
+import {expect} from "chai";
+import PanoImageRendererForUnitTestInjector from "inject-loader!../PanoImageRendererForUnitTest";
+import PanoImageRendererInjector from "inject-loader!../../../src/PanoImageRenderer/PanoImageRenderer"; // eslint-disable-line import/no-duplicates
+import RendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/Renderer";
+import SphereRendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/SphereRenderer";
+import PanoImageRenderer from "../../../src/PanoImageRenderer/PanoImageRenderer"; // eslint-disable-line import/no-duplicates
 import PanoImageRendererForUnitTest from "../PanoImageRendererForUnitTest";
 import {compare, createPanoImageRenderer, renderAndCompareSequentially, isVideoLoaded, createVideoElement} from "../util";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
-import PanoImageRendererForUnitTestInjector from "inject-loader!../PanoImageRendererForUnitTest";
-import PanoImageRendererInjector from "inject-loader!../../../src/PanoImageRenderer/PanoImageRenderer";
-import RendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/Renderer";
-import SphereRendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/SphereRenderer";
 import TestHelper from "../YawPitchControl/testHelper";
 
 const RendererOnIE11 = RendererInjector(
@@ -231,13 +232,11 @@ describe("PanoImageRenderer", () => {
 			// When
 			const inst = createPanoImageRenderer(sourceImg, false, "cubemap");
 
-			inst.on("error", when);
-
-			function when(e) {
+			inst.on("error", e => {
 				// Then
 				expect(e.type).to.be.equal(12);
 				done();
-			}
+			});
 		});
 	});
 
@@ -271,7 +270,12 @@ describe("PanoImageRenderer", () => {
 				// https://stackoverflow.com/questions/28135551/webgl-context-lost-and-not-restored
 				setTimeout(() => loseContext.restoreContext(), 100);
 			});
-			inst.on("renderingContextRestore", thenFunc);
+
+			const events = [];
+
+			inst.on("renderingContextRestore", e => {
+				events.push(e);
+			});
 
 			// When
 			for (let i = 0; i < REQUIRED_WEBGL_CONTEXT_COUNT_FOR_CONTEXT_LOST; i++) {
@@ -280,12 +284,11 @@ describe("PanoImageRenderer", () => {
 			}
 
 			// Then
-			function thenFunc(e) {
+			expect(events.length).equals(1);
+			events.forEach(e => {
 				expect(hasRenderingContextAfterLost).to.be.false;
 				expect(inst.hasRenderingContext()).to.be.true;
-
-				done();
-			}
+			});
 		});
 
 		/**
@@ -301,6 +304,8 @@ describe("PanoImageRenderer", () => {
 			const loseContext = inst.context.getExtension("WEBGL_lose_context");
 			let hasRenderingContextAfterLost;
 
+			const events = [];
+
 			inst.on("renderingContextLost", () => {
 				hasRenderingContextAfterLost = inst.hasRenderingContext();
 
@@ -308,18 +313,19 @@ describe("PanoImageRenderer", () => {
 				// https://stackoverflow.com/questions/28135551/webgl-context-lost-and-not-restored
 				setTimeout(() => loseContext.restoreContext(), 100);
 			});
-			inst.on("renderingContextRestore", thenFunc);
+			inst.on("renderingContextRestore", e => {
+				events.push(e);
+			});
 
 			// When
 			inst.forceContextLoss();
 
 			// Then
-			function thenFunc(e) {
+			expect(events.length).equals(1);
+			events.forEach(e => {
 				expect(hasRenderingContextAfterLost).to.be.false;
 				expect(inst.hasRenderingContext()).to.be.true;
-
-				done();
-			}
+			});
 		});
 	});
 
@@ -714,9 +720,7 @@ describe("PanoImageRenderer", () => {
 
 				const inst = createPanoImageRenderer(sourceImg, false, "cubemap");
 
-				inst.on("imageLoaded", when);
-
-				function when() {
+				inst.on("imageLoaded", () => {
 					// When
 					inst.bindTexture()
 						.then(() => {
@@ -735,7 +739,7 @@ describe("PanoImageRenderer", () => {
 								done();
 							});
 						});
-				}
+				});
 			});
 
 			IT("cubestrip 6x1", async () => {
@@ -748,7 +752,7 @@ describe("PanoImageRenderer", () => {
 				await new Promise(res => inst.on("imageLoaded", res));
 
 				// When
-				await inst.bindTexture()
+				await inst.bindTexture();
 
 				// Then
 				const result = await renderAndCompareSequentially(
@@ -788,7 +792,7 @@ describe("PanoImageRenderer", () => {
 				await new Promise(res => inst.on("imageLoaded", res));
 
 				// When
-				await inst.bindTexture()
+				await inst.bindTexture();
 
 				// Then
 				const result = await renderAndCompareSequentially(
@@ -982,9 +986,7 @@ describe("PanoImageRenderer", () => {
 			sourceImg.src = "./images/test_equi.jpg";
 			const inst = createPanoImageRenderer(sourceImg, false, "equirectangular");
 
-			inst.on("imageLoaded", when);
-
-			function when() {
+			inst.on("imageLoaded", () => {
 				// When
 				inst.bindTexture()
 					.then(() => {
@@ -996,7 +998,7 @@ describe("PanoImageRenderer", () => {
 							done();
 						});
 					});
-			}
+			});
 		});
 	});
 
