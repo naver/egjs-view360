@@ -10,8 +10,13 @@
         "import/prefer-default-export": "off",
         "linebreak-style": 0,
         "array-element-newline": "off",
-        "class-methods-use-this": "off"
+        "class-methods-use-this": "off",
+        "no-unused-expressions": 0,
+        "chai-friendly/no-unused-expressions": 2
     },
+    "plugins": [
+        "chai-friendly"
+    ],
     "env": {
         "mocha": true
     }

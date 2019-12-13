@@ -1,7 +1,9 @@
+import {expect} from "sinon";
+import {assert} from "chai";
 import VideoLoader from "../../../src/PanoImageRenderer/VideoLoader";
 
-describe("VideoLoader", function() {
-	describe("#constructor", function() {
+describe("VideoLoader", () => {
+	describe("#constructor", () => {
 		it("Instance", () => {
 			// Given
 			// When
@@ -15,7 +17,7 @@ describe("VideoLoader", function() {
 				})
 				.catch(() => {
 					assert(true);
-				})
+				});
 		});
 
 		it("should set video as a url", function() {
@@ -92,9 +94,9 @@ describe("VideoLoader", function() {
 			this.inst = new VideoLoader(video);
 			expect(this.inst).to.be.exist;
 			return this.inst.get()
-				.then(video => {
-					assert.isOk(video);
-					assert.isTrue(video instanceof HTMLVideoElement);
+				.then(videoEl => {
+					assert.isOk(videoEl);
+					assert.isTrue(videoEl instanceof HTMLVideoElement);
 				}, () => {
 					assert.isOk(false, "Failed to load video resource. check URL is valid.");
 				});
@@ -140,17 +142,16 @@ describe("VideoLoader", function() {
 		it("should not call again", function() {
 			let countCb1 = 0;
 			let countCb2 = 0;
+
 			this.inst = new VideoLoader("./images/PanoViewer/pano.mp4");
 
 			expect(this.inst).to.be.exist;
 
 			function callback1() {
-				console.log("callback1");
 				countCb1++;
 			}
 
 			function callback2() {
-				console.log("callback2");
 				countCb2++;
 			}
 
@@ -218,9 +219,9 @@ describe("VideoLoader", function() {
 			videoEl.src = "./images/PanoViewer/pano.mp4";
 			videoEl.load();
 
-			let runAssertion = function(videoEl, res, rej) {
-				videoEl.removeEventListener("loadedmetadata", runAssertion);
-				const loader = new VideoLoader(videoEl);
+			let runAssertion = function(videoElToTest, res, rej) {
+				videoElToTest.removeEventListener("loadedmetadata", runAssertion);
+				const loader = new VideoLoader(videoElToTest);
 
 				loader.get()
 					.then(video => {
@@ -249,7 +250,8 @@ describe("VideoLoader", function() {
 
 			// Then
 			return this.inst.get().then(video => {
-				let els = video.querySelectorAll("source");
+				const els = video.querySelectorAll("source");
+
 				expect(els.length).to.be.eql(2);
 			});
 		});
@@ -286,7 +288,8 @@ describe("VideoLoader", function() {
 			// Then
 			return this.inst.get()
 				.then(video => {
-					let els = video.querySelectorAll("source");
+					const els = video.querySelectorAll("source");
+
 					expect(els.length).to.be.eql(3);
 
 					return true;
@@ -453,14 +456,14 @@ describe("VideoLoader", function() {
 			const videoUrl = "./images/PanoViewer/pano.mp4";
 
 			// When
-			let inst = new VideoLoader(videoUrl);
+			const inst = new VideoLoader(videoUrl);
 
 			// Then
 			expect(inst.getElement().crossOrigin).to.be.equal("anonymous");
 		});
 	});
 
-	describe("#getElement", function() {
+	describe("#getElement", () => {
 		it("could get video element after set video by resource path", () => {
 			// Given
 			const videoPath = "./images/PanoViewer/pano.webm";

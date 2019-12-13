@@ -1,8 +1,9 @@
+import {expect} from "sinon";
 import PanoViewer from "../../../src/PanoViewer/PanoViewer";
 import SphereRenderer from "../../../src/PanoImageRenderer/renderer/SphereRenderer";
 import Renderer from "../../../src/PanoImageRenderer/renderer/Renderer";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
-import {renderAndCompareSequentially, createPanoViewerForRenderingTest} from "../util";
+import {renderAndCompareSequentially, createPanoViewerForRenderingTest, sandbox, cleanup} from "../util";
 
 const WEBGL_AVAILABILITY = WebGLUtils.isWebGLAvailable();
 const IT = WEBGL_AVAILABILITY ? it : it.skip;
@@ -15,17 +16,20 @@ describe("SphereRenderer", () => {
 			const gl = WebGLUtils.getWebglContext(canvas);
 			const MAX_SIZE = WebGLUtils.getMaxTextureSize(gl);
 			const renderer = new SphereRenderer();
+			const errors = [];
 
-			renderer.on(Renderer.EVENTS.ERROR, then);
+			renderer.on(Renderer.EVENTS.ERROR, e => {
+				errors.push(e);
+			});
 
 			// When
 			renderer.bindTexture(gl, null, {naturalWidth: MAX_SIZE + 1, naturalHeight: MAX_SIZE + 1});
 
 			// Then
-			function then(e) {
+			expect(errors.length).equals(1);
+			errors.forEach(e => {
 				expect(e.message).to.be.a("string");
-				done();
-			}
+			});
 		});
 	});
 
@@ -62,9 +66,7 @@ describe("SphereRenderer", () => {
 			const textureCoord1 = defaultEquiRenderer.getTextureCoordData();
 			const textureCoord2 = stereoEquiRenderer.getTextureCoordData();
 
-			const checkSameWithTextureCoord2 = (val, index) => {
-				return textureCoord2[index] === val;
-			};
+			const checkSameWithTextureCoord2 = (val, index) => textureCoord2[index] === val;
 
 			// Then
 			expect(textureCoord1.length).to.be.equal(textureCoord2.length);

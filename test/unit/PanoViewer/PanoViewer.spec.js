@@ -1,9 +1,11 @@
-import PanoViewerInjector from "inject-loader!../../../src/PanoViewer/PanoViewer";
-import {compare, createPanoViewerForRenderingTest} from "../util";
-import PanoViewer from "../../../src/PanoViewer/PanoViewer";
+import {expect} from "sinon";
+import {assert} from "chai";
+import PanoViewerInjector from "inject-loader!../../../src/PanoViewer/PanoViewer"; // eslint-disable-line import/no-duplicates
+import WebglUtilsInjector from "inject-loader!../../../src/PanoImageRenderer/WebGLUtils"; // eslint-disable-line import/no-duplicates
+import PanoViewer from "../../../src/PanoViewer/PanoViewer"; // eslint-disable-line import/no-duplicates
+import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils"; // eslint-disable-line import/no-duplicates
+import {compare, createPanoViewerForRenderingTest, sandbox, cleanup} from "../util";
 import {ERROR_TYPE, EVENTS} from "../../../src/PanoViewer/consts";
-import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
-import WebglUtilsInjector from "inject-loader!../../../src/PanoImageRenderer/WebGLUtils";
 
 function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2) {
 	return new Promise(res => {
@@ -29,7 +31,7 @@ function renderAndCompareSequentially(inst, tests) {
 }
 
 describe("PanoViewer", () => {
-	let IT = WebGLUtils.isWebGLAvailable() ? it : it.skip;
+	const IT = WebGLUtils.isWebGLAvailable() ? it : it.skip;
 	const deviceRatio = window.devicePixelRatio;
 	const suffix = `_${deviceRatio}x.png`;
 
@@ -100,7 +102,6 @@ describe("PanoViewer", () => {
 				expect(readyTriggered).to.be.true;
 				done();
 			});
-
 		});
 
 		IT("should work with video when src defined after initiate PanoViewer", done => {
@@ -135,9 +136,7 @@ describe("PanoViewer", () => {
 			});
 
 			// When
-			panoViewer.on("ready", when);
-
-			function when() {
+			panoViewer.on("ready", () => {
 				// Then
 				renderAndCompareSequentially(
 					panoViewer,
@@ -152,7 +151,7 @@ describe("PanoViewer", () => {
 				).then(() => {
 					done();
 				});
-			}
+			});
 		});
 	});
 
@@ -245,21 +244,19 @@ describe("PanoViewer", () => {
 				{os: {name: "android", version: "4.4"}, browser: {name: "samsung internet"}}
 			];
 
-			const isAvailable = browserList => {
-				return browserList.map(agentInfo => {
-					// Given
-					const MockWebglUtils = WebglUtilsInjector({
-						"@egjs/agent": () => agentInfo
-					}).default;
+			const isAvailable = browserList => browserList.map(agentInfo => {
+				// Given
+				const MockWebglUtils = WebglUtilsInjector({
+					"@egjs/agent": () => agentInfo
+				}).default;
 
-					// Given
-					const MockedPanoViewer = PanoViewerInjector({
-						"../PanoImageRenderer/WebGLUtils": MockWebglUtils
-					}).default;
+				// Given
+				const MockedPanoViewer = PanoViewerInjector({
+					"../PanoImageRenderer/WebGLUtils": MockWebglUtils
+				}).default;
 
-					return MockedPanoViewer.isSupported();
-				});
-			};
+				return MockedPanoViewer.isSupported();
+			});
 
 			const result1 = isAvailable(stableBrowsers);
 			const result2 = isAvailable(unstableBrowsers);
@@ -361,8 +358,8 @@ describe("PanoViewer", () => {
 
 		IT("should 'lookAt' works after ready event", done => {
 			// Given
-			const FIRST_REQ_DIR = { yaw: 10, pitch: 10 };
-			const SECOND_REQ_DIR = { yaw: 20, pitch: 20 };
+			const FIRST_REQ_DIR = {yaw: 10, pitch: 10};
+			const SECOND_REQ_DIR = {yaw: 20, pitch: 20};
 			const panoViewer = new PanoViewer(target, {
 				image: "./images/test_equi.png"
 			});
@@ -462,7 +459,7 @@ describe("PanoViewer", () => {
 				const containerH = parseInt(containerSize.height, 10);
 
 				// When
-				panoViewer.updateViewportDimensions({ width: containerW, height: containerH });
+				panoViewer.updateViewportDimensions({width: containerW, height: containerH});
 
 				// Then
 				expect(canvas.width / PIXEL_RATIO).to.be.equal(containerW);
@@ -489,6 +486,7 @@ describe("PanoViewer", () => {
 				let smallerHeightDeltaYaw;
 				let biggerHeightDeltaYaw;
 
+				// eslint-disable-next-line no-undef
 				Simulator.gestures.pan(target, HORIZONTAL_MOVE, () => {
 					currYaw = panoViewer.getYaw();
 					basisDeltaYaw = Math.abs(currYaw - prevYaw);
@@ -496,14 +494,16 @@ describe("PanoViewer", () => {
 
 					// When
 					// Update height smaller than first height(200).
-					panoViewer.updateViewportDimensions({ width: 100, height: 100 });
+					panoViewer.updateViewportDimensions({width: 100, height: 100});
+					// eslint-disable-next-line no-undef
 					Simulator.gestures.pan(target, HORIZONTAL_MOVE, () => {
 						currYaw = panoViewer.getYaw();
 						smallerHeightDeltaYaw = Math.abs(currYaw - prevYaw);
 						prevYaw = currYaw;
 
 						// Update height bigger than first height(200).
-						panoViewer.updateViewportDimensions({ width: 300, height: 300 });
+						panoViewer.updateViewportDimensions({width: 300, height: 300});
+						// eslint-disable-next-line no-undef
 						Simulator.gestures.pan(target, HORIZONTAL_MOVE, () => {
 							currYaw = panoViewer.getYaw();
 							biggerHeightDeltaYaw = Math.abs(currYaw - prevYaw);
@@ -555,6 +555,7 @@ describe("PanoViewer", () => {
 				});
 
 				// When
+				// eslint-disable-next-line no-undef
 				Simulator.gestures.pan(target, { // this.el 이 300 * 300 이라고 가정
 					pos: [30, 30],
 					deltaX: 10,
@@ -581,18 +582,16 @@ describe("PanoViewer", () => {
 					isTrustedOnChange = e.isTrusted;
 				});
 
-				panoViewer.on("animationEnd", then);
+				panoViewer.on("animationEnd", e => {
+					// Then
+					expect(isTrustedOnChange).to.be.false;
+					done();
+				});
 
 				// When
 				panoViewer.lookAt({
 					yaw: 20
 				}, 1000);
-
-				function then(e) {
-					// Then
-					expect(isTrustedOnChange).to.be.false;
-					done();
-				}
 			});
 		});
 	});
@@ -619,21 +618,14 @@ describe("PanoViewer", () => {
 		function startEventLogTest(order, done, callback) {
 			let orderIndex = 0;
 
-			photo360Viewer = new PanoViewer(target, {
-				image: "/images/book_equi_1.jpg"
-			}).on({
-				"ready": eventLogger,
-				"viewChange": eventLogger,
-				"animationEnd": eventLogger,
-				"error": eventLogger
-			});
-
 			function eventLogger(event) {
 				console.log(`=======================[${orderIndex}] ${event.eventType}========================`);
 				// makes callback aync not to block following flow.
-				callback && setTimeout(() => {
-					callback(event);
-				}, 0);
+				if (callback) {
+					setTimeout(() => {
+						callback(event);
+					}, 0);
+				}
 
 				console.log("before orderIndex", orderIndex);
 				if (event.eventType !== order[orderIndex++]) {
@@ -647,6 +639,15 @@ describe("PanoViewer", () => {
 					done();
 				}
 			}
+
+			photo360Viewer = new PanoViewer(target, {
+				image: "/images/book_equi_1.jpg"
+			}).on({
+				"ready": eventLogger,
+				"viewChange": eventLogger,
+				"animationEnd": eventLogger,
+				"error": eventLogger
+			});
 		}
 
 		IT("should follow event order on create", done => {
@@ -672,7 +673,7 @@ describe("PanoViewer", () => {
 		});
 
 		IT("should set touchDirection as TOUCH_DIRECTION.ALL by default", () => {
-			let panoViewer = new PanoViewer(target);
+			const panoViewer = new PanoViewer(target);
 
 			expect(panoViewer.getTouchDirection()).to.be.equal(PanoViewer.TOUCH_DIRECTION.ALL);
 			panoViewer.destroy();
@@ -687,13 +688,13 @@ describe("PanoViewer", () => {
 			];
 
 			expectList.forEach(expectDir => {
-				let panoViewer = new PanoViewer(target, {
+				const panoViewer = new PanoViewer(target, {
 					touchDirection: expectDir
 				});
 
 				expect(panoViewer.getTouchDirection()).to.be.equal(expectDir);
 				panoViewer.destroy();
-			})
+			});
 		});
 
 		IT("should set touchDirection by setTouchDirection", () => {
@@ -705,7 +706,8 @@ describe("PanoViewer", () => {
 			];
 
 			expectList.forEach(expectDir => {
-				let panoViewer = new PanoViewer(target);
+				const panoViewer = new PanoViewer(target);
+
 				panoViewer.setTouchDirection(expectDir);
 
 				expect(panoViewer.getTouchDirection()).to.be.equal(expectDir);
@@ -722,13 +724,13 @@ describe("PanoViewer", () => {
 			];
 
 			exceptionList.forEach(expectDir => {
-				let panoViewer = new PanoViewer(target, {
+				const panoViewer = new PanoViewer(target, {
 					touchDirection: expectDir
 				});
 
 				expect(panoViewer.getTouchDirection()).to.be.equal(PanoViewer.TOUCH_DIRECTION.ALL);
 				panoViewer.destroy();
-			})
+			});
 		});
 
 		IT("should not set touchDirection if invalid direction(setTouchDirection)", () => {
@@ -740,13 +742,13 @@ describe("PanoViewer", () => {
 			];
 
 			exceptionList.forEach(expectDir => {
-				let panoViewer = new PanoViewer(target);
+				const panoViewer = new PanoViewer(target);
 
 				panoViewer.setTouchDirection(expectDir);
 
 				expect(panoViewer.getTouchDirection()).to.be.equal(PanoViewer.TOUCH_DIRECTION.ALL);
 				panoViewer.destroy();
-			})
+			});
 		});
 	});
 
@@ -776,6 +778,7 @@ describe("PanoViewer", () => {
 
 			// Then
 			const foundIndex = returnValues.findIndex(ret => ret instanceof PanoViewer === false);
+
 			expect(foundIndex).to.be.equal(-1);
 
 			cleanup();

@@ -7,12 +7,10 @@ module.exports = config => {
 		// list of files / patterns to load in the browser
 		files: [
 			"./node_modules/resemblejs/resemble.js",
-			"./node_modules/lite-fixture/index.js",
 			"./node_modules/hammer-simulator/index.js",
 			"./test/hammer-simulator.run.js",
 			"./test/unit/**/*.spec.js",
 			{pattern: "./test/manual/img/**/*.*", watched: false, included: false, served: true},
-			// {pattern: "./test/img/*.*", watched: false, included: false, served: true},
 		],
 
 		proxies: {

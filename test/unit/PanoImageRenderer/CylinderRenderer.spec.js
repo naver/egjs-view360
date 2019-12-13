@@ -1,9 +1,10 @@
-import {createPanoImageRenderer, renderAndCompareSequentially, calcFovOfPanormaImage} from "../util";
+import {expect} from "chai";
+import {glMatrix} from "gl-matrix";
+import {createPanoImageRenderer, renderAndCompareSequentially, calcFovOfPanormaImage, sandbox, cleanup} from "../util";
 import PanoViewer from "../../../src/PanoViewer/PanoViewer";
 import WebGLUtils, {setMaxTextureSizeForTestOnlyPurpose} from "../../../src/PanoImageRenderer/WebGLUtils";
 import {PROJECTION_TYPE} from "../../../src/PanoViewer/consts";
 import CylinderRenderer from "../../../src/PanoImageRenderer/renderer/CylinderRenderer";
-import {glMatrix} from "../../../src/utils/math-util.js";
 
 const WEBGL_AVAILABILITY = WebGLUtils.isWebGLAvailable();
 const IT = WEBGL_AVAILABILITY ? it : it.skip;
@@ -174,17 +175,17 @@ describe("CylinderRenderer", () => {
 			// Then
 			// Image should be converted to canvas.
 			expect(content instanceof HTMLCanvasElement).to.be.equal(true);
-			expect(content.width <= maxSize).to.be.ok;
+			expect(content.width <= maxSize).to.be.true;
 			expect(content.height <= maxSize).to.be.ok;
-		})
+		});
 	});
 
 	describe("PanoViewer Test", () => {
 		let target;
 		let viewer;
 
-		function calcMaxFov(viewer) {
-			const image = viewer.getImage();
+		function calcMaxFov(targetViewer) {
+			const image = targetViewer.getImage();
 
 			return calcFovOfPanormaImage(image);
 		}

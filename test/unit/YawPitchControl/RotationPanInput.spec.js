@@ -1,15 +1,16 @@
-import {window} from "../../../src/utils/browser";
-import RotationPanInput from "../../../src/YawPitchControl/input/RotationPanInput";
-import RotationPanInputInjector from "inject-loader!../../../src/YawPitchControl/input/RotationPanInput";
+import {expect} from "sinon";
+import RotationPanInputInjector from "inject-loader!../../../src/YawPitchControl/input/RotationPanInput"; // eslint-disable-line import/no-duplicates
+import RotationPanInput from "../../../src/YawPitchControl/input/RotationPanInput"; // eslint-disable-line import/no-duplicates
+import {sandbox, cleanup} from "../util";
 
-describe("RotationPanInput", function() {
-	describe("#constructor", function() {
+describe("RotationPanInput", () => {
+	describe("#constructor", () => {
 		beforeEach(() => {
 			this.el = sandbox();
 		});
 
 		afterEach(() => {
-			this.el = sandbox();
+			cleanup();
 
 			this.inst.destroy();
 		});
@@ -55,12 +56,14 @@ describe("RotationPanInput", function() {
 
 			// Then
 			const expected = inputProperties.map((input, index) => input * scale[index]);
+
 			expect(result).to.deep.equal(expected);
 		});
 
 		it("should return rotated scaled properties if useRotation is true", () => {
 			// Given
 			const TEST_ANGLE = Math.PI / 4;
+
 			class MockScreenRotation {
 				getRadian() {
 					return TEST_ANGLE;

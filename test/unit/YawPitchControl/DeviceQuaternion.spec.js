@@ -1,6 +1,8 @@
-import DeviceQuaternion from "../../../src/YawPitchControl/DeviceQuaternion";
-import {quat, glMatrix} from "../../../src/utils/math-util";
-import DeviceQuaternionInjector from "inject-loader!../../../src/YawPitchControl/DeviceQuaternion";
+import {expect} from "sinon";
+import {quat, glMatrix} from "gl-matrix";
+import DeviceQuaternionInjector from "inject-loader!../../../src/YawPitchControl/DeviceQuaternion"; // eslint-disable-line import/no-duplicates
+import DeviceQuaternion from "../../../src/YawPitchControl/DeviceQuaternion"; // eslint-disable-line import/no-duplicates
+
 
 describe("DeviceQuaternion", function() {
 	this.inst = null;
@@ -13,7 +15,9 @@ describe("DeviceQuaternion", function() {
 
 			// Then
 			expect(this.inst).to.be.exist;
-			this.inst && this.inst.destroy();
+			if (this.inst) {
+				this.inst.destroy();
+			}
 			this.inst = null;
 		});
 	});
@@ -24,7 +28,9 @@ describe("DeviceQuaternion", function() {
 		});
 
 		afterEach(() => {
-			this.inst && this.inst.destroy();
+			if (this.inst) {
+				this.inst.destroy();
+			}
 			this.inst = null;
 		});
 
@@ -35,6 +41,7 @@ describe("DeviceQuaternion", function() {
 
 			// Then
 			const expectedQ = quat.create();
+
 			expect(resultQ).to.deep.equal(expectedQ);
 		});
 
@@ -122,6 +129,7 @@ describe("DeviceQuaternion", function() {
 			// Given
 			// When
 			let eventHandleCount = 0;
+
 			this.inst.destroy();
 			this.inst.on("change", () => {
 				eventHandleCount++;

@@ -1,7 +1,8 @@
+import {expect} from "chai";
+import CubeRendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/CubeRenderer"; // eslint-disable-line import/no-duplicates
 import {compare} from "../util";
-import CubeRenderer from "../../../src/PanoImageRenderer/renderer/CubeRenderer";
+import CubeRenderer from "../../../src/PanoImageRenderer/renderer/CubeRenderer"; // eslint-disable-line import/no-duplicates
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
-import CubeRendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/CubeRenderer";
 import Renderer from "../../../src/PanoImageRenderer/renderer/Renderer";
 
 const WEBGL_AVAILABILITY = WebGLUtils.isWebGLAvailable();
@@ -19,20 +20,15 @@ function promiseFactory(canvas, answerFile, threshold = 2) {
 function renderAndCompareSequentially(tests) {
 	return new Promise(res => {
 		tests.reduce(
-			(promiseChain, currentTask) => promiseChain.then(() => promiseFactory(...currentTask)
-		), Promise.resolve([])).then(() => {
-			res();
-		});
+			(promiseChain, currentTask) => promiseChain.then(() => promiseFactory(...currentTask)),
+			Promise.resolve([])).then(() => res());
 	});
 }
 
 describe("CubeRenderer", () => {
 	console.log(WEBGL_AVAILABILITY ? "gl available" : "no gl");
-	const deviceRatio = window.devicePixelRatio;
-	const suffix = `_${deviceRatio}x.png`;
 
 	describe("Methods", () => {
-
 		describe("getMaxCubeMapTextureSize", () => {
 			let canvas = null;
 			let gl = null;
@@ -312,20 +308,23 @@ describe("CubeRenderer", () => {
 	});
 
 	describe("Events", () => {
-		it("should fire error events if invalid calls occur", done => {
+		it("should fire error events if invalid calls occur", () => {
 			// Given
 			const cubeRenderer = new CubeRenderer();
+			const errors = [];
 
-			cubeRenderer.on(Renderer.EVENTS.ERROR, then);
+			cubeRenderer.on(Renderer.EVENTS.ERROR, e => {
+				errors.push(e);
+			});
 
 			// When
 			cubeRenderer.updateTexture(0, 0, {}); // invalid parameter
 
 			// Then
-			function then(e) {
+			expect(errors.length).equals(1);
+			errors.forEach(e => {
 				expect(e.message).to.be.a("string");
-				done();
-			}
+			});
 		});
 	});
 });

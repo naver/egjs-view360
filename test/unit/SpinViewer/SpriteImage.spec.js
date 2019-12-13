@@ -1,9 +1,13 @@
+import {assert} from "chai";
+import {spy, expect} from "sinon";
+import {sandbox, cleanup} from "../util";
 import SpriteImage from "../../../src/SpinViewer/SpriteImage";
 import {TRANSFORM, SUPPORT_WILLCHANGE} from "../../../src/utils/browserFeature";
 
-describe("SpriteImage", function() {
-	describe("create", function() {
-		var target
+describe("SpriteImage", () => {
+	describe("create", () => {
+		let target;
+
 		beforeEach(() => {
 			target = sandbox();
 			target.innerHTML = `<div"></div>`;
@@ -14,24 +18,24 @@ describe("SpriteImage", function() {
 		});
 
 		it("should make instance", () => {
-			let o = new SpriteImage(target);
+			const o = new SpriteImage(target);
 
 			assert(o !== null, "instance is created");
 		});
 
-		it("should fire imageError event when image is undefined", (done) => {
-			let o = new SpriteImage(target);
+		it("should fire imageError event when image is undefined", done => {
+			const o = new SpriteImage(target);
 
 			o.on("imageError", e => {
 				assert(e.imageUrl === undefined);
 				done();
-			})
+			});
 		});
 
-		it("should not fire load event if imageUrl is undefined", (done) => {
-			let o = new SpriteImage(target);
+		it("should not fire load event if imageUrl is undefined", done => {
+			const o = new SpriteImage(target);
+			const callback = spy();
 
-			const callback = sinon.spy();
 			o.on("load", callback);
 
 			setTimeout(() => {
@@ -41,12 +45,12 @@ describe("SpriteImage", function() {
 		});
 
 		// TODO: remote image fails on CI
-		it("should fire load event if imageUrl is valid", (done) => {
-			let o = new SpriteImage(target, {
+		it("should fire load event if imageUrl is valid", done => {
+			const o = new SpriteImage(target, {
 				imageUrl: "./images/SpinViewer/whale.png"
 			});
+			const callback = spy();
 
-			const callback = sinon.spy();
 			o.on("load", callback);
 
 			setTimeout(() => {
@@ -59,7 +63,7 @@ describe("SpriteImage", function() {
 		it("should have will-change property be transform if possible", done => {
 			// Given
 			// When
-			let o = new SpriteImage(target, {
+			const o = new SpriteImage(target, {
 				imageUrl: "./images/SpinViewer/whale.png"
 			});
 
@@ -74,8 +78,9 @@ describe("SpriteImage", function() {
 		});
 	});
 
-	describe("setColRow", function() {
-		var target
+	describe("setColRow", () => {
+		let target;
+
 		beforeEach(() => {
 			target = sandbox();
 			target.innerHTML = `<div"></div>`;
@@ -85,10 +90,10 @@ describe("SpriteImage", function() {
 			cleanup();
 		});
 
-		it("should set background position correctly", (done) => {
+		it("should set background position correctly", done => {
 			const TOTAL_ROW = 10;
 			const TOTAL_COL = 10;
-			let o = new SpriteImage(target, {
+			const o = new SpriteImage(target, {
 				imageUrl: "./images/SpinViewer/whale.png",
 				colCount: TOTAL_COL,
 				rowCount: TOTAL_ROW
@@ -106,8 +111,8 @@ describe("SpriteImage", function() {
 		});
 
 		// TODO: remote image fails on CI
-		it("should not change background position if col or row is out of range", (done) => {
-			let o = new SpriteImage(target, {
+		it("should not change background position if col or row is out of range", done => {
+			const o = new SpriteImage(target, {
 				imageUrl: "./images/SpinViewer/whale.png",
 				colCount: 1,
 				rowCount: 1
@@ -121,14 +126,16 @@ describe("SpriteImage", function() {
 		});
 	});
 
-	describe("play", function() {
-		var target
+	describe("play", () => {
+		let target;
+
 		beforeEach(() => {
 			target = sandbox();
 			target.innerHTML = `<div"></div>`;
 		});
-		it("should update frame after play()", (done) => {
-			let o = new SpriteImage(target, {
+
+		it("should update frame after play()", done => {
+			const o = new SpriteImage(target, {
 				imageUrl: "./images/SpinViewer/whale.png",
 				colCount: 10,
 				rowCount: 10

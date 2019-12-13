@@ -14,7 +14,9 @@ export default class TestHelper {
 		}
 
 		function callbackOnce() {
-			callback && callback();
+			if (callback) {
+				callback();
+			}
 			target.removeEventListener("wheel", callbackOnce);// Is this posible??
 		}
 		target.addEventListener("wheel", callbackOnce);
@@ -39,7 +41,9 @@ export default class TestHelper {
 		}
 
 		function callbackOnce() {
-			callback && callback();
+			if (callback) {
+				callback();
+			}
 			target.removeEventListener("keydown", callbackOnce);// Is this posible??
 		}
 
@@ -65,7 +69,9 @@ export default class TestHelper {
 		}
 
 		function callbackOnce() {
-			callback && callback();
+			if (callback) {
+				callback();
+			}
 			target.removeEventListener("keyup", callbackOnce);// Is this posible??
 		}
 
@@ -87,7 +93,9 @@ export default class TestHelper {
 			}
 
 			function callbackOnce() {
-				callback && callback();
+				if (callback) {
+					callback();
+				}
 				resolve();
 				target.removeEventListener("devicemotion", callbackOnce);
 			}
@@ -111,7 +119,9 @@ export default class TestHelper {
 			}
 
 			TestHelper.once(target, "deviceorientation", () => {
-				callback && callback();
+				if (callback) {
+					callback();
+				}
 				resolve();
 			});
 
@@ -134,12 +144,15 @@ export default class TestHelper {
 			}
 
 			const promiseChain = samples.reduce(
-				(startSample, nextSample) => startSample.then(() => promiseFactory(nextSample))
-			, Promise.resolve());
+				(startSample, nextSample) => startSample.then(() => promiseFactory(nextSample)),
+				Promise.resolve()
+			);
 
 			promiseChain.then(() => {
 				resolve();
-				callback && callback();
+				if (callback) {
+					callback();
+				}
 			});
 		});
 	}
@@ -163,12 +176,14 @@ export default class TestHelper {
 			const promiseChain = samples.reduce(
 				(startSample, nextSample, nextIdx, arr) => startSample.then(
 					() => promiseFactory(nextSample, arr[nextIdx - 1])
-				)
-			, Promise.resolve());
+				), Promise.resolve()
+			);
 
 			promiseChain.then(() => {
 				resolve();
-				callback && callback();
+				if (callback) {
+					callback();
+				}
 			});
 		});
 	}
@@ -181,6 +196,7 @@ export default class TestHelper {
 			gamma: gamma || 0
 		};
 		const event = new DeviceOrientationEvent("deviceorientation", options);
+
 		return event;
 	}
 
