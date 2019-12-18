@@ -10,7 +10,7 @@ import CubeStripRenderer from "./renderer/CubeStripRenderer";
 import SphereRenderer from "./renderer/SphereRenderer";
 import CylinderRenderer from "./renderer/CylinderRenderer";
 import {devicePixelRatio} from "../utils/browserFeature";
-import {PROJECTION_TYPE} from "../PanoViewer/consts";
+import {PROJECTION_TYPE, STEREO_FORMAT} from "../PanoViewer/consts";
 import {EYES, DEFAULT_VR_OPTIONS} from "./consts";
 
 
@@ -169,8 +169,11 @@ export default class PanoImageRenderer extends Component {
 			case ImageType.PANORAMA:
 				this._renderer = new CylinderRenderer();
 				break;
+			case ImageType.STEREOSCOPIC_EQUI:
+				this._renderer = new SphereRenderer(this.sphericalConfig.stereoequiConfig);
+				break;
 			default:
-				this._renderer = new SphereRenderer();
+				this._renderer = new SphereRenderer(STEREO_FORMAT.NONE);
 				break;
 		}
 

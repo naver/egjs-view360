@@ -30,6 +30,7 @@ export default class PanoViewer extends Component {
 	static GYRO_MODE = GYRO_MODE;
 	// It should be deprecated!
 	static ProjectionType = PROJECTION_TYPE;
+	static STEREO_FORMAT = STEREO_FORMAT;
 	/**
 	 * Constant value for touch directions
 	 * @ko 터치 방향에 대한 상수 값.
@@ -184,7 +185,7 @@ export default class PanoViewer extends Component {
 			}
 		}, options.cubemapConfig);
 		this._stereoequiConfig = Object.assign({
-			format: STEREO_FORMAT.NONE
+			format: STEREO_FORMAT.TOP_BOTTOM
 		}, options.stereoequiConfig);
 
 		// If the width and height are not provided, will use the size of the container.
@@ -472,14 +473,14 @@ export default class PanoViewer extends Component {
 			this._triggerEvent(EVENTS.ANIMATION_END, e);
 		});
 
-		// this._yawPitchControl.on("change", e => {
-		// 	this._yaw = e.yaw;
-		// 	this._pitch = e.pitch;
-		// 	this._fov = e.fov;
-		// 	this._quaternion = e.quaternion;
+		this._yawPitchControl.on("change", e => {
+			this._yaw = e.yaw;
+			this._pitch = e.pitch;
+			this._fov = e.fov;
+			this._quaternion = e.quaternion;
 
-		// 	this._triggerEvent(EVENTS.VIEW_CHANGE, e);
-		// });
+			this._triggerEvent(EVENTS.VIEW_CHANGE, e);
+		});
 	}
 
 	_triggerEvent(name, param) {
