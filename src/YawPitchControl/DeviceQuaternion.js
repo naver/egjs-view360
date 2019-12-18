@@ -1,3 +1,4 @@
+import Component from "@egjs/component";
 import {RelativeOrientationSensor} from "motion-sensors-polyfill";
 import {vec3, glMatrix, quat} from "gl-matrix";
 import {getDeltaYaw, getDeltaPitch} from "./utils";
@@ -13,8 +14,12 @@ quat.multiply(
 	quat.setAxisAngle(quat.create(), Z_AXIS_VECTOR, -Math.PI / 2)
 );
 
-export default class DeviceQuaternion {
+export default class DeviceQuaternion extends Component {
+	get enabled() { return this._enabled; }
+
 	constructor() {
+		super();
+
 		this._enabled = false;
 
 		this._sensor = new RelativeOrientationSensor({
@@ -40,6 +45,7 @@ export default class DeviceQuaternion {
 		]).then(results => {
 			if (results.every(result => result.state === "granted")) {
 				this._sensor.start();
+				this._sensor.addEventListener("read", this._onSensorRead);
 				this._enabled = true;
 			}
 		});
@@ -50,6 +56,8 @@ export default class DeviceQuaternion {
 			return;
 		}
 
+		this._prevQuaternion = null;
+		this._sensor.removeEventListener("read", this._onSensorRead);
 		this._sensor.stop();
 	}
 
@@ -134,5 +142,9 @@ export default class DeviceQuaternion {
 		}
 
 		return quat.multiply(quat.create(), SENSOR_TO_VR, this._sensor.quaternion);
+	}
+
+	_onSensorRead() {
+		this.trigger("change", {isTrusted: true});
 	}
 }

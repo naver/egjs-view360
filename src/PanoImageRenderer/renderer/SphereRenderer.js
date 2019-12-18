@@ -45,14 +45,19 @@ export default class SphereRenderer extends Renderer {
 	static _TEXTURE_COORD_DATA = textureCoordData;
 	static _INDEX_DATA = indexData;
 
+	constructor(stereoequiConfig) {
+		super();
+
+		this._stereoFormat = stereoequiConfig;
+	}
+
 	render(ctx) {
-		const {gl, shaderProgram, sphericalConfig} = ctx;
-		const {format} = sphericalConfig.stereoequiConfig;
+		const {gl, shaderProgram} = ctx;
 
 		let leftEyeScaleOffset;
 		let rightEyeScaleOffset;
 
-		switch (format) {
+		switch (this._stereoFormat) {
 			case STEREO_FORMAT.TOP_BOTTOM:
 				leftEyeScaleOffset = [1, 0.5, 0, 0];
 				rightEyeScaleOffset = [1, 0.5, 0, 0.5];

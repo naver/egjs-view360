@@ -84,7 +84,10 @@ export default class YawPitchControl extends Component {
 		this._initialFov = opt.fov;
 		this._enabled = false;
 		this._isAnimating = false;
-		this._deviceQuaternion = new DeviceQuaternion();
+		this._deviceQuaternion = new DeviceQuaternion()
+			.on("change", e => {
+				this._triggerChange(e);
+			});
 
 		this._initAxes(opt);
 		this.option(opt);
