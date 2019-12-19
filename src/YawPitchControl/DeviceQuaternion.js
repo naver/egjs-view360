@@ -86,12 +86,12 @@ export default class DeviceQuaternion extends Component {
 	}
 
 	getCombinedQuaternion(yaw, pitch) {
+		const currentQuat = this._getOrientation();
+
 		if (!this._prevQuaternion) {
-			this._prevQuaternion = quat.copy(quat.create(), this._getOrientation());
-			return quat.create();
+			this._prevQuaternion = quat.copy(quat.create(), currentQuat);
 		}
 
-		const currentQuat = this._getOrientation();
 		const pitchAxis = this.getDeviceHorizontalRight(currentQuat);
 
 		const yawQ = quat.setAxisAngle(quat.create(), Y_AXIS_VECTOR, glMatrix.toRadian(yaw));

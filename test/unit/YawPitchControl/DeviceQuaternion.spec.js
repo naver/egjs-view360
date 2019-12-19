@@ -1,7 +1,6 @@
-import {expect} from "sinon";
+import {expect} from "chai";
 import {quat, glMatrix} from "gl-matrix";
-import DeviceQuaternionInjector from "inject-loader!../../../src/YawPitchControl/DeviceQuaternion"; // eslint-disable-line import/no-duplicates
-import DeviceQuaternion from "../../../src/YawPitchControl/DeviceQuaternion"; // eslint-disable-line import/no-duplicates
+import DeviceQuaternion from "../../../src/YawPitchControl/DeviceQuaternion";
 
 
 describe("DeviceQuaternion", function() {
@@ -34,7 +33,7 @@ describe("DeviceQuaternion", function() {
 			this.inst = null;
 		});
 
-		it("should return quat(0, 0, 0, 0) if no motion &$ yaw = 0 && pitch = 0", () => {
+		it("should return quat(0, 0, 0, 1) if no motion &$ yaw = 0 && pitch = 0", () => {
 			// Given
 			// When
 			const resultQ = this.inst.getCombinedQuaternion(0, 0);
@@ -42,7 +41,10 @@ describe("DeviceQuaternion", function() {
 			// Then
 			const expectedQ = quat.create();
 
-			expect(resultQ).to.deep.equal(expectedQ);
+			// Didn't use deep equal, as that just gives me [-0, -0, -0, 1] is different from [0, 0, 0, 1]
+			for (let i = 0; i < expectedQ.length; i++) {
+				expect(resultQ[i]).equals(expectedQ[i]);
+			}
 		});
 
 		it("should return responding quaternion if no motion &$ yaw != 0 && pitch != 0", () => {
@@ -80,66 +82,19 @@ describe("DeviceQuaternion", function() {
 	});
 
 	describe("#destroy", function() {
-		class MockPoseSensor {
-			constructor() {
-				this._motionEventTimer = null;
-			}
-			enable() {}
-			disable() {}
-			on(event, callback) {
-				const e = {
-					quaternion: quat.create()
-				};
-
-				this._motionEventTimer = setInterval(() => {
-					callback(e);
-				}, 50);
-			}
-			off() {
-				clearInterval(this._motionEventTimer);
-			}
-			destroy() {
-				this.off();
-			}
-		}
-
 		beforeEach(() => {
-			const MockSensorQuaternion = new DeviceQuaternionInjector({
-				"./input/FusionPoseSensor": MockPoseSensor
-			}).default;
-
-			this.inst = new MockSensorQuaternion();
+			this.inst = new DeviceQuaternion();
 		});
 
-		afterEach(() => {
-			this.inst.destroy();
-		});
-
-		it("should fire event any more before destroy", done => {
-			// Given
-			// When MockSensorQuaternion is made
-
-			// Then
-			this.inst.on("change", () => {
-				done();
-			});
-		});
-
-		it("should not fire event any more after destroyed", done => {
+		it("should not fire event any more after destroyed", () => {
 			// Given
 			// When
-			let eventHandleCount = 0;
-
 			this.inst.destroy();
-			this.inst.on("change", () => {
-				eventHandleCount++;
-			});
 
 			// Then
-			setTimeout(() => {
-				expect(eventHandleCount).to.equal(0);
-				done();
-			}, 100);
+			expect(this.inst.enabled).to.be.false;
+			expect(this.inst._sensor.activated).to.be.false;
+			expect(this.inst._sensor.hasReading).to.be.false;
 		});
 	});
 });

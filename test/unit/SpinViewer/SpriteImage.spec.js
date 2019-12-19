@@ -1,5 +1,5 @@
-import {assert} from "chai";
-import {spy, expect} from "sinon";
+import {expect, assert} from "chai";
+import {spy} from "sinon";
 import {sandbox, cleanup} from "../util";
 import SpriteImage from "../../../src/SpinViewer/SpriteImage";
 import {TRANSFORM, SUPPORT_WILLCHANGE} from "../../../src/utils/browserFeature";

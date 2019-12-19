@@ -1,5 +1,4 @@
-import {expect} from "sinon";
-import {assert} from "chai";
+import {expect, assert} from "chai";
 import PanoViewerInjector from "inject-loader!../../../src/PanoViewer/PanoViewer"; // eslint-disable-line import/no-duplicates
 import WebglUtilsInjector from "inject-loader!../../../src/PanoImageRenderer/WebGLUtils"; // eslint-disable-line import/no-duplicates
 import PanoViewer from "../../../src/PanoViewer/PanoViewer"; // eslint-disable-line import/no-duplicates
@@ -471,12 +470,17 @@ describe("PanoViewer", () => {
 
 		IT("should update panScale if updateViewportDimension is called with other height value.", done => {
 			const HORIZONTAL_MOVE = {
-				pos: [30, 30],
+				pos: [50, 50],
 				deltaX: 100, /* Small value is set to prevent angle from being over 360 */
 				deltaY: 0,
 				duration: 100,
 				easing: "linear"
 			};
+
+			const event = document.createEvent("Event");
+
+			event.initEvent("pointermove", true, true);
+			target.dispatchEvent(event);
 
 			panoViewer.on("ready", () => {
 				// Given
@@ -486,7 +490,6 @@ describe("PanoViewer", () => {
 				let smallerHeightDeltaYaw;
 				let biggerHeightDeltaYaw;
 
-				// eslint-disable-next-line no-undef
 				Simulator.gestures.pan(target, HORIZONTAL_MOVE, () => {
 					currYaw = panoViewer.getYaw();
 					basisDeltaYaw = Math.abs(currYaw - prevYaw);
@@ -495,7 +498,6 @@ describe("PanoViewer", () => {
 					// When
 					// Update height smaller than first height(200).
 					panoViewer.updateViewportDimensions({width: 100, height: 100});
-					// eslint-disable-next-line no-undef
 					Simulator.gestures.pan(target, HORIZONTAL_MOVE, () => {
 						currYaw = panoViewer.getYaw();
 						smallerHeightDeltaYaw = Math.abs(currYaw - prevYaw);
@@ -503,7 +505,6 @@ describe("PanoViewer", () => {
 
 						// Update height bigger than first height(200).
 						panoViewer.updateViewportDimensions({width: 300, height: 300});
-						// eslint-disable-next-line no-undef
 						Simulator.gestures.pan(target, HORIZONTAL_MOVE, () => {
 							currYaw = panoViewer.getYaw();
 							biggerHeightDeltaYaw = Math.abs(currYaw - prevYaw);
@@ -555,7 +556,6 @@ describe("PanoViewer", () => {
 				});
 
 				// When
-				// eslint-disable-next-line no-undef
 				Simulator.gestures.pan(target, { // this.el 이 300 * 300 이라고 가정
 					pos: [30, 30],
 					deltaX: 10,

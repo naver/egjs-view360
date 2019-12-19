@@ -1,5 +1,4 @@
-import {expect} from "sinon";
-import {assert} from "chai";
+import {expect, assert} from "chai";
 import SpinViewer from "../../../src/SpinViewer/SpinViewer";
 import {sandbox, cleanup} from "../util";
 

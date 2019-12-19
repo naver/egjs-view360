@@ -2,6 +2,7 @@ import {glMatrix, quat} from "gl-matrix";
 import PanoViewerInjector from "inject-loader!../../src/PanoViewer/PanoViewer";
 import PanoImageRendererForUnitTest from "./PanoImageRendererForUnitTest";
 import {util as mathUtil} from "../../src/utils/math-util.js";
+import PanoViewer from "../../src/PanoViewer/PanoViewer";
 
 const resemble = window.resemble;
 
@@ -28,6 +29,7 @@ function compare(path, canvas, callback) {
 		canvas.toBlob(canvasData => {
 			resemble(reference)
 				.compareTo(canvasData)
+				.ignoreAntialiasing()
 				.onComplete(data => {
 					const pct = parseFloat(data.misMatchPercentage);
 
@@ -46,11 +48,13 @@ function createPanoViewerForRenderingTest(target, options) {
 }
 
 function createPanoImageRenderer(image, isVideo, projectionType, cubemapConfig = {},
-	options = {fieldOfView: 65, width: 200, height: 200}) {
+	options = {fieldOfView: 65, width: 200, height: 200},
+	stereoequiConfig = {format: PanoViewer.STEREO_FORMAT.TOP_BOTTOM}) {
 	const sphericalConfig = {
 		fieldOfView: options.fieldOfView,
 		imageType: projectionType,
-		cubemapConfig
+		cubemapConfig,
+		stereoequiConfig,
 	};
 
 	return new PanoImageRendererForUnitTest(
