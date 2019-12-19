@@ -1,4 +1,4 @@
-import {expect} from "sinon";
+import {expect} from "chai";
 import PanoViewer from "../../../src/PanoViewer/PanoViewer";
 import SphereRenderer from "../../../src/PanoImageRenderer/renderer/SphereRenderer";
 import Renderer from "../../../src/PanoImageRenderer/renderer/Renderer";
@@ -15,7 +15,9 @@ describe("SphereRenderer", () => {
 			const canvas = document.createElement("canvas");
 			const gl = WebGLUtils.getWebglContext(canvas);
 			const MAX_SIZE = WebGLUtils.getMaxTextureSize(gl);
-			const renderer = new SphereRenderer();
+			const renderer = new SphereRenderer({
+				format: PanoViewer.STEREO_FORMAT.NONE
+			});
 			const errors = [];
 
 			renderer.on(Renderer.EVENTS.ERROR, e => {
@@ -30,47 +32,7 @@ describe("SphereRenderer", () => {
 			errors.forEach(e => {
 				expect(e.message).to.be.a("string");
 			});
-		});
-	});
-
-	describe("Stereoscopic", () => {
-		IT("should use half height texture coordinate relative to default sphere renerer texture coordniates", () => {
-			// Given
-			const defaultEquiRenderer = new SphereRenderer();
-			const stereoEquiRenderer = new SphereRenderer({isStereoscopic: true});
-
-			// When
-			const textureCoord1 = defaultEquiRenderer.getTextureCoordData();
-			const textureCoord2 = stereoEquiRenderer.getTextureCoordData();
-
-			const checkHeightIsHalf = (val, index) => {
-				// texture coord in vertical direction should be half of default texture coord.
-				if (index % 2 === 1 && textureCoord2[index] !== val / 2) {
-					return false;
-				}
-
-				return true;
-			};
-
-			// Then
-			expect(textureCoord1.length).to.be.equal(textureCoord2.length);
-			expect(textureCoord1.every(checkHeightIsHalf)).to.be.equal(true);
-		});
-
-		IT("isStereoscopic == false is same with undefined ", () => {
-			// Given
-			const defaultEquiRenderer = new SphereRenderer();
-			const stereoEquiRenderer = new SphereRenderer({isStereoscopic: false});
-
-			// When
-			const textureCoord1 = defaultEquiRenderer.getTextureCoordData();
-			const textureCoord2 = stereoEquiRenderer.getTextureCoordData();
-
-			const checkSameWithTextureCoord2 = (val, index) => textureCoord2[index] === val;
-
-			// Then
-			expect(textureCoord1.length).to.be.equal(textureCoord2.length);
-			expect(textureCoord1.every(checkSameWithTextureCoord2)).to.be.equal(true);
+			done();
 		});
 	});
 
@@ -96,7 +58,8 @@ describe("SphereRenderer", () => {
 			 */
 			const viewer = createPanoViewerForRenderingTest(target, {
 				image: "./images/PanoViewer/Stereoscopic/stereoscopic1.png",
-				projectionType: PanoViewer.PROJECTION_TYPE.STEREOSCOPIC_EQUI
+				projectionType: PanoViewer.PROJECTION_TYPE.STEREOSCOPIC_EQUI,
+				// stereoequiConfig: {format: PanoViewer.STEREO_FORMAT.TOP_BOTTOM}
 			});
 
 			await new Promise(res => viewer.on("ready", res));
@@ -117,7 +80,8 @@ describe("SphereRenderer", () => {
 			 */
 			const viewer = createPanoViewerForRenderingTest(target, {
 				image: "./images/PanoViewer/Stereoscopic/stereoscopic2.png",
-				projectionType: PanoViewer.PROJECTION_TYPE.STEREOSCOPIC_EQUI
+				projectionType: PanoViewer.PROJECTION_TYPE.STEREOSCOPIC_EQUI,
+				stereoequiConfig: {format: PanoViewer.STEREO_FORMAT.TOP_BOTTOM}
 			});
 
 			await new Promise(res => viewer.on("ready", res));
@@ -150,12 +114,13 @@ describe("SphereRenderer", () => {
 			 */
 			const stereoEquiViewer = createPanoViewerForRenderingTest(stereoTarget, {
 				image: "./images/PanoViewer/Stereoscopic/stereoscopic2.png",
-				projectionType: PanoViewer.PROJECTION_TYPE.STEREOSCOPIC_EQUI
+				projectionType: PanoViewer.PROJECTION_TYPE.STEREOSCOPIC_EQUI,
+				stereoequiConfig: {format: PanoViewer.STEREO_FORMAT.TOP_BOTTOM}
 			});
 
 			const defaultEquiViewer = createPanoViewerForRenderingTest(defTarget, {
 				image: "./images/test_equi.jpg",
-				projectionType: PanoViewer.PROJECTION_TYPE.EQUIRECTANGULAR
+				projectionType: PanoViewer.PROJECTION_TYPE.EQUIRECTANGULAR,
 			});
 
 			await Promise.all([

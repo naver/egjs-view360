@@ -1,58 +1,61 @@
-import {expect} from "sinon";
-import RotationPanInputInjector from "inject-loader!../../../src/YawPitchControl/input/RotationPanInput"; // eslint-disable-line import/no-duplicates
+import {expect} from "chai";
+import {vec2} from "gl-matrix";
 import RotationPanInput from "../../../src/YawPitchControl/input/RotationPanInput"; // eslint-disable-line import/no-duplicates
 import {sandbox, cleanup} from "../util";
 
 describe("RotationPanInput", () => {
+	let el;
+	let inst;
+
 	describe("#constructor", () => {
 		beforeEach(() => {
-			this.el = sandbox();
+			el = sandbox();
 		});
 
 		afterEach(() => {
 			cleanup();
 
-			this.inst.destroy();
+			inst.destroy();
 		});
 
 		it("Instance", () => {
 			// Given
 			// When
-			this.inst = new RotationPanInput(this.el);
+			inst = new RotationPanInput(el);
 
 			// Then
-			expect(this.inst).to.be.exist;
+			expect(inst).to.be.exist;
 		});
 
 		it("Instance with useRotation: true", () => {
 			// Given
 			// When
-			this.inst = new RotationPanInput(this.el, {useRotation: true});
+			inst = new RotationPanInput(el, {useRotation: true});
 
 			// Then
-			expect(this.inst).to.be.exist;
+			expect(inst).to.be.exist;
 		});
 	});
 
-	describe("#getOffset", function() {
+	describe("#getOffset", () => {
 		beforeEach(() => {
-			this.el = sandbox();
+			el = sandbox();
 		});
 
 		afterEach(() => {
-			this.el = sandbox();
+			el = sandbox();
 
-			this.inst.destroy();
+			inst.destroy();
 		});
 
 		it("should return just scaled properties if useRotation is not true", () => {
 			// Given
-			this.inst = new RotationPanInput(this.el);
+			inst = new RotationPanInput(el);
 
 			// When
-			const scale = this.inst.options.scale;
+			const scale = inst.options.scale;
 			const inputProperties = [10, 10];
-			const result = this.inst.getOffset(inputProperties, [true, true]);
+			const result = inst.getOffset(inputProperties, [true, true]);
 
 			// Then
 			const expected = inputProperties.map((input, index) => input * scale[index]);
@@ -64,25 +67,20 @@ describe("RotationPanInput", () => {
 			// Given
 			const TEST_ANGLE = Math.PI / 4;
 
-			class MockScreenRotation {
-				getRadian() {
-					return TEST_ANGLE;
-				}
-				unref() {
+			class MockDeviceQuaternion {
+				getDeviceHorizontalRight() {
+					return vec2.normalize(vec2.create(), vec2.fromValues(1, 1));
 				}
 			}
-			const RotatedModePanInput = RotationPanInputInjector({
-				"../ScreenRotationAngle": MockScreenRotation
-			}).default;
 
-			this.inst = new RotatedModePanInput(this.el, {
+			inst = new RotationPanInput(el, {
 				useRotation: true
-			});
+			}, new MockDeviceQuaternion());
 
 			// When
-			const scale = this.inst.options.scale;
+			const scale = inst.options.scale;
 			const input = [10, 10];
-			const result = this.inst.getOffset(input, [true, true]);
+			const result = inst.getOffset(input, [true, true]);
 
 			// Then
 			const expected = [

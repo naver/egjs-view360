@@ -1,5 +1,4 @@
-import {expect} from "sinon";
-import {assert} from "chai";
+import {expect, assert} from "chai";
 import ImageLoader from "../../../src/PanoImageRenderer/ImageLoader";
 
 describe("ImageLoader", () => {
@@ -7,19 +6,19 @@ describe("ImageLoader", () => {
 		it("Instance", () => {
 			// Given
 			// When
-			this.inst = new ImageLoader();
+			const inst = new ImageLoader();
 
 			// Then
-			expect(this.inst).to.be.exist;
+			expect(inst).to.be.exist;
 		});
 
 		it("should get image URL as a parameter", () => {
 			// Given
-			this.inst = new ImageLoader("./images/PanoViewer/waterpark_preview.jpg");
+			const inst = new ImageLoader("./images/PanoViewer/waterpark_preview.jpg");
 
 			// When
-			expect(this.inst).to.be.exist;
-			return this.inst.get().then(image => {
+			expect(inst).to.be.exist;
+			return inst.get().then(image => {
 				// Then
 				assert.isOk(image);
 				assert.isOk(image.complete);
@@ -30,14 +29,14 @@ describe("ImageLoader", () => {
 			});
 		});
 
-		it("should fails when url is invalid#1", function() {
+		it("should fails when url is invalid#1", () => {
 			// Given
 			// When (invlid url param)
-			this.inst = new ImageLoader("https://invalidurl.png");
+			const inst = new ImageLoader("https://invalidurl.png");
 
-			expect(this.inst).to.be.exist;
+			expect(inst).to.be.exist;
 			// Then
-			return this.inst.get()
+			return inst.get()
 				.then(() => false, () => true)
 				.then(success => assert.isOk(success, "Invalid url should not be resolved."));
 		});
@@ -57,13 +56,13 @@ describe("ImageLoader", () => {
 		/**
 		 * Does this test has meaning ? because is is guaranteed by promise.
 		 */
-		it("should not call again", function() {
+		it("should not call again", () => {
 			let countCb1 = 0;
 			let countCb2 = 0;
 
-			this.inst = new ImageLoader("./images/PanoViewer/waterpark_preview.jpg");
+			const inst = new ImageLoader("./images/PanoViewer/waterpark_preview.jpg");
 
-			expect(this.inst).to.be.exist;
+			expect(inst).to.be.exist;
 
 			function callback1() {
 				countCb1++;
@@ -74,11 +73,11 @@ describe("ImageLoader", () => {
 			}
 
 			// When
-			return this.inst.get()
+			return inst.get()
 				.then(callback1)
-				.then(() => this.inst.get())
+				.then(() => inst.get())
 				.then(callback2)
-				.then(() => this.inst.get())
+				.then(() => inst.get())
 				.then(() => {
 					// Then
 					assert.equal(countCb1, 1);
@@ -87,14 +86,15 @@ describe("ImageLoader", () => {
 		});
 	});
 
-	describe("#set", function() {
+	describe("#set", () => {
 		it("should set image by set()", () => {
 			// Given
 			// When
-			this.inst = new ImageLoader();
-			this.inst.set("./images/PanoViewer/waterpark_preview.jpg");
+			const inst = new ImageLoader();
 
-			return this.inst.get().then(img => {
+			inst.set("./images/PanoViewer/waterpark_preview.jpg");
+
+			return inst.get().then(img => {
 				assert.isOk(img.complete);
 			});
 		});
@@ -102,13 +102,14 @@ describe("ImageLoader", () => {
 		it("should set multiple images by set()", () => {
 			// Given
 			// When
-			this.inst = new ImageLoader();
-			this.inst.set([
+			const inst = new ImageLoader();
+
+			inst.set([
 				"./images/PanoViewer/waterpark_preview.jpg",
 				"./images/PanoViewer/waterpark_cube_1024.jpg"
 			]);
 
-			return this.inst.get().then(imgs => {
+			return inst.get().then(imgs => {
 				imgs.forEach(img => {
 					assert.isOk(img.complete);
 				});

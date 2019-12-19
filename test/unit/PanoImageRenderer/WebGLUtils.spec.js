@@ -1,4 +1,4 @@
-import {expect} from "sinon";
+import {expect} from "chai";
 import WebglUtilsInjector from "inject-loader!../../../src/PanoImageRenderer/WebGLUtils"; // eslint-disable-line import/no-duplicates
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils"; // eslint-disable-line import/no-duplicates
 

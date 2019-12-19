@@ -1,4 +1,4 @@
-import {expect} from "sinon";
+import {expect} from "chai";
 import CubeStripRenderer from "../../../src/PanoImageRenderer/renderer/CubeStripRenderer";
 import Renderer from "../../../src/PanoImageRenderer/renderer/Renderer";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
@@ -14,20 +14,15 @@ describe("CubeStripRenderer", () => {
 			const gl = WebGLUtils.getWebglContext(canvas);
 			const MAX_SIZE = WebGLUtils.getMaxTextureSize(gl);
 			const cubeRenderer = new CubeStripRenderer();
-			const errors = [];
 
 			cubeRenderer.on(Renderer.EVENTS.ERROR, e => {
-				errors.push(e);
+				// Then
+				expect(e.message).to.be.a("string");
+				done();
 			});
 
 			// When
 			cubeRenderer.bindTexture(gl, null, {naturalWidth: MAX_SIZE + 1, naturalHeight: MAX_SIZE + 1});
-
-			// Then
-			expect(errors.length).equals(1);
-			errors.forEach(e => {
-				expect(e.message).to.be.a("string");
-			});
 		});
 	});
 });

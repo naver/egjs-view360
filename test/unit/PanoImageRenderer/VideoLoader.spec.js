@@ -1,17 +1,18 @@
-import {expect} from "sinon";
-import {assert} from "chai";
+import {expect, assert} from "chai";
 import VideoLoader from "../../../src/PanoImageRenderer/VideoLoader";
+
+let inst;
 
 describe("VideoLoader", () => {
 	describe("#constructor", () => {
 		it("Instance", () => {
 			// Given
 			// When
-			this.inst = new VideoLoader();
+			inst = new VideoLoader();
 
 			// Then
-			expect(this.inst).to.be.exist;
-			return this.inst.get()
+			expect(inst).to.be.exist;
+			return inst.get()
 				.then(() => {
 					assert(false, "No resource should not trigger resolve.");
 				})
@@ -20,14 +21,14 @@ describe("VideoLoader", () => {
 				});
 		});
 
-		it("should set video as a url", function() {
+		it("should set video as a url", () => {
 			// Given && When
-			this.inst = new VideoLoader("./images/PanoViewer/pano.mp4");
+			inst = new VideoLoader("./images/PanoViewer/pano.mp4");
 
-			expect(this.inst).to.be.exist;
+			expect(inst).to.be.exist;
 
 			// Then
-			return this.inst.get()
+			return inst.get()
 				.then(video => {
 					assert.isOk(video);
 					assert.isTrue(video instanceof HTMLVideoElement);
@@ -39,14 +40,14 @@ describe("VideoLoader", () => {
 				});
 		});
 
-		it("should set video as a object({type, src})", function() {
+		it("should set video as a object({type, src})", () => {
 			// Given && When
-			this.inst = new VideoLoader({src: "./images/PanoViewer/pano.mp4", type: "video/mp4"});
+			inst = new VideoLoader({src: "./images/PanoViewer/pano.mp4", type: "video/mp4"});
 
-			expect(this.inst).to.be.exist;
+			expect(inst).to.be.exist;
 
 			// Then
-			return this.inst.get()
+			return inst.get()
 				.then(video => {
 					assert.isOk(video);
 					assert.isTrue(video instanceof HTMLVideoElement);
@@ -55,14 +56,14 @@ describe("VideoLoader", () => {
 				});
 		});
 
-		it("should set video as a object({src}) although type is not defined.", function() {
+		it("should set video as a object({src}) although type is not defined.", () => {
 			// Given && When
-			this.inst = new VideoLoader({src: "./images/PanoViewer/pano.mp4"});
+			inst = new VideoLoader({src: "./images/PanoViewer/pano.mp4"});
 
-			expect(this.inst).to.be.exist;
+			expect(inst).to.be.exist;
 
 			// Then
-			return this.inst.get()
+			return inst.get()
 				.then(video => {
 					assert.isOk(video);
 					assert.isTrue(video instanceof HTMLVideoElement);
@@ -71,14 +72,14 @@ describe("VideoLoader", () => {
 				});
 		});
 
-		it("should set video as mixed({type, src} object & url string)", function() {
+		it("should set video as mixed({type, src} object & url string)", () => {
 			// Given && When
-			this.inst = new VideoLoader(["./images/PanoViewer/pano.webm", {src: "./images/PanoViewer/pano.mp4", type: "video/mp4"}]);
+			inst = new VideoLoader(["./images/PanoViewer/pano.webm", {src: "./images/PanoViewer/pano.mp4", type: "video/mp4"}]);
 
-			expect(this.inst).to.be.exist;
+			expect(inst).to.be.exist;
 
 			// Then
-			return this.inst.get()
+			return inst.get()
 				.then(video => {
 					assert.isOk(video);
 					assert.isTrue(video instanceof HTMLVideoElement);
@@ -87,13 +88,13 @@ describe("VideoLoader", () => {
 				});
 		});
 
-		it("should set video as a video tag", function() {
+		it("should set video as a video tag", () => {
 			const video = document.createElement("video");
 
 			video.src = "./images/PanoViewer/pano.mp4";
-			this.inst = new VideoLoader(video);
-			expect(this.inst).to.be.exist;
-			return this.inst.get()
+			inst = new VideoLoader(video);
+			expect(inst).to.be.exist;
+			return inst.get()
 				.then(videoEl => {
 					assert.isOk(videoEl);
 					assert.isTrue(videoEl instanceof HTMLVideoElement);
@@ -102,50 +103,50 @@ describe("VideoLoader", () => {
 				});
 		});
 
-		it("should fail if src is not defined.", function() {
+		it("should fail if src is not defined.", () => {
 			// Given && When
-			this.inst = new VideoLoader({type: "video/mp4"});
+			inst = new VideoLoader({type: "video/mp4"});
 
-			expect(this.inst).to.be.exist;
+			expect(inst).to.be.exist;
 
 			// Then
-			return this.inst.get()
+			return inst.get()
 				.then(() => true, () => false)
 				.then(success => {
 					assert.isOk(success === false, "Invalid url should trigger promise 'reject'.");
 				});
 		});
 
-		it("should fails when url is invalid#1", function() {
-			this.inst = new VideoLoader("https://invalidurl.png");
+		it("should fails when url is invalid#1", () => {
+			inst = new VideoLoader("https://invalidurl.png");
 
-			expect(this.inst).to.be.exist;
-			return this.inst.get()
+			expect(inst).to.be.exist;
+			return inst.get()
 				.then(() => false, () => true)
 				.then(success => {
 					assert.isOk(success, "Invalid url should trigger promise 'reject'.");
 				});
 		});
 
-		it("should fails to get() after 100ms when url is invalid#2", function() {
-			this.inst = new VideoLoader("https://invalidurl.png");
+		it("should fails to get() after 100ms when url is invalid#2", () => {
+			inst = new VideoLoader("https://invalidurl.png");
 
-			expect(this.inst).to.be.exist;
+			expect(inst).to.be.exist;
 
 			return new Promise((res, rej) => {
 				setTimeout(() => {
-					this.inst.get().then(rej, res);
+					inst.get().then(rej, res);
 				}, 100);
 			});
 		});
 
-		it("should not call again", function() {
+		it("should not call again", () => {
 			let countCb1 = 0;
 			let countCb2 = 0;
 
-			this.inst = new VideoLoader("./images/PanoViewer/pano.mp4");
+			inst = new VideoLoader("./images/PanoViewer/pano.mp4");
 
-			expect(this.inst).to.be.exist;
+			expect(inst).to.be.exist;
 
 			function callback1() {
 				countCb1++;
@@ -156,11 +157,11 @@ describe("VideoLoader", () => {
 			}
 
 			// When
-			return this.inst.get()
+			return inst.get()
 				.then(callback1)
-				.then(() => this.inst.get())
+				.then(() => inst.get())
 				.then(callback2)
-				.then(() => this.inst.get())
+				.then(() => inst.get())
 				.then(() => {
 					// Then
 					assert.equal(countCb1, 1);
@@ -173,10 +174,10 @@ describe("VideoLoader", () => {
 		it("should be available to get/set sequentially", () => {
 			// Given
 			// When
-			this.inst = new VideoLoader();
-			this.inst.set("./images/PanoViewer/pano.mp4");
+			inst = new VideoLoader();
+			inst.set("./images/PanoViewer/pano.mp4");
 
-			return this.inst.get()
+			return inst.get()
 				.then(video => {
 					// First Then
 					expect(video instanceof HTMLVideoElement).to.be.true;
@@ -185,8 +186,8 @@ describe("VideoLoader", () => {
 					const v = document.createElement("video");
 
 					v.src = "./images/PanoViewer/pano.mp4";
-					this.inst.set(v);
-					return this.inst.get();
+					inst.set(v);
+					return inst.get();
 				})
 				.then(video => {
 					expect(video instanceof HTMLVideoElement).to.be.true;
@@ -195,15 +196,15 @@ describe("VideoLoader", () => {
 
 		it("should destroy video instance if set() called with no parameter", () => {
 			// Given & When
-			this.inst = new VideoLoader("./images/PanoViewer/pano.mp4");
+			inst = new VideoLoader("./images/PanoViewer/pano.mp4");
 
-			return this.inst.get()
+			return inst.get()
 				.then(video => {
 					expect(video instanceof HTMLVideoElement);
 					// When
-					this.inst.set();
+					inst.set();
 
-					return this.inst.get();
+					return inst.get();
 				})
 				.then(video => {
 					expect(false, "this code should not be called.").to.be.true;
@@ -240,16 +241,16 @@ describe("VideoLoader", () => {
 
 		it("should set video url as a Array<String>", () => {
 			// Given
-			this.inst = new VideoLoader();
+			inst = new VideoLoader();
 
 			// When
-			this.inst.set([
+			inst.set([
 				"./images/PanoViewer/pano.webm",
 				"./images/PanoViewer/pano.mp4"
 			]);
 
 			// Then
-			return this.inst.get().then(video => {
+			return inst.get().then(video => {
 				const els = video.querySelectorAll("source");
 
 				expect(els.length).to.be.eql(2);
@@ -258,16 +259,16 @@ describe("VideoLoader", () => {
 
 		it("should reject when there is only invalid url", () => {
 			// Given
-			this.inst = new VideoLoader();
+			inst = new VideoLoader();
 
 			// When
-			this.inst.set([
+			inst.set([
 				"https://invalidurl1.png",
 				"https://invalidurl2.png",
 			]);
 
 			// Then
-			return this.inst.get()
+			return inst.get()
 				.then(
 					() => false,
 					() => true
@@ -276,17 +277,17 @@ describe("VideoLoader", () => {
 
 		it("should set video url if valid & invalid url is mixed", () => {
 			// Given
-			this.inst = new VideoLoader();
+			inst = new VideoLoader();
 
 			// When
-			this.inst.set([
+			inst.set([
 				"https://invalidurl1.png",
 				"https://invalidurl2.png",
 				"./images/PanoViewer/pano.mp4",
 			]);
 
 			// Then
-			return this.inst.get()
+			return inst.get()
 				.then(video => {
 					const els = video.querySelectorAll("source");
 
@@ -309,17 +310,17 @@ describe("VideoLoader", () => {
 		 */
 		it.skip("should reject video on getting video if invalid url list is set", () => {
 			// Given
-			this.inst = new VideoLoader();
+			inst = new VideoLoader();
 
 			// When
-			this.inst.set([
+			inst.set([
 				"https://invalidurl1.png",
 				"https://invalidurl2.png",
 				"https://invalidurl3.png"
 			]);
 
 			// Then
-			return this.inst.get()
+			return inst.get()
 				.then(video => true, errMsg => {
 					console.log(errMsg); // Log to check if errMsg is ok.
 					return false;
@@ -331,16 +332,16 @@ describe("VideoLoader", () => {
 
 		it("should resolve video on getting video if valid url list is set", () => {
 			// Given
-			this.inst = new VideoLoader();
+			inst = new VideoLoader();
 
 			// When
-			this.inst.set([
+			inst.set([
 				"./images/PanoViewer/pano.webm",
 				"./images/PanoViewer/pano.mp4"
 			]);
 
 			// Then
-			return this.inst.get()
+			return inst.get()
 				.then(video => true, errMsg => false)
 				.then(success => {
 					expect(success).to.be.equal(true);
@@ -349,16 +350,16 @@ describe("VideoLoader", () => {
 
 		it("should resolve video on getting video if valid url list is set", () => {
 			// Given
-			this.inst = new VideoLoader();
+			inst = new VideoLoader();
 
 			// When
-			this.inst.set([
+			inst.set([
 				"./images/PanoViewer/pano.webm",
 				"./images/PanoViewer/pano.mp4"
 			]);
 
 			// Then
-			return this.inst.get()
+			return inst.get()
 				.then(video => true, errMsg => false)
 				.then(success => {
 					expect(success).to.be.equal(true);
@@ -367,13 +368,13 @@ describe("VideoLoader", () => {
 
 		it("should resolve video on getting video if valid object is set", () => {
 			// Given
-			this.inst = new VideoLoader();
+			inst = new VideoLoader();
 
 			// When
-			this.inst.set({src: "./images/PanoViewer/pano.mp4", type: "video/mp4"});
+			inst.set({src: "./images/PanoViewer/pano.mp4", type: "video/mp4"});
 
 			// Then
-			return this.inst.get()
+			return inst.get()
 				.then(video => true, errMsg => false)
 				.then(success => {
 					expect(success).to.be.equal(true);
@@ -382,16 +383,16 @@ describe("VideoLoader", () => {
 
 		it("should resolve video on getting video if valid object list is set", () => {
 			// Given
-			this.inst = new VideoLoader();
+			inst = new VideoLoader();
 
 			// When
-			this.inst.set([
+			inst.set([
 				{src: "./images/PanoViewer/pano.webm", type: "video/webm"},
 				{src: "./images/PanoViewer/pano.mp4", type: "video/mp4"}
 			]);
 
 			// Then
-			return this.inst.get()
+			return inst.get()
 				.then(video => {
 					let typeCount = 0;
 					const els = video.querySelectorAll("source");
@@ -408,16 +409,16 @@ describe("VideoLoader", () => {
 
 		it("should not set type on video if type is not set", () => {
 			// Given
-			this.inst = new VideoLoader();
+			inst = new VideoLoader();
 
 			// When
-			this.inst.set([
+			inst.set([
 				{src: "./images/PanoViewer/pano.webm", type: "video/webm"},
 				{src: "./images/PanoViewer/pano.mp4"}
 			]);
 
 			// Then
-			return this.inst.get()
+			return inst.get()
 				.then(video => {
 					let typeCount = 0;
 					const els = video.querySelectorAll("source");
@@ -434,10 +435,10 @@ describe("VideoLoader", () => {
 
 		it("should resolve video on getting video if valid object and invalid object is mixed in list", () => {
 			// Given
-			this.inst = new VideoLoader();
+			inst = new VideoLoader();
 
 			// When
-			this.inst.set([
+			inst.set([
 				{},
 				"https://invalidurl.mov",
 				"",
@@ -445,7 +446,7 @@ describe("VideoLoader", () => {
 			]);
 
 			// Then
-			const video = this.inst.getElement();
+			const video = inst.getElement();
 			const els = video.querySelectorAll("source");
 
 			expect(els.length).to.be.equal(2);
@@ -456,10 +457,10 @@ describe("VideoLoader", () => {
 			const videoUrl = "./images/PanoViewer/pano.mp4";
 
 			// When
-			const inst = new VideoLoader(videoUrl);
+			const loader = new VideoLoader(videoUrl);
 
 			// Then
-			expect(inst.getElement().crossOrigin).to.be.equal("anonymous");
+			expect(loader.getElement().crossOrigin).to.be.equal("anonymous");
 		});
 	});
 
@@ -467,10 +468,10 @@ describe("VideoLoader", () => {
 		it("could get video element after set video by resource path", () => {
 			// Given
 			const videoPath = "./images/PanoViewer/pano.webm";
-			const inst = new VideoLoader(videoPath);
+			const loader = new VideoLoader(videoPath);
 
 			// When
-			const element = inst.getElement();
+			const element = loader.getElement();
 
 			// Then
 
@@ -482,10 +483,10 @@ describe("VideoLoader", () => {
 			const videoPath = "./images/PanoViewer/pano.mp4";
 
 			videoObj.src = videoPath;
-			const inst = new VideoLoader(videoObj);
+			const loader = new VideoLoader(videoObj);
 
 			// When
-			const element = inst.getElement();
+			const element = loader.getElement();
 
 			// Then
 			expect(element.getAttribute("src")).to.be.equal(videoPath);
@@ -494,23 +495,23 @@ describe("VideoLoader", () => {
 	});
 
 
-	describe("#destroy", function() {
+	describe("#destroy", () => {
 		it("should not crash when destroying VideoLoader with no source.", () => {
 			// Given & When
-			this.inst = new VideoLoader();
+			inst = new VideoLoader();
 
-			this.inst.destroy();
+			inst.destroy();
 		});
 
 		it("should destroy video instance", () => {
 			// Given & When
-			this.inst = new VideoLoader("./images/PanoViewer/pano.mp4");
+			inst = new VideoLoader("./images/PanoViewer/pano.mp4");
 
-			return this.inst.get()
+			return inst.get()
 				.then(video => {
 					expect(video instanceof HTMLVideoElement);
-					this.inst.destroy();
-					return this.inst.get();
+					inst.destroy();
+					return inst.get();
 				})
 				.then(video => {
 					expect(false, "this code should not be called.").to.be.true;

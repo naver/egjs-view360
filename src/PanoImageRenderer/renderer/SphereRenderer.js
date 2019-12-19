@@ -48,7 +48,7 @@ export default class SphereRenderer extends Renderer {
 	constructor(stereoequiConfig) {
 		super();
 
-		this._stereoFormat = stereoequiConfig;
+		this._stereoFormat = stereoequiConfig.format;
 	}
 
 	render(ctx) {

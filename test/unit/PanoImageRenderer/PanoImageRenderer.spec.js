@@ -8,6 +8,7 @@ import PanoImageRendererForUnitTest from "../PanoImageRendererForUnitTest";
 import {compare, createPanoImageRenderer, renderAndCompareSequentially, isVideoLoaded, createVideoElement} from "../util";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 import TestHelper from "../YawPitchControl/testHelper";
+import {STEREO_FORMAT} from "../../../src/PanoViewer/consts";
 
 const RendererOnIE11 = RendererInjector(
 	{
@@ -163,7 +164,8 @@ describe("PanoImageRenderer", () => {
 				initialYaw: 0,
 				initialpitch: 0,
 				imageType: "equirectangular",
-				fieldOfView: 65
+				fieldOfView: 65,
+				stereoequiConfig: STEREO_FORMAT.NONE
 			});
 
 			// Then
@@ -188,7 +190,8 @@ describe("PanoImageRenderer", () => {
 				initialYaw: 0,
 				initialpitch: 0,
 				imageType: "equirectangular",
-				fieldOfView: 65
+				fieldOfView: 65,
+				stereoequiConfig: STEREO_FORMAT.NONE
 			});
 
 			// Then
@@ -213,7 +216,8 @@ describe("PanoImageRenderer", () => {
 				initialYaw: 0,
 				initialpitch: 0,
 				imageType: "equirectangular",
-				fieldOfView: 65
+				fieldOfView: 65,
+				stereoequiConfig: STEREO_FORMAT.NONE
 			});
 
 			// Then
@@ -271,10 +275,10 @@ describe("PanoImageRenderer", () => {
 				setTimeout(() => loseContext.restoreContext(), 100);
 			});
 
-			const events = [];
-
 			inst.on("renderingContextRestore", e => {
-				events.push(e);
+				// Then
+				expect(hasRenderingContextAfterLost).to.be.false;
+				expect(inst.hasRenderingContext()).to.be.true;
 			});
 
 			// When
@@ -282,13 +286,6 @@ describe("PanoImageRenderer", () => {
 				// Following code triggers webgl context lost.
 				createPanoImageRenderer(sourceImg, false, "cubemap");
 			}
-
-			// Then
-			expect(events.length).equals(1);
-			events.forEach(e => {
-				expect(hasRenderingContextAfterLost).to.be.false;
-				expect(inst.hasRenderingContext()).to.be.true;
-			});
 		});
 
 		/**
@@ -304,8 +301,6 @@ describe("PanoImageRenderer", () => {
 			const loseContext = inst.context.getExtension("WEBGL_lose_context");
 			let hasRenderingContextAfterLost;
 
-			const events = [];
-
 			inst.on("renderingContextLost", () => {
 				hasRenderingContextAfterLost = inst.hasRenderingContext();
 
@@ -314,18 +309,14 @@ describe("PanoImageRenderer", () => {
 				setTimeout(() => loseContext.restoreContext(), 100);
 			});
 			inst.on("renderingContextRestore", e => {
-				events.push(e);
+				// Then
+				expect(hasRenderingContextAfterLost).to.be.false;
+				expect(inst.hasRenderingContext()).to.be.true;
+				done();
 			});
 
 			// When
 			inst.forceContextLoss();
-
-			// Then
-			expect(events.length).equals(1);
-			events.forEach(e => {
-				expect(hasRenderingContextAfterLost).to.be.false;
-				expect(inst.hasRenderingContext()).to.be.true;
-			});
 		});
 	});
 
@@ -1003,7 +994,7 @@ describe("PanoImageRenderer", () => {
 	});
 
 	describe("#keepUpdate", () => {
-		IT("Should not render internaly when calling render when it doesn't need.", done => {
+		IT("Should not render internally when calling render when it doesn't need.", done => {
 			// Given
 			let isDrawCalled = false;
 			const sourceImg = new Image();
@@ -1012,7 +1003,9 @@ describe("PanoImageRenderer", () => {
 
 			const inst = createPanoImageRenderer(sourceImg, false, "cubemap");
 
-			inst.on("imageLoaded", () => {
+			inst.on("imageLoaded", async () => {
+				await inst.bindTexture();
+
 				inst.render(0, 0, 65);
 				inst._draw = () => {
 					isDrawCalled = true;
