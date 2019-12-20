@@ -15,8 +15,6 @@ quat.multiply(
 );
 
 export default class DeviceQuaternion extends Component {
-	get enabled() { return this._enabled; }
-
 	constructor() {
 		super();
 
@@ -59,6 +57,10 @@ export default class DeviceQuaternion extends Component {
 		this._prevQuaternion = null;
 		this._sensor.removeEventListener("read", this._onSensorRead);
 		this._sensor.stop();
+	}
+
+	isEnabled() {
+		return this._enabled;
 	}
 
 	getYawPitchDelta() {

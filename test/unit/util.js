@@ -196,6 +196,33 @@ function cleanup() {
 	});
 }
 
+function createVRDisplayMock() {
+	return {
+		capabilities: {
+			hasExternalDisplay: false
+		},
+		async requestPresent() {
+			this.presenting = true;
+			return "pass";
+		},
+		isPresenting() {
+			return this.presenting;
+		},
+		getLayers() {
+			return [];
+		},
+		getEyeParameters() {
+			return {
+				renderWidth: 100,
+				renderHeight: 100,
+				fieldOfView: 65,
+				offset: 0,
+			};
+		},
+		submitFrame() {}
+	};
+}
+
 export {
 	compare,
 	createPanoViewerForRenderingTest,
@@ -205,5 +232,6 @@ export {
 	isVideoLoaded,
 	createVideoElement,
 	sandbox,
-	cleanup
+	cleanup,
+	createVRDisplayMock
 };

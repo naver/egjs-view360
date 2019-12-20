@@ -92,7 +92,7 @@ describe("DeviceQuaternion", function() {
 			this.inst.destroy();
 
 			// Then
-			expect(this.inst.enabled).to.be.false;
+			expect(this.inst.isEnabled()).to.be.false;
 			expect(this.inst._sensor.activated).to.be.false;
 			expect(this.inst._sensor.hasReading).to.be.false;
 		});
