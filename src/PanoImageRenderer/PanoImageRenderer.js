@@ -80,16 +80,6 @@ export default class PanoImageRenderer extends Component {
 		this._shouldForceDraw = false;
 		this._keepUpdate = false; // Flag to specify 'continuous update' on video even when still.
 
-		// window.WebVRConfig = {
-		// 	ROTATE_INSTRUCTIONS_DISABLED: true,
-		// 	CARDBOARD_UI_DISABLED: true,
-		// 	TOUCH_PANNER_DISABLED: true,
-		// 	MOUSE_KEYBOARD_CONTROLS_DISABLED: true,
-		// 	FORCE_ENABLE_VR: true, // FIXME: Only for the debug, delete later
-		// 	ALWAYS_APPEND_POLYFILL_DISPLAY: true, // FIXME: Only for the debug, delete later
-		// };
-		// new window.WebVRPolyfill();
-
 		this._onContentLoad = 	this._onContentLoad.bind(this);
 		this._onContentError = 	this._onContentError.bind(this);
 
@@ -636,22 +626,12 @@ export default class PanoImageRenderer extends Component {
 
 		const presentOptions = Object.assign({...DEFAULT_VR_OPTIONS}, options);
 
-		// For iOS 13+
-		if (DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === "function") {
-			// VR can be enabled only when device motion is enabled
-			return DeviceMotionEvent.requestPermission()
-				.then(permissionState => {
-					// TODO:
-					// return this._requestVRDisplay();
-				});
-		}
-
 		return this._requestVRDisplay(presentOptions);
 	}
 
 	exitVR = () => {
 		this._renderer.vr.destroy();
-		this._updateViewport();
+		this.updateViewportDimensions(this.width, this.height);
 		this.swapShaderProgram();
 		this._shouldForceDraw = true;
 		window.removeEventListener(VRManager.DISPLAY_PRESENT_CHANGE, this.exitVR);

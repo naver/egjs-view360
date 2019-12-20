@@ -1,5 +1,4 @@
 import {glMatrix, mat4} from "gl-matrix";
-import Distortion from "../Distortion";
 import {util as mathUtil} from "../../utils/math-util";
 import {EYES} from "../consts";
 import WebGLUtils from "../WebGLUtils";
@@ -242,8 +241,6 @@ vec4 Distort(vec4 point) {
 
 			if (viewer.inverseCoefficients) {
 				return viewer.inverseCoefficients;
-			} else if (viewer.distortionCoefficients) {
-				return Distortion.approximateInverse(viewer.distortionCoefficients);
 			} else {
 				return NO_DISTORTION;
 			}

@@ -1,14 +1,15 @@
 import {expect} from "chai";
+import sinon from "sinon";
 import PanoImageRendererForUnitTestInjector from "inject-loader!../PanoImageRendererForUnitTest";
 import PanoImageRendererInjector from "inject-loader!../../../src/PanoImageRenderer/PanoImageRenderer"; // eslint-disable-line import/no-duplicates
 import RendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/Renderer";
 import SphereRendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/SphereRenderer";
 import PanoImageRenderer from "../../../src/PanoImageRenderer/PanoImageRenderer"; // eslint-disable-line import/no-duplicates
 import PanoImageRendererForUnitTest from "../PanoImageRendererForUnitTest";
-import {compare, createPanoImageRenderer, renderAndCompareSequentially, isVideoLoaded, createVideoElement} from "../util";
+import {compare, createPanoImageRenderer, renderAndCompareSequentially, isVideoLoaded, createVideoElement, createVRDisplayMock} from "../util";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 import TestHelper from "../YawPitchControl/testHelper";
-import {STEREO_FORMAT} from "../../../src/PanoViewer/consts";
+import {PROJECTION_TYPE, STEREO_FORMAT} from "../../../src/PanoViewer/consts";
 
 const RendererOnIE11 = RendererInjector(
 	{
@@ -1270,6 +1271,111 @@ describe("PanoImageRenderer", () => {
 			);
 
 			expect(result.success).to.be.equal(true);
+		});
+	});
+
+	describe("VR related methods test", () => {
+		let inst;
+		const origGetVRDisplays = navigator.getVRDisplays;
+
+		beforeEach(() => {
+			const sourceImg = new Image();
+
+			sourceImg.src = "./images/PanoViewer/Stereoscopic/stereoscopic1.png";
+			inst = createPanoImageRenderer(sourceImg, false, PROJECTION_TYPE.STEREOSCOPIC_EQUI);
+		});
+
+		afterEach(() => {
+			inst && inst.destroy();
+			inst = null;
+			navigator.getVRDisplays = origGetVRDisplays;
+		});
+
+		it("can't enter VR when WebVR is not available in browser", async () => {
+			// Given
+			const rejectSpy = sinon.spy();
+
+			navigator.getVRDisplays = null;
+
+			// When
+			await inst.enterVR()
+				.catch(rejectSpy);
+
+			// Then
+			expect(rejectSpy.called).to.be.true;
+		});
+
+		it("can enter VR with WebVR-polyfill enabled", async () => {
+			// Give
+			const resolveSpy = sinon.spy();
+
+			navigator.getVRDisplays = async () => [createVRDisplayMock()];
+
+			// When
+			await inst.enterVR()
+				.then(resolveSpy);
+
+			// Then
+			expect(resolveSpy.called).to.be.true;
+		});
+
+		it("should attach display present change event on window after enter VR", async () => {
+			// Give
+			let eventAdded = false;
+			const origAddEventListener = window.addEventListener;
+
+			navigator.getVRDisplays = async () => [createVRDisplayMock()];
+			window.addEventListener = (...args) => {
+				if (args[0] === "vrdisplaypresentchange") {
+					eventAdded = true;
+				}
+				origAddEventListener.call(window, args);
+			};
+
+			// When
+			await inst.enterVR();
+
+			// Then
+			expect(eventAdded).to.be.true;
+			window.addEventListener = origAddEventListener;
+		});
+
+		it("should swap shader program to render VR if predistorted", async () => {
+			// Give
+			inst.swapShaderProgram = sinon.spy();
+			navigator.getVRDisplays = async () => [createVRDisplayMock()];
+
+			// When
+			await inst.enterVR({
+				predistorted: true
+			});
+
+			// Then
+			expect(inst.swapShaderProgram.called).to.be.true;
+		});
+
+		it("should return viewport back to normal after exitVR is called", async () => {
+			// Give
+			const gl = inst.context;
+			const origViewport = gl.getParameter(gl.VIEWPORT);
+
+			navigator.getVRDisplays = async () => [createVRDisplayMock()];
+			await inst.enterVR({
+				predistorted: true
+			});
+			await inst.bindTexture();
+			inst.render(0, 0, 65); // render to update viewport
+
+			// When
+			const beforeExit = gl.getParameter(gl.VIEWPORT);
+
+			inst.exitVR();
+
+			const afterExit = gl.getParameter(gl.VIEWPORT);
+
+			// Then
+			expect(beforeExit).not.deep.equals(origViewport);
+			expect(afterExit).deep.equals(origViewport);
 		});
 	});
 });
