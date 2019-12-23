@@ -109,7 +109,7 @@ function calcFovOfPanormaImage(image) {
 	}
 
 	return +(aspectRatio < 6 ?
-		mathUtil.toDegree(Math.atan(0.5)) * 2 : (360 / aspectRatio)).toFixed(5); // Make it 5 fixed as axes does.
+		mathUtil.toDegree(Math.atan(0.5)) * 2 : (360 / aspectRatio));
 }
 
 function isVideoLoaded(video) {
