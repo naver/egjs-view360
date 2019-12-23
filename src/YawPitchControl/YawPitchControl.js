@@ -121,7 +121,7 @@ export default class YawPitchControl extends Component {
 			},
 		}, {
 			deceleration: MC_DECELERATION,
-			maximumDuration: MC_MAXIMUM_DURATION,
+			maximumDuration: MC_MAXIMUM_DURATION
 		}, {
 			yaw: opt.yaw,
 			pitch: opt.pitch,
@@ -247,13 +247,7 @@ export default class YawPitchControl extends Component {
 		}
 
 		if (keys.some(key => key === "fovRange")) {
-			/**
-			 * Temporary Fix Code
-			 * Changed float number as toFixed(5) format for temporary.
-			 *
-			 * TODO: it should not use toFixed(5) after axes.js is fixed.
-			 */
-			const fovRange = this.options.fovRange.map(v => +v.toFixed(5));
+			const fovRange = this.options.fovRange;
 			const prevFov = this.axes.get().fov;
 			let nextFov = this.axes.get().fov;
 
@@ -439,11 +433,11 @@ export default class YawPitchControl extends Component {
 
 		if (showPolePoint && !isPanorama) {
 			// Use full pinch range
-			return pitchRange.map(v => +v.toFixed(5));
+			return pitchRange.concat();
 		}
 
 		// Round value as movableCood do.
-		return [pitchRange[0] + halfFov, pitchRange[1] - halfFov].map(v => +v.toFixed(5));
+		return [pitchRange[0] + halfFov, pitchRange[1] - halfFov];
 	}
 
 	_updateYawRange(yawRange, fov, aspectRatio) {
@@ -458,7 +452,7 @@ export default class YawPitchControl extends Component {
 		 */
 		if (horizontalAngle >= 360) {
 			// Don't limit yaw range on Full 360 mode.
-			return yawRange.map(v => +v.toFixed(5));
+			return yawRange.concat();
 		}
 
 		/**
@@ -472,7 +466,7 @@ export default class YawPitchControl extends Component {
 		return [
 			yawRange[0] + halfHorizontalFov,
 			yawRange[1] - halfHorizontalFov
-		].map(v => +v.toFixed(5));
+		];
 	}
 
 	_triggerChange(evt) {

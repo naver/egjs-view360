@@ -26,19 +26,18 @@ import {sandbox, cleanup} from "../util";
 
 describe("YawPitchControl", () => {
 	describe("constructor", () => {
-		let inst;
-
-		afterEach(() => {
-			inst && inst.destroy();
-			inst = null;
-		});
-
 		describe("default options", () => {
+			let inst;
 			let target;
 
 			beforeEach(() => {
 				target = sandbox();
 				target.innerHTML = `<div></div>`;
+			});
+
+			afterEach(() => {
+				inst && inst.destroy();
+				cleanup();
 			});
 
 			it("Instance without params", () => {
@@ -101,10 +100,16 @@ describe("YawPitchControl", () => {
 
 		describe("Setting options test that affect each other", () => {
 			let target;
+			let inst;
 
 			beforeEach(() => {
 				target = sandbox();
 				target.innerHTML = `<div></div>`;
+			});
+
+			afterEach(() => {
+				inst && inst.destroy();
+				cleanup();
 			});
 
 			it("should change initial yaw by yaw range", () => {
@@ -137,6 +142,7 @@ describe("YawPitchControl", () => {
 			inst && inst.destroy();
 			target && target.remove();
 			target = null;
+			cleanup();
 		});
 
 		it("should disable panning when first place", done => {
@@ -275,6 +281,7 @@ describe("YawPitchControl", () => {
 			inst && inst.destroy();
 			target && target.remove();
 			target = null;
+			cleanup();
 		});
 
 		it("Should have isTrusted value true when trigged by user interaction", done => {
@@ -348,6 +355,7 @@ describe("YawPitchControl", () => {
 			afterEach(() => {
 				target.remove();
 				inst.destroy();
+				cleanup();
 			});
 
 			it("should set value as intented in default range", done => {
@@ -484,6 +492,7 @@ describe("YawPitchControl", () => {
 			afterEach(() => {
 				target.remove();
 				inst.destroy();
+				cleanup();
 			});
 
 			it("should set pitch in default pitch range.", done => {
@@ -668,6 +677,7 @@ describe("YawPitchControl", () => {
 			afterEach(() => {
 				results = [];
 				target.remove();
+				cleanup();
 			});
 
 			// It this test need?
@@ -721,7 +731,9 @@ describe("YawPitchControl", () => {
 			afterEach(() => {
 				results = [];
 				inst.destroy();
+				inst = null;
 				target.remove();
+				cleanup();
 			});
 
 			it("should set fov within fov-range", done => {
@@ -729,12 +741,15 @@ describe("YawPitchControl", () => {
 				const inputFov = [-10, 0, 40, 90, 120, 200];
 				const expectedFov = [30, 40, 90, 110];
 
-				attachThenHandler(expectedFov, res => {
-					// Then
-					expectedFov.forEach((expectedVal, i) => {
-						expect(res[i]).to.equal(expectedVal);
-					});
-					done();
+				inst.on("change", e => {
+					results.push(e.fov);
+					if (results.length >= expectedFov.length) {
+						// Then
+						expectedFov.forEach((expectedVal, i) => {
+							expect(results[i]).to.equal(expectedVal);
+						});
+						done();
+					}
 				});
 
 				// When
@@ -819,6 +834,7 @@ describe("YawPitchControl", () => {
 			afterEach(() => {
 				target.remove();
 				inst.destroy();
+				cleanup();
 			});
 
 			it("should update current pitch when 'changed fov' cannot accept current pitch", done => {
@@ -868,6 +884,7 @@ describe("YawPitchControl", () => {
 				results = [];
 				target.remove();
 				inst.destroy();
+				cleanup();
 			});
 
 			it("should update deceleration when FOV changed", done => {
@@ -917,6 +934,7 @@ describe("YawPitchControl", () => {
 				results = [];
 				target.remove();
 				inst.destroy();
+				cleanup();
 			});
 
 			// allow FOV (Zoom) (Spec for embedding in a document)
@@ -955,6 +973,7 @@ describe("YawPitchControl", () => {
 			afterEach(() => {
 				target.remove();
 				inst.destroy();
+				cleanup();
 			});
 
 			// allow FOV (Zoom) (Spec for embedding in a document)
@@ -990,6 +1009,7 @@ describe("YawPitchControl", () => {
 			afterEach(() => {
 				target.remove();
 				inst.destroy();
+				cleanup();
 			});
 
 			// allow FOV (Zoom) (Spec for embedding in a document)
@@ -1025,6 +1045,7 @@ describe("YawPitchControl", () => {
 			afterEach(() => {
 				target.remove();
 				inst && inst.destroy();
+				cleanup();
 			});
 
 			it("should increase fov using pinchZoom if useZoom is true", done => {
@@ -1135,6 +1156,7 @@ describe("YawPitchControl", () => {
 				inst.destroy();
 				target.remove();
 				changed = false;
+				cleanup();
 			});
 
 			// useZoom true 인 경우 wheel scroll 을 통한 확대가 가능해야 한다.
@@ -1231,14 +1253,21 @@ describe("YawPitchControl", () => {
 			let target;
 			let inst;
 
-			it("should update movable yawRange by fov change", () => {
-				// Given
-				const YAW_RANGE = [-120, 120];
-
+			beforeEach(() => {
 				target = sandbox();
 
 				// aspect ratio is 1, so fov is same with horizontal fov(hfov)
 				target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+			});
+
+			afterEach(() => {
+				inst && inst.destroy();
+				cleanup();
+			});
+
+			it("should update movable yawRange by fov change", () => {
+				// Given
+				const YAW_RANGE = [-120, 120];
 
 				// default fov range is [30, 110], but increase max fovRange for boundary check.
 				inst = new YawPitchControl({
@@ -1260,11 +1289,8 @@ describe("YawPitchControl", () => {
 					expectedRangeSize = (YAW_RANGE[1] - YAW_RANGE[0]) - inst.getFov();
 
 					// Then
-					expect(calculatedRangeSize).to.be.equal(expectedRangeSize);
+					expect(calculatedRangeSize).to.be.closeTo(expectedRangeSize, 0.00001);
 				});
-
-				target.remove();
-				inst.destroy();
 			});
 		});
 	});
@@ -1285,6 +1311,7 @@ describe("YawPitchControl", () => {
 			inst && inst.destroy();
 			targetEl && targetEl.remove();
 			targetEl = null;
+			cleanup();
 		});
 
 		it("zoomming when showPolePoint is false, should adjust pitch", done => {
@@ -1396,6 +1423,7 @@ describe("YawPitchControl", () => {
 			inst && inst.destroy();
 			target && target.remove();
 			target = null;
+			cleanup();
 		});
 		it("no script errer with no touch, no motion", () => {
 			// Given
@@ -1496,6 +1524,7 @@ describe("YawPitchControl", () => {
 			inst && inst.destroy();
 			target && target.remove();
 			target = null;
+			cleanup();
 		});
 	});
 
@@ -1515,6 +1544,7 @@ describe("YawPitchControl", () => {
 			inst && inst.destroy();
 			target && target.remove();
 			target = null;
+			cleanup();
 		});
 
 		it("pan scale change after pich zoom", done => {
@@ -1617,6 +1647,7 @@ describe("YawPitchControl", () => {
 			inst && inst.destroy();
 			target && target.remove();
 			target = null;
+			cleanup();
 		});
 
 		it("should ignore yaw/pitch range option. it use circular range.", () => {
@@ -1811,6 +1842,7 @@ describe("YawPitchControl", () => {
 			inst && inst.destroy();
 			target && target.remove();
 			target = null;
+			cleanup();
 		});
 
 		it("should enable all direction when TOUCH_DIRECTION_ALL is specified", done => {
@@ -1934,6 +1966,7 @@ describe("YawPitchControl", () => {
 			inst && inst.destroy();
 			target && target.remove();
 			target = null;
+			cleanup();
 		});
 
 		it("should enable only yaw direction when direction changed from TOUCH_DIRECTION_ALL to TOUCH_DIRECTION_YAW", done => {
@@ -2092,6 +2125,7 @@ describe("YawPitchControl", () => {
 			inst = null;
 			target && target.remove();
 			target = null;
+			cleanup();
 		});
 
 		it("should change yaw when direction = TOUCH_DIRECTION_YAW & moved horizontally", done => {
@@ -2110,8 +2144,8 @@ describe("YawPitchControl", () => {
 			// When
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				// Then
-				expect(inst.getYawPitch().yaw).to.be.not.equal(prevYaw);
-				expect(inst.getYawPitch().pitch).to.be.equal(prevPitch);
+				expect(inst.getYawPitch().yaw).to.be.not.closeTo(prevYaw, 0.00001);
+				expect(inst.getYawPitch().pitch).to.be.closeTo(prevPitch, 0.00001);
 				done();
 			});
 		});
@@ -2132,8 +2166,8 @@ describe("YawPitchControl", () => {
 			// When
 			Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 				// Then
-				expect(inst.getYawPitch().yaw).to.be.equal(prevYaw);
-				expect(inst.getYawPitch().pitch).to.be.equal(prevPitch);
+				expect(inst.getYawPitch().yaw).to.be.closeTo(prevYaw, 0.00001);
+				expect(inst.getYawPitch().pitch).to.be.closeTo(prevPitch, 0.00001);
 				done();
 			});
 		});
@@ -2153,8 +2187,8 @@ describe("YawPitchControl", () => {
 			// When
 			Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 				// Then
-				expect(inst.getYawPitch().yaw).to.be.equal(prevYaw);
-				expect(inst.getYawPitch().pitch).to.be.not.equal(prevPitch);
+				expect(inst.getYawPitch().yaw).to.be.closeTo(prevYaw, 0.00001);
+				expect(inst.getYawPitch().pitch).to.be.not.closeTo(prevPitch, 0.00001);
 				done();
 			});
 		});
@@ -2174,8 +2208,8 @@ describe("YawPitchControl", () => {
 			// When
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				// Then
-				expect(inst.getYawPitch().yaw).to.be.equal(prevYaw);
-				expect(inst.getYawPitch().pitch).to.be.equal(prevPitch);
+				expect(inst.getYawPitch().yaw).to.be.closeTo(prevYaw, 0.00001);
+				expect(inst.getYawPitch().pitch).to.be.closeTo(prevPitch, 0.00001);
 				done();
 			});
 		});
@@ -2224,6 +2258,7 @@ describe("YawPitchControl", () => {
 			inst = null;
 			target && target.remove();
 			target = null;
+			cleanup();
 		});
 
 		it("should change yaw when direction = TOUCH_DIRECTION_YAW & moved vertically", done => {
@@ -2245,8 +2280,8 @@ describe("YawPitchControl", () => {
 				const currYaw = inst.getYawPitch().yaw;
 				const currPitch = inst.getYawPitch().pitch;
 
-				expect(currYaw).to.be.not.equal(prevYaw);
-				expect(currPitch).to.be.equal(prevPitch);
+				expect(currYaw).to.be.not.closeTo(prevYaw, 0.00001);
+				expect(currPitch).to.be.closeTo(prevPitch, 0.00001);
 				done();
 			});
 		});
@@ -2267,8 +2302,8 @@ describe("YawPitchControl", () => {
 			// When
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				// Then
-				expect(inst.getYawPitch().yaw).to.be.equal(prevYaw);
-				expect(inst.getYawPitch().pitch).to.be.equal(prevPitch);
+				expect(inst.getYawPitch().yaw).to.be.closeTo(prevYaw, 0.00001);
+				expect(inst.getYawPitch().pitch).to.be.closeTo(prevPitch, 0.00001);
 				done();
 			});
 		});
@@ -2288,8 +2323,8 @@ describe("YawPitchControl", () => {
 			// When
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				// Then
-				expect(inst.getYawPitch().yaw).to.be.equal(prevYaw);
-				expect(inst.getYawPitch().pitch).to.be.not.equal(prevPitch);
+				expect(inst.getYawPitch().yaw).to.be.closeTo(prevYaw, 0.00001);
+				expect(inst.getYawPitch().pitch).to.be.not.closeTo(prevPitch, 0.00001);
 				done();
 			});
 		});
@@ -2309,8 +2344,8 @@ describe("YawPitchControl", () => {
 			// When
 			Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 				// Then
-				expect(inst.getYawPitch().yaw).to.be.equal(prevYaw);
-				expect(inst.getYawPitch().pitch).to.be.equal(prevPitch);
+				expect(inst.getYawPitch().yaw).to.be.closeTo(prevYaw, 0.00001);
+				expect(inst.getYawPitch().pitch).to.be.closeTo(prevPitch, 0.00001);
 				done();
 			});
 		});
@@ -2349,6 +2384,7 @@ describe("YawPitchControl", () => {
 			inst && inst.destroy();
 			target && target.remove();
 			target = null;
+			cleanup();
 		});
 
 		it("should enable touch after changed from TOUCH_DIRECTION_ALL to TOUCH_DIRECTION_YAW", done => {
@@ -2365,8 +2401,8 @@ describe("YawPitchControl", () => {
 
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
-					expect(inst.getYawPitch().yaw).to.be.equal(prevYaw);
-					expect(inst.getYawPitch().pitch).to.be.equal(prevPitch);
+					expect(inst.getYawPitch().yaw).to.be.closeTo(prevYaw, 0.00001);
+					expect(inst.getYawPitch().pitch).to.be.closeTo(prevPitch, 0.00001);
 
 					// When
 					inst.option("touchDirection", TOUCH_DIRECTION_ALL);
@@ -2374,8 +2410,8 @@ describe("YawPitchControl", () => {
 					Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 						Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 							// Then
-							expect(inst.getYawPitch().yaw).to.be.not.equal(prevYaw);
-							expect(inst.getYawPitch().pitch).to.be.not.equal(prevPitch);
+							expect(inst.getYawPitch().yaw).to.be.not.closeTo(prevYaw, 0.00001);
+							expect(inst.getYawPitch().pitch).to.be.not.closeTo(prevPitch, 0.00001);
 							done();
 						});
 					});
@@ -2397,8 +2433,8 @@ describe("YawPitchControl", () => {
 
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
-					expect(inst.getYawPitch().yaw).to.be.equal(prevYaw);
-					expect(inst.getYawPitch().pitch).to.be.equal(prevPitch);
+					expect(inst.getYawPitch().yaw).to.be.closeTo(prevYaw, 0.00001);
+					expect(inst.getYawPitch().pitch).to.be.closeTo(prevPitch, 0.00001);
 
 					// When
 					inst.option("touchDirection", TOUCH_DIRECTION_ALL);
@@ -2409,15 +2445,15 @@ describe("YawPitchControl", () => {
 							const prevYaw2 = inst.getYawPitch().yaw;
 							const prevPitch2 = inst.getYawPitch().pitch;
 
-							expect(prevYaw2).to.be.not.equal(prevYaw);
-							expect(prevPitch2).to.be.not.equal(prevPitch);
+							expect(prevYaw2).to.be.not.closeTo(prevYaw, 0.00001);
+							expect(prevPitch2).to.be.not.closeTo(prevPitch, 0.00001);
 
 							inst.option("touchDirection", TOUCH_DIRECTION_NONE);
 
 							Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 								Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
-									expect(inst.getYawPitch().yaw).to.be.equal(prevYaw2);
-									expect(inst.getYawPitch().pitch).to.be.equal(prevPitch2);
+									expect(inst.getYawPitch().yaw).to.be.closeTo(prevYaw2, 0.00001);
+									expect(inst.getYawPitch().pitch).to.be.closeTo(prevPitch2, 0.00001);
 									done();
 								});
 							});
