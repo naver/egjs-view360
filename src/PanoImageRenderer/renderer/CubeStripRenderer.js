@@ -3,29 +3,23 @@ import Renderer from "./Renderer.js";
 import WebGLUtils from "../WebGLUtils";
 
 export default class CubeStripRenderer extends Renderer {
-	getVertexShaderSource(attach) {
+	getVertexShaderSource() {
 		return `
-${attach.preprocessor}
 attribute vec3 aVertexPosition;
 attribute vec2 aTextureCoord;
 uniform mat4 uMVMatrix;
 uniform mat4 uPMatrix;
 varying highp vec2 vTextureCoord;
-${attach.variable}
-${attach.function}
 void main(void) {
 	vTextureCoord = aTextureCoord;
-	vec4 pos = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-	${attach.main}
-	gl_Position = pos;
+	gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
 }`;
 	}
 
-	getFragmentShaderSource(attach) {
+	getFragmentShaderSource() {
 		return `
 #define PI 3.14159265359
 precision highp float;
-${attach.preprocessor}
 varying highp vec2 vTextureCoord;
 uniform sampler2D uSampler;
 uniform bool uIsEAC;
@@ -35,12 +29,10 @@ const vec2 TEXTURE_COORDS_RANGE = vec2(0.0, 1.0);
 const vec4 TEXTURE_DIVISION_X = vec4(0.0, 1.0 / 3.0, 2.0 / 3.0, 1.0);
 const vec3 TEXTURE_DIVISION_Y = vec3(0.0, 1.0 / 2.0, 1.0);
 const float EAC_CONST = 2.0 / PI;
-${attach.variable}
 float scale(vec2 domainRange, vec2 targetRange, float val) {
 	float unit = 1.0 / (domainRange[1] - domainRange[0]);
 	return targetRange[0] + (targetRange[1] - targetRange[0]) * (val - domainRange[0]) * unit;
 }
-${attach.function}
 void main(void) {
 	float transformedCoordX;
 	float transformedCoordY;
@@ -80,9 +72,7 @@ void main(void) {
 		transformedCoordY = vTextureCoord.t;
 	}
 
-	vec4 col = texture2D(uSampler, vec2(transformedCoordX, transformedCoordY));
-	${attach.main}
-	gl_FragColor = col;
+	gl_FragColor = texture2D(uSampler, vec2(transformedCoordX, transformedCoordY));
 }`;
 	}
 

@@ -115,36 +115,26 @@ export default class CubeRenderer extends Renderer {
 		return textureCoordData;
 	}
 
-	getVertexShaderSource(attach) {
+	getVertexShaderSource() {
 		return `
-${attach.preprocessor}
 attribute vec3 aVertexPosition;
 attribute vec3 aTextureCoord;
 uniform mat4 uMVMatrix;
 uniform mat4 uPMatrix;
 varying highp vec3 vVertexDirectionVector;
-${attach.variable}
-${attach.function}
 void main(void) {
 	vVertexDirectionVector = aTextureCoord;
-	vec4 pos = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-	${attach.main}
-	gl_Position = pos;
+	gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
 }`;
 	}
 
-	getFragmentShaderSource(attach) {
+	getFragmentShaderSource() {
 		return `
 precision highp float;
-${attach.preprocessor}
 uniform samplerCube uSampler;
 varying highp vec3 vVertexDirectionVector;
-${attach.variable}
-${attach.function}
 void main(void) {
-	vec4 col = textureCube(uSampler, vVertexDirectionVector);
-	${attach.main}
-	gl_FragColor = col;
+	gl_FragColor = textureCube(uSampler, vVertexDirectionVector);
 }`;
 	}
 

@@ -1,6 +1,5 @@
 import Component from "@egjs/component";
 import Agent from "@egjs/agent";
-import VRManager from "../vr/VRManager";
 
 const agent = Agent();
 const isIE11 = agent.browser.name === "ie" && agent.browser.version === "11.0";
@@ -16,20 +15,12 @@ const EVENTS = {
 export default class Renderer extends Component {
 	static EVENTS = EVENTS;
 
-	get vr() { return this._vr; }
-
 	constructor() {
 		super();
 
 		this._forceDimension = null;
 		this._pixelCanvas = null;
 		this._pixelContext = null;
-
-		this._vr = new VRManager(this);
-	}
-
-	destroy() {
-		this._vr.destroy();
 	}
 
 	/**

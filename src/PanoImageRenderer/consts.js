@@ -4,7 +4,3 @@ export const EYES = {
 	LEFT: "left",
 	RIGHT: "right"
 };
-
-export const DEFAULT_VR_OPTIONS = {
-	predistorted: false,
-};

@@ -49,12 +49,12 @@ function createPanoViewerForRenderingTest(target, options) {
 
 function createPanoImageRenderer(image, isVideo, projectionType, cubemapConfig = {},
 	options = {fieldOfView: 65, width: 200, height: 200},
-	stereoequiConfig = {format: PanoViewer.STEREO_FORMAT.TOP_BOTTOM}) {
+	stereoequiFormat = PanoViewer.STEREO_FORMAT.TOP_BOTTOM) {
 	const sphericalConfig = {
 		fieldOfView: options.fieldOfView,
 		imageType: projectionType,
 		cubemapConfig,
-		stereoequiConfig,
+		stereoequiFormat,
 	};
 
 	return new PanoImageRendererForUnitTest(
