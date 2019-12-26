@@ -30,15 +30,6 @@ export default class WebGLUtils {
 		return null;
 	}
 
-	static createShaderAttachment(attach) {
-		return Object.assign({
-			preprocessor: "",
-			variable: "",
-			function: "",
-			main: "",
-		}, {...attach});
-	}
-
 	static createProgram(gl, vertexShader, fragmentShader) {
 		const program = gl.createProgram();
 

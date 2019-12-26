@@ -166,7 +166,7 @@ describe("PanoImageRenderer", () => {
 				initialpitch: 0,
 				imageType: "equirectangular",
 				fieldOfView: 65,
-				stereoequiConfig: STEREO_FORMAT.NONE
+				stereoequiFormat: STEREO_FORMAT.NONE
 			});
 
 			// Then
@@ -192,7 +192,7 @@ describe("PanoImageRenderer", () => {
 				initialpitch: 0,
 				imageType: "equirectangular",
 				fieldOfView: 65,
-				stereoequiConfig: STEREO_FORMAT.NONE
+				stereoequiFormat: STEREO_FORMAT.NONE
 			});
 
 			// Then
@@ -218,7 +218,7 @@ describe("PanoImageRenderer", () => {
 				initialpitch: 0,
 				imageType: "equirectangular",
 				fieldOfView: 65,
-				stereoequiConfig: STEREO_FORMAT.NONE
+				stereoequiFormat: STEREO_FORMAT.NONE
 			});
 
 			// Then
@@ -1321,23 +1321,16 @@ describe("PanoImageRenderer", () => {
 
 		it("should attach display present change event on window after enter VR", async () => {
 			// Give
-			let eventAdded = false;
-			const origAddEventListener = window.addEventListener;
+			const eventAddSpy = sinon.spy(window, "addEventListener");
 
 			navigator.getVRDisplays = async () => [createVRDisplayMock()];
-			window.addEventListener = (...args) => {
-				if (args[0] === "vrdisplaypresentchange") {
-					eventAdded = true;
-				}
-				origAddEventListener.call(window, args);
-			};
 
 			// When
 			await inst.enterVR();
 
 			// Then
-			expect(eventAdded).to.be.true;
-			window.addEventListener = origAddEventListener;
+			expect(eventAddSpy.calledWith("vrdisplaypresentchange")).to.be.true;
+			window.addEventListener.restore();
 		});
 
 		it("should swap shader program to render VR if predistorted", async () => {

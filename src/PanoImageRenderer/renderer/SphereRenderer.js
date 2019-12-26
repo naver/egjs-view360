@@ -45,10 +45,10 @@ export default class SphereRenderer extends Renderer {
 	static _TEXTURE_COORD_DATA = textureCoordData;
 	static _INDEX_DATA = indexData;
 
-	constructor(stereoequiConfig) {
+	constructor(format) {
 		super();
 
-		this._stereoFormat = stereoequiConfig.format;
+		this._stereoFormat = format;
 	}
 
 	render(ctx) {
@@ -90,9 +90,8 @@ export default class SphereRenderer extends Renderer {
 		return SphereRenderer._TEXTURE_COORD_DATA;
 	}
 
-	getVertexShaderSource(attach) {
+	getVertexShaderSource() {
 		return `
-${attach.preprocessor}
 attribute vec3 aVertexPosition;
 attribute vec2 aTextureCoord;
 uniform mat4 uMVMatrix;
@@ -100,29 +99,20 @@ uniform mat4 uPMatrix;
 uniform float uEye;
 uniform vec4 uTexScaleOffset[2];
 varying highp vec2 vTextureCoord;
-${attach.variable}
-${attach.function}
 void main(void) {
 	vec4 scaleOffset = uTexScaleOffset[int(uEye)];
 	vTextureCoord = aTextureCoord.xy * scaleOffset.xy + scaleOffset.zw;
-	vec4 pos = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-	${attach.main}
-	gl_Position = pos;
+	gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
 }`;
 	}
 
-	getFragmentShaderSource(attach) {
+	getFragmentShaderSource() {
 		return `
 precision highp float;
-${attach.preprocessor}
 varying highp vec2 vTextureCoord;
 uniform sampler2D uSampler;
-${attach.variable}
-${attach.function}
 void main(void) {
-	vec4 col = texture2D(uSampler, vTextureCoord.st);
-	${attach.main}
-	gl_FragColor = col;
+	gl_FragColor = texture2D(uSampler, vTextureCoord.st);
 }`;
 	}
 

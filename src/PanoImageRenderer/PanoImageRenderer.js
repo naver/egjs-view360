@@ -9,9 +9,9 @@ import CubeRenderer from "./renderer/CubeRenderer";
 import CubeStripRenderer from "./renderer/CubeStripRenderer";
 import SphereRenderer from "./renderer/SphereRenderer";
 import CylinderRenderer from "./renderer/CylinderRenderer";
-import {devicePixelRatio} from "../utils/browserFeature";
+import {devicePixelRatio, SUPPORT_WEBXR} from "../utils/browserFeature";
 import {PROJECTION_TYPE, STEREO_FORMAT} from "../PanoViewer/consts";
-import {EYES, DEFAULT_VR_OPTIONS} from "./consts";
+import {EYES} from "./consts";
 
 
 const ImageType = PROJECTION_TYPE;
@@ -160,7 +160,7 @@ export default class PanoImageRenderer extends Component {
 				this._renderer = new CylinderRenderer();
 				break;
 			case ImageType.STEREOSCOPIC_EQUI:
-				this._renderer = new SphereRenderer(this.sphericalConfig.stereoequiConfig);
+				this._renderer = new SphereRenderer(this.sphericalConfig.stereoequiFormat);
 				break;
 			default:
 				this._renderer = new SphereRenderer(STEREO_FORMAT.NONE);
@@ -271,9 +271,6 @@ export default class PanoImageRenderer extends Component {
 		if (this._contentLoader) {
 			this._contentLoader.destroy();
 		}
-		if (this._renderer) {
-			this._renderer.destroy();
-		}
 
 		this.detach();
 		this.forceContextLoss();
@@ -295,7 +292,7 @@ export default class PanoImageRenderer extends Component {
 		return true;
 	}
 
-	swapShaderProgram(vsAttachments, fsAttachments) {
+	initShaderProgram() {
 		const gl = this.context;
 
 		if (this.shaderProgram) {
@@ -304,10 +301,9 @@ export default class PanoImageRenderer extends Component {
 		}
 
 		const renderer = this._renderer;
-		const defaultAttachments = WebGLUtils.createShaderAttachment();
 
-		const vsSource = renderer.getVertexShaderSource(vsAttachments || defaultAttachments);
-		const fsSource = renderer.getFragmentShaderSource(fsAttachments || defaultAttachments);
+		const vsSource = renderer.getVertexShaderSource();
+		const fsSource = renderer.getFragmentShaderSource();
 
 		const vertexShader = WebGLUtils.createShader(gl, gl.VERTEX_SHADER, vsSource);
 		const fragmentShader = WebGLUtils.createShader(gl, gl.FRAGMENT_SHADER, fsSource);
@@ -402,8 +398,7 @@ export default class PanoImageRenderer extends Component {
 			gl = this.context;
 
 			this.updateViewportDimensions(this.width, this.height);
-
-			this.swapShaderProgram();
+			this.initShaderProgram();
 		} catch (e) {
 			this.trigger(EVENTS.ERROR, {
 				type: ERROR_TYPE.NO_WEBGL,
@@ -615,50 +610,45 @@ export default class PanoImageRenderer extends Component {
 	/**
 	 * @return Promise
 	 */
-	enterVR(options = {}) {
-		// webvr-polyfill can add this function to the Navigator
-		if (!navigator.getVRDisplays) {
+	enterVR() {
+		if (!navigator.xr && !navigator.getVRDisplays) {
 			return Promise.reject("VR is not available on this browser.");
 		}
-		if (this._renderer.vr.isPresenting()) {
-			return Promise.resolve("VR already enabled.");
-		}
+		// if (this._renderer.vr.isPresenting()) {
+		// 	return Promise.resolve("VR already enabled.");
+		// }
 
-		const presentOptions = Object.assign({...DEFAULT_VR_OPTIONS}, options);
-
-		return this._requestVRDisplay(presentOptions);
+		return this._requestVRSession();
 	}
 
 	exitVR = () => {
-		this._renderer.vr.destroy();
+		// this._renderer.vr.destroy();
 		this.updateViewportDimensions(this.width, this.height);
-		this.swapShaderProgram();
 		this._shouldForceDraw = true;
 		window.removeEventListener(VRManager.DISPLAY_PRESENT_CHANGE, this.exitVR);
 	}
 
-	_requestVRDisplay(vrOptions) {
-		return navigator.getVRDisplays().then(displays => {
-			const vrDisplay = displays.length && displays[0];
+	_requestVRSession() {
+		if (SUPPORT_WEBXR) {
+			return navigator.xr.requestSession("immersive-vr").then(session => {
 
-			if (!vrDisplay) return;
-
-			// predistorted can be enabled only when viewer doesn't have external display
-			vrOptions.predistorted = vrOptions.predistorted &&
-				!vrDisplay.capabilities.hasExternalDisplay;
-
-			vrDisplay.requestPresent([
-				Object.assign({
-					source: this.canvas,
-				}, vrOptions)
-			]).then(() => {
+			});
+		} else {
+			return navigator.getVRDisplays().then(async displays => {
 				const canvas = this.canvas;
+				const vrDisplay = displays.length && displays[0];
+
+				if (!vrDisplay) return;
+
+
+				const presentOptions = {
+					source: canvas,
+				};
+
+				await vrDisplay.requestPresent([presentOptions]);
 
 				this._vrDisplay = vrDisplay;
-				this._renderer.vr.enable(vrDisplay, {
-					...vrOptions,
-					panoImageRenderer: this,
-				});
+				// this._renderer.vr.enable(vrDisplay);
 
 				const leftEye = vrDisplay.getEyeParameters(EYES.LEFT);
 				const rightEye = vrDisplay.getEyeParameters(EYES.RIGHT);
@@ -670,6 +660,6 @@ export default class PanoImageRenderer extends Component {
 
 				window.addEventListener(VRManager.DISPLAY_PRESENT_CHANGE, this.exitVR);
 			});
-		});
+		}
 	}
 }

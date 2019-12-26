@@ -30,6 +30,9 @@ const TRANSFORM = (function() {
 const SUPPORT_WILLCHANGE = win.CSS && win.CSS.supports &&
 	win.CSS.supports("will-change", "transform");
 
+const SUPPORT_WEBXR = navigator.xr && navigator.xr.isSessionSupported &&
+	navigator.xr.isSessionSupported("immersive-vr");
+
 export {
 	Float32Array,
 	getComputedStyle,
@@ -38,6 +41,7 @@ export {
 	SUPPORT_TOUCH,
 	SUPPORT_DEVICEMOTION,
 	SUPPORT_WILLCHANGE,
+	SUPPORT_WEBXR,
 	DeviceMotionEvent,
 	devicePixelRatio
 };
