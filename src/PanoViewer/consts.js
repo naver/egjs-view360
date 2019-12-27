@@ -102,6 +102,16 @@ const ERROR_TYPE = {
 	 * @default 15
 	 */
 	RENDERING_CONTEXT_LOST: 15,
+	/**
+	 * Failed to enter VR mode
+	 * @ko VR모드 활성화 실패
+	 * @name FAIL_ENTER_VR
+	 * @memberof eg.view360.PanoViewer.ERROR_TYPE
+	 * @constant
+	 * @type {Number}
+	 * @default 16
+	 */
+	FAIL_ENTER_VR: 16
 };
 
 /**

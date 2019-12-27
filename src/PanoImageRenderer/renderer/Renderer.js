@@ -23,16 +23,12 @@ export default class Renderer extends Component {
 		this._pixelContext = null;
 	}
 
-	/**
-	 * TODO: FILL DOC
-	 */
 	render({gl, shaderProgram, indexBuffer, mvMatrix, pMatrix}) {
 		gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
 		gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
 
 		if (indexBuffer) {
-			gl.drawElements(
-				gl.TRIANGLES, indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+			gl.drawElements(gl.TRIANGLES, indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 		}
 	}
 

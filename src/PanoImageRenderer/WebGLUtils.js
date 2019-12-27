@@ -76,7 +76,8 @@ export default class WebGLUtils {
 		let context = null;
 		const contextAttributes = Object.assign({
 			preserveDrawingBuffer: false,
-			antialias: false
+			antialias: false,
+			xrCompatible: true
 		}, userContextAttributes);
 
 		function onWebglcontextcreationerror(e) {
