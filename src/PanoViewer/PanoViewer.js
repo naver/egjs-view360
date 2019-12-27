@@ -10,7 +10,6 @@ import WebGLUtils from "../PanoImageRenderer/WebGLUtils";
 import {ERROR_TYPE, EVENTS, GYRO_MODE, PROJECTION_TYPE, STEREO_FORMAT} from "./consts";
 import {util as mathUtil} from "../utils/math-util.js";
 import {VERSION} from "../version";
-import {IS_SAFARI_ON_DESKTOP} from "../utils/browser";
 
 export default class PanoViewer extends Component {
 	/**
@@ -360,17 +359,17 @@ export default class PanoViewer extends Component {
 	 * TODO: Add docs
 	 */
 	enterVR() {
-		// stop rendering first, as we're using VR device's requestAnimationFrame
-		this._stopRender();
-		this._photoSphereRenderer.enterVR()
-			.then(() => {
-
-			})
-			.catch(() => {
-				this._startRender(); // restart rendering if something's wrong
+		this._photoSphereRenderer.enterVR().catch(e => {
+			this._triggerEvent(EVENTS.ERROR, {
+				type: ERROR_TYPE.FAIL_ENTER_VR,
+				message: e.message ? e.message : e,
 			});
+		});
 	}
 
+	/**
+	 * TODO: Add docs
+	 */
 	exitVR() {
 		this._photoSphereRenderer.exitVR();
 	}
@@ -378,6 +377,7 @@ export default class PanoViewer extends Component {
 	// TODO: Remove parameters as they're just using private values
 	_initRenderer(yaw, pitch, fov, projectionType, cubemapConfig) {
 		this._photoSphereRenderer = new PanoImageRenderer(
+			this._yawPitchControl,
 			this._image,
 			this._width,
 			this._height,
@@ -808,7 +808,7 @@ export default class PanoViewer extends Component {
 		this._yawPitchControl.lookAt({yaw, pitch, fov}, duration);
 
 		if (duration === 0) {
-			this._photoSphereRenderer.render(yaw, pitch, fov);
+			this._photoSphereRenderer.renderWithYawPitch(yaw, pitch, fov);
 		}
 		return this;
 	}
@@ -825,105 +825,22 @@ export default class PanoViewer extends Component {
 		this._updateYawPitchIfNeeded();
 
 		this._triggerEvent(EVENTS.READY);
-		this._startRender();
-	}
-
-	/**
-	 * Register the callback on the raf to call _renderLoop every frame.
-	 */
-	_startRender() {
-		if (IS_SAFARI_ON_DESKTOP) {
-			this._renderLoop = this._renderLoopForNextTick.bind(this);
-		} else {
-			this._renderLoop = this._renderLoop.bind(this);
-		}
-
-		this._rafId = window.requestAnimationFrame(this._renderLoop);
-	}
-
-	_render() {
-		const photoSphereRenderer = this._photoSphereRenderer;
-		const yawPitchControl = this._yawPitchControl;
-
-		if (!photoSphereRenderer) {
-			return;
-		}
-
-		const fov = yawPitchControl.getFov();
-
-		if (yawPitchControl.shouldRenderWithQuaternion()) {
-			const quaternion = yawPitchControl.getQuaternion();
-
-			photoSphereRenderer.renderWithQuaternion(quaternion, fov);
-		} else {
-			const yawPitch = yawPitchControl.getYawPitch();
-
-			photoSphereRenderer.render(yawPitch.yaw, yawPitch.pitch, fov);
-		}
-	}
-
-	_renderLoop() {
-		this._render();
-
-		this._rafId = window.requestAnimationFrame(this._renderLoop);
-	}
-
-	/**
-	 * MacOS X Safari Bug Fix
-	 * This code guarantees that rendering should be occurred.
-	 *
-	 * In MacOS X(10.14.2), Safari (12.0.2)
-	 * The requestAnimationFrame(RAF) callback is called just after previous RAF callback without term
-	 * only if requestAnimationFrame is called for next frame while updating frame is delayed (~over 2ms)
-	 * So browser cannot render the frame and may be freezing.
-	 */
-	_renderLoopForNextTick() {
-		const before = performance.now();
-
-		this._render();
-
-		const diff = performance.now() - before;
-
-		if (this._rafTimer) {
-			clearTimeout(this._rafTimer);
-			this._rafTimer = null;
-		}
-
-		/** Use requestAnimationFrame only if current rendering could be possible over 60fps (1000/60) */
-		if (diff < 16) {
-			this._rafId = window.requestAnimationFrame(this._renderLoop);
-		} else {
-			/** Otherwise, Call setTimeout instead of requestAnimationFrame to gaurantee renering should be occurred*/
-			this._rafTimer = setTimeout(this._renderLoop, 0);
-		}
-	}
-
-	_stopRender() {
-		if (this._rafId) {
-			window.cancelAnimationFrame(this._rafId);
-		}
-
-		if (this._rafTimer) {
-			clearTimeout(this._rafTimer);
-		}
-
-		delete this._rafId;
-		delete this._rafTimer;
+		this._photoSphereRenderer.startRender();
 	}
 
 	/**
 	 * Destroy webgl context and block user interaction and stop rendering
 	 */
 	_deactivate() {
+		if (this._isReady) {
+			this._photoSphereRenderer.stopRender();
+			this._yawPitchControl.disable();
+			this._isReady = false;
+		}
+
 		if (this._photoSphereRenderer) {
 			this._photoSphereRenderer.destroy();
 			this._photoSphereRenderer = null;
-		}
-
-		if (this._isReady) {
-			this._yawPitchControl.disable();
-			this._stopRender();
-			this._isReady = false;
 		}
 	}
 

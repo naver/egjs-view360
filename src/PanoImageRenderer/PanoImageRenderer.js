@@ -4,15 +4,15 @@ import ImageLoader from "./ImageLoader";
 import VideoLoader from "./VideoLoader";
 import WebGLUtils from "./WebGLUtils";
 import Renderer from "./renderer/Renderer";
-import VRManager from "./vr/VRManager";
 import CubeRenderer from "./renderer/CubeRenderer";
 import CubeStripRenderer from "./renderer/CubeStripRenderer";
 import SphereRenderer from "./renderer/SphereRenderer";
 import CylinderRenderer from "./renderer/CylinderRenderer";
-import {devicePixelRatio, SUPPORT_WEBXR} from "../utils/browserFeature";
+import VRManager from "./vr/VRManager";
+import XRManager from "./vr/XRManager";
+import Animator from "./Animator";
+import {devicePixelRatio, isWebXRSupported} from "../utils/browserFeature";
 import {PROJECTION_TYPE, STEREO_FORMAT} from "../PanoViewer/consts";
-import {EYES} from "./consts";
-
 
 const ImageType = PROJECTION_TYPE;
 
@@ -47,10 +47,14 @@ const ERROR_TYPE = {
 export default class PanoImageRenderer extends Component {
 	static EVENTS = EVENTS;
 	static ERROR_TYPE = ERROR_TYPE;
-	constructor(image, width, height, isVideo, sphericalConfig, renderingContextAttributes) {
+
+	constructor(
+		yawPitchControl, image, width, height, isVideo, sphericalConfig, renderingContextAttributes
+	) {
 		// Super constructor
 		super();
 
+		this._yawPitchControl = yawPitchControl;
 		this.sphericalConfig = sphericalConfig;
 		this.fieldOfView = sphericalConfig.fieldOfView;
 
@@ -80,8 +84,13 @@ export default class PanoImageRenderer extends Component {
 		this._shouldForceDraw = false;
 		this._keepUpdate = false; // Flag to specify 'continuous update' on video even when still.
 
-		this._onContentLoad = 	this._onContentLoad.bind(this);
+		this._onContentLoad = this._onContentLoad.bind(this);
 		this._onContentError = 	this._onContentError.bind(this);
+
+		this._animator = new Animator();
+
+		// VR/XR manager
+		this._vr = null;
 
 		if (image) {
 			this.setImage({
@@ -506,6 +515,15 @@ export default class PanoImageRenderer extends Component {
 		this._keepUpdate = doUpdate;
 	}
 
+	startRender() {
+		this._animator.setCallback(this._render);
+		this._animator.start();
+	}
+
+	stopRender() {
+		this._animator.stop();
+	}
+
 	renderWithQuaternion(quaternion, fieldOfView) {
 		if (!this.isImageLoaded()) {
 			return;
@@ -524,8 +542,7 @@ export default class PanoImageRenderer extends Component {
 		}
 
 		this.mvMatrix = mat4.fromQuat(mat4.create(), quaternion);
-
-		this._draw();
+		console.log("set mv");
 
 		this._lastQuaternion = quat.clone(quaternion);
 		if (this._shouldForceDraw) {
@@ -533,7 +550,7 @@ export default class PanoImageRenderer extends Component {
 		}
 	}
 
-	render(yaw, pitch, fieldOfView) {
+	renderWithYawPitch(yaw, pitch, fieldOfView) {
 		if (!this.isImageLoaded()) {
 			return;
 		}
@@ -555,13 +572,54 @@ export default class PanoImageRenderer extends Component {
 		mat4.rotateX(this.mvMatrix, this.mvMatrix, -glMatrix.toRadian(pitch));
 		mat4.rotateY(this.mvMatrix, this.mvMatrix, -glMatrix.toRadian(yaw));
 
-		this._draw();
-
 		this._lastYaw = yaw;
 		this._lastPitch = pitch;
 		if (this._shouldForceDraw) {
 			this._shouldForceDraw = false;
 		}
+	}
+
+	_render = () => {
+		console.log("render");
+		const yawPitchControl = this._yawPitchControl;
+		const fov = yawPitchControl.getFov();
+
+		if (yawPitchControl.shouldRenderWithQuaternion()) {
+			const quaternion = yawPitchControl.getQuaternion();
+
+			this.renderWithQuaternion(quaternion, fov);
+		} else {
+			const yawPitch = yawPitchControl.getYawPitch();
+
+			this.renderWithYawPitch(yawPitch.yaw, yawPitch.pitch, fov);
+		}
+
+		this._draw();
+	}
+
+	_renderStereo = (time, frame) => {
+		const vr = this._vr;
+		const gl = this.context;
+
+		vr.beforeRender(gl, frame);
+		const uEye = gl.getUniformLocation(this.shaderProgram, "uEye");
+		const eyeParams = vr.getEyeParams(gl, frame);
+
+		if (!eyeParams) return;
+
+		// Render both eyes
+		for (const eyeIndex of [0, 1]) {
+			const eyeParam = eyeParams[eyeIndex];
+
+			this.mvMatrix = eyeParam.mvMatrix;
+			this.pMatrix = eyeParam.pMatrix;
+			gl.viewport(...eyeParam.viewport);
+			gl.uniform1f(uEye, eyeIndex);
+
+			this._draw();
+		}
+
+		vr.afterRender();
 	}
 
 	_draw() {
@@ -590,13 +648,10 @@ export default class PanoImageRenderer extends Component {
 
 		this._renderer.render({
 			gl: this.context,
-			canvas: this.canvas,
 			shaderProgram: this.shaderProgram,
 			indexBuffer: this.indexBuffer,
 			mvMatrix: this.mvMatrix,
 			pMatrix: this.pMatrix,
-			fov: this.fieldOfView,
-			sphericalConfig: this.sphericalConfig,
 		});
 	}
 
@@ -611,55 +666,66 @@ export default class PanoImageRenderer extends Component {
 	 * @return Promise
 	 */
 	enterVR() {
-		if (!navigator.xr && !navigator.getVRDisplays) {
+		const vr = this._vr;
+
+		if (!isWebXRSupported() && !navigator.getVRDisplays) {
 			return Promise.reject("VR is not available on this browser.");
 		}
-		// if (this._renderer.vr.isPresenting()) {
-		// 	return Promise.resolve("VR already enabled.");
-		// }
+		if (vr && vr.isPresenting()) {
+			return Promise.resolve("VR already enabled.");
+		}
 
-		return this._requestVRSession();
+		return this._requestPresent();
 	}
 
 	exitVR = () => {
-		// this._renderer.vr.destroy();
+		const vr = this._vr;
+		const gl = this.context;
+		const animator = this._animator;
+
+		if (!vr) return;
+
+		vr.removeEndCallback(this.exitVR);
+		vr.destroy();
+
+		// Restore canvas & context
 		this.updateViewportDimensions(this.width, this.height);
+		this._updateViewport();
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		this._vr = null;
 		this._shouldForceDraw = true;
-		window.removeEventListener(VRManager.DISPLAY_PRESENT_CHANGE, this.exitVR);
+
+		animator.stop();
+		animator.setContext(window);
+		animator.setCallback(this._render);
+		animator.start();
 	}
 
-	_requestVRSession() {
-		if (SUPPORT_WEBXR) {
-			return navigator.xr.requestSession("immersive-vr").then(session => {
+	_requestPresent() {
+		const gl = this.context;
+		const canvas = this.canvas;
+		const animator = this._animator;
 
-			});
-		} else {
-			return navigator.getVRDisplays().then(async displays => {
-				const canvas = this.canvas;
-				const vrDisplay = displays.length && displays[0];
+		this._vr = isWebXRSupported() ?
+			new XRManager() :
+			new VRManager();
 
-				if (!vrDisplay) return;
+		const vr = this._vr;
 
-
-				const presentOptions = {
-					source: canvas,
-				};
-
-				await vrDisplay.requestPresent([presentOptions]);
-
-				this._vrDisplay = vrDisplay;
-				// this._renderer.vr.enable(vrDisplay);
-
-				const leftEye = vrDisplay.getEyeParameters(EYES.LEFT);
-				const rightEye = vrDisplay.getEyeParameters(EYES.RIGHT);
-
-				canvas.width = Math.max(leftEye.renderWidth, rightEye.renderWidth) * 2;
-				canvas.height = Math.max(leftEye.renderHeight, rightEye.renderHeight);
-
+		animator.stop();
+		return vr.requestPresent(canvas, gl)
+			.then(() => {
+				vr.addEndCallback(this.exitVR);
+				animator.setContext(vr.context);
+				animator.setCallback(this._renderStereo);
 				this._shouldForceDraw = true;
-
-				window.addEventListener(VRManager.DISPLAY_PRESENT_CHANGE, this.exitVR);
+			})
+			.catch(() => {
+				vr.destroy();
+				this._vr = null;
+			})
+			.finally(() => {
+				animator.start();
 			});
-		}
 	}
 }

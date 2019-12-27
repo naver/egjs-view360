@@ -1,29 +1,104 @@
 import {mat4} from "gl-matrix";
-import {EYES} from "../consts";
 
+const VR_DISPLAY_PRESENT_CHANGE = "vrdisplaypresentchange";
 const DEFAULT_LEFT_BOUNDS = [0, 0, 0.5, 1];
 const DEFAULT_RIGHT_BOUNDS = [0.5, 0, 0.5, 1];
+const EYES = {
+	LEFT: "left",
+	RIGHT: "right"
+};
 
 /**
  * Vertex displacement based VR effect that can be applied to whole renderers
  */
 export default class VRManager {
-	static DISPLAY_PRESENT_CHANGE = "vrdisplaypresentchange";
+	get context() { return this._vrDisplay; }
 
 	constructor() {
-		this._vrSession = null;
 		this._vrDisplay = null;
-
-		this._frameData = null;
-		if ("VRFrameData" in window) {
-			this._frameData = new window.VRFrameData();
-		}
+		this._frameData = new window.VRFrameData();
 
 		this._leftBounds = DEFAULT_LEFT_BOUNDS;
 		this._rightBounds = DEFAULT_RIGHT_BOUNDS;
 	}
 
-	enable(vrDisplay, vrProps) {
+	destroy = () => {
+		const vrDisplay = this._vrDisplay;
+
+		this.removeEndCallback(this.destroy);
+
+		if (vrDisplay && vrDisplay.isPresenting) {
+			vrDisplay.exitPresent();
+		}
+
+		this._vrDisplay = null;
+		this._leftBounds = DEFAULT_LEFT_BOUNDS;
+		this._rightBounds = DEFAULT_RIGHT_BOUNDS;
+	}
+
+	beforeRender(gl) {
+		// Render to the default backbuffer
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	}
+
+	afterRender() {
+		this._vrDisplay.submitFrame();
+	}
+
+	getEyeParams(gl) {
+		const display = this._vrDisplay;
+		const halfWidth = gl.drawingBufferWidth * 0.5;
+		const height = gl.drawingBufferHeight;
+		const frameData = this._frameData;
+
+		display.getFrameData(frameData);
+
+		return [
+			{
+				viewport: [0, 0, halfWidth, height],
+				mvMatrix: frameData.leftViewMatrix,
+				pMatrix: frameData.leftProjectionMatrix,
+			},
+			{
+				viewport: [halfWidth, 0, halfWidth, height],
+				mvMatrix: frameData.rightViewMatrix,
+				pMatrix: frameData.rightProjectionMatrix,
+			}
+		];
+	}
+
+	isPresenting() {
+		return this._vrDisplay && this._vrDisplay.isPresenting;
+	}
+
+	addEndCallback(callback) {
+		window.addEventListener(VR_DISPLAY_PRESENT_CHANGE, callback);
+	}
+
+	removeEndCallback(callback) {
+		window.removeEventListener(VR_DISPLAY_PRESENT_CHANGE, callback);
+	}
+
+	requestPresent(canvas) {
+		return navigator.getVRDisplays().then(displays => {
+			const vrDisplay = displays.length && displays[0];
+
+			if (!vrDisplay) return Promise.reject("No displays available.");
+			if (!vrDisplay.capabilities.canPresent) return Promise.reject("Display lacking capability to present.");
+
+			return vrDisplay.requestPresent([{source: canvas}]).then(() => {
+				const leftEye = vrDisplay.getEyeParameters(EYES.LEFT);
+				const rightEye = vrDisplay.getEyeParameters(EYES.RIGHT);
+
+				canvas.width = Math.max(leftEye.renderWidth, rightEye.renderWidth) * 2;
+				canvas.height = Math.max(leftEye.renderHeight, rightEye.renderHeight);
+
+				this._setDisplay(vrDisplay);
+			});
+		});
+	}
+
+	_setDisplay(vrDisplay) {
 		this._vrDisplay = vrDisplay;
 
 		const layers = vrDisplay.getLayers();
@@ -35,27 +110,7 @@ export default class VRManager {
 			this._rightBounds = layer.rightBounds;
 		}
 
-		this._renderer.render = this._renderStereo.bind(this);
-		this._predistorted = vrProps.predistorted;
-
-		if (vrProps.predistorted) {
-			this._injectDistortion(vrProps.panoImageRenderer);
-		}
-
-		window.addEventListener(VRManager.DISPLAY_PRESENT_CHANGE, this.destroy, false);
-	}
-
-	destroy = () => {
-		this._vrDisplay = null;
-		this._renderer.render = this._originalRender;
-		this._leftBounds = DEFAULT_LEFT_BOUNDS;
-		this._rightBounds = DEFAULT_RIGHT_BOUNDS;
-		this._predistorted = false;
-		window.removeEventListener(VRManager.DISPLAY_PRESENT_CHANGE, this.destroy, false);
-	}
-
-	isPresenting() {
-		return this._vrDisplay && this._vrDisplay.isPresenting;
+		this.addEndCallback(this.destroy);
 	}
 
 	_renderStereo(context) {
