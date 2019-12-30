@@ -11,7 +11,8 @@
         "linebreak-style": 0,
         "array-element-newline": "off",
         "class-methods-use-this": "off",
-        "no-unused-expressions": 0
+        "no-unused-expressions": 0,
+        "newline-per-chained-call": "off"
     },
     "plugins": [
         "chai-friendly"

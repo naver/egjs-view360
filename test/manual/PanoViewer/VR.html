@@ -7,13 +7,12 @@
 	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi">
     <link rel="stylesheet" type="text/css" href="../css/main.css">
-    <!-- <link rel="stylesheet" href="../css/semantic.min.css"> -->
-    <script src='https://cdn.jsdelivr.net/npm/webvr-polyfill@latest/build/webvr-polyfill.js'></script>
-    <script type="text/javascript">
-        new WebVRPolyfill({
-            CARDBOARD_UI_DISABLED: true,
-		 	TOUCH_PANNER_DISABLED: true,
-        });
+	<!-- <link rel="stylesheet" href="../css/semantic.min.css"> -->
+    <script src='https://cdn.jsdelivr.net/npm/webxr-polyfill@latest/build/webxr-polyfill.js'></script>
+	<script type="text/javascript">
+        new WebXRPolyfill({
+			allowCardboardOnDesktop: true
+		});
     </script>
     <style>
     #panoviewer-showcase {
@@ -209,9 +208,7 @@
     }
     
     document.getElementById("fullscreen-toggle").addEventListener("click", function() {
-        panoViewer.enterVR({
-            predistorted: false,
-        });
+        panoViewer.enterVR();
     });
 
     window.panoViewer = panoViewer;

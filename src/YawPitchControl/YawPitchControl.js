@@ -275,7 +275,8 @@ export default class YawPitchControl extends Component {
 			if (!isVR && !isYawPitch) {
 				this._deviceQuaternion.disable();
 			} else {
-				this._deviceQuaternion.enable();
+				this._deviceQuaternion.enable()
+					.catch(() => {}); // Device motion enabling can fail on iOS
 			}
 
 			this.axesPanInput.setUseRotation(isVR);
