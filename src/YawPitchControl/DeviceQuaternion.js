@@ -22,6 +22,7 @@ export default class DeviceQuaternion extends Component {
 
 		this._sensor = new RelativeOrientationSensor({
 			frequency: 60,
+			coordinateSystem: "screen",
 			referenceFrame: "screen"
 		});
 
@@ -32,20 +33,25 @@ export default class DeviceQuaternion extends Component {
 		if (this._enabled) {
 			return Promise.resolve("Sensor already enabled");
 		}
+		if (!navigator || !navigator.permissions) {
+			try {
+				this._startSensor();
+			} catch {
+				return Promise.reject("Sensor can't be enabled");
+			}
+			return Promise.resolve();
+		}
 
 		return Promise.all([
-			navigator.permissions.query({
-				name: "accelerometer"
-			}),
-			navigator.permissions.query({
-				name: "gyroscope"
-			})
+			navigator.permissions.query({name: "accelerometer"}),
+			navigator.permissions.query({name: "gyroscope"})
 		]).then(results => {
 			if (results.every(result => result.state === "granted")) {
-				this._sensor.start();
-				this._sensor.addEventListener("read", this._onSensorRead);
-				this._enabled = true;
+				this._startSensor();
 			}
+		}).catch(() => {
+			// Start it anyway, workaround for Firefox
+			this._startSensor(); // TODO: TEST
 		});
 	}
 
@@ -144,6 +150,12 @@ export default class DeviceQuaternion extends Component {
 		}
 
 		return quat.multiply(quat.create(), SENSOR_TO_VR, this._sensor.quaternion);
+	}
+
+	_startSensor() {
+		this._sensor.start();
+		this._sensor.addEventListener("read", this._onSensorRead);
+		this._enabled = true;
 	}
 
 	_onSensorRead() {

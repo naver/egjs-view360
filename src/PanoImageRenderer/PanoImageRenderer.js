@@ -542,7 +542,6 @@ export default class PanoImageRenderer extends Component {
 		}
 
 		this.mvMatrix = mat4.fromQuat(mat4.create(), quaternion);
-		console.log("set mv");
 
 		this._lastQuaternion = quat.clone(quaternion);
 		if (this._shouldForceDraw) {
@@ -580,7 +579,6 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	_render = () => {
-		console.log("render");
 		const yawPitchControl = this._yawPitchControl;
 		const fov = yawPitchControl.getFov();
 
@@ -675,7 +673,21 @@ export default class PanoImageRenderer extends Component {
 			return Promise.resolve("VR already enabled.");
 		}
 
-		return this._requestPresent();
+		// For iOS 13+
+		if (DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === "function") {
+			// VR can be enabled only when device motion is enabled
+			return DeviceMotionEvent.requestPermission()
+				.then(permissionState => {
+					if (permissionState === "granted") {
+						this._yawPitchControl._deviceQuaternion.enable();
+						return this._requestPresent();
+					} else {
+						return Promise.reject("Permission not granted");
+					}
+				});
+		} else {
+			return this._requestPresent();
+		}
 	}
 
 	exitVR = () => {
@@ -720,9 +732,10 @@ export default class PanoImageRenderer extends Component {
 				animator.setCallback(this._renderStereo);
 				this._shouldForceDraw = true;
 			})
-			.catch(() => {
+			.catch(e => {
 				vr.destroy();
 				this._vr = null;
+				return e;
 			})
 			.finally(() => {
 				animator.start();
