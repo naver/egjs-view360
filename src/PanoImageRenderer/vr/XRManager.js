@@ -1,3 +1,6 @@
+import {mat4, glMatrix} from "gl-matrix";
+import {IS_SAFARI_ON_DESKTOP} from "../../utils/browser";
+
 const XR_REFERENCE_SPACE = "local";
 
 export default class XRManager {
@@ -50,9 +53,13 @@ export default class XRManager {
 		return pose.views.map(view => {
 			const viewport = glLayer.getViewport(view);
 
+			const mvMatrix = IS_SAFARI_ON_DESKTOP ?
+				mat4.rotateX(mat4.create(), view.transform.inverse.matrix, glMatrix.toRadian(180)) :
+				view.transform.inverse.matrix;
+
 			return {
 				viewport: [viewport.x, viewport.y, viewport.width, viewport.height],
-				mvMatrix: view.transform.inverse.matrix,
+				mvMatrix,
 				pMatrix: view.projectionMatrix
 			};
 		});

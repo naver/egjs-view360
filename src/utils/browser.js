@@ -8,13 +8,16 @@ const win = typeof window !== "undefined" && window.Math === Math ? window : typ
 
 const doc = win.document;
 const userAgent = win.navigator.userAgent;
+const IS_IOS = navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform);
 const IS_SAFARI_ON_DESKTOP =
 	userAgent.indexOf("Safari") !== -1 &&
 	userAgent.indexOf("Chrome") === -1 &&
-	userAgent.indexOf("Mac OS X") !== -1;
+	userAgent.indexOf("Mac OS X") !== -1 &&
+	!IS_IOS;
 
 export {
 	win as window,
 	doc as document,
-	IS_SAFARI_ON_DESKTOP
+	IS_SAFARI_ON_DESKTOP,
+	IS_IOS
 };

@@ -9,9 +9,9 @@
     <link rel="stylesheet" type="text/css" href="../css/main.css">
 	<!-- <link rel="stylesheet" href="../css/semantic.min.css"> -->
 	<script src='https://cdn.jsdelivr.net/npm/webxr-polyfill@latest/build/webxr-polyfill.js'></script>
-    <script src='https://cdn.jsdelivr.net/npm/webvr-polyfill@latest/build/webvr-polyfill.js'></script>
+    <!-- <script src='https://cdn.jsdelivr.net/npm/webvr-polyfill@latest/build/webvr-polyfill.js'></script> -->
 	<script type="text/javascript">
-		new WebVRPolyfill();
+		// new WebVRPolyfill();
         new WebXRPolyfill({
 			allowCardboardOnDesktop: true
 		});
@@ -24,6 +24,11 @@
         height: 480px;
         max-width: 100%;
         margin: 0 auto;
+    }
+	
+    #panoviewer-showcase canvas {
+        width: 100% !important;
+		height: 100% !important;
     }
 
     .inner-content > * {
