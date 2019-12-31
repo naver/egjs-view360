@@ -2,16 +2,21 @@ import Component from "@egjs/component";
 import {RelativeOrientationSensor} from "motion-sensors-polyfill";
 import {vec3, glMatrix, quat} from "gl-matrix";
 import {getDeltaYaw, getDeltaPitch} from "./utils";
-import {IS_SAFARI_ON_DESKTOP} from "../utils/browser";
+import {IS_SAFARI_ON_DESKTOP, IS_IOS} from "../utils/browser";
 
 const X_AXIS_VECTOR = vec3.fromValues(1, 0, 0);
 const Y_AXIS_VECTOR = vec3.fromValues(0, 1, 0);
 const Z_AXIS_VECTOR = vec3.fromValues(0, 0, 1);
 // Quaternion to rotate from sensor coordinates to WebVR coordinates
 const SENSOR_TO_VR = quat.setAxisAngle(quat.create(), X_AXIS_VECTOR, -Math.PI / 2);
-const zRotation = IS_SAFARI_ON_DESKTOP ?
-	Math.PI / 2 :
-	-Math.PI / 2;
+
+let zRotation = -Math.PI / 2;
+
+if (IS_SAFARI_ON_DESKTOP) {
+	zRotation = Math.PI / 2;
+} else if (IS_IOS) {
+	zRotation = 0;
+}
 
 quat.multiply(
 	SENSOR_TO_VR, SENSOR_TO_VR,
@@ -26,7 +31,7 @@ export default class DeviceQuaternion extends Component {
 
 		this._sensor = new RelativeOrientationSensor({
 			frequency: 60,
-			coordinateSystem: "screen",
+			coordinateSystem: "screen", // for polyfill
 			referenceFrame: "screen"
 		});
 
