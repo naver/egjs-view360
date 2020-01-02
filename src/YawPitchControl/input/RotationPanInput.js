@@ -1,5 +1,6 @@
 import Axes, {PanInput} from "@egjs/axes";
 import {vec2} from "gl-matrix";
+import {util as mathUtil} from "../../utils/math-util";
 
 /**
  * RotationPanInput is extension of PanInput to compensate coordinates by screen rotation angle.
@@ -60,8 +61,7 @@ export default class RotationPanInput extends PanInput {
 		const rightAxisVec2 = vec2.fromValues(rightAxis[0], rightAxis[1]);
 		const xAxis = vec2.fromValues(1, 0);
 
-		const det = rightAxisVec2[0] * xAxis[1] - xAxis[0] * rightAxisVec2[1];
-		const theta = -Math.atan2(det, vec2.dot(rightAxisVec2, xAxis));
+		const theta = mathUtil.angleBetweenVec2(rightAxisVec2, xAxis);
 		const cosTheta = Math.cos(theta);
 		const sinTheta = Math.sin(theta);
 

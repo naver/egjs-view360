@@ -31,7 +31,7 @@ THE SOFTWARE. */
 // Some minimal math functionality borrowed from gl-Matrix and stripped down
 // for the purposes of this library.
 
-import {vec3, quat} from "gl-matrix";
+import {vec2, vec3, quat} from "gl-matrix";
 
 function quatToVec3(quaternion) {
 	const baseV = vec3.fromValues(0, 0, 1);
@@ -184,6 +184,12 @@ function getRotationDelta(prevQ, curQ, rotateKind) {
 	const deltaRadian = theta * thetaDirection * rotateDirection;
 
 	return toDegree(deltaRadian);
+}
+
+util.angleBetweenVec2 = function(v1, v2) {
+	const det = v1[0] * v2[1] - v2[0] * v1[1];
+	const theta = -Math.atan2(det, vec2.dot(v1, v2));
+	return theta;
 }
 
 util.toDegree = toDegree;

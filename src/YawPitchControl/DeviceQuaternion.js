@@ -1,27 +1,14 @@
 import Component from "@egjs/component";
 import {RelativeOrientationSensor} from "motion-sensors-polyfill";
-import {vec3, glMatrix, quat} from "gl-matrix";
+import {vec2, vec3, glMatrix, quat} from "gl-matrix";
 import {getDeltaYaw, getDeltaPitch} from "./utils";
-import {IS_SAFARI_ON_DESKTOP, IS_IOS} from "../utils/browser";
+import {util as mathUtil} from "../utils/math-util";
 
 const X_AXIS_VECTOR = vec3.fromValues(1, 0, 0);
 const Y_AXIS_VECTOR = vec3.fromValues(0, 1, 0);
 const Z_AXIS_VECTOR = vec3.fromValues(0, 0, 1);
 // Quaternion to rotate from sensor coordinates to WebVR coordinates
 const SENSOR_TO_VR = quat.setAxisAngle(quat.create(), X_AXIS_VECTOR, -Math.PI / 2);
-
-let zRotation = -Math.PI / 2;
-
-if (IS_SAFARI_ON_DESKTOP) {
-	zRotation = Math.PI / 2;
-} else if (IS_IOS) {
-	zRotation = 0;
-}
-
-quat.multiply(
-	SENSOR_TO_VR, SENSOR_TO_VR,
-	quat.setAxisAngle(quat.create(), Z_AXIS_VECTOR, zRotation)
-);
 
 export default class DeviceQuaternion extends Component {
 	constructor() {
@@ -35,6 +22,7 @@ export default class DeviceQuaternion extends Component {
 			referenceFrame: "screen"
 		});
 
+		this._modifier = quat.create();
 		this._prevQuaternion = null;
 	}
 
@@ -158,16 +146,57 @@ export default class DeviceQuaternion extends Component {
 			return quat.create();
 		}
 
-		return quat.multiply(quat.create(), SENSOR_TO_VR, this._sensor.quaternion);
+		// return this._sensor.quaternion;
+		const sensorQuat = quat.mul(quat.create(), this._modifier, this._sensor.quaternion);
+
+		return quat.multiply(quat.create(), SENSOR_TO_VR, sensorQuat);
 	}
 
 	_startSensor() {
 		this._sensor.start();
-		this._sensor.addEventListener("read", this._onSensorRead);
+		this._sensor.addEventListener("reading", this._onSensorRead);
+		this._sensor.addEventListener("reading", this._onFirstRead);
 		this._enabled = true;
 	}
 
-	_onSensorRead() {
+	_onFirstRead = () => {
+		const viewDir = vec3.transformQuat(
+			vec3.create(), vec3.fromValues(0, 0, -1), this._sensor.quaternion
+		);
+		const viewDirXY = vec2.fromValues(viewDir[0], viewDir[1]);
+		const lenViewDirXY = vec2.len(viewDirXY);
+
+		let theta;
+
+		if (lenViewDirXY > 0.1) {
+			const targetXY = vec2.fromValues(0, lenViewDirXY);
+
+			vec2.normalize(viewDirXY, viewDirXY);
+			vec2.normalize(targetXY, targetXY);
+
+			theta = -mathUtil.angleBetweenVec2(viewDirXY, targetXY);
+		} else {
+			// For device seeing bottom / top
+			const rotatedXAxis = vec3.transformQuat(
+				vec3.create(), vec3.fromValues(1, 0, 0), this._sensor.quaternion
+			);
+			const rotXAxisXY = vec2.fromValues(rotatedXAxis[0], rotatedXAxis[1]);
+			const realXAxis = vec2.fromValues(1, 0);
+
+			vec2.normalize(rotXAxisXY, rotXAxisXY);
+
+			theta = -mathUtil.angleBetweenVec2(rotXAxisXY, realXAxis);
+		}
+
+		quat.multiply(
+			SENSOR_TO_VR, SENSOR_TO_VR,
+			quat.setAxisAngle(quat.create(), Z_AXIS_VECTOR, theta)
+		);
+
+		this._sensor.removeEventListener("reading", this._onFirstRead);
+	}
+
+	_onSensorRead = () => {
 		this.trigger("change", {isTrusted: true});
 	}
 }
