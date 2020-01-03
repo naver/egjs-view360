@@ -188,6 +188,13 @@ export default class DeviceQuaternion extends Component {
 			theta = -mathUtil.angleBetweenVec2(rotXAxisXY, realXAxis);
 		}
 
+		if (theta === 0) {
+			// If the theta is exactly 0, then device sensor is not ready
+			// So read it again until it has any value in it
+			// Can happen in Samsung browser
+			return;
+		}
+
 		quat.multiply(
 			SENSOR_TO_VR, SENSOR_TO_VR,
 			quat.setAxisAngle(quat.create(), Z_AXIS_VECTOR, theta)
