@@ -186,14 +186,47 @@ function getRotationDelta(prevQ, curQ, rotateKind) {
 	return toDegree(deltaRadian);
 }
 
-util.angleBetweenVec2 = function(v1, v2) {
+function angleBetweenVec2(v1, v2) {
 	const det = v1[0] * v2[1] - v2[0] * v1[1];
 	const theta = -Math.atan2(det, vec2.dot(v1, v2));
 	return theta;
 }
 
+util.yawOffsetFromOrigin = function(quaternion) {
+	const viewDir = vec3.transformQuat(
+		vec3.create(), vec3.fromValues(0, 0, -1), quaternion
+	);
+	const viewDirXY = vec2.fromValues(viewDir[0], viewDir[1]);
+	const lenViewDirXY = vec2.len(viewDirXY);
+
+	let theta;
+
+	if (lenViewDirXY > 0.1) {
+		const targetXY = vec2.fromValues(0, lenViewDirXY);
+
+		vec2.normalize(viewDirXY, viewDirXY);
+		vec2.normalize(targetXY, targetXY);
+
+		theta = -angleBetweenVec2(viewDirXY, targetXY);
+	} else {
+		// For device seeing bottom / top
+		const rotatedXAxis = vec3.transformQuat(
+			vec3.create(), vec3.fromValues(1, 0, 0), quaternion
+		);
+		const rotXAxisXY = vec2.fromValues(rotatedXAxis[0], rotatedXAxis[1]);
+		const realXAxis = vec2.fromValues(1, 0);
+
+		vec2.normalize(rotXAxisXY, rotXAxisXY);
+
+		theta = -angleBetweenVec2(rotXAxisXY, realXAxis);
+	}
+
+	return theta;
+}
+
 util.toDegree = toDegree;
 util.getRotationDelta = getRotationDelta;
+util.angleBetweenVec2 = angleBetweenVec2;
 
 export {
 	util,
