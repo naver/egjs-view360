@@ -1,6 +1,6 @@
 import Component from "@egjs/component";
 import {RelativeOrientationSensor} from "motion-sensors-polyfill";
-import {vec2, vec3, glMatrix, quat} from "gl-matrix";
+import {vec3, glMatrix, quat} from "gl-matrix";
 import {getDeltaYaw, getDeltaPitch} from "./utils";
 import {util as mathUtil} from "../utils/math-util";
 
@@ -22,7 +22,6 @@ export default class DeviceQuaternion extends Component {
 			referenceFrame: "screen"
 		});
 
-		this._modifier = quat.create();
 		this._prevQuaternion = null;
 	}
 
@@ -146,10 +145,7 @@ export default class DeviceQuaternion extends Component {
 			return quat.create();
 		}
 
-		// return this._sensor.quaternion;
-		const sensorQuat = quat.mul(quat.create(), this._modifier, this._sensor.quaternion);
-
-		return quat.multiply(quat.create(), SENSOR_TO_VR, sensorQuat);
+		return quat.multiply(quat.create(), SENSOR_TO_VR, this._sensor.quaternion);
 	}
 
 	_startSensor() {
@@ -160,36 +156,10 @@ export default class DeviceQuaternion extends Component {
 	}
 
 	_onFirstRead = () => {
-		const viewDir = vec3.transformQuat(
-			vec3.create(), vec3.fromValues(0, 0, -1), this._sensor.quaternion
-		);
-		const viewDirXY = vec2.fromValues(viewDir[0], viewDir[1]);
-		const lenViewDirXY = vec2.len(viewDirXY);
+		const yawOffset = mathUtil.yawOffsetFromOrigin(this._sensor.quaternion);
 
-		let theta;
-
-		if (lenViewDirXY > 0.1) {
-			const targetXY = vec2.fromValues(0, lenViewDirXY);
-
-			vec2.normalize(viewDirXY, viewDirXY);
-			vec2.normalize(targetXY, targetXY);
-
-			theta = -mathUtil.angleBetweenVec2(viewDirXY, targetXY);
-		} else {
-			// For device seeing bottom / top
-			const rotatedXAxis = vec3.transformQuat(
-				vec3.create(), vec3.fromValues(1, 0, 0), this._sensor.quaternion
-			);
-			const rotXAxisXY = vec2.fromValues(rotatedXAxis[0], rotatedXAxis[1]);
-			const realXAxis = vec2.fromValues(1, 0);
-
-			vec2.normalize(rotXAxisXY, rotXAxisXY);
-
-			theta = -mathUtil.angleBetweenVec2(rotXAxisXY, realXAxis);
-		}
-
-		if (theta === 0) {
-			// If the theta is exactly 0, then device sensor is not ready
+		if (yawOffset === 0) {
+			// If the yawOffset is exactly 0, then device sensor is not ready
 			// So read it again until it has any value in it
 			// Can happen in Samsung browser
 			return;
@@ -197,7 +167,7 @@ export default class DeviceQuaternion extends Component {
 
 		quat.multiply(
 			SENSOR_TO_VR, SENSOR_TO_VR,
-			quat.setAxisAngle(quat.create(), Z_AXIS_VECTOR, theta)
+			quat.setAxisAngle(quat.create(), Z_AXIS_VECTOR, yawOffset)
 		);
 
 		this._sensor.removeEventListener("reading", this._onFirstRead);
