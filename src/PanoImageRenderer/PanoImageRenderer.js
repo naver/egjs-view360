@@ -1,5 +1,5 @@
 import Component from "@egjs/component";
-import {glMatrix, mat3, mat4, quat} from "gl-matrix";
+import {glMatrix, mat4, quat} from "gl-matrix";
 import ImageLoader from "./ImageLoader";
 import VideoLoader from "./VideoLoader";
 import WebGLUtils from "./WebGLUtils";
@@ -12,7 +12,6 @@ import VRManager from "./vr/VRManager";
 import XRManager from "./vr/XRManager";
 import Animator from "./Animator";
 import {devicePixelRatio, isWebXRSupported} from "../utils/browserFeature";
-import {util as mathUtil} from "../utils/math-util";
 import {PROJECTION_TYPE, STEREO_FORMAT} from "../PanoViewer/consts";
 
 const ImageType = PROJECTION_TYPE;
@@ -92,7 +91,6 @@ export default class PanoImageRenderer extends Component {
 
 		// VR/XR manager
 		this._vr = null;
-		this._vrYawOffset = null;
 
 		if (image) {
 			this.setImage({
@@ -607,16 +605,13 @@ export default class PanoImageRenderer extends Component {
 
 		if (!eyeParams) return;
 
-		if (this._vrYawOffset == null) {
-			this._onVRFirstFrame(eyeParams[0]);
-		}
-
 		// Render both eyes
 		for (const eyeIndex of [0, 1]) {
 			const eyeParam = eyeParams[eyeIndex];
 
-			this.mvMatrix = mat4.rotateY(mat4.create(), eyeParam.mvMatrix, this._vrYawOffset);
+			this.mvMatrix = eyeParam.mvMatrix;
 			this.pMatrix = eyeParam.pMatrix;
+
 			gl.viewport(...eyeParam.viewport);
 			gl.uniform1f(uEye, eyeIndex);
 
@@ -711,7 +706,6 @@ export default class PanoImageRenderer extends Component {
 		this._updateViewport();
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 		this._vr = null;
-		this._vrYawOffset = null;
 		this._shouldForceDraw = true;
 
 		animator.stop();
@@ -748,17 +742,5 @@ export default class PanoImageRenderer extends Component {
 			.finally(() => {
 				animator.start();
 			});
-	}
-
-	_onVRFirstFrame(eyeParam) {
-		const mvMatrix = mat3.fromMat4(mat3.create(), eyeParam.mvMatrix);
-		const rotation = quat.fromMat3(quat.create(), mvMatrix);
-
-		const yawOffset = mathUtil.yawOffsetFromOrigin(rotation);
-
-		// If yawOffset is exact 0, there must be something wrong with sensor
-		if (yawOffset === 0) return;
-
-		this._vrYawOffset = yawOffset;
 	}
 }
