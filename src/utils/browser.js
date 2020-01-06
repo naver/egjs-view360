@@ -14,10 +14,12 @@ const IS_SAFARI_ON_DESKTOP =
 	userAgent.indexOf("Chrome") === -1 &&
 	userAgent.indexOf("Mac OS X") !== -1 &&
 	!IS_IOS;
+const IS_SAMSUNG_BROWSER = /SamsungBrowser/i.test(navigator.userAgent);
 
 export {
 	win as window,
 	doc as document,
+	IS_IOS,
 	IS_SAFARI_ON_DESKTOP,
-	IS_IOS
+	IS_SAMSUNG_BROWSER
 };
