@@ -98,9 +98,10 @@ export default class DeviceQuaternion extends Component {
 
 		const pitchAxis = this.getDeviceHorizontalRight(currentQuat);
 
-		const yawQ = quat.setAxisAngle(quat.create(), Y_AXIS_VECTOR, glMatrix.toRadian(yaw));
 		// rotate quaternion around new x-axis about pitch angle.
 		const pitchQ = quat.setAxisAngle(quat.create(), pitchAxis, glMatrix.toRadian(pitch));
+		const yawQ = quat.setAxisAngle(quat.create(), Y_AXIS_VECTOR, glMatrix.toRadian(yaw));
+
 		// Multiply pitch quaternion -> device quaternion -> yaw quaternion
 		const outQ = quat.multiply(quat.create(), yawQ, currentQuat);
 
@@ -115,21 +116,16 @@ export default class DeviceQuaternion extends Component {
 		const unrotateQuat = quat.conjugate(quat.create(), currentQuat);
 
 		// Assume that unrotated device center pos is at (0, 0, -1)
-		const origDevicePos = vec3.fromValues(0, 0, -1);
-		const rotatedDevicePos = vec3.transformQuat(vec3.create(), origDevicePos, currentQuat);
+		const origViewDir = vec3.fromValues(0, 0, -1);
+		const viewDir = vec3.transformQuat(vec3.create(), origViewDir, currentQuat);
 
-		// Device coordinate system
-		const deviceZAxis = vec3.transformQuat(vec3.create(), Z_AXIS_VECTOR, currentQuat);
+		// Where is the right, in current view direction
+		const viewXAxis = vec3.cross(vec3.create(), viewDir, Y_AXIS_VECTOR);
+		const deviceHorizontalDir = vec3.add(vec3.create(), viewDir, viewXAxis);
+		const unrotatedHorizontalDir = vec3.create();
 
-		// Because view direction is same with -deviceZAxis
-		const viewXAxis = vec3.cross(vec3.create(), Y_AXIS_VECTOR, deviceZAxis);
-
-		const deviceHorizontalDir = vec3.add(vec3.create(), rotatedDevicePos, viewXAxis);
-		const unrotatedHorizontalDir = vec3.transformQuat(
-			vec3.create(), deviceHorizontalDir, unrotateQuat
-		);
-
-		vec3.sub(unrotatedHorizontalDir, unrotatedHorizontalDir, origDevicePos);
+		vec3.transformQuat(unrotatedHorizontalDir, deviceHorizontalDir, unrotateQuat);
+		vec3.sub(unrotatedHorizontalDir, unrotatedHorizontalDir, origViewDir);
 		unrotatedHorizontalDir[2] = 0; // Remove z element
 		vec3.normalize(unrotatedHorizontalDir, unrotatedHorizontalDir);
 
