@@ -279,7 +279,9 @@ export default class YawPitchControl extends Component {
 					.catch(() => {}); // Device motion enabling can fail on iOS
 			}
 
-			this.axesPanInput.setUseRotation(isVR);
+			if (isVR) {
+				this.axesPanInput.setUseRotation(isVR);
+			}
 		}
 
 		if (keys.some(key => key === "useKeyboard")) {
@@ -305,7 +307,12 @@ export default class YawPitchControl extends Component {
 		this._togglePinchInputByOption(this.options.touchDirection, this.options.useZoom);
 
 		if (keys.some(key => key === "touchDirection")) {
-			this._enabled && this._enableTouch(this.options.touchDirection);
+			const isVR = this.options.gyroMode === GYRO_MODE.VR;
+			const touchDirection = isVR ?
+				TOUCH_DIRECTION_YAW :
+				this.options.touchDirection;
+
+			this._enabled && this._enableTouch(touchDirection);
 		}
 	}
 
@@ -483,7 +490,7 @@ export default class YawPitchControl extends Component {
 		event.fov = pos.fov;
 
 		if (opt.gyroMode === GYRO_MODE.VR) {
-			event.quaternion = this._deviceQuaternion.getCombinedQuaternion(pos.yaw, pos.pitch);
+			event.quaternion = this._deviceQuaternion.getCombinedQuaternion(pos.yaw);
 		}
 		this.trigger("change", event);
 	}
@@ -632,7 +639,7 @@ export default class YawPitchControl extends Component {
 	getQuaternion() {
 		const pos = this.axes.get();
 
-		return this._deviceQuaternion.getCombinedQuaternion(pos.yaw, pos.pitch);
+		return this._deviceQuaternion.getCombinedQuaternion(pos.yaw);
 	}
 
 	shouldRenderWithQuaternion() {

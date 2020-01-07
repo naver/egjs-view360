@@ -89,23 +89,16 @@ export default class DeviceQuaternion extends Component {
 		return result;
 	}
 
-	getCombinedQuaternion(yaw, pitch) {
+	getCombinedQuaternion(yaw) {
 		const currentQuat = this._getOrientation();
 
 		if (!this._prevQuaternion) {
 			this._prevQuaternion = quat.copy(quat.create(), currentQuat);
 		}
 
-		const pitchAxis = this.getDeviceHorizontalRight(currentQuat);
-
-		// rotate quaternion around new x-axis about pitch angle.
-		const pitchQ = quat.setAxisAngle(quat.create(), pitchAxis, glMatrix.toRadian(pitch));
 		const yawQ = quat.setAxisAngle(quat.create(), Y_AXIS_VECTOR, glMatrix.toRadian(yaw));
-
-		// Multiply pitch quaternion -> device quaternion -> yaw quaternion
 		const outQ = quat.multiply(quat.create(), yawQ, currentQuat);
 
-		quat.multiply(outQ, outQ, pitchQ);
 		quat.conjugate(outQ, outQ);
 		quat.copy(this._prevQuaternion, currentQuat);
 		return outQ;
