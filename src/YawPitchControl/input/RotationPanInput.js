@@ -43,7 +43,7 @@ export default class RotationPanInput extends PanInput {
 		// Because horizontal and vertical is changed dynamically by screen rotation.
 		// this._direction is used to initialize hammerjs
 		if (this._useRotation && (this._direction & Axes.DIRECTION_ALL)) {
-			this._direction = Axes.DIRECTION_ALL;
+			this._direction = Axes.DIRECTION_HORIZONTAL;
 		}
 
 		super.connect(observer);
