@@ -1,5 +1,5 @@
 import {mat4, glMatrix} from "gl-matrix";
-import {IS_SAFARI_ON_DESKTOP, IS_SAMSUNG_BROWSER} from "../../utils/browser";
+import {IS_SAFARI_ON_DESKTOP} from "../../utils/browser";
 
 const XR_REFERENCE_SPACE = "local";
 
@@ -12,6 +12,7 @@ export default class XRManager {
 		this._xrRefSpace = null;
 		this._presenting = false;
 		this._animationCallback = null;
+		this._yawOffset = 0;
 	}
 
 	destroy = () => {
@@ -28,6 +29,13 @@ export default class XRManager {
 		this._xrLayer = null;
 		this._xrRefSpace = null;
 		this._presenting = false;
+		this._yawOffset = 0;
+	}
+
+	canRender(frame) {
+		const pose = frame.getViewerPose(this._xrRefSpace);
+
+		return Boolean(pose);
 	}
 
 	beforeRender(gl, frame) {
@@ -52,14 +60,13 @@ export default class XRManager {
 
 		return pose.views.map(view => {
 			const viewport = glLayer.getViewport(view);
-
-			let mvMatrix = view.transform.inverse.matrix;
+			const mvMatrix = view.transform.inverse.matrix;
 
 			if (IS_SAFARI_ON_DESKTOP) {
-				mvMatrix = mat4.rotateX(mat4.create(), mvMatrix, glMatrix.toRadian(180));
-			} else if (IS_SAMSUNG_BROWSER) {
-				mvMatrix = mat4.rotateY(mat4.create(), mvMatrix, glMatrix.toRadian(180));
+				mat4.rotateX(mvMatrix, mvMatrix, glMatrix.toRadian(180));
 			}
+
+			mat4.rotateY(mvMatrix, mvMatrix, this._yawOffset);
 
 			return {
 				viewport: [viewport.x, viewport.y, viewport.width, viewport.height],
@@ -100,6 +107,10 @@ export default class XRManager {
 				this._setSession(session, xrLayer, refSpace);
 			});
 		});
+	}
+
+	setYawOffset(offset) {
+		this._yawOffset = offset;
 	}
 
 	_setSession(session, xrLayer, refSpace) {

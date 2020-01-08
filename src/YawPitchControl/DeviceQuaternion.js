@@ -6,7 +6,6 @@ import {util as mathUtil} from "../utils/math-util";
 
 const X_AXIS_VECTOR = vec3.fromValues(1, 0, 0);
 const Y_AXIS_VECTOR = vec3.fromValues(0, 1, 0);
-const Z_AXIS_VECTOR = vec3.fromValues(0, 0, 1);
 // Quaternion to rotate from sensor coordinates to WebVR coordinates
 const SENSOR_TO_VR = quat.setAxisAngle(quat.create(), X_AXIS_VECTOR, -Math.PI / 2);
 
@@ -145,18 +144,24 @@ export default class DeviceQuaternion extends Component {
 	}
 
 	_onFirstRead = () => {
-		const yawOffset = mathUtil.yawOffsetFromOrigin(this._sensor.quaternion);
+		const quaternion = this._getOrientation();
+		const minusZDir = vec3.fromValues(0, 0, -1);
+		const firstViewDir = vec3.transformQuat(vec3.create(), minusZDir, quaternion);
+
+		const yawOffset = mathUtil.yawOffsetBetween(firstViewDir, minusZDir);
 
 		if (yawOffset === 0) {
 			// If the yawOffset is exactly 0, then device sensor is not ready
 			// So read it again until it has any value in it
-			// Can happen in Samsung browser
 			return;
 		}
 
-		quat.multiply(
-			SENSOR_TO_VR, SENSOR_TO_VR,
-			quat.setAxisAngle(quat.create(), Z_AXIS_VECTOR, yawOffset)
+		const modifyQuat = quat.setAxisAngle(quat.create(), Y_AXIS_VECTOR, -yawOffset);
+
+		quat.mul(
+			SENSOR_TO_VR,
+			modifyQuat,
+			SENSOR_TO_VR
 		);
 
 		this._sensor.removeEventListener("reading", this._onFirstRead);

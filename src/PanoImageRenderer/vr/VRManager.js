@@ -20,6 +20,7 @@ export default class VRManager {
 
 		this._leftBounds = DEFAULT_LEFT_BOUNDS;
 		this._rightBounds = DEFAULT_RIGHT_BOUNDS;
+		this._yawOffset = 0;
 	}
 
 	destroy = () => {
@@ -34,6 +35,11 @@ export default class VRManager {
 		this._vrDisplay = null;
 		this._leftBounds = DEFAULT_LEFT_BOUNDS;
 		this._rightBounds = DEFAULT_RIGHT_BOUNDS;
+		this._yawOffset = 0;
+	}
+
+	canRender() {
+		return Boolean(this._vrDisplay);
 	}
 
 	beforeRender(gl) {
@@ -53,15 +59,21 @@ export default class VRManager {
 
 		display.getFrameData(frameData);
 
+		const leftMVMatrix = frameData.leftViewMatrix;
+		const rightMVMatrix = frameData.rightViewMatrix;
+
+		mat4.rotateY(leftMVMatrix, leftMVMatrix, this._yawOffset);
+		mat4.rotateY(rightMVMatrix, rightMVMatrix, this._yawOffset);
+
 		return [
 			{
 				viewport: [0, 0, halfWidth, height],
-				mvMatrix: frameData.leftViewMatrix,
+				mvMatrix: leftMVMatrix,
 				pMatrix: frameData.leftProjectionMatrix,
 			},
 			{
 				viewport: [halfWidth, 0, halfWidth, height],
-				mvMatrix: frameData.rightViewMatrix,
+				mvMatrix: rightMVMatrix,
 				pMatrix: frameData.rightProjectionMatrix,
 			}
 		];
@@ -96,6 +108,10 @@ export default class VRManager {
 				this._setDisplay(vrDisplay);
 			});
 		});
+	}
+
+	setYawOffset(offset) {
+		this._yawOffset = offset;
 	}
 
 	_setDisplay(vrDisplay) {
