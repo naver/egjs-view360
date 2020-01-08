@@ -192,34 +192,14 @@ function angleBetweenVec2(v1, v2) {
 	return theta;
 }
 
-util.yawOffsetFromOrigin = function(quaternion) {
-	const viewDir = vec3.transformQuat(
-		vec3.create(), vec3.fromValues(0, 0, -1), quaternion
-	);
-	const viewDirXY = vec2.fromValues(viewDir[0], viewDir[1]);
-	const lenViewDirXY = vec2.len(viewDirXY);
+util.yawOffsetBetween = function(viewDir, targetDir) {
+	const viewDirXZ = vec2.fromValues(viewDir[0], viewDir[2]);
+	const targetDirXZ = vec2.fromValues(targetDir[0], targetDir[2]);
 
-	let theta;
+	vec2.normalize(viewDirXZ, viewDirXZ);
+	vec2.normalize(targetDirXZ, targetDirXZ);
 
-	if (lenViewDirXY > 0.1) {
-		const targetXY = vec2.fromValues(0, lenViewDirXY);
-
-		vec2.normalize(viewDirXY, viewDirXY);
-		vec2.normalize(targetXY, targetXY);
-
-		theta = -angleBetweenVec2(viewDirXY, targetXY);
-	} else {
-		// For device seeing bottom / top
-		const rotatedXAxis = vec3.transformQuat(
-			vec3.create(), vec3.fromValues(1, 0, 0), quaternion
-		);
-		const rotXAxisXY = vec2.fromValues(rotatedXAxis[0], rotatedXAxis[1]);
-		const realXAxis = vec2.fromValues(1, 0);
-
-		vec2.normalize(rotXAxisXY, rotXAxisXY);
-
-		theta = -angleBetweenVec2(rotXAxisXY, realXAxis);
-	}
+	const theta = -angleBetweenVec2(viewDirXZ, targetDirXZ);
 
 	return theta;
 }

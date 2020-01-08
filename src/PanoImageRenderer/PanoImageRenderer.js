@@ -1,5 +1,5 @@
 import Component from "@egjs/component";
-import {glMatrix, mat4, quat} from "gl-matrix";
+import {glMatrix, vec3, mat3, mat4, quat} from "gl-matrix";
 import ImageLoader from "./ImageLoader";
 import VideoLoader from "./VideoLoader";
 import WebGLUtils from "./WebGLUtils";
@@ -11,6 +11,7 @@ import CylinderRenderer from "./renderer/CylinderRenderer";
 import VRManager from "./vr/VRManager";
 import XRManager from "./vr/XRManager";
 import Animator from "./Animator";
+import {util as mathUtil} from "../utils/math-util";
 import {devicePixelRatio, isWebXRSupported} from "../utils/browserFeature";
 import {PROJECTION_TYPE, STEREO_FORMAT} from "../PanoViewer/consts";
 
@@ -599,11 +600,12 @@ export default class PanoImageRenderer extends Component {
 		const vr = this._vr;
 		const gl = this.context;
 
-		vr.beforeRender(gl, frame);
 		const uEye = gl.getUniformLocation(this.shaderProgram, "uEye");
 		const eyeParams = vr.getEyeParams(gl, frame);
 
 		if (!eyeParams) return;
+
+		vr.beforeRender(gl, frame);
 
 		// Render both eyes
 		for (const eyeIndex of [0, 1]) {
@@ -730,7 +732,7 @@ export default class PanoImageRenderer extends Component {
 			.then(() => {
 				vr.addEndCallback(this.exitVR);
 				animator.setContext(vr.context);
-				animator.setCallback(this._renderStereo);
+				animator.setCallback(this._onFirstVRFrame);
 
 				this._shouldForceDraw = true;
 			})
@@ -742,5 +744,36 @@ export default class PanoImageRenderer extends Component {
 			.finally(() => {
 				animator.start();
 			});
+	}
+
+	_onFirstVRFrame = (time, frame) => {
+		const vr = this._vr;
+		const gl = this.context;
+		const animator = this._animator;
+
+		// If rendering is not ready, wait for next frame
+		if (!vr.canRender(frame)) return;
+
+		const minusZDir = vec3.fromValues(0, 0, -1);
+		const eyeParam = vr.getEyeParams(gl, frame)[0];
+		// Extract only rotation
+		const mvMatrix = mat3.fromMat4(mat3.create(), eyeParam.mvMatrix);
+		const pMatrix = mat3.fromMat4(mat3.create(), eyeParam.pMatrix);
+		const mvInv = mat3.invert(mat3.create(), mvMatrix);
+		const pInv = mat3.invert(mat3.create(), pMatrix);
+		const viewDir = vec3.transformMat3(vec3.create(), minusZDir, pInv);
+
+		vec3.transformMat3(viewDir, viewDir, mvInv);
+
+		const yawOffset = mathUtil.yawOffsetBetween(viewDir, vec3.fromValues(0, 0, 1));
+
+		if (yawOffset === 0) {
+			// If the yawOffset is exactly 0, then device sensor is not ready
+			// So read it again until it has any value in it
+			return;
+		}
+
+		vr.setYawOffset(yawOffset);
+		animator.setCallback(this._renderStereo);
 	}
 }
