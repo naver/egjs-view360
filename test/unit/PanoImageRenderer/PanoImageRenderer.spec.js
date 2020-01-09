@@ -337,7 +337,7 @@ describe("PanoImageRenderer", () => {
 			};
 
 			// When
-			inst.render(0, 0, 65);
+			inst.renderWithYawPitch(0, 0, 65);
 
 			// Then
 			expect(isDrawCalled).to.be.equal(false);
@@ -982,8 +982,8 @@ describe("PanoImageRenderer", () => {
 				// When
 				inst.bindTexture()
 					.then(() => {
-						inst.render(0, 0, 65);
-						inst.render(0, 0, 30);
+						inst.renderWithYawPitch(0, 0, 65);
+						inst.renderWithYawPitch(0, 0, 30);
 						// Then
 						compare(`./images/PanoViewer/test_equi_0_0_30${suffix}`, inst.canvas, pct => {
 							expect(pct).to.be.below(threshold);
@@ -1007,7 +1007,7 @@ describe("PanoImageRenderer", () => {
 			inst.on("imageLoaded", async () => {
 				await inst.bindTexture();
 
-				inst.render(0, 0, 65);
+				inst.renderWithYawPitch(0, 0, 65);
 				inst._draw = () => {
 					isDrawCalled = true;
 					PanoImageRendererForUnitTest.prototype._draw.call(inst);
@@ -1015,7 +1015,7 @@ describe("PanoImageRenderer", () => {
 
 				// When
 				inst.keepUpdate(false);
-				inst.render(0, 0, 65);
+				inst.renderWithYawPitch(0, 0, 65);
 
 				// Then
 				expect(isDrawCalled).to.be.equal(false);
@@ -1042,7 +1042,7 @@ describe("PanoImageRenderer", () => {
 			// We will compare the canvas image after 1 seconds playing.
 			// keepUpdate(false) should not update canvas.
 			inst.keepUpdate(false);
-			inst.render(0, 0, 65);
+			inst.renderWithYawPitch(0, 0, 65);
 
 			let beforeBlob;
 
@@ -1055,7 +1055,7 @@ describe("PanoImageRenderer", () => {
 
 			// Waiting for playing 1 seconds
 			await TestHelper.wait(TIMEOUT);
-			inst.render(0, 0, 65);
+			inst.renderWithYawPitch(0, 0, 65);
 
 			let misMatchPercentage;
 
@@ -1357,7 +1357,7 @@ describe("PanoImageRenderer", () => {
 				predistorted: true
 			});
 			await inst.bindTexture();
-			inst.render(0, 0, 65); // render to update viewport
+			inst.renderWithYawPitch(0, 0, 65); // render to update viewport
 
 			// When
 			const beforeExit = gl.getParameter(gl.VIEWPORT);

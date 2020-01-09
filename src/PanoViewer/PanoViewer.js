@@ -359,12 +359,21 @@ export default class PanoViewer extends Component {
 	 * TODO: Add docs
 	 */
 	enterVR() {
-		this._photoSphereRenderer.enterVR().catch(e => {
-			this._triggerEvent(EVENTS.ERROR, {
-				type: ERROR_TYPE.FAIL_ENTER_VR,
-				message: e.message ? e.message : e,
-			});
-		});
+		// For iOS 13+
+		if (DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === "function") {
+			// VR can be enabled only when device motion is enabled
+			return DeviceMotionEvent.requestPermission()
+				.then(permissionState => {
+					if (permissionState === "granted") {
+						this._yawPitchControl._deviceQuaternion.enable();
+						return this._photoSphereRenderer.enterVR();
+					} else {
+						return Promise.reject("Permission not granted");
+					}
+				});
+		}
+
+		return this._photoSphereRenderer.enterVR();
 	}
 
 	/**
@@ -377,7 +386,6 @@ export default class PanoViewer extends Component {
 	// TODO: Remove parameters as they're just using private values
 	_initRenderer(yaw, pitch, fov, projectionType, cubemapConfig) {
 		this._photoSphereRenderer = new PanoImageRenderer(
-			this._yawPitchControl,
 			this._image,
 			this._width,
 			this._height,
@@ -389,7 +397,8 @@ export default class PanoViewer extends Component {
 				imageType: projectionType,
 				cubemapConfig,
 				stereoequiFormat: this._stereoequiFormat
-			}
+			},
+			this._yawPitchControl,
 		);
 
 		this._bindRendererHandler();
@@ -825,7 +834,7 @@ export default class PanoViewer extends Component {
 		this._updateYawPitchIfNeeded();
 
 		this._triggerEvent(EVENTS.READY);
-		this._photoSphereRenderer.startRender();
+		this._photoSphereRenderer.startRender(this._yawPitchControl);
 	}
 
 	/**

@@ -75,7 +75,7 @@ function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuat
 			quat.rotateX(quaternion, quaternion, glMatrix.toRadian(-pitch));
 			inst.renderWithQuaternion(quaternion, fov);
 		} else {
-			inst.render(yaw, pitch, fov);
+			inst.renderWithYawPitch(yaw, pitch, fov);
 		}
 
 		// Then
