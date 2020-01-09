@@ -10,7 +10,7 @@ import SphereRenderer from "./renderer/SphereRenderer";
 import CylinderRenderer from "./renderer/CylinderRenderer";
 import VRManager from "./vr/VRManager";
 import XRManager from "./vr/XRManager";
-import Animator from "./Animator";
+import WebGLAnimator from "./WebGLAnimator";
 import {util as mathUtil} from "../utils/math-util";
 import {devicePixelRatio, isWebXRSupported} from "../utils/browserFeature";
 import {PROJECTION_TYPE, STEREO_FORMAT} from "../PanoViewer/consts";
@@ -50,12 +50,11 @@ export default class PanoImageRenderer extends Component {
 	static ERROR_TYPE = ERROR_TYPE;
 
 	constructor(
-		yawPitchControl, image, width, height, isVideo, sphericalConfig, renderingContextAttributes
+		image, width, height, isVideo, sphericalConfig, renderingContextAttributes, yawPitchControl
 	) {
 		// Super constructor
 		super();
 
-		this._yawPitchControl = yawPitchControl;
 		this.sphericalConfig = sphericalConfig;
 		this.fieldOfView = sphericalConfig.fieldOfView;
 
@@ -88,7 +87,7 @@ export default class PanoImageRenderer extends Component {
 		this._onContentLoad = this._onContentLoad.bind(this);
 		this._onContentError = 	this._onContentError.bind(this);
 
-		this._animator = new Animator();
+		this._animator = new WebGLAnimator();
 
 		// VR/XR manager
 		this._vr = null;
@@ -282,6 +281,7 @@ export default class PanoImageRenderer extends Component {
 			this._contentLoader.destroy();
 		}
 
+		this._animator.stop();
 		this.detach();
 		this.forceContextLoss();
 
@@ -516,8 +516,8 @@ export default class PanoImageRenderer extends Component {
 		this._keepUpdate = doUpdate;
 	}
 
-	startRender() {
-		this._animator.setCallback(this._render);
+	startRender(yawPitchControl) {
+		this._animator.setCallback(this._render.bind(this, yawPitchControl));
 		this._animator.start();
 	}
 
@@ -543,6 +543,8 @@ export default class PanoImageRenderer extends Component {
 		}
 
 		this.mvMatrix = mat4.fromQuat(mat4.create(), quaternion);
+
+		this._draw();
 
 		this._lastQuaternion = quat.clone(quaternion);
 		if (this._shouldForceDraw) {
@@ -572,6 +574,8 @@ export default class PanoImageRenderer extends Component {
 		mat4.rotateX(this.mvMatrix, this.mvMatrix, -glMatrix.toRadian(pitch));
 		mat4.rotateY(this.mvMatrix, this.mvMatrix, -glMatrix.toRadian(yaw));
 
+		this._draw();
+
 		this._lastYaw = yaw;
 		this._lastPitch = pitch;
 		if (this._shouldForceDraw) {
@@ -579,8 +583,7 @@ export default class PanoImageRenderer extends Component {
 		}
 	}
 
-	_render = () => {
-		const yawPitchControl = this._yawPitchControl;
+	_render(yawPitchControl) {
 		const fov = yawPitchControl.getFov();
 
 		if (yawPitchControl.shouldRenderWithQuaternion()) {
@@ -592,8 +595,6 @@ export default class PanoImageRenderer extends Component {
 
 			this.renderWithYawPitch(yawPitch.yaw, yawPitch.pitch, fov);
 		}
-
-		this._draw();
 	}
 
 	_renderStereo = (time, frame) => {
@@ -676,21 +677,7 @@ export default class PanoImageRenderer extends Component {
 			return Promise.resolve("VR already enabled.");
 		}
 
-		// For iOS 13+
-		if (DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === "function") {
-			// VR can be enabled only when device motion is enabled
-			return DeviceMotionEvent.requestPermission()
-				.then(permissionState => {
-					if (permissionState === "granted") {
-						this._yawPitchControl._deviceQuaternion.enable();
-						return this._requestPresent();
-					} else {
-						return Promise.reject("Permission not granted");
-					}
-				});
-		} else {
-			return this._requestPresent();
-		}
+		return this._requestPresent();
 	}
 
 	exitVR = () => {

@@ -1,6 +1,6 @@
 import {IS_SAFARI_ON_DESKTOP} from "../utils/browser";
 
-export default class Animator {
+export default class WebGLAnimator {
 	constructor() {
 		this._callback = null;
 		this._context = window;

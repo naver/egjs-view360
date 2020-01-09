@@ -14,6 +14,7 @@ export default class DeviceQuaternion extends Component {
 		super();
 
 		this._enabled = false;
+		this._calibrated = false;
 
 		this._sensor = new RelativeOrientationSensor({
 			frequency: 60,
@@ -138,8 +139,10 @@ export default class DeviceQuaternion extends Component {
 
 	_startSensor() {
 		this._sensor.start();
+		if (!this._calibrated) {
+			this._sensor.addEventListener("reading", this._onFirstRead);
+		}
 		this._sensor.addEventListener("reading", this._onSensorRead);
-		this._sensor.addEventListener("reading", this._onFirstRead);
 		this._enabled = true;
 	}
 
@@ -164,6 +167,7 @@ export default class DeviceQuaternion extends Component {
 			SENSOR_TO_VR
 		);
 
+		this._calibrated = true;
 		this._sensor.removeEventListener("reading", this._onFirstRead);
 	}
 

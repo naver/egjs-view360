@@ -556,6 +556,7 @@ export default class YawPitchControl extends Component {
 
 		// TODO: Is this code is needed? Check later.
 		this.updatePanScale();
+		this._deviceQuaternion.enable();
 
 		return this;
 	}
@@ -575,6 +576,7 @@ export default class YawPitchControl extends Component {
 			this._resetOrientation();
 		}
 		this.axes.disconnect();
+		this._deviceQuaternion.disable();
 		this._enabled = false;
 		return this;
 	}

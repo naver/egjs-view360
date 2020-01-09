@@ -47,16 +47,15 @@ describe("DeviceQuaternion", function() {
 			}
 		});
 
-		it("should return responding quaternion if no motion &$ yaw != 0 && pitch != 0", () => {
+		it("should return responding quaternion if no motion && yaw != 0 && pitch != 0", () => {
 			// Given
 			// When
 			const yaw = 10;
-			const pitch = 10;
-			let resultQ = this.inst.getCombinedQuaternion(yaw, pitch);
+
+			let resultQ = this.inst.getCombinedQuaternion(yaw);
 			let expectedQ = quat.create();
 
 			// Then
-			quat.rotateX(expectedQ, expectedQ, glMatrix.toRadian(-pitch));
 			quat.rotateY(expectedQ, expectedQ, glMatrix.toRadian(-yaw));
 
 			// Ignore small tiny difference in value (eg. resultQ.z: 0.007596123497933149, expectedQ.z: 0.007596123963594437)

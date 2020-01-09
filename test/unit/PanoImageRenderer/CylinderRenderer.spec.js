@@ -106,7 +106,8 @@ describe("CylinderRenderer", () => {
 			 */
 			await renderer.bindTexture();
 			maxFov = calcMaxFov(renderer);
-			renderer.render();
+
+			renderer.renderWithYawPitch();
 
 			const result1 = await renderAndCompareSequentially(renderer, [[0, 0, maxFov, `./images/PanoViewer/Panorama/smartphone-panorama-picture-init${suffix}`]]);
 
@@ -120,7 +121,7 @@ describe("CylinderRenderer", () => {
 
 			await renderer.bindTexture();
 			maxFov = calcMaxFov(renderer);
-			renderer.render();
+			renderer.renderWithYawPitch();
 
 			const result2 = await renderAndCompareSequentially(renderer, [[0, 0, maxFov, `./images/PanoViewer/Panorama/half-panorama-init${suffix}`]]);
 
@@ -140,10 +141,9 @@ describe("CylinderRenderer", () => {
 			await renderer.bindTexture();
 			const maxFov = calcMaxFov(renderer);
 
-			renderer.render();
+			renderer.renderWithYawPitch();
 			const result1 = await renderAndCompareSequentially(renderer, [[0, 0, maxFov, `./images/PanoViewer/Panorama/smartphone-panorama-picture-init${suffix}`]]);
 
-			console.log(result1);
 			// Then
 			expect(result1.success).to.be.equal(true);
 		});
