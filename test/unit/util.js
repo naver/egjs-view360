@@ -199,11 +199,15 @@ function cleanup() {
 function createVRDisplayMock() {
 	return {
 		capabilities: {
+			canPresent: true,
 			hasExternalDisplay: false
 		},
 		async requestPresent() {
 			this.presenting = true;
 			return "pass";
+		},
+		exitPresent() {
+			this.presenting = false;
 		},
 		isPresenting() {
 			return this.presenting;
@@ -219,7 +223,8 @@ function createVRDisplayMock() {
 				offset: 0,
 			};
 		},
-		submitFrame() {}
+		submitFrame() {},
+		requestAnimationFrame() {}
 	};
 }
 
