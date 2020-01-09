@@ -8,6 +8,8 @@ module.exports = config => {
 		files: [
 			"./node_modules/resemblejs/resemble.js",
 			"./node_modules/hammer-simulator/index.js",
+			"./node_modules/webvr-polyfill/build/webvr-polyfill.js",
+			"./node_modules/webxr-polyfill/build/webxr-polyfill.js",
 			"./test/hammer-simulator.run.js",
 			"./test/unit/**/*.spec.js",
 			{pattern: "./test/manual/img/**/*.*", watched: false, included: false, served: true},

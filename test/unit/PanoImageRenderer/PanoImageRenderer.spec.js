@@ -1277,18 +1277,41 @@ describe("PanoImageRenderer", () => {
 	describe("VR related methods test", () => {
 		let inst;
 		const origGetVRDisplays = navigator.getVRDisplays;
+		const origXR = navigator.xr;
+
+		const PanoImageRendererVR = PanoImageRendererInjector({
+			"../utils/browserFeature": {
+				devicePixelRatio: 2,
+				isWebXRSupported: () => false,
+			}
+		}).default;
 
 		beforeEach(() => {
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/PanoViewer/Stereoscopic/stereoscopic1.png";
-			inst = createPanoImageRenderer(sourceImg, false, PROJECTION_TYPE.STEREOSCOPIC_EQUI);
+			inst = new PanoImageRendererVR(sourceImg, 200, 200, false, {
+				fieldOfView: 65,
+				imageType: PROJECTION_TYPE.STEREOSCOPIC_EQUI,
+			});
+
+			sinon.mock(navigator.userAgent, "Android");
+
+			// eslint-disable-next-line no-new
+			new window.WebVRPolyfill({
+				PROVIDE_MOBILE_VRDISPLAY: true,
+			});
 		});
 
 		afterEach(() => {
 			inst && inst.destroy();
 			inst = null;
 			navigator.getVRDisplays = origGetVRDisplays;
+		});
+
+		after(() => {
+			// eslint-disable-next-line no-restricted-properties
+			navigator.__defineGetter__("xr", () => origXR);
 		});
 
 		it("can't enter VR when WebVR is not available in browser", async () => {
@@ -1309,8 +1332,6 @@ describe("PanoImageRenderer", () => {
 			// Give
 			const resolveSpy = sinon.spy();
 
-			navigator.getVRDisplays = async () => [createVRDisplayMock()];
-
 			// When
 			await inst.enterVR()
 				.then(resolveSpy);
@@ -1322,49 +1343,36 @@ describe("PanoImageRenderer", () => {
 		it("should attach display present change event on window after enter VR", async () => {
 			// Give
 			const eventAddSpy = sinon.spy(window, "addEventListener");
-
-			navigator.getVRDisplays = async () => [createVRDisplayMock()];
+			const successSpy = sinon.spy();
 
 			// When
-			await inst.enterVR();
+			navigator.getVRDisplays = async () => [createVRDisplayMock()];
+			await inst.enterVR()
+				.then(successSpy);
 
 			// Then
+			expect(successSpy.calledOnce).to.be.true;
 			expect(eventAddSpy.calledWith("vrdisplaypresentchange")).to.be.true;
 			window.addEventListener.restore();
 		});
 
-		it("should swap shader program to render VR if predistorted", async () => {
+		it("should return canvas size back to normal after exitVR is called", async () => {
 			// Give
-			inst.swapShaderProgram = sinon.spy();
+			const canvas = inst.canvas;
+			const origViewport = [canvas.width, canvas.height];
+
 			navigator.getVRDisplays = async () => [createVRDisplayMock()];
 
-			// When
-			await inst.enterVR({
-				predistorted: true
-			});
-
-			// Then
-			expect(inst.swapShaderProgram.called).to.be.true;
-		});
-
-		it("should return viewport back to normal after exitVR is called", async () => {
-			// Give
-			const gl = inst.context;
-			const origViewport = gl.getParameter(gl.VIEWPORT);
-
-			navigator.getVRDisplays = async () => [createVRDisplayMock()];
-			await inst.enterVR({
-				predistorted: true
-			});
+			await inst.enterVR();
 			await inst.bindTexture();
 			inst.renderWithYawPitch(0, 0, 65); // render to update viewport
 
 			// When
-			const beforeExit = gl.getParameter(gl.VIEWPORT);
+			const beforeExit = [canvas.width, canvas.height];
 
 			inst.exitVR();
 
-			const afterExit = gl.getParameter(gl.VIEWPORT);
+			const afterExit = [canvas.width, canvas.height];
 
 			// Then
 			expect(beforeExit).not.deep.equals(origViewport);
