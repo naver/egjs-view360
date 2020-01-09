@@ -724,7 +724,6 @@ export default class PanoImageRenderer extends Component {
 				this._shouldForceDraw = true;
 			})
 			.catch(e => {
-				console.log(e);
 				vr.destroy();
 				this._vr = null;
 				return e;
