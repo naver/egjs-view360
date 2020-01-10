@@ -726,7 +726,7 @@ export default class PanoImageRenderer extends Component {
 			.catch(e => {
 				vr.destroy();
 				this._vr = null;
-				return e;
+				throw e;
 			})
 			.finally(() => {
 				animator.start();

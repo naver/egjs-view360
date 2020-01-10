@@ -32,10 +32,10 @@ export default class DeviceQuaternion extends Component {
 		if (!navigator || !navigator.permissions) {
 			try {
 				this._startSensor();
+				return Promise.resolve();
 			} catch {
 				return Promise.reject("Sensor can't be enabled");
 			}
-			return Promise.resolve();
 		}
 
 		return Promise.all([

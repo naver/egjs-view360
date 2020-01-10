@@ -92,8 +92,8 @@ export default class VRManager {
 		return navigator.getVRDisplays().then(displays => {
 			const vrDisplay = displays.length && displays[0];
 
-			if (!vrDisplay) return Promise.reject("No displays available.");
-			if (!vrDisplay.capabilities.canPresent) return Promise.reject("Display lacking capability to present.");
+			if (!vrDisplay) throw Error("No displays available.");
+			if (!vrDisplay.capabilities.canPresent) throw Error("Display lacking capability to present.");
 
 			return vrDisplay.requestPresent([{source: canvas}]).then(() => {
 				const leftEye = vrDisplay.getEyeParameters(EYES.LEFT);
