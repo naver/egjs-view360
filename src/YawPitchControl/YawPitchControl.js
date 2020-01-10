@@ -309,7 +309,7 @@ export default class YawPitchControl extends Component {
 		if (keys.some(key => key === "touchDirection")) {
 			const isVR = this.options.gyroMode === GYRO_MODE.VR;
 			const touchDirection = isVR ?
-				TOUCH_DIRECTION_YAW :
+				(TOUCH_DIRECTION_YAW & this.options.touchDirection) :
 				this.options.touchDirection;
 
 			this._enabled && this._enableTouch(touchDirection);

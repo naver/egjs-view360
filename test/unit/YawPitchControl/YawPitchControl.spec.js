@@ -1621,7 +1621,7 @@ describe("YawPitchControl", () => {
 			getCombinedQuaternion(yaw, pitch) {
 				return quat.create();
 			}
-			enable() {
+			async enable() {
 				this._timer = setInterval(() => {
 					this.trigger("change", {isTrusted: true});
 				}, 50);
@@ -2171,7 +2171,7 @@ describe("YawPitchControl", () => {
 				done();
 			});
 		});
-		it("should change pitch when direction = TOUCH_DIRECTION_PITCH & moved vertically", done => {
+		it("should not change pitch when direction = TOUCH_DIRECTION_PITCH & moved vertically", done => {
 			// Given
 			inst = new YawPitchControl({
 				element: target,
@@ -2188,7 +2188,7 @@ describe("YawPitchControl", () => {
 			Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 				// Then
 				expect(inst.getYawPitch().yaw).to.be.closeTo(prevYaw, 0.00001);
-				expect(inst.getYawPitch().pitch).to.be.not.closeTo(prevPitch, 0.00001);
+				expect(inst.getYawPitch().pitch).to.be.closeTo(prevPitch, 0.00001);
 				done();
 			});
 		});
@@ -2307,7 +2307,7 @@ describe("YawPitchControl", () => {
 				done();
 			});
 		});
-		it("should change pitch when direction = TOUCH_DIRECTION_PITCH & moved horizontally", done => {
+		it("should not change pitch when direction = TOUCH_DIRECTION_PITCH & moved horizontally", done => {
 			// Given
 			inst = new MockYawPitchControl90Rotated({
 				element: target,
@@ -2324,7 +2324,7 @@ describe("YawPitchControl", () => {
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				// Then
 				expect(inst.getYawPitch().yaw).to.be.closeTo(prevYaw, 0.00001);
-				expect(inst.getYawPitch().pitch).to.be.not.closeTo(prevPitch, 0.00001);
+				expect(inst.getYawPitch().pitch).to.be.closeTo(prevPitch, 0.00001);
 				done();
 			});
 		});
