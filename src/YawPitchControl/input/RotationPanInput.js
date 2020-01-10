@@ -20,11 +20,11 @@ export default class RotationPanInput extends PanInput {
 	 * @param {Object} [options] The option object
 	 * @param {Boolean} [options.useRotation]  Whether to use rotation(or VR)
 	 */
-	constructor(el, options, deviceQuaternion) {
+	constructor(el, options, deviceSensor) {
 		super(el, options);
 
 		this._useRotation = false;
-		this._deviceQuaternion = deviceQuaternion;
+		this._deviceSensor = deviceSensor;
 
 		this.setUseRotation(!!(options && options.useRotation));
 
@@ -57,7 +57,7 @@ export default class RotationPanInput extends PanInput {
 		const offset = super.getOffset(properties, [true, true]);
 		const newOffset = [0, 0];
 
-		const rightAxis = this._deviceQuaternion.getDeviceHorizontalRight();
+		const rightAxis = this._deviceSensor.getDeviceHorizontalRight();
 		const rightAxisVec2 = vec2.fromValues(rightAxis[0], rightAxis[1]);
 		const xAxis = vec2.fromValues(1, 0);
 

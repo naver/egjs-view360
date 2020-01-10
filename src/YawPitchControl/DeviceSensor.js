@@ -9,7 +9,7 @@ const Y_AXIS_VECTOR = vec3.fromValues(0, 1, 0);
 // Quaternion to rotate from sensor coordinates to WebVR coordinates
 const SENSOR_TO_VR = quat.setAxisAngle(quat.create(), X_AXIS_VECTOR, -Math.PI / 2);
 
-export default class DeviceQuaternion extends Component {
+export default class DeviceSensor extends Component {
 	constructor() {
 		super();
 
@@ -30,12 +30,8 @@ export default class DeviceQuaternion extends Component {
 			return Promise.resolve("Sensor already enabled");
 		}
 		if (!navigator || !navigator.permissions) {
-			try {
-				this._startSensor();
-				return Promise.resolve();
-			} catch {
-				return Promise.reject("Sensor can't be enabled");
-			}
+			this._startSensor();
+			return Promise.resolve();
 		}
 
 		return Promise.all([
@@ -47,7 +43,7 @@ export default class DeviceQuaternion extends Component {
 			}
 		}).catch(() => {
 			// Start it anyway, workaround for Firefox
-			this._startSensor(); // TODO: TEST
+			this._startSensor();
 		});
 	}
 
