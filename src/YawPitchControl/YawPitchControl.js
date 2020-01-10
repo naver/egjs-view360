@@ -3,7 +3,7 @@ import Axes, {PinchInput, MoveKeyInput, WheelInput} from "@egjs/axes";
 import {vec2, glMatrix} from "gl-matrix";
 import {getComputedStyle, SUPPORT_TOUCH, SUPPORT_DEVICEMOTION} from "../utils/browserFeature";
 import RotationPanInput from "./input/RotationPanInput";
-import DeviceQuaternion from "./DeviceQuaternion";
+import DeviceSensor from "./DeviceSensor";
 import {util as mathUtil} from "../utils/math-util";
 import {
 	GYRO_MODE,
@@ -84,7 +84,7 @@ export default class YawPitchControl extends Component {
 		this._initialFov = opt.fov;
 		this._enabled = false;
 		this._isAnimating = false;
-		this._deviceQuaternion = new DeviceQuaternion()
+		this._deviceSensor = new DeviceSensor()
 			.on("change", e => {
 				this._triggerChange(e);
 			});
@@ -98,7 +98,7 @@ export default class YawPitchControl extends Component {
 		const pRange = this._updatePitchRange(opt.pitchRange, opt.fov, opt.showPolePoint);
 		const useRotation = opt.gyroMode === GYRO_MODE.VR;
 
-		this.axesPanInput = new RotationPanInput(this._element, {useRotation}, this._deviceQuaternion);
+		this.axesPanInput = new RotationPanInput(this._element, {useRotation}, this._deviceSensor);
 		this.axesWheelInput = new WheelInput(this._element, {scale: -4});
 		this.axesPinchInput = SUPPORT_TOUCH ? new PinchInput(this._element, {scale: -1}) : null;
 		this.axesMoveKeyInput = new MoveKeyInput(this._element, {scale: [-6, 6]});
@@ -273,9 +273,9 @@ export default class YawPitchControl extends Component {
 			const isYawPitch = this.options.gyroMode === GYRO_MODE.YAWPITCH;
 
 			if (!isVR && !isYawPitch) {
-				this._deviceQuaternion.disable();
+				this._deviceSensor.disable();
 			} else {
-				this._deviceQuaternion.enable()
+				this._deviceSensor.enable()
 					.catch(() => {}); // Device motion enabling can fail on iOS
 			}
 
@@ -490,7 +490,7 @@ export default class YawPitchControl extends Component {
 		event.fov = pos.fov;
 
 		if (opt.gyroMode === GYRO_MODE.VR) {
-			event.quaternion = this._deviceQuaternion.getCombinedQuaternion(pos.yaw);
+			event.quaternion = this._deviceSensor.getCombinedQuaternion(pos.yaw);
 		}
 		this.trigger("change", event);
 	}
@@ -556,7 +556,7 @@ export default class YawPitchControl extends Component {
 
 		// TODO: Is this code is needed? Check later.
 		this.updatePanScale();
-		this._deviceQuaternion.enable();
+		this.enableSensor();
 
 		return this;
 	}
@@ -576,7 +576,7 @@ export default class YawPitchControl extends Component {
 			this._resetOrientation();
 		}
 		this.axes.disconnect();
-		this._deviceQuaternion.disable();
+		this.disableSensor();
 		this._enabled = false;
 		return this;
 	}
@@ -617,8 +617,22 @@ export default class YawPitchControl extends Component {
 		}, duration);
 	}
 
+	enableSensor() {
+		const gyroMode = this.options.gyroMode;
+
+		if (gyroMode !== GYRO_MODE.NONE) {
+			return this._deviceSensor.enable();
+		} else {
+			return Promise.reject("gyroMode not set");
+		}
+	}
+
+	disableSensor() {
+		this._deviceSensor.disable();
+	}
+
 	getYawPitch() {
-		const deviceYawPitchDelta = this._deviceQuaternion.getYawPitchDelta();
+		const deviceYawPitchDelta = this._deviceSensor.getYawPitchDelta();
 
 		// Update axes values
 		this.axes.setBy({
@@ -641,7 +655,7 @@ export default class YawPitchControl extends Component {
 	getQuaternion() {
 		const pos = this.axes.get();
 
-		return this._deviceQuaternion.getCombinedQuaternion(pos.yaw);
+		return this._deviceSensor.getCombinedQuaternion(pos.yaw);
 	}
 
 	shouldRenderWithQuaternion() {
@@ -658,6 +672,6 @@ export default class YawPitchControl extends Component {
 		this.axesDeviceOrientationInput && this.axesDeviceOrientationInput.destroy();
 		this.axesPinchInput && this.axesPinchInput.destroy();
 		this.axesMoveKeyInput && this.axesMoveKeyInput.destroy();
-		this._deviceQuaternion && this._deviceQuaternion.destroy();
+		this._deviceSensor && this._deviceSensor.destroy();
 	}
 }

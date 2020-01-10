@@ -358,6 +358,20 @@ export default class PanoViewer extends Component {
 	/**
 	 * TODO: Add docs
 	 */
+	enableSensor() {
+		return this._yawPitchControl.enableSensor();
+	}
+
+	/**
+	 * TODO: Add docs
+	 */
+	disableSensor() {
+		return this._yawPitchControl.disableSensor();
+	}
+
+	/**
+	 * TODO: Add docs
+	 */
 	enterVR() {
 		// For iOS 13+
 		if (DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === "function") {
@@ -365,7 +379,7 @@ export default class PanoViewer extends Component {
 			return DeviceMotionEvent.requestPermission()
 				.then(permissionState => {
 					if (permissionState === "granted") {
-						this._yawPitchControl._deviceQuaternion.enable();
+						this._yawPitchControl.getDeviceSensor().enable();
 						return this._photoSphereRenderer.enterVR();
 					} else {
 						return Promise.reject("Permission not granted");

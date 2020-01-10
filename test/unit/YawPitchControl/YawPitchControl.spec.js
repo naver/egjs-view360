@@ -18,7 +18,7 @@ import {
 	MC_MAXIMUM_DURATION
 } from "../../../src/YawPitchControl/consts";
 import YawPitchControl from "../../../src/YawPitchControl/YawPitchControl"; // eslint-disable-line import/no-duplicates
-import DeviceQuaternion from "../../../src/YawPitchControl/DeviceQuaternion";
+import DeviceSensor from "../../../src/YawPitchControl/DeviceSensor";
 import TestHelper from "./testHelper";
 import devicemotionRotateSample from "./devicemotionSampleRotate";
 import {window} from "../../../src/utils/browser";
@@ -1608,7 +1608,7 @@ describe("YawPitchControl", () => {
 		let target;
 		let inst;
 
-		class MockDeviceQuaternion extends Component {
+		class MockDeviceSensor extends Component {
 			constructor() {
 				super();
 				this._timer = null;
@@ -1630,14 +1630,14 @@ describe("YawPitchControl", () => {
 				this._timer && clearInterval(this._timer);
 			}
 		}
-		const DeviceQuaternionMockYawPitchControl = YawPitchControlrInjector({
-			"./DeviceQuaternion": MockDeviceQuaternion
+		const DeviceSensorMockYawPitchControl = YawPitchControlrInjector({
+			"./DeviceSensor": MockDeviceSensor
 		}).default;
 
 		beforeEach(() => {
 			target = sandbox();
 			target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
-			inst = new DeviceQuaternionMockYawPitchControl({
+			inst = new DeviceSensorMockYawPitchControl({
 				element: target,
 				gyroMode: GYRO_MODE.VR
 			});
@@ -1694,7 +1694,7 @@ describe("YawPitchControl", () => {
 		it("should retain VR Mode although device does not support devicemotion", () => {
 			// Given
 			const DeviceMotionUnsupportedMockYawPitchControl = YawPitchControlrInjector({
-				"./DeviceQuaternion": MockDeviceQuaternion,
+				"./DeviceSensor": MockDeviceSensor,
 				"../utils/browserFeature": {
 					SUPPORT_DEVICEMOTION: false,
 					getComputedStyle: window.getComputedStyle
@@ -2238,14 +2238,14 @@ describe("YawPitchControl", () => {
 			easing: "linear"
 		};
 
-		class MockDeviceQuaternion extends DeviceQuaternion {
+		class MockDeviceSensor extends DeviceSensor {
 			getDeviceHorizontalRight() {
 				return vec3.fromValues(0, -1, 0); /* 90 degree */
 			}
 		}
 
 		const MockYawPitchControl90Rotated = YawPitchControlrInjector({
-			"./DeviceQuaternion": MockDeviceQuaternion
+			"./DeviceSensor": MockDeviceSensor
 		}).default;
 
 		beforeEach(() => {
