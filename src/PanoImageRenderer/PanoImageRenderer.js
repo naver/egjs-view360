@@ -248,7 +248,9 @@ export default class PanoImageRenderer extends Component {
 			}
 
 			this._contentLoader.get()
-				.then(() => this._bindTexture(), rej)
+				.then(() => {
+					this._bindTexture();
+				}, rej)
 				.then(res);
 		});
 	}
@@ -715,22 +717,26 @@ export default class PanoImageRenderer extends Component {
 		const vr = this._vr;
 
 		animator.stop();
-		return vr.requestPresent(canvas, gl)
-			.then(() => {
-				vr.addEndCallback(this.exitVR);
-				animator.setContext(vr.context);
-				animator.setCallback(this._onFirstVRFrame);
+		return new Promise((resolve, reject) => {
+			vr.requestPresent(canvas, gl)
+				.then(() => {
+					vr.addEndCallback(this.exitVR);
+					animator.setContext(vr.context);
+					animator.setCallback(this._onFirstVRFrame);
 
-				this._shouldForceDraw = true;
-			})
-			.catch(e => {
-				vr.destroy();
-				this._vr = null;
-				throw e;
-			})
-			.finally(() => {
-				animator.start();
-			});
+					this._shouldForceDraw = true;
+					animator.start();
+
+					resolve();
+				})
+				.catch(e => {
+					vr.destroy();
+					this._vr = null;
+					animator.start();
+
+					reject(e);
+				});
+		});
 	}
 
 	_onFirstVRFrame = (time, frame) => {
