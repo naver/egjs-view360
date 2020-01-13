@@ -36,8 +36,8 @@ describe("VRManager", () => {
 	});
 
 	after(() => {
-		reqPresentStub.reset();
-		frameDataStub.reset();
+		reqPresentStub.restore();
+		frameDataStub.restore();
 	});
 
 	it("should bind to default framebuffer before render", () => {
@@ -96,7 +96,7 @@ describe("VRManager", () => {
 		expect(renderableAfterPresent).to.be.true;
 	});
 
-	it("should attach end callback to window vrdisplaypresentchange event", () => {
+	it("can attach end callback to window vrdisplaypresentchange event", () => {
 		// Given
 		const vrManager = new VRManager();
 		const fakeCallback = sinon.fake();
@@ -215,7 +215,7 @@ describe("VRManager", () => {
 		// When
 		vrManager.destroy();
 
-		await vrManager.requestPresent(canvas);
+		await vrManager.requestPresent(canvas); // re-activate
 		const eyeParamsWithoutOffset = vrManager.getEyeParams(gl);
 
 		// Then

@@ -1330,7 +1330,7 @@ describe("PanoImageRenderer", () => {
 		});
 
 		after(() => {
-			reqPresentStub.reset();
+			reqPresentStub.restore();
 		});
 
 		it("can't enter VR when WebVR is not available in browser", async () => {
