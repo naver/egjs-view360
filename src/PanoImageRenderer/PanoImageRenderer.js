@@ -519,7 +519,9 @@ export default class PanoImageRenderer extends Component {
 	}
 
 	startRender(yawPitchControl) {
-		this._animator.setCallback(this._render.bind(this, yawPitchControl));
+		// FIXME: Please refactor this to more generous approach to access yawPitchControl
+		this._render = this._render.bind(this, yawPitchControl);
+		this._animator.setCallback(this._render);
 		this._animator.start();
 	}
 
@@ -752,6 +754,7 @@ export default class PanoImageRenderer extends Component {
 		// Extract only rotation
 		const mvMatrix = mat3.fromMat4(mat3.create(), eyeParam.mvMatrix);
 		const pMatrix = mat3.fromMat4(mat3.create(), eyeParam.pMatrix);
+
 		const mvInv = mat3.invert(mat3.create(), mvMatrix);
 		const pInv = mat3.invert(mat3.create(), pMatrix);
 		const viewDir = vec3.transformMat3(vec3.create(), minusZDir, pInv);

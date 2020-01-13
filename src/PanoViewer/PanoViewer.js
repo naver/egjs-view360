@@ -376,15 +376,19 @@ export default class PanoViewer extends Component {
 		// For iOS 13+
 		if (DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === "function") {
 			// VR can be enabled only when device motion is enabled
-			return DeviceMotionEvent.requestPermission()
-				.then(permissionState => {
-					if (permissionState === "granted") {
-						this._yawPitchControl.getDeviceSensor().enable();
-						return this._photoSphereRenderer.enterVR();
-					} else {
-						return Promise.reject("Permission not granted");
-					}
-				});
+			return new Promise((resolve, reject) => {
+				DeviceMotionEvent.requestPermission()
+					.then(permissionState => {
+						if (permissionState === "granted") {
+							this._yawPitchControl.enableSensor()
+								.then(() => this._photoSphereRenderer.enterVR())
+								.then(res => resolve(res))
+								.catch(e => reject(e));
+						} else {
+							reject("Permission not granted");
+						}
+					});
+			});
 		}
 
 		return this._photoSphereRenderer.enterVR();
