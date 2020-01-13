@@ -77,7 +77,7 @@ export default class VRManager {
 	}
 
 	isPresenting() {
-		return this._vrDisplay && this._vrDisplay.isPresenting;
+		return Boolean(this._vrDisplay && this._vrDisplay.isPresenting);
 	}
 
 	addEndCallback(callback) {
