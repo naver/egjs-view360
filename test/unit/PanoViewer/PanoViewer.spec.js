@@ -1,4 +1,5 @@
 import {expect, assert} from "chai";
+import sinon from "sinon";
 import PanoViewerInjector from "inject-loader!../../../src/PanoViewer/PanoViewer"; // eslint-disable-line import/no-duplicates
 import WebglUtilsInjector from "inject-loader!../../../src/PanoImageRenderer/WebGLUtils"; // eslint-disable-line import/no-duplicates
 import PanoViewer from "../../../src/PanoViewer/PanoViewer"; // eslint-disable-line import/no-duplicates
@@ -782,6 +783,64 @@ describe("PanoViewer", () => {
 			expect(foundIndex).to.be.equal(-1);
 
 			cleanup();
+		});
+	});
+
+	describe("#enterVR", () => {
+		let panoViewer;
+		let imageRendererEnterVRStub;
+
+		beforeEach(() => {
+			const target = sandbox();
+
+			panoViewer = new PanoViewer(target);
+
+			// We're not testing PanoImageRenderer's enterVR here
+			imageRendererEnterVRStub = sinon.stub(panoViewer._photoSphereRenderer, "enterVR");
+		});
+
+		afterEach(() => {
+			cleanup();
+			imageRendererEnterVRStub.restore();
+		});
+
+		it("should enable sensor on iOS13+ when permission is granted", async () => {
+			// Given
+			const origRequestPermission = DeviceMotionEvent.requestPermission;
+
+			DeviceMotionEvent.requestPermission = () => Promise.resolve("granted");
+			const enableSpy = sinon.spy(panoViewer._yawPitchControl, "enableSensor");
+			const resolveSpy = sinon.spy();
+
+			// When
+			await panoViewer.enterVR()
+				.then(resolveSpy);
+
+			// Then
+			expect(enableSpy.calledOnce).to.be.true;
+			expect(resolveSpy.calledOnce).to.be.true;
+			DeviceMotionEvent.requestPermission = origRequestPermission;
+		});
+
+		it("should reject on iOS13+ when permission is not granted", async () => {
+			// Given
+			const origRequestPermission = DeviceMotionEvent.requestPermission;
+
+			DeviceMotionEvent.requestPermission = () => Promise.resolve("not granted");
+			const enableSpy = sinon.spy(panoViewer._yawPitchControl, "enableSensor");
+			const resolveSpy = sinon.spy();
+			const rejectSpy = sinon.spy();
+
+			// When
+			await panoViewer.enterVR()
+				.then(resolveSpy)
+				.catch(rejectSpy);
+
+			// Then
+			expect(enableSpy.called).to.be.false;
+			expect(resolveSpy.called).to.be.false;
+			expect(rejectSpy.called).to.be.true;
+			DeviceMotionEvent.requestPermission = origRequestPermission;
 		});
 	});
 });
