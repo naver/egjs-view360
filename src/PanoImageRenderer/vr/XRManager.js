@@ -97,15 +97,18 @@ export default class XRManager {
 	}
 
 	requestPresent(canvas, gl) {
-		return navigator.xr.requestSession("immersive-vr", {
-			requiredFeatures: [XR_REFERENCE_SPACE],
-		}).then(session => {
-			const xrLayer = new window.XRWebGLLayer(session, gl);
+		return new Promise((resolve, reject) => {
+			navigator.xr.requestSession("immersive-vr", {
+				requiredFeatures: [XR_REFERENCE_SPACE],
+			}).then(session => {
+				const xrLayer = new window.XRWebGLLayer(session, gl);
 
-			session.updateRenderState({baseLayer: xrLayer});
-			return session.requestReferenceSpace(XR_REFERENCE_SPACE).then(refSpace => {
-				this._setSession(session, xrLayer, refSpace);
-			});
+				session.updateRenderState({baseLayer: xrLayer});
+				session.requestReferenceSpace(XR_REFERENCE_SPACE).then(refSpace => {
+					this._setSession(session, xrLayer, refSpace);
+					resolve();
+				});
+			}).catch(e => reject(e));
 		});
 	}
 

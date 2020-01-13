@@ -1279,11 +1279,19 @@ describe("PanoImageRenderer", () => {
 		let reqPresentStub;
 		const origGetVRDisplays = navigator.getVRDisplays;
 
+		class MockAnimator {
+			setCallback() {}
+			setContext() {}
+			start() {}
+			stop() {}
+		}
+
 		const PanoImageRendererVR = PanoImageRendererInjector({
 			"../utils/browserFeature": {
 				devicePixelRatio: 2,
 				isWebXRSupported: () => false,
-			}
+			},
+			"./WebGLAnimator": MockAnimator,
 		}).default;
 
 		before(() => {
@@ -1299,7 +1307,7 @@ describe("PanoImageRenderer", () => {
 			reqPresentStub.returns(Promise.resolve());
 		});
 
-		beforeEach(() => {
+		beforeEach(async () => {
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/PanoViewer/Stereoscopic/stereoscopic1.png";
@@ -1311,6 +1319,7 @@ describe("PanoImageRenderer", () => {
 			const wrapper = sandbox();
 
 			inst.attachTo(wrapper);
+			await inst.bindTexture();
 		});
 
 		afterEach(() => {
@@ -1324,65 +1333,70 @@ describe("PanoImageRenderer", () => {
 			reqPresentStub.reset();
 		});
 
-		it("can't enter VR when WebVR is not available in browser", done => {
+		it("can't enter VR when WebVR is not available in browser", async () => {
 			// Given
 			const rejectSpy = sinon.spy();
 
 			navigator.getVRDisplays = null;
 
 			// When
-			inst.enterVR()
-				.catch(rejectSpy)
-				.finally(() => {
-					// Then
-					expect(rejectSpy.called).to.be.true;
-					done();
-				});
+			await inst.enterVR()
+				.catch(rejectSpy);
+
+			// Then
+			expect(rejectSpy.called).to.be.true;
 		});
 
 		it("can enter VR with WebVR-polyfill enabled", done => {
-			inst.enterVR().then(() => {
-				expect(true).to.be.true;
-			}).catch(() => {
-				expect(false).to.be.true;
-			}).finally(() => {
+			// Given
+			const resolveSpy = sinon.spy();
+
+			// When
+			try {
+				inst.enterVR()
+					.then(resolveSpy)
+					.then(() => {
+						// Then
+						expect(resolveSpy.called).to.be.true;
+						done();
+					});
+			} catch (e) {
 				done();
-			});
+			}
 		});
 
-		it("should attach display present change event on window after enter VR", done => {
+		it("should attach display present change event on window after enter VR", async () => {
 			// Give
 			const eventAddSpy = sinon.spy(window, "addEventListener");
 
 			// When
-			inst.enterVR().finally(() => {
-				// Then
-				window.addEventListener.restore();
-				expect(eventAddSpy.calledWith("vrdisplaypresentchange")).to.be.true;
-				done();
-			});
+			await inst.bindTexture();
+			await inst.enterVR();
+
+			// Then
+			window.addEventListener.restore();
+			expect(eventAddSpy.calledWith("vrdisplaypresentchange")).to.be.true;
 		});
 
-		// it("should return canvas size back to normal after exitVR is called", async () => {
-		// 	// Give
-		// 	await inst.bindTexture();
-		// 	inst.renderWithYawPitch(0, 0, 65); // render to update viewport
+		it("should return canvas size back to normal after exitVR is called", async () => {
+			// Give
+			inst.renderWithYawPitch(0, 0, 65); // render to update viewport
 
-		// 	const canvas = inst.canvas;
-		// 	const origViewport = [canvas.width, canvas.height];
+			const canvas = inst.canvas;
+			const origViewport = [canvas.width, canvas.height];
 
-		// 	await inst.enterVR();
+			await inst.enterVR();
 
-		// 	// When
-		// 	const beforeExit = [canvas.width, canvas.height];
+			// When
+			const beforeExit = [canvas.width, canvas.height];
 
-		// 	inst.exitVR();
+			inst.exitVR();
 
-		// 	const afterExit = [canvas.width, canvas.height];
+			const afterExit = [canvas.width, canvas.height];
 
-		// 	// Then
-		// 	expect(beforeExit).not.deep.equals(origViewport);
-		// 	expect(afterExit).deep.equals(origViewport);
-		// });
+			// Then
+			expect(beforeExit).not.deep.equals(origViewport);
+			expect(afterExit).deep.equals(origViewport);
+		});
 	});
 });

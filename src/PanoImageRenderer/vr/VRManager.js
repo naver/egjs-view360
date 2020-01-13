@@ -89,20 +89,29 @@ export default class VRManager {
 	}
 
 	requestPresent(canvas) {
-		return navigator.getVRDisplays().then(displays => {
-			const vrDisplay = displays.length && displays[0];
+		return new Promise((resolve, reject) => {
+			navigator.getVRDisplays().then(displays => {
+				const vrDisplay = displays.length && displays[0];
 
-			if (!vrDisplay) throw Error("No displays available.");
-			if (!vrDisplay.capabilities.canPresent) throw Error("Display lacking capability to present.");
+				if (!vrDisplay) {
+					reject("No displays available.");
+					return;
+				}
+				if (!vrDisplay.capabilities.canPresent) {
+					reject("Display lacking capability to present.");
+					return;
+				}
 
-			return vrDisplay.requestPresent([{source: canvas}]).then(() => {
-				const leftEye = vrDisplay.getEyeParameters(EYES.LEFT);
-				const rightEye = vrDisplay.getEyeParameters(EYES.RIGHT);
+				vrDisplay.requestPresent([{source: canvas}]).then(() => {
+					const leftEye = vrDisplay.getEyeParameters(EYES.LEFT);
+					const rightEye = vrDisplay.getEyeParameters(EYES.RIGHT);
 
-				canvas.width = Math.max(leftEye.renderWidth, rightEye.renderWidth) * 2;
-				canvas.height = Math.max(leftEye.renderHeight, rightEye.renderHeight);
+					canvas.width = Math.max(leftEye.renderWidth, rightEye.renderWidth) * 2;
+					canvas.height = Math.max(leftEye.renderHeight, rightEye.renderHeight);
 
-				this._setDisplay(vrDisplay);
+					this._setDisplay(vrDisplay);
+					resolve();
+				});
 			});
 		});
 	}
