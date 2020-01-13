@@ -1,3 +1,4 @@
+import {expect} from "chai";
 import BrowserFeatureInjector from "inject-loader!../../../src/utils/browserFeature";
 
 describe("util/browser", () => {
@@ -8,6 +9,7 @@ describe("util/browser", () => {
 			const resultTrsfString = [];
 			let vendor;
 			let browser;
+
 			// When
 			vendorTransformStrings.forEach(vendorTrsf => {
 				browser = {
@@ -15,12 +17,12 @@ describe("util/browser", () => {
 						navigator: {}
 					},
 					document: {
-						documentElement : {
+						documentElement: {
 							style: {}
 						}
 					}
-				}
-				browser.document.documentElement.style[vendorTrsf] = '';
+				};
+				browser.document.documentElement.style[vendorTrsf] = "";
 
 				vendor = BrowserFeatureInjector({
 					"./browser": browser
@@ -31,7 +33,8 @@ describe("util/browser", () => {
 
 			// Then
 			const allMatched = ["transform", "webkitTransform", "msTransform", "mozTransform", ""].every((trsfString, i) => trsfString === resultTrsfString[i]);
+
 			expect(allMatched).to.equal(true);
-		})
+		});
 	});
 });

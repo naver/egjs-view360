@@ -1,5 +1,6 @@
 import {expect} from "chai";
 import sinon from "sinon";
+import {mat4} from "gl-matrix";
 import PanoImageRendererForUnitTestInjector from "inject-loader!../PanoImageRendererForUnitTest";
 import PanoImageRendererInjector from "inject-loader!../../../src/PanoImageRenderer/PanoImageRenderer"; // eslint-disable-line import/no-duplicates
 import RendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/Renderer";
@@ -1274,7 +1275,7 @@ describe("PanoImageRenderer", () => {
 		});
 	});
 
-	describe("VR related methods test", () => {
+	describe("#enterVR", () => {
 		let inst;
 		let reqPresentStub;
 		const origGetVRDisplays = navigator.getVRDisplays;
@@ -1295,6 +1296,7 @@ describe("PanoImageRenderer", () => {
 		}).default;
 
 		before(() => {
+			// I've chosen WebVR API as it's slightly more easier to test with
 			window.WebVRConfig = {
 				FORCE_ENABLE_VR: true,
 			};
@@ -1397,6 +1399,122 @@ describe("PanoImageRenderer", () => {
 			// Then
 			expect(beforeExit).not.deep.equals(origViewport);
 			expect(afterExit).deep.equals(origViewport);
+		});
+
+		it("should call destroy & stop animation when requestPresent rejected", async () => {
+			// Given
+			const requestPresentStub = sinon.stub();
+			const rejectSpy = sinon.spy();
+			const destroySpy = sinon.spy();
+			const startAnimSpy = sinon.spy();
+			const stopAnimSpy = sinon.spy();
+			const xrManagerStub = class XRManagerStub {
+				destroy = destroySpy
+				requestPresent = reqPresentStub
+			};
+			const animatorStub = class WebGLAnimatorStub {
+				start = startAnimSpy
+				stop = stopAnimSpy
+			};
+
+			requestPresentStub.returns(Promise.reject());
+
+			const PanoImageRendererVRWithManagerMocked = PanoImageRendererInjector({
+				"./vr/XRManager": xrManagerStub,
+				"./WebGLAnimator": animatorStub,
+				"../utils/browserFeature": {
+					devicePixelRatio: 2,
+					isWebXRSupported: () => true,
+				},
+			}).default;
+
+			const sourceImg = new Image();
+
+			sourceImg.src = "./images/PanoViewer/Stereoscopic/stereoscopic1.png";
+			inst = new PanoImageRendererVRWithManagerMocked(sourceImg, 200, 200, false, {
+				fieldOfView: 65,
+				imageType: PROJECTION_TYPE.STEREOSCOPIC_EQUI,
+			});
+
+			// When
+			await inst.enterVR()
+				.catch(rejectSpy);
+
+			// Then
+			expect(rejectSpy.calledOnce).to.be.true;
+			expect(destroySpy.calledOnce).to.be.true;
+			expect(startAnimSpy.calledOnce).to.be.true;
+			expect(stopAnimSpy.calledOnce).to.be.true;
+			expect(stopAnimSpy.calledBefore(startAnimSpy)).to.be.true;
+		});
+	});
+
+	describe("calibration on first VR frame", () => {
+		const addCallbackSpy = sinon.spy();
+		const setYawOffsetSpy = sinon.spy();
+		const getEyeParamsStub = sinon.stub();
+		const sourceImg = new Image();
+
+		sourceImg.src = "./images/PanoViewer/Stereoscopic/stereoscopic1.png";
+
+		class XRManagerStub {
+			context = window;
+			addEndCallback = addCallbackSpy;
+			setYawOffset = setYawOffsetSpy;
+			getEyeParams = getEyeParamsStub;
+			requestPresent() { return Promise.resolve(); }
+			canRender() { return true; }
+			beforeRender() {}
+			afterRender() {}
+			destroy() {}
+		}
+
+		const PanoImageRendererXR = PanoImageRendererInjector({
+			"./vr/XRManager": XRManagerStub,
+		}).default;
+
+		afterEach(() => {
+			setYawOffsetSpy.resetHistory();
+			addCallbackSpy.resetHistory();
+			getEyeParamsStub.reset();
+		});
+
+		it("should apply correct yaw offset", async () => {
+			// Given
+			const renderer = new PanoImageRendererXR(sourceImg, 200, 200, false, {
+				fieldOfView: 65,
+				imageType: PROJECTION_TYPE.STEREOSCOPIC_EQUI,
+			});
+
+			// Let's say that it's looking opposite direction
+			getEyeParamsStub.returns([
+				{
+					// From the values I've tested on Samsung browser
+					mvMatrix: mat4.rotateY(mat4.create(), mat4.create(), Math.PI),
+					pMatrix: mat4.fromValues(
+						1, 0, 0, 0,
+						0, 1, 0, 0,
+						0, 0, -1, 0,
+						0, 0, 0, 1,
+					),
+					viewport: [0, 0, 0.5, 1]
+				},
+				{
+					mvMatrix: mat4.create(),
+					pMatrix: mat4.create(),
+					viewport: [0, 0, 0.5, 1]
+				}, // second one is not important
+			]);
+
+			// When
+			await renderer.bindTexture();
+			await renderer.enterVR();
+			await new Promise(res => {
+				setTimeout(res, 100);
+			}); // wait for the first rendering happen
+
+			// Then
+			expect(setYawOffsetSpy.calledWith(-Math.PI)).to.be.true;
 		});
 	});
 });

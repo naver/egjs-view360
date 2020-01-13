@@ -1,14 +1,58 @@
 import {expect} from "chai";
-import WebGLAnimatorInjector from "inject-loader!../../../src/PanoImageRenderer/WebGLAnimator";
+import sinon from "sinon";
+import WebGLAnimatorInjector from "inject-loader!../../../src/PanoImageRenderer/WebGLAnimator"; // eslint-disable-line import/no-duplicates
+import WebGLAnimator from "../../../src/PanoImageRenderer/WebGLAnimator"; // eslint-disable-line import/no-duplicates
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 
 const WEBGL_AVAILABILITY = WebGLUtils.isWebGLAvailable();
 const IT = WEBGL_AVAILABILITY ? it : it.skip;
 
-/**
- * Exceptional Case
- */
-describe("Exception Case", () => {
+describe("WebGLAnimator", () => {
+	it("should have window as default context", async () => {
+		// Given
+		const animator = new WebGLAnimator();
+		const rafSpy = sinon.spy(window, "requestAnimationFrame");
+
+		// When
+		animator.start();
+
+		await new Promise(res => {
+			setTimeout(res, 100); // Loop for some time
+		});
+
+		animator.stop();
+
+		// Then
+		expect(rafSpy.called).to.be.true;
+	});
+
+	it("can change context", async () => {
+		// Given
+		const animator = new WebGLAnimator();
+		const rafStub = sinon.stub();
+		const someContext = {
+			requestAnimationFrame: rafStub,
+		};
+
+		rafStub.onCall(() => {
+			setTimeout(() => {}, 0);
+		});
+
+		// When
+		animator.setContext(someContext);
+		animator.setCallback(() => {});
+		animator.start();
+
+		await new Promise(res => {
+			setTimeout(res, 100); // Loop for some time
+		});
+
+		animator.stop();
+
+		// Then
+		expect(rafStub.called).to.be.true;
+	});
+
 	IT("should invoke renderLoopTimer if rendering frame is too delayed on PC Safari Browser", async () => {
 		// Given
 		const WebGLAnimatorOnSafari = WebGLAnimatorInjector({
