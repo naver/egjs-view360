@@ -50,7 +50,7 @@ export default class PanoImageRenderer extends Component {
 	static ERROR_TYPE = ERROR_TYPE;
 
 	constructor(
-		image, width, height, isVideo, sphericalConfig, renderingContextAttributes, yawPitchControl
+		image, width, height, isVideo, sphericalConfig, renderingContextAttributes
 	) {
 		// Super constructor
 		super();
@@ -100,6 +100,11 @@ export default class PanoImageRenderer extends Component {
 				cubemapConfig: sphericalConfig.cubemapConfig
 			});
 		}
+	}
+
+	// FIXME: Please refactor me to have more loose connection to yawpitchcontrol
+	setYawPitchControl(yawPitchControl) {
+		this._yawPitchControl = yawPitchControl;
 	}
 
 	getContent() {
@@ -518,10 +523,8 @@ export default class PanoImageRenderer extends Component {
 		this._keepUpdate = doUpdate;
 	}
 
-	startRender(yawPitchControl) {
-		// FIXME: Please refactor this to more generous approach to access yawPitchControl
-		this._render = this._render.bind(this, yawPitchControl);
-		this._animator.setCallback(this._render);
+	startRender() {
+		this._animator.setCallback(this._render.bind(this));
 		this._animator.start();
 	}
 
@@ -587,7 +590,8 @@ export default class PanoImageRenderer extends Component {
 		}
 	}
 
-	_render(yawPitchControl) {
+	_render() {
+		const yawPitchControl = this._yawPitchControl;
 		const fov = yawPitchControl.getFov();
 
 		if (yawPitchControl.shouldRenderWithQuaternion()) {
@@ -703,7 +707,7 @@ export default class PanoImageRenderer extends Component {
 
 		animator.stop();
 		animator.setContext(window);
-		animator.setCallback(this._render);
+		animator.setCallback(this._render.bind(this));
 		animator.start();
 	}
 
