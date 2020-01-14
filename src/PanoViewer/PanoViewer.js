@@ -416,8 +416,8 @@ export default class PanoViewer extends Component {
 				cubemapConfig,
 				stereoequiFormat: this._stereoequiFormat
 			},
-			this._yawPitchControl,
 		);
+		this._photoSphereRenderer.setYawPitchControl(this._yawPitchControl);
 
 		this._bindRendererHandler();
 
@@ -852,7 +852,7 @@ export default class PanoViewer extends Component {
 		this._updateYawPitchIfNeeded();
 
 		this._triggerEvent(EVENTS.READY);
-		this._photoSphereRenderer.startRender(this._yawPitchControl);
+		this._photoSphereRenderer.startRender();
 	}
 
 	/**
