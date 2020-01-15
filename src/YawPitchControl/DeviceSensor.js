@@ -30,6 +30,7 @@ export default class DeviceSensor extends Component {
 			return Promise.resolve("Sensor already enabled");
 		}
 		if (!navigator || !navigator.permissions) {
+			// iOS
 			this._startSensor();
 			return Promise.resolve();
 		}
