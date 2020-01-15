@@ -94,11 +94,11 @@ export default class VRManager {
 				const vrDisplay = displays.length && displays[0];
 
 				if (!vrDisplay) {
-					reject("No displays available.");
+					reject(new Error("No displays available."));
 					return;
 				}
 				if (!vrDisplay.capabilities.canPresent) {
-					reject("Display lacking capability to present.");
+					reject(new Error("Display lacking capability to present."));
 					return;
 				}
 
