@@ -226,7 +226,6 @@ const PROJECTION_TYPE = {
 
 /**
  * A constant value for the format of the stereoscopic equirectangular projection type.
- * See {@link https://samsungvr.com/portal/content/faq_tech_gear_vr} for details.
  * @ko Stereoscopic equirectangular 프로젝션 타입의 포맷에 대한 상수 값
  * @namespace
  * @name STEREO_FORMAT
