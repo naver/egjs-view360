@@ -309,7 +309,7 @@ export default class PanoImageRenderer extends Component {
 		return true;
 	}
 
-	initShaderProgram() {
+	_initShaderProgram() {
 		const gl = this.context;
 
 		if (this.shaderProgram) {
@@ -345,10 +345,6 @@ export default class PanoImageRenderer extends Component {
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 		// Use TEXTURE0
 		gl.uniform1i(shaderProgram.samplerUniform, 0);
-
-		if (!shaderProgram) {
-			throw new Error(`Failed to intialize shaders: ${WebGLUtils.getErrorNameFromWebGLErrorCode(gl.getError())}`);
-		}
 
 		this.shaderProgram = shaderProgram;
 	}
@@ -415,7 +411,7 @@ export default class PanoImageRenderer extends Component {
 			gl = this.context;
 
 			this.updateViewportDimensions(this.width, this.height);
-			this.initShaderProgram();
+			this._initShaderProgram();
 		} catch (e) {
 			this.trigger(EVENTS.ERROR, {
 				type: ERROR_TYPE.NO_WEBGL,
