@@ -11,7 +11,6 @@ export default class XRManager {
 		this._xrLayer = null;
 		this._xrRefSpace = null;
 		this._presenting = false;
-		this._animationCallback = null;
 		this._yawOffset = 0;
 	}
 
