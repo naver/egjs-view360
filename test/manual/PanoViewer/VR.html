@@ -215,7 +215,7 @@
     }
     
     document.getElementById("fullscreen-toggle").addEventListener("click", function() {
-        panoViewer.enterVR();
+        panoViewer.enterVR().catch(e => console.error(e));
     });
 
     window.panoViewer = panoViewer;

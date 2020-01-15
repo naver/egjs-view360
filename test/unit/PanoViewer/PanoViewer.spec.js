@@ -786,6 +786,75 @@ describe("PanoViewer", () => {
 		});
 	});
 
+	describe("#enableSensor", () => {
+		let panoViewer;
+
+		beforeEach(() => {
+			const target = sandbox();
+
+			panoViewer = new PanoViewer(target);
+		});
+
+		afterEach(() => {
+			cleanup();
+		});
+
+		it("should be resolved on iOS13+ when permission is granted", async () => {
+			// Given
+			const resolveSpy = sinon.spy();
+			const rejectSpy = sinon.spy();
+			const origRequestPermission = DeviceMotionEvent.requestPermission;
+
+			DeviceMotionEvent.requestPermission = () => Promise.resolve("granted");
+
+			// When
+			await panoViewer.enableSensor()
+				.then(resolveSpy)
+				.catch(rejectSpy);
+
+			// Then
+			expect(resolveSpy.calledOnce).to.be.true;
+			expect(rejectSpy.called).to.be.false;
+			DeviceMotionEvent.requestPermission = origRequestPermission;
+		});
+
+		it("should be rejected on iOS13+ when permission is not granted", async () => {
+			// Given
+			const resolveSpy = sinon.spy();
+			const rejectSpy = sinon.spy();
+			const origRequestPermission = DeviceMotionEvent.requestPermission;
+
+			DeviceMotionEvent.requestPermission = () => Promise.resolve("not granted");
+
+			// When
+			await panoViewer.enableSensor()
+				.then(resolveSpy)
+				.catch(rejectSpy);
+
+			// Then
+			expect(resolveSpy.called).to.be.false;
+			expect(rejectSpy.calledOnce).to.be.true;
+			DeviceMotionEvent.requestPermission = origRequestPermission;
+		});
+	});
+
+	describe("#disableSensor", () => {
+		afterEach(() => {
+			cleanup();
+		});
+
+		it("should return pano viewer instance", () => {
+			// Given
+			const panoViewer = new PanoViewer(sandbox());
+
+			// When
+			const returnVal = panoViewer.disableSensor();
+
+			// Then
+			expect(returnVal).deep.equals(panoViewer);
+		});
+	});
+
 	describe("#enterVR", () => {
 		let panoViewer;
 		let imageRendererEnterVRStub;
@@ -804,32 +873,14 @@ describe("PanoViewer", () => {
 			imageRendererEnterVRStub.restore();
 		});
 
-		it("should enable sensor on iOS13+ when permission is granted", async () => {
+		it("should be rejected when entering VR in PanoImageRenderer fails", async () => {
 			// Given
-			const origRequestPermission = DeviceMotionEvent.requestPermission;
-
-			DeviceMotionEvent.requestPermission = () => Promise.resolve("granted");
-			const enableSpy = sinon.spy(panoViewer._yawPitchControl, "enableSensor");
-			const resolveSpy = sinon.spy();
-
-			// When
-			await panoViewer.enterVR()
-				.then(resolveSpy);
-
-			// Then
-			expect(enableSpy.calledOnce).to.be.true;
-			expect(resolveSpy.calledOnce).to.be.true;
-			DeviceMotionEvent.requestPermission = origRequestPermission;
-		});
-
-		it("should reject on iOS13+ when permission is not granted", async () => {
-			// Given
-			const origRequestPermission = DeviceMotionEvent.requestPermission;
-
-			DeviceMotionEvent.requestPermission = () => Promise.resolve("not granted");
-			const enableSpy = sinon.spy(panoViewer._yawPitchControl, "enableSensor");
 			const resolveSpy = sinon.spy();
 			const rejectSpy = sinon.spy();
+			const rejectReason = "I don't feel like to";
+
+			imageRendererEnterVRStub.reset();
+			imageRendererEnterVRStub.returns(Promise.reject(rejectReason));
 
 			// When
 			await panoViewer.enterVR()
@@ -837,10 +888,45 @@ describe("PanoViewer", () => {
 				.catch(rejectSpy);
 
 			// Then
-			expect(enableSpy.called).to.be.false;
 			expect(resolveSpy.called).to.be.false;
-			expect(rejectSpy.called).to.be.true;
-			DeviceMotionEvent.requestPermission = origRequestPermission;
+			expect(rejectSpy.calledOnceWith(rejectReason)).to.be.true;
+		});
+
+		it("should be rejected when enabling device sensor fails", async () => {
+			// Given
+			const resolveSpy = sinon.spy();
+			const rejectSpy = sinon.spy();
+			const enableSensorStub = sinon.stub(panoViewer._yawPitchControl, "enableSensor");
+			const rejectReason = "It doesn't feel like to";
+
+			enableSensorStub.returns(Promise.reject(rejectReason));
+
+			// When
+			await panoViewer.enterVR()
+				.then(resolveSpy)
+				.catch(rejectSpy);
+
+			// Then
+			expect(resolveSpy.called).to.be.false;
+			expect(rejectSpy.calledOnceWith(rejectReason)).to.be.true;
+		});
+	});
+
+
+	describe("#exitVR", () => {
+		afterEach(() => {
+			cleanup();
+		});
+
+		it("should return pano viewer instance", () => {
+			// Given
+			const panoViewer = new PanoViewer(sandbox());
+
+			// When
+			const returnVal = panoViewer.exitVR();
+
+			// Then
+			expect(returnVal).deep.equals(panoViewer);
 		});
 	});
 });
