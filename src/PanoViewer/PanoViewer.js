@@ -357,7 +357,9 @@ export default class PanoViewer extends Component {
 
 	/**
 	 * Reactivate the device's motion sensor. Motion sensor will work only if you enabled `gyroMode` option.
+	 * If it's iOS13+, this method must be used in the context of user interaction, like onclick callback on the button element.
 	 * @ko 디바이스의 모션 센서를 재활성화합니다. 모션 센서는 `gyroMode` 옵션을 활성화해야만 사용할 수 있습니다.
+	 * iOS13+일 경우, 사용자 인터렉션에 의해서 호출되어야 합니다. 예로, 버튼의 onclick 콜백과 같은 콘텍스트에서 호출되어야 합니다.
 	 * @see {@link eg.view360.PanoViewer#setGyroMode}
 	 * @method eg.view360.PanoViewer#enableSensor
 	 * @return {Promise<void|string>} Promise containing nothing when resolved, or string of the rejected reason when rejected.<ko>Promise. resolve되었을 경우 아무것도 반환하지 않고, reject되었을 경우 그 이유를 담고있는 string을 반환한다.</ko>
@@ -379,34 +381,22 @@ export default class PanoViewer extends Component {
 	}
 
 	/**
-	 * Switch to VR stereo rendering mode which uses WebXR / WebVR API (WebXR is prefered).
+	 * Switch to VR stereo rendering mode which uses WebXR / WebVR API (WebXR is preferred).
 	 * This method must be used in the context of user interaction, like onclick callback on the button element.
+	 * It can be rejected when an enabling device sensor fails.
 	 * @ko WebXR / WebVR API를 사용하는 VR 스테레오 렌더링 모드로 전환합니다. (WebXR을 더 선호합니다)
 	 * 이 메소드는 사용자 인터렉션에 의해서 호출되어야 합니다. 예로, 버튼의 onclick 콜백과 같은 콘텍스트에서 호출되어야 합니다.
-	 *
+	 * 디바이스 센서 활성화에 실패시 reject됩니다.
 	 * @method eg.view360.PanoViewer#enterVR
 	 * @return {Promise<string|Error>} Promise containing either a string of resolved reason or an Error instance of rejected reason.<ko>Promise가 resolve된 이유(string) 혹은 reject된 이유(Error)</ko>
 	 */
 	enterVR() {
-		// For iOS 13+
-		if (DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === "function") {
-			// VR can be enabled only when device motion is enabled
-			return new Promise((resolve, reject) => {
-				DeviceMotionEvent.requestPermission()
-					.then(permissionState => {
-						if (permissionState === "granted") {
-							this._yawPitchControl.enableSensor()
-								.then(() => this._photoSphereRenderer.enterVR())
-								.then(res => resolve(res))
-								.catch(e => reject(e));
-						} else {
-							reject(new Error("Permission not granted"));
-						}
-					});
-			});
-		}
-
-		return this._photoSphereRenderer.enterVR();
+		return new Promise((resolve, reject) => {
+			this._yawPitchControl.enableSensor()
+				.then(() => this._photoSphereRenderer.enterVR())
+				.then(res => resolve(res))
+				.catch(e => reject(e));
+		});
 	}
 
 	/**

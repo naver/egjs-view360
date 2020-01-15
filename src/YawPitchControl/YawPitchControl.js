@@ -621,7 +621,22 @@ export default class YawPitchControl extends Component {
 		const gyroMode = this.options.gyroMode;
 
 		if (gyroMode !== GYRO_MODE.NONE) {
-			return this._deviceSensor.enable();
+			if (DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === "function") {
+				// iOS 13+
+				return new Promise((resolve, reject) => {
+					DeviceMotionEvent.requestPermission()
+						.then(permissionState => {
+							if (permissionState === "granted") {
+								this._deviceSensor.enable();
+								resolve();
+							} else {
+								reject(new Error("Permission not granted"));
+							}
+						});
+				});
+			} else {
+				return this._deviceSensor.enable();
+			}
 		} else {
 			return Promise.reject("gyroMode not set");
 		}
