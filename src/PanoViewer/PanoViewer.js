@@ -222,14 +222,14 @@ export default class PanoViewer extends Component {
 	}
 
 	/**
-		* Get the video element that the viewer is currently playing. You can use this for playback.
-		* @ko 뷰어가 현재 사용 중인 비디오 요소를 얻습니다. 이 요소를 이용해 비디오의 컨트롤을 할 수 있습니다.
-		* @method eg.view360.PanoViewer#getVideo
-		* @return {HTMLVideoElement} HTMLVideoElement<ko>HTMLVideoElement</ko>
-		* @example
-		* var videoTag = panoViewer.getVideo();
-		* videoTag.play(); // play video!
-		*/
+	 * Get the video element that the viewer is currently playing. You can use this for playback.
+	 * @ko 뷰어가 현재 사용 중인 비디오 요소를 얻습니다. 이 요소를 이용해 비디오의 컨트롤을 할 수 있습니다.
+	 * @method eg.view360.PanoViewer#getVideo
+	 * @return {HTMLVideoElement} HTMLVideoElement<ko>HTMLVideoElement</ko>
+	 * @example
+	 * var videoTag = panoViewer.getVideo();
+	 * videoTag.play(); // play video!
+	 */
 	getVideo() {
 		if (!this._isVideo) {
 			return null;
@@ -356,21 +356,36 @@ export default class PanoViewer extends Component {
 	}
 
 	/**
-	 * TODO: Add docs
+	 * Reactivate the device's motion sensor. Motion sensor will work only if you enabled `gyroMode` option.
+	 * @ko 디바이스의 모션 센서를 재활성화합니다. 모션 센서는 `gyroMode` 옵션을 활성화해야만 사용할 수 있습니다.
+	 * @see {@link eg.view360.PanoViewer#setGyroMode}
+	 * @method eg.view360.PanoViewer#enableSensor
+	 * @return {Promise<void|string>} Promise containing nothing when resolved, or string of the rejected reason when rejected.<ko>Promise. resolve되었을 경우 아무것도 반환하지 않고, reject되었을 경우 그 이유를 담고있는 string을 반환한다.</ko>
 	 */
 	enableSensor() {
 		return this._yawPitchControl.enableSensor();
 	}
 
 	/**
-	 * TODO: Add docs
+	 * Disable the device's motion sensor.
+	 * @ko 디바이스의 모션 센서를 비활성화합니다.
+	 * @see {@link eg.view360.PanoViewer#setGyroMode}
+	 * @method eg.view360.PanoViewer#disableSensor
+	 * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
 	 */
 	disableSensor() {
-		return this._yawPitchControl.disableSensor();
+		this._yawPitchControl.disableSensor();
+		return this;
 	}
 
 	/**
-	 * TODO: Add docs
+	 * Switch to VR stereo rendering mode which uses WebXR / WebVR API (WebXR is prefered).
+	 * This method must be used in the context of user interaction, like onclick callback on the button element.
+	 * @ko WebXR / WebVR API를 사용하는 VR 스테레오 렌더링 모드로 전환합니다. (WebXR을 더 선호합니다)
+	 * 이 메소드는 사용자 인터렉션에 의해서 호출되어야 합니다. 예로, 버튼의 onclick 콜백과 같은 콘텍스트에서 호출되어야 합니다.
+	 *
+	 * @method eg.view360.PanoViewer#enterVR
+	 * @return {Promise<string|Error>} Promise containing either a string of resolved reason or an Error instance of rejected reason.<ko>Promise가 resolve된 이유(string) 혹은 reject된 이유(Error)</ko>
 	 */
 	enterVR() {
 		// For iOS 13+
@@ -385,7 +400,7 @@ export default class PanoViewer extends Component {
 								.then(res => resolve(res))
 								.catch(e => reject(e));
 						} else {
-							reject("Permission not granted");
+							reject(new Error("Permission not granted"));
 						}
 					});
 			});
@@ -395,10 +410,15 @@ export default class PanoViewer extends Component {
 	}
 
 	/**
-	 * TODO: Add docs
+	 * Exit VR stereo rendering mode.
+	 * @ko VR 스테레오 렌더링 모드에서 일반 렌더링 모드로 전환합니다.
+	 *
+	 * @method eg.view360.PanoViewer#exitVR
+	 * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
 	 */
 	exitVR() {
 		this._photoSphereRenderer.exitVR();
+		return this;
 	}
 
 	// TODO: Remove parameters as they're just using private values
