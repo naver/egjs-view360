@@ -654,7 +654,7 @@ export default class YawPitchControl extends Component {
 		this._deviceSensor.disable();
 	}
 
-	getYawPitch() {
+	updateYawPitch() {
 		const deviceYawPitchDelta = this._deviceSensor.getYawPitchDelta();
 
 		// Update axes values
@@ -662,7 +662,9 @@ export default class YawPitchControl extends Component {
 			yaw: deviceYawPitchDelta.yaw,
 			pitch: deviceYawPitchDelta.pitch,
 		});
+	}
 
+	getYawPitch() {
 		const yawPitch = this.axes.get();
 
 		return {
