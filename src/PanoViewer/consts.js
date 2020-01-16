@@ -102,6 +102,16 @@ const ERROR_TYPE = {
 	 * @default 15
 	 */
 	RENDERING_CONTEXT_LOST: 15,
+	/**
+	 * Device motion permission denied by user
+	 * @ko 사용자에 의해 디바이스 모션 권한이 거절됨
+	 * @name DEVICE_MOTION_DENIED
+	 * @memberof eg.view360.PanoViewer.DEVICE_MOTION_DENIED
+	 * @constant
+	 * @type {Number}
+	 * @default 16
+	 */
+	DEVICE_MOTION_DENIED: 16,
 };
 
 /**

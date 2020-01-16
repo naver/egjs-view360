@@ -638,7 +638,7 @@ export default class YawPitchControl extends Component {
 					if (permissionState === "granted") {
 						activateSensor();
 					} else {
-						reject(new Error("Permission not granted"));
+						reject(new Error("denied"));
 					}
 				}).catch(e => {
 					// This can happen when this method was't triggered by user interaction
