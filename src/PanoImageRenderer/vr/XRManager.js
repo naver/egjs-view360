@@ -7,11 +7,7 @@ export default class XRManager {
 	get context() { return this._xrSession; }
 
 	constructor() {
-		this._xrSession = null;
-		this._xrLayer = null;
-		this._xrRefSpace = null;
-		this._presenting = false;
-		this._yawOffset = 0;
+		this._clear();
 	}
 
 	destroy = () => {
@@ -23,12 +19,7 @@ export default class XRManager {
 			// Capture to avoid errors
 			xrSession.end().then(() => {}, () => {});
 		}
-
-		this._xrSession = null;
-		this._xrLayer = null;
-		this._xrRefSpace = null;
-		this._presenting = false;
-		this._yawOffset = 0;
+		this._clear();
 	}
 
 	canRender(frame) {
@@ -119,5 +110,13 @@ export default class XRManager {
 		this._xrRefSpace = refSpace;
 		this._presenting = true;
 		this.addEndCallback(this.destroy);
+	}
+
+	_clear() {
+		this._xrSession = null;
+		this._xrLayer = null;
+		this._xrRefSpace = null;
+		this._presenting = false;
+		this._yawOffset = 0;
 	}
 }
