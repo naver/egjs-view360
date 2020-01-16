@@ -65,16 +65,13 @@ export default class DeviceSensor extends Component {
 	getYawPitchDelta() {
 		const prevQuat = this._prevQuaternion;
 		const currentQuat = this._getOrientation();
-		const defaultYawPitchDelta = {
-			yaw: 0,
-			pitch: 0,
-		};
 
-		if (!currentQuat) {
-			return defaultYawPitchDelta;
-		} else if (!prevQuat) {
+		if (!prevQuat) {
 			this._prevQuaternion = currentQuat;
-			return defaultYawPitchDelta;
+			return {
+				yaw: 0,
+				pitch: 0,
+			};
 		}
 
 		const result = {
@@ -135,15 +132,20 @@ export default class DeviceSensor extends Component {
 	}
 
 	_startSensor() {
-		this._sensor.start();
+		const sensor = this._sensor;
+
+		sensor.start();
+
 		if (!this._calibrated) {
-			this._sensor.addEventListener("reading", this._onFirstRead);
+			sensor.addEventListener("reading", this._onFirstRead);
+		} else {
+			sensor.addEventListener("reading", this._onSensorRead);
 		}
-		this._sensor.addEventListener("reading", this._onSensorRead);
 		this._enabled = true;
 	}
 
 	_onFirstRead = () => {
+		const sensor = this._sensor;
 		const quaternion = this._getOrientation();
 		const minusZDir = vec3.fromValues(0, 0, -1);
 		const firstViewDir = vec3.transformQuat(vec3.create(), minusZDir, quaternion);
@@ -165,7 +167,8 @@ export default class DeviceSensor extends Component {
 		);
 
 		this._calibrated = true;
-		this._sensor.removeEventListener("reading", this._onFirstRead);
+		sensor.removeEventListener("reading", this._onFirstRead);
+		sensor.addEventListener("reading", this._onSensorRead);
 	}
 
 	_onSensorRead = () => {
