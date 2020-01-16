@@ -239,7 +239,7 @@ const STEREO_FORMAT = {
 	 * @memberof eg.view360.PanoViewer.STEREO_FORMAT
 	 * @constant
 	 * @type {String}
-	 * @default 3dv
+	 * @default "3dv"
 	 */
 	TOP_BOTTOM: "3dv",
 	/**
@@ -249,7 +249,7 @@ const STEREO_FORMAT = {
 	 * @memberof eg.view360.PanoViewer.STEREO_FORMAT
 	 * @constant
 	 * @type {String}
-	 * @default 3dh
+	 * @default "3dh"
 	 */
 	LEFT_RIGHT: "3dh",
 	/**
