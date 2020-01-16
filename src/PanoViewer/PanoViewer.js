@@ -365,7 +365,20 @@ export default class PanoViewer extends Component {
 	 * @return {Promise<void|string>} Promise containing nothing when resolved, or string of the rejected reason when rejected.<ko>Promise. resolve되었을 경우 아무것도 반환하지 않고, reject되었을 경우 그 이유를 담고있는 string을 반환한다.</ko>
 	 */
 	enableSensor() {
-		return this._yawPitchControl.enableSensor();
+		return this._yawPitchControl.enableSensor()
+			.catch(e => {
+				if (e.message === "denied") {
+					// User denied DeviceMotionEvent permission on iOS13+
+					const errMsg = "Motion and orientation access permission is denied by user.";
+
+					this._triggerEvent(EVENTS.ERROR, {
+						type: ERROR_TYPE.DEVICE_MOTION_DENIED,
+						message: errMsg,
+					});
+					e.message = errMsg;
+				}
+				throw e;
+			});
 	}
 
 	/**
@@ -392,7 +405,7 @@ export default class PanoViewer extends Component {
 	 */
 	enterVR() {
 		return new Promise((resolve, reject) => {
-			this._yawPitchControl.enableSensor()
+			this.enableSensor()
 				.then(() => this._photoSphereRenderer.enterVR())
 				.then(res => resolve(res))
 				.catch(e => reject(e));
