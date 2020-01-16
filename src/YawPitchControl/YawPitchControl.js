@@ -232,6 +232,15 @@ export default class YawPitchControl extends Component {
 	}
 
 	_applyOptions(keys, prevOptions) {
+		const options = this.options;
+		const axes = this.axes;
+		const isVR = options.gyroMode === GYRO_MODE.VR;
+		const isYawPitch = options.gyroMode === GYRO_MODE.YAWPITCH;
+		// If it's VR mode, restrict user interaction to yaw direction only
+		const touchDirection = isVR ?
+			(TOUCH_DIRECTION_YAW & options.touchDirection) :
+			options.touchDirection;
+
 		// If one of below is changed, call updateControlScale()
 		if (keys.some(key =>
 			key === "showPolePoint" || key === "fov" || key === "aspectRatio" ||
@@ -239,7 +248,7 @@ export default class YawPitchControl extends Component {
 		)) {
 			// If fov is changed, update pan scale
 			if (keys.indexOf("fov") >= 0) {
-				this.axes.setTo({"fov": this.options.fov});
+				axes.setTo({"fov": options.fov});
 				this.updatePanScale();
 			}
 
@@ -247,11 +256,11 @@ export default class YawPitchControl extends Component {
 		}
 
 		if (keys.some(key => key === "fovRange")) {
-			const fovRange = this.options.fovRange;
-			const prevFov = this.axes.get().fov;
-			let nextFov = this.axes.get().fov;
+			const fovRange = options.fovRange;
+			const prevFov = axes.get().fov;
+			let nextFov = axes.get().fov;
 
-			vec2.copy(this.axes.axis.fov.range, fovRange);
+			vec2.copy(axes.axis.fov.range, fovRange);
 
 			if (nextFov < fovRange[0]) {
 				nextFov = fovRange[0];
@@ -260,7 +269,7 @@ export default class YawPitchControl extends Component {
 			}
 
 			if (prevFov !== nextFov) {
-				this.axes.setTo({
+				axes.setTo({
 					fov: nextFov
 				}, 0);
 				this._updateControlScale();
@@ -269,9 +278,6 @@ export default class YawPitchControl extends Component {
 		}
 
 		if (keys.some(key => key === "gyroMode") && SUPPORT_DEVICEMOTION) {
-			const isVR = this.options.gyroMode === GYRO_MODE.VR;
-			const isYawPitch = this.options.gyroMode === GYRO_MODE.YAWPITCH;
-
 			if (!isVR && !isYawPitch) {
 				this._deviceSensor.disable();
 			} else {
@@ -285,33 +291,28 @@ export default class YawPitchControl extends Component {
 		}
 
 		if (keys.some(key => key === "useKeyboard")) {
-			const useKeyboard = this.options.useKeyboard;
+			const useKeyboard = options.useKeyboard;
 
 			if (useKeyboard) {
-				this.axes.connect(["yaw", "pitch"], this.axesMoveKeyInput);
+				axes.connect(["yaw", "pitch"], this.axesMoveKeyInput);
 			} else {
-				this.axes.disconnect(this.axesMoveKeyInput);
+				axes.disconnect(this.axesMoveKeyInput);
 			}
 		}
 
 		if (keys.some(key => key === "useZoom")) {
-			const useZoom = this.options.useZoom;
+			const useZoom = options.useZoom;
 
 			// Disconnect first
-			this.axes.disconnect(this.axesWheelInput);
+			axes.disconnect(this.axesWheelInput);
 			if (useZoom) {
-				this.axes.connect(["fov"], this.axesWheelInput);
+				axes.connect(["fov"], this.axesWheelInput);
 			}
 		}
 
-		this._togglePinchInputByOption(this.options.touchDirection, this.options.useZoom);
+		this._togglePinchInputByOption(options.touchDirection, options.useZoom);
 
 		if (keys.some(key => key === "touchDirection")) {
-			const isVR = this.options.gyroMode === GYRO_MODE.VR;
-			const touchDirection = isVR ?
-				(TOUCH_DIRECTION_YAW & this.options.touchDirection) :
-				this.options.touchDirection;
-
 			this._enabled && this._enableTouch(touchDirection);
 		}
 	}
