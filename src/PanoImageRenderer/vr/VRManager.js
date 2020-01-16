@@ -12,12 +12,8 @@ export default class VRManager {
 	get context() { return this._vrDisplay; }
 
 	constructor() {
-		this._vrDisplay = null;
 		this._frameData = new window.VRFrameData();
-
-		this._leftBounds = DEFAULT_LEFT_BOUNDS;
-		this._rightBounds = DEFAULT_RIGHT_BOUNDS;
-		this._yawOffset = 0;
+		this._clear();
 	}
 
 	destroy = () => {
@@ -29,10 +25,7 @@ export default class VRManager {
 			vrDisplay.exitPresent();
 		}
 
-		this._vrDisplay = null;
-		this._leftBounds = DEFAULT_LEFT_BOUNDS;
-		this._rightBounds = DEFAULT_RIGHT_BOUNDS;
-		this._yawOffset = 0;
+		this._clear();
 	}
 
 	canRender() {
@@ -133,5 +126,12 @@ export default class VRManager {
 		}
 
 		this.addEndCallback(this.destroy);
+	}
+
+	_clear() {
+		this._vrDisplay = null;
+		this._leftBounds = DEFAULT_LEFT_BOUNDS;
+		this._rightBounds = DEFAULT_RIGHT_BOUNDS;
+		this._yawOffset = 0;
 	}
 }
