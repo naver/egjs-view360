@@ -167,7 +167,7 @@ describe("PanoImageRenderer", () => {
 				initialpitch: 0,
 				imageType: "equirectangular",
 				fieldOfView: 65,
-				stereoequiFormat: STEREO_FORMAT.NONE
+				stereoFormat: STEREO_FORMAT.NONE
 			});
 
 			// Then
@@ -193,7 +193,7 @@ describe("PanoImageRenderer", () => {
 				initialpitch: 0,
 				imageType: "equirectangular",
 				fieldOfView: 65,
-				stereoequiFormat: STEREO_FORMAT.NONE
+				stereoFormat: STEREO_FORMAT.NONE
 			});
 
 			// Then
@@ -219,7 +219,7 @@ describe("PanoImageRenderer", () => {
 				initialpitch: 0,
 				imageType: "equirectangular",
 				fieldOfView: 65,
-				stereoequiFormat: STEREO_FORMAT.NONE
+				stereoFormat: STEREO_FORMAT.NONE
 			});
 
 			// Then
