@@ -1,16 +1,17 @@
 import Component from "@egjs/component";
 import {RelativeOrientationSensor} from "motion-sensors-polyfill";
 import {vec3, glMatrix, quat} from "gl-matrix";
-import {getDeltaYaw, getDeltaPitch} from "./utils";
-import {util as mathUtil} from "../utils/math-util";
+import {getDeltaYaw, getDeltaPitch} from "../utils";
+import {util as mathUtil} from "../../utils/math-util";
+import {GYRO_MODE} from "../consts";
 
 const X_AXIS_VECTOR = vec3.fromValues(1, 0, 0);
 const Y_AXIS_VECTOR = vec3.fromValues(0, 1, 0);
 // Quaternion to rotate from sensor coordinates to WebVR coordinates
 const SENSOR_TO_VR = quat.setAxisAngle(quat.create(), X_AXIS_VECTOR, -Math.PI / 2);
 
-export default class DeviceSensor extends Component {
-	constructor() {
+export default class DeviceSensorInput extends Component {
+	constructor(gyroMode) {
 		super();
 
 		this._enabled = false;
@@ -23,6 +24,37 @@ export default class DeviceSensor extends Component {
 		});
 
 		this._prevQuaternion = null;
+		this._gyroMode = gyroMode;
+
+		// @egjs/axes related
+		this._observer = null;
+		this.axes = null;
+	}
+
+	mapAxes(axes) {
+		this.axes = axes;
+	}
+
+	connect(observer) {
+		if (this._observer) {
+			return this;
+		}
+
+		this._observer = observer;
+		return this;
+	}
+
+	disconnect() {
+		if (!this._observer) {
+			return this;
+		}
+
+		this._observer = null;
+		return this;
+	}
+
+	setGyroMode(gyroMode) {
+		this._gyroMode = gyroMode;
 	}
 
 	enable() {
@@ -172,6 +204,15 @@ export default class DeviceSensor extends Component {
 	}
 
 	_onSensorRead = () => {
+		if (this._observer && this._gyroMode === GYRO_MODE.YAWPITCH) {
+			const delta = this.getYawPitchDelta();
+
+			this._observer.change(this, {}, {
+				yaw: delta.yaw,
+				pitch: delta.pitch,
+			});
+		}
+
 		this.trigger("change", {isTrusted: true});
 	}
 }

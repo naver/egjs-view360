@@ -595,7 +595,6 @@ export default class PanoImageRenderer extends Component {
 
 			this.renderWithQuaternion(quaternion, fov);
 		} else {
-			yawPitchControl.updateYawPitch();
 			const yawPitch = yawPitchControl.getYawPitch();
 
 			this.renderWithYawPitch(yawPitch.yaw, yawPitch.pitch, fov);
