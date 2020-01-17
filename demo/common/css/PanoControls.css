@@ -19,6 +19,9 @@
 .fullscreen-container .exitfs {
 	display: block;
 }
+.entervr {
+  display: block;
+}
 
 .panoviewer-control button {
   background-color: rgba(0,0,0,.6);
@@ -29,6 +32,10 @@
   padding: 5px;
   outline: none;
   font-size: 0px;
+  margin-bottom: 5px;
+}
+.panoviewer-control button.enterfs,
+.panoviewer-control button.exitfs {
   margin-bottom: 10px;
 }
 .panoviewer-control button svg {
