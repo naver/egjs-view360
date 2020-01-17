@@ -863,14 +863,29 @@ describe("PanoViewer", () => {
 			const target = sandbox();
 
 			panoViewer = new PanoViewer(target);
-
-			// We're not testing PanoImageRenderer's enterVR here
-			imageRendererEnterVRStub = sinon.stub(panoViewer._photoSphereRenderer, "enterVR");
 		});
 
 		afterEach(() => {
 			cleanup();
-			imageRendererEnterVRStub.restore();
+			imageRendererEnterVRStub && imageRendererEnterVRStub.restore();
+		});
+
+		it("should be rejected when it is not ready to present.", async () => {
+			// Given
+			const resolveSpy = sinon.spy();
+			const rejectSpy = sinon.spy();
+			const readySpy = sinon.spy();
+
+			// When
+			panoViewer.on("ready", readySpy);
+			await panoViewer.enterVR()
+				.then(resolveSpy)
+				.catch(rejectSpy);
+
+			// Then
+			expect(readySpy.called).to.be.false;
+			expect(resolveSpy.called).to.be.false;
+			expect(rejectSpy.calledOnce).to.be.true;
 		});
 
 		it("should be rejected when entering VR in PanoImageRenderer fails", async () => {
@@ -878,16 +893,22 @@ describe("PanoViewer", () => {
 			const resolveSpy = sinon.spy();
 			const rejectSpy = sinon.spy();
 			const rejectReason = "I don't feel like to";
-
-			imageRendererEnterVRStub.reset();
-			imageRendererEnterVRStub.returns(Promise.reject(rejectReason));
+			const readySpy = sinon.spy();
 
 			// When
+			panoViewer.on("ready", readySpy);
+			panoViewer.setImage("/images/book_equi_1.jpg");
+			await new Promise(res => setTimeout(res, 1000));
+
+			imageRendererEnterVRStub = sinon.stub(panoViewer._photoSphereRenderer, "enterVR");
+			imageRendererEnterVRStub.returns(Promise.reject(rejectReason));
+
 			await panoViewer.enterVR()
 				.then(resolveSpy)
 				.catch(rejectSpy);
 
 			// Then
+			expect(readySpy.called).to.be.true;
 			expect(resolveSpy.called).to.be.false;
 			expect(rejectSpy.calledOnceWith(rejectReason)).to.be.true;
 		});
@@ -898,15 +919,24 @@ describe("PanoViewer", () => {
 			const rejectSpy = sinon.spy();
 			const enableSensorStub = sinon.stub(panoViewer._yawPitchControl, "enableSensor");
 			const rejectReason = "It doesn't feel like to";
+			const readySpy = sinon.spy();
 
 			enableSensorStub.returns(Promise.reject(rejectReason));
 
 			// When
+			panoViewer.on("ready", readySpy);
+			panoViewer.setImage("/images/book_equi_1.jpg");
+			await new Promise(res => setTimeout(res, 1000));
+
+			imageRendererEnterVRStub = sinon.stub(panoViewer._photoSphereRenderer, "enterVR");
+			imageRendererEnterVRStub.returns(Promise.reject(rejectReason));
+
 			await panoViewer.enterVR()
 				.then(resolveSpy)
 				.catch(rejectSpy);
 
 			// Then
+			expect(readySpy.called).to.be.true;
 			expect(resolveSpy.called).to.be.false;
 			expect(rejectSpy.calledOnceWith(rejectReason)).to.be.true;
 		});
