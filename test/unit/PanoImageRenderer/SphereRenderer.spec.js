@@ -80,7 +80,7 @@ describe("SphereRenderer", () => {
 			const viewer = createPanoViewerForRenderingTest(target, {
 				image: "./images/PanoViewer/Stereoscopic/stereoscopic2.png",
 				projectionType: PanoViewer.PROJECTION_TYPE.STEREOSCOPIC_EQUI,
-				stereoequiFormat: PanoViewer.STEREO_FORMAT.TOP_BOTTOM
+				stereoFormat: PanoViewer.STEREO_FORMAT.TOP_BOTTOM
 			});
 
 			await new Promise(res => viewer.on("ready", res));
@@ -114,7 +114,7 @@ describe("SphereRenderer", () => {
 			const stereoEquiViewer = createPanoViewerForRenderingTest(stereoTarget, {
 				image: "./images/PanoViewer/Stereoscopic/stereoscopic2.png",
 				projectionType: PanoViewer.PROJECTION_TYPE.STEREOSCOPIC_EQUI,
-				stereoequiFormat: PanoViewer.STEREO_FORMAT.TOP_BOTTOM
+				stereoFormat: PanoViewer.STEREO_FORMAT.TOP_BOTTOM
 			});
 
 			const defaultEquiViewer = createPanoViewerForRenderingTest(defTarget, {

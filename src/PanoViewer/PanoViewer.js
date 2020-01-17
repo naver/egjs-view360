@@ -96,7 +96,7 @@ export default class PanoViewer extends Component {
 	 * @param {Object} config.cubemapConfig config cubemap projection layout. It is applied when projectionType is {@link eg.view360.PanoViewer.PROJECTION_TYPE.CUBEMAP} or {@link eg.view360.PanoViewer.PROJECTION_TYPE.CUBESTRIP}<ko>cubemap projection type 의 레이아웃을 설정한다. 이 설정은 ProjectionType이 {@link eg.view360.PanoViewer.PROJECTION_TYPE.CUBEMAP} 혹은 {@link eg.view360.PanoViewer.PROJECTION_TYPE.CUBESTRIP} 인 경우에만 적용된다.</ko>
 	 * @param {Object} [config.cubemapConfig.order = "RLUDBF"(ProjectionType === CUBEMAP) | "RLUDFB" (ProjectionType === CUBESTRIP)] Order of cubemap faces <ko>Cubemap 형태의 이미지가 배치된 순서</ko>
 	 * @param {Object} [config.cubemapConfig.tileConfig = {flipHirozontal:false, rotation: 0}] Setting about rotation angle(degree) and whether to flip horizontal for each cubemap faces, if you put this object as a array, you can set each faces with different setting. For example, [{flipHorizontal:false, rotation:90}, {flipHorizontal: true, rotation: 180}, ...]<ko>각 Cubemap 면에 대한 회전 각도/좌우반전 여부 설정, 객체를 배열 형태로 지정하여 각 면에 대한 설정을 다르게 지정할 수도 있다. 예를 들어 [{flipHorizontal:false, rotation:90}, {flipHorizontal: true, rotation: 180}, ...]과 같이 지정할 수 있다.</ko>
-	 * @param {String} [config.stereoequiFormat="3dv"] Contents format of the stereoscopic equirectangular projection.<br/>See {@link eg.view360.PanoViewer.STEREO_FORMAT}.<ko>Stereoscopic equirectangular projection type의 콘텐츠 포맷을 설정한다.<br/>{@link eg.view360.PanoViewer.STEREO_FORMAT} 참조.</ko>
+	 * @param {String} [config.stereoFormat="3dv"] Contents format of the stereoscopic equirectangular projection.<br/>See {@link eg.view360.PanoViewer.STEREO_FORMAT}.<ko>Stereoscopic equirectangular projection type의 콘텐츠 포맷을 설정한다.<br/>{@link eg.view360.PanoViewer.STEREO_FORMAT} 참조.</ko>
 	 * @param {Number} [config.width=width of container] the viewer's width. (in px) <ko>뷰어의 너비 (px 단위)</ko>
 	 * @param {Number} [config.height=height of container] the viewer's height.(in px) <ko>뷰어의 높이 (px 단위)</ko>
 	 *
@@ -182,7 +182,7 @@ export default class PanoViewer extends Component {
 				rotation: 0
 			}
 		}, options.cubemapConfig);
-		this._stereoequiFormat = options.stereoequiFormat || STEREO_FORMAT.TOP_BOTTOM;
+		this._stereoFormat = options.stereoFormat || STEREO_FORMAT.TOP_BOTTOM;
 
 		// If the width and height are not provided, will use the size of the container.
 		this._width = options.width || parseInt(window.getComputedStyle(container).width, 10);
@@ -246,7 +246,7 @@ export default class PanoViewer extends Component {
 	 * @param {Object} param
 	 * @param {String} [param.projectionType={@link eg.view360.PanoViewer.PROJECTION_TYPE.EQUIRECTANGULAR}("equirectangular")] Projection Type<ko>프로젝션 타입</ko>
 	 * @param {Object} param.cubemapConfig config cubemap projection layout. <ko>cubemap projection type 의 레이아웃 설정</ko>
-	 * @param {String} [param.stereoequiFormat="3dv"] Contents format of the stereoscopic equirectangular projection. See {@link eg.view360.PanoViewer.STEREO_FORMAT}.<ko>Stereoscopic equirectangular projection type의 콘텐츠 포맷을 설정한다. {@link eg.view360.PanoViewer.STEREO_FORMAT} 참조.</ko>
+	 * @param {String} [param.stereoFormat="3dv"] Contents format of the stereoscopic equirectangular projection. See {@link eg.view360.PanoViewer.STEREO_FORMAT}.<ko>Stereoscopic equirectangular projection type의 콘텐츠 포맷을 설정한다. {@link eg.view360.PanoViewer.STEREO_FORMAT} 참조.</ko>
 	 *
 	 * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
 	 * @example
@@ -260,7 +260,7 @@ export default class PanoViewer extends Component {
 				projectionType: param.projectionType,
 				isVideo: true,
 				cubemapConfig: param.cubemapConfig,
-				stereoequiFormat: param.stereoequiFormat
+				stereoFormat: param.stereoFormat
 			});
 		}
 
@@ -291,7 +291,7 @@ export default class PanoViewer extends Component {
 	 * @param {Object} param Additional information<ko>이미지 추가 정보</ko>
 	 * @param {String} [param.projectionType="equirectangular"] Projection Type<ko>프로젝션 타입</ko>
 	 * @param {Object} param.cubemapConfig config cubemap projection layout. <ko>cubemap projection type 레이아웃</ko>
-	 * @param {String} [param.stereoequiFormat="3dv"] Contents format of the stereoscopic equirectangular projection. See {@link eg.view360.PanoViewer.STEREO_FORMAT}.<ko>Stereoscopic equirectangular projection type의 콘텐츠 포맷을 설정한다. {@link eg.view360.PanoViewer.STEREO_FORMAT} 참조.</ko>
+	 * @param {String} [param.stereoFormat="3dv"] Contents format of the stereoscopic equirectangular projection. See {@link eg.view360.PanoViewer.STEREO_FORMAT}.<ko>Stereoscopic equirectangular projection type의 콘텐츠 포맷을 설정한다. {@link eg.view360.PanoViewer.STEREO_FORMAT} 참조.</ko>
 	 *
 	 * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
 	 * @example
@@ -307,7 +307,7 @@ export default class PanoViewer extends Component {
 				rotation: 0
 			}
 		}, param.cubemapConfig);
-		const stereoequiFormat = param.stereoequiFormat || STEREO_FORMAT.TOP_BOTTOM;
+		const stereoFormat = param.stereoFormat || STEREO_FORMAT.TOP_BOTTOM;
 		const isVideo = !!(param.isVideo);
 
 		if (this._image && this._isVideo !== isVideo) {
@@ -322,7 +322,7 @@ export default class PanoViewer extends Component {
 			this._isVideo = isVideo;
 			this._projectionType = param.projectionType || PROJECTION_TYPE.EQUIRECTANGULAR;
 			this._cubemapConfig = cubemapConfig;
-			this._stereoequiFormat = stereoequiFormat;
+			this._stereoFormat = stereoFormat;
 
 			this._deactivate();
 			this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType, this._cubemapConfig);
@@ -441,7 +441,7 @@ export default class PanoViewer extends Component {
 				fieldOfView: fov,
 				imageType: projectionType,
 				cubemapConfig,
-				stereoequiFormat: this._stereoequiFormat
+				stereoFormat: this._stereoFormat
 			},
 		);
 		this._photoSphereRenderer.setYawPitchControl(this._yawPitchControl);

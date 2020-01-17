@@ -57,7 +57,8 @@ var panoViewer = new PanoViewer(container, {
         var container = document.getElementById("myPanoViewer");
         var panoViewer = new PanoViewer(container, {
             image: "./img/stereoequi.png",
-            projectionType: "stereoequi"
+            projectionType: "stereoequi",
+            stereoFormat: PanoViewer.STEREO_FORMAT.TOP_BOTTOM,
         });
 
         PanoControls.init(container, panoViewer);

@@ -174,7 +174,7 @@ export default class PanoImageRenderer extends Component {
 				this._renderer = new CylinderRenderer();
 				break;
 			case ImageType.STEREOSCOPIC_EQUI:
-				this._renderer = new SphereRenderer(this.sphericalConfig.stereoequiFormat);
+				this._renderer = new SphereRenderer(this.sphericalConfig.stereoFormat);
 				break;
 			default:
 				this._renderer = new SphereRenderer(STEREO_FORMAT.NONE);
