@@ -18,7 +18,7 @@ import {
 	MC_MAXIMUM_DURATION
 } from "../../../src/YawPitchControl/consts";
 import YawPitchControl from "../../../src/YawPitchControl/YawPitchControl"; // eslint-disable-line import/no-duplicates
-import DeviceSensor from "../../../src/YawPitchControl/DeviceSensor";
+import DeviceSensorInput from "../../../src/YawPitchControl/input/DeviceSensorInput";
 import TestHelper from "./testHelper";
 import devicemotionRotateSample from "./devicemotionSampleRotate";
 import {window} from "../../../src/utils/browser";
@@ -1608,7 +1608,7 @@ describe("YawPitchControl", () => {
 		let target;
 		let inst;
 
-		class MockDeviceSensor extends Component {
+		class MockDeviceSensorInput extends Component {
 			constructor() {
 				super();
 				this._timer = null;
@@ -1629,15 +1629,25 @@ describe("YawPitchControl", () => {
 			destroy() {
 				this._timer && clearInterval(this._timer);
 			}
+			setGyroMode() {}
+			mapAxes(axes) {
+				this.axes = axes;
+			}
+			connect(observer) {
+				return this;
+			}
+			disconnect() {
+				return this;
+			}
 		}
-		const DeviceSensorMockYawPitchControl = YawPitchControlrInjector({
-			"./DeviceSensor": MockDeviceSensor
+		const DeviceSensorInputMockYawPitchControl = YawPitchControlrInjector({
+			"./input/DeviceSensorInput": MockDeviceSensorInput
 		}).default;
 
 		beforeEach(() => {
 			target = sandbox();
 			target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
-			inst = new DeviceSensorMockYawPitchControl({
+			inst = new DeviceSensorInputMockYawPitchControl({
 				element: target,
 				gyroMode: GYRO_MODE.VR
 			});
@@ -1694,7 +1704,7 @@ describe("YawPitchControl", () => {
 		it("should retain VR Mode although device does not support devicemotion", () => {
 			// Given
 			const DeviceMotionUnsupportedMockYawPitchControl = YawPitchControlrInjector({
-				"./DeviceSensor": MockDeviceSensor,
+				"./input/DeviceSensorInput": MockDeviceSensorInput,
 				"../utils/browserFeature": {
 					SUPPORT_DEVICEMOTION: false,
 					getComputedStyle: window.getComputedStyle
@@ -2238,14 +2248,14 @@ describe("YawPitchControl", () => {
 			easing: "linear"
 		};
 
-		class MockDeviceSensor extends DeviceSensor {
+		class MockDeviceSensorInput extends DeviceSensorInput {
 			getDeviceHorizontalRight() {
 				return vec3.fromValues(0, -1, 0); /* 90 degree */
 			}
 		}
 
 		const MockYawPitchControl90Rotated = YawPitchControlrInjector({
-			"./DeviceSensor": MockDeviceSensor
+			"./input/DeviceSensorInput": MockDeviceSensorInput
 		}).default;
 
 		beforeEach(() => {

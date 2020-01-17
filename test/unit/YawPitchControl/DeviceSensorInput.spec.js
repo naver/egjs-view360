@@ -1,16 +1,16 @@
 import {expect} from "chai";
 import {quat, glMatrix} from "gl-matrix";
-import DeviceSensor from "../../../src/YawPitchControl/DeviceSensor";
+import DeviceSensorInput from "../../../src/YawPitchControl/input/DeviceSensorInput";
 
 
-describe("DeviceSensor", function() {
+describe("DeviceSensorInput", function() {
 	this.inst = null;
 
 	describe("#constructor", function() {
 		it("Instance", () => {
 			// Given
 			// When
-			this.inst = new DeviceSensor();
+			this.inst = new DeviceSensorInput();
 
 			// Then
 			expect(this.inst).to.be.exist;
@@ -23,7 +23,7 @@ describe("DeviceSensor", function() {
 
 	describe("#getCombinedQuaternion", function() {
 		beforeEach(() => {
-			this.inst = new DeviceSensor();
+			this.inst = new DeviceSensorInput();
 		});
 
 		afterEach(() => {
@@ -82,7 +82,7 @@ describe("DeviceSensor", function() {
 
 	describe("#destroy", function() {
 		beforeEach(() => {
-			this.inst = new DeviceSensor();
+			this.inst = new DeviceSensorInput();
 		});
 
 		it("should not fire event any more after destroyed", () => {

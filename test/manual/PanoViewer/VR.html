@@ -20,8 +20,8 @@
     #panoviewer-showcase {
         position: relative;
         outline: none;
-        width: 320px;
-        height: 120px;
+        width: 1280px;
+        height: 480px;
         max-width: 100%;
         margin: 0 auto;
     }
@@ -80,9 +80,6 @@
             <button id="fullscreen-toggle" class="ui icon button">
                 VR
             </button>
-            <button id="toggle" class="ui icon button">
-                TEST
-            </button>
 			<div id="panoviewer-showcase"></div>
             <div class="grid-chart">
             <div class="state-labels">
@@ -115,7 +112,7 @@
             "showPolePoint": true,
             "useZoom": true,
             "useKeyboard": true,
-            "gyroMode": "yawPitch",
+            "gyroMode": "VR",
 			"image": "../img/PanoViewer/Stereoscopic/stereoequi.png",
     		projectionType: "stereoequi",
             "touchDirection": eg.view360.PanoViewer.TOUCH_DIRECTION.ALL,
@@ -220,10 +217,6 @@
         //     document.webkitExitFullscreen();
         panoViewer.enterVR().catch(e => console.error(e));
         // });
-    });
-
-    document.getElementById("toggle").addEventListener("click", function() {
-        
     });
 
     window.panoViewer = panoViewer;

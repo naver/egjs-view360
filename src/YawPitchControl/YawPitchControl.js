@@ -3,7 +3,7 @@ import Axes, {PinchInput, MoveKeyInput, WheelInput} from "@egjs/axes";
 import {vec2, glMatrix} from "gl-matrix";
 import {getComputedStyle, SUPPORT_TOUCH, SUPPORT_DEVICEMOTION} from "../utils/browserFeature";
 import RotationPanInput from "./input/RotationPanInput";
-import DeviceSensor from "./DeviceSensor";
+import DeviceSensorInput from "./input/DeviceSensorInput";
 import {util as mathUtil} from "../utils/math-util";
 import {
 	GYRO_MODE,
@@ -84,7 +84,7 @@ export default class YawPitchControl extends Component {
 		this._initialFov = opt.fov;
 		this._enabled = false;
 		this._isAnimating = false;
-		this._deviceSensor = new DeviceSensor()
+		this._deviceSensor = new DeviceSensorInput()
 			.on("change", e => {
 				this._triggerChange(e);
 			});
@@ -279,11 +279,14 @@ export default class YawPitchControl extends Component {
 
 		if (keys.some(key => key === "gyroMode") && SUPPORT_DEVICEMOTION) {
 			if (!isVR && !isYawPitch) {
+				axes.disconnect(this._deviceSensor);
 				this._deviceSensor.disable();
 			} else {
+				axes.connect(["yaw", "pitch"], this._deviceSensor);
 				this._deviceSensor.enable()
 					.catch(() => {}); // Device motion enabling can fail on iOS
 			}
+			this._deviceSensor.setGyroMode(options.gyroMode);
 
 			if (isVR) {
 				this.axesPanInput.setUseRotation(isVR);
@@ -652,16 +655,6 @@ export default class YawPitchControl extends Component {
 
 	disableSensor() {
 		this._deviceSensor.disable();
-	}
-
-	updateYawPitch() {
-		const deviceYawPitchDelta = this._deviceSensor.getYawPitchDelta();
-
-		// Update axes values
-		this.axes.setBy({
-			yaw: deviceYawPitchDelta.yaw,
-			pitch: deviceYawPitchDelta.pitch,
-		});
 	}
 
 	getYawPitch() {
