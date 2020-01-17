@@ -8,7 +8,7 @@ describe("SpinViewer", () => {
 
 		beforeEach(() => {
 			target = sandbox();
-			target.innerHTML = `<div"></div>`;
+			target.innerHTML = `<div></div>`;
 		});
 		// load
 		it("should fire load event when image is vaild", done => {
@@ -95,7 +95,7 @@ describe("SpinViewer", () => {
 
 		beforeEach(() => {
 			target = sandbox();
-			target.innerHTML = `<div"></div>`;
+			target.innerHTML = `<div></div>`;
 		});
 
 		it("should update input's scale array", () => {
@@ -143,7 +143,7 @@ describe("SpinViewer", () => {
 
 		beforeEach(() => {
 			target = sandbox();
-			target.innerHTML = `<div"></div>`;
+			target.innerHTML = `<div></div>`;
 
 			const COL = 0;
 			const ROW = 0;
@@ -200,7 +200,7 @@ describe("SpinViewer", () => {
 
 		beforeEach(() => {
 			target = sandbox();
-			target.innerHTML = `<div"></div>`;
+			target.innerHTML = `<div></div>`;
 
 			const COL = 0;
 			const ROW = 0;
