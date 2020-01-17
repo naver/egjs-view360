@@ -396,14 +396,18 @@ export default class PanoViewer extends Component {
 	/**
 	 * Switch to VR stereo rendering mode which uses WebXR / WebVR API (WebXR is preferred).
 	 * This method must be used in the context of user interaction, like onclick callback on the button element.
-	 * It can be rejected when an enabling device sensor fails.
+	 * It can be rejected when an enabling device sensor fails or image/video is still loading("ready" event not triggered).
 	 * @ko WebXR / WebVR API를 사용하는 VR 스테레오 렌더링 모드로 전환합니다. (WebXR을 더 선호합니다)
 	 * 이 메소드는 사용자 인터렉션에 의해서 호출되어야 합니다. 예로, 버튼의 onclick 콜백과 같은 콘텍스트에서 호출되어야 합니다.
-	 * 디바이스 센서 활성화에 실패시 reject됩니다.
+	 * 디바이스 센서 활성화에 실패시 혹은 아직 이미지/비디오가 로딩중인 경우("ready"이벤트가 아직 트리거되지 않은 경우)에는 Promise가 reject됩니다.
 	 * @method eg.view360.PanoViewer#enterVR
 	 * @return {Promise<string|Error>} Promise containing either a string of resolved reason or an Error instance of rejected reason.<ko>Promise가 resolve된 이유(string) 혹은 reject된 이유(Error)</ko>
 	 */
 	enterVR() {
+		if (!this._isReady) {
+			return Promise.reject(new Error("PanoViewer is not ready to show image."));
+		}
+
 		return new Promise((resolve, reject) => {
 			this.enableSensor()
 				.then(() => this._photoSphereRenderer.enterVR())
