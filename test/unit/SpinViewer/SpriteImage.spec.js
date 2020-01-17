@@ -10,7 +10,7 @@ describe("SpriteImage", () => {
 
 		beforeEach(() => {
 			target = sandbox();
-			target.innerHTML = `<div"></div>`;
+			target.innerHTML = `<div></div>`;
 		});
 
 		afterEach(() => {
@@ -83,7 +83,7 @@ describe("SpriteImage", () => {
 
 		beforeEach(() => {
 			target = sandbox();
-			target.innerHTML = `<div"></div>`;
+			target.innerHTML = `<div></div>`;
 		});
 
 		afterEach(() => {
@@ -131,7 +131,7 @@ describe("SpriteImage", () => {
 
 		beforeEach(() => {
 			target = sandbox();
-			target.innerHTML = `<div"></div>`;
+			target.innerHTML = `<div></div>`;
 		});
 
 		it("should update frame after play()", done => {

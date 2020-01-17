@@ -20,8 +20,8 @@
     #panoviewer-showcase {
         position: relative;
         outline: none;
-        width: 1280px;
-        height: 480px;
+        width: 320px;
+        height: 120px;
         max-width: 100%;
         margin: 0 auto;
     }
@@ -79,6 +79,9 @@
         <div class="exampleContainer">
             <button id="fullscreen-toggle" class="ui icon button">
                 VR
+            </button>
+            <button id="toggle" class="ui icon button">
+                TEST
             </button>
 			<div id="panoviewer-showcase"></div>
             <div class="grid-chart">
@@ -185,6 +188,7 @@
         viewerEl,
         presets[INITIAL_PRESET]
     ).on("error", function(e) {
+        e.type === eg.view360.PanoViewer.ERROR_TYPE.DEVICE_MOTION_DENIED
         alert("이 브라우저는 webgl 을 지원하지 않습니다. 따라서 PanoViewer 가 동작할 수 없습니다. error: "+ e.type + " " + e.message);
     });
     render();
@@ -210,7 +214,16 @@
     }
     
     document.getElementById("fullscreen-toggle").addEventListener("click", function() {
+        // panoViewer.enableSensor();
+        // document.documentElement.webkitRequestFullscreen();
+        // setTimeout(() => {
+        //     document.webkitExitFullscreen();
         panoViewer.enterVR().catch(e => console.error(e));
+        // });
+    });
+
+    document.getElementById("toggle").addEventListener("click", function() {
+        
     });
 
     window.panoViewer = panoViewer;

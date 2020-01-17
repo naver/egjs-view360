@@ -192,7 +192,7 @@ describe("CylinderRenderer", () => {
 
 		beforeEach(() => {
 			target = sandbox();
-			target.innerHTML = `<div"></div>`;
+			target.innerHTML = `<div></div>`;
 		});
 
 		afterEach(() => {
