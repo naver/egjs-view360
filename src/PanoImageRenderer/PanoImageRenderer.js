@@ -119,7 +119,7 @@ export default class PanoImageRenderer extends Component {
 				/* RLUDBF is abnormal, we use it on CUBEMAP only */
 				order: (imageType === ImageType.CUBEMAP) ? "RLUDBF" : "RLUDFB",
 				tileConfig: {
-					flipHirozontal: false,
+					flipHorizontal: false,
 					rotation: 0
 				}
 			},
