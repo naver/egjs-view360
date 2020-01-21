@@ -1,4 +1,5 @@
 import {expect} from "chai";
+import sinon from "sinon";
 import {quat, glMatrix} from "gl-matrix";
 import DeviceSensorInput from "../../../src/YawPitchControl/input/DeviceSensorInput";
 
@@ -33,10 +34,10 @@ describe("DeviceSensorInput", function() {
 			this.inst = null;
 		});
 
-		it("should return quat(0, 0, 0, 1) if no motion &$ yaw = 0 && pitch = 0", () => {
+		it("should return quat(0, 0, 0, 1) if no motion &$ yaw = 0", () => {
 			// Given
 			// When
-			const resultQ = this.inst.getCombinedQuaternion(0, 0);
+			const resultQ = this.inst.getCombinedQuaternion(0);
 
 			// Then
 			const expectedQ = quat.create();
@@ -47,7 +48,7 @@ describe("DeviceSensorInput", function() {
 			}
 		});
 
-		it("should return responding quaternion if no motion && yaw != 0 && pitch != 0", () => {
+		it("should return responding quaternion if no motion && yaw != 0", () => {
 			// Given
 			// When
 			const yaw = 10;
@@ -64,20 +65,6 @@ describe("DeviceSensorInput", function() {
 
 			expect(resultQ).to.deep.equal(expectedQ);
 		});
-
-		// it("should return conjugate quaternion if yaw = 0 && pitch = 0", () => {
-		// 	// Given
-		// 	this.inst = new RotationPanInput(this.el);
-
-		// 	// When
-		// 	const scale = this.inst.options.scale;
-		// 	const inputProperties = [10, 10];
-		// 	const result = this.inst.getOffset(inputProperties, [true, true]);
-
-		// 	// Then
-		// 	const expected = inputProperties.map((input, index) => input * scale[index]);
-		// 	expect(result).to.deep.equal(expected);
-		// });
 	});
 
 	describe("#destroy", function() {
@@ -94,6 +81,36 @@ describe("DeviceSensorInput", function() {
 			expect(this.inst.isEnabled()).to.be.false;
 			expect(this.inst._sensor.activated).to.be.false;
 			expect(this.inst._sensor.hasReading).to.be.false;
+		});
+	});
+
+	// Doing some white-box testing here
+	// Change if any structural change happens
+	describe("#enable", () => {
+		it("should attach calibration callback when not calibrated", async () => {
+			// Given
+			const inst = new DeviceSensorInput();
+			const addEventStub = sinon.stub(inst._sensor, "addEventListener");
+
+			// When
+			await inst.enable();
+
+			// Then
+			expect(addEventStub.calledOnceWith(inst._onFirstRead));
+		});
+	});
+
+	describe("#getYawPitchDelta", () => {
+		it("should return yaw: 0, pitch: 0 on first call", () => {
+			// Given
+			const inst = new DeviceSensorInput();
+
+			// When
+			const result = inst.getYawPitchDelta();
+
+			// Then
+			expect(result.yaw).equals(0);
+			expect(result.pitch).equals(0);
 		});
 	});
 });
