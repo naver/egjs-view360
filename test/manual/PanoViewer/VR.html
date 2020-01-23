@@ -25,7 +25,7 @@
         max-width: 100%;
         margin: 0 auto;
     }
-	
+
     .inner-content > * {
     display: inline-block;
     vertical-align: middle;
@@ -99,7 +99,7 @@
 <script>
     (function() {
     var object = {};
-	
+
     var presets = {
         "stereoscopic_equi": {
             "yaw": 0,
@@ -119,7 +119,7 @@
             stereoFormat: "3dv",
         }
     };
-    
+
     function parse_query_string(query) {
         var vars = query.split("&");
         var query_string = {};
@@ -139,22 +139,22 @@
         }
         return query_string;
     }
-    
+
     var parsed_qs = parse_query_string(location.search.replace("?", ""));
-    
+
     var INITIAL_PRESET = parsed_qs.preset || "stereoscopic_equi";
-    
+
     for (var i in presets[INITIAL_PRESET]) {
         object[i] = presets[INITIAL_PRESET][i];
     }
-    
+
     var remembered = {};
     for (var key in presets) {
         remembered[key] = {
             0: presets[key]
         }
     }
-    
+
     var json = {
         closeOnTop: true,
         load: {
@@ -175,41 +175,40 @@
                     "folders": {}
                 }
             }
-        } 
+        }
     };
-    
+
     var gridView = new GridView(document.querySelector(".grid-chart"), 0, 0);
-    
+
     var viewerEl = document.querySelector( '#panoviewer-showcase' );
     var panoViewer = new eg.view360.PanoViewer(
         viewerEl,
         presets[INITIAL_PRESET]
     ).on("error", function(e) {
-        e.type === eg.view360.PanoViewer.ERROR_TYPE.DEVICE_MOTION_DENIED
         alert("이 브라우저는 webgl 을 지원하지 않습니다. 따라서 PanoViewer 가 동작할 수 없습니다. error: "+ e.type + " " + e.message);
     });
     render();
-    
+
     panoViewer.on("viewChange", function(e) {
         render()
     });
-    
+
     gridView.onClick(function(yaw, pitch) {
         panoViewer.lookAt({yaw:yaw, pitch:pitch}, 1200);
     });
-    
+
     function render() {
         const yaw = panoViewer.getYaw();
         const pitch = panoViewer.getPitch();
         const fov = panoViewer.getFov();
-    
+
         const yawRange = panoViewer.getYawRange();
         const pitchRange = panoViewer.getPitchRange();
         const fovRange = panoViewer.getFovRange();
-    
+
         gridView.render(yaw, pitch, yawRange, pitchRange);
     }
-    
+
     document.getElementById("fullscreen-toggle").addEventListener("click", function() {
         // panoViewer.enableSensor();
         // document.documentElement.webkitRequestFullscreen();
