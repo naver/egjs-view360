@@ -12,7 +12,7 @@ import VRManager from "./vr/VRManager";
 import XRManager from "./vr/XRManager";
 import WebGLAnimator from "./WebGLAnimator";
 import {util as mathUtil} from "../utils/math-util";
-import {devicePixelRatio, isWebXRSupported} from "../utils/browserFeature";
+import {devicePixelRatio, WEBXR_SUPPORTED} from "../utils/browserFeature";
 import {PROJECTION_TYPE, STEREO_FORMAT} from "../PanoViewer/consts";
 
 const ImageType = PROJECTION_TYPE;
@@ -674,7 +674,7 @@ export default class PanoImageRenderer extends Component {
 	enterVR() {
 		const vr = this._vr;
 
-		if (!isWebXRSupported() && !navigator.getVRDisplays) {
+		if (!WEBXR_SUPPORTED && !navigator.getVRDisplays) {
 			return Promise.reject("VR is not available on this browser.");
 		}
 		if (vr && vr.isPresenting()) {
@@ -712,7 +712,7 @@ export default class PanoImageRenderer extends Component {
 		const canvas = this.canvas;
 		const animator = this._animator;
 
-		this._vr = isWebXRSupported() ?
+		this._vr = WEBXR_SUPPORTED ?
 			new XRManager() :
 			new VRManager();
 

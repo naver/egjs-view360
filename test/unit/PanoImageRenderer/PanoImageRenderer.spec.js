@@ -1290,7 +1290,7 @@ describe("PanoImageRenderer", () => {
 		const PanoImageRendererVR = PanoImageRendererInjector({
 			"../utils/browserFeature": {
 				devicePixelRatio: 2,
-				isWebXRSupported: () => false,
+				WEBXR_SUPPORTED: false,
 			},
 			"./WebGLAnimator": MockAnimator,
 		}).default;
@@ -1424,7 +1424,7 @@ describe("PanoImageRenderer", () => {
 				"./WebGLAnimator": animatorStub,
 				"../utils/browserFeature": {
 					devicePixelRatio: 2,
-					isWebXRSupported: () => true,
+					WEBXR_SUPPORTED: true,
 				},
 			}).default;
 
@@ -1471,6 +1471,9 @@ describe("PanoImageRenderer", () => {
 
 		const PanoImageRendererXR = PanoImageRendererInjector({
 			"./vr/XRManager": XRManagerStub,
+			"../utils/browserFeature": {
+				WEBXR_SUPPORTED: true,
+			},
 		}).default;
 
 		afterEach(() => {

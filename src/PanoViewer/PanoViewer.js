@@ -1,7 +1,7 @@
 import Component from "@egjs/component";
 import {glMatrix} from "gl-matrix";
 import {
-	DeviceMotionEvent
+	DeviceMotionEvent, checkXRSupport
 } from "../utils/browserFeature";
 
 import YawPitchControl from "../YawPitchControl/YawPitchControl";
@@ -169,6 +169,10 @@ export default class PanoViewer extends Component {
 			}, 0);
 			return this;
 		}
+
+		// Check XR support at not when imported, but when created.
+		// This is for easier use of polyfills
+		checkXRSupport();
 
 		this._container = container;
 		this._image = options.image || options.video;
