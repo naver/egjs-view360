@@ -30,16 +30,20 @@ const TRANSFORM = (function() {
 const SUPPORT_WILLCHANGE = win.CSS && win.CSS.supports &&
 	win.CSS.supports("will-change", "transform");
 
-let isWebXRSupported = () => supportXR;
-let supportXR = false;
-if (navigator.xr) {
+let WEBXR_SUPPORTED = false;
+
+const checkXRSupport = () => {
+	if (!navigator.xr) {
+		return;
+	}
+
 	if (navigator.xr.isSessionSupported) {
 		navigator.xr.isSessionSupported("immersive-vr").then(()=> {
-			supportXR = true;
+			WEBXR_SUPPORTED = true;
 		}).catch(() => {});
 	} else if (navigator.xr.supportsSession) {
 		navigator.xr.supportsSession("immersive-vr").then(()=> {
-			supportXR = true;
+			WEBXR_SUPPORTED = true;
 		}).catch(() => {});
 	}
 }
@@ -52,7 +56,8 @@ export {
 	SUPPORT_TOUCH,
 	SUPPORT_DEVICEMOTION,
 	SUPPORT_WILLCHANGE,
-	isWebXRSupported,
+	checkXRSupport,
+	WEBXR_SUPPORTED,
 	DeviceMotionEvent,
 	devicePixelRatio
 };
