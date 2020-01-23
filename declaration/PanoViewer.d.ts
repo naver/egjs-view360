@@ -9,7 +9,6 @@ interface PanoErrorType {
   FAIL_BIND_TEXTURE: number;
   INVALID_RESOURCE: number;
   RENDERING_CONTEXT_LOST: number;
-  DEVICE_MOTION_DENIED: number;
 }
 
 interface PanoEvents {
