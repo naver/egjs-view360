@@ -14,6 +14,7 @@ import WebGLAnimator from "./WebGLAnimator";
 import {util as mathUtil} from "../utils/math-util";
 import {devicePixelRatio, WEBXR_SUPPORTED} from "../utils/browserFeature";
 import {PROJECTION_TYPE, STEREO_FORMAT} from "../PanoViewer/consts";
+import {IS_IOS} from "../utils/browser";
 
 const ImageType = PROJECTION_TYPE;
 
@@ -75,7 +76,11 @@ export default class PanoImageRenderer extends Component {
 		this.textureCoordBuffer = null;
 		this.vertexBuffer = null;
 		this.indexBuffer = null;
+
 		this.canvas = this._initCanvas(width, height);
+		this._setDefaultCanvasStyle();
+		this._wrapper = null; // canvas wrapper
+		this._wrapperOrigStyle = null;
 
 		this._renderingContextAttributes = renderingContextAttributes;
 		this._image = null;
@@ -196,6 +201,19 @@ export default class PanoImageRenderer extends Component {
 
 		canvas.width = width;
 		canvas.height = height;
+
+		this._onWebglcontextlost = this._onWebglcontextlost.bind(this);
+		this._onWebglcontextrestored = this._onWebglcontextrestored.bind(this);
+
+		canvas.addEventListener("webglcontextlost", this._onWebglcontextlost);
+		canvas.addEventListener("webglcontextrestored", this._onWebglcontextrestored);
+
+		return canvas;
+	}
+
+	_setDefaultCanvasStyle() {
+		const canvas = this.canvas;
+
 		canvas.style.bottom = 0;
 		canvas.style.left = 0;
 		canvas.style.right = 0;
@@ -205,14 +223,6 @@ export default class PanoImageRenderer extends Component {
 		canvas.style.maxWidth = "100%";
 		canvas.style.outline = "none";
 		canvas.style.position = "absolute";
-
-		this._onWebglcontextlost = this._onWebglcontextlost.bind(this);
-		this._onWebglcontextrestored = this._onWebglcontextrestored.bind(this);
-
-		canvas.addEventListener("webglcontextlost", this._onWebglcontextlost);
-		canvas.addEventListener("webglcontextrestored", this._onWebglcontextrestored);
-
-		return canvas;
 	}
 
 	_onContentError(error) {
@@ -264,6 +274,7 @@ export default class PanoImageRenderer extends Component {
 	attachTo(parentElement) {
 		this.detach();
 		parentElement.appendChild(this.canvas);
+		this._wrapper = parentElement;
 	}
 
 	forceContextLoss() {
@@ -693,12 +704,15 @@ export default class PanoImageRenderer extends Component {
 
 		vr.removeEndCallback(this.exitVR);
 		vr.destroy();
+		this._vr = null;
 
-		// Restore canvas & context
+		// Restore canvas & context on iOS
+		if (IS_IOS) {
+			this._restoreStyle();
+		}
 		this.updateViewportDimensions(this.width, this.height);
 		this._updateViewport();
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		this._vr = null;
 		this._shouldForceDraw = true;
 
 		animator.stop();
@@ -725,6 +739,10 @@ export default class PanoImageRenderer extends Component {
 					vr.addEndCallback(this.exitVR);
 					animator.setContext(vr.context);
 					animator.setCallback(this._onFirstVRFrame);
+
+					if (IS_IOS) {
+						this._setWrapperFullscreen();
+					}
 
 					this._shouldForceDraw = true;
 					animator.start();
@@ -771,5 +789,40 @@ export default class PanoImageRenderer extends Component {
 
 		vr.setYawOffset(yawOffset);
 		animator.setCallback(this._renderStereo);
+	}
+
+	_setWrapperFullscreen() {
+		const wrapper = this._wrapper;
+
+		if (!wrapper) return;
+
+		this._wrapperOrigStyle = wrapper.getAttribute("style");
+		const wrapperStyle = wrapper.style;
+
+		wrapperStyle.width = "100vw";
+		wrapperStyle.height = "100vh";
+		wrapperStyle.position = "fixed";
+		wrapperStyle.left = "0";
+		wrapperStyle.top = "0";
+		wrapperStyle.zIndex = "9999";
+	}
+
+	_restoreStyle() {
+		const wrapper = this._wrapper;
+		const canvas = this.canvas;
+
+		if (!wrapper) return;
+
+		if (this._wrapperOrigStyle) {
+			wrapper.setAttribute("style", this._wrapperOrigStyle);
+		} else {
+			wrapper.removeAttribute("style");
+		}
+
+		this._wrapperOrigStyle = null;
+
+		// Restore canvas style
+		canvas.removeAttribute("style");
+		this._setDefaultCanvasStyle();
 	}
 }
