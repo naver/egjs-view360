@@ -55,10 +55,10 @@ describe("mathUtil", () => {
 			];
 
 			// When
-			viewDirs.forEach((viewDir, idx) => {
-				expect(util.yawOffsetBetween(viewDir, targetDir))
-					.equals(expects[idx]);
-			});
+			const offsets = viewDirs.map(viewDir => util.yawOffsetBetween(viewDir, targetDir));
+
+			// Then
+			expect(offsets.every((offset, idx) => offset === expects[idx])).to.be.true;
 		});
 
 		it("should return correct yaw offset when y = 0.5 and both y's are not same", () => {
@@ -78,10 +78,10 @@ describe("mathUtil", () => {
 			];
 
 			// When
-			viewDirs.forEach((viewDir, idx) => {
-				expect(util.yawOffsetBetween(viewDir, targetDir))
-					.equals(expects[idx]);
-			});
+			const offsets = viewDirs.map(viewDir => util.yawOffsetBetween(viewDir, targetDir));
+
+			// Then
+			expect(offsets.every((offset, idx) => offset === expects[idx])).to.be.true;
 		});
 	});
 
