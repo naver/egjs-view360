@@ -171,7 +171,7 @@ export default class PanoViewer extends Component {
 		}
 
 		// Check XR support at not when imported, but when created.
-		// This is for easier use of polyfills
+		// This is intended to make polyfills easier to use.
 		checkXRSupport();
 
 		this._container = container;

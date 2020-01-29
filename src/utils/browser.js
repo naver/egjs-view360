@@ -7,7 +7,7 @@ const win = typeof window !== "undefined" && window.Math === Math ? window : typ
 /* eslint-enable no-new-func, no-nested-ternary */
 
 const doc = win.document;
-const userAgent = win.navigator.userAgent;
+const userAgent = (win.navigator && win.navigator.userAgent) || "";
 const IS_IOS = navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform);
 const IS_SAFARI_ON_DESKTOP =
 	userAgent.indexOf("Safari") !== -1 &&
