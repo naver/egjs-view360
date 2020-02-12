@@ -52,8 +52,8 @@
                     <img class="egjs_logo" src="./common/img/type_black.svg"/>
                     view360
                 </a><!--//logo-->
-                <a href="https://github.com/naver/egjs-view360/releases/tag/3.2.2">
-                    <span class="version">3.2.2</span>
+                <a href="https://github.com/naver/egjs-view360/releases/tag/3.3.0">
+                    <span class="version">3.3.0</span>
                 </a>
             </div>
             <div class="pull-right home">
@@ -486,59 +486,53 @@
 <h4 id="npm">npm</h4>
 <p>In case using npm,</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>npm install @egjs/view360 --save
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm <span class="nb">install</span> @egjs/view360 <span class="nt">--save</span>
+</code></pre></div></div>
 
 <h4 id="script-tag">script tag</h4>
 <p>In case using script tag,
 Download the latest version of view360.js and include using the script tag</p>
 
-<div class="language-html highlighter-rouge"><pre class="highlight"><code>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
 <span class="c">&lt;!--script src="/path/to/js/release/latest/dist/PanoViewer/release/latest/dist/PanoViewer/view360.panoviewer.pkgd.min.js"&gt;&lt;/script--&gt;</span>
 <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"//naver.github.io/egjs-view360/release/latest/dist/PanoViewer/view360.panoviewer.pkgd.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p><a href="//naver.github.io/egjs-view360/release/latest/dist/PanoViewer/view360.panoviewer.pkgd.min.js">Download link</a></p>
 
 <h3 id="usage">Usage</h3>
 
-<h4 id="set-up-your-container-element">1. Set up your Container Element</h4>
+<h4 id="1-set-up-your-container-element">1. Set up your Container Element</h4>
 
 <p>Your container element’s dimensions should be defined.</p>
 
-<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"myPanoViewer"</span><span class="nt">&gt;&lt;/div&gt;</span>
-</code></pre>
-</div>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"myPanoViewer"</span><span class="nt">&gt;&lt;/div&gt;</span>
+</code></pre></div></div>
 
-<h4 id="import-module">2. Import Module</h4>
+<h4 id="2-import-module">2. Import Module</h4>
 
 <h5 id="es5">ES5</h5>
 
-<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="c1">// Use global namespace</span>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Use global namespace</span>
 <span class="kd">var</span> <span class="nx">PanoViewer</span> <span class="o">=</span> <span class="nx">eg</span><span class="p">.</span><span class="nx">view360</span><span class="p">.</span><span class="nx">PanoViewer</span><span class="p">;</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h5 id="es6">ES6+</h5>
 
-<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="c1">// Or use es6 import</span>
-<span class="kr">import</span> <span class="p">{</span><span class="nx">PanoViewer</span><span class="p">}</span> <span class="nx">from</span> <span class="s2">"@egjs/view360"</span><span class="p">;</span>
-</code></pre>
-</div>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Or use es6 import</span>
+<span class="k">import</span> <span class="p">{</span><span class="nx">PanoViewer</span><span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">@egjs/view360</span><span class="dl">"</span><span class="p">;</span>
+</code></pre></div></div>
 
-<h4 id="initialize-panoviewer">3. Initialize PanoViewer</h4>
-<div class="language-js highlighter-rouge"><pre class="highlight"><code>
+<h4 id="3-initialize-panoviewer">3. Initialize PanoViewer</h4>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
 <span class="c1">// create PanoViewer with option</span>
-<span class="kr">const</span> <span class="nx">panoViewer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">PanoViewer</span><span class="p">(</span>
-  <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">"myPanoViewer"</span><span class="p">),</span>
+<span class="kd">const</span> <span class="nx">panoViewer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">PanoViewer</span><span class="p">(</span>
+  <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="dl">"</span><span class="s2">myPanoViewer</span><span class="dl">"</span><span class="p">),</span>
   <span class="p">{</span>
-    <span class="na">image</span><span class="p">:</span> <span class="s2">"/path/to/image/image.jpg"</span>
+    <span class="na">image</span><span class="p">:</span> <span class="dl">"</span><span class="s2">/path/to/image/image.jpg</span><span class="dl">"</span>
   <span class="p">}</span>
 <span class="p">);</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>For more information about API, please visit the <strong><a href="//naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.html">link</a></strong>.</p>
 

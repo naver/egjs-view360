@@ -61,43 +61,47 @@ var PanoControls = (function() {
 		var fullscreenContainer = document.getElementsByClassName("fullscreen-container")[0];
 
 		function changeMode(mode) {
-				var rootNode = target.parentNode.removeChild(target);
-				var requestFullscreen;
+			var rootNode = target.parentNode.removeChild(target);
+			var requestFullscreen;
 
-				if (screenfull.enabled) {
-						requestFullscreen = screenfull.isFullscreen;
-				} else {
-						requestFullscreen = mode === "full";
-				}
+			if (screenfull.enabled) {
+				requestFullscreen = screenfull.isFullscreen;
+			} else {
+				requestFullscreen = mode === "full";
+			}
 
-				if (requestFullscreen) {
-					fullscreenContainer.appendChild(rootNode);
-					fullscreenContainer.style.display = "block";
-				} else {
-					originalContainer.insertBefore(rootNode, nextElementSibling);
-					fullscreenContainer.style.display = "none";
-				}
+			if (requestFullscreen) {
+				fullscreenContainer.appendChild(rootNode);
+				fullscreenContainer.style.display = "block";
+			} else {
+				originalContainer.insertBefore(rootNode, nextElementSibling);
+				fullscreenContainer.style.display = "none";
+			}
 
-				// resize event is not triggered.
-				panoViewer.updateViewportDimensions();
+			// resize event is not triggered.
+			panoViewer.updateViewportDimensions();
 		}
 
 		screenfull.enabled && screenfull.on("change", changeMode);
 
 		document.querySelector(".enterfs").addEventListener("click", function() {
-				if (screenfull.enabled) {
-						screenfull.request();
-				} else {
-						changeMode("full");
-				}
+			if (screenfull.enabled) {
+				screenfull.request();
+			} else {
+				changeMode("full");
+			}
 		});
 
 		document.querySelector(".exitfs").addEventListener("click", function() {
-				if (screenfull.enabled) {
-						screenfull.exit();
-				} else {
-						changeMode("orignal");
-				}
+			if (screenfull.enabled) {
+				screenfull.exit();
+			} else {
+				changeMode("orignal");
+			}
+		});
+
+		document.querySelector(".entervr").addEventListener("click", function() {
+			panoViewer.enterVR();
 		});
 	}
 
@@ -108,6 +112,14 @@ var PanoControls = (function() {
 			<path d="M70,5 L95,5 L95,30" fill="transparent" stroke="#fff" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>\
 			<path d="M30,95 L5,95 L5,65" fill="transparent" stroke="#fff" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>\
 			<path d="M70,95 L95,95 L95,65" fill="transparent" stroke="#fff" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>\
+		</g>\
+		</svg>';
+		var vrSvg = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">\
+		<g>\
+			<path d="M5,30 L95,30 L95,80 L55,80 L50,70 L45,80 L5,80 L5,30" fill="transparent" stroke="#fff" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>\
+			<path d="M5,30 L15,10 L85,10 L95,30" fill="transparent" stroke="#fff" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>\
+			<circle cx="30" cy="55" r="10" stroke="#fff" stroke-width="8" fill="transparent" />\
+			<circle cx="70" cy="55" r="10" stroke="#fff" stroke-width="8" fill="transparent" />\
 		</g>\
 		</svg>';
 		var cancelFullscreenSvg = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">\
@@ -121,6 +133,7 @@ var PanoControls = (function() {
 		var controls = '\
 			<div class="image360_loading"><div class="image360_loadingBar"></div></div>\
 			<div class="panoviewer-control">\
+				<button class="entervr">' + vrSvg + '</button>\
 				<button class="enterfs">' + fullscreenSvg + '</button>\
 				<button class="exitfs">' + cancelFullscreenSvg + '</button>\
 				<div class="camera"></div>\
