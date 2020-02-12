@@ -7,14 +7,11 @@ egjs-view360 is a 360 integrated viewing solution from **inside-out view** to **
 - [API documentation](https://naver.github.io/egjs-view360/release/latest/doc/)
 - [Wiki Guide](https://github.com/naver/egjs-view360/wiki)
 
-## `NEW` v3.2 Released
+## `NEW` v3.3 Released
+- VR support for all projection types
+- See [our guide](https://github.com/naver/egjs-view360/wiki/Checklist-for-the-Sensor-and-VR) to add VR in your viewer.
 
-  1. Smartphone panorama pictures
-  2. Stereoscopic Equirectangular
-  3. `isSupported()` method added
-  4. Decrease file size. (30% ~ 43% improvements)
-
-For more information, visit [3.2 Change Notes](https://github.com/naver/egjs-view360/releases/tag/3.2.0)
+For more information, visit [Change Notes](https://github.com/naver/egjs-view360/releases)
 
 
 ## What view360 can do?
@@ -26,7 +23,7 @@ For more information, visit [3.2 Change Notes](https://github.com/naver/egjs-vie
        - Also support YouTube **EAC** (Cubemap) Format
      - Sprite image captured around target object.
   1. Control with various input type
-     - Support **motion control** applying [sensor fusion and pose prediction](http://smus.com/sensor-fusion-prediction-webvr/) of [webvr-polyfill](https://github.com/immersive-web/webvr-polyfill)
+     - Motion control with device gyro sensor
      - Touch (Panning, Pinch-Zoom)
      - Mouse Move, Wheel
      - Keyboard (Arrow key, AWDS Key)
