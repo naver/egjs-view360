@@ -1,3 +1,5 @@
 if (typeof navigator.getVRDisplays !== "function") {
-    new WebXRPolyfill();
+    new WebXRPolyfill({
+        allowCardboardOnDesktop: true,
+    });
 }
