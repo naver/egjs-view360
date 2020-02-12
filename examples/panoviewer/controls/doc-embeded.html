@@ -12,6 +12,9 @@
     <script src="../../../common/js/GyroTouchOptions.js"></script>
     <script src="../../../release/latest/dist/view360.pkgd.js"></script>
     <script src="../../../common/js/PanoControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9.7.2/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/webxr-polyfill@2.0.1/build/webxr-polyfill.min.js"></script>
+    <script src="../../../common/js/init.js"></script>
 
     <link rel="stylesheet" type="text/css" href="../../../common/css/demo.css">
     <link rel="stylesheet" type="text/css" href="../../../common/css/PanoControls.css">
@@ -174,7 +177,7 @@ document.getElementById("touchDirectionToggleButton").addEventListener("click", 
     panoViewer.<a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.html#setTouchDirection">setTouchDirection(PanoViewer.TOUCH_DIRECTION.YAW)</a>;
     panoViewer.<a href="https://naver.github.io/egjs-view360/release/latest/doc/eg.view360.PanoViewer.html#setUseZoom">setUseZoom(false)</a>;
   }
-  
+
   restrict = !restrict;
 });</pre>
     </div>
@@ -202,10 +205,10 @@ document.getElementById("touchDirectionToggleButton").addEventListener("click", 
       panoViewer.setTouchDirection(PanoViewer.TOUCH_DIRECTION.YAW);
       panoViewer.setUseZoom(false);
     }
-    
+
     restrict = !restrict;
   });
-  
+
   var panoviewerSet = document.getElementById("panoSet");
   PanoControls.init(panoviewerSet, panoViewer);
   PanoControls.showLoading();
