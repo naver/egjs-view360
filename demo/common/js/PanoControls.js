@@ -71,9 +71,11 @@ var PanoControls = (function() {
 			}
 
 			if (requestFullscreen) {
+				document.body.style.overflow = "hidden";
 				fullscreenContainer.appendChild(rootNode);
 				fullscreenContainer.style.display = "block";
 			} else {
+				document.body.style.overflow = "initial";
 				originalContainer.insertBefore(rootNode, nextElementSibling);
 				fullscreenContainer.style.display = "none";
 			}

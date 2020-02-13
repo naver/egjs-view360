@@ -6,11 +6,18 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
     <title>3x2 CubeStrip</title>
     <link rel="stylesheet" type="text/css" href="../../../common/css/demo.css">
-    
+    <link rel="stylesheet" type="text/css" href="../../../common/css/PanoControls.css">
+
     <script src="../../../release/latest/dist/view360.pkgd.js"></script>
     <script src="../../../common/js/jquery-2.2.4.js"></script>
     <script src="../../../common/js/codepen.js"></script>
     <script src="../../../common/js/qrcode.js"></script>
+    <script src="../../../common/js/PieView.js"></script>
+    <script src="../../../common/js/screenfull.min.js"></script>
+    <script src="../../../common/js/PanoControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9.7.2/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/webxr-polyfill@latest/build/webxr-polyfill.min.js"></script>
+    <script src="../../../common/js/initXR.js"></script>
 </head>
 
 <body>
@@ -33,16 +40,16 @@
             <span class="head">image</span>: <a href="../../img/test_cube_3x2_RLUDFB.jpg" target="_blank"><img src="../../img/test_cube_3x2_RLUDFB.jpg"></a>
         </p>
     </div>
-   
+
     <div class="viewer">
         <div class="container"></div>
     </div>
-    
+
     <div class="source">
         <pre>
 var PanoViewer = eg.view360.PanoViewer;
 var container = document.querySelector(".container");
-    
+
 var panoViewer = new PanoViewer(container, {
     projectionType: "cubestrip",
     image: "../../img/test_cube_3x2_RLUDFB.jpg"
@@ -53,11 +60,14 @@ var panoViewer = new PanoViewer(container, {
     // create PanoViewer with option
     var PanoViewer = eg.view360.PanoViewer;
     var container = document.querySelector(".container");
-        
+
     var panoViewer = new PanoViewer(container, {
         projectionType: "cubestrip",
         image: "../../img/test_cube_3x2_RLUDFB.jpg"
     });
+
+    PanoControls.init(document.querySelector(".viewer"), panoViewer);
+    PanoControls.showLoading();
     </script>
 </body>
 </html>

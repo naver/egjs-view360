@@ -8,19 +8,19 @@
 	z-index: 100;
 }
 .enterfs {
-  display: block;
+  display: block !important;
 }
 .fullscreen-container .enterfs {
-	display: none;
+	display: none !important;
 }
 .exitfs {
-	display: none;
+	display: none !important;
 }
 .fullscreen-container .exitfs {
-	display: block;
+	display: block !important;
 }
 .entervr {
-  display: block;
+  display: block !important;
 }
 
 .panoviewer-control button {
