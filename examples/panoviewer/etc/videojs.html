@@ -7,12 +7,19 @@
     <title>eg.view360 examples Video.js with view360</title>
     <link rel="stylesheet" type="text/css" href="../../../common/css/demo.css">
     <link href="https://vjs.zencdn.net/5.4.6/video-js.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/PanoControls.css">
 
     <script src="../../../common/js/jquery-2.2.4.js"></script>
     <script src="../../../common/js/codepen.js"></script>
     <script src="../../../common/js/qrcode.js"></script>
+    <script src="../../../common/js/PieView.js"></script>
+    <script src="../../../common/js/screenfull.min.js"></script>
     <script src="https://vjs.zencdn.net/5.4.6/video.js"></script>
     <script src="../../../release/latest/dist/view360.pkgd.js"></script>
+    <script src="../../../common/js/PanoControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9.7.2/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/webxr-polyfill@latest/build/webxr-polyfill.min.js"></script>
+    <script src="../../../common/js/initXR.js"></script>
     <style>
         .icon {
             width: 275px;
@@ -95,7 +102,6 @@
         .viewer video {
             /* z-index: -1; */
         }
-        
     </style>
 </head>
 
@@ -183,6 +189,9 @@ var video = document.querySelector(".viewer video");
         window.addEventListener("resize", function() {
             panoViewer.updateViewportDimensions();
         });
+
+        PanoControls.init(document.querySelector("#video"), panoViewer);
+        PanoControls.showLoading();
     });
 </script>
 </html>

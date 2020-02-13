@@ -6,10 +6,17 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
     <title>PanoViewer examples</title>
     <link rel="stylesheet" type="text/css" href="../../../common/css/demo.css">
+    <link rel="stylesheet" type="text/css" href="../../../common/css/PanoControls.css">
     <script src="../../../common/js/jquery-2.2.4.js"></script>
     <script src="../../../common/js/codepen.js"></script>
     <script src="../../../common/js/qrcode.js"></script>
+    <script src="../../../common/js/PieView.js"></script>
+    <script src="../../../common/js/screenfull.min.js"></script>
     <script src="../../../release/latest/dist/view360.pkgd.js"></script>
+    <script src="../../../common/js/PanoControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9.7.2/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/webxr-polyfill@latest/build/webxr-polyfill.min.js"></script>
+    <script src="../../../common/js/initXR.js"></script>
     <style></style>
 </head>
 
@@ -51,7 +58,7 @@
     <div class="source">
 <pre>
 var PanoViewer = eg.view360.PanoViewer;
-var container = document.querySelector(".container"); 
+var container = document.querySelector(".container");
 
 var panoViewer = new PanoViewer(container, {
     projectionType: "cubestrip",
@@ -66,7 +73,7 @@ var panoViewer = new PanoViewer(container, {
     // create PanoViewer with option
     var PanoViewer = eg.view360.PanoViewer;
     var videoEl = document.getElementById("pano_video");
-    var container = document.querySelector(".container"); 
+    var container = document.querySelector(".container");
 
     var panoViewer = new PanoViewer(container, {
         projectionType: "cubestrip",
@@ -82,6 +89,9 @@ var panoViewer = new PanoViewer(container, {
     videoEl.addEventListener("play", function () {
         document.querySelector(".play-container").style.display = "none";
     })
+
+    PanoControls.init(document.querySelector(".viewer"), panoViewer);
+    PanoControls.showLoading();
 </script>
 
 </body>
