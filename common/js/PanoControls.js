@@ -102,7 +102,8 @@ var PanoControls = (function() {
 			}
 		});
 
-		document.querySelector(".entervr").addEventListener("click", function() {
+		var vrButton = document.querySelector(".entervr")
+		vrButton && vrButton.addEventListener("click", function() {
 			panoViewer.enterVR().catch(e => {
 				Swal.fire({
 					title: "Can't enter VR mode!",
