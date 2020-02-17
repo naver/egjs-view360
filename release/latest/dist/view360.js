@@ -2489,12 +2489,12 @@ https://github.com/naver/egjs-view360
     }
 
     if (navigator.xr.isSessionSupported) {
-      navigator.xr.isSessionSupported("immersive-vr").then(function () {
-        WEBXR_SUPPORTED = true;
+      navigator.xr.isSessionSupported("immersive-vr").then(function (res) {
+        WEBXR_SUPPORTED = res;
       })["catch"](function () {});
     } else if (navigator.xr.supportsSession) {
-      navigator.xr.supportsSession("immersive-vr").then(function () {
-        WEBXR_SUPPORTED = true;
+      navigator.xr.supportsSession("immersive-vr").then(function (res) {
+        WEBXR_SUPPORTED = res;
       })["catch"](function () {});
     }
   };
