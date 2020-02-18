@@ -349,6 +349,7 @@ export default class PanoImageRenderer extends Component {
 		shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
 		shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
 		shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
+		shaderProgram.uEye = gl.getUniformLocation(shaderProgram, "uEye");
 
 		gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 
@@ -481,6 +482,8 @@ export default class PanoImageRenderer extends Component {
 		this.textureCoordBuffer = WebGLUtils.initBuffer(
 			gl, gl.ARRAY_BUFFER, new Float32Array(textureCoordData), this._isCubeMap ? 3 : 2,
 			this.shaderProgram.textureCoordAttribute);
+
+		this._bindBuffers();
 	}
 
 	_bindTexture() {
@@ -616,7 +619,6 @@ export default class PanoImageRenderer extends Component {
 		const vr = this._vr;
 		const gl = this.context;
 
-		const uEye = gl.getUniformLocation(this.shaderProgram, "uEye");
 		const eyeParams = vr.getEyeParams(gl, frame);
 
 		if (!eyeParams) return;
@@ -631,19 +633,16 @@ export default class PanoImageRenderer extends Component {
 			this.pMatrix = eyeParam.pMatrix;
 
 			gl.viewport(...eyeParam.viewport);
-			gl.uniform1f(uEye, eyeIndex);
+			gl.uniform1f(this.shaderProgram.uEye, eyeIndex);
 
+			this._bindBuffers();
 			this._draw();
 		}
 
 		vr.afterRender();
 	}
 
-	_draw() {
-		if (this._isVideo && this._keepUpdate) {
-			this._updateTexture();
-		}
-
+	_bindBuffers() {
 		const gl = this.context;
 		const program = this.shaderProgram;
 
@@ -662,6 +661,12 @@ export default class PanoImageRenderer extends Component {
 		gl.vertexAttribPointer(
 			program.textureCoordAttribute, textureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0
 		);
+	}
+
+	_draw() {
+		if (this._isVideo && this._keepUpdate) {
+			this._updateTexture();
+		}
 
 		this._renderer.render({
 			gl: this.context,
@@ -713,6 +718,7 @@ export default class PanoImageRenderer extends Component {
 		this.updateViewportDimensions(this.width, this.height);
 		this._updateViewport();
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		this._bindBuffers();
 		this._shouldForceDraw = true;
 
 		animator.stop();
