@@ -38,12 +38,12 @@ const checkXRSupport = () => {
 	}
 
 	if (navigator.xr.isSessionSupported) {
-		navigator.xr.isSessionSupported("immersive-vr").then(()=> {
-			WEBXR_SUPPORTED = true;
+		navigator.xr.isSessionSupported("immersive-vr").then(res => {
+			WEBXR_SUPPORTED = res;
 		}).catch(() => {});
 	} else if (navigator.xr.supportsSession) {
-		navigator.xr.supportsSession("immersive-vr").then(()=> {
-			WEBXR_SUPPORTED = true;
+		navigator.xr.supportsSession("immersive-vr").then(res => {
+			WEBXR_SUPPORTED = res;
 		}).catch(() => {});
 	}
 }
