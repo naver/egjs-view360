@@ -6733,7 +6733,6 @@ https://github.com/naver/egjs-view360
         _this._renderStereo = function (time, frame) {
           var vr = _this._vr;
           var gl = _this.context;
-          var uEye = gl.getUniformLocation(_this.shaderProgram, "uEye");
           var eyeParams = vr.getEyeParams(gl, frame);
           if (!eyeParams) return;
           vr.beforeRender(gl, frame); // Render both eyes
@@ -6744,7 +6743,9 @@ https://github.com/naver/egjs-view360
             _this.mvMatrix = eyeParam.mvMatrix;
             _this.pMatrix = eyeParam.pMatrix;
             gl.viewport.apply(gl, eyeParam.viewport);
-            gl.uniform1f(uEye, eyeIndex);
+            gl.uniform1f(_this.shaderProgram.uEye, eyeIndex);
+
+            _this._bindBuffers();
 
             _this._draw();
           }
@@ -6770,6 +6771,9 @@ https://github.com/naver/egjs-view360
           _this._updateViewport();
 
           gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+          _this._bindBuffers();
+
           _this._shouldForceDraw = true;
           animator.stop();
           animator.setContext(window);
@@ -7097,6 +7101,7 @@ https://github.com/naver/egjs-view360
         shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
         shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
         shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
+        shaderProgram.uEye = gl.getUniformLocation(shaderProgram, "uEye");
         gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute); // clear buffer
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT); // Use TEXTURE0
@@ -7217,6 +7222,8 @@ https://github.com/naver/egjs-view360
         this.vertexBuffer = WebGLUtils.initBuffer(gl, gl.ARRAY_BUFFER, new Float32Array(vertexPositionData), 3, this.shaderProgram.vertexPositionAttribute);
         this.indexBuffer = WebGLUtils.initBuffer(gl, gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexData), 1);
         this.textureCoordBuffer = WebGLUtils.initBuffer(gl, gl.ARRAY_BUFFER, new Float32Array(textureCoordData), this._isCubeMap ? 3 : 2, this.shaderProgram.textureCoordAttribute);
+
+        this._bindBuffers();
       };
 
       _proto._bindTexture = function _bindTexture() {
@@ -7340,11 +7347,7 @@ https://github.com/naver/egjs-view360
         }
       };
 
-      _proto._draw = function _draw() {
-        if (this._isVideo && this._keepUpdate) {
-          this._updateTexture();
-        }
-
+      _proto._bindBuffers = function _bindBuffers() {
         var gl = this.context;
         var program = this.shaderProgram;
         var vertexBuffer = this.vertexBuffer;
@@ -7356,6 +7359,12 @@ https://github.com/naver/egjs-view360
         gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
         gl.enableVertexAttribArray(program.textureCoordAttribute);
         gl.vertexAttribPointer(program.textureCoordAttribute, textureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+      };
+
+      _proto._draw = function _draw() {
+        if (this._isVideo && this._keepUpdate) {
+          this._updateTexture();
+        }
 
         this._renderer.render({
           gl: this.context,
