@@ -7,14 +7,7 @@ const merge = require("./merge").merge;
 const commonSetting = {
 	plugins: [
 		resolve(),
-		commonjs({
-			namedExports: {
-				// left-hand side can be an absolute path, a path
-				// relative to the current directory, or the name
-				// of a module in node_modules
-				"node_modules/webvr-polyfill/src/math-util.js": ["MathUtil"]
-			}
-		})
+		commonjs()
 	],
 	output: {
 		banner: pkgd

@@ -11,7 +11,14 @@ const replaceVersion = replace({
 });
 
 const defaultConfig = {
-	plugins: [babel(), replaceVersion, json()],
+	plugins: [
+		babel({
+			include: ["src/**", "node_modules/motion-sensors-polyfill/**"],
+			configFile: "./babel.config.js"
+		}),
+		replaceVersion,
+		json(),
+	],
 	output: {
 		name: "eg.view360",
 		banner,
