@@ -13,7 +13,7 @@ const replaceVersion = replace({
 const defaultConfig = {
 	plugins: [
 		babel({
-			include: ["src/**", "node_modules/motion-sensors-polyfill/**"],
+			include: ["src/**"],
 			configFile: "./babel.config.js"
 		}),
 		replaceVersion,
