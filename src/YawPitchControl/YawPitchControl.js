@@ -2,8 +2,9 @@ import Component from "@egjs/component";
 import Axes, {PinchInput, MoveKeyInput, WheelInput} from "@egjs/axes";
 import {vec2, glMatrix} from "gl-matrix";
 import {getComputedStyle, SUPPORT_TOUCH, SUPPORT_DEVICEMOTION} from "../utils/browserFeature";
+import TiltMotionInput from "./input/TiltMotionInput";
 import RotationPanInput from "./input/RotationPanInput";
-import DeviceSensorInput from "./input/DeviceSensorInput";
+import DeviceQuaternion from "./DeviceQuaternion";
 import {util as mathUtil} from "../utils/math-util";
 import {
 	GYRO_MODE,
@@ -84,10 +85,7 @@ export default class YawPitchControl extends Component {
 		this._initialFov = opt.fov;
 		this._enabled = false;
 		this._isAnimating = false;
-		this._deviceSensor = new DeviceSensorInput()
-			.on("change", e => {
-				this._triggerChange(e);
-			});
+		this._deviceQuaternion = null;
 
 		this._initAxes(opt);
 		this.option(opt);
@@ -98,8 +96,9 @@ export default class YawPitchControl extends Component {
 		const pRange = this._updatePitchRange(opt.pitchRange, opt.fov, opt.showPolePoint);
 		const useRotation = opt.gyroMode === GYRO_MODE.VR;
 
-		this.axesPanInput = new RotationPanInput(this._element, {useRotation}, this._deviceSensor);
+		this.axesPanInput = new RotationPanInput(this._element, {useRotation});
 		this.axesWheelInput = new WheelInput(this._element, {scale: -4});
+		this.axesTiltMotionInput = null;
 		this.axesPinchInput = SUPPORT_TOUCH ? new PinchInput(this._element, {scale: -1}) : null;
 		this.axesMoveKeyInput = new MoveKeyInput(this._element, {scale: [-6, 6]});
 
@@ -278,19 +277,26 @@ export default class YawPitchControl extends Component {
 		}
 
 		if (keys.some(key => key === "gyroMode") && SUPPORT_DEVICEMOTION) {
-			if (!isVR && !isYawPitch) {
-				axes.disconnect(this._deviceSensor);
-				this._deviceSensor.disable();
-			} else {
-				axes.connect(["yaw", "pitch"], this._deviceSensor);
-				this._deviceSensor.enable()
-					.catch(() => {}); // Device motion enabling can fail on iOS
+			// Disconnect first
+			if (this.axesTiltMotionInput) {
+				this.axes.disconnect(this.axesTiltMotionInput);
+				this.axesTiltMotionInput.destroy();
+				this.axesTiltMotionInput = null;
 			}
-			this._deviceSensor.setGyroMode(options.gyroMode);
+
+			if (this._deviceQuaternion) {
+				this._deviceQuaternion.destroy();
+				this._deviceQuaternion = null;
+			}
 
 			if (isVR) {
-				this.axesPanInput.setUseRotation(isVR);
+				this._initDeviceQuaternion();
+			} else if (isYawPitch) {
+				this.axesTiltMotionInput = new TiltMotionInput(this._element);
+				this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
 			}
+
+			this.axesPanInput.setUseRotation(isVR);
 		}
 
 		if (keys.some(key => key === "useKeyboard")) {
@@ -345,6 +351,13 @@ export default class YawPitchControl extends Component {
 		const pitchEnabled = direction & TOUCH_DIRECTION_PITCH ? "pitch" : null;
 
 		this.axes.connect([yawEnabled, pitchEnabled], this.axesPanInput);
+	}
+
+	_initDeviceQuaternion() {
+		this._deviceQuaternion = new DeviceQuaternion();
+		this._deviceQuaternion.on("change", e => {
+			this._triggerChange(e);
+		});
 	}
 
 	_getValidYawRange(newYawRange, newFov, newAspectRatio) {
@@ -493,8 +506,8 @@ export default class YawPitchControl extends Component {
 		event.pitch = pos.pitch;
 		event.fov = pos.fov;
 
-		if (opt.gyroMode === GYRO_MODE.VR) {
-			event.quaternion = this._deviceSensor.getCombinedQuaternion(pos.yaw);
+		if (opt.gyroMode === GYRO_MODE.VR && this._deviceQuaternion) {
+			event.quaternion = this._deviceQuaternion.getCombinedQuaternion(pos.yaw);
 		}
 		this.trigger("change", event);
 	}
@@ -625,38 +638,6 @@ export default class YawPitchControl extends Component {
 		}, duration);
 	}
 
-	enableSensor() {
-		return new Promise((resolve, reject) => {
-			const activateSensor = () => {
-				if (this.options.gyroMode !== GYRO_MODE.NONE) {
-					this._deviceSensor.enable();
-					resolve();
-				} else {
-					reject(new Error("gyroMode not set"));
-				}
-			};
-
-			if (DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === "function") {
-				DeviceMotionEvent.requestPermission().then(permissionState => {
-					if (permissionState === "granted") {
-						activateSensor();
-					} else {
-						reject(new Error("denied"));
-					}
-				}).catch(e => {
-					// This can happen when this method was't triggered by user interaction
-					reject(e);
-				});
-			} else {
-				activateSensor();
-			}
-		});
-	}
-
-	disableSensor() {
-		this._deviceSensor.disable();
-	}
-
 	getYawPitch() {
 		const yawPitch = this.axes.get();
 
@@ -673,7 +654,7 @@ export default class YawPitchControl extends Component {
 	getQuaternion() {
 		const pos = this.axes.get();
 
-		return this._deviceSensor.getCombinedQuaternion(pos.yaw);
+		return this._deviceQuaternion.getCombinedQuaternion(pos.yaw);
 	}
 
 	shouldRenderWithQuaternion() {
@@ -687,9 +668,10 @@ export default class YawPitchControl extends Component {
 		this.axes && this.axes.destroy();
 		this.axisPanInput && this.axisPanInput.destroy();
 		this.axesWheelInput && this.axesWheelInput.destroy();
+		this.axesTiltMotionInput && this.axesTiltMotionInput.destroy();
 		this.axesDeviceOrientationInput && this.axesDeviceOrientationInput.destroy();
 		this.axesPinchInput && this.axesPinchInput.destroy();
 		this.axesMoveKeyInput && this.axesMoveKeyInput.destroy();
-		this._deviceSensor && this._deviceSensor.destroy();
+		this._deviceQuaternion && this._deviceQuaternion.destroy();
 	}
 }

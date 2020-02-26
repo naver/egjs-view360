@@ -1,6 +1,5 @@
 import Axes, {PanInput} from "@egjs/axes";
-import {vec2} from "gl-matrix";
-import {util as mathUtil} from "../../utils/math-util";
+import ScreenRotationAngle from "../ScreenRotationAngle";
 
 /**
  * RotationPanInput is extension of PanInput to compensate coordinates by screen rotation angle.
@@ -20,11 +19,11 @@ export default class RotationPanInput extends PanInput {
 	 * @param {Object} [options] The option object
 	 * @param {Boolean} [options.useRotation]  Whether to use rotation(or VR)
 	 */
-	constructor(el, options, deviceSensor) {
+	constructor(el, options) {
 		super(el, options);
 
 		this._useRotation = false;
-		this._deviceSensor = deviceSensor;
+		this._screenRotationAngle = null;
 
 		this.setUseRotation(!!(options && options.useRotation));
 
@@ -33,6 +32,15 @@ export default class RotationPanInput extends PanInput {
 
 	setUseRotation(useRotation) {
 		this._useRotation = useRotation;
+
+		if (this._screenRotationAngle) {
+			this._screenRotationAngle.unref();
+			this._screenRotationAngle = null;
+		}
+
+		if (this._useRotation) {
+			this._screenRotationAngle = new ScreenRotationAngle();
+		}
 	}
 
 	connect(observer) {
@@ -57,11 +65,7 @@ export default class RotationPanInput extends PanInput {
 		const offset = super.getOffset(properties, [true, true]);
 		const newOffset = [0, 0];
 
-		const rightAxis = this._deviceSensor.getDeviceHorizontalRight();
-		const rightAxisVec2 = vec2.fromValues(rightAxis[0], rightAxis[1]);
-		const xAxis = vec2.fromValues(1, 0);
-
-		const theta = mathUtil.angleBetweenVec2(rightAxisVec2, xAxis);
+		const theta = this._screenRotationAngle.getRadian();
 		const cosTheta = Math.cos(theta);
 		const sinTheta = Math.sin(theta);
 
@@ -80,6 +84,10 @@ export default class RotationPanInput extends PanInput {
 	}
 
 	destroy() {
+		if (this._useRotation) {
+			this._screenRotationAngle && this._screenRotationAngle.unref();
+		}
+
 		super.destroy();
 	}
 }

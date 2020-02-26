@@ -47,7 +47,8 @@
 		"@egjs/component": "^2.1.2",
 		"es6-promise": "^4.2.5",
 		"gl-matrix": "^3.1.0",
-		"motion-sensors-polyfill": "^0.3.1"
+		"motion-sensors-polyfill": "^0.3.1",
+		"webvr-polyfill": "^0.9.16"
 	},
 	"devDependencies": {
 		"@babel/cli": "^7.0.0",
@@ -114,7 +115,6 @@
 		"webpack-dev-server": "^3.1.5",
 		"webpack-merge": "^4.1.4",
 		"webpack-stylish": "^0.1.8",
-		"webvr-polyfill": "^0.9.41",
 		"webxr-polyfill": "^2.0.1",
 		"write-file-webpack-plugin": "^4.3.2",
 		"xml2js": "^0.4.19"
