@@ -25,7 +25,8 @@
 	};
 
 	GridView.prototype.onClick = function(callback) {
-		this.canvas.addEventListener("click", e => {
+		// eslint-disable-next-line prefer-arrow-callback
+		this.canvas.addEventListener("click", function(e) {
 			const yaw = e.layerX / 300 * 360 - 180;
 			const pitch = 90 - e.layerY / 150 * 180;
 
