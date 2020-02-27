@@ -573,11 +573,6 @@ export default class YawPitchControl extends Component {
 
 		// TODO: Is this code is needed? Check later.
 		this.updatePanScale();
-		this.enableSensor()
-			.catch(() => {
-				// This can fail when it's not triggered by user interaction on iOS13+
-				// Just ignore the rejection
-			});
 
 		return this;
 	}
