@@ -360,9 +360,9 @@ export default class PanoViewer extends Component {
 	}
 
 	/**
-	 * Activate the device's motion sensor, and return whether the gyro sensor is available.
+	 * Activate the device's motion sensor, and return the Promise whether the sensor is enabled
 	 * If it's iOS13+, this method must be used in the context of user interaction, like onclick callback on the button element.
-	 * @ko 디바이스의 모션 센서를 활성화하고, 자이로센서 사용 가능 여부를 리턴합니다.
+	 * @ko 디바이스의 모션 센서를 활성화하고, 활성화 여부를 담는 Promise를 리턴합니다.
 	 * iOS13+일 경우, 사용자 인터렉션에 의해서 호출되어야 합니다. 예로, 버튼의 onclick 콜백과 같은 콘텍스트에서 호출되어야 합니다.
 	 * @method eg.view360.PanoViewer#enableSensor
 	 * @return {Promise<string>} Promise containing nothing when resolved, or string of the rejected reason when rejected.<ko>Promise. resolve되었을 경우 아무것도 반환하지 않고, reject되었을 경우 그 이유를 담고있는 string을 반환한다.</ko>
@@ -381,14 +381,7 @@ export default class PanoViewer extends Component {
 					reject(e);
 				});
 			} else {
-				// Check whether devicemotion event can be used.
-				PanoViewer.isGyroSensorAvailable(available => {
-					if (available) {
-						resolve();
-					} else {
-						reject(new Error("Gyro sensor is not available"));
-					}
-				});
+				resolve();
 			}
 		});
 	}
@@ -462,7 +455,8 @@ export default class PanoViewer extends Component {
 		this._photoSphereRenderer
 			.bindTexture()
 			.then(() => this._activate())
-			.catch(() => {
+			.catch(e => {
+				console.error(e);
 				this._triggerEvent(EVENTS.ERROR, {
 					type: ERROR_TYPE.FAIL_BIND_TEXTURE,
 					message: "failed to bind texture"
