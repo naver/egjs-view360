@@ -11,7 +11,7 @@ import {ERROR_TYPE, EVENTS, GYRO_MODE, PROJECTION_TYPE, STEREO_FORMAT} from "./c
 import {util as mathUtil} from "../utils/math-util.js";
 import {VERSION} from "../version";
 
-export default class PanoViewer extends Component {
+class PanoViewer extends Component {
 	/**
 	 * Version info string
 	 * @ko 버전정보 문자열
@@ -1032,3 +1032,5 @@ export default class PanoViewer extends Component {
 		});
 	}
 }
+
+export default PanoViewer;

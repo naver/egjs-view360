@@ -30,7 +30,7 @@ import {VERSION} from "../version";
  * 	rowCount: 24
  * });
  */
-export default class SpriteImage extends Component {
+class SpriteImage extends Component {
 	static VERSION = VERSION;
 	constructor(element, options) {
 		super();
@@ -317,3 +317,5 @@ export default class SpriteImage extends Component {
 		return [col, row];
 	}
 }
+
+export default SpriteImage;

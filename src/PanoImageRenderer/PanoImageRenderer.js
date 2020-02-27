@@ -46,7 +46,7 @@ const ERROR_TYPE = {
 	RENDERER_ERROR: 13
 };
 
-export default class PanoImageRenderer extends Component {
+class PanoImageRenderer extends Component {
 	static EVENTS = EVENTS;
 	static ERROR_TYPE = ERROR_TYPE;
 
@@ -832,3 +832,5 @@ export default class PanoImageRenderer extends Component {
 		this._setDefaultCanvasStyle();
 	}
 }
+
+export default PanoImageRenderer;

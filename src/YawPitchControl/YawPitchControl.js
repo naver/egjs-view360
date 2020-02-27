@@ -37,7 +37,7 @@ const CIRCULAR_PITCH_RANGE = [-CIRCULAR_PITCH_RANGE_HALF, CIRCULAR_PITCH_RANGE_H
  *
  * @support {"ie": "10+", "ch" : "latest", "ff" : "latest",  "sf" : "latest", "edge" : "latest", "ios" : "7+", "an" : "2.3+ (except 3.x)"}
  */
-export default class YawPitchControl extends Component {
+class YawPitchControl extends Component {
 	static VERSION = VERSION;
 	// Expose DeviceOrientationControls sub module for test purpose
 	static CONTROL_MODE_VR = CONTROL_MODE_VR;
@@ -670,3 +670,5 @@ export default class YawPitchControl extends Component {
 		this._deviceQuaternion && this._deviceQuaternion.destroy();
 	}
 }
+
+export default YawPitchControl;

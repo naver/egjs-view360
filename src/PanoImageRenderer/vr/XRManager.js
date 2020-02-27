@@ -3,7 +3,7 @@ import {IS_SAFARI_ON_DESKTOP} from "../../utils/browser";
 
 const XR_REFERENCE_SPACE = "local";
 
-export default class XRManager {
+class XRManager {
 	get context() { return this._xrSession; }
 
 	constructor() {
@@ -120,3 +120,5 @@ export default class XRManager {
 		this._yawOffset = 0;
 	}
 }
+
+export default XRManager;
