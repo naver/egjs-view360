@@ -1,7 +1,7 @@
 import {expect} from "chai";
+import {quat, glMatrix} from "gl-matrix";
 import DeviceQuaternionInjector from "inject-loader!../../../src/YawPitchControl/DeviceQuaternion"; // eslint-disable-line import/no-duplicates
 import DeviceQuaternion from "../../../src/YawPitchControl/DeviceQuaternion"; // eslint-disable-line import/no-duplicates
-import {quat, glMatrix} from "../../../src/utils/math-util";
 
 describe("DeviceQuaternion", function() {
 	this.inst = null;
@@ -49,7 +49,6 @@ describe("DeviceQuaternion", function() {
 			let expectedQ = quat.create();
 
 			// Then
-			quat.rotateX(expectedQ, expectedQ, glMatrix.toRadian(-pitch));
 			quat.rotateY(expectedQ, expectedQ, glMatrix.toRadian(-yaw));
 
 			// Ignore small tiny difference in value (eg. resultQ.z: 0.007596123497933149, expectedQ.z: 0.007596123963594437)

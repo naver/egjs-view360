@@ -917,7 +917,7 @@ describe("PanoViewer", () => {
 			// Given
 			const resolveSpy = sinon.spy();
 			const rejectSpy = sinon.spy();
-			const enableSensorStub = sinon.stub(panoViewer._yawPitchControl, "enableSensor");
+			const enableSensorStub = sinon.stub(panoViewer, "enableSensor");
 			const rejectReason = "It doesn't feel like to";
 			const readySpy = sinon.spy();
 
