@@ -592,7 +592,6 @@ class YawPitchControl extends Component {
 			this._resetOrientation();
 		}
 		this.axes.disconnect();
-		this.disableSensor();
 		this._enabled = false;
 		return this;
 	}

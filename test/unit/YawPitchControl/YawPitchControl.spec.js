@@ -1,5 +1,6 @@
 import {expect} from "chai";
 import sinon from "sinon";
+import {glMatrix, quat} from "gl-matrix";
 import YawPitchControlrInjector from "inject-loader!../../../src/YawPitchControl/YawPitchControl"; // eslint-disable-line import/no-duplicates
 import TiltMotionInputInjector from "inject-loader!../../../src/YawPitchControl/input/TiltMotionInput";
 import FusionPoseSensorInjector from "inject-loader!../../../src/YawPitchControl/input/FusionPoseSensor";
@@ -26,7 +27,6 @@ import TestHelper from "./testHelper";
 import chrome65Sample from "./chrome65Sample";
 import chrome66Sample from "./chrome66Sample";
 import devicemotionRotateSample from "./devicemotionSampleRotate";
-import {glMatrix, quat} from "../../../src/utils/math-util.js";
 import {window} from "../../../src/utils/browser";
 import {sandbox, cleanup} from "../util";
 
@@ -156,8 +156,11 @@ describe("YawPitchControl", function() {
 					yawRange: [30, 180]
 				});
 
-				expect(this.inst.getYaw()).to.above(30);
-				expect(this.inst.getYaw()).to.below(180);
+				// Then
+				const yaw = this.inst.getYawPitch().yaw;
+
+				expect(yaw).to.above(30);
+				expect(yaw).to.below(180);
 			});
 		});
 	});
@@ -478,7 +481,7 @@ describe("YawPitchControl", function() {
 				yaws.forEach(yaw => {
 					this.inst.lookAt({yaw}, 0);
 				});
-				expect(this.inst.get().yaw).to.equal(expectedYaws);
+				expect(this.inst.getYawPitch().yaw).to.equal(expectedYaws);
 			});
 
 			// TODO [20, -20] 과 같이 순서가 맞지 않는 경우를 허용해야 하는가?
@@ -583,7 +586,7 @@ describe("YawPitchControl", function() {
 					this.inst.lookAt({pitch}, 0);
 				});
 
-				expect(this.inst.getPitch()).to.equal(expected);
+				expect(this.inst.getYawPitch().pitch).to.equal(expected);
 			});
 
 			it("should return pole excluded pitches when showPole is false", done => {
@@ -1281,7 +1284,7 @@ describe("YawPitchControl", function() {
 					expectedRangeSize = (YAW_RANGE[1] - YAW_RANGE[0]) - inst.getFov();
 
 					// Then
-					expect(calculatedRangeSize).to.be.equal(expectedRangeSize);
+					expect(calculatedRangeSize).to.be.closeTo(expectedRangeSize, 0.000001);
 				});
 
 				target.remove();
@@ -1318,7 +1321,7 @@ describe("YawPitchControl", function() {
 			// When
 			TestHelper.wheelVertical(targetEl, 100, () => {
 				// then
-				expect(this.inst.getPitch()).to.equal(-73);
+				expect(this.inst.getYawPitch().pitch).to.equal(-73);
 				done();
 			});
 		});
@@ -1361,12 +1364,12 @@ describe("YawPitchControl", function() {
 
 		// 	// When
 		// 	Promise.all(getDownPromises(3, 100)).then(() => {
-		// 		console.log(this.inst.getPitch());
+		// 		console.log(this.inst.getYawPitch().pitch);
 		// 	});
 		// 	// TestHelper.wheelVertical(targetEl , 100, () => {
 		// 	// 	// then
-		// 	// 	let pitch = this.inst.getPitch();
-		// 	// 	expect(this.inst.getPitch()).to.equal(-73);
+		// 	// 	let pitch = this.inst.getYawPitch().pitch;
+		// 	// 	expect(this.inst.getYawPitch().pitch).to.equal(-73);
 		// 	// 	done();
 		// 	// });
 		// });
@@ -1397,7 +1400,7 @@ describe("YawPitchControl", function() {
 
 			Promise.all(wheelP).then(() => {
 				// then
-				expect(this.inst.getPitch()).to.be.equal(-35);
+				expect(this.inst.getYawPitch().pitch).to.be.equal(-35);
 				done();
 			});
 		});
@@ -1475,7 +1478,7 @@ describe("YawPitchControl", function() {
 				]
 			).then(result => {
 				// Then
-				expect(Math.round(Math.abs(inst.get().yaw / 10))).to.be.equal(4);
+				expect(Math.round(Math.abs(inst.getYawPitch().yaw / 10))).to.be.equal(4);
 				done();
 			});
 		});
@@ -1491,7 +1494,7 @@ describe("YawPitchControl", function() {
 				]
 			).then(result => {
 				// Then
-				expect(Math.round(Math.abs(inst.get().yaw / 10))).to.be.equal(4);
+				expect(Math.round(Math.abs(inst.getYawPitch().yaw / 10))).to.be.equal(4);
 				done();
 			});
 		});
@@ -1537,7 +1540,7 @@ describe("YawPitchControl", function() {
 			const inst = this.inst;
 			let yawDistanceBeforePinch = 0;
 			let yawDistanceAfterPinch = 0;
-			let yaw = inst.getYaw();
+			let yaw = inst.getYawPitch().yaw;
 
 			this.inst.enable();
 
@@ -1549,8 +1552,8 @@ describe("YawPitchControl", function() {
 				duration: 500,
 				easing: "linear"
 			}, () => {
-				yawDistanceBeforePinch = Math.abs(inst.getYaw() - yaw);
-				yaw = inst.getYaw();
+				yawDistanceBeforePinch = Math.abs(inst.getYawPitch().yaw - yaw);
+				yaw = inst.getYawPitch().yaw;
 
 				Simulator.gestures.pinch(target, { // this.el 이 300 * 300 이라고 가정
 					scale: 1.2
@@ -1562,7 +1565,7 @@ describe("YawPitchControl", function() {
 						duration: 500,
 						easing: "linear"
 					}, () => {
-						yawDistanceAfterPinch = Math.abs(inst.getYaw() - yaw);
+						yawDistanceAfterPinch = Math.abs(inst.getYawPitch().yaw - yaw);
 						// Then
 						expect(yawDistanceAfterPinch).to.be.below(yawDistanceBeforePinch);
 						done();
@@ -1638,15 +1641,15 @@ describe("YawPitchControl", function() {
 			// When
 			// negative max
 			this.inst.lookAt({yaw: -YAW_RANGE_HALF, pitch: -CIRCULAR_PITCH_RANGE_HALF}, 0);
-			const negativePos = this.inst.get();
+			const negativePos = this.inst.getYawPitch();
 
 			// positive max
 			this.inst.lookAt({yaw: YAW_RANGE_HALF, pitch: CIRCULAR_PITCH_RANGE_HALF}, 0);
-			const positivePos = this.inst.get();
+			const positivePos = this.inst.getYawPitch();
 
 			// if pos is over max, circular value should be return
 			this.inst.lookAt({yaw: YAW_RANGE_HALF + 1, pitch: -CIRCULAR_PITCH_RANGE_HALF - 1}, 0);
-			const circularPos = this.inst.get();
+			const circularPos = this.inst.getYawPitch();
 
 			// Then
 			expect(negativePos.yaw).to.equal(-YAW_RANGE_HALF);
@@ -1694,15 +1697,15 @@ describe("YawPitchControl", function() {
 
 			// negative max
 			yawpitchControl.lookAt({yaw: -YAW_RANGE_HALF, pitch: -CIRCULAR_PITCH_RANGE_HALF}, 0);
-			const negativePos = yawpitchControl.get();
+			const negativePos = yawpitchControl.getYawPitch();
 
 			// positive max
 			yawpitchControl.lookAt({yaw: YAW_RANGE_HALF, pitch: CIRCULAR_PITCH_RANGE_HALF}, 0);
-			const positivePos = yawpitchControl.get();
+			const positivePos = yawpitchControl.getYawPitch();
 
 			// if pos is over max, circular value should be return
 			yawpitchControl.lookAt({yaw: YAW_RANGE_HALF + 1, pitch: -CIRCULAR_PITCH_RANGE_HALF - 1}, 0);
-			const circularPos = yawpitchControl.get();
+			const circularPos = yawpitchControl.getYawPitch();
 
 			// Then
 			expect(yawpitchControl.option("gyroMode")).to.be.equal(GYRO_MODE.VR);
@@ -1830,15 +1833,15 @@ describe("YawPitchControl", function() {
 			});
 			this.inst.enable();
 
-			const prevYaw = this.inst.getYaw();
-			const prevPitch = this.inst.getPitch();
+			const prevYaw = this.inst.getYawPitch().yaw;
+			const prevPitch = this.inst.getYawPitch().pitch;
 
 			// When
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 					// Then
-					expect(this.inst.getYaw()).to.be.not.equal(prevYaw);
-					expect(this.inst.getPitch()).to.be.not.equal(prevPitch);
+					expect(this.inst.getYawPitch().yaw).to.be.not.equal(prevYaw);
+					expect(this.inst.getYawPitch().pitch).to.be.not.equal(prevPitch);
 					done();
 				});
 			});
@@ -1852,15 +1855,15 @@ describe("YawPitchControl", function() {
 			});
 			this.inst.enable();
 
-			const prevYaw = this.inst.getYaw();
-			const prevPitch = this.inst.getPitch();
+			const prevYaw = this.inst.getYawPitch().yaw;
+			const prevPitch = this.inst.getYawPitch().pitch;
 
 			// When
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 					// Then
-					expect(this.inst.getYaw()).to.be.not.equal(prevYaw);
-					expect(this.inst.getPitch()).to.be.equal(prevPitch);
+					expect(this.inst.getYawPitch().yaw).to.be.not.equal(prevYaw);
+					expect(this.inst.getYawPitch().pitch).to.be.equal(prevPitch);
 					done();
 				});
 			});
@@ -1873,15 +1876,15 @@ describe("YawPitchControl", function() {
 			});
 			this.inst.enable();
 
-			const prevYaw = this.inst.getYaw();
-			const prevPitch = this.inst.getPitch();
+			const prevYaw = this.inst.getYawPitch().yaw;
+			const prevPitch = this.inst.getYawPitch().pitch;
 
 			// When
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 					// Then
-					expect(this.inst.getYaw()).to.be.equal(prevYaw);
-					expect(this.inst.getPitch()).to.be.not.equal(prevPitch);
+					expect(this.inst.getYawPitch().yaw).to.be.equal(prevYaw);
+					expect(this.inst.getYawPitch().pitch).to.be.not.equal(prevPitch);
 					done();
 				});
 			});
@@ -1895,23 +1898,25 @@ describe("YawPitchControl", function() {
 
 			this.inst.enable();
 
-			const prevYaw = this.inst.getYaw();
-			const prevPitch = this.inst.getPitch();
+			const prevYaw = this.inst.getYawPitch().yaw;
+			const prevPitch = this.inst.getYawPitch().pitch;
 
 			// When
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 					// Then
-					expect(this.inst.getYaw()).to.be.equal(prevYaw);
-					expect(this.inst.getPitch()).to.be.equal(prevPitch);
+					expect(this.inst.getYawPitch().yaw).to.be.equal(prevYaw);
+					expect(this.inst.getYawPitch().pitch).to.be.equal(prevPitch);
 					done();
 				});
 			});
 		});
 	});
 
-	describe("Touch Direction Test by option method'", () => {
+	describe("Touch Direction Test by constructor's option property -touchDirection '", () => {
 		let target;
+		let inst;
+
 		/**
 		 * Due to the next issue, we move horizontally and vertically, respectively.
 		 * And it's not bug, it's policy.
@@ -1939,103 +1944,228 @@ describe("YawPitchControl", function() {
 		});
 
 		afterEach(() => {
-			this.inst && this.inst.destroy();
+			inst && inst.destroy();
 			target && target.remove();
 			target = null;
+			cleanup();
+		});
+
+		it("should enable all direction when TOUCH_DIRECTION_ALL is specified", done => {
+			// Given
+			inst = new YawPitchControl({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_ALL
+			});
+			inst.enable();
+
+			const prevYaw = inst.getYawPitch().yaw;
+			const prevPitch = inst.getYawPitch().pitch;
+
+			// When
+			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+					// Then
+					expect(inst.getYawPitch().yaw).to.be.not.equal(prevYaw);
+					expect(inst.getYawPitch().pitch).to.be.not.equal(prevPitch);
+					done();
+				});
+			});
+		});
+
+		it("should enable only yaw direction when TOUCH_DIRECTION_YAW is specified", done => {
+			// Given
+			inst = new YawPitchControl({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_YAW
+			});
+			inst.enable();
+
+			const prevYaw = inst.getYawPitch().yaw;
+			const prevPitch = inst.getYawPitch().pitch;
+
+			// When
+			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+					// Then
+					expect(inst.getYawPitch().yaw).to.be.not.equal(prevYaw);
+					expect(inst.getYawPitch().pitch).to.be.equal(prevPitch);
+					done();
+				});
+			});
+		});
+		it("should enable only pitch direction when TOUCH_DIRECTION_PITCH is specified", done => {
+			// Given
+			inst = new YawPitchControl({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_PITCH
+			});
+			inst.enable();
+
+			const prevYaw = inst.getYawPitch().yaw;
+			const prevPitch = inst.getYawPitch().pitch;
+
+			// When
+			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+					// Then
+					expect(inst.getYawPitch().yaw).to.be.equal(prevYaw);
+					expect(inst.getYawPitch().pitch).to.be.not.equal(prevPitch);
+					done();
+				});
+			});
+		});
+		it("should disable all direction when TOUCH_DIRECTION_NONE is specified", done => {
+			// Given
+			inst = new YawPitchControl({
+				element: target,
+				touchDirection: TOUCH_DIRECTION_NONE
+			});
+
+			inst.enable();
+
+			const prevYaw = inst.getYawPitch().yaw;
+			const prevPitch = inst.getYawPitch().pitch;
+
+			// When
+			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
+				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
+					// Then
+					expect(inst.getYawPitch().yaw).to.be.equal(prevYaw);
+					expect(inst.getYawPitch().pitch).to.be.equal(prevPitch);
+					done();
+				});
+			});
+		});
+	});
+
+	describe("Touch Direction Test by option method'", () => {
+		let target;
+		let inst;
+		/**
+		 * Due to the next issue, we move horizontally and vertically, respectively.
+		 * And it's not bug, it's policy.
+		 * https://github.com/naver/egjs-axes/issues/99
+		 */
+		const MOVE_HORIZONTALLY = {
+			pos: [0, 0],
+			deltaX: 100,
+			deltaY: 0,
+			duration: 200,
+			easing: "linear"
+		};
+
+		const MOVE_VERTICALLY = {
+			pos: [0, 0],
+			deltaX: 0,
+			deltaY: 100,
+			duration: 200,
+			easing: "linear"
+		};
+
+		beforeEach(() => {
+			target = sandbox();
+			target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
+		});
+
+		afterEach(() => {
+			inst && inst.destroy();
+			target && target.remove();
+			target = null;
+			cleanup();
 		});
 
 		it("should enable only yaw direction when direction changed from TOUCH_DIRECTION_ALL to TOUCH_DIRECTION_YAW", done => {
 			// Given
-			this.inst = new YawPitchControl({
+			inst = new YawPitchControl({
 				element: target,
 				touchDirection: TOUCH_DIRECTION_ALL
 			});
 
-			this.inst.enable();
+			inst.enable();
 
-			const prevYaw = this.inst.getYaw();
-			const prevPitch = this.inst.getPitch();
+			const prevYaw = inst.getYawPitch().yaw;
+			const prevPitch = inst.getYawPitch().pitch;
 
 			// When
-			this.inst.option("touchDirection", TOUCH_DIRECTION_YAW);
+			inst.option("touchDirection", TOUCH_DIRECTION_YAW);
 
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 					// Then
-					expect(this.inst.getYaw()).to.be.not.equal(prevYaw);
-					expect(this.inst.getPitch()).to.be.equal(prevPitch);
+					expect(inst.getYawPitch().yaw).to.be.not.equal(prevYaw);
+					expect(inst.getYawPitch().pitch).to.be.equal(prevPitch);
 					done();
 				});
 			});
 		});
 		it("should enable only pitch direction when direction changed from TOUCH_DIRECTION_ALL to TOUCH_DIRECTION_PITCH", done => {
 			// Given
-			this.inst = new YawPitchControl({
+			inst = new YawPitchControl({
 				element: target,
 				touchDirection: TOUCH_DIRECTION_ALL
 			});
 
-			this.inst.enable();
+			inst.enable();
 
-			const prevYaw = this.inst.getYaw();
-			const prevPitch = this.inst.getPitch();
+			const prevYaw = inst.getYawPitch().yaw;
+			const prevPitch = inst.getYawPitch().pitch;
 
 			// When
-			this.inst.option("touchDirection", TOUCH_DIRECTION_PITCH);
+			inst.option("touchDirection", TOUCH_DIRECTION_PITCH);
 
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 					// Then
-					expect(this.inst.getYaw()).to.be.equal(prevYaw);
-					expect(this.inst.getPitch()).to.be.not.equal(prevPitch);
+					expect(inst.getYawPitch().yaw).to.be.equal(prevYaw);
+					expect(inst.getYawPitch().pitch).to.be.not.equal(prevPitch);
 					done();
 				});
 			});
 		});
 		it("should disable all direction when direction changed from DIRECTION_ALL to TOUCH_DIRECTION_NONE", done => {
 			// Given
-			this.inst = new YawPitchControl({
+			inst = new YawPitchControl({
 				element: target,
 				touchDirection: TOUCH_DIRECTION_ALL
 			});
 
-			this.inst.enable();
+			inst.enable();
 
-			const prevYaw = this.inst.getYaw();
-			const prevPitch = this.inst.getPitch();
+			const prevYaw = inst.getYawPitch().yaw;
+			const prevPitch = inst.getYawPitch().pitch;
 
 			// When
-			this.inst.option("touchDirection", TOUCH_DIRECTION_NONE);
+			inst.option("touchDirection", TOUCH_DIRECTION_NONE);
 
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 					// Then
-					expect(this.inst.getYaw()).to.be.equal(prevYaw);
-					expect(this.inst.getPitch()).to.be.equal(prevPitch);
+					expect(inst.getYawPitch().yaw).to.be.equal(prevYaw);
+					expect(inst.getYawPitch().pitch).to.be.equal(prevPitch);
 					done();
 				});
 			});
 		});
 		it("should enable only pitch direction when direction changed from TOUCH_DIRECTION_YAW to TOUCH_DIRECTION_PITCH", done => {
 			// Given
-			this.inst = new YawPitchControl({
+			inst = new YawPitchControl({
 				element: target,
 				touchDirection: TOUCH_DIRECTION_YAW
 			});
 
-			this.inst.enable();
+			inst.enable();
 
-			const prevYaw = this.inst.getYaw();
-			const prevPitch = this.inst.getPitch();
+			const prevYaw = inst.getYawPitch().yaw;
+			const prevPitch = inst.getYawPitch().pitch;
 
 			// When
-			this.inst.option("touchDirection", TOUCH_DIRECTION_PITCH);
+			inst.option("touchDirection", TOUCH_DIRECTION_PITCH);
 
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 					// Then
-					expect(this.inst.getYaw()).to.be.equal(prevYaw);
-					expect(this.inst.getPitch()).to.be.not.equal(prevPitch);
+					expect(inst.getYawPitch().yaw).to.be.equal(prevYaw);
+					expect(inst.getYawPitch().pitch).to.be.not.equal(prevPitch);
 					done();
 				});
 			});
@@ -2043,24 +2173,24 @@ describe("YawPitchControl", function() {
 
 		it("should enable only pitch direction when direction changed from TOUCH_DIRECTION_PITCH to TOUCH_DIRECTION_PITCH", done => {
 			// Given
-			this.inst = new YawPitchControl({
+			inst = new YawPitchControl({
 				element: target,
 				touchDirection: TOUCH_DIRECTION_PITCH
 			});
 
-			this.inst.enable();
+			inst.enable();
 
-			const prevYaw = this.inst.getYaw();
-			const prevPitch = this.inst.getPitch();
+			const prevYaw = inst.getYawPitch().yaw;
+			const prevPitch = inst.getYawPitch().pitch;
 
 			// When
-			this.inst.option("touchDirection", TOUCH_DIRECTION_PITCH);
+			inst.option("touchDirection", TOUCH_DIRECTION_PITCH);
 
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 					// Then
-					expect(this.inst.getYaw()).to.be.equal(prevYaw);
-					expect(this.inst.getPitch()).to.be.not.equal(prevPitch);
+					expect(inst.getYawPitch().yaw).to.be.equal(prevYaw);
+					expect(inst.getYawPitch().pitch).to.be.not.equal(prevPitch);
 					done();
 				});
 			});
@@ -2069,7 +2199,7 @@ describe("YawPitchControl", function() {
 
 	describe("Touch Direction Test when useRotation is enabled but screen is not rotated(angle = 0)'", () => {
 		let target;
-		let inst = null;
+		let inst;
 		/**
 		 * VR Mode, https://github.com/naver/egjs-axes/issues/99 is not applied.
 		 * Known Issue
@@ -2100,6 +2230,7 @@ describe("YawPitchControl", function() {
 			inst = null;
 			target && target.remove();
 			target = null;
+			cleanup();
 		});
 
 		it("should change yaw when direction = TOUCH_DIRECTION_YAW & moved horizontally", done => {
@@ -2112,14 +2243,14 @@ describe("YawPitchControl", function() {
 
 			inst.enable();
 
-			const prevYaw = inst.getYaw();
-			const prevPitch = inst.getPitch();
+			const prevYaw = inst.getYawPitch().yaw;
+			const prevPitch = inst.getYawPitch().pitch;
 
 			// When
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				// Then
-				expect(inst.getYaw()).to.be.not.equal(prevYaw);
-				expect(inst.getPitch()).to.be.equal(prevPitch);
+				expect(inst.getYawPitch().yaw).to.be.not.closeTo(prevYaw, 0.00001);
+				expect(inst.getYawPitch().pitch).to.be.closeTo(prevPitch, 0.00001);
 				done();
 			});
 		});
@@ -2134,18 +2265,18 @@ describe("YawPitchControl", function() {
 
 			inst.enable();
 
-			const prevYaw = inst.getYaw();
-			const prevPitch = inst.getPitch();
+			const prevYaw = inst.getYawPitch().yaw;
+			const prevPitch = inst.getYawPitch().pitch;
 
 			// When
 			Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 				// Then
-				expect(inst.getYaw()).to.be.equal(prevYaw);
-				expect(inst.getPitch()).to.be.equal(prevPitch);
+				expect(inst.getYawPitch().yaw).to.be.closeTo(prevYaw, 0.00001);
+				expect(inst.getYawPitch().pitch).to.be.closeTo(prevPitch, 0.00001);
 				done();
 			});
 		});
-		it("should change pitch when direction = TOUCH_DIRECTION_PITCH & moved vertically", done => {
+		it("should not change pitch when direction = TOUCH_DIRECTION_PITCH & moved vertically", done => {
 			// Given
 			inst = new YawPitchControl({
 				element: target,
@@ -2155,14 +2286,14 @@ describe("YawPitchControl", function() {
 
 			inst.enable();
 
-			const prevYaw = inst.getYaw();
-			const prevPitch = inst.getPitch();
+			const prevYaw = inst.getYawPitch().yaw;
+			const prevPitch = inst.getYawPitch().pitch;
 
 			// When
 			Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 				// Then
-				expect(inst.getYaw()).to.be.equal(prevYaw);
-				expect(inst.getPitch()).to.be.not.equal(prevPitch);
+				expect(inst.getYawPitch().yaw).to.be.closeTo(prevYaw, 0.00001);
+				expect(inst.getYawPitch().pitch).to.be.closeTo(prevPitch, 0.00001);
 				done();
 			});
 		});
@@ -2176,14 +2307,14 @@ describe("YawPitchControl", function() {
 
 			inst.enable();
 
-			const prevYaw = inst.getYaw();
-			const prevPitch = inst.getPitch();
+			const prevYaw = inst.getYawPitch().yaw;
+			const prevPitch = inst.getYawPitch().pitch;
 
 			// When
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				// Then
-				expect(inst.getYaw()).to.be.equal(prevYaw);
-				expect(inst.getPitch()).to.be.equal(prevPitch);
+				expect(inst.getYawPitch().yaw).to.be.closeTo(prevYaw, 0.00001);
+				expect(inst.getYawPitch().pitch).to.be.closeTo(prevPitch, 0.00001);
 				done();
 			});
 		});
@@ -2191,7 +2322,7 @@ describe("YawPitchControl", function() {
 
 	describe("Touch Direction Test when useRotation is enabled and screen is rotated(angle = 90)'", () => {
 		let target;
-		let inst = null;
+		let inst;
 		/**
 		 * VR Mode, https://github.com/naver/egjs-axes/issues/99 is not applied.
 		 * Known Issue
@@ -2229,7 +2360,6 @@ describe("YawPitchControl", function() {
 			"./input/RotationPanInput": MockRotationPanInput
 		}).default;
 
-
 		beforeEach(() => {
 			target = sandbox();
 			target.innerHTML = `<div style="width:300px;height:300px;"></div>`;
@@ -2240,6 +2370,7 @@ describe("YawPitchControl", function() {
 			inst = null;
 			target && target.remove();
 			target = null;
+			cleanup();
 		});
 
 		it("should change yaw when direction = TOUCH_DIRECTION_YAW & moved vertically", done => {
@@ -2252,17 +2383,17 @@ describe("YawPitchControl", function() {
 
 			inst.enable();
 
-			const prevYaw = inst.getYaw();
-			const prevPitch = inst.getPitch();
+			const prevYaw = inst.getYawPitch().yaw;
+			const prevPitch = inst.getYawPitch().pitch;
 
 			// When
 			Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 				// Then
-				const currYaw = inst.getYaw();
-				const currPitch = inst.getPitch();
+				const currYaw = inst.getYawPitch().yaw;
+				const currPitch = inst.getYawPitch().pitch;
 
-				expect(currYaw).to.be.not.equal(prevYaw);
-				expect(currPitch).to.be.equal(prevPitch);
+				expect(currYaw).to.be.not.closeTo(prevYaw, 0.00001);
+				expect(currPitch).to.be.closeTo(prevPitch, 0.00001);
 				done();
 			});
 		});
@@ -2277,18 +2408,18 @@ describe("YawPitchControl", function() {
 
 			inst.enable();
 
-			const prevYaw = inst.getYaw();
-			const prevPitch = inst.getPitch();
+			const prevYaw = inst.getYawPitch().yaw;
+			const prevPitch = inst.getYawPitch().pitch;
 
 			// When
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				// Then
-				expect(inst.getYaw()).to.be.equal(prevYaw);
-				expect(inst.getPitch()).to.be.equal(prevPitch);
+				expect(inst.getYawPitch().yaw).to.be.closeTo(prevYaw, 0.00001);
+				expect(inst.getYawPitch().pitch).to.be.closeTo(prevPitch, 0.00001);
 				done();
 			});
 		});
-		it("should change pitch when direction = TOUCH_DIRECTION_PITCH & moved horizontally", done => {
+		it("should not change pitch when direction = TOUCH_DIRECTION_PITCH & moved horizontally", done => {
 			// Given
 			inst = new MockYawPitchControl90Rotated({
 				element: target,
@@ -2298,14 +2429,14 @@ describe("YawPitchControl", function() {
 
 			inst.enable();
 
-			const prevYaw = inst.getYaw();
-			const prevPitch = inst.getPitch();
+			const prevYaw = inst.getYawPitch().yaw;
+			const prevPitch = inst.getYawPitch().pitch;
 
 			// When
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				// Then
-				expect(inst.getYaw()).to.be.equal(prevYaw);
-				expect(inst.getPitch()).to.be.not.equal(prevPitch);
+				expect(inst.getYawPitch().yaw).to.be.closeTo(prevYaw, 0.00001);
+				expect(inst.getYawPitch().pitch).to.be.closeTo(prevPitch, 0.00001);
 				done();
 			});
 		});
@@ -2319,14 +2450,14 @@ describe("YawPitchControl", function() {
 
 			inst.enable();
 
-			const prevYaw = inst.getYaw();
-			const prevPitch = inst.getPitch();
+			const prevYaw = inst.getYawPitch().yaw;
+			const prevPitch = inst.getYawPitch().pitch;
 
 			// When
 			Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 				// Then
-				expect(inst.getYaw()).to.be.equal(prevYaw);
-				expect(inst.getPitch()).to.be.equal(prevPitch);
+				expect(inst.getYawPitch().yaw).to.be.closeTo(prevYaw, 0.00001);
+				expect(inst.getYawPitch().pitch).to.be.closeTo(prevPitch, 0.00001);
 				done();
 			});
 		});
@@ -2334,6 +2465,7 @@ describe("YawPitchControl", function() {
 
 	describe("Touch Direction Test Others....", () => {
 		let target;
+		let inst;
 		/**
 		 * Due to the next issue, we move horizontally and vertically, respectively.
 		 * And it's not bug, it's policy.
@@ -2361,36 +2493,37 @@ describe("YawPitchControl", function() {
 		});
 
 		afterEach(() => {
-			this.inst && this.inst.destroy();
+			inst && inst.destroy();
 			target && target.remove();
 			target = null;
+			cleanup();
 		});
 
 		it("should enable touch after changed from TOUCH_DIRECTION_ALL to TOUCH_DIRECTION_YAW", done => {
 			// Given
-			this.inst = new YawPitchControl({
+			inst = new YawPitchControl({
 				element: target,
 				touchDirection: TOUCH_DIRECTION_NONE
 			});
 
-			this.inst.enable();
+			inst.enable();
 
-			const prevYaw = this.inst.getYaw();
-			const prevPitch = this.inst.getPitch();
+			const prevYaw = inst.getYawPitch().yaw;
+			const prevPitch = inst.getYawPitch().pitch;
 
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
-					expect(this.inst.getYaw()).to.be.equal(prevYaw);
-					expect(this.inst.getPitch()).to.be.equal(prevPitch);
+					expect(inst.getYawPitch().yaw).to.be.closeTo(prevYaw, 0.00001);
+					expect(inst.getYawPitch().pitch).to.be.closeTo(prevPitch, 0.00001);
 
 					// When
-					this.inst.option("touchDirection", TOUCH_DIRECTION_ALL);
+					inst.option("touchDirection", TOUCH_DIRECTION_ALL);
 
 					Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 						Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 							// Then
-							expect(this.inst.getYaw()).to.be.not.equal(prevYaw);
-							expect(this.inst.getPitch()).to.be.not.equal(prevPitch);
+							expect(inst.getYawPitch().yaw).to.be.not.closeTo(prevYaw, 0.00001);
+							expect(inst.getYawPitch().pitch).to.be.not.closeTo(prevPitch, 0.00001);
 							done();
 						});
 					});
@@ -2400,39 +2533,39 @@ describe("YawPitchControl", function() {
 
 		it("should follow touchDirection by option", done => {
 			// Given
-			this.inst = new YawPitchControl({
+			inst = new YawPitchControl({
 				element: target,
 				touchDirection: TOUCH_DIRECTION_NONE
 			});
 
-			this.inst.enable();
+			inst.enable();
 
-			const prevYaw = this.inst.getYaw();
-			const prevPitch = this.inst.getPitch();
+			const prevYaw = inst.getYawPitch().yaw;
+			const prevPitch = inst.getYawPitch().pitch;
 
 			Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 				Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
-					expect(this.inst.getYaw()).to.be.equal(prevYaw);
-					expect(this.inst.getPitch()).to.be.equal(prevPitch);
+					expect(inst.getYawPitch().yaw).to.be.closeTo(prevYaw, 0.00001);
+					expect(inst.getYawPitch().pitch).to.be.closeTo(prevPitch, 0.00001);
 
 					// When
-					this.inst.option("touchDirection", TOUCH_DIRECTION_ALL);
+					inst.option("touchDirection", TOUCH_DIRECTION_ALL);
 
 					Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 						Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
 							// Then
-							const prevYaw2 = this.inst.getYaw();
-							const prevPitch2 = this.inst.getPitch();
+							const prevYaw2 = inst.getYawPitch().yaw;
+							const prevPitch2 = inst.getYawPitch().pitch;
 
-							expect(prevYaw2).to.be.not.equal(prevYaw);
-							expect(prevPitch2).to.be.not.equal(prevPitch);
+							expect(prevYaw2).to.be.not.closeTo(prevYaw, 0.00001);
+							expect(prevPitch2).to.be.not.closeTo(prevPitch, 0.00001);
 
-							this.inst.option("touchDirection", TOUCH_DIRECTION_NONE);
+							inst.option("touchDirection", TOUCH_DIRECTION_NONE);
 
 							Simulator.gestures.pan(target, MOVE_HORIZONTALLY, () => {
 								Simulator.gestures.pan(target, MOVE_VERTICALLY, () => {
-									expect(this.inst.getYaw()).to.be.equal(prevYaw2);
-									expect(this.inst.getPitch()).to.be.equal(prevPitch2);
+									expect(inst.getYawPitch().yaw).to.be.closeTo(prevYaw2, 0.00001);
+									expect(inst.getYawPitch().pitch).to.be.closeTo(prevPitch2, 0.00001);
 									done();
 								});
 							});
@@ -2508,16 +2641,16 @@ describe("YawPitchControl", function() {
 
 	// 		inst.enable();
 
-	// 		const prevYaw = inst.getYaw();
-	// 		const prevPitch = inst.getPitch();
+	// 		const prevYaw = inst.getYawPitch().yaw;
+	// 		const prevPitch = inst.getYawPitch().pitch;
 
 	// 		// When
 	// 		const MOVE_ANGLE_0 = getMoveAngle(0);
 	// 		Simulator.gestures.pan(target, MOVE_ANGLE_0, () => {
 	// 			// Then
-	// 			// console.log(inst.getYaw(), inst.getPitch())
-	// 			expect(inst.getYaw()).to.be.equal(prevYaw);
-	// 			expect(inst.getPitch()).to.be.equal(prevPitch);
+	// 			// console.log(inst.getYawPitch().yaw, inst.getYawPitch().pitch)
+	// 			expect(inst.getYawPitch().yaw).to.be.equal(prevYaw);
+	// 			expect(inst.getYawPitch().pitch).to.be.equal(prevPitch);
 	// 			done();
 	// 		});
 	// 	});
@@ -2532,16 +2665,16 @@ describe("YawPitchControl", function() {
 
 	// 		inst.enable();
 
-	// 		const prevYaw = inst.getYaw();
-	// 		const prevPitch = inst.getPitch();
+	// 		const prevYaw = inst.getYawPitch().yaw;
+	// 		const prevPitch = inst.getYawPitch().pitch;
 
 	// 		// When
 	// 		const MOVE_ANGLE_40 = getMoveAngle(40);
 	// 		Simulator.gestures.pan(target, MOVE_ANGLE_40, () => {
 	// 			// Then
-	// 			// console.log(inst.getYaw(), inst.getPitch())
-	// 			expect(inst.getYaw()).to.be.equal(prevYaw);
-	// 			expect(inst.getPitch()).to.be.equal(prevPitch);
+	// 			// console.log(inst.getYawPitch().yaw, inst.getYawPitch().pitch)
+	// 			expect(inst.getYawPitch().yaw).to.be.equal(prevYaw);
+	// 			expect(inst.getYawPitch().pitch).to.be.equal(prevPitch);
 	// 			done();
 	// 		});
 	// 	});
@@ -2556,16 +2689,16 @@ describe("YawPitchControl", function() {
 
 	// 		inst.enable();
 
-	// 		const prevYaw = inst.getYaw();
-	// 		const prevPitch = inst.getPitch();
+	// 		const prevYaw = inst.getYawPitch().yaw;
+	// 		const prevPitch = inst.getYawPitch().pitch;
 
 	// 		// When
 	// 		const MOVE_ANGLE_60 = getMoveAngle(60);
 	// 		Simulator.gestures.pan(target, MOVE_ANGLE_60, () => {
 	// 			// Then
-	// 			// console.log(inst.getYaw(), inst.getPitch())
-	// 			expect(inst.getYaw()).to.be.not.equal(prevYaw);
-	// 			expect(inst.getPitch()).to.be.equal(prevPitch);
+	// 			// console.log(inst.getYawPitch().yaw, inst.getYawPitch().pitch)
+	// 			expect(inst.getYawPitch().yaw).to.be.not.equal(prevYaw);
+	// 			expect(inst.getYawPitch().pitch).to.be.equal(prevPitch);
 	// 			done();
 	// 		});
 	// 	});
@@ -2580,16 +2713,16 @@ describe("YawPitchControl", function() {
 
 	// 		inst.enable();
 
-	// 		const prevYaw = inst.getYaw();
-	// 		const prevPitch = inst.getPitch();
+	// 		const prevYaw = inst.getYawPitch().yaw;
+	// 		const prevPitch = inst.getYawPitch().pitch;
 
 	// 		// When
 	// 		const MOVE_ANGLE_150 = getMoveAngle(150);
 	// 		Simulator.gestures.pan(target, MOVE_ANGLE_150, () => {
 	// 			// Then
-	// 			// console.log(inst.getYaw(), inst.getPitch())
-	// 			expect(inst.getYaw()).to.be.not.equal(prevYaw);
-	// 			expect(inst.getPitch()).to.be.equal(prevPitch);
+	// 			// console.log(inst.getYawPitch().yaw, inst.getYawPitch().pitch)
+	// 			expect(inst.getYawPitch().yaw).to.be.not.equal(prevYaw);
+	// 			expect(inst.getYawPitch().pitch).to.be.equal(prevPitch);
 	// 			done();
 	// 		});
 	// 	});

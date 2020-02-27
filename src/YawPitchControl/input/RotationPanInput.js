@@ -66,6 +66,7 @@ export default class RotationPanInput extends PanInput {
 		const newOffset = [0, 0];
 
 		const theta = this._screenRotationAngle.getRadian();
+
 		const cosTheta = Math.cos(theta);
 		const sinTheta = Math.sin(theta);
 
