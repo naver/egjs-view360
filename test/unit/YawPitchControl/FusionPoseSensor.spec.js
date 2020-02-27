@@ -1,10 +1,11 @@
+import {expect} from "chai";
 import {window} from "../../../src/utils/browser";
 import FusionPoseSensor from "../../../src/YawPitchControl/input/FusionPoseSensor";
 import TestHelper from "./testHelper";
 import devicemotionSample from "./devicemotionSample";
 
 
-describe("FusionPoseSensor", function() {
+describe("FusionPoseSensor", () => {
 	describe("#constructor", function() {
 		it("Instance", () => {
 			// Given
@@ -16,14 +17,14 @@ describe("FusionPoseSensor", function() {
 		});
 	});
 
-	describe("DeviceMotion Test", function() {
-		describe("change event fire Test", function() {
+	describe("DeviceMotion Test", () => {
+		describe("change event fire Test", () => {
 			let inst = null;
 			let changed = false;
 
 			beforeEach(() => {
 				inst = new FusionPoseSensor();
-				inst.on("change", (e) => {
+				inst.on("change", e => {
 					changed = true;
 				});
 			});
@@ -34,7 +35,7 @@ describe("FusionPoseSensor", function() {
 				changed = false;
 			});
 
-			it("should trigger change event", (done) => {
+			it("should trigger change event", done => {
 				// Given
 				// When
 				TestHelper.multipleDevicemotion(window, devicemotionSample, () => {
@@ -44,7 +45,7 @@ describe("FusionPoseSensor", function() {
 				});
 			});
 
-			it("should not trigger change event when disabled", (done) => {
+			it("should not trigger change event when disabled", done => {
 				// Given
 				// When
 				inst.disable();
@@ -58,12 +59,13 @@ describe("FusionPoseSensor", function() {
 		});
 	});
 
-	describe("#enable", function() {
-		it("should change event have quaternion property", (done) => {
+	describe("#enable", () => {
+		it("should change event have quaternion property", done => {
 			// Given
-			let inst = new FusionPoseSensor();
+			const inst = new FusionPoseSensor();
 			let changeEvent = null;
-			inst.on("change", (e) => {
+
+			inst.on("change", e => {
 				changeEvent = e;
 			});
 			// When
@@ -73,5 +75,5 @@ describe("FusionPoseSensor", function() {
 				done();
 			});
 		});
-	})
+	});
 });
