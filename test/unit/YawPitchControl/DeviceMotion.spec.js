@@ -1,7 +1,8 @@
-import DeviceMotionInjector from "inject-loader!../../../src/YawPitchControl/input/DeviceMotion";
+import {expect} from "chai";
+import DeviceMotionInjector from "inject-loader!../../../src/YawPitchControl/input/DeviceMotion"; // eslint-disable-line import/no-duplicates
 import ConstsInjector from "inject-loader!../../../src/YawPitchControl/consts";
 import {window} from "../../../src/utils/browser";
-import DeviceMotion from "../../../src/YawPitchControl/input/DeviceMotion";
+import DeviceMotion from "../../../src/YawPitchControl/input/DeviceMotion"; // eslint-disable-line import/no-duplicates
 import TestHelper from "./testHelper";
 
 const getDeviceMotionWithUA = ua => {
@@ -14,30 +15,30 @@ const getDeviceMotionWithUA = ua => {
 	return DeviceMotionInjector({
 		"../consts": ConstsWithUA,
 	}).default;
-}
+};
 
 const MockedDeviceMotion = getDeviceMotionWithUA("Mozilla/5.0 (Linux; Android 6.0.1; SAMSUNG SM-N910S Build/MMB29K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.162 Mobile Safari/537.36");
 
-describe("DeviceMotion", function() {
-	describe("#constructor", function() {
+describe("DeviceMotion", () => {
+	describe("#constructor", () => {
 		it("Instance", () => {
 			// Given
 			// When
-			this.inst = new DeviceMotion();
+			const inst = new DeviceMotion();
 
 			// Then
-			expect(this.inst).to.be.exist;
+			expect(inst).to.be.exist;
 		});
 	});
 
-	describe("DeviceMotion Test", function() {
-		describe("devicemotion event fire Test", function() {
+	describe("DeviceMotion Test", () => {
+		describe("devicemotion event fire Test", () => {
 			let inst = null;
 			let changed = false;
 
 			beforeEach(() => {
 				inst = new DeviceMotion();
-				inst.on("devicemotion", (e) => {
+				inst.on("devicemotion", e => {
 					changed = true;
 				});
 			});
@@ -48,7 +49,7 @@ describe("DeviceMotion", function() {
 				changed = false;
 			});
 
-			it("should trigger devicemotion event", (done) => {
+			it("should trigger devicemotion event", done => {
 				// Given
 				// When
 				TestHelper.devicemotion(window, {
@@ -63,7 +64,7 @@ describe("DeviceMotion", function() {
 				});
 			});
 
-			it("should trigger devicemotion event", (done) => {
+			it("should trigger devicemotion event", done => {
 				// Given
 				// When
 				TestHelper.devicemotion(window, {
@@ -78,7 +79,7 @@ describe("DeviceMotion", function() {
 				});
 			});
 
-			it("should not trigger devicemotion event with empty sensor values.", (done) => {
+			it("should not trigger devicemotion event with empty sensor values.", done => {
 				// Given
 				// When
 				TestHelper.devicemotion(window, {
@@ -93,7 +94,7 @@ describe("DeviceMotion", function() {
 				});
 			});
 
-			it("should not trigger change event when disable", (done) => {
+			it("should not trigger change event when disable", done => {
 				// Given
 				// When
 				inst.disable();
@@ -110,12 +111,12 @@ describe("DeviceMotion", function() {
 			});
 		});
 
-		it("should trigger devicemotion event on android after calling enable()", (done) => {
+		it("should trigger devicemotion event on android after calling enable()", done => {
 			// Given
 			let changed = false;
-			let inst = new MockedDeviceMotion();
+			const inst = new MockedDeviceMotion();
 
-			inst.on("devicemotion", (e) => {
+			inst.on("devicemotion", e => {
 				changed = true;
 			});
 			inst.enable();
@@ -134,12 +135,12 @@ describe("DeviceMotion", function() {
 			});
 		});
 
-		it("should not trigger devicemotion event on android after calling disable()", (done) => {
+		it("should not trigger devicemotion event on android after calling disable()", done => {
 			// Given
 			let changed = false;
-			let inst = new MockedDeviceMotion();
+			const inst = new MockedDeviceMotion();
 
-			inst.on("devicemotion", (e) => {
+			inst.on("devicemotion", e => {
 				changed = true;
 			});
 			inst.enable();
@@ -158,11 +159,12 @@ describe("DeviceMotion", function() {
 			});
 		});
 
-		it("should devicemotion event have properties that original event has", (done) => {
+		it("should devicemotion event have properties that original event has", done => {
 			// Given
-			let inst = new DeviceMotion();
+			const inst = new DeviceMotion();
 			let devicemotionEvent = null;
-			inst.on("devicemotion", (e) => {
+
+			inst.on("devicemotion", e => {
 				devicemotionEvent = e.inputEvent;
 			});
 
@@ -182,12 +184,13 @@ describe("DeviceMotion", function() {
 			});
 		});
 
-		it("devicemotion event should trigger once after enable method called twice", (done) => {
+		it("devicemotion event should trigger once after enable method called twice", done => {
 			// Given
-			let inst = new DeviceMotion();
+			const inst = new DeviceMotion();
 			let changeEventCnt = 0;
-			inst.on("devicemotion", (e) => {
-				changeEventCnt = changeEventCnt + 1;
+
+			inst.on("devicemotion", e => {
+				changeEventCnt += 1;
 			});
 			// When
 			inst.enable();

@@ -1,6 +1,7 @@
-import DeviceQuaternion from "../../../src/YawPitchControl/DeviceQuaternion";
+import {expect} from "chai";
+import DeviceQuaternionInjector from "inject-loader!../../../src/YawPitchControl/DeviceQuaternion"; // eslint-disable-line import/no-duplicates
+import DeviceQuaternion from "../../../src/YawPitchControl/DeviceQuaternion"; // eslint-disable-line import/no-duplicates
 import {quat, glMatrix} from "../../../src/utils/math-util";
-import DeviceQuaternionInjector from "inject-loader!../../../src/YawPitchControl/DeviceQuaternion";
 
 describe("DeviceQuaternion", function() {
 	this.inst = null;
@@ -35,6 +36,7 @@ describe("DeviceQuaternion", function() {
 
 			// Then
 			const expectedQ = quat.create();
+
 			expect(resultQ).to.deep.equal(expectedQ);
 		});
 
@@ -122,6 +124,7 @@ describe("DeviceQuaternion", function() {
 			// Given
 			// When
 			let eventHandleCount = 0;
+
 			this.inst.destroy();
 			this.inst.on("change", () => {
 				eventHandleCount++;

@@ -1,6 +1,6 @@
 import {expect} from "chai";
 import {vec2} from "gl-matrix";
-import RotationPanInput from "../../../src/YawPitchControl/input/RotationPanInput"; // eslint-disable-line import/no-duplicates
+import RotationPanInput from "../../../src/YawPitchControl/input/RotationPanInput";
 import {sandbox, cleanup} from "../util";
 
 describe("RotationPanInput", () => {
