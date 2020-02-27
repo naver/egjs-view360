@@ -10,7 +10,7 @@ const textureCoordData = [];
 const vertexPositionData = [];
 const indexData = [];
 
-export default class CylinderRenderer extends Renderer {
+class CylinderRenderer extends Renderer {
 	static _VERTEX_POSITION_DATA = vertexPositionData;
 	static _TEXTURE_COORD_DATA = textureCoordData;
 	static _INDEX_DATA = indexData;
@@ -154,3 +154,5 @@ void main(void) {
 		}
 	}
 }
+
+export default CylinderRenderer;

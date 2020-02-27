@@ -31,7 +31,7 @@ const DEFAULT_PAN_SCALE = 0.21;
  * 	rowCount: 24 //required
  * });
  */
-export default class SpinViewer extends Component {
+class SpinViewer extends Component {
 	/**
 	 * Version info string
 	 * @ko 버전정보 문자열
@@ -258,3 +258,5 @@ export default class SpinViewer extends Component {
 		return this._axes.get().angle || 0;
 	}
 }
+
+export default SpinViewer;

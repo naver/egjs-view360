@@ -11,7 +11,7 @@ const EVENT = {
 	"READYSTATECHANGE": "readystatechange"
 };
 
-export default class ImageLoader extends Component {
+class ImageLoader extends Component {
 	static STATUS = STATUS;
 	constructor(image) {
 		// Super constructor
@@ -151,3 +151,5 @@ export default class ImageLoader extends Component {
 		this._loadStatus = STATUS.NONE;
 	}
 }
+
+export default ImageLoader;

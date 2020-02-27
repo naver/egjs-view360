@@ -40,7 +40,7 @@ for (latIdx = 0; latIdx <= latitudeBands; latIdx++) {
 	}
 }
 
-export default class SphereRenderer extends Renderer {
+class SphereRenderer extends Renderer {
 	static _VERTEX_POSITION_DATA = vertexPositionData;
 	static _TEXTURE_COORD_DATA = textureCoordData;
 	static _INDEX_DATA = indexData;
@@ -141,3 +141,5 @@ void main(void) {
 		this.updateTexture(gl, image);
 	}
 }
+
+export default SphereRenderer;

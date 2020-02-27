@@ -10,7 +10,7 @@ import PanoImageRendererForUnitTest from "../PanoImageRendererForUnitTest";
 import {compare, createPanoImageRenderer, renderAndCompareSequentially, isVideoLoaded, createVideoElement, sandbox, cleanup} from "../util";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 import TestHelper from "../YawPitchControl/testHelper";
-import {PROJECTION_TYPE, STEREO_FORMAT} from "../../../src/PanoViewer/consts";
+import {PROJECTION_TYPE} from "../../../src/PanoViewer/consts";
 
 const RendererOnIE11 = RendererInjector(
 	{
@@ -166,8 +166,7 @@ describe("PanoImageRenderer", () => {
 				initialYaw: 0,
 				initialpitch: 0,
 				imageType: "equirectangular",
-				fieldOfView: 65,
-				stereoFormat: STEREO_FORMAT.NONE
+				fieldOfView: 65
 			});
 
 			// Then
@@ -192,8 +191,7 @@ describe("PanoImageRenderer", () => {
 				initialYaw: 0,
 				initialpitch: 0,
 				imageType: "equirectangular",
-				fieldOfView: 65,
-				stereoFormat: STEREO_FORMAT.NONE
+				fieldOfView: 65
 			});
 
 			// Then
@@ -218,8 +216,7 @@ describe("PanoImageRenderer", () => {
 				initialYaw: 0,
 				initialpitch: 0,
 				imageType: "equirectangular",
-				fieldOfView: 65,
-				stereoFormat: STEREO_FORMAT.NONE
+				fieldOfView: 65
 			});
 
 			// Then
@@ -276,11 +273,12 @@ describe("PanoImageRenderer", () => {
 				// https://stackoverflow.com/questions/28135551/webgl-context-lost-and-not-restored
 				setTimeout(() => loseContext.restoreContext(), 100);
 			});
-
 			inst.on("renderingContextRestore", e => {
 				// Then
 				expect(hasRenderingContextAfterLost).to.be.false;
 				expect(inst.hasRenderingContext()).to.be.true;
+
+				done();
 			});
 
 			// When
@@ -314,6 +312,7 @@ describe("PanoImageRenderer", () => {
 				// Then
 				expect(hasRenderingContextAfterLost).to.be.false;
 				expect(inst.hasRenderingContext()).to.be.true;
+
 				done();
 			});
 
@@ -338,7 +337,7 @@ describe("PanoImageRenderer", () => {
 			};
 
 			// When
-			inst.renderWithYawPitch(0, 0, 65);
+			inst.render(0, 0, 65);
 
 			// Then
 			expect(isDrawCalled).to.be.equal(false);
@@ -983,8 +982,8 @@ describe("PanoImageRenderer", () => {
 				// When
 				inst.bindTexture()
 					.then(() => {
-						inst.renderWithYawPitch(0, 0, 65);
-						inst.renderWithYawPitch(0, 0, 30);
+						inst.render(0, 0, 65);
+						inst.render(0, 0, 30);
 						// Then
 						compare(`./images/PanoViewer/test_equi_0_0_30${suffix}`, inst.canvas, pct => {
 							expect(pct).to.be.below(threshold);
@@ -996,7 +995,7 @@ describe("PanoImageRenderer", () => {
 	});
 
 	describe("#keepUpdate", () => {
-		IT("Should not render internally when calling render when it doesn't need.", done => {
+		IT("Should not render internaly when calling render when it doesn't need.", done => {
 			// Given
 			let isDrawCalled = false;
 			const sourceImg = new Image();
@@ -1005,10 +1004,8 @@ describe("PanoImageRenderer", () => {
 
 			const inst = createPanoImageRenderer(sourceImg, false, "cubemap");
 
-			inst.on("imageLoaded", async () => {
-				await inst.bindTexture();
-
-				inst.renderWithYawPitch(0, 0, 65);
+			inst.on("imageLoaded", () => {
+				inst.render(0, 0, 65);
 				inst._draw = () => {
 					isDrawCalled = true;
 					PanoImageRendererForUnitTest.prototype._draw.call(inst);
@@ -1016,7 +1013,7 @@ describe("PanoImageRenderer", () => {
 
 				// When
 				inst.keepUpdate(false);
-				inst.renderWithYawPitch(0, 0, 65);
+				inst.render(0, 0, 65);
 
 				// Then
 				expect(isDrawCalled).to.be.equal(false);
@@ -1043,7 +1040,7 @@ describe("PanoImageRenderer", () => {
 			// We will compare the canvas image after 1 seconds playing.
 			// keepUpdate(false) should not update canvas.
 			inst.keepUpdate(false);
-			inst.renderWithYawPitch(0, 0, 65);
+			inst.render(0, 0, 65);
 
 			let beforeBlob;
 
@@ -1056,7 +1053,7 @@ describe("PanoImageRenderer", () => {
 
 			// Waiting for playing 1 seconds
 			await TestHelper.wait(TIMEOUT);
-			inst.renderWithYawPitch(0, 0, 65);
+			inst.render(0, 0, 65);
 
 			let misMatchPercentage;
 
@@ -1408,20 +1405,21 @@ describe("PanoImageRenderer", () => {
 			const destroySpy = sinon.spy();
 			const startAnimSpy = sinon.spy();
 			const stopAnimSpy = sinon.spy();
-			const xrManagerStub = class XRManagerStub {
+
+			class XRManagerStub {
 				destroy = destroySpy
 				requestPresent = reqPresentStub
-			};
-			const animatorStub = class WebGLAnimatorStub {
+			}
+			class WebGLAnimatorStub {
 				start = startAnimSpy
 				stop = stopAnimSpy
-			};
+			}
 
 			requestPresentStub.returns(Promise.reject());
 
 			const PanoImageRendererVRWithManagerMocked = PanoImageRendererInjector({
-				"./vr/XRManager": xrManagerStub,
-				"./WebGLAnimator": animatorStub,
+				"./vr/XRManager": XRManagerStub,
+				"./WebGLAnimator": WebGLAnimatorStub,
 				"../utils/browserFeature": {
 					devicePixelRatio: 2,
 					WEBXR_SUPPORTED: true,

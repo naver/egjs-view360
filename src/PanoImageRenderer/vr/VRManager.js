@@ -8,7 +8,7 @@ const EYES = {
 	RIGHT: "right"
 };
 
-export default class VRManager {
+class VRManager {
 	get context() { return this._vrDisplay; }
 
 	constructor() {
@@ -135,3 +135,5 @@ export default class VRManager {
 		this._yawOffset = 0;
 	}
 }
+
+export default VRManager;

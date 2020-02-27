@@ -12,7 +12,7 @@ const EVENTS = {
  *
  * Extends Component for firing errors occurs internally.
  */
-export default class Renderer extends Component {
+class Renderer extends Component {
 	static EVENTS = EVENTS;
 
 	constructor() {
@@ -152,3 +152,5 @@ export default class Renderer extends Component {
 		});
 	}
 }
+
+export default Renderer;
