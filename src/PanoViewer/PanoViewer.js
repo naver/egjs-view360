@@ -455,8 +455,7 @@ class PanoViewer extends Component {
 		this._photoSphereRenderer
 			.bindTexture()
 			.then(() => this._activate())
-			.catch(e => {
-				console.error(e);
+			.catch(() => {
 				this._triggerEvent(EVENTS.ERROR, {
 					type: ERROR_TYPE.FAIL_BIND_TEXTURE,
 					message: "failed to bind texture"
