@@ -217,17 +217,17 @@ export default class FusionPoseSensor extends Component {
 	}
 	_setScreenTransform() {
 		this.worldToScreenQ.set(0, 0, 0, 1);
-		switch (window.orientation) {
+
+		const orientation = window.orientation;
+
+		switch (orientation) {
 			case 0:
 				break;
 			case 90:
-				this.worldToScreenQ.setFromAxisAngle(new MathUtil.Vector3(0, 0, 1), 90 / -180 * Math.PI);
-				break;
 			case -90:
-				this.worldToScreenQ.setFromAxisAngle(new MathUtil.Vector3(0, 0, 1), -90 / -180 * Math.PI);
-				break;
 			case 180:
-				this.worldToScreenQ.setFromAxisAngle(new MathUtil.Vector3(0, 0, 1), 180 / -180 * Math.PI);
+				this.worldToScreenQ
+					.setFromAxisAngle(new MathUtil.Vector3(0, 0, 1), orientation / -180 * Math.PI);
 				break;
 			default:
 				break;
