@@ -108,13 +108,12 @@ export default class FusionPoseSensor extends Component {
 
 		// Hack around using deviceorientation instead of devicemotion
 		if (this.deviceMotion.isWithoutDeviceMotion && this._deviceOrientationQ) {
-			this.deviceOrientationFixQ = this.deviceOrientationFixQ || (function() {
-				const y =
-					new MathUtil.Quaternion().setFromAxisAngle(
-						new MathUtil.Vector3(0, 1, 0), -this._alpha);
+			this.deviceOrientationFixQ = this.deviceOrientationFixQ || (() => {
+				const y = new MathUtil.Quaternion()
+					.setFromAxisAngle(new MathUtil.Vector3(0, 1, 0), -this._alpha);
 
 				return y;
-			}).bind(this)();
+			})();
 
 			orientation = this._deviceOrientationQ;
 			const out = new MathUtil.Quaternion();
