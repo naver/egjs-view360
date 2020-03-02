@@ -3,12 +3,13 @@ const banner = require("./banner").common;
 const pkgConfigList = require("./rollup.config.pkgd");
 
 const defaultConfig = {
-	external: ["@egjs/axes", "@egjs/component", "es6-promise", "gl-matrix", "@egjs/agent", "motion-sensors-polyfill"],
+	external: ["@egjs/axes", "@egjs/component", "@egjs/agent", "gl-matrix"],
 	output: {
 		globals: {
 			"@egjs/axes": "eg.Axes",
 			"@egjs/component": "eg.Component",
-			"@egjs/agent": "eg.Agent"
+			"@egjs/agent": "eg.Agent",
+			"gl-matrix": "glMatrix"
 		},
 		banner
 	},

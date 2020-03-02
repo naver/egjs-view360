@@ -1,6 +1,6 @@
 module.exports = [
 	{
-		external: ["@egjs/axes", "@egjs/component", "@egjs/component", "es6-promise", "gl-matrix", "@egjs/agent", "motion-sensors-polyfill"],
+		external: ["@egjs/axes", "@egjs/component", "@egjs/component", "@egjs/agent", "gl-matrix"],
 		input: "./src/index.js",
 		output: {
 			sourcemap: false,
