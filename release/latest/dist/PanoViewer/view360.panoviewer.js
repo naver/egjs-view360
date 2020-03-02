@@ -6,10 +6,10 @@ https://github.com/naver/egjs-view360
 @version 3.3.0-snapshot
 */
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@egjs/axes'), require('@egjs/component')) :
-  typeof define === 'function' && define.amd ? define(['exports', '@egjs/axes', '@egjs/component'], factory) :
-  (factory((global.eg = global.eg || {}, global.eg.view360 = {}),global.eg.Axes,global.eg.Component));
-}(this, (function (exports,Axes,Component) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@egjs/axes'), require('@egjs/component'), require('@egjs/agent'), require('es6-promise'), require('gl-matrix')) :
+  typeof define === 'function' && define.amd ? define(['exports', '@egjs/axes', '@egjs/component', '@egjs/agent', 'es6-promise', 'gl-matrix'], factory) :
+  (factory((global.eg = global.eg || {}, global.eg.view360 = {}),global.eg.Axes,global.eg.Component,global.eg.Agent,global._ESPromise,global.glMatrix));
+}(this, (function (exports,Axes,Component,Agent,_ESPromise,glMatrix) { 'use strict';
 
   function _defineProperties(target, props) {
     for (var i = 0; i < props.length; i++) {
@@ -59,2385 +59,6 @@ https://github.com/naver/egjs-view360
     return self;
   }
 
-  var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
-  function commonjsRequire () {
-  	throw new Error('Dynamic requires are not currently supported by rollup-plugin-commonjs');
-  }
-
-  function createCommonjsModule(fn, module) {
-  	return module = { exports: {} }, fn(module, module.exports), module.exports;
-  }
-
-  var es6Promise = createCommonjsModule(function (module, exports) {
-  /*!
-   * @overview es6-promise - a tiny implementation of Promises/A+.
-   * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
-   * @license   Licensed under MIT license
-   *            See https://raw.githubusercontent.com/stefanpenner/es6-promise/master/LICENSE
-   * @version   v4.2.8+1e68dce6
-   */
-  (function (global, factory) {
-    module.exports = factory();
-  })(commonjsGlobal, function () {
-
-    function objectOrFunction(x) {
-      var type = typeof x;
-      return x !== null && (type === 'object' || type === 'function');
-    }
-
-    function isFunction(x) {
-      return typeof x === 'function';
-    }
-
-    var _isArray = void 0;
-
-    if (Array.isArray) {
-      _isArray = Array.isArray;
-    } else {
-      _isArray = function (x) {
-        return Object.prototype.toString.call(x) === '[object Array]';
-      };
-    }
-
-    var isArray = _isArray;
-    var len = 0;
-    var vertxNext = void 0;
-    var customSchedulerFn = void 0;
-
-    var asap = function asap(callback, arg) {
-      queue[len] = callback;
-      queue[len + 1] = arg;
-      len += 2;
-
-      if (len === 2) {
-        // If len is 2, that means that we need to schedule an async flush.
-        // If additional callbacks are queued before the queue is flushed, they
-        // will be processed by this flush that we are scheduling.
-        if (customSchedulerFn) {
-          customSchedulerFn(flush);
-        } else {
-          scheduleFlush();
-        }
-      }
-    };
-
-    function setScheduler(scheduleFn) {
-      customSchedulerFn = scheduleFn;
-    }
-
-    function setAsap(asapFn) {
-      asap = asapFn;
-    }
-
-    var browserWindow = typeof window !== 'undefined' ? window : undefined;
-    var browserGlobal = browserWindow || {};
-    var BrowserMutationObserver = browserGlobal.MutationObserver || browserGlobal.WebKitMutationObserver;
-    var isNode = typeof self === 'undefined' && typeof process !== 'undefined' && {}.toString.call(process) === '[object process]'; // test for web worker but not in IE10
-
-    var isWorker = typeof Uint8ClampedArray !== 'undefined' && typeof importScripts !== 'undefined' && typeof MessageChannel !== 'undefined'; // node
-
-    function useNextTick() {
-      // node version 0.10.x displays a deprecation warning when nextTick is used recursively
-      // see https://github.com/cujojs/when/issues/410 for details
-      return function () {
-        return process.nextTick(flush);
-      };
-    } // vertx
-
-
-    function useVertxTimer() {
-      if (typeof vertxNext !== 'undefined') {
-        return function () {
-          vertxNext(flush);
-        };
-      }
-
-      return useSetTimeout();
-    }
-
-    function useMutationObserver() {
-      var iterations = 0;
-      var observer = new BrowserMutationObserver(flush);
-      var node = document.createTextNode('');
-      observer.observe(node, {
-        characterData: true
-      });
-      return function () {
-        node.data = iterations = ++iterations % 2;
-      };
-    } // web worker
-
-
-    function useMessageChannel() {
-      var channel = new MessageChannel();
-      channel.port1.onmessage = flush;
-      return function () {
-        return channel.port2.postMessage(0);
-      };
-    }
-
-    function useSetTimeout() {
-      // Store setTimeout reference so es6-promise will be unaffected by
-      // other code modifying setTimeout (like sinon.useFakeTimers())
-      var globalSetTimeout = setTimeout;
-      return function () {
-        return globalSetTimeout(flush, 1);
-      };
-    }
-
-    var queue = new Array(1000);
-
-    function flush() {
-      for (var i = 0; i < len; i += 2) {
-        var callback = queue[i];
-        var arg = queue[i + 1];
-        callback(arg);
-        queue[i] = undefined;
-        queue[i + 1] = undefined;
-      }
-
-      len = 0;
-    }
-
-    function attemptVertx() {
-      try {
-        var vertx = Function('return this')().require('vertx');
-
-        vertxNext = vertx.runOnLoop || vertx.runOnContext;
-        return useVertxTimer();
-      } catch (e) {
-        return useSetTimeout();
-      }
-    }
-
-    var scheduleFlush = void 0; // Decide what async method to use to triggering processing of queued callbacks:
-
-    if (isNode) {
-      scheduleFlush = useNextTick();
-    } else if (BrowserMutationObserver) {
-      scheduleFlush = useMutationObserver();
-    } else if (isWorker) {
-      scheduleFlush = useMessageChannel();
-    } else if (browserWindow === undefined && typeof commonjsRequire === 'function') {
-      scheduleFlush = attemptVertx();
-    } else {
-      scheduleFlush = useSetTimeout();
-    }
-
-    function then(onFulfillment, onRejection) {
-      var parent = this;
-      var child = new this.constructor(noop);
-
-      if (child[PROMISE_ID] === undefined) {
-        makePromise(child);
-      }
-
-      var _state = parent._state;
-
-      if (_state) {
-        var callback = arguments[_state - 1];
-        asap(function () {
-          return invokeCallback(_state, child, callback, parent._result);
-        });
-      } else {
-        subscribe(parent, child, onFulfillment, onRejection);
-      }
-
-      return child;
-    }
-    /**
-      `Promise.resolve` returns a promise that will become resolved with the
-      passed `value`. It is shorthand for the following:
-    
-      ```javascript
-      let promise = new Promise(function(resolve, reject){
-        resolve(1);
-      });
-    
-      promise.then(function(value){
-        // value === 1
-      });
-      ```
-    
-      Instead of writing the above, your code now simply becomes the following:
-    
-      ```javascript
-      let promise = Promise.resolve(1);
-    
-      promise.then(function(value){
-        // value === 1
-      });
-      ```
-    
-      @method resolve
-      @static
-      @param {Any} value value that the returned promise will be resolved with
-      Useful for tooling.
-      @return {Promise} a promise that will become fulfilled with the given
-      `value`
-    */
-
-
-    function resolve$1(object) {
-      /*jshint validthis:true */
-      var Constructor = this;
-
-      if (object && typeof object === 'object' && object.constructor === Constructor) {
-        return object;
-      }
-
-      var promise = new Constructor(noop);
-      resolve(promise, object);
-      return promise;
-    }
-
-    var PROMISE_ID = Math.random().toString(36).substring(2);
-
-    function noop() {}
-
-    var PENDING = void 0;
-    var FULFILLED = 1;
-    var REJECTED = 2;
-
-    function selfFulfillment() {
-      return new TypeError("You cannot resolve a promise with itself");
-    }
-
-    function cannotReturnOwn() {
-      return new TypeError('A promises callback cannot return that same promise.');
-    }
-
-    function tryThen(then$$1, value, fulfillmentHandler, rejectionHandler) {
-      try {
-        then$$1.call(value, fulfillmentHandler, rejectionHandler);
-      } catch (e) {
-        return e;
-      }
-    }
-
-    function handleForeignThenable(promise, thenable, then$$1) {
-      asap(function (promise) {
-        var sealed = false;
-        var error = tryThen(then$$1, thenable, function (value) {
-          if (sealed) {
-            return;
-          }
-
-          sealed = true;
-
-          if (thenable !== value) {
-            resolve(promise, value);
-          } else {
-            fulfill(promise, value);
-          }
-        }, function (reason) {
-          if (sealed) {
-            return;
-          }
-
-          sealed = true;
-          reject(promise, reason);
-        }, 'Settle: ' + (promise._label || ' unknown promise'));
-
-        if (!sealed && error) {
-          sealed = true;
-          reject(promise, error);
-        }
-      }, promise);
-    }
-
-    function handleOwnThenable(promise, thenable) {
-      if (thenable._state === FULFILLED) {
-        fulfill(promise, thenable._result);
-      } else if (thenable._state === REJECTED) {
-        reject(promise, thenable._result);
-      } else {
-        subscribe(thenable, undefined, function (value) {
-          return resolve(promise, value);
-        }, function (reason) {
-          return reject(promise, reason);
-        });
-      }
-    }
-
-    function handleMaybeThenable(promise, maybeThenable, then$$1) {
-      if (maybeThenable.constructor === promise.constructor && then$$1 === then && maybeThenable.constructor.resolve === resolve$1) {
-        handleOwnThenable(promise, maybeThenable);
-      } else {
-        if (then$$1 === undefined) {
-          fulfill(promise, maybeThenable);
-        } else if (isFunction(then$$1)) {
-          handleForeignThenable(promise, maybeThenable, then$$1);
-        } else {
-          fulfill(promise, maybeThenable);
-        }
-      }
-    }
-
-    function resolve(promise, value) {
-      if (promise === value) {
-        reject(promise, selfFulfillment());
-      } else if (objectOrFunction(value)) {
-        var then$$1 = void 0;
-
-        try {
-          then$$1 = value.then;
-        } catch (error) {
-          reject(promise, error);
-          return;
-        }
-
-        handleMaybeThenable(promise, value, then$$1);
-      } else {
-        fulfill(promise, value);
-      }
-    }
-
-    function publishRejection(promise) {
-      if (promise._onerror) {
-        promise._onerror(promise._result);
-      }
-
-      publish(promise);
-    }
-
-    function fulfill(promise, value) {
-      if (promise._state !== PENDING) {
-        return;
-      }
-
-      promise._result = value;
-      promise._state = FULFILLED;
-
-      if (promise._subscribers.length !== 0) {
-        asap(publish, promise);
-      }
-    }
-
-    function reject(promise, reason) {
-      if (promise._state !== PENDING) {
-        return;
-      }
-
-      promise._state = REJECTED;
-      promise._result = reason;
-      asap(publishRejection, promise);
-    }
-
-    function subscribe(parent, child, onFulfillment, onRejection) {
-      var _subscribers = parent._subscribers;
-      var length = _subscribers.length;
-      parent._onerror = null;
-      _subscribers[length] = child;
-      _subscribers[length + FULFILLED] = onFulfillment;
-      _subscribers[length + REJECTED] = onRejection;
-
-      if (length === 0 && parent._state) {
-        asap(publish, parent);
-      }
-    }
-
-    function publish(promise) {
-      var subscribers = promise._subscribers;
-      var settled = promise._state;
-
-      if (subscribers.length === 0) {
-        return;
-      }
-
-      var child = void 0,
-          callback = void 0,
-          detail = promise._result;
-
-      for (var i = 0; i < subscribers.length; i += 3) {
-        child = subscribers[i];
-        callback = subscribers[i + settled];
-
-        if (child) {
-          invokeCallback(settled, child, callback, detail);
-        } else {
-          callback(detail);
-        }
-      }
-
-      promise._subscribers.length = 0;
-    }
-
-    function invokeCallback(settled, promise, callback, detail) {
-      var hasCallback = isFunction(callback),
-          value = void 0,
-          error = void 0,
-          succeeded = true;
-
-      if (hasCallback) {
-        try {
-          value = callback(detail);
-        } catch (e) {
-          succeeded = false;
-          error = e;
-        }
-
-        if (promise === value) {
-          reject(promise, cannotReturnOwn());
-          return;
-        }
-      } else {
-        value = detail;
-      }
-
-      if (promise._state !== PENDING) ; else if (hasCallback && succeeded) {
-        resolve(promise, value);
-      } else if (succeeded === false) {
-        reject(promise, error);
-      } else if (settled === FULFILLED) {
-        fulfill(promise, value);
-      } else if (settled === REJECTED) {
-        reject(promise, value);
-      }
-    }
-
-    function initializePromise(promise, resolver) {
-      try {
-        resolver(function resolvePromise(value) {
-          resolve(promise, value);
-        }, function rejectPromise(reason) {
-          reject(promise, reason);
-        });
-      } catch (e) {
-        reject(promise, e);
-      }
-    }
-
-    var id = 0;
-
-    function nextId() {
-      return id++;
-    }
-
-    function makePromise(promise) {
-      promise[PROMISE_ID] = id++;
-      promise._state = undefined;
-      promise._result = undefined;
-      promise._subscribers = [];
-    }
-
-    function validationError() {
-      return new Error('Array Methods must be provided an Array');
-    }
-
-    var Enumerator = function () {
-      function Enumerator(Constructor, input) {
-        this._instanceConstructor = Constructor;
-        this.promise = new Constructor(noop);
-
-        if (!this.promise[PROMISE_ID]) {
-          makePromise(this.promise);
-        }
-
-        if (isArray(input)) {
-          this.length = input.length;
-          this._remaining = input.length;
-          this._result = new Array(this.length);
-
-          if (this.length === 0) {
-            fulfill(this.promise, this._result);
-          } else {
-            this.length = this.length || 0;
-
-            this._enumerate(input);
-
-            if (this._remaining === 0) {
-              fulfill(this.promise, this._result);
-            }
-          }
-        } else {
-          reject(this.promise, validationError());
-        }
-      }
-
-      Enumerator.prototype._enumerate = function _enumerate(input) {
-        for (var i = 0; this._state === PENDING && i < input.length; i++) {
-          this._eachEntry(input[i], i);
-        }
-      };
-
-      Enumerator.prototype._eachEntry = function _eachEntry(entry, i) {
-        var c = this._instanceConstructor;
-        var resolve$$1 = c.resolve;
-
-        if (resolve$$1 === resolve$1) {
-          var _then = void 0;
-
-          var error = void 0;
-          var didError = false;
-
-          try {
-            _then = entry.then;
-          } catch (e) {
-            didError = true;
-            error = e;
-          }
-
-          if (_then === then && entry._state !== PENDING) {
-            this._settledAt(entry._state, i, entry._result);
-          } else if (typeof _then !== 'function') {
-            this._remaining--;
-            this._result[i] = entry;
-          } else if (c === Promise$1) {
-            var promise = new c(noop);
-
-            if (didError) {
-              reject(promise, error);
-            } else {
-              handleMaybeThenable(promise, entry, _then);
-            }
-
-            this._willSettleAt(promise, i);
-          } else {
-            this._willSettleAt(new c(function (resolve$$1) {
-              return resolve$$1(entry);
-            }), i);
-          }
-        } else {
-          this._willSettleAt(resolve$$1(entry), i);
-        }
-      };
-
-      Enumerator.prototype._settledAt = function _settledAt(state, i, value) {
-        var promise = this.promise;
-
-        if (promise._state === PENDING) {
-          this._remaining--;
-
-          if (state === REJECTED) {
-            reject(promise, value);
-          } else {
-            this._result[i] = value;
-          }
-        }
-
-        if (this._remaining === 0) {
-          fulfill(promise, this._result);
-        }
-      };
-
-      Enumerator.prototype._willSettleAt = function _willSettleAt(promise, i) {
-        var enumerator = this;
-        subscribe(promise, undefined, function (value) {
-          return enumerator._settledAt(FULFILLED, i, value);
-        }, function (reason) {
-          return enumerator._settledAt(REJECTED, i, reason);
-        });
-      };
-
-      return Enumerator;
-    }();
-    /**
-      `Promise.all` accepts an array of promises, and returns a new promise which
-      is fulfilled with an array of fulfillment values for the passed promises, or
-      rejected with the reason of the first passed promise to be rejected. It casts all
-      elements of the passed iterable to promises as it runs this algorithm.
-    
-      Example:
-    
-      ```javascript
-      let promise1 = resolve(1);
-      let promise2 = resolve(2);
-      let promise3 = resolve(3);
-      let promises = [ promise1, promise2, promise3 ];
-    
-      Promise.all(promises).then(function(array){
-        // The array here would be [ 1, 2, 3 ];
-      });
-      ```
-    
-      If any of the `promises` given to `all` are rejected, the first promise
-      that is rejected will be given as an argument to the returned promises's
-      rejection handler. For example:
-    
-      Example:
-    
-      ```javascript
-      let promise1 = resolve(1);
-      let promise2 = reject(new Error("2"));
-      let promise3 = reject(new Error("3"));
-      let promises = [ promise1, promise2, promise3 ];
-    
-      Promise.all(promises).then(function(array){
-        // Code here never runs because there are rejected promises!
-      }, function(error) {
-        // error.message === "2"
-      });
-      ```
-    
-      @method all
-      @static
-      @param {Array} entries array of promises
-      @param {String} label optional string for labeling the promise.
-      Useful for tooling.
-      @return {Promise} promise that is fulfilled when all `promises` have been
-      fulfilled, or rejected if any of them become rejected.
-      @static
-    */
-
-
-    function all(entries) {
-      return new Enumerator(this, entries).promise;
-    }
-    /**
-      `Promise.race` returns a new promise which is settled in the same way as the
-      first passed promise to settle.
-    
-      Example:
-    
-      ```javascript
-      let promise1 = new Promise(function(resolve, reject){
-        setTimeout(function(){
-          resolve('promise 1');
-        }, 200);
-      });
-    
-      let promise2 = new Promise(function(resolve, reject){
-        setTimeout(function(){
-          resolve('promise 2');
-        }, 100);
-      });
-    
-      Promise.race([promise1, promise2]).then(function(result){
-        // result === 'promise 2' because it was resolved before promise1
-        // was resolved.
-      });
-      ```
-    
-      `Promise.race` is deterministic in that only the state of the first
-      settled promise matters. For example, even if other promises given to the
-      `promises` array argument are resolved, but the first settled promise has
-      become rejected before the other promises became fulfilled, the returned
-      promise will become rejected:
-    
-      ```javascript
-      let promise1 = new Promise(function(resolve, reject){
-        setTimeout(function(){
-          resolve('promise 1');
-        }, 200);
-      });
-    
-      let promise2 = new Promise(function(resolve, reject){
-        setTimeout(function(){
-          reject(new Error('promise 2'));
-        }, 100);
-      });
-    
-      Promise.race([promise1, promise2]).then(function(result){
-        // Code here never runs
-      }, function(reason){
-        // reason.message === 'promise 2' because promise 2 became rejected before
-        // promise 1 became fulfilled
-      });
-      ```
-    
-      An example real-world use case is implementing timeouts:
-    
-      ```javascript
-      Promise.race([ajax('foo.json'), timeout(5000)])
-      ```
-    
-      @method race
-      @static
-      @param {Array} promises array of promises to observe
-      Useful for tooling.
-      @return {Promise} a promise which settles in the same way as the first passed
-      promise to settle.
-    */
-
-
-    function race(entries) {
-      /*jshint validthis:true */
-      var Constructor = this;
-
-      if (!isArray(entries)) {
-        return new Constructor(function (_, reject) {
-          return reject(new TypeError('You must pass an array to race.'));
-        });
-      } else {
-        return new Constructor(function (resolve, reject) {
-          var length = entries.length;
-
-          for (var i = 0; i < length; i++) {
-            Constructor.resolve(entries[i]).then(resolve, reject);
-          }
-        });
-      }
-    }
-    /**
-      `Promise.reject` returns a promise rejected with the passed `reason`.
-      It is shorthand for the following:
-    
-      ```javascript
-      let promise = new Promise(function(resolve, reject){
-        reject(new Error('WHOOPS'));
-      });
-    
-      promise.then(function(value){
-        // Code here doesn't run because the promise is rejected!
-      }, function(reason){
-        // reason.message === 'WHOOPS'
-      });
-      ```
-    
-      Instead of writing the above, your code now simply becomes the following:
-    
-      ```javascript
-      let promise = Promise.reject(new Error('WHOOPS'));
-    
-      promise.then(function(value){
-        // Code here doesn't run because the promise is rejected!
-      }, function(reason){
-        // reason.message === 'WHOOPS'
-      });
-      ```
-    
-      @method reject
-      @static
-      @param {Any} reason value that the returned promise will be rejected with.
-      Useful for tooling.
-      @return {Promise} a promise rejected with the given `reason`.
-    */
-
-
-    function reject$1(reason) {
-      /*jshint validthis:true */
-      var Constructor = this;
-      var promise = new Constructor(noop);
-      reject(promise, reason);
-      return promise;
-    }
-
-    function needsResolver() {
-      throw new TypeError('You must pass a resolver function as the first argument to the promise constructor');
-    }
-
-    function needsNew() {
-      throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
-    }
-    /**
-      Promise objects represent the eventual result of an asynchronous operation. The
-      primary way of interacting with a promise is through its `then` method, which
-      registers callbacks to receive either a promise's eventual value or the reason
-      why the promise cannot be fulfilled.
-    
-      Terminology
-      -----------
-    
-      - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
-      - `thenable` is an object or function that defines a `then` method.
-      - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
-      - `exception` is a value that is thrown using the throw statement.
-      - `reason` is a value that indicates why a promise was rejected.
-      - `settled` the final resting state of a promise, fulfilled or rejected.
-    
-      A promise can be in one of three states: pending, fulfilled, or rejected.
-    
-      Promises that are fulfilled have a fulfillment value and are in the fulfilled
-      state.  Promises that are rejected have a rejection reason and are in the
-      rejected state.  A fulfillment value is never a thenable.
-    
-      Promises can also be said to *resolve* a value.  If this value is also a
-      promise, then the original promise's settled state will match the value's
-      settled state.  So a promise that *resolves* a promise that rejects will
-      itself reject, and a promise that *resolves* a promise that fulfills will
-      itself fulfill.
-    
-    
-      Basic Usage:
-      ------------
-    
-      ```js
-      let promise = new Promise(function(resolve, reject) {
-        // on success
-        resolve(value);
-    
-        // on failure
-        reject(reason);
-      });
-    
-      promise.then(function(value) {
-        // on fulfillment
-      }, function(reason) {
-        // on rejection
-      });
-      ```
-    
-      Advanced Usage:
-      ---------------
-    
-      Promises shine when abstracting away asynchronous interactions such as
-      `XMLHttpRequest`s.
-    
-      ```js
-      function getJSON(url) {
-        return new Promise(function(resolve, reject){
-          let xhr = new XMLHttpRequest();
-    
-          xhr.open('GET', url);
-          xhr.onreadystatechange = handler;
-          xhr.responseType = 'json';
-          xhr.setRequestHeader('Accept', 'application/json');
-          xhr.send();
-    
-          function handler() {
-            if (this.readyState === this.DONE) {
-              if (this.status === 200) {
-                resolve(this.response);
-              } else {
-                reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));
-              }
-            }
-          };
-        });
-      }
-    
-      getJSON('/posts.json').then(function(json) {
-        // on fulfillment
-      }, function(reason) {
-        // on rejection
-      });
-      ```
-    
-      Unlike callbacks, promises are great composable primitives.
-    
-      ```js
-      Promise.all([
-        getJSON('/posts'),
-        getJSON('/comments')
-      ]).then(function(values){
-        values[0] // => postsJSON
-        values[1] // => commentsJSON
-    
-        return values;
-      });
-      ```
-    
-      @class Promise
-      @param {Function} resolver
-      Useful for tooling.
-      @constructor
-    */
-
-
-    var Promise$1 = function () {
-      function Promise(resolver) {
-        this[PROMISE_ID] = nextId();
-        this._result = this._state = undefined;
-        this._subscribers = [];
-
-        if (noop !== resolver) {
-          typeof resolver !== 'function' && needsResolver();
-          this instanceof Promise ? initializePromise(this, resolver) : needsNew();
-        }
-      }
-      /**
-      The primary way of interacting with a promise is through its `then` method,
-      which registers callbacks to receive either a promise's eventual value or the
-      reason why the promise cannot be fulfilled.
-       ```js
-      findUser().then(function(user){
-        // user is available
-      }, function(reason){
-        // user is unavailable, and you are given the reason why
-      });
-      ```
-       Chaining
-      --------
-       The return value of `then` is itself a promise.  This second, 'downstream'
-      promise is resolved with the return value of the first promise's fulfillment
-      or rejection handler, or rejected if the handler throws an exception.
-       ```js
-      findUser().then(function (user) {
-        return user.name;
-      }, function (reason) {
-        return 'default name';
-      }).then(function (userName) {
-        // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
-        // will be `'default name'`
-      });
-       findUser().then(function (user) {
-        throw new Error('Found user, but still unhappy');
-      }, function (reason) {
-        throw new Error('`findUser` rejected and we're unhappy');
-      }).then(function (value) {
-        // never reached
-      }, function (reason) {
-        // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.
-        // If `findUser` rejected, `reason` will be '`findUser` rejected and we're unhappy'.
-      });
-      ```
-      If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
-       ```js
-      findUser().then(function (user) {
-        throw new PedagogicalException('Upstream error');
-      }).then(function (value) {
-        // never reached
-      }).then(function (value) {
-        // never reached
-      }, function (reason) {
-        // The `PedgagocialException` is propagated all the way down to here
-      });
-      ```
-       Assimilation
-      ------------
-       Sometimes the value you want to propagate to a downstream promise can only be
-      retrieved asynchronously. This can be achieved by returning a promise in the
-      fulfillment or rejection handler. The downstream promise will then be pending
-      until the returned promise is settled. This is called *assimilation*.
-       ```js
-      findUser().then(function (user) {
-        return findCommentsByAuthor(user);
-      }).then(function (comments) {
-        // The user's comments are now available
-      });
-      ```
-       If the assimliated promise rejects, then the downstream promise will also reject.
-       ```js
-      findUser().then(function (user) {
-        return findCommentsByAuthor(user);
-      }).then(function (comments) {
-        // If `findCommentsByAuthor` fulfills, we'll have the value here
-      }, function (reason) {
-        // If `findCommentsByAuthor` rejects, we'll have the reason here
-      });
-      ```
-       Simple Example
-      --------------
-       Synchronous Example
-       ```javascript
-      let result;
-       try {
-        result = findResult();
-        // success
-      } catch(reason) {
-        // failure
-      }
-      ```
-       Errback Example
-       ```js
-      findResult(function(result, err){
-        if (err) {
-          // failure
-        } else {
-          // success
-        }
-      });
-      ```
-       Promise Example;
-       ```javascript
-      findResult().then(function(result){
-        // success
-      }, function(reason){
-        // failure
-      });
-      ```
-       Advanced Example
-      --------------
-       Synchronous Example
-       ```javascript
-      let author, books;
-       try {
-        author = findAuthor();
-        books  = findBooksByAuthor(author);
-        // success
-      } catch(reason) {
-        // failure
-      }
-      ```
-       Errback Example
-       ```js
-       function foundBooks(books) {
-       }
-       function failure(reason) {
-       }
-       findAuthor(function(author, err){
-        if (err) {
-          failure(err);
-          // failure
-        } else {
-          try {
-            findBoooksByAuthor(author, function(books, err) {
-              if (err) {
-                failure(err);
-              } else {
-                try {
-                  foundBooks(books);
-                } catch(reason) {
-                  failure(reason);
-                }
-              }
-            });
-          } catch(error) {
-            failure(err);
-          }
-          // success
-        }
-      });
-      ```
-       Promise Example;
-       ```javascript
-      findAuthor().
-        then(findBooksByAuthor).
-        then(function(books){
-          // found books
-      }).catch(function(reason){
-        // something went wrong
-      });
-      ```
-       @method then
-      @param {Function} onFulfilled
-      @param {Function} onRejected
-      Useful for tooling.
-      @return {Promise}
-      */
-
-      /**
-      `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
-      as the catch block of a try/catch statement.
-      ```js
-      function findAuthor(){
-      throw new Error('couldn't find that author');
-      }
-      // synchronous
-      try {
-      findAuthor();
-      } catch(reason) {
-      // something went wrong
-      }
-      // async with promises
-      findAuthor().catch(function(reason){
-      // something went wrong
-      });
-      ```
-      @method catch
-      @param {Function} onRejection
-      Useful for tooling.
-      @return {Promise}
-      */
-
-
-      Promise.prototype.catch = function _catch(onRejection) {
-        return this.then(null, onRejection);
-      };
-      /**
-        `finally` will be invoked regardless of the promise's fate just as native
-        try/catch/finally behaves
-      
-        Synchronous example:
-      
-        ```js
-        findAuthor() {
-          if (Math.random() > 0.5) {
-            throw new Error();
-          }
-          return new Author();
-        }
-      
-        try {
-          return findAuthor(); // succeed or fail
-        } catch(error) {
-          return findOtherAuther();
-        } finally {
-          // always runs
-          // doesn't affect the return value
-        }
-        ```
-      
-        Asynchronous example:
-      
-        ```js
-        findAuthor().catch(function(reason){
-          return findOtherAuther();
-        }).finally(function(){
-          // author was either found, or not
-        });
-        ```
-      
-        @method finally
-        @param {Function} callback
-        @return {Promise}
-      */
-
-
-      Promise.prototype.finally = function _finally(callback) {
-        var promise = this;
-        var constructor = promise.constructor;
-
-        if (isFunction(callback)) {
-          return promise.then(function (value) {
-            return constructor.resolve(callback()).then(function () {
-              return value;
-            });
-          }, function (reason) {
-            return constructor.resolve(callback()).then(function () {
-              throw reason;
-            });
-          });
-        }
-
-        return promise.then(callback, callback);
-      };
-
-      return Promise;
-    }();
-
-    Promise$1.prototype.then = then;
-    Promise$1.all = all;
-    Promise$1.race = race;
-    Promise$1.resolve = resolve$1;
-    Promise$1.reject = reject$1;
-    Promise$1._setScheduler = setScheduler;
-    Promise$1._setAsap = setAsap;
-    Promise$1._asap = asap;
-    /*global self*/
-
-    function polyfill() {
-      var local = void 0;
-
-      if (typeof commonjsGlobal !== 'undefined') {
-        local = commonjsGlobal;
-      } else if (typeof self !== 'undefined') {
-        local = self;
-      } else {
-        try {
-          local = Function('return this')();
-        } catch (e) {
-          throw new Error('polyfill failed because global object is unavailable in this environment');
-        }
-      }
-
-      var P = local.Promise;
-
-      if (P) {
-        var promiseToString = null;
-
-        try {
-          promiseToString = Object.prototype.toString.call(P.resolve());
-        } catch (e) {// silently ignored
-        }
-
-        if (promiseToString === '[object Promise]' && !P.cast) {
-          return;
-        }
-      }
-
-      local.Promise = Promise$1;
-    } // Strange compat..
-
-
-    Promise$1.polyfill = polyfill;
-    Promise$1.Promise = Promise$1;
-    return Promise$1;
-  });
-  });
-
-  /**
-   * Common utilities
-   * @module glMatrix
-   */
-  // Configuration Constants
-  var EPSILON = 0.000001;
-  var ARRAY_TYPE = typeof Float32Array !== 'undefined' ? Float32Array : Array;
-  var degree = Math.PI / 180;
-  /**
-   * Convert Degree To Radian
-   *
-   * @param {Number} a Angle in Degrees
-   */
-
-  function toRadian(a) {
-    return a * degree;
-  }
-  if (!Math.hypot) Math.hypot = function () {
-    var y = 0,
-        i = arguments.length;
-
-    while (i--) {
-      y += arguments[i] * arguments[i];
-    }
-
-    return Math.sqrt(y);
-  };
-
-  /**
-   * 3x3 Matrix
-   * @module mat3
-   */
-
-  /**
-   * Creates a new identity mat3
-   *
-   * @returns {mat3} a new 3x3 matrix
-   */
-
-  function create$2() {
-    var out = new ARRAY_TYPE(9);
-
-    if (ARRAY_TYPE != Float32Array) {
-      out[1] = 0;
-      out[2] = 0;
-      out[3] = 0;
-      out[5] = 0;
-      out[6] = 0;
-      out[7] = 0;
-    }
-
-    out[0] = 1;
-    out[4] = 1;
-    out[8] = 1;
-    return out;
-  }
-  /**
-   * Copies the upper-left 3x3 values into the given mat3.
-   *
-   * @param {mat3} out the receiving 3x3 matrix
-   * @param {mat4} a   the source 4x4 matrix
-   * @returns {mat3} out
-   */
-
-  function fromMat4(out, a) {
-    out[0] = a[0];
-    out[1] = a[1];
-    out[2] = a[2];
-    out[3] = a[4];
-    out[4] = a[5];
-    out[5] = a[6];
-    out[6] = a[8];
-    out[7] = a[9];
-    out[8] = a[10];
-    return out;
-  }
-  /**
-   * Inverts a mat3
-   *
-   * @param {mat3} out the receiving matrix
-   * @param {mat3} a the source matrix
-   * @returns {mat3} out
-   */
-
-  function invert$2(out, a) {
-    var a00 = a[0],
-        a01 = a[1],
-        a02 = a[2];
-    var a10 = a[3],
-        a11 = a[4],
-        a12 = a[5];
-    var a20 = a[6],
-        a21 = a[7],
-        a22 = a[8];
-    var b01 = a22 * a11 - a12 * a21;
-    var b11 = -a22 * a10 + a12 * a20;
-    var b21 = a21 * a10 - a11 * a20; // Calculate the determinant
-
-    var det = a00 * b01 + a01 * b11 + a02 * b21;
-
-    if (!det) {
-      return null;
-    }
-
-    det = 1.0 / det;
-    out[0] = b01 * det;
-    out[1] = (-a22 * a01 + a02 * a21) * det;
-    out[2] = (a12 * a01 - a02 * a11) * det;
-    out[3] = b11 * det;
-    out[4] = (a22 * a00 - a02 * a20) * det;
-    out[5] = (-a12 * a00 + a02 * a10) * det;
-    out[6] = b21 * det;
-    out[7] = (-a21 * a00 + a01 * a20) * det;
-    out[8] = (a11 * a00 - a01 * a10) * det;
-    return out;
-  }
-
-  /**
-   * 4x4 Matrix<br>Format: column-major, when typed out it looks like row-major<br>The matrices are being post multiplied.
-   * @module mat4
-   */
-
-  /**
-   * Creates a new identity mat4
-   *
-   * @returns {mat4} a new 4x4 matrix
-   */
-
-  function create$3() {
-    var out = new ARRAY_TYPE(16);
-
-    if (ARRAY_TYPE != Float32Array) {
-      out[1] = 0;
-      out[2] = 0;
-      out[3] = 0;
-      out[4] = 0;
-      out[6] = 0;
-      out[7] = 0;
-      out[8] = 0;
-      out[9] = 0;
-      out[11] = 0;
-      out[12] = 0;
-      out[13] = 0;
-      out[14] = 0;
-    }
-
-    out[0] = 1;
-    out[5] = 1;
-    out[10] = 1;
-    out[15] = 1;
-    return out;
-  }
-  /**
-   * Set a mat4 to the identity matrix
-   *
-   * @param {mat4} out the receiving matrix
-   * @returns {mat4} out
-   */
-
-  function identity$3(out) {
-    out[0] = 1;
-    out[1] = 0;
-    out[2] = 0;
-    out[3] = 0;
-    out[4] = 0;
-    out[5] = 1;
-    out[6] = 0;
-    out[7] = 0;
-    out[8] = 0;
-    out[9] = 0;
-    out[10] = 1;
-    out[11] = 0;
-    out[12] = 0;
-    out[13] = 0;
-    out[14] = 0;
-    out[15] = 1;
-    return out;
-  }
-  /**
-   * Rotates a matrix by the given angle around the X axis
-   *
-   * @param {mat4} out the receiving matrix
-   * @param {mat4} a the matrix to rotate
-   * @param {Number} rad the angle to rotate the matrix by
-   * @returns {mat4} out
-   */
-
-  function rotateX(out, a, rad) {
-    var s = Math.sin(rad);
-    var c = Math.cos(rad);
-    var a10 = a[4];
-    var a11 = a[5];
-    var a12 = a[6];
-    var a13 = a[7];
-    var a20 = a[8];
-    var a21 = a[9];
-    var a22 = a[10];
-    var a23 = a[11];
-
-    if (a !== out) {
-      // If the source and destination differ, copy the unchanged rows
-      out[0] = a[0];
-      out[1] = a[1];
-      out[2] = a[2];
-      out[3] = a[3];
-      out[12] = a[12];
-      out[13] = a[13];
-      out[14] = a[14];
-      out[15] = a[15];
-    } // Perform axis-specific matrix multiplication
-
-
-    out[4] = a10 * c + a20 * s;
-    out[5] = a11 * c + a21 * s;
-    out[6] = a12 * c + a22 * s;
-    out[7] = a13 * c + a23 * s;
-    out[8] = a20 * c - a10 * s;
-    out[9] = a21 * c - a11 * s;
-    out[10] = a22 * c - a12 * s;
-    out[11] = a23 * c - a13 * s;
-    return out;
-  }
-  /**
-   * Rotates a matrix by the given angle around the Y axis
-   *
-   * @param {mat4} out the receiving matrix
-   * @param {mat4} a the matrix to rotate
-   * @param {Number} rad the angle to rotate the matrix by
-   * @returns {mat4} out
-   */
-
-  function rotateY(out, a, rad) {
-    var s = Math.sin(rad);
-    var c = Math.cos(rad);
-    var a00 = a[0];
-    var a01 = a[1];
-    var a02 = a[2];
-    var a03 = a[3];
-    var a20 = a[8];
-    var a21 = a[9];
-    var a22 = a[10];
-    var a23 = a[11];
-
-    if (a !== out) {
-      // If the source and destination differ, copy the unchanged rows
-      out[4] = a[4];
-      out[5] = a[5];
-      out[6] = a[6];
-      out[7] = a[7];
-      out[12] = a[12];
-      out[13] = a[13];
-      out[14] = a[14];
-      out[15] = a[15];
-    } // Perform axis-specific matrix multiplication
-
-
-    out[0] = a00 * c - a20 * s;
-    out[1] = a01 * c - a21 * s;
-    out[2] = a02 * c - a22 * s;
-    out[3] = a03 * c - a23 * s;
-    out[8] = a00 * s + a20 * c;
-    out[9] = a01 * s + a21 * c;
-    out[10] = a02 * s + a22 * c;
-    out[11] = a03 * s + a23 * c;
-    return out;
-  }
-  /**
-   * Calculates a 4x4 matrix from the given quaternion
-   *
-   * @param {mat4} out mat4 receiving operation result
-   * @param {quat} q Quaternion to create matrix from
-   *
-   * @returns {mat4} out
-   */
-
-  function fromQuat$1(out, q) {
-    var x = q[0],
-        y = q[1],
-        z = q[2],
-        w = q[3];
-    var x2 = x + x;
-    var y2 = y + y;
-    var z2 = z + z;
-    var xx = x * x2;
-    var yx = y * x2;
-    var yy = y * y2;
-    var zx = z * x2;
-    var zy = z * y2;
-    var zz = z * z2;
-    var wx = w * x2;
-    var wy = w * y2;
-    var wz = w * z2;
-    out[0] = 1 - yy - zz;
-    out[1] = yx + wz;
-    out[2] = zx - wy;
-    out[3] = 0;
-    out[4] = yx - wz;
-    out[5] = 1 - xx - zz;
-    out[6] = zy + wx;
-    out[7] = 0;
-    out[8] = zx + wy;
-    out[9] = zy - wx;
-    out[10] = 1 - xx - yy;
-    out[11] = 0;
-    out[12] = 0;
-    out[13] = 0;
-    out[14] = 0;
-    out[15] = 1;
-    return out;
-  }
-  /**
-   * Generates a perspective projection matrix with the given bounds.
-   * Passing null/undefined/no value for far will generate infinite projection matrix.
-   *
-   * @param {mat4} out mat4 frustum matrix will be written into
-   * @param {number} fovy Vertical field of view in radians
-   * @param {number} aspect Aspect ratio. typically viewport width/height
-   * @param {number} near Near bound of the frustum
-   * @param {number} far Far bound of the frustum, can be null or Infinity
-   * @returns {mat4} out
-   */
-
-  function perspective(out, fovy, aspect, near, far) {
-    var f = 1.0 / Math.tan(fovy / 2),
-        nf;
-    out[0] = f / aspect;
-    out[1] = 0;
-    out[2] = 0;
-    out[3] = 0;
-    out[4] = 0;
-    out[5] = f;
-    out[6] = 0;
-    out[7] = 0;
-    out[8] = 0;
-    out[9] = 0;
-    out[11] = -1;
-    out[12] = 0;
-    out[13] = 0;
-    out[15] = 0;
-
-    if (far != null && far !== Infinity) {
-      nf = 1 / (near - far);
-      out[10] = (far + near) * nf;
-      out[14] = 2 * far * near * nf;
-    } else {
-      out[10] = -1;
-      out[14] = -2 * near;
-    }
-
-    return out;
-  }
-
-  /**
-   * 3 Dimensional Vector
-   * @module vec3
-   */
-
-  /**
-   * Creates a new, empty vec3
-   *
-   * @returns {vec3} a new 3D vector
-   */
-
-  function create$4() {
-    var out = new ARRAY_TYPE(3);
-
-    if (ARRAY_TYPE != Float32Array) {
-      out[0] = 0;
-      out[1] = 0;
-      out[2] = 0;
-    }
-
-    return out;
-  }
-  /**
-   * Calculates the length of a vec3
-   *
-   * @param {vec3} a vector to calculate length of
-   * @returns {Number} length of a
-   */
-
-  function length(a) {
-    var x = a[0];
-    var y = a[1];
-    var z = a[2];
-    return Math.hypot(x, y, z);
-  }
-  /**
-   * Creates a new vec3 initialized with the given values
-   *
-   * @param {Number} x X component
-   * @param {Number} y Y component
-   * @param {Number} z Z component
-   * @returns {vec3} a new 3D vector
-   */
-
-  function fromValues$4(x, y, z) {
-    var out = new ARRAY_TYPE(3);
-    out[0] = x;
-    out[1] = y;
-    out[2] = z;
-    return out;
-  }
-  /**
-   * Adds two vec3's
-   *
-   * @param {vec3} out the receiving vector
-   * @param {vec3} a the first operand
-   * @param {vec3} b the second operand
-   * @returns {vec3} out
-   */
-
-  function add$4(out, a, b) {
-    out[0] = a[0] + b[0];
-    out[1] = a[1] + b[1];
-    out[2] = a[2] + b[2];
-    return out;
-  }
-  /**
-   * Subtracts vector b from vector a
-   *
-   * @param {vec3} out the receiving vector
-   * @param {vec3} a the first operand
-   * @param {vec3} b the second operand
-   * @returns {vec3} out
-   */
-
-  function subtract$4(out, a, b) {
-    out[0] = a[0] - b[0];
-    out[1] = a[1] - b[1];
-    out[2] = a[2] - b[2];
-    return out;
-  }
-  /**
-   * Scales a vec3 by a scalar number
-   *
-   * @param {vec3} out the receiving vector
-   * @param {vec3} a the vector to scale
-   * @param {Number} b amount to scale the vector by
-   * @returns {vec3} out
-   */
-
-  function scale$4(out, a, b) {
-    out[0] = a[0] * b;
-    out[1] = a[1] * b;
-    out[2] = a[2] * b;
-    return out;
-  }
-  /**
-   * Normalize a vec3
-   *
-   * @param {vec3} out the receiving vector
-   * @param {vec3} a vector to normalize
-   * @returns {vec3} out
-   */
-
-  function normalize(out, a) {
-    var x = a[0];
-    var y = a[1];
-    var z = a[2];
-    var len = x * x + y * y + z * z;
-
-    if (len > 0) {
-      //TODO: evaluate use of glm_invsqrt here?
-      len = 1 / Math.sqrt(len);
-    }
-
-    out[0] = a[0] * len;
-    out[1] = a[1] * len;
-    out[2] = a[2] * len;
-    return out;
-  }
-  /**
-   * Calculates the dot product of two vec3's
-   *
-   * @param {vec3} a the first operand
-   * @param {vec3} b the second operand
-   * @returns {Number} dot product of a and b
-   */
-
-  function dot(a, b) {
-    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-  }
-  /**
-   * Computes the cross product of two vec3's
-   *
-   * @param {vec3} out the receiving vector
-   * @param {vec3} a the first operand
-   * @param {vec3} b the second operand
-   * @returns {vec3} out
-   */
-
-  function cross(out, a, b) {
-    var ax = a[0],
-        ay = a[1],
-        az = a[2];
-    var bx = b[0],
-        by = b[1],
-        bz = b[2];
-    out[0] = ay * bz - az * by;
-    out[1] = az * bx - ax * bz;
-    out[2] = ax * by - ay * bx;
-    return out;
-  }
-  /**
-   * Transforms the vec3 with a mat3.
-   *
-   * @param {vec3} out the receiving vector
-   * @param {vec3} a the vector to transform
-   * @param {mat3} m the 3x3 matrix to transform with
-   * @returns {vec3} out
-   */
-
-  function transformMat3(out, a, m) {
-    var x = a[0],
-        y = a[1],
-        z = a[2];
-    out[0] = x * m[0] + y * m[3] + z * m[6];
-    out[1] = x * m[1] + y * m[4] + z * m[7];
-    out[2] = x * m[2] + y * m[5] + z * m[8];
-    return out;
-  }
-  /**
-   * Transforms the vec3 with a quat
-   * Can also be used for dual quaternions. (Multiply it with the real part)
-   *
-   * @param {vec3} out the receiving vector
-   * @param {vec3} a the vector to transform
-   * @param {quat} q quaternion to transform with
-   * @returns {vec3} out
-   */
-
-  function transformQuat(out, a, q) {
-    // benchmarks: https://jsperf.com/quaternion-transform-vec3-implementations-fixed
-    var qx = q[0],
-        qy = q[1],
-        qz = q[2],
-        qw = q[3];
-    var x = a[0],
-        y = a[1],
-        z = a[2]; // var qvec = [qx, qy, qz];
-    // var uv = vec3.cross([], qvec, a);
-
-    var uvx = qy * z - qz * y,
-        uvy = qz * x - qx * z,
-        uvz = qx * y - qy * x; // var uuv = vec3.cross([], qvec, uv);
-
-    var uuvx = qy * uvz - qz * uvy,
-        uuvy = qz * uvx - qx * uvz,
-        uuvz = qx * uvy - qy * uvx; // vec3.scale(uv, uv, 2 * w);
-
-    var w2 = qw * 2;
-    uvx *= w2;
-    uvy *= w2;
-    uvz *= w2; // vec3.scale(uuv, uuv, 2);
-
-    uuvx *= 2;
-    uuvy *= 2;
-    uuvz *= 2; // return vec3.add(out, a, vec3.add(out, uv, uuv));
-
-    out[0] = x + uvx + uuvx;
-    out[1] = y + uvy + uuvy;
-    out[2] = z + uvz + uuvz;
-    return out;
-  }
-  /**
-   * Alias for {@link vec3.subtract}
-   * @function
-   */
-
-  var sub$4 = subtract$4;
-  /**
-   * Alias for {@link vec3.length}
-   * @function
-   */
-
-  var len = length;
-  /**
-   * Perform some operation over an array of vec3s.
-   *
-   * @param {Array} a the array of vectors to iterate over
-   * @param {Number} stride Number of elements between the start of each vec3. If 0 assumes tightly packed
-   * @param {Number} offset Number of elements to skip at the beginning of the array
-   * @param {Number} count Number of vec3s to iterate over. If 0 iterates over entire array
-   * @param {Function} fn Function to call for each vector in the array
-   * @param {Object} [arg] additional argument to pass to fn
-   * @returns {Array} a
-   * @function
-   */
-
-  var forEach = function () {
-    var vec = create$4();
-    return function (a, stride, offset, count, fn, arg) {
-      var i, l;
-
-      if (!stride) {
-        stride = 3;
-      }
-
-      if (!offset) {
-        offset = 0;
-      }
-
-      if (count) {
-        l = Math.min(count * stride + offset, a.length);
-      } else {
-        l = a.length;
-      }
-
-      for (i = offset; i < l; i += stride) {
-        vec[0] = a[i];
-        vec[1] = a[i + 1];
-        vec[2] = a[i + 2];
-        fn(vec, vec, arg);
-        a[i] = vec[0];
-        a[i + 1] = vec[1];
-        a[i + 2] = vec[2];
-      }
-
-      return a;
-    };
-  }();
-
-  /**
-   * 4 Dimensional Vector
-   * @module vec4
-   */
-
-  /**
-   * Creates a new, empty vec4
-   *
-   * @returns {vec4} a new 4D vector
-   */
-
-  function create$5() {
-    var out = new ARRAY_TYPE(4);
-
-    if (ARRAY_TYPE != Float32Array) {
-      out[0] = 0;
-      out[1] = 0;
-      out[2] = 0;
-      out[3] = 0;
-    }
-
-    return out;
-  }
-  /**
-   * Creates a new vec4 initialized with values from an existing vector
-   *
-   * @param {vec4} a vector to clone
-   * @returns {vec4} a new 4D vector
-   */
-
-  function clone$5(a) {
-    var out = new ARRAY_TYPE(4);
-    out[0] = a[0];
-    out[1] = a[1];
-    out[2] = a[2];
-    out[3] = a[3];
-    return out;
-  }
-  /**
-   * Copy the values from one vec4 to another
-   *
-   * @param {vec4} out the receiving vector
-   * @param {vec4} a the source vector
-   * @returns {vec4} out
-   */
-
-  function copy$5(out, a) {
-    out[0] = a[0];
-    out[1] = a[1];
-    out[2] = a[2];
-    out[3] = a[3];
-    return out;
-  }
-  /**
-   * Normalize a vec4
-   *
-   * @param {vec4} out the receiving vector
-   * @param {vec4} a vector to normalize
-   * @returns {vec4} out
-   */
-
-  function normalize$1(out, a) {
-    var x = a[0];
-    var y = a[1];
-    var z = a[2];
-    var w = a[3];
-    var len = x * x + y * y + z * z + w * w;
-
-    if (len > 0) {
-      len = 1 / Math.sqrt(len);
-    }
-
-    out[0] = x * len;
-    out[1] = y * len;
-    out[2] = z * len;
-    out[3] = w * len;
-    return out;
-  }
-  /**
-   * Returns whether or not the vectors have exactly the same elements in the same position (when compared with ===)
-   *
-   * @param {vec4} a The first vector.
-   * @param {vec4} b The second vector.
-   * @returns {Boolean} True if the vectors are equal, false otherwise.
-   */
-
-  function exactEquals$5(a, b) {
-    return a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3];
-  }
-  /**
-   * Perform some operation over an array of vec4s.
-   *
-   * @param {Array} a the array of vectors to iterate over
-   * @param {Number} stride Number of elements between the start of each vec4. If 0 assumes tightly packed
-   * @param {Number} offset Number of elements to skip at the beginning of the array
-   * @param {Number} count Number of vec4s to iterate over. If 0 iterates over entire array
-   * @param {Function} fn Function to call for each vector in the array
-   * @param {Object} [arg] additional argument to pass to fn
-   * @returns {Array} a
-   * @function
-   */
-
-  var forEach$1 = function () {
-    var vec = create$5();
-    return function (a, stride, offset, count, fn, arg) {
-      var i, l;
-
-      if (!stride) {
-        stride = 4;
-      }
-
-      if (!offset) {
-        offset = 0;
-      }
-
-      if (count) {
-        l = Math.min(count * stride + offset, a.length);
-      } else {
-        l = a.length;
-      }
-
-      for (i = offset; i < l; i += stride) {
-        vec[0] = a[i];
-        vec[1] = a[i + 1];
-        vec[2] = a[i + 2];
-        vec[3] = a[i + 3];
-        fn(vec, vec, arg);
-        a[i] = vec[0];
-        a[i + 1] = vec[1];
-        a[i + 2] = vec[2];
-        a[i + 3] = vec[3];
-      }
-
-      return a;
-    };
-  }();
-
-  /**
-   * Quaternion
-   * @module quat
-   */
-
-  /**
-   * Creates a new identity quat
-   *
-   * @returns {quat} a new quaternion
-   */
-
-  function create$6() {
-    var out = new ARRAY_TYPE(4);
-
-    if (ARRAY_TYPE != Float32Array) {
-      out[0] = 0;
-      out[1] = 0;
-      out[2] = 0;
-    }
-
-    out[3] = 1;
-    return out;
-  }
-  /**
-   * Sets a quat from the given angle and rotation axis,
-   * then returns it.
-   *
-   * @param {quat} out the receiving quaternion
-   * @param {vec3} axis the axis around which to rotate
-   * @param {Number} rad the angle in radians
-   * @returns {quat} out
-   **/
-
-  function setAxisAngle(out, axis, rad) {
-    rad = rad * 0.5;
-    var s = Math.sin(rad);
-    out[0] = s * axis[0];
-    out[1] = s * axis[1];
-    out[2] = s * axis[2];
-    out[3] = Math.cos(rad);
-    return out;
-  }
-  /**
-   * Multiplies two quat's
-   *
-   * @param {quat} out the receiving quaternion
-   * @param {quat} a the first operand
-   * @param {quat} b the second operand
-   * @returns {quat} out
-   */
-
-  function multiply$6(out, a, b) {
-    var ax = a[0],
-        ay = a[1],
-        az = a[2],
-        aw = a[3];
-    var bx = b[0],
-        by = b[1],
-        bz = b[2],
-        bw = b[3];
-    out[0] = ax * bw + aw * bx + ay * bz - az * by;
-    out[1] = ay * bw + aw * by + az * bx - ax * bz;
-    out[2] = az * bw + aw * bz + ax * by - ay * bx;
-    out[3] = aw * bw - ax * bx - ay * by - az * bz;
-    return out;
-  }
-  /**
-   * Performs a spherical linear interpolation between two quat
-   *
-   * @param {quat} out the receiving quaternion
-   * @param {quat} a the first operand
-   * @param {quat} b the second operand
-   * @param {Number} t interpolation amount, in the range [0-1], between the two inputs
-   * @returns {quat} out
-   */
-
-  function slerp(out, a, b, t) {
-    // benchmarks:
-    //    http://jsperf.com/quaternion-slerp-implementations
-    var ax = a[0],
-        ay = a[1],
-        az = a[2],
-        aw = a[3];
-    var bx = b[0],
-        by = b[1],
-        bz = b[2],
-        bw = b[3];
-    var omega, cosom, sinom, scale0, scale1; // calc cosine
-
-    cosom = ax * bx + ay * by + az * bz + aw * bw; // adjust signs (if necessary)
-
-    if (cosom < 0.0) {
-      cosom = -cosom;
-      bx = -bx;
-      by = -by;
-      bz = -bz;
-      bw = -bw;
-    } // calculate coefficients
-
-
-    if (1.0 - cosom > EPSILON) {
-      // standard case (slerp)
-      omega = Math.acos(cosom);
-      sinom = Math.sin(omega);
-      scale0 = Math.sin((1.0 - t) * omega) / sinom;
-      scale1 = Math.sin(t * omega) / sinom;
-    } else {
-      // "from" and "to" quaternions are very close
-      //  ... so we can do a linear interpolation
-      scale0 = 1.0 - t;
-      scale1 = t;
-    } // calculate final values
-
-
-    out[0] = scale0 * ax + scale1 * bx;
-    out[1] = scale0 * ay + scale1 * by;
-    out[2] = scale0 * az + scale1 * bz;
-    out[3] = scale0 * aw + scale1 * bw;
-    return out;
-  }
-  /**
-   * Calculates the conjugate of a quat
-   * If the quaternion is normalized, this function is faster than quat.inverse and produces the same result.
-   *
-   * @param {quat} out the receiving quaternion
-   * @param {quat} a quat to calculate conjugate of
-   * @returns {quat} out
-   */
-
-  function conjugate(out, a) {
-    out[0] = -a[0];
-    out[1] = -a[1];
-    out[2] = -a[2];
-    out[3] = a[3];
-    return out;
-  }
-  /**
-   * Creates a quaternion from the given 3x3 rotation matrix.
-   *
-   * NOTE: The resultant quaternion is not normalized, so you should be sure
-   * to renormalize the quaternion yourself where necessary.
-   *
-   * @param {quat} out the receiving quaternion
-   * @param {mat3} m rotation matrix
-   * @returns {quat} out
-   * @function
-   */
-
-  function fromMat3(out, m) {
-    // Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
-    // article "Quaternion Calculus and Fast Animation".
-    var fTrace = m[0] + m[4] + m[8];
-    var fRoot;
-
-    if (fTrace > 0.0) {
-      // |w| > 1/2, may as well choose w > 1/2
-      fRoot = Math.sqrt(fTrace + 1.0); // 2w
-
-      out[3] = 0.5 * fRoot;
-      fRoot = 0.5 / fRoot; // 1/(4w)
-
-      out[0] = (m[5] - m[7]) * fRoot;
-      out[1] = (m[6] - m[2]) * fRoot;
-      out[2] = (m[1] - m[3]) * fRoot;
-    } else {
-      // |w| <= 1/2
-      var i = 0;
-      if (m[4] > m[0]) i = 1;
-      if (m[8] > m[i * 3 + i]) i = 2;
-      var j = (i + 1) % 3;
-      var k = (i + 2) % 3;
-      fRoot = Math.sqrt(m[i * 3 + i] - m[j * 3 + j] - m[k * 3 + k] + 1.0);
-      out[i] = 0.5 * fRoot;
-      fRoot = 0.5 / fRoot;
-      out[3] = (m[j * 3 + k] - m[k * 3 + j]) * fRoot;
-      out[j] = (m[j * 3 + i] + m[i * 3 + j]) * fRoot;
-      out[k] = (m[k * 3 + i] + m[i * 3 + k]) * fRoot;
-    }
-
-    return out;
-  }
-  /**
-   * Creates a new quat initialized with values from an existing quaternion
-   *
-   * @param {quat} a quaternion to clone
-   * @returns {quat} a new quaternion
-   * @function
-   */
-
-  var clone$6 = clone$5;
-  /**
-   * Copy the values from one quat to another
-   *
-   * @param {quat} out the receiving quaternion
-   * @param {quat} a the source quaternion
-   * @returns {quat} out
-   * @function
-   */
-
-  var copy$6 = copy$5;
-  /**
-   * Alias for {@link quat.multiply}
-   * @function
-   */
-
-  var mul$6 = multiply$6;
-  /**
-   * Normalize a quat
-   *
-   * @param {quat} out the receiving quaternion
-   * @param {quat} a quaternion to normalize
-   * @returns {quat} out
-   * @function
-   */
-
-  var normalize$2 = normalize$1;
-  /**
-   * Returns whether or not the quaternions have exactly the same elements in the same position (when compared with ===)
-   *
-   * @param {quat} a The first quaternion.
-   * @param {quat} b The second quaternion.
-   * @returns {Boolean} True if the vectors are equal, false otherwise.
-   */
-
-  var exactEquals$6 = exactEquals$5;
-  /**
-   * Sets a quaternion to represent the shortest rotation from one
-   * vector to another.
-   *
-   * Both vectors are assumed to be unit length.
-   *
-   * @param {quat} out the receiving quaternion.
-   * @param {vec3} a the initial vector
-   * @param {vec3} b the destination vector
-   * @returns {quat} out
-   */
-
-  var rotationTo = function () {
-    var tmpvec3 = create$4();
-    var xUnitVec3 = fromValues$4(1, 0, 0);
-    var yUnitVec3 = fromValues$4(0, 1, 0);
-    return function (out, a, b) {
-      var dot$$1 = dot(a, b);
-
-      if (dot$$1 < -0.999999) {
-        cross(tmpvec3, xUnitVec3, a);
-        if (len(tmpvec3) < 0.000001) cross(tmpvec3, yUnitVec3, a);
-        normalize(tmpvec3, tmpvec3);
-        setAxisAngle(out, tmpvec3, Math.PI);
-        return out;
-      } else if (dot$$1 > 0.999999) {
-        out[0] = 0;
-        out[1] = 0;
-        out[2] = 0;
-        out[3] = 1;
-        return out;
-      } else {
-        cross(tmpvec3, a, b);
-        out[0] = tmpvec3[0];
-        out[1] = tmpvec3[1];
-        out[2] = tmpvec3[2];
-        out[3] = 1 + dot$$1;
-        return normalize$2(out, out);
-      }
-    };
-  }();
-  /**
-   * Performs a spherical linear interpolation with two control points
-   *
-   * @param {quat} out the receiving quaternion
-   * @param {quat} a the first operand
-   * @param {quat} b the second operand
-   * @param {quat} c the third operand
-   * @param {quat} d the fourth operand
-   * @param {Number} t interpolation amount, in the range [0-1], between the two inputs
-   * @returns {quat} out
-   */
-
-  var sqlerp = function () {
-    var temp1 = create$6();
-    var temp2 = create$6();
-    return function (out, a, b, c, d, t) {
-      slerp(temp1, a, d, t);
-      slerp(temp2, b, c, t);
-      slerp(out, temp1, temp2, 2 * t * (1 - t));
-      return out;
-    };
-  }();
-  /**
-   * Sets the specified quaternion with values corresponding to the given
-   * axes. Each axis is a vec3 and is expected to be unit length and
-   * perpendicular to all other specified axes.
-   *
-   * @param {vec3} view  the vector representing the viewing direction
-   * @param {vec3} right the vector representing the local "right" direction
-   * @param {vec3} up    the vector representing the local "up" direction
-   * @returns {quat} out
-   */
-
-  var setAxes = function () {
-    var matr = create$2();
-    return function (out, view, right, up) {
-      matr[0] = right[0];
-      matr[3] = right[1];
-      matr[6] = right[2];
-      matr[1] = up[0];
-      matr[4] = up[1];
-      matr[7] = up[2];
-      matr[2] = -view[0];
-      matr[5] = -view[1];
-      matr[8] = -view[2];
-      return normalize$2(out, fromMat3(out, matr));
-    };
-  }();
-
-  /**
-   * 2 Dimensional Vector
-   * @module vec2
-   */
-
-  /**
-   * Creates a new, empty vec2
-   *
-   * @returns {vec2} a new 2D vector
-   */
-
-  function create$8() {
-    var out = new ARRAY_TYPE(2);
-
-    if (ARRAY_TYPE != Float32Array) {
-      out[0] = 0;
-      out[1] = 0;
-    }
-
-    return out;
-  }
-  /**
-   * Creates a new vec2 initialized with the given values
-   *
-   * @param {Number} x X component
-   * @param {Number} y Y component
-   * @returns {vec2} a new 2D vector
-   */
-
-  function fromValues$8(x, y) {
-    var out = new ARRAY_TYPE(2);
-    out[0] = x;
-    out[1] = y;
-    return out;
-  }
-  /**
-   * Copy the values from one vec2 to another
-   *
-   * @param {vec2} out the receiving vector
-   * @param {vec2} a the source vector
-   * @returns {vec2} out
-   */
-
-  function copy$8(out, a) {
-    out[0] = a[0];
-    out[1] = a[1];
-    return out;
-  }
-  /**
-   * Normalize a vec2
-   *
-   * @param {vec2} out the receiving vector
-   * @param {vec2} a vector to normalize
-   * @returns {vec2} out
-   */
-
-  function normalize$4(out, a) {
-    var x = a[0],
-        y = a[1];
-    var len = x * x + y * y;
-
-    if (len > 0) {
-      //TODO: evaluate use of glm_invsqrt here?
-      len = 1 / Math.sqrt(len);
-    }
-
-    out[0] = a[0] * len;
-    out[1] = a[1] * len;
-    return out;
-  }
-  /**
-   * Calculates the dot product of two vec2's
-   *
-   * @param {vec2} a the first operand
-   * @param {vec2} b the second operand
-   * @returns {Number} dot product of a and b
-   */
-
-  function dot$4(a, b) {
-    return a[0] * b[0] + a[1] * b[1];
-  }
-  /**
-   * Perform some operation over an array of vec2s.
-   *
-   * @param {Array} a the array of vectors to iterate over
-   * @param {Number} stride Number of elements between the start of each vec2. If 0 assumes tightly packed
-   * @param {Number} offset Number of elements to skip at the beginning of the array
-   * @param {Number} count Number of vec2s to iterate over. If 0 iterates over entire array
-   * @param {Function} fn Function to call for each vector in the array
-   * @param {Object} [arg] additional argument to pass to fn
-   * @returns {Array} a
-   * @function
-   */
-
-  var forEach$2 = function () {
-    var vec = create$8();
-    return function (a, stride, offset, count, fn, arg) {
-      var i, l;
-
-      if (!stride) {
-        stride = 2;
-      }
-
-      if (!offset) {
-        offset = 0;
-      }
-
-      if (count) {
-        l = Math.min(count * stride + offset, a.length);
-      } else {
-        l = a.length;
-      }
-
-      for (i = offset; i < l; i += stride) {
-        vec[0] = a[i];
-        vec[1] = a[i + 1];
-        fn(vec, vec, arg);
-        a[i] = vec[0];
-        a[i + 1] = vec[1];
-      }
-
-      return a;
-    };
-  }();
-
   /**
    * Copyright (c) 2015 NAVER Corp.
    * egjs projects are licensed under the MIT license
@@ -2463,7 +84,7 @@ https://github.com/naver/egjs-view360
   var userAgent$1 = win.navigator.userAgent;
   var SUPPORT_TOUCH = "ontouchstart" in win;
   var SUPPORT_DEVICEMOTION = "ondevicemotion" in win;
-  var DeviceMotionEvent$1 = win.DeviceMotionEvent;
+  var DeviceMotionEvent = win.DeviceMotionEvent;
   var devicePixelRatio = win.devicePixelRatio;
 
   var TRANSFORM = function () {
@@ -2507,8 +128,8 @@ https://github.com/naver/egjs-view360
    */
 
   function quatToVec3(quaternion) {
-    var baseV = fromValues$4(0, 0, 1);
-    transformQuat(baseV, baseV, quaternion);
+    var baseV = glMatrix.vec3.fromValues(0, 0, 1);
+    glMatrix.vec3.transformQuat(baseV, baseV, quaternion);
     return baseV;
   }
 
@@ -2553,64 +174,64 @@ https://github.com/naver/egjs-view360
   };
 
   function getRotationDelta(prevQ, curQ, rotateKind) {
-    var targetAxis = fromValues$4(ROTATE_CONSTANT[rotateKind].targetAxis[0], ROTATE_CONSTANT[rotateKind].targetAxis[1], ROTATE_CONSTANT[rotateKind].targetAxis[2]);
+    var targetAxis = glMatrix.vec3.fromValues(ROTATE_CONSTANT[rotateKind].targetAxis[0], ROTATE_CONSTANT[rotateKind].targetAxis[1], ROTATE_CONSTANT[rotateKind].targetAxis[2]);
     var meshPoint = ROTATE_CONSTANT[rotateKind].meshPoint;
-    var prevQuaternion = clone$6(prevQ);
-    var curQuaternion = clone$6(curQ);
-    normalize$2(prevQuaternion, prevQuaternion);
-    normalize$2(curQuaternion, curQuaternion);
-    var prevPoint = fromValues$4(0, 0, 1);
-    var curPoint = fromValues$4(0, 0, 1);
-    transformQuat(prevPoint, prevPoint, prevQuaternion);
-    transformQuat(curPoint, curPoint, curQuaternion);
-    transformQuat(targetAxis, targetAxis, curQuaternion);
-    var rotateDistance = dot(targetAxis, cross(create$4(), prevPoint, curPoint));
+    var prevQuaternion = glMatrix.quat.clone(prevQ);
+    var curQuaternion = glMatrix.quat.clone(curQ);
+    glMatrix.quat.normalize(prevQuaternion, prevQuaternion);
+    glMatrix.quat.normalize(curQuaternion, curQuaternion);
+    var prevPoint = glMatrix.vec3.fromValues(0, 0, 1);
+    var curPoint = glMatrix.vec3.fromValues(0, 0, 1);
+    glMatrix.vec3.transformQuat(prevPoint, prevPoint, prevQuaternion);
+    glMatrix.vec3.transformQuat(curPoint, curPoint, curQuaternion);
+    glMatrix.vec3.transformQuat(targetAxis, targetAxis, curQuaternion);
+    var rotateDistance = glMatrix.vec3.dot(targetAxis, glMatrix.vec3.cross(glMatrix.vec3.create(), prevPoint, curPoint));
     var rotateDirection = rotateDistance > 0 ? 1 : -1; // when counter clock wise, use vec3.fromValues(0,1,0)
     // when clock wise, use vec3.fromValues(0,-1,0)
     // const meshPoint1 = vec3.fromValues(0, 0, 0);
 
-    var meshPoint2 = fromValues$4(meshPoint[0], meshPoint[1], meshPoint[2]);
+    var meshPoint2 = glMatrix.vec3.fromValues(meshPoint[0], meshPoint[1], meshPoint[2]);
     var meshPoint3;
 
     if (rotateKind !== ROTATE_CONSTANT.YAW_DELTA_BY_YAW) {
-      meshPoint3 = fromValues$4(0, rotateDirection, 0);
+      meshPoint3 = glMatrix.vec3.fromValues(0, rotateDirection, 0);
     } else {
-      meshPoint3 = fromValues$4(rotateDirection, 0, 0);
+      meshPoint3 = glMatrix.vec3.fromValues(rotateDirection, 0, 0);
     }
 
-    transformQuat(meshPoint2, meshPoint2, curQuaternion);
-    transformQuat(meshPoint3, meshPoint3, curQuaternion);
+    glMatrix.vec3.transformQuat(meshPoint2, meshPoint2, curQuaternion);
+    glMatrix.vec3.transformQuat(meshPoint3, meshPoint3, curQuaternion);
     var vecU = meshPoint2;
     var vecV = meshPoint3;
-    var vecN = create$4();
-    cross(vecN, vecU, vecV);
-    normalize(vecN, vecN);
+    var vecN = glMatrix.vec3.create();
+    glMatrix.vec3.cross(vecN, vecU, vecV);
+    glMatrix.vec3.normalize(vecN, vecN);
     var coefficientA = vecN[0];
     var coefficientB = vecN[1];
     var coefficientC = vecN[2]; //	const coefficientD = -1 * vec3.dot(vecN, meshPoint1);
     // a point on the plane
 
-    curPoint = fromValues$4(meshPoint[0], meshPoint[1], meshPoint[2]);
-    transformQuat(curPoint, curPoint, curQuaternion); // a point should project on the plane
+    curPoint = glMatrix.vec3.fromValues(meshPoint[0], meshPoint[1], meshPoint[2]);
+    glMatrix.vec3.transformQuat(curPoint, curPoint, curQuaternion); // a point should project on the plane
 
-    prevPoint = fromValues$4(meshPoint[0], meshPoint[1], meshPoint[2]);
-    transformQuat(prevPoint, prevPoint, prevQuaternion); // distance between prevPoint and the plane
+    prevPoint = glMatrix.vec3.fromValues(meshPoint[0], meshPoint[1], meshPoint[2]);
+    glMatrix.vec3.transformQuat(prevPoint, prevPoint, prevQuaternion); // distance between prevPoint and the plane
 
-    var distance$$1 = Math.abs(prevPoint[0] * coefficientA + prevPoint[1] * coefficientB + prevPoint[2] * coefficientC);
-    var projectedPrevPoint = create$4();
-    subtract$4(projectedPrevPoint, prevPoint, scale$4(create$4(), vecN, distance$$1));
-    var trigonometricRatio = (projectedPrevPoint[0] * curPoint[0] + projectedPrevPoint[1] * curPoint[1] + projectedPrevPoint[2] * curPoint[2]) / (length(projectedPrevPoint) * length(curPoint)); // defensive block
+    var distance = Math.abs(prevPoint[0] * coefficientA + prevPoint[1] * coefficientB + prevPoint[2] * coefficientC);
+    var projectedPrevPoint = glMatrix.vec3.create();
+    glMatrix.vec3.subtract(projectedPrevPoint, prevPoint, glMatrix.vec3.scale(glMatrix.vec3.create(), vecN, distance));
+    var trigonometricRatio = (projectedPrevPoint[0] * curPoint[0] + projectedPrevPoint[1] * curPoint[1] + projectedPrevPoint[2] * curPoint[2]) / (glMatrix.vec3.length(projectedPrevPoint) * glMatrix.vec3.length(curPoint)); // defensive block
 
     trigonometricRatio > 1 && (trigonometricRatio = 1);
     var theta = Math.acos(trigonometricRatio);
-    var crossVec = cross(create$4(), curPoint, projectedPrevPoint);
-    distance$$1 = coefficientA * crossVec[0] + coefficientB * crossVec[1] + coefficientC * crossVec[2];
+    var crossVec = glMatrix.vec3.cross(glMatrix.vec3.create(), curPoint, projectedPrevPoint);
+    distance = coefficientA * crossVec[0] + coefficientB * crossVec[1] + coefficientC * crossVec[2];
     var thetaDirection;
 
     if (rotateKind !== ROTATE_CONSTANT.YAW_DELTA_BY_YAW) {
-      thetaDirection = distance$$1 > 0 ? 1 : -1;
+      thetaDirection = distance > 0 ? 1 : -1;
     } else {
-      thetaDirection = distance$$1 < 0 ? 1 : -1;
+      thetaDirection = distance < 0 ? 1 : -1;
     }
 
     var deltaRadian = theta * thetaDirection * rotateDirection;
@@ -2619,15 +240,15 @@ https://github.com/naver/egjs-view360
 
   function angleBetweenVec2(v1, v2) {
     var det = v1[0] * v2[1] - v2[0] * v1[1];
-    var theta = -Math.atan2(det, dot$4(v1, v2));
+    var theta = -Math.atan2(det, glMatrix.vec2.dot(v1, v2));
     return theta;
   }
 
   util.yawOffsetBetween = function (viewDir, targetDir) {
-    var viewDirXZ = fromValues$8(viewDir[0], viewDir[2]);
-    var targetDirXZ = fromValues$8(targetDir[0], targetDir[2]);
-    normalize$4(viewDirXZ, viewDirXZ);
-    normalize$4(targetDirXZ, targetDirXZ);
+    var viewDirXZ = glMatrix.vec2.fromValues(viewDir[0], viewDir[2]);
+    var targetDirXZ = glMatrix.vec2.fromValues(targetDir[0], targetDir[2]);
+    glMatrix.vec2.normalize(viewDirXZ, viewDirXZ);
+    glMatrix.vec2.normalize(targetDirXZ, targetDirXZ);
     var theta = -angleBetweenVec2(viewDirXZ, targetDirXZ);
     return theta;
   };
@@ -2636,654 +257,741 @@ https://github.com/naver/egjs-view360
   util.getRotationDelta = getRotationDelta;
   util.angleBetweenVec2 = angleBetweenVec2;
 
-  /**
-   * RotationPanInput is extension of PanInput to compensate coordinates by screen rotation angle.
+  function toAxis(source, offset) {
+    return offset.reduce(function (acc, v, i) {
+      if (source[i]) {
+        acc[source[i]] = v;
+      }
+
+      return acc;
+    }, {});
+  }
+
+  /*
+   * Copyright 2016 Google Inc. All Rights Reserved.
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
    *
-   * The reason for using this function is that in VR mode,
-   * the roll angle is adjusted in the direction opposite to the screen rotation angle.
+   *     http://www.apache.org/licenses/LICENSE-2.0
    *
-   * Therefore, the angle that the user touches and moves does not match the angle at which the actual object should move.
-   * @extends PanInput
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
    */
 
-  var RotationPanInput =
-  /*#__PURE__*/
-  function (_PanInput) {
-    _inheritsLoose(RotationPanInput, _PanInput);
+  var MathUtil = window.MathUtil || {};
 
-    /**
-     * Constructor
-     *
-     * @private
-     * @param {HTMLElement} el target element
-     * @param {Object} [options] The option object
-     * @param {Boolean} [options.useRotation]  Whether to use rotation(or VR)
-     */
-    function RotationPanInput(el, options, deviceSensor) {
-      var _this;
+  MathUtil.degToRad = Math.PI / 180;
+  MathUtil.radToDeg = 180 / Math.PI;
 
-      _this = _PanInput.call(this, el, options) || this;
-      _this._useRotation = false;
-      _this._deviceSensor = deviceSensor;
+  // Some minimal math functionality borrowed from THREE.Math and stripped down
+  // for the purposes of this library.
 
-      _this.setUseRotation(!!(options && options.useRotation));
 
-      _this._userDirection = Axes.DIRECTION_ALL;
-      return _this;
-    }
-
-    var _proto = RotationPanInput.prototype;
-
-    _proto.setUseRotation = function setUseRotation(useRotation) {
-      this._useRotation = useRotation;
-    };
-
-    _proto.connect = function connect(observer) {
-      // User intetened direction
-      this._userDirection = this._direction; // In VR Mode, Use ALL direction if direction is not none
-      // Because horizontal and vertical is changed dynamically by screen rotation.
-      // this._direction is used to initialize hammerjs
-
-      if (this._useRotation && this._direction & Axes.DIRECTION_ALL) {
-        this._direction = Axes.DIRECTION_HORIZONTAL;
-      }
-
-      _PanInput.prototype.connect.call(this, observer);
-    };
-
-    _proto.getOffset = function getOffset(properties, useDirection) {
-      if (this._useRotation === false) {
-        return _PanInput.prototype.getOffset.call(this, properties, useDirection);
-      }
-
-      var offset = _PanInput.prototype.getOffset.call(this, properties, [true, true]);
-
-      var newOffset = [0, 0];
-
-      var rightAxis = this._deviceSensor.getDeviceHorizontalRight();
-
-      var rightAxisVec2 = fromValues$8(rightAxis[0], rightAxis[1]);
-      var xAxis = fromValues$8(1, 0);
-      var theta = util.angleBetweenVec2(rightAxisVec2, xAxis);
-      var cosTheta = Math.cos(theta);
-      var sinTheta = Math.sin(theta); // RotateZ
-
-      newOffset[0] = offset[0] * cosTheta - offset[1] * sinTheta;
-      newOffset[1] = offset[1] * cosTheta + offset[0] * sinTheta; // Use only user allowed direction.
-
-      if (!(this._userDirection & Axes.DIRECTION_HORIZONTAL)) {
-        newOffset[0] = 0;
-      } else if (!(this._userDirection & Axes.DIRECTION_VERTICAL)) {
-        newOffset[1] = 0;
-      }
-
-      return newOffset;
-    };
-
-    _proto.destroy = function destroy() {
-      _PanInput.prototype.destroy.call(this);
-    };
-
-    return RotationPanInput;
-  }(Axes.PanInput);
-
-  // @ts-check
-  const __sensor__ = Symbol("__sensor__");
-  const slot = __sensor__;
-
-  function defineProperties(target, descriptions) {
-    for (const property in descriptions) {
-      Object.defineProperty(target, property, {
-        configurable: true,
-        value: descriptions[property]
-      });
-    }
-  }
-
-  const EventTargetMixin = (superclass, ...eventNames) => class extends superclass {
-    constructor(...args) {
-      // @ts-ignore
-      super(args);
-      const eventTarget = document.createDocumentFragment();
-
-      this.addEventListener = (type, ...args) => {
-        return eventTarget.addEventListener(type, ...args);
-      };
-
-      this.removeEventListener = (...args) => {
-        // @ts-ignore
-        return eventTarget.removeEventListener(...args);
-      };
-
-      this.dispatchEvent = event => {
-        defineProperties(event, {
-          currentTarget: this
-        });
-
-        if (!event.target) {
-          defineProperties(event, {
-            target: this
-          });
-        }
-
-        const methodName = `on${event.type}`;
-
-        if (typeof this[methodName] == "function") {
-          this[methodName](event);
-        }
-
-        const retValue = eventTarget.dispatchEvent(event);
-
-        if (retValue && this.parentNode) {
-          this.parentNode.dispatchEvent(event);
-        }
-
-        defineProperties(event, {
-          currentTarget: null,
-          target: null
-        });
-        return retValue;
-      };
-    }
-
-  };
-  class EventTarget extends EventTargetMixin(Object) {}
-  function defineReadonlyProperties(target, slot, descriptions) {
-    const propertyBag = target[slot];
-
-    for (const property in descriptions) {
-      propertyBag[property] = descriptions[property];
-      Object.defineProperty(target, property, {
-        get: () => propertyBag[property]
-      });
-    }
-  }
-
-  class SensorErrorEvent extends Event {
-    constructor(type, errorEventInitDict) {
-      super(type, errorEventInitDict);
-
-      if (!errorEventInitDict || !(errorEventInitDict.error instanceof DOMException)) {
-        throw TypeError("Failed to construct 'SensorErrorEvent':" + "2nd argument much contain 'error' property");
-      }
-
-      Object.defineProperty(this, "error", {
-        configurable: false,
-        writable: false,
-        value: errorEventInitDict.error
-      });
-    }
-
-  }
-
-  function defineOnEventListener(target, name) {
-    Object.defineProperty(target, `on${name}`, {
-      enumerable: true,
-      configurable: false,
-      writable: true,
-      value: null
-    });
-  }
-
-  const SensorState = {
-    IDLE: 1,
-    ACTIVATING: 2,
-    ACTIVE: 3
-  };
-  class Sensor extends EventTarget {
-    constructor(options) {
-      super();
-      this[slot] = new WeakMap();
-      defineOnEventListener(this, "reading");
-      defineOnEventListener(this, "activate");
-      defineOnEventListener(this, "error");
-      defineReadonlyProperties(this, slot, {
-        activated: false,
-        hasReading: false,
-        timestamp: null
-      });
-      this[slot].state = SensorState.IDLE;
-
-      this[slot].notifyError = (message, name) => {
-        let error = new SensorErrorEvent("error", {
-          error: new DOMException(message, name)
-        });
-        this.dispatchEvent(error);
-        this.stop();
-      };
-
-      this[slot].notifyActivatedState = () => {
-        let activate = new Event("activate");
-        this[slot].activated = true;
-        this.dispatchEvent(activate);
-        this[slot].state = SensorState.ACTIVE;
-      };
-
-      this[slot].activateCallback = () => {};
-
-      this[slot].deactivateCallback = () => {};
-
-      this[slot].frequency = null;
-
-      if (window && window.parent != window.top) {
-        throw new DOMException("Only instantiable in a top-level browsing context", "SecurityError");
-      }
-
-      if (options && typeof options.frequency == "number") {
-        if (options.frequency > 60) {
-          this.frequency = options.frequency;
-        }
-      }
-    }
-
-    start() {
-      if (this[slot].state === SensorState.ACTIVATING || this[slot].state === SensorState.ACTIVE) {
-        return;
-      }
-
-      this[slot].state = SensorState.ACTIVATING;
-      this[slot].activateCallback();
-    }
-
-    stop() {
-      if (this[slot].state === SensorState.IDLE) {
-        return;
-      }
-
-      this[slot].activated = false;
-      this[slot].hasReading = false;
-      this[slot].timestamp = null;
-      this[slot].deactivateCallback();
-      this[slot].state = SensorState.IDLE;
-    }
-
-  }
-
-  // @ts-check
-  const slot$1 = __sensor__;
-  let orientation; // @ts-ignore
-
-  if (screen.orientation) {
-    // @ts-ignore
-    orientation = screen.orientation;
-  } else if (screen.msOrientation) {
-    orientation = screen.msOrientation;
-  } else {
-    orientation = {};
-    Object.defineProperty(orientation, "angle", {
-      get: () => {
-        return window.orientation || 0;
-      }
-    });
-  }
-
-  const DeviceOrientationMixin = (superclass, ...eventNames) => class extends superclass {
-    constructor(...args) {
-      // @ts-ignore
-      super(args);
-
-      for (const eventName of eventNames) {
-        if (`on${eventName}` in window) {
-          this[slot$1].eventName = eventName;
-          break;
-        }
-      }
-
-      this[slot$1].activateCallback = () => {
-        window.addEventListener(this[slot$1].eventName, this[slot$1].handleEvent, {
-          capture: true
-        });
-      };
-
-      this[slot$1].deactivateCallback = () => {
-        window.removeEventListener(this[slot$1].eventName, this[slot$1].handleEvent, {
-          capture: true
-        });
-      };
-    }
-
+  MathUtil.Vector2 = function ( x, y ) {
+    this.x = x || 0;
+    this.y = y || 0;
   };
 
-  function toQuaternionFromEuler(alpha, beta, gamma) {
-    const degToRad = Math.PI / 180;
-    const x = (beta || 0) * degToRad;
-    const y = (gamma || 0) * degToRad;
-    const z = (alpha || 0) * degToRad;
-    const cZ = Math.cos(z * 0.5);
-    const sZ = Math.sin(z * 0.5);
-    const cY = Math.cos(y * 0.5);
-    const sY = Math.sin(y * 0.5);
-    const cX = Math.cos(x * 0.5);
-    const sX = Math.sin(x * 0.5);
-    const qx = sX * cY * cZ - cX * sY * sZ;
-    const qy = cX * sY * cZ + sX * cY * sZ;
-    const qz = cX * cY * sZ + sX * sY * cZ;
-    const qw = cX * cY * cZ - sX * sY * sZ;
-    return [qx, qy, qz, qw];
-  }
+  MathUtil.Vector2.prototype = {
+    constructor: MathUtil.Vector2,
 
-  function rotateQuaternionByAxisAngle(quat, axis, angle) {
-    const sHalfAngle = Math.sin(angle / 2);
-    const cHalfAngle = Math.cos(angle / 2);
-    const transformQuat = [axis[0] * sHalfAngle, axis[1] * sHalfAngle, axis[2] * sHalfAngle, cHalfAngle];
+    set: function ( x, y ) {
+      this.x = x;
+      this.y = y;
 
-    function multiplyQuaternion(a, b) {
-      const qx = a[0] * b[3] + a[3] * b[0] + a[1] * b[2] - a[2] * b[1];
-      const qy = a[1] * b[3] + a[3] * b[1] + a[2] * b[0] - a[0] * b[2];
-      const qz = a[2] * b[3] + a[3] * b[2] + a[0] * b[1] - a[1] * b[0];
-      const qw = a[3] * b[3] - a[0] * b[0] - a[1] * b[1] - a[2] * b[2];
-      return [qx, qy, qz, qw];
-    }
+      return this;
+    },
 
-    function normalizeQuaternion(quat) {
-      const length = Math.sqrt(quat[0] ** 2 + quat[1] ** 2 + quat[2] ** 2 + quat[3] ** 2);
+    copy: function ( v ) {
+      this.x = v.x;
+      this.y = v.y;
 
-      if (length === 0) {
-        return [0, 0, 0, 1];
-      }
+      return this;
+    },
 
-      return quat.map(v => v / length);
-    }
+    subVectors: function ( a, b ) {
+      this.x = a.x - b.x;
+      this.y = a.y - b.y;
 
-    return normalizeQuaternion(multiplyQuaternion(quat, transformQuat));
-  }
-
-  function toMat4FromQuat(mat, q) {
-    const typed = mat instanceof Float32Array || mat instanceof Float64Array;
-
-    if (typed && mat.length >= 16) {
-      mat[0] = 1 - 2 * (q[1] ** 2 + q[2] ** 2);
-      mat[1] = 2 * (q[0] * q[1] - q[2] * q[3]);
-      mat[2] = 2 * (q[0] * q[2] + q[1] * q[3]);
-      mat[3] = 0;
-      mat[4] = 2 * (q[0] * q[1] + q[2] * q[3]);
-      mat[5] = 1 - 2 * (q[0] ** 2 + q[2] ** 2);
-      mat[6] = 2 * (q[1] * q[2] - q[0] * q[3]);
-      mat[7] = 0;
-      mat[8] = 2 * (q[0] * q[2] - q[1] * q[3]);
-      mat[9] = 2 * (q[1] * q[2] + q[0] * q[3]);
-      mat[10] = 1 - 2 * (q[0] ** 2 + q[1] ** 2);
-      mat[11] = 0;
-      mat[12] = 0;
-      mat[13] = 0;
-      mat[14] = 0;
-      mat[15] = 1;
-    }
-
-    return mat;
-  }
-
-  function worldToScreen(quaternion) {
-    return !quaternion ? null : rotateQuaternionByAxisAngle(quaternion, [0, 0, 1], -orientation.angle * Math.PI / 180);
-  } // @ts-ignore
-
-
-  const RelativeOrientationSensor = window.RelativeOrientationSensor || class RelativeOrientationSensor extends DeviceOrientationMixin(Sensor, "deviceorientation") {
-    constructor(options = {}) {
-      super(options);
-
-      switch (options.coordinateSystem || 'world') {
-        case 'screen':
-          Object.defineProperty(this, "quaternion", {
-            get: () => worldToScreen(this[slot$1].quaternion)
-          });
-          break;
-
-        case 'world':
-        default:
-          Object.defineProperty(this, "quaternion", {
-            get: () => this[slot$1].quaternion
-          });
-      }
-
-      this[slot$1].handleEvent = event => {
-        // If there is no sensor we will get values equal to null.
-        if (event.absolute || event.alpha === null) {
-          // Spec: The implementation can still decide to provide
-          // absolute orientation if relative is not available or
-          // the resulting data is more accurate. In either case,
-          // the absolute property must be set accordingly to reflect
-          // the choice.
-          this[slot$1].notifyError("Could not connect to a sensor", "NotReadableError");
-          return;
-        }
-
-        if (!this[slot$1].activated) {
-          this[slot$1].notifyActivatedState();
-        }
-
-        this[slot$1].timestamp = performance.now();
-        this[slot$1].quaternion = toQuaternionFromEuler(event.alpha, event.beta, event.gamma);
-        this[slot$1].hasReading = true;
-        this.dispatchEvent(new Event("reading"));
-      };
-
-      this[slot$1].deactivateCallback = () => {
-        this[slot$1].quaternion = null;
-      };
-    }
-
-    populateMatrix(mat) {
-      toMat4FromQuat(mat, this.quaternion);
-    }
-
-  }; // @ts-ignore
-
-  const AbsoluteOrientationSensor = window.AbsoluteOrientationSensor || class AbsoluteOrientationSensor extends DeviceOrientationMixin(Sensor, "deviceorientationabsolute", "deviceorientation") {
-    constructor(options = {}) {
-      super(options);
-
-      switch (options.coordinateSystem || 'world') {
-        case 'screen':
-          Object.defineProperty(this, "quaternion", {
-            get: () => worldToScreen(this[slot$1].quaternion)
-          });
-          break;
-
-        case 'world':
-        default:
-          Object.defineProperty(this, "quaternion", {
-            get: () => this[slot$1].quaternion
-          });
-      }
-
-      this[slot$1].handleEvent = event => {
-        // If absolute is set, or webkitCompassHeading exists,
-        // absolute values should be available.
-        const isAbsolute = event.absolute === true || "webkitCompassHeading" in event;
-        const hasValue = event.alpha !== null || event.webkitCompassHeading !== undefined;
-
-        if (!isAbsolute || !hasValue) {
-          // Spec: If an implementation can never provide absolute
-          // orientation information, the event should be fired with
-          // the alpha, beta and gamma attributes set to null.
-          this[slot$1].notifyError("Could not connect to a sensor", "NotReadableError");
-          return;
-        }
-
-        if (!this[slot$1].activated) {
-          this[slot$1].notifyActivatedState();
-        }
-
-        this[slot$1].hasReading = true;
-        this[slot$1].timestamp = performance.now();
-        const heading = event.webkitCompassHeading != null ? 360 - event.webkitCompassHeading : event.alpha;
-        this[slot$1].quaternion = toQuaternionFromEuler(heading, event.beta, event.gamma);
-        this.dispatchEvent(new Event("reading"));
-      };
-
-      this[slot$1].deactivateCallback = () => {
-        this[slot$1].quaternion = null;
-      };
-    }
-
-    populateMatrix(mat) {
-      toMat4FromQuat(mat, this.quaternion);
-    }
-
-  }; // @ts-ignore
-
-  const Gyroscope = window.Gyroscope || class Gyroscope extends DeviceOrientationMixin(Sensor, "devicemotion") {
-    constructor(options) {
-      super(options);
-
-      this[slot$1].handleEvent = event => {
-        // If there is no sensor we will get values equal to null.
-        if (event.rotationRate.alpha === null) {
-          this[slot$1].notifyError("Could not connect to a sensor", "NotReadableError");
-          return;
-        }
-
-        if (!this[slot$1].activated) {
-          this[slot$1].notifyActivatedState();
-        }
-
-        this[slot$1].timestamp = performance.now();
-        this[slot$1].x = event.rotationRate.alpha;
-        this[slot$1].y = event.rotationRate.beta;
-        this[slot$1].z = event.rotationRate.gamma;
-        this[slot$1].hasReading = true;
-        this.dispatchEvent(new Event("reading"));
-      };
-
-      defineReadonlyProperties(this, slot$1, {
-        x: null,
-        y: null,
-        z: null
-      });
-
-      this[slot$1].deactivateCallback = () => {
-        this[slot$1].x = null;
-        this[slot$1].y = null;
-        this[slot$1].z = null;
-      };
-    }
-
-  }; // @ts-ignore
-
-  const Accelerometer = window.Accelerometer || class Accelerometer extends DeviceOrientationMixin(Sensor, "devicemotion") {
-    constructor(options) {
-      super(options);
-
-      this[slot$1].handleEvent = event => {
-        // If there is no sensor we will get values equal to null.
-        if (event.accelerationIncludingGravity.x === null) {
-          this[slot$1].notifyError("Could not connect to a sensor", "NotReadableError");
-          return;
-        }
-
-        if (!this[slot$1].activated) {
-          this[slot$1].notifyActivatedState();
-        }
-
-        this[slot$1].timestamp = performance.now();
-        this[slot$1].x = event.accelerationIncludingGravity.x;
-        this[slot$1].y = event.accelerationIncludingGravity.y;
-        this[slot$1].z = event.accelerationIncludingGravity.z;
-        this[slot$1].hasReading = true;
-        this.dispatchEvent(new Event("reading"));
-      };
-
-      defineReadonlyProperties(this, slot$1, {
-        x: null,
-        y: null,
-        z: null
-      });
-
-      this[slot$1].deactivateCallback = () => {
-        this[slot$1].x = null;
-        this[slot$1].y = null;
-        this[slot$1].z = null;
-      };
-    }
-
-  }; // @ts-ignore
-
-  const LinearAccelerationSensor = window.LinearAccelerationSensor || class LinearAccelerationSensor extends DeviceOrientationMixin(Sensor, "devicemotion") {
-    constructor(options) {
-      super(options);
-
-      this[slot$1].handleEvent = event => {
-        // If there is no sensor we will get values equal to null.
-        if (event.acceleration.x === null) {
-          this[slot$1].notifyError("Could not connect to a sensor", "NotReadableError");
-          return;
-        }
-
-        if (!this[slot$1].activated) {
-          this[slot$1].notifyActivatedState();
-        }
-
-        this[slot$1].timestamp = performance.now();
-        this[slot$1].x = event.acceleration.x;
-        this[slot$1].y = event.acceleration.y;
-        this[slot$1].z = event.acceleration.z;
-        this[slot$1].hasReading = true;
-        this.dispatchEvent(new Event("reading"));
-      };
-
-      defineReadonlyProperties(this, slot$1, {
-        x: null,
-        y: null,
-        z: null
-      });
-
-      this[slot$1].deactivateCallback = () => {
-        this[slot$1].x = null;
-        this[slot$1].y = null;
-        this[slot$1].z = null;
-      };
-    }
-
-  }; // @ts-ignore
-
-  const GravitySensor = window.GravitySensor || class GravitySensor extends DeviceOrientationMixin(Sensor, "devicemotion") {
-    constructor(options) {
-      super(options);
-
-      this[slot$1].handleEvent = event => {
-        // If there is no sensor we will get values equal to null.
-        if (event.acceleration.x === null || event.accelerationIncludingGravity.x === null) {
-          this[slot$1].notifyError("Could not connect to a sensor", "NotReadableError");
-          return;
-        }
-
-        if (!this[slot$1].activated) {
-          this[slot$1].notifyActivatedState();
-        }
-
-        this[slot$1].timestamp = performance.now();
-        this[slot$1].x = event.accelerationIncludingGravity.x - event.acceleration.x;
-        this[slot$1].y = event.accelerationIncludingGravity.y - event.acceleration.y;
-        this[slot$1].z = event.accelerationIncludingGravity.z - event.acceleration.z;
-        this[slot$1].hasReading = true;
-        this.dispatchEvent(new Event("reading"));
-      };
-
-      defineReadonlyProperties(this, slot$1, {
-        x: null,
-        y: null,
-        z: null
-      });
-
-      this[slot$1].deactivateCallback = () => {
-        this[slot$1].x = null;
-        this[slot$1].y = null;
-        this[slot$1].z = null;
-      };
-    }
-
+      return this;
+    },
   };
 
-  function getDeltaYaw(prvQ, curQ) {
-    var yawDeltaByYaw = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.YAW_DELTA_BY_YAW);
-    var yawDeltaByRoll = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.YAW_DELTA_BY_ROLL) * Math.sin(util.extractPitchFromQuat(curQ));
-    return yawDeltaByRoll + yawDeltaByYaw;
+  MathUtil.Vector3 = function ( x, y, z ) {
+    this.x = x || 0;
+    this.y = y || 0;
+    this.z = z || 0;
+  };
+
+  MathUtil.Vector3.prototype = {
+    constructor: MathUtil.Vector3,
+
+    set: function ( x, y, z ) {
+      this.x = x;
+      this.y = y;
+      this.z = z;
+
+      return this;
+    },
+
+    copy: function ( v ) {
+      this.x = v.x;
+      this.y = v.y;
+      this.z = v.z;
+
+      return this;
+    },
+
+    length: function () {
+      return Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z );
+    },
+
+    normalize: function () {
+      var scalar = this.length();
+
+      if ( scalar !== 0 ) {
+        var invScalar = 1 / scalar;
+
+        this.multiplyScalar(invScalar);
+      } else {
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
+      }
+
+      return this;
+    },
+
+    multiplyScalar: function ( scalar ) {
+      this.x *= scalar;
+      this.y *= scalar;
+      this.z *= scalar;
+    },
+
+    applyQuaternion: function ( q ) {
+      var x = this.x;
+      var y = this.y;
+      var z = this.z;
+
+      var qx = q.x;
+      var qy = q.y;
+      var qz = q.z;
+      var qw = q.w;
+
+      // calculate quat * vector
+      var ix =  qw * x + qy * z - qz * y;
+      var iy =  qw * y + qz * x - qx * z;
+      var iz =  qw * z + qx * y - qy * x;
+      var iw = - qx * x - qy * y - qz * z;
+
+      // calculate result * inverse quat
+      this.x = ix * qw + iw * - qx + iy * - qz - iz * - qy;
+      this.y = iy * qw + iw * - qy + iz * - qx - ix * - qz;
+      this.z = iz * qw + iw * - qz + ix * - qy - iy * - qx;
+
+      return this;
+    },
+
+    dot: function ( v ) {
+      return this.x * v.x + this.y * v.y + this.z * v.z;
+    },
+
+    crossVectors: function ( a, b ) {
+      var ax = a.x, ay = a.y, az = a.z;
+      var bx = b.x, by = b.y, bz = b.z;
+
+      this.x = ay * bz - az * by;
+      this.y = az * bx - ax * bz;
+      this.z = ax * by - ay * bx;
+
+      return this;
+    },
+  };
+
+  MathUtil.Quaternion = function ( x, y, z, w ) {
+    this.x = x || 0;
+    this.y = y || 0;
+    this.z = z || 0;
+    this.w = ( w !== undefined ) ? w : 1;
+  };
+
+  MathUtil.Quaternion.prototype = {
+    constructor: MathUtil.Quaternion,
+
+    set: function ( x, y, z, w ) {
+      this.x = x;
+      this.y = y;
+      this.z = z;
+      this.w = w;
+
+      return this;
+    },
+
+    copy: function ( quaternion ) {
+      this.x = quaternion.x;
+      this.y = quaternion.y;
+      this.z = quaternion.z;
+      this.w = quaternion.w;
+
+      return this;
+    },
+
+    setFromEulerXYZ: function( x, y, z ) {
+      var c1 = Math.cos( x / 2 );
+      var c2 = Math.cos( y / 2 );
+      var c3 = Math.cos( z / 2 );
+      var s1 = Math.sin( x / 2 );
+      var s2 = Math.sin( y / 2 );
+      var s3 = Math.sin( z / 2 );
+
+      this.x = s1 * c2 * c3 + c1 * s2 * s3;
+      this.y = c1 * s2 * c3 - s1 * c2 * s3;
+      this.z = c1 * c2 * s3 + s1 * s2 * c3;
+      this.w = c1 * c2 * c3 - s1 * s2 * s3;
+
+      return this;
+    },
+
+    setFromEulerYXZ: function( x, y, z ) {
+      var c1 = Math.cos( x / 2 );
+      var c2 = Math.cos( y / 2 );
+      var c3 = Math.cos( z / 2 );
+      var s1 = Math.sin( x / 2 );
+      var s2 = Math.sin( y / 2 );
+      var s3 = Math.sin( z / 2 );
+
+      this.x = s1 * c2 * c3 + c1 * s2 * s3;
+      this.y = c1 * s2 * c3 - s1 * c2 * s3;
+      this.z = c1 * c2 * s3 - s1 * s2 * c3;
+      this.w = c1 * c2 * c3 + s1 * s2 * s3;
+
+      return this;
+    },
+
+    setFromAxisAngle: function ( axis, angle ) {
+      // http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/index.htm
+      // assumes axis is normalized
+
+      var halfAngle = angle / 2, s = Math.sin( halfAngle );
+
+      this.x = axis.x * s;
+      this.y = axis.y * s;
+      this.z = axis.z * s;
+      this.w = Math.cos( halfAngle );
+
+      return this;
+    },
+
+    multiply: function ( q ) {
+      return this.multiplyQuaternions( this, q );
+    },
+
+    multiplyQuaternions: function ( a, b ) {
+      // from http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/code/index.htm
+
+      var qax = a.x, qay = a.y, qaz = a.z, qaw = a.w;
+      var qbx = b.x, qby = b.y, qbz = b.z, qbw = b.w;
+
+      this.x = qax * qbw + qaw * qbx + qay * qbz - qaz * qby;
+      this.y = qay * qbw + qaw * qby + qaz * qbx - qax * qbz;
+      this.z = qaz * qbw + qaw * qbz + qax * qby - qay * qbx;
+      this.w = qaw * qbw - qax * qbx - qay * qby - qaz * qbz;
+
+      return this;
+    },
+
+    inverse: function () {
+      this.x *= -1;
+      this.y *= -1;
+      this.z *= -1;
+
+      this.normalize();
+
+      return this;
+    },
+
+    normalize: function () {
+      var l = Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w );
+
+      if ( l === 0 ) {
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
+        this.w = 1;
+      } else {
+        l = 1 / l;
+
+        this.x = this.x * l;
+        this.y = this.y * l;
+        this.z = this.z * l;
+        this.w = this.w * l;
+      }
+
+      return this;
+    },
+
+    slerp: function ( qb, t ) {
+      if ( t === 0 ) return this;
+      if ( t === 1 ) return this.copy( qb );
+
+      var x = this.x, y = this.y, z = this.z, w = this.w;
+
+      // http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
+
+      var cosHalfTheta = w * qb.w + x * qb.x + y * qb.y + z * qb.z;
+
+      if ( cosHalfTheta < 0 ) {
+        this.w = - qb.w;
+        this.x = - qb.x;
+        this.y = - qb.y;
+        this.z = - qb.z;
+
+        cosHalfTheta = - cosHalfTheta;
+      } else {
+        this.copy( qb );
+      }
+
+      if ( cosHalfTheta >= 1.0 ) {
+        this.w = w;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+
+        return this;
+      }
+
+      var halfTheta = Math.acos( cosHalfTheta );
+      var sinHalfTheta = Math.sqrt( 1.0 - cosHalfTheta * cosHalfTheta );
+
+      if ( Math.abs( sinHalfTheta ) < 0.001 ) {
+        this.w = 0.5 * ( w + this.w );
+        this.x = 0.5 * ( x + this.x );
+        this.y = 0.5 * ( y + this.y );
+        this.z = 0.5 * ( z + this.z );
+
+        return this;
+      }
+
+      var ratioA = Math.sin( ( 1 - t ) * halfTheta ) / sinHalfTheta,
+      ratioB = Math.sin( t * halfTheta ) / sinHalfTheta;
+
+      this.w = ( w * ratioA + this.w * ratioB );
+      this.x = ( x * ratioA + this.x * ratioB );
+      this.y = ( y * ratioA + this.y * ratioB );
+      this.z = ( z * ratioA + this.z * ratioB );
+
+      return this;
+    },
+
+    setFromUnitVectors: function () {
+      // http://lolengine.net/blog/2014/02/24/quaternion-from-two-vectors-final
+      // assumes direction vectors vFrom and vTo are normalized
+
+      var v1, r;
+      var EPS = 0.000001;
+
+      return function ( vFrom, vTo ) {
+        if ( v1 === undefined ) v1 = new MathUtil.Vector3();
+
+        r = vFrom.dot( vTo ) + 1;
+
+        if ( r < EPS ) {
+          r = 0;
+
+          if ( Math.abs( vFrom.x ) > Math.abs( vFrom.z ) ) {
+            v1.set( - vFrom.y, vFrom.x, 0 );
+          } else {
+            v1.set( 0, - vFrom.z, vFrom.y );
+          }
+        } else {
+          v1.crossVectors( vFrom, vTo );
+        }
+
+        this.x = v1.x;
+        this.y = v1.y;
+        this.z = v1.z;
+        this.w = r;
+
+        this.normalize();
+
+        return this;
+      }
+    }(),
+  };
+
+  var mathUtil = MathUtil;
+
+  /**
+   * Given an orientation and the gyroscope data, predicts the future orientation
+   * of the head. This makes rendering appear faster.
+   *
+   * Also see: http://msl.cs.uiuc.edu/~lavalle/papers/LavYerKatAnt14.pdf
+   *
+   * @param {Number} predictionTimeS time from head movement to the appearance of
+   * the corresponding image.
+   */
+  function PosePredictor(predictionTimeS) {
+    this.predictionTimeS = predictionTimeS;
+
+    // The quaternion corresponding to the previous state.
+    this.previousQ = new mathUtil.Quaternion();
+    // Previous time a prediction occurred.
+    this.previousTimestampS = null;
+
+    // The delta quaternion that adjusts the current pose.
+    this.deltaQ = new mathUtil.Quaternion();
+    // The output quaternion.
+    this.outQ = new mathUtil.Quaternion();
   }
-  function getDeltaPitch(prvQ, curQ) {
-    var pitchDelta = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.PITCH_DELTA);
-    return pitchDelta;
+
+  PosePredictor.prototype.getPrediction = function(currentQ, gyro, timestampS) {
+    if (!this.previousTimestampS) {
+      this.previousQ.copy(currentQ);
+      this.previousTimestampS = timestampS;
+      return currentQ;
+    }
+
+    // Calculate axis and angle based on gyroscope rotation rate data.
+    var axis = new mathUtil.Vector3();
+    axis.copy(gyro);
+    axis.normalize();
+
+    var angularSpeed = gyro.length();
+
+    // If we're rotating slowly, don't do prediction.
+    if (angularSpeed < mathUtil.degToRad * 20) {
+      this.outQ.copy(currentQ);
+      this.previousQ.copy(currentQ);
+      return this.outQ;
+    }
+
+    // Get the predicted angle based on the time delta and latency.
+    var deltaT = timestampS - this.previousTimestampS;
+    var predictAngle = angularSpeed * this.predictionTimeS;
+
+    this.deltaQ.setFromAxisAngle(axis, predictAngle);
+    this.outQ.copy(this.previousQ);
+    this.outQ.multiply(this.deltaQ);
+
+    this.previousQ.copy(currentQ);
+
+    return this.outQ;
+  };
+
+
+  var posePredictor = PosePredictor;
+
+  /*
+  object-assign
+  (c) Sindre Sorhus
+  @license MIT
+  */
+  /* eslint-disable no-unused-vars */
+  var getOwnPropertySymbols = Object.getOwnPropertySymbols;
+  var hasOwnProperty = Object.prototype.hasOwnProperty;
+  var propIsEnumerable = Object.prototype.propertyIsEnumerable;
+
+  function toObject(val) {
+  	if (val === null || val === undefined) {
+  		throw new TypeError('Object.assign cannot be called with null or undefined');
+  	}
+
+  	return Object(val);
   }
+
+  function shouldUseNative() {
+  	try {
+  		if (!Object.assign) {
+  			return false;
+  		}
+
+  		// Detect buggy property enumeration order in older V8 versions.
+
+  		// https://bugs.chromium.org/p/v8/issues/detail?id=4118
+  		var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
+  		test1[5] = 'de';
+  		if (Object.getOwnPropertyNames(test1)[0] === '5') {
+  			return false;
+  		}
+
+  		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+  		var test2 = {};
+  		for (var i = 0; i < 10; i++) {
+  			test2['_' + String.fromCharCode(i)] = i;
+  		}
+  		var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
+  			return test2[n];
+  		});
+  		if (order2.join('') !== '0123456789') {
+  			return false;
+  		}
+
+  		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+  		var test3 = {};
+  		'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
+  			test3[letter] = letter;
+  		});
+  		if (Object.keys(Object.assign({}, test3)).join('') !==
+  				'abcdefghijklmnopqrst') {
+  			return false;
+  		}
+
+  		return true;
+  	} catch (err) {
+  		// We don't expect any of the above to throw, but better to be safe.
+  		return false;
+  	}
+  }
+
+  var objectAssign = shouldUseNative() ? Object.assign : function (target, source) {
+  	var from;
+  	var to = toObject(target);
+  	var symbols;
+
+  	for (var s = 1; s < arguments.length; s++) {
+  		from = Object(arguments[s]);
+
+  		for (var key in from) {
+  			if (hasOwnProperty.call(from, key)) {
+  				to[key] = from[key];
+  			}
+  		}
+
+  		if (getOwnPropertySymbols) {
+  			symbols = getOwnPropertySymbols(from);
+  			for (var i = 0; i < symbols.length; i++) {
+  				if (propIsEnumerable.call(from, symbols[i])) {
+  					to[symbols[i]] = from[symbols[i]];
+  				}
+  			}
+  		}
+  	}
+
+  	return to;
+  };
+
+  /*
+   * Copyright 2015 Google Inc. All Rights Reserved.
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *     http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
+
+
+
+  var Util = window.Util || {};
+
+  Util.MIN_TIMESTEP = 0.001;
+  Util.MAX_TIMESTEP = 1;
+
+  Util.base64 = function(mimeType, base64) {
+    return 'data:' + mimeType + ';base64,' + base64;
+  };
+
+  Util.clamp = function(value, min, max) {
+    return Math.min(Math.max(min, value), max);
+  };
+
+  Util.lerp = function(a, b, t) {
+    return a + ((b - a) * t);
+  };
+
+  Util.isIOS = (function() {
+    var isIOS = /iPad|iPhone|iPod/.test(navigator.platform);
+    return function() {
+      return isIOS;
+    };
+  })();
+
+  Util.isSafari = (function() {
+    var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    return function() {
+      return isSafari;
+    };
+  })();
+
+  Util.isFirefoxAndroid = (function() {
+    var isFirefoxAndroid = navigator.userAgent.indexOf('Firefox') !== -1 &&
+        navigator.userAgent.indexOf('Android') !== -1;
+    return function() {
+      return isFirefoxAndroid;
+    };
+  })();
+
+  Util.isLandscapeMode = function() {
+    return (window.orientation == 90 || window.orientation == -90);
+  };
+
+  // Helper method to validate the time steps of sensor timestamps.
+  Util.isTimestampDeltaValid = function(timestampDeltaS) {
+    if (isNaN(timestampDeltaS)) {
+      return false;
+    }
+    if (timestampDeltaS <= Util.MIN_TIMESTEP) {
+      return false;
+    }
+    if (timestampDeltaS > Util.MAX_TIMESTEP) {
+      return false;
+    }
+    return true;
+  };
+
+  Util.getScreenWidth = function() {
+    return Math.max(window.screen.width, window.screen.height) *
+        window.devicePixelRatio;
+  };
+
+  Util.getScreenHeight = function() {
+    return Math.min(window.screen.width, window.screen.height) *
+        window.devicePixelRatio;
+  };
+
+  Util.requestFullscreen = function(element) {
+    if (element.requestFullscreen) {
+      element.requestFullscreen();
+    } else if (element.webkitRequestFullscreen) {
+      element.webkitRequestFullscreen();
+    } else if (element.mozRequestFullScreen) {
+      element.mozRequestFullScreen();
+    } else if (element.msRequestFullscreen) {
+      element.msRequestFullscreen();
+    } else {
+      return false;
+    }
+
+    return true;
+  };
+
+  Util.exitFullscreen = function() {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+      document.mozCancelFullScreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    } else {
+      return false;
+    }
+
+    return true;
+  };
+
+  Util.getFullscreenElement = function() {
+    return document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement;
+  };
+
+  Util.linkProgram = function(gl, vertexSource, fragmentSource, attribLocationMap) {
+    // No error checking for brevity.
+    var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vertexShader, vertexSource);
+    gl.compileShader(vertexShader);
+
+    var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fragmentShader, fragmentSource);
+    gl.compileShader(fragmentShader);
+
+    var program = gl.createProgram();
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+
+    for (var attribName in attribLocationMap)
+      gl.bindAttribLocation(program, attribLocationMap[attribName], attribName);
+
+    gl.linkProgram(program);
+
+    gl.deleteShader(vertexShader);
+    gl.deleteShader(fragmentShader);
+
+    return program;
+  };
+
+  Util.getProgramUniforms = function(gl, program) {
+    var uniforms = {};
+    var uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+    var uniformName = '';
+    for (var i = 0; i < uniformCount; i++) {
+      var uniformInfo = gl.getActiveUniform(program, i);
+      uniformName = uniformInfo.name.replace('[0]', '');
+      uniforms[uniformName] = gl.getUniformLocation(program, uniformName);
+    }
+    return uniforms;
+  };
+
+  Util.orthoMatrix = function (out, left, right, bottom, top, near, far) {
+    var lr = 1 / (left - right),
+        bt = 1 / (bottom - top),
+        nf = 1 / (near - far);
+    out[0] = -2 * lr;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[5] = -2 * bt;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = 0;
+    out[9] = 0;
+    out[10] = 2 * nf;
+    out[11] = 0;
+    out[12] = (left + right) * lr;
+    out[13] = (top + bottom) * bt;
+    out[14] = (far + near) * nf;
+    out[15] = 1;
+    return out;
+  };
+
+  Util.isMobile = function() {
+    var check = false;
+    (function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4)))check = true;})(navigator.userAgent||navigator.vendor||window.opera);
+    return check;
+  };
+
+  Util.extend = objectAssign;
+
+  Util.safariCssSizeWorkaround = function(canvas) {
+    // TODO(smus): Remove this workaround when Safari for iOS is fixed.
+    // iOS only workaround (for https://bugs.webkit.org/show_bug.cgi?id=152556).
+    //
+    // "To the last I grapple with thee;
+    //  from hell's heart I stab at thee;
+    //  for hate's sake I spit my last breath at thee."
+    // -- Moby Dick, by Herman Melville
+    if (Util.isIOS()) {
+      var width = canvas.style.width;
+      var height = canvas.style.height;
+      canvas.style.width = (parseInt(width) + 1) + 'px';
+      canvas.style.height = (parseInt(height)) + 'px';
+      console.log('Resetting width to...', width);
+      setTimeout(function() {
+        console.log('Done. Width is now', width);
+        canvas.style.width = width;
+        canvas.style.height = height;
+      }, 100);
+    }
+
+    // Debug only.
+    window.Util = Util;
+    window.canvas = canvas;
+  };
+
+  var util$1 = Util;
 
   /**
    * Returns a number value indiciating the version of Chrome being used,
@@ -3311,6 +1019,9 @@ https://github.com/naver/egjs-view360
     branch = match[2];
     build = match[3];
   }
+
+  var CHROME_VERSION = version;
+  var IS_CHROME_WITHOUT_DEVICE_MOTION = version === 65 && branch === "3325" && parseInt(build, 10) < 148;
   var IS_ANDROID = /Android/i.test(userAgent$1);
   var CONTROL_MODE_VR = 1;
   var CONTROL_MODE_YAWPITCH = 2;
@@ -3335,240 +1046,901 @@ https://github.com/naver/egjs-view360
     VR: "VR"
   };
 
-  var _Promise = typeof Promise === 'undefined' ? es6Promise.Promise : Promise;
-  var X_AXIS_VECTOR = fromValues$4(1, 0, 0);
-  var Y_AXIS_VECTOR = fromValues$4(0, 1, 0); // Quaternion to rotate from sensor coordinates to WebVR coordinates
+  var STILLNESS_THRESHOLD = 200; // millisecond
 
-  var SENSOR_TO_VR = setAxisAngle(create$6(), X_AXIS_VECTOR, -Math.PI / 2);
-
-  var DeviceSensorInput =
+  var DeviceMotion =
   /*#__PURE__*/
-  function () {
-    var DeviceSensorInput =
-    /*#__PURE__*/
-    function (_Component) {
-      _inheritsLoose(DeviceSensorInput, _Component);
+  function (_Component) {
+    _inheritsLoose(DeviceMotion, _Component);
 
-      function DeviceSensorInput(gyroMode) {
-        var _this;
+    function DeviceMotion() {
+      var _this;
 
-        _this = _Component.call(this) || this;
+      _this = _Component.call(this) || this;
+      _this._onDeviceMotion = _this._onDeviceMotion.bind(_assertThisInitialized(_this));
+      _this._onDeviceOrientation = _this._onDeviceOrientation.bind(_assertThisInitialized(_this));
+      _this._onChromeWithoutDeviceMotion = _this._onChromeWithoutDeviceMotion.bind(_assertThisInitialized(_this));
+      _this.isWithoutDeviceMotion = IS_CHROME_WITHOUT_DEVICE_MOTION;
+      _this.isAndroid = IS_ANDROID;
+      _this.stillGyroVec = glMatrix.vec3.create();
+      _this.rawGyroVec = glMatrix.vec3.create();
+      _this.adjustedGyroVec = glMatrix.vec3.create();
+      _this._timer = null;
+      _this.lastDevicemotionTimestamp = 0;
+      _this._isEnabled = false;
 
-        _this._onFirstRead = function () {
-          var sensor = _this._sensor;
+      _this.enable();
 
-          var quaternion = _this._getOrientation();
+      return _this;
+    }
 
-          var minusZDir = fromValues$4(0, 0, -1);
-          var firstViewDir = transformQuat(create$4(), minusZDir, quaternion);
-          var yawOffset = util.yawOffsetBetween(firstViewDir, minusZDir);
+    var _proto = DeviceMotion.prototype;
 
-          if (yawOffset === 0) {
-            // If the yawOffset is exactly 0, then device sensor is not ready
-            // So read it again until it has any value in it
-            return;
+    _proto._onChromeWithoutDeviceMotion = function _onChromeWithoutDeviceMotion(e) {
+      var alpha = e.alpha,
+          beta = e.beta,
+          gamma = e.gamma; // There is deviceorientation event trigged with empty values
+      // on Headless Chrome.
+
+      if (alpha === null) {
+        return;
+      } // convert to radian
+
+
+      alpha = (alpha || 0) * Math.PI / 180;
+      beta = (beta || 0) * Math.PI / 180;
+      gamma = (gamma || 0) * Math.PI / 180;
+      this.trigger("devicemotion", {
+        inputEvent: {
+          deviceorientation: {
+            alpha: alpha,
+            beta: beta,
+            gamma: -gamma
           }
+        }
+      });
+    };
 
-          var modifyQuat = setAxisAngle(create$6(), Y_AXIS_VECTOR, -yawOffset);
-          mul$6(SENSOR_TO_VR, modifyQuat, SENSOR_TO_VR);
-          _this._calibrated = true;
-          sensor.removeEventListener("reading", _this._onFirstRead);
-          sensor.addEventListener("reading", _this._onSensorRead);
-        };
+    _proto._onDeviceOrientation = function _onDeviceOrientation() {
+      var _this2 = this;
 
-        _this._onSensorRead = function () {
-          if (_this._observer && _this._gyroMode === GYRO_MODE.YAWPITCH) {
-            var delta = _this.getYawPitchDelta();
+      this._timer && clearTimeout(this._timer);
+      this._timer = setTimeout(function () {
+        if (new Date().getTime() - _this2.lastDevicemotionTimestamp < STILLNESS_THRESHOLD) {
+          glMatrix.vec3.copy(_this2.stillGyroVec, _this2.rawGyroVec);
+        }
+      }, STILLNESS_THRESHOLD);
+    };
 
-            _this._observer.change(_assertThisInitialized(_this), {}, {
-              yaw: delta.yaw,
-              pitch: delta.pitch
-            });
-          }
+    _proto._onDeviceMotion = function _onDeviceMotion(e) {
+      // desktop chrome triggers devicemotion event with empthy sensor values.
+      // Those events should ignored.
+      var isGyroSensorAvailable = !(e.rotationRate.alpha == null);
+      var isGravitySensorAvailable = !(e.accelerationIncludingGravity.x == null);
 
-          _this.trigger("change", {
-            isTrusted: true
-          });
-        };
-
-        _this._enabled = false;
-        _this._calibrated = false;
-        _this._sensor = new RelativeOrientationSensor({
-          frequency: 60,
-          coordinateSystem: "screen",
-          // for polyfill
-          referenceFrame: "screen"
-        });
-        _this._prevQuaternion = null;
-        _this._gyroMode = gyroMode; // @egjs/axes related
-
-        _this._observer = null;
-        _this.axes = null;
-        return _this;
+      if (e.interval === 0 || !(isGyroSensorAvailable && isGravitySensorAvailable)) {
+        return;
       }
 
-      var _proto = DeviceSensorInput.prototype;
+      var devicemotionEvent = _extends({}, e);
 
-      _proto.mapAxes = function mapAxes(axes) {
-        this.axes = axes;
+      devicemotionEvent.interval = e.interval;
+      devicemotionEvent.timeStamp = e.timeStamp;
+      devicemotionEvent.type = e.type;
+      devicemotionEvent.rotationRate = {
+        alpha: e.rotationRate.alpha,
+        beta: e.rotationRate.beta,
+        gamma: e.rotationRate.gamma
+      };
+      devicemotionEvent.accelerationIncludingGravity = {
+        x: e.accelerationIncludingGravity.x,
+        y: e.accelerationIncludingGravity.y,
+        z: e.accelerationIncludingGravity.z
+      };
+      devicemotionEvent.acceleration = {
+        x: e.acceleration.x,
+        y: e.acceleration.y,
+        z: e.acceleration.z
       };
 
-      _proto.connect = function connect(observer) {
-        if (this._observer) {
-          return this;
-        }
-
-        this._observer = observer;
-        return this;
-      };
-
-      _proto.disconnect = function disconnect() {
-        if (!this._observer) {
-          return this;
-        }
-
-        this._observer = null;
-        return this;
-      };
-
-      _proto.setGyroMode = function setGyroMode(gyroMode) {
-        this._gyroMode = gyroMode;
-      };
-
-      _proto.enable = function enable() {
-        var _this2 = this;
-
-        if (this._enabled) {
-          return _Promise.resolve("Sensor already enabled");
-        }
-
-        if (!navigator || !navigator.permissions) {
-          // iOS
-          this._startSensor();
-
-          return _Promise.resolve();
-        }
-
-        return _Promise.all([navigator.permissions.query({
-          name: "accelerometer"
-        }), navigator.permissions.query({
-          name: "gyroscope"
-        })]).then(function (results) {
-          if (results.every(function (result) {
-            return result.state === "granted";
-          })) {
-            _this2._startSensor();
-          }
-        })["catch"](function () {
-          // Start it anyway, workaround for Firefox
-          _this2._startSensor();
-        });
-      };
-
-      _proto.disable = function disable() {
-        if (!this._enabled) {
-          return;
-        }
-
-        this._prevQuaternion = null;
-
-        this._sensor.removeEventListener("read", this._onSensorRead);
-
-        this._sensor.stop();
-      };
-
-      _proto.isEnabled = function isEnabled() {
-        return this._enabled;
-      };
-
-      _proto.getYawPitchDelta = function getYawPitchDelta() {
-        var prevQuat = this._prevQuaternion;
-
-        var currentQuat = this._getOrientation();
-
-        if (!prevQuat) {
-          this._prevQuaternion = currentQuat;
-          return {
-            yaw: 0,
-            pitch: 0
-          };
-        }
-
-        var result = {
-          yaw: getDeltaYaw(prevQuat, currentQuat),
-          pitch: getDeltaPitch(prevQuat, currentQuat)
+      if (this.isAndroid) {
+        glMatrix.vec3.set(this.rawGyroVec, e.rotationRate.alpha || 0, e.rotationRate.beta || 0, e.rotationRate.gamma || 0);
+        glMatrix.vec3.subtract(this.adjustedGyroVec, this.rawGyroVec, this.stillGyroVec);
+        this.lastDevicemotionTimestamp = new Date().getTime();
+        devicemotionEvent.adjustedRotationRate = {
+          alpha: this.adjustedGyroVec[0],
+          beta: this.adjustedGyroVec[1],
+          gamma: this.adjustedGyroVec[2]
         };
-        copy$6(prevQuat, currentQuat);
-        return result;
-      };
+      }
 
-      _proto.getCombinedQuaternion = function getCombinedQuaternion(yaw) {
-        var currentQuat = this._getOrientation();
+      this.trigger("devicemotion", {
+        inputEvent: devicemotionEvent
+      });
+    };
 
-        if (!this._prevQuaternion) {
-          this._prevQuaternion = copy$6(create$6(), currentQuat);
+    _proto.enable = function enable() {
+      if (this.isAndroid) {
+        win.addEventListener("deviceorientation", this._onDeviceOrientation);
+      }
+
+      if (this.isWithoutDeviceMotion) {
+        win.addEventListener("deviceorientation", this._onChromeWithoutDeviceMotion);
+      } else {
+        win.addEventListener("devicemotion", this._onDeviceMotion);
+      }
+
+      this._isEnabled = true;
+    };
+
+    _proto.disable = function disable() {
+      win.removeEventListener("deviceorientation", this._onDeviceOrientation);
+      win.removeEventListener("deviceorientation", this._onChromeWithoutDeviceMotion);
+      win.removeEventListener("devicemotion", this._onDeviceMotion);
+      this._isEnabled = false;
+    };
+
+    return DeviceMotion;
+  }(Component);
+
+  function SensorSample(sample, timestampS) {
+    this.set(sample, timestampS);
+  }
+  SensorSample.prototype.set = function(sample, timestampS) {
+    this.sample = sample;
+    this.timestampS = timestampS;
+  };
+
+  SensorSample.prototype.copy = function(sensorSample) {
+    this.set(sensorSample.sample, sensorSample.timestampS);
+  };
+
+  var sensorSample = SensorSample;
+
+  /**
+   * An implementation of a simple complementary filter, which fuses gyroscope and
+   * accelerometer data from the 'devicemotion' event.
+   *
+   * Accelerometer data is very noisy, but stable over the long term.
+   * Gyroscope data is smooth, but tends to drift over the long term.
+   *
+   * This fusion is relatively simple:
+   * 1. Get orientation estimates from accelerometer by applying a low-pass filter
+   *    on that data.
+   * 2. Get orientation estimates from gyroscope by integrating over time.
+   * 3. Combine the two estimates, weighing (1) in the long term, but (2) for the
+   *    short term.
+   */
+  function ComplementaryFilter(kFilter) {
+    this.kFilter = kFilter;
+
+    // Raw sensor measurements.
+    this.currentAccelMeasurement = new sensorSample();
+    this.currentGyroMeasurement = new sensorSample();
+    this.previousGyroMeasurement = new sensorSample();
+
+    // Current filter orientation
+    this.filterQ = new mathUtil.Quaternion();
+    this.previousFilterQ = new mathUtil.Quaternion();
+
+    // Orientation based on the accelerometer.
+    this.accelQ = new mathUtil.Quaternion();
+    // Whether or not the orientation has been initialized.
+    this.isOrientationInitialized = false;
+    // Running estimate of gravity based on the current orientation.
+    this.estimatedGravity = new mathUtil.Vector3();
+    // Measured gravity based on accelerometer.
+    this.measuredGravity = new mathUtil.Vector3();
+
+    // Debug only quaternion of gyro-based orientation.
+    this.gyroIntegralQ = new mathUtil.Quaternion();
+  }
+
+  ComplementaryFilter.prototype.addAccelMeasurement = function(vector, timestampS) {
+    this.currentAccelMeasurement.set(vector, timestampS);
+  };
+
+  ComplementaryFilter.prototype.addGyroMeasurement = function(vector, timestampS) {
+    this.currentGyroMeasurement.set(vector, timestampS);
+
+    var deltaT = timestampS - this.previousGyroMeasurement.timestampS;
+    if (util$1.isTimestampDeltaValid(deltaT)) {
+      this.run_();
+    }
+
+    this.previousGyroMeasurement.copy(this.currentGyroMeasurement);
+  };
+
+  ComplementaryFilter.prototype.run_ = function() {
+
+    if (!this.isOrientationInitialized) {
+      this.accelQ = this.accelToQuaternion_(this.currentAccelMeasurement.sample);
+      this.previousFilterQ.copy(this.accelQ);
+      this.isOrientationInitialized = true;
+      return;
+    }
+
+    var deltaT = this.currentGyroMeasurement.timestampS -
+        this.previousGyroMeasurement.timestampS;
+
+    // Convert gyro rotation vector to a quaternion delta.
+    var gyroDeltaQ = this.gyroToQuaternionDelta_(this.currentGyroMeasurement.sample, deltaT);
+    this.gyroIntegralQ.multiply(gyroDeltaQ);
+
+    // filter_1 = K * (filter_0 + gyro * dT) + (1 - K) * accel.
+    this.filterQ.copy(this.previousFilterQ);
+    this.filterQ.multiply(gyroDeltaQ);
+
+    // Calculate the delta between the current estimated gravity and the real
+    // gravity vector from accelerometer.
+    var invFilterQ = new mathUtil.Quaternion();
+    invFilterQ.copy(this.filterQ);
+    invFilterQ.inverse();
+
+    this.estimatedGravity.set(0, 0, -1);
+    this.estimatedGravity.applyQuaternion(invFilterQ);
+    this.estimatedGravity.normalize();
+
+    this.measuredGravity.copy(this.currentAccelMeasurement.sample);
+    this.measuredGravity.normalize();
+
+    // Compare estimated gravity with measured gravity, get the delta quaternion
+    // between the two.
+    var deltaQ = new mathUtil.Quaternion();
+    deltaQ.setFromUnitVectors(this.estimatedGravity, this.measuredGravity);
+    deltaQ.inverse();
+
+    // Calculate the SLERP target: current orientation plus the measured-estimated
+    // quaternion delta.
+    var targetQ = new mathUtil.Quaternion();
+    targetQ.copy(this.filterQ);
+    targetQ.multiply(deltaQ);
+
+    // SLERP factor: 0 is pure gyro, 1 is pure accel.
+    this.filterQ.slerp(targetQ, 1 - this.kFilter);
+
+    this.previousFilterQ.copy(this.filterQ);
+  };
+
+  ComplementaryFilter.prototype.getOrientation = function() {
+    return this.filterQ;
+  };
+
+  ComplementaryFilter.prototype.accelToQuaternion_ = function(accel) {
+    var normAccel = new mathUtil.Vector3();
+    normAccel.copy(accel);
+    normAccel.normalize();
+    var quat = new mathUtil.Quaternion();
+    quat.setFromUnitVectors(new mathUtil.Vector3(0, 0, -1), normAccel);
+    quat.inverse();
+    return quat;
+  };
+
+  ComplementaryFilter.prototype.gyroToQuaternionDelta_ = function(gyro, dt) {
+    // Extract axis and angle from the gyroscope data.
+    var quat = new mathUtil.Quaternion();
+    var axis = new mathUtil.Vector3();
+    axis.copy(gyro);
+    axis.normalize();
+    quat.setFromAxisAngle(axis, gyro.length() * dt);
+    return quat;
+  };
+
+
+  var complementaryFilter = ComplementaryFilter;
+
+  complementaryFilter.prototype.run_ = function () {
+    if (!this.isOrientationInitialized) {
+      this.accelQ = this.accelToQuaternion_(this.currentAccelMeasurement.sample);
+      this.previousFilterQ.copy(this.accelQ);
+      this.isOrientationInitialized = true;
+      return;
+    }
+
+    var deltaT = this.currentGyroMeasurement.timestampS - this.previousGyroMeasurement.timestampS; // Convert gyro rotation vector to a quaternion delta.
+
+    var gyroDeltaQ = this.gyroToQuaternionDelta_(this.currentGyroMeasurement.sample, deltaT);
+    this.gyroIntegralQ.multiply(gyroDeltaQ); // filter_1 = K * (filter_0 + gyro * dT) + (1 - K) * accel.
+
+    this.filterQ.copy(this.previousFilterQ);
+    this.filterQ.multiply(gyroDeltaQ); // Calculate the delta between the current estimated gravity and the real
+    // gravity vector from accelerometer.
+
+    var invFilterQ = new mathUtil.Quaternion();
+    invFilterQ.copy(this.filterQ);
+    invFilterQ.inverse();
+    this.estimatedGravity.set(0, 0, -1);
+    this.estimatedGravity.applyQuaternion(invFilterQ);
+    this.estimatedGravity.normalize();
+    this.measuredGravity.copy(this.currentAccelMeasurement.sample);
+    this.measuredGravity.normalize(); // Compare estimated gravity with measured gravity, get the delta quaternion
+    // between the two.
+
+    var deltaQ = new mathUtil.Quaternion();
+    deltaQ.setFromUnitVectors(this.estimatedGravity, this.measuredGravity);
+    deltaQ.inverse(); // Calculate the SLERP target: current orientation plus the measured-estimated
+    // quaternion delta.
+
+    var targetQ = new mathUtil.Quaternion();
+    targetQ.copy(this.filterQ);
+    targetQ.multiply(deltaQ); // SLERP factor: 0 is pure gyro, 1 is pure accel.
+
+    this.filterQ.slerp(targetQ, 1 - this.kFilter);
+    this.previousFilterQ.copy(this.filterQ);
+
+    if (!this.isFilterQuaternionInitialized) {
+      this.isFilterQuaternionInitialized = true;
+    }
+  };
+
+  complementaryFilter.prototype.getOrientation = function () {
+    if (this.isFilterQuaternionInitialized) {
+      return this.filterQ;
+    } else {
+      return null;
+    }
+  };
+
+  var K_FILTER = 0.98;
+  var PREDICTION_TIME_S = 0.040;
+
+  var FusionPoseSensor =
+  /*#__PURE__*/
+  function (_Component) {
+    _inheritsLoose(FusionPoseSensor, _Component);
+
+    function FusionPoseSensor() {
+      var _this;
+
+      _this = _Component.call(this) || this;
+      _this.deviceMotion = new DeviceMotion();
+      _this.accelerometer = new mathUtil.Vector3();
+      _this.gyroscope = new mathUtil.Vector3();
+      _this._onDeviceMotionChange = _this._onDeviceMotionChange.bind(_assertThisInitialized(_this));
+      _this._onScreenOrientationChange = _this._onScreenOrientationChange.bind(_assertThisInitialized(_this));
+      _this.filter = new complementaryFilter(K_FILTER);
+      _this.posePredictor = new posePredictor(PREDICTION_TIME_S);
+      _this.filterToWorldQ = new mathUtil.Quaternion();
+      _this.isFirefoxAndroid = util$1.isFirefoxAndroid();
+      _this.isIOS = util$1.isIOS(); // Ref https://github.com/immersive-web/cardboard-vr-display/issues/18
+
+      _this.isChromeUsingDegrees = CHROME_VERSION >= 66;
+      _this._isEnabled = false; // Set the filter to world transform, depending on OS.
+
+      if (_this.isIOS) {
+        _this.filterToWorldQ.setFromAxisAngle(new mathUtil.Vector3(1, 0, 0), Math.PI / 2);
+      } else {
+        _this.filterToWorldQ.setFromAxisAngle(new mathUtil.Vector3(1, 0, 0), -Math.PI / 2);
+      }
+
+      _this.inverseWorldToScreenQ = new mathUtil.Quaternion();
+      _this.worldToScreenQ = new mathUtil.Quaternion();
+      _this.originalPoseAdjustQ = new mathUtil.Quaternion();
+
+      _this.originalPoseAdjustQ.setFromAxisAngle(new mathUtil.Vector3(0, 0, 1), -win.orientation * Math.PI / 180);
+
+      _this._setScreenTransform(); // Adjust this filter for being in landscape mode.
+
+
+      if (util$1.isLandscapeMode()) {
+        _this.filterToWorldQ.multiply(_this.inverseWorldToScreenQ);
+      } // Keep track of a reset transform for resetSensor.
+
+
+      _this.resetQ = new mathUtil.Quaternion();
+
+      _this.deviceMotion.on("devicemotion", _this._onDeviceMotionChange);
+
+      _this.enable();
+
+      return _this;
+    }
+
+    var _proto = FusionPoseSensor.prototype;
+
+    _proto.enable = function enable() {
+      if (this.isEnabled()) {
+        return;
+      }
+
+      this.deviceMotion.enable();
+      this._isEnabled = true;
+      win.addEventListener("orientationchange", this._onScreenOrientationChange);
+    };
+
+    _proto.disable = function disable() {
+      if (!this.isEnabled()) {
+        return;
+      }
+
+      this.deviceMotion.disable();
+      this._isEnabled = false;
+      win.removeEventListener("orientationchange", this._onScreenOrientationChange);
+    };
+
+    _proto.isEnabled = function isEnabled() {
+      return this._isEnabled;
+    };
+
+    _proto.destroy = function destroy() {
+      this.disable();
+      this.deviceMotion = null;
+    };
+
+    _proto._triggerChange = function _triggerChange() {
+      var orientation = this.getOrientation(); // if orientation is not prepared. don't trigger change event
+
+      if (!orientation) {
+        return;
+      }
+
+      if (!this._prevOrientation) {
+        this._prevOrientation = orientation;
+        return;
+      }
+
+      if (glMatrix.quat.equals(this._prevOrientation, orientation)) {
+        return;
+      }
+
+      this.trigger("change", {
+        quaternion: orientation
+      });
+    };
+
+    _proto.getOrientation = function getOrientation() {
+      var _this2 = this;
+
+      var orientation; // Hack around using deviceorientation instead of devicemotion
+
+      if (this.deviceMotion.isWithoutDeviceMotion && this._deviceOrientationQ) {
+        this.deviceOrientationFixQ = this.deviceOrientationFixQ || function () {
+          var y = new mathUtil.Quaternion().setFromAxisAngle(new mathUtil.Vector3(0, 1, 0), -_this2._alpha);
+          return y;
+        }();
+
+        orientation = this._deviceOrientationQ;
+        var out = new mathUtil.Quaternion();
+        out.copy(orientation);
+        out.multiply(this.filterToWorldQ);
+        out.multiply(this.resetQ);
+        out.multiply(this.worldToScreenQ);
+        out.multiplyQuaternions(this.deviceOrientationFixQ, out); // return quaternion as glmatrix quaternion object
+
+        var out_ = glMatrix.quat.fromValues(out.x, out.y, out.z, out.w);
+        return glMatrix.quat.normalize(out_, out_);
+      } else {
+        // Convert from filter space to the the same system used by the
+        // deviceorientation event.
+        orientation = this.filter.getOrientation();
+
+        if (!orientation) {
+          return null;
         }
 
-        var yawQ = setAxisAngle(create$6(), Y_AXIS_VECTOR, toRadian(yaw));
-        var outQ = multiply$6(create$6(), yawQ, currentQuat);
-        conjugate(outQ, outQ);
-        copy$6(this._prevQuaternion, currentQuat);
-        return outQ;
-      };
+        var _out = this._convertFusionToPredicted(orientation); // return quaternion as glmatrix quaternion object
 
-      _proto.getDeviceHorizontalRight = function getDeviceHorizontalRight(quaternion) {
-        var currentQuat = quaternion || this._getOrientation();
 
-        var unrotateQuat = conjugate(create$6(), currentQuat); // Assume that unrotated device center pos is at (0, 0, -1)
+        var _out_ = glMatrix.quat.fromValues(_out.x, _out.y, _out.z, _out.w);
 
-        var origViewDir = fromValues$4(0, 0, -1);
-        var viewDir = transformQuat(create$4(), origViewDir, currentQuat); // Where is the right, in current view direction
+        return glMatrix.quat.normalize(_out_, _out_);
+      }
+    };
 
-        var viewXAxis = cross(create$4(), viewDir, Y_AXIS_VECTOR);
-        var deviceHorizontalDir = add$4(create$4(), viewDir, viewXAxis);
-        var unrotatedHorizontalDir = create$4();
-        transformQuat(unrotatedHorizontalDir, deviceHorizontalDir, unrotateQuat);
-        sub$4(unrotatedHorizontalDir, unrotatedHorizontalDir, origViewDir);
-        unrotatedHorizontalDir[2] = 0; // Remove z element
+    _proto._convertFusionToPredicted = function _convertFusionToPredicted(orientation) {
+      // Predict orientation.
+      this.predictedQ = this.posePredictor.getPrediction(orientation, this.gyroscope, this.previousTimestampS); // Convert to THREE coordinate system: -Z forward, Y up, X right.
 
-        normalize(unrotatedHorizontalDir, unrotatedHorizontalDir);
-        return unrotatedHorizontalDir;
-      };
+      var out = new mathUtil.Quaternion();
+      out.copy(this.filterToWorldQ);
+      out.multiply(this.resetQ);
+      out.multiply(this.predictedQ);
+      out.multiply(this.worldToScreenQ);
+      return out;
+    };
 
-      _proto.destroy = function destroy() {
-        this.disable();
-      };
+    _proto._onDeviceMotionChange = function _onDeviceMotionChange(_ref) {
+      var inputEvent = _ref.inputEvent;
+      var deviceorientation = inputEvent.deviceorientation;
+      var deviceMotion = inputEvent;
+      var accGravity = deviceMotion.accelerationIncludingGravity;
+      var rotRate = deviceMotion.adjustedRotationRate || deviceMotion.rotationRate;
+      var timestampS = deviceMotion.timeStamp / 1000;
 
-      _proto._getOrientation = function _getOrientation() {
-        if (!this._sensor.quaternion) {
-          return create$6();
+      if (deviceorientation) {
+        if (!this._alpha) {
+          this._alpha = deviceorientation.alpha;
         }
 
-        return multiply$6(create$6(), SENSOR_TO_VR, this._sensor.quaternion);
-      };
+        this._deviceOrientationQ = this._deviceOrientationQ || new mathUtil.Quaternion();
 
-      _proto._startSensor = function _startSensor() {
-        var sensor = this._sensor;
-        sensor.start();
+        this._deviceOrientationQ.setFromEulerYXZ(deviceorientation.beta, deviceorientation.alpha, deviceorientation.gamma);
 
-        if (!this._calibrated) {
-          sensor.addEventListener("reading", this._onFirstRead);
-        } else {
-          sensor.addEventListener("reading", this._onSensorRead);
+        this._triggerChange();
+      } else {
+        // Firefox Android timeStamp returns one thousandth of a millisecond.
+        if (this.isFirefoxAndroid) {
+          timestampS /= 1000;
         }
 
-        this._enabled = true;
-      };
+        this.accelerometer.set(-accGravity.x, -accGravity.y, -accGravity.z);
+        this.gyroscope.set(rotRate.alpha, rotRate.beta, rotRate.gamma); // Browsers on iOS, Firefox/Android, and Chrome m66/Android `rotationRate`
+        // is reported in degrees, so we first convert to radians.
 
-      return DeviceSensorInput;
-    }(Component);
+        if (this.isIOS || this.isFirefoxAndroid || this.isChromeUsingDegrees) {
+          this.gyroscope.multiplyScalar(Math.PI / 180);
+        }
 
-    return DeviceSensorInput;
+        this.filter.addAccelMeasurement(this.accelerometer, timestampS);
+        this.filter.addGyroMeasurement(this.gyroscope, timestampS);
+
+        this._triggerChange();
+
+        this.previousTimestampS = timestampS;
+      }
+    };
+
+    _proto._onScreenOrientationChange = function _onScreenOrientationChange(screenOrientation) {
+      this._setScreenTransform(win.orientation);
+    };
+
+    _proto._setScreenTransform = function _setScreenTransform() {
+      this.worldToScreenQ.set(0, 0, 0, 1);
+      var orientation = win.orientation;
+
+      switch (orientation) {
+        case 0:
+          break;
+
+        case 90:
+        case -90:
+        case 180:
+          this.worldToScreenQ.setFromAxisAngle(new mathUtil.Vector3(0, 0, 1), orientation / -180 * Math.PI);
+          break;
+
+        default:
+          break;
+      }
+
+      this.inverseWorldToScreenQ.copy(this.worldToScreenQ);
+      this.inverseWorldToScreenQ.inverse();
+    };
+
+    return FusionPoseSensor;
+  }(Component);
+
+  function getDeltaYaw$1(prvQ, curQ) {
+    var yawDeltaByYaw = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.YAW_DELTA_BY_YAW);
+    var yawDeltaByRoll = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.YAW_DELTA_BY_ROLL) * Math.sin(util.extractPitchFromQuat(curQ));
+    return yawDeltaByRoll + yawDeltaByYaw;
+  }
+
+  function getDeltaPitch$1(prvQ, curQ) {
+    var pitchDelta = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.PITCH_DELTA);
+    return pitchDelta;
+  }
+
+  var TiltMotionInput =
+  /*#__PURE__*/
+  function (_Component) {
+    _inheritsLoose(TiltMotionInput, _Component);
+
+    function TiltMotionInput(el, options) {
+      var _this;
+
+      _this = _Component.call(this) || this;
+      _this.element = el;
+      _this._prevQuaternion = null;
+      _this._quaternion = null;
+      _this.fusionPoseSensor = null;
+      _this.options = _extends({
+        scale: 1,
+        threshold: 0
+      }, options);
+      _this._onPoseChange = _this._onPoseChange.bind(_assertThisInitialized(_this));
+      return _this;
+    }
+
+    var _proto = TiltMotionInput.prototype;
+
+    _proto.mapAxes = function mapAxes(axes) {
+      this.axes = axes;
+    };
+
+    _proto.connect = function connect(observer) {
+      if (this.observer) {
+        return this;
+      }
+
+      this.observer = observer;
+      this.fusionPoseSensor = new FusionPoseSensor();
+      this.fusionPoseSensor.enable();
+
+      this._attachEvent();
+
+      return this;
+    };
+
+    _proto.disconnect = function disconnect() {
+      if (!this.observer) {
+        return this;
+      }
+
+      this._dettachEvent();
+
+      this.fusionPoseSensor.disable();
+      this.fusionPoseSensor.destroy();
+      this.fusionPoseSensor = null;
+      this.observer = null;
+      return this;
+    };
+
+    _proto.destroy = function destroy() {
+      this.disconnect();
+      this.element = null;
+      this.options = null;
+      this.axes = null;
+      this._prevQuaternion = null;
+      this._quaternion = null;
+    };
+
+    _proto._onPoseChange = function _onPoseChange(event) {
+      if (!this._prevQuaternion) {
+        this._prevQuaternion = glMatrix.quat.clone(event.quaternion);
+        this._quaternion = glMatrix.quat.clone(event.quaternion);
+        return;
+      }
+
+      glMatrix.quat.copy(this._prevQuaternion, this._quaternion);
+      glMatrix.quat.copy(this._quaternion, event.quaternion);
+      this.observer.change(this, event, toAxis(this.axes, [getDeltaYaw$1(this._prevQuaternion, this._quaternion), getDeltaPitch$1(this._prevQuaternion, this._quaternion)]));
+    };
+
+    _proto._attachEvent = function _attachEvent() {
+      this.fusionPoseSensor.on("change", this._onPoseChange);
+    };
+
+    _proto._dettachEvent = function _dettachEvent() {
+      this.fusionPoseSensor.off("change", this._onPoseChange);
+    };
+
+    return TiltMotionInput;
+  }(Component);
+
+  var screenRotationAngleInst = null;
+  var refCount = 0;
+
+  var ScreenRotationAngle =
+  /*#__PURE__*/
+  function () {
+    function ScreenRotationAngle() {
+      refCount++;
+
+      if (screenRotationAngleInst) {
+        return screenRotationAngleInst;
+      }
+      /* eslint-disable */
+
+
+      screenRotationAngleInst = this;
+      /* eslint-enable */
+
+      this._onDeviceOrientation = this._onDeviceOrientation.bind(this);
+      this._onOrientationChange = this._onOrientationChange.bind(this);
+      this._spinR = 0;
+      this._screenOrientationAngle = 0;
+      win.addEventListener("deviceorientation", this._onDeviceOrientation);
+      win.addEventListener("orientationchange", this._onOrientationChange);
+    }
+
+    var _proto = ScreenRotationAngle.prototype;
+
+    _proto._onDeviceOrientation = function _onDeviceOrientation(e) {
+      if (e.beta === null || e.gamma === null) {
+        // (Chrome) deviceorientation is fired with invalid information {alpha=null, beta=null, ...} despite of not dispatching it. We skip it.
+        return;
+      } // Radian
+
+
+      var betaR = glMatrix.glMatrix.toRadian(e.beta);
+      var gammaR = glMatrix.glMatrix.toRadian(e.gamma);
+      /* spinR range = [-180, 180], left side: 0 ~ -180(deg), right side: 0 ~ 180(deg) */
+
+      this._spinR = Math.atan2(Math.cos(betaR) * Math.sin(gammaR), Math.sin(betaR));
+    };
+
+    _proto._onOrientationChange = function _onOrientationChange(e) {
+      if (win.screen && win.screen.orientation && win.screen.orientation.angle !== undefined) {
+        this._screenOrientationAngle = screen.orientation.angle;
+      } else if (win.orientation !== undefined) {
+        /* iOS */
+        this._screenOrientationAngle = win.orientation >= 0 ? win.orientation : 360 + win.orientation;
+      }
+    };
+
+    _proto.getRadian = function getRadian() {
+      // Join with screen orientation
+      // this._testVal = this._spinR + ", " + this._screenOrientationAngle + ", " + window.orientation;
+      return this._spinR + glMatrix.glMatrix.toRadian(this._screenOrientationAngle);
+    };
+
+    _proto.unref = function unref() {
+      if (--refCount > 0) {
+        return;
+      }
+
+      win.removeEventListener("deviceorientation", this._onDeviceOrientation);
+      win.removeEventListener("orientationchange", this._onOrientationChange);
+      this._spinR = 0;
+      this._screenOrientationAngle = 0;
+      /* eslint-disable */
+
+      screenRotationAngleInst = null;
+      /* eslint-enable */
+
+      refCount = 0;
+    };
+
+    return ScreenRotationAngle;
   }();
+
+  /**
+   * RotationPanInput is extension of PanInput to compensate coordinates by screen rotation angle.
+   *
+   * The reason for using this function is that in VR mode,
+   * the roll angle is adjusted in the direction opposite to the screen rotation angle.
+   *
+   * Therefore, the angle that the user touches and moves does not match the angle at which the actual object should move.
+   * @extends PanInput
+   */
+
+  var RotationPanInput =
+  /*#__PURE__*/
+  function (_PanInput) {
+    _inheritsLoose(RotationPanInput, _PanInput);
+
+    /**
+     * Constructor
+     *
+     * @private
+     * @param {HTMLElement} el target element
+     * @param {Object} [options] The option object
+     * @param {Boolean} [options.useRotation]  Whether to use rotation(or VR)
+     */
+    function RotationPanInput(el, options) {
+      var _this;
+
+      _this = _PanInput.call(this, el, options) || this;
+      _this._useRotation = false;
+      _this._screenRotationAngle = null;
+
+      _this.setUseRotation(!!(options && options.useRotation));
+
+      _this._userDirection = Axes.DIRECTION_ALL;
+      return _this;
+    }
+
+    var _proto = RotationPanInput.prototype;
+
+    _proto.setUseRotation = function setUseRotation(useRotation) {
+      this._useRotation = useRotation;
+
+      if (this._screenRotationAngle) {
+        this._screenRotationAngle.unref();
+
+        this._screenRotationAngle = null;
+      }
+
+      if (this._useRotation) {
+        this._screenRotationAngle = new ScreenRotationAngle();
+      }
+    };
+
+    _proto.connect = function connect(observer) {
+      // User intetened direction
+      this._userDirection = this._direction; // In VR Mode, Use ALL direction if direction is not none
+      // Because horizontal and vertical is changed dynamically by screen rotation.
+      // this._direction is used to initialize hammerjs
+
+      if (this._useRotation && this._direction & Axes.DIRECTION_ALL) {
+        this._direction = Axes.DIRECTION_HORIZONTAL;
+      }
+
+      _PanInput.prototype.connect.call(this, observer);
+    };
+
+    _proto.getOffset = function getOffset(properties, useDirection) {
+      if (this._useRotation === false) {
+        return _PanInput.prototype.getOffset.call(this, properties, useDirection);
+      }
+
+      var offset = _PanInput.prototype.getOffset.call(this, properties, [true, true]);
+
+      var newOffset = [0, 0];
+
+      var theta = this._screenRotationAngle.getRadian();
+
+      var cosTheta = Math.cos(theta);
+      var sinTheta = Math.sin(theta); // RotateZ
+
+      newOffset[0] = offset[0] * cosTheta - offset[1] * sinTheta;
+      newOffset[1] = offset[1] * cosTheta + offset[0] * sinTheta; // Use only user allowed direction.
+
+      if (!(this._userDirection & Axes.DIRECTION_HORIZONTAL)) {
+        newOffset[0] = 0;
+      } else if (!(this._userDirection & Axes.DIRECTION_VERTICAL)) {
+        newOffset[1] = 0;
+      }
+
+      return newOffset;
+    };
+
+    _proto.destroy = function destroy() {
+      if (this._useRotation) {
+        this._screenRotationAngle && this._screenRotationAngle.unref();
+      }
+
+      _PanInput.prototype.destroy.call(this);
+    };
+
+    return RotationPanInput;
+  }(Axes.PanInput);
+
+  var Y_AXIS_VECTOR = glMatrix.vec3.fromValues(0, 1, 0);
+
+  var DeviceQuaternion =
+  /*#__PURE__*/
+  function (_Component) {
+    _inheritsLoose(DeviceQuaternion, _Component);
+
+    function DeviceQuaternion() {
+      var _this;
+
+      _this = _Component.call(this) || this;
+      _this._fusionPoseSensor = new FusionPoseSensor();
+      _this._quaternion = glMatrix.quat.create();
+
+      _this._fusionPoseSensor.enable();
+
+      _this._fusionPoseSensor.on("change", function (e) {
+        _this._quaternion = e.quaternion;
+
+        _this.trigger("change", {
+          isTrusted: true
+        });
+      });
+
+      return _this;
+    }
+
+    var _proto = DeviceQuaternion.prototype;
+
+    _proto.getCombinedQuaternion = function getCombinedQuaternion(yaw) {
+      var yawQ = glMatrix.quat.setAxisAngle(glMatrix.quat.create(), Y_AXIS_VECTOR, glMatrix.glMatrix.toRadian(-yaw));
+      var conj = glMatrix.quat.conjugate(glMatrix.quat.create(), this._quaternion); // Multiply pitch quaternion -> device quaternion -> yaw quaternion
+
+      var outQ = glMatrix.quat.multiply(glMatrix.quat.create(), conj, yawQ);
+      return outQ;
+    };
+
+    _proto.destroy = function destroy() {
+      // detach all event handler
+      this.off();
+
+      if (this._fusionPoseSensor) {
+        this._fusionPoseSensor.off();
+
+        this._fusionPoseSensor.destroy();
+
+        this._fusionPoseSensor = null;
+      }
+    };
+
+    return DeviceQuaternion;
+  }(Component);
 
   var VERSION = "3.3.0-snapshot";
 
-  var _Promise$1 = typeof Promise === 'undefined' ? es6Promise.Promise : Promise;
   var DEFAULT_YAW_RANGE = [-YAW_RANGE_HALF, YAW_RANGE_HALF];
   var DEFAULT_PITCH_RANGE = [-PITCH_RANGE_HALF, PITCH_RANGE_HALF];
   var CIRCULAR_PITCH_RANGE = [-CIRCULAR_PITCH_RANGE_HALF, CIRCULAR_PITCH_RANGE_HALF];
@@ -3634,9 +2006,7 @@ https://github.com/naver/egjs-view360
         _this._initialFov = opt.fov;
         _this._enabled = false;
         _this._isAnimating = false;
-        _this._deviceSensor = new DeviceSensorInput().on("change", function (e) {
-          _this._triggerChange(e);
-        });
+        _this._deviceQuaternion = null;
 
         _this._initAxes(opt);
 
@@ -3657,10 +2027,11 @@ https://github.com/naver/egjs-view360
         var useRotation = opt.gyroMode === GYRO_MODE.VR;
         this.axesPanInput = new RotationPanInput(this._element, {
           useRotation: useRotation
-        }, this._deviceSensor);
+        });
         this.axesWheelInput = new Axes.WheelInput(this._element, {
           scale: -4
         });
+        this.axesTiltMotionInput = null;
         this.axesPinchInput = SUPPORT_TOUCH ? new Axes.PinchInput(this._element, {
           scale: -1
         }) : null;
@@ -3735,8 +2106,8 @@ https://github.com/naver/egjs-view360
 
         var fov = this.axes.get().fov;
         var areaHeight = param.height || parseInt(getComputedStyle(this._element).height, 10);
-        var scale$$1 = MC_BIND_SCALE[0] * fov / this._initialFov * PAN_SCALE / areaHeight;
-        this.axesPanInput.options.scale = [scale$$1, scale$$1];
+        var scale = MC_BIND_SCALE[0] * fov / this._initialFov * PAN_SCALE / areaHeight;
+        this.axesPanInput.options.scale = [scale, scale];
         this.axes.options.deceleration = MC_DECELERATION * fov / MAX_FIELD_OF_VIEW;
         return this;
       }
@@ -3840,7 +2211,7 @@ https://github.com/naver/egjs-view360
           var fovRange = options.fovRange;
           var prevFov = axes.get().fov;
           var nextFov = axes.get().fov;
-          copy$8(axes.axis.fov.range, fovRange);
+          glMatrix.vec2.copy(axes.axis.fov.range, fovRange);
 
           if (nextFov < fovRange[0]) {
             nextFov = fovRange[0];
@@ -3862,22 +2233,27 @@ https://github.com/naver/egjs-view360
         if (keys.some(function (key) {
           return key === "gyroMode";
         }) && SUPPORT_DEVICEMOTION) {
-          if (!isVR && !isYawPitch) {
-            axes.disconnect(this._deviceSensor);
-
-            this._deviceSensor.disable();
-          } else {
-            axes.connect(["yaw", "pitch"], this._deviceSensor);
-
-            this._deviceSensor.enable()["catch"](function () {}); // Device motion enabling can fail on iOS
-
+          // Disconnect first
+          if (this.axesTiltMotionInput) {
+            this.axes.disconnect(this.axesTiltMotionInput);
+            this.axesTiltMotionInput.destroy();
+            this.axesTiltMotionInput = null;
           }
 
-          this._deviceSensor.setGyroMode(options.gyroMode);
+          if (this._deviceQuaternion) {
+            this._deviceQuaternion.destroy();
+
+            this._deviceQuaternion = null;
+          }
 
           if (isVR) {
-            this.axesPanInput.setUseRotation(isVR);
+            this._initDeviceQuaternion();
+          } else if (isYawPitch) {
+            this.axesTiltMotionInput = new TiltMotionInput(this._element);
+            this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
           }
+
+          this.axesPanInput.setUseRotation(isVR);
         }
 
         if (keys.some(function (key) {
@@ -3933,6 +2309,16 @@ https://github.com/naver/egjs-view360
         this.axes.connect([yawEnabled, pitchEnabled], this.axesPanInput);
       };
 
+      _proto._initDeviceQuaternion = function _initDeviceQuaternion() {
+        var _this3 = this;
+
+        this._deviceQuaternion = new DeviceQuaternion();
+
+        this._deviceQuaternion.on("change", function (e) {
+          _this3._triggerChange(e);
+        });
+      };
+
       _proto._getValidYawRange = function _getValidYawRange(newYawRange, newFov, newAspectRatio) {
         var ratio = YawPitchControl.adjustAspectRatio(newAspectRatio || this.options.aspectRatio || 1);
         var fov = newFov || this.axes.get().fov;
@@ -3985,8 +2371,8 @@ https://github.com/naver/egjs-view360
         var pos = this.axes.get();
         var y = pos.yaw;
         var p = pos.pitch;
-        copy$8(this.axes.axis.yaw.range, yRange);
-        copy$8(this.axes.axis.pitch.range, pRange);
+        glMatrix.vec2.copy(this.axes.axis.yaw.range, yRange);
+        glMatrix.vec2.copy(this.axes.axis.pitch.range, pRange);
         this.axes.axis.yaw.circular = YawPitchControl.isCircular(yRange);
         this.axes.axis.pitch.circular = YawPitchControl.isCircular(pRange);
         /**
@@ -4058,7 +2444,7 @@ https://github.com/naver/egjs-view360
         // Ref : https://github.com/naver/egjs-view360/issues/290
 
 
-        var halfHorizontalFov = util.toDegree(Math.atan2(aspectRatio, 1 / Math.tan(toRadian(fov / 2)))); // Round value as movableCood do.
+        var halfHorizontalFov = util.toDegree(Math.atan2(aspectRatio, 1 / Math.tan(glMatrix.glMatrix.toRadian(fov / 2)))); // Round value as movableCood do.
 
         return [yawRange[0] + halfHorizontalFov, yawRange[1] - halfHorizontalFov];
       };
@@ -4074,8 +2460,8 @@ https://github.com/naver/egjs-view360
         event.pitch = pos.pitch;
         event.fov = pos.fov;
 
-        if (opt.gyroMode === GYRO_MODE.VR) {
-          event.quaternion = this._deviceSensor.getCombinedQuaternion(pos.yaw);
+        if (opt.gyroMode === GYRO_MODE.VR && this._deviceQuaternion) {
+          event.quaternion = this._deviceQuaternion.getCombinedQuaternion(pos.yaw);
         }
 
         this.trigger("change", event);
@@ -4109,7 +2495,7 @@ https://github.com/naver/egjs-view360
         return YawPitchControl.lerp(outputA, outputB, (input - inputA) / (inputB - inputA));
       };
 
-      YawPitchControl.lerp = function lerp$$1(a, b, fraction) {
+      YawPitchControl.lerp = function lerp(a, b, fraction) {
         return a + fraction * (b - a);
       }
       /**
@@ -4130,9 +2516,6 @@ https://github.com/naver/egjs-view360
 
 
         this.updatePanScale();
-        this.enableSensor()["catch"](function () {// This can fail when it's not triggered by user interaction on iOS13+
-          // Just ignore the rejection
-        });
         return this;
       }
       /**
@@ -4153,7 +2536,6 @@ https://github.com/naver/egjs-view360
         }
 
         this.axes.disconnect();
-        this.disableSensor();
         this._enabled = false;
         return this;
       };
@@ -4175,7 +2557,7 @@ https://github.com/naver/egjs-view360
        */
       ;
 
-      _proto.lookAt = function lookAt$$1(_ref, duration) {
+      _proto.lookAt = function lookAt(_ref, duration) {
         var yaw = _ref.yaw,
             pitch = _ref.pitch,
             fov = _ref.fov;
@@ -4192,41 +2574,6 @@ https://github.com/naver/egjs-view360
         }, duration);
       };
 
-      _proto.enableSensor = function enableSensor() {
-        var _this3 = this;
-
-        return new _Promise$1(function (resolve, reject) {
-          var activateSensor = function activateSensor() {
-            if (_this3.options.gyroMode !== GYRO_MODE.NONE) {
-              _this3._deviceSensor.enable();
-
-              resolve();
-            } else {
-              reject(new Error("gyroMode not set"));
-            }
-          };
-
-          if (DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === "function") {
-            DeviceMotionEvent.requestPermission().then(function (permissionState) {
-              if (permissionState === "granted") {
-                activateSensor();
-              } else {
-                reject(new Error("denied"));
-              }
-            })["catch"](function (e) {
-              // This can happen when this method was't triggered by user interaction
-              reject(e);
-            });
-          } else {
-            activateSensor();
-          }
-        });
-      };
-
-      _proto.disableSensor = function disableSensor() {
-        this._deviceSensor.disable();
-      };
-
       _proto.getYawPitch = function getYawPitch() {
         var yawPitch = this.axes.get();
         return {
@@ -4241,7 +2588,7 @@ https://github.com/naver/egjs-view360
 
       _proto.getQuaternion = function getQuaternion() {
         var pos = this.axes.get();
-        return this._deviceSensor.getCombinedQuaternion(pos.yaw);
+        return this._deviceQuaternion.getCombinedQuaternion(pos.yaw);
       };
 
       _proto.shouldRenderWithQuaternion = function shouldRenderWithQuaternion() {
@@ -4256,10 +2603,11 @@ https://github.com/naver/egjs-view360
         this.axes && this.axes.destroy();
         this.axisPanInput && this.axisPanInput.destroy();
         this.axesWheelInput && this.axesWheelInput.destroy();
+        this.axesTiltMotionInput && this.axesTiltMotionInput.destroy();
         this.axesDeviceOrientationInput && this.axesDeviceOrientationInput.destroy();
         this.axesPinchInput && this.axesPinchInput.destroy();
         this.axesMoveKeyInput && this.axesMoveKeyInput.destroy();
-        this._deviceSensor && this._deviceSensor.destroy();
+        this._deviceQuaternion && this._deviceQuaternion.destroy();
       };
 
       return YawPitchControl;
@@ -4275,7 +2623,7 @@ https://github.com/naver/egjs-view360
     return YawPitchControl;
   }();
 
-  var _Promise$2 = typeof Promise === 'undefined' ? es6Promise.Promise : Promise;
+  var _Promise = typeof Promise === 'undefined' ? _ESPromise.Promise : Promise;
   var STATUS = {
     "NONE": 0,
     "LOADING": 1,
@@ -4311,7 +2659,7 @@ https://github.com/naver/egjs-view360
       _proto.get = function get() {
         var _this2 = this;
 
-        return new _Promise$2(function (res, rej) {
+        return new _Promise(function (res, rej) {
           if (!_this2._image) {
             rej("ImageLoader: image is not defiend");
           } else if (_this2._loadStatus === STATUS.LOADED) {
@@ -4409,7 +2757,7 @@ https://github.com/naver/egjs-view360
           return !ImageLoader.isMaybeLoaded(img);
         });
         var loadPromises = targetsNotLoaded.map(function (img) {
-          return new _Promise$2(function (res, rej) {
+          return new _Promise(function (res, rej) {
             _this4._once(img, "load", function () {
               return res(img);
             });
@@ -4420,7 +2768,7 @@ https://github.com/naver/egjs-view360
           });
         });
 
-        _Promise$2.all(loadPromises).then(function (result) {
+        _Promise.all(loadPromises).then(function (result) {
           return onload(targets.length === 1 ? targets[0] : targets);
         }, function (reason) {
           return onerror(reason);
@@ -4464,7 +2812,7 @@ https://github.com/naver/egjs-view360
     return ImageLoader;
   }();
 
-  var _Promise$3 = typeof Promise === 'undefined' ? es6Promise.Promise : Promise;
+  var _Promise$1 = typeof Promise === 'undefined' ? _ESPromise.Promise : Promise;
 
   // import Agent from "@egjs/agent";
 
@@ -4611,7 +2959,7 @@ https://github.com/naver/egjs-view360
     _proto.get = function get() {
       var _this2 = this;
 
-      return new _Promise$3(function (res, rej) {
+      return new _Promise$1(function (res, rej) {
         if (!_this2._video) {
           rej("VideoLoader: video is undefined");
         } else if (_this2._loadStatus === READY_STATUS.LOADING_FAILED) {
@@ -4678,351 +3026,6 @@ https://github.com/naver/egjs-view360
 
     return VideoLoader;
   }();
-
-  /*
-  Copyright (c) 2017 NAVER Corp.
-  @egjs/agent project is licensed under the MIT license
-
-  @egjs/agent JavaScript library
-
-
-  @version 2.1.5
-  */
-  var win$1 = typeof window !== "undefined" && window || {};
-  var RegExp$1 = win$1.RegExp;
-  var navigator$1 = win$1.navigator;
-  var parseRules = {
-    browser: [{
-      criteria: "PhantomJS",
-      identity: "PhantomJS"
-    }, {
-      criteria: /Whale/,
-      identity: "Whale",
-      versionSearch: "Whale"
-    }, {
-      criteria: /Edge/,
-      identity: "Edge",
-      versionSearch: "Edge"
-    }, {
-      criteria: /MSIE|Trident|Windows Phone/,
-      identity: "IE",
-      versionSearch: "IEMobile|MSIE|rv"
-    }, {
-      criteria: /MiuiBrowser/,
-      identity: "MIUI Browser",
-      versionSearch: "MiuiBrowser"
-    }, {
-      criteria: /SamsungBrowser/,
-      identity: "Samsung Internet",
-      versionSearch: "SamsungBrowser"
-    }, {
-      criteria: /SAMSUNG /,
-      identity: "Samsung Internet",
-      versionSearch: "Version"
-    }, {
-      criteria: /Chrome|CriOS/,
-      identity: "Chrome"
-    }, {
-      criteria: /Android/,
-      identity: "Android Browser",
-      versionSearch: "Version"
-    }, {
-      criteria: /iPhone|iPad/,
-      identity: "Safari",
-      versionSearch: "Version"
-    }, {
-      criteria: "Apple",
-      identity: "Safari",
-      versionSearch: "Version"
-    }, {
-      criteria: "Firefox",
-      identity: "Firefox"
-    }],
-    os: [{
-      criteria: /Windows Phone/,
-      identity: "Windows Phone",
-      versionSearch: "Windows Phone"
-    }, {
-      criteria: "Windows 2000",
-      identity: "Window",
-      versionAlias: "5.0"
-    }, {
-      criteria: /Windows NT/,
-      identity: "Window",
-      versionSearch: "Windows NT"
-    }, {
-      criteria: /iPhone|iPad/,
-      identity: "iOS",
-      versionSearch: "iPhone OS|CPU OS"
-    }, {
-      criteria: "Mac",
-      versionSearch: "OS X",
-      identity: "MAC"
-    }, {
-      criteria: /Android/,
-      identity: "Android"
-    }, {
-      criteria: /Tizen/,
-      identity: "Tizen"
-    }, {
-      criteria: /Web0S/,
-      identity: "WebOS"
-    }],
-    // Webview check condition
-    // ios: If has no version information
-    // Android 5.0 && chrome 40+: Presence of "; wv" in userAgent
-    // Under android 5.0: Presence of "NAVER" or "Daum" in userAgent
-    webview: [{
-      criteria: /iPhone|iPad/,
-      browserVersionSearch: "Version",
-      webviewBrowserVersion: /-1/
-    }, {
-      criteria: /iPhone|iPad|Android/,
-      webviewToken: /NAVER|DAUM|; wv/
-    }],
-    defaultString: {
-      browser: {
-        version: "-1",
-        name: "unknown"
-      },
-      os: {
-        version: "-1",
-        name: "unknown"
-      }
-    }
-  };
-
-  function filter(arr, compare) {
-    var result = [];
-
-    for (var i = 0; i < arr.length; i++) {
-      compare(arr[i]) && result.push(arr[i]);
-    }
-
-    return result;
-  }
-
-  function some(arr, compare) {
-    for (var i = 0; i < arr.length; i++) {
-      if (compare(arr[i])) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  var UA = void 0;
-
-  function setUa(ua) {
-    UA = ua;
-  }
-
-  function isMatched(base, target) {
-    return target && target.test ? !!target.test(base) : base.indexOf(target) > -1;
-  }
-
-  function getIdentityStringFromArray(rules, defaultStrings) {
-    var matchedRule = filter(rules, function (rule) {
-      return isMatched(UA, rule.criteria);
-    })[0];
-    return matchedRule && matchedRule.identity || defaultStrings.name;
-  }
-
-  function getRule(rules, targetIdentity) {
-    return filter(rules, function (rule) {
-      var criteria = rule.criteria;
-      var identityMatched = new RegExp(rule.identity, "i").test(targetIdentity);
-
-      if (criteria ? identityMatched && isMatched(UA, criteria) : identityMatched) {
-        return true;
-      } else {
-        return false;
-      }
-    })[0];
-  }
-
-  function getBrowserName() {
-    return getIdentityStringFromArray(parseRules.browser, parseRules.defaultString.browser);
-  }
-
-  function getBrowserRule(browserName) {
-    var rule = getRule(parseRules.browser, browserName);
-
-    if (!rule) {
-      rule = {
-        criteria: browserName,
-        versionSearch: browserName,
-        identity: browserName
-      };
-    }
-
-    return rule;
-  }
-
-  function extractBrowserVersion(versionToken, ua) {
-    var browserVersion = parseRules.defaultString.browser.version;
-    var versionRegexResult = new RegExp("(" + versionToken + ")", "i").exec(ua);
-
-    if (!versionRegexResult) {
-      return browserVersion;
-    }
-
-    var versionTokenIndex = versionRegexResult.index;
-    var verTkn = versionRegexResult[0];
-
-    if (versionTokenIndex > -1) {
-      var versionIndex = versionTokenIndex + verTkn.length + 1;
-      browserVersion = ua.substring(versionIndex).split(" ")[0].replace(/_/g, ".").replace(/;|\)/g, "");
-    }
-
-    return browserVersion;
-  }
-
-  function getBrowserVersion(browserName) {
-    if (!browserName) {
-      return undefined;
-    } // console.log(browserRule);
-    // const versionToken = browserRule ? browserRule.versionSearch : browserName;
-
-
-    var browserRule = getBrowserRule(browserName);
-    var versionToken = browserRule.versionSearch || browserName;
-    var browserVersion = extractBrowserVersion(versionToken, UA);
-    return browserVersion;
-  }
-
-  function isWebview() {
-    var webviewRules = parseRules.webview;
-    var browserVersion = void 0;
-    return some(filter(webviewRules, function (rule) {
-      return isMatched(UA, rule.criteria);
-    }), function (rule) {
-      browserVersion = extractBrowserVersion(rule.browserVersionSearch, UA);
-
-      if (isMatched(UA, rule.webviewToken) || isMatched(browserVersion, rule.webviewBrowserVersion)) {
-        return true;
-      } else {
-        return false;
-      }
-    });
-  }
-
-  function getOSRule(osName) {
-    return getRule(parseRules.os, osName);
-  }
-
-  function getOsName() {
-    return getIdentityStringFromArray(parseRules.os, parseRules.defaultString.os);
-  }
-
-  function getOsVersion(osName) {
-    var osRule = getOSRule(osName) || {};
-    var defaultOSVersion = parseRules.defaultString.os.version;
-    var osVersion = void 0;
-
-    if (!osName) {
-      return undefined;
-    }
-
-    if (osRule.versionAlias) {
-      return osRule.versionAlias;
-    }
-
-    var osVersionToken = osRule.versionSearch || osName;
-    var osVersionRegex = new RegExp("(" + osVersionToken + ")\\s([\\d_\\.]+|\\d_0)", "i");
-    var osVersionRegexResult = osVersionRegex.exec(UA);
-
-    if (osVersionRegexResult) {
-      osVersion = osVersionRegex.exec(UA)[2].replace(/_/g, ".").replace(/;|\)/g, "");
-    }
-
-    return osVersion || defaultOSVersion;
-  }
-
-  function getOs() {
-    var name = getOsName();
-    var version = getOsVersion(name);
-    return {
-      name: name,
-      version: version
-    };
-  }
-
-  function getBrowser() {
-    var name = getBrowserName();
-    var version = getBrowserVersion(name);
-    return {
-      name: name,
-      version: version,
-      webview: isWebview()
-    };
-  }
-
-  function getIsMobile() {
-    return UA.indexOf("Mobi") !== -1;
-  }
-  /**
-   * Copyright (c) NAVER Corp.
-   * egjs-agent projects are licensed under the MIT license
-   */
-
-  /**
-   * @namespace eg.agent
-   */
-
-  /**
-   * Extracts browser and operating system information from the user agent string.
-   * @ko 유저 에이전트 문자열에서 브라우저와 운영체제 정보를 추출한다.
-   * @function eg.agent#agent
-   * @param {String} [userAgent=navigator.userAgent] user agent string to parse <ko>파싱할 유저에이전트 문자열</ko>
-   * @return {Object} agentInfo
-   * @return {Object} agentInfo.os os Operating system information <ko>운영체제 정보</ko>
-   * @return {String} agentInfo.os.name Operating system name (android, ios, window, mac, unknown) <ko>운영체제 이름 (android, ios, window, mac, unknown)</ko>
-   * @return {String} agentInfo.os.version Operating system version <ko>운영체제 버전</ko>
-   * @return {String} agentInfo.browser Browser information <ko>브라우저 정보</ko>
-   * @return {String} agentInfo.browser.name Browser name (safari, chrome, sbrowser, ie, firefox, unknown) <ko>브라우저 이름 (safari, chrome, sbrowser, ie, firefox, unknown)</ko>
-   * @return {String} agentInfo.browser.version Browser version <ko>브라우저 버전 </ko>
-   * @return {Boolean} agentInfo.browser.webview Indicates whether the browser is inapp<ko>웹뷰 브라우저 여부</ko>
-   * @return {Boolean} agentInfo.isMobile Indicates whether the browser is for mobile<ko>모바일 브라우저 여부</ko>
-   * @example
-  import agent from "@egjs/agent";
-
-  const {os, browser, isMobile} = agent();
-   */
-
-
-  function agent() {
-    var ua = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : navigator$1.userAgent;
-    setUa(ua);
-    var agentInfo = {
-      os: getOs(),
-      browser: getBrowser(),
-      isMobile: getIsMobile()
-    };
-    agentInfo.browser.name = agentInfo.browser.name.toLowerCase();
-    agentInfo.os.name = agentInfo.os.name.toLowerCase();
-    agentInfo.os.version = agentInfo.os.version.toLowerCase();
-
-    if (agentInfo.os.name === "ios" && agentInfo.browser.webview) {
-      agentInfo.browser.version = "-1";
-    }
-
-    return agentInfo;
-  }
-  /**
-   * Version info string
-   * @ko 버전정보 문자열
-   * @name VERSION
-   * @static
-   * @type {String}
-   * @example
-   * eg.agent.VERSION;  // ex) 2.2.0
-   * @memberof eg.agent
-   */
-
-
-  agent.VERSION = "2.1.5";
 
   var WEBGL_ERROR_CODE = {
     "0": "NO_ERROR",
@@ -5165,7 +3168,7 @@ https://github.com/naver/egjs-view360
     ;
 
     WebGLUtils.isStableWebGL = function isStableWebGL() {
-      var agentInfo = agent();
+      var agentInfo = Agent();
       var isStableWebgl = true;
 
       if (agentInfo.os.name === "android" && parseFloat(agentInfo.os.version) <= 4.3) {
@@ -5214,8 +3217,8 @@ https://github.com/naver/egjs-view360
     return WebGLUtils;
   }();
 
-  var agent$1 = agent();
-  var isIE11 = agent$1.browser.name === "ie" && agent$1.browser.version === "11.0";
+  var agent = Agent();
+  var isIE11 = agent.browser.name === "ie" && agent.browser.version === "11.0";
   var EVENTS = {
     ERROR: "error"
   };
@@ -5552,12 +3555,12 @@ https://github.com/naver/egjs-view360
       };
 
       _proto.getMaxCubeMapTextureSize = function getMaxCubeMapTextureSize(gl, image) {
-        var agent$$1 = agent();
+        var agent = Agent();
         var maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
 
         var _imageWidth = this.getSourceTileSize(image);
 
-        if (agent$$1.browser.name === "ie" && parseInt(agent$$1.browser.version, 10) === 11) {
+        if (agent.browser.name === "ie" && parseInt(agent.browser.version, 10) === 11) {
           if (!util.isPowerOfTwo(_imageWidth)) {
             for (var i = 1; i < maxCubeMapTextureSize; i *= 2) {
               if (i < _imageWidth) {
@@ -5571,12 +3574,12 @@ https://github.com/naver/egjs-view360
         } // ios 9 의 경우 텍스쳐 최대사이즈는 1024 이다.
 
 
-        if (agent$$1.os.name === "ios" && parseInt(agent$$1.os.version, 10) === 9) {
+        if (agent.os.name === "ios" && parseInt(agent.os.version, 10) === 9) {
           _imageWidth = 1024;
         } // ios 8 의 경우 텍스쳐 최대사이즈는 512 이다.
 
 
-        if (agent$$1.os.name === "ios" && parseInt(agent$$1.os.version, 10) === 8) {
+        if (agent.os.name === "ios" && parseInt(agent.os.version, 10) === 8) {
           _imageWidth = 512;
         } // maxCubeMapTextureSize 보다는 작고, imageWidth 보다 큰 2의 승수 중 가장 작은 수
 
@@ -6250,7 +4253,7 @@ https://github.com/naver/egjs-view360
           var fov = 360 / aspectRatio;
           cylinderMaxRadian = 2 * Math.PI; // 360 deg
 
-          halfCylinderY = Math.tan(toRadian(fov / 2));
+          halfCylinderY = Math.tan(glMatrix.glMatrix.toRadian(fov / 2));
         } else {
           cylinderMaxRadian = aspectRatio;
           halfCylinderY = 0.5; // Range of cylinder is [-0.5, 0.5] to make height to 1.
@@ -6268,10 +4271,10 @@ https://github.com/naver/egjs-view360
         /* bottom & top */
         ; yIdx++) {
           for (lngIdx = 0; lngIdx <= longitudeBands$1; lngIdx++) {
-            var angle$$1 = startAngleForCenterAlign + lngIdx / longitudeBands$1 * cylinderMaxRadian;
-            var x = Math.cos(angle$$1);
+            var angle = startAngleForCenterAlign + lngIdx / longitudeBands$1 * cylinderMaxRadian;
+            var x = Math.cos(angle);
             var y = CYLIDER_Y[yIdx];
-            var z = Math.sin(angle$$1);
+            var z = Math.sin(angle);
             var u = void 0;
             var v = void 0;
 
@@ -6307,7 +4310,7 @@ https://github.com/naver/egjs-view360
     return CylinderRenderer;
   }();
 
-  var _Promise$4 = typeof Promise === 'undefined' ? es6Promise.Promise : Promise;
+  var _Promise$2 = typeof Promise === 'undefined' ? _ESPromise.Promise : Promise;
   var VR_DISPLAY_PRESENT_CHANGE = "vrdisplaypresentchange";
   var DEFAULT_LEFT_BOUNDS = [0, 0, 0.5, 1];
   var DEFAULT_RIGHT_BOUNDS = [0.5, 0, 0.5, 1];
@@ -6372,8 +4375,8 @@ https://github.com/naver/egjs-view360
         display.getFrameData(frameData);
         var leftMVMatrix = frameData.leftViewMatrix;
         var rightMVMatrix = frameData.rightViewMatrix;
-        rotateY(leftMVMatrix, leftMVMatrix, this._yawOffset);
-        rotateY(rightMVMatrix, rightMVMatrix, this._yawOffset);
+        glMatrix.mat4.rotateY(leftMVMatrix, leftMVMatrix, this._yawOffset);
+        glMatrix.mat4.rotateY(rightMVMatrix, rightMVMatrix, this._yawOffset);
         return [{
           viewport: [0, 0, halfWidth, height],
           mvMatrix: leftMVMatrix,
@@ -6400,7 +4403,7 @@ https://github.com/naver/egjs-view360
       _proto.requestPresent = function requestPresent(canvas) {
         var _this2 = this;
 
-        return new _Promise$4(function (resolve, reject) {
+        return new _Promise$2(function (resolve, reject) {
           navigator.getVRDisplays().then(function (displays) {
             var vrDisplay = displays.length && displays[0];
 
@@ -6526,10 +4529,10 @@ https://github.com/naver/egjs-view360
           var mvMatrix = view.transform.inverse.matrix;
 
           if (IS_SAFARI_ON_DESKTOP) {
-            rotateX(mvMatrix, mvMatrix, toRadian(180));
+            glMatrix.mat4.rotateX(mvMatrix, mvMatrix, glMatrix.glMatrix.toRadian(180));
           }
 
-          rotateY(mvMatrix, mvMatrix, _this2._yawOffset);
+          glMatrix.mat4.rotateY(mvMatrix, mvMatrix, _this2._yawOffset);
           return {
             viewport: [viewport.x, viewport.y, viewport.width, viewport.height],
             mvMatrix: mvMatrix,
@@ -6687,7 +4690,7 @@ https://github.com/naver/egjs-view360
     return WebGLAnimator;
   }();
 
-  var _Promise$5 = typeof Promise === 'undefined' ? es6Promise.Promise : Promise;
+  var _Promise$3 = typeof Promise === 'undefined' ? _ESPromise.Promise : Promise;
   var ImageType = PROJECTION_TYPE;
   var DEVICE_PIXEL_RATIO = devicePixelRatio || 1; // DEVICE_PIXEL_RATIO 가 2를 초과하는 경우는 리소스 낭비이므로 2로 맞춘다.
 
@@ -6787,16 +4790,16 @@ https://github.com/naver/egjs-view360
           var animator = _this._animator; // If rendering is not ready, wait for next frame
 
           if (!vr.canRender(frame)) return;
-          var minusZDir = fromValues$4(0, 0, -1);
+          var minusZDir = glMatrix.vec3.fromValues(0, 0, -1);
           var eyeParam = vr.getEyeParams(gl, frame)[0]; // Extract only rotation
 
-          var mvMatrix = fromMat4(create$2(), eyeParam.mvMatrix);
-          var pMatrix = fromMat4(create$2(), eyeParam.pMatrix);
-          var mvInv = invert$2(create$2(), mvMatrix);
-          var pInv = invert$2(create$2(), pMatrix);
-          var viewDir = transformMat3(create$4(), minusZDir, pInv);
-          transformMat3(viewDir, viewDir, mvInv);
-          var yawOffset = util.yawOffsetBetween(viewDir, fromValues$4(0, 0, 1));
+          var mvMatrix = glMatrix.mat3.fromMat4(glMatrix.mat3.create(), eyeParam.mvMatrix);
+          var pMatrix = glMatrix.mat3.fromMat4(glMatrix.mat3.create(), eyeParam.pMatrix);
+          var mvInv = glMatrix.mat3.invert(glMatrix.mat3.create(), mvMatrix);
+          var pInv = glMatrix.mat3.invert(glMatrix.mat3.create(), pMatrix);
+          var viewDir = glMatrix.vec3.transformMat3(glMatrix.vec3.create(), minusZDir, pInv);
+          glMatrix.vec3.transformMat3(viewDir, viewDir, mvInv);
+          var yawOffset = util.yawOffsetBetween(viewDir, glMatrix.vec3.fromValues(0, 0, 1));
 
           if (yawOffset === 0) {
             // If the yawOffset is exactly 0, then device sensor is not ready
@@ -6816,10 +4819,10 @@ https://github.com/naver/egjs-view360
         _this._lastYaw = null;
         _this._lastPitch = null;
         _this._lastFieldOfView = null;
-        _this.pMatrix = create$3();
-        _this.mvMatrix = create$3(); // initialzie pMatrix
+        _this.pMatrix = glMatrix.mat4.create();
+        _this.mvMatrix = glMatrix.mat4.create(); // initialzie pMatrix
 
-        perspective(_this.pMatrix, toRadian(_this.fieldOfView), width / height, 0.1, 100);
+        glMatrix.mat4.perspective(_this.pMatrix, glMatrix.glMatrix.toRadian(_this.fieldOfView), width / height, 0.1, 100);
         _this.textureCoordBuffer = null;
         _this.vertexBuffer = null;
         _this.indexBuffer = null;
@@ -7015,7 +5018,7 @@ https://github.com/naver/egjs-view360
       _proto.bindTexture = function bindTexture() {
         var _this3 = this;
 
-        return new _Promise$5(function (res, rej) {
+        return new _Promise$3(function (res, rej) {
           if (!_this3._contentLoader) {
             rej("ImageLoader is not initialized");
             return;
@@ -7154,7 +5157,7 @@ https://github.com/naver/egjs-view360
       };
 
       _proto._updateViewport = function _updateViewport() {
-        perspective(this.pMatrix, toRadian(this.fieldOfView), this.canvas.width / this.canvas.height, 0.1, 100);
+        glMatrix.mat4.perspective(this.pMatrix, glMatrix.glMatrix.toRadian(this.fieldOfView), this.canvas.width / this.canvas.height, 0.1, 100);
         this.context.viewport(0, 0, this.context.drawingBufferWidth, this.context.drawingBufferHeight);
       };
 
@@ -7286,7 +5289,7 @@ https://github.com/naver/egjs-view360
           return;
         }
 
-        if (this._keepUpdate === false && this._lastQuaternion && exactEquals$6(this._lastQuaternion, quaternion) && this.fieldOfView && this.fieldOfView === fieldOfView && this._shouldForceDraw === false) {
+        if (this._keepUpdate === false && this._lastQuaternion && glMatrix.quat.exactEquals(this._lastQuaternion, quaternion) && this.fieldOfView && this.fieldOfView === fieldOfView && this._shouldForceDraw === false) {
           return;
         } // updatefieldOfView only if fieldOfView is changed.
 
@@ -7295,11 +5298,11 @@ https://github.com/naver/egjs-view360
           this.updateFieldOfView(fieldOfView);
         }
 
-        this.mvMatrix = fromQuat$1(create$3(), quaternion);
+        this.mvMatrix = glMatrix.mat4.fromQuat(glMatrix.mat4.create(), quaternion);
 
         this._draw();
 
-        this._lastQuaternion = clone$6(quaternion);
+        this._lastQuaternion = glMatrix.quat.clone(quaternion);
 
         if (this._shouldForceDraw) {
           this._shouldForceDraw = false;
@@ -7320,9 +5323,9 @@ https://github.com/naver/egjs-view360
           this.updateFieldOfView(fieldOfView);
         }
 
-        identity$3(this.mvMatrix);
-        rotateX(this.mvMatrix, this.mvMatrix, -toRadian(pitch));
-        rotateY(this.mvMatrix, this.mvMatrix, -toRadian(yaw));
+        glMatrix.mat4.identity(this.mvMatrix);
+        glMatrix.mat4.rotateX(this.mvMatrix, this.mvMatrix, -glMatrix.glMatrix.toRadian(pitch));
+        glMatrix.mat4.rotateY(this.mvMatrix, this.mvMatrix, -glMatrix.glMatrix.toRadian(yaw));
 
         this._draw();
 
@@ -7391,11 +5394,11 @@ https://github.com/naver/egjs-view360
         var vr = this._vr;
 
         if (!WEBXR_SUPPORTED && !navigator.getVRDisplays) {
-          return _Promise$5.reject("VR is not available on this browser.");
+          return _Promise$3.reject("VR is not available on this browser.");
         }
 
         if (vr && vr.isPresenting()) {
-          return _Promise$5.resolve("VR already enabled.");
+          return _Promise$3.resolve("VR already enabled.");
         }
 
         return this._requestPresent();
@@ -7410,7 +5413,7 @@ https://github.com/naver/egjs-view360
         this._vr = WEBXR_SUPPORTED ? new XRManager() : new VRManager();
         var vr = this._vr;
         animator.stop();
-        return new _Promise$5(function (resolve, reject) {
+        return new _Promise$3(function (resolve, reject) {
           vr.requestPresent(canvas, gl).then(function () {
             vr.addEndCallback(_this4.exitVR);
             animator.setContext(vr.context);
@@ -7471,7 +5474,7 @@ https://github.com/naver/egjs-view360
     return PanoImageRenderer;
   }();
 
-  var _Promise$6 = typeof Promise === 'undefined' ? es6Promise.Promise : Promise;
+  var _Promise$4 = typeof Promise === 'undefined' ? _ESPromise.Promise : Promise;
 
   var PanoViewer =
   /*#__PURE__*/
@@ -7803,31 +5806,43 @@ https://github.com/naver/egjs-view360
         return this._projectionType;
       }
       /**
-       * Reactivate the device's motion sensor. Motion sensor will work only if you enabled `gyroMode` option.
+       * Activate the device's motion sensor, and return the Promise whether the sensor is enabled
        * If it's iOS13+, this method must be used in the context of user interaction, like onclick callback on the button element.
-       * @ko 디바이스의 모션 센서를 재활성화합니다. 모션 센서는 `gyroMode` 옵션을 활성화해야만 사용할 수 있습니다.
+       * @ko 디바이스의 모션 센서를 활성화하고, 활성화 여부를 담는 Promise를 리턴합니다.
        * iOS13+일 경우, 사용자 인터렉션에 의해서 호출되어야 합니다. 예로, 버튼의 onclick 콜백과 같은 콘텍스트에서 호출되어야 합니다.
-       * @see {@link eg.view360.PanoViewer#setGyroMode}
        * @method eg.view360.PanoViewer#enableSensor
        * @return {Promise<string>} Promise containing nothing when resolved, or string of the rejected reason when rejected.<ko>Promise. resolve되었을 경우 아무것도 반환하지 않고, reject되었을 경우 그 이유를 담고있는 string을 반환한다.</ko>
        */
       ;
 
       _proto.enableSensor = function enableSensor() {
-        return this._yawPitchControl.enableSensor();
+        return new _Promise$4(function (resolve, reject) {
+          if (DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === "function") {
+            DeviceMotionEvent.requestPermission().then(function (permissionState) {
+              if (permissionState === "granted") {
+                resolve();
+              } else {
+                reject(new Error("permission denied"));
+              }
+            })["catch"](function (e) {
+              // This can happen when this method wasn't triggered by user interaction
+              reject(e);
+            });
+          } else {
+            resolve();
+          }
+        });
       }
       /**
        * Disable the device's motion sensor.
        * @ko 디바이스의 모션 센서를 비활성화합니다.
-       * @see {@link eg.view360.PanoViewer#setGyroMode}
+       * @deprecated
        * @method eg.view360.PanoViewer#disableSensor
        * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
        */
       ;
 
       _proto.disableSensor = function disableSensor() {
-        this._yawPitchControl.disableSensor();
-
         return this;
       }
       /**
@@ -7846,10 +5861,10 @@ https://github.com/naver/egjs-view360
         var _this2 = this;
 
         if (!this._isReady) {
-          return _Promise$6.reject(new Error("PanoViewer is not ready to show image."));
+          return _Promise$4.reject(new Error("PanoViewer is not ready to show image."));
         }
 
-        return new _Promise$6(function (resolve, reject) {
+        return new _Promise$4(function (resolve, reject) {
           _this2.enableSensor().then(function () {
             return _this2._photoSphereRenderer.enterVR();
           }).then(function (res) {
@@ -8219,7 +6234,7 @@ https://github.com/naver/egjs-view360
       ;
 
       _proto._getHFov = function _getHFov() {
-        return util.toDegree(2 * Math.atan(this._aspectRatio * Math.tan(toRadian(this._fov) / 2)));
+        return util.toDegree(2 * Math.atan(this._aspectRatio * Math.tan(glMatrix.glMatrix.toRadian(this._fov) / 2)));
       }
       /**
        * Get current yaw value
@@ -8327,7 +6342,7 @@ https://github.com/naver/egjs-view360
        */
       ;
 
-      _proto.lookAt = function lookAt$$1(orientation, duration) {
+      _proto.lookAt = function lookAt(orientation, duration) {
         if (!this._isReady) {
           return this;
         }
@@ -8488,7 +6503,7 @@ https://github.com/naver/egjs-view360
       ;
 
       PanoViewer.isGyroSensorAvailable = function isGyroSensorAvailable(callback) {
-        if (!DeviceMotionEvent$1) {
+        if (!DeviceMotionEvent) {
           callback && callback(false);
           return;
         }
@@ -8496,7 +6511,7 @@ https://github.com/naver/egjs-view360
         var onDeviceMotionChange;
 
         function checkGyro() {
-          return new _Promise$6(function (res, rej) {
+          return new _Promise$4(function (res, rej) {
             onDeviceMotionChange = function onDeviceMotionChange(deviceMotion) {
               var isGyroSensorAvailable = !(deviceMotion.rotationRate.alpha == null);
               res(isGyroSensorAvailable);
@@ -8507,14 +6522,14 @@ https://github.com/naver/egjs-view360
         }
 
         function timeout() {
-          return new _Promise$6(function (res, rej) {
+          return new _Promise$4(function (res, rej) {
             setTimeout(function () {
               return res(false);
             }, 1000);
           });
         }
 
-        _Promise$6.race([checkGyro(), timeout()]).then(function (isGyroSensorAvailable) {
+        _Promise$4.race([checkGyro(), timeout()]).then(function (isGyroSensorAvailable) {
           window.removeEventListener("devicemotion", onDeviceMotionChange);
           callback && callback(isGyroSensorAvailable);
 

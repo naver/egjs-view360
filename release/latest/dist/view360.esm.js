@@ -1,4 +1,7 @@
-import { RelativeOrientationSensor } from 'motion-sensors-polyfill';
+import PosePredictor from 'webvr-polyfill/src/sensor-fusion/pose-predictor';
+import Util from 'webvr-polyfill/src/util';
+import MathUtil from 'webvr-polyfill/src/math-util';
+import ComplementaryFilter from 'webvr-polyfill/src/sensor-fusion/complementary-filter';
 import Agent from '@egjs/agent';
 import _ESPromise from 'es6-promise';
 import { vec2, vec3, quat, glMatrix, mat4, mat3 } from 'gl-matrix';
@@ -78,7 +81,7 @@ var getComputedStyle = win.getComputedStyle;
 var userAgent$1 = win.navigator.userAgent;
 var SUPPORT_TOUCH = "ontouchstart" in win;
 var SUPPORT_DEVICEMOTION = "ondevicemotion" in win;
-var DeviceMotionEvent$1 = win.DeviceMotionEvent;
+var DeviceMotionEvent = win.DeviceMotionEvent;
 var devicePixelRatio = win.devicePixelRatio;
 
 var TRANSFORM = function () {
@@ -251,105 +254,14 @@ util.toDegree = toDegree;
 util.getRotationDelta = getRotationDelta;
 util.angleBetweenVec2 = angleBetweenVec2;
 
-/**
- * RotationPanInput is extension of PanInput to compensate coordinates by screen rotation angle.
- *
- * The reason for using this function is that in VR mode,
- * the roll angle is adjusted in the direction opposite to the screen rotation angle.
- *
- * Therefore, the angle that the user touches and moves does not match the angle at which the actual object should move.
- * @extends PanInput
- */
-
-var RotationPanInput =
-/*#__PURE__*/
-function (_PanInput) {
-  _inheritsLoose(RotationPanInput, _PanInput);
-
-  /**
-   * Constructor
-   *
-   * @private
-   * @param {HTMLElement} el target element
-   * @param {Object} [options] The option object
-   * @param {Boolean} [options.useRotation]  Whether to use rotation(or VR)
-   */
-  function RotationPanInput(el, options, deviceSensor) {
-    var _this;
-
-    _this = _PanInput.call(this, el, options) || this;
-    _this._useRotation = false;
-    _this._deviceSensor = deviceSensor;
-
-    _this.setUseRotation(!!(options && options.useRotation));
-
-    _this._userDirection = Axes.DIRECTION_ALL;
-    return _this;
-  }
-
-  var _proto = RotationPanInput.prototype;
-
-  _proto.setUseRotation = function setUseRotation(useRotation) {
-    this._useRotation = useRotation;
-  };
-
-  _proto.connect = function connect(observer) {
-    // User intetened direction
-    this._userDirection = this._direction; // In VR Mode, Use ALL direction if direction is not none
-    // Because horizontal and vertical is changed dynamically by screen rotation.
-    // this._direction is used to initialize hammerjs
-
-    if (this._useRotation && this._direction & Axes.DIRECTION_ALL) {
-      this._direction = Axes.DIRECTION_HORIZONTAL;
+function toAxis(source, offset) {
+  return offset.reduce(function (acc, v, i) {
+    if (source[i]) {
+      acc[source[i]] = v;
     }
 
-    _PanInput.prototype.connect.call(this, observer);
-  };
-
-  _proto.getOffset = function getOffset(properties, useDirection) {
-    if (this._useRotation === false) {
-      return _PanInput.prototype.getOffset.call(this, properties, useDirection);
-    }
-
-    var offset = _PanInput.prototype.getOffset.call(this, properties, [true, true]);
-
-    var newOffset = [0, 0];
-
-    var rightAxis = this._deviceSensor.getDeviceHorizontalRight();
-
-    var rightAxisVec2 = vec2.fromValues(rightAxis[0], rightAxis[1]);
-    var xAxis = vec2.fromValues(1, 0);
-    var theta = util.angleBetweenVec2(rightAxisVec2, xAxis);
-    var cosTheta = Math.cos(theta);
-    var sinTheta = Math.sin(theta); // RotateZ
-
-    newOffset[0] = offset[0] * cosTheta - offset[1] * sinTheta;
-    newOffset[1] = offset[1] * cosTheta + offset[0] * sinTheta; // Use only user allowed direction.
-
-    if (!(this._userDirection & Axes.DIRECTION_HORIZONTAL)) {
-      newOffset[0] = 0;
-    } else if (!(this._userDirection & Axes.DIRECTION_VERTICAL)) {
-      newOffset[1] = 0;
-    }
-
-    return newOffset;
-  };
-
-  _proto.destroy = function destroy() {
-    _PanInput.prototype.destroy.call(this);
-  };
-
-  return RotationPanInput;
-}(PanInput);
-
-function getDeltaYaw(prvQ, curQ) {
-  var yawDeltaByYaw = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.YAW_DELTA_BY_YAW);
-  var yawDeltaByRoll = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.YAW_DELTA_BY_ROLL) * Math.sin(util.extractPitchFromQuat(curQ));
-  return yawDeltaByRoll + yawDeltaByYaw;
-}
-function getDeltaPitch(prvQ, curQ) {
-  var pitchDelta = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.PITCH_DELTA);
-  return pitchDelta;
+    return acc;
+  }, {});
 }
 
 /**
@@ -378,6 +290,9 @@ if (match) {
   branch = match[2];
   build = match[3];
 }
+
+var CHROME_VERSION = version;
+var IS_CHROME_WITHOUT_DEVICE_MOTION = version === 65 && branch === "3325" && parseInt(build, 10) < 148;
 var IS_ANDROID = /Android/i.test(userAgent$1);
 var CONTROL_MODE_VR = 1;
 var CONTROL_MODE_YAWPITCH = 2;
@@ -402,240 +317,755 @@ var GYRO_MODE = {
   VR: "VR"
 };
 
-var _Promise = typeof Promise === 'undefined' ? _ESPromise.Promise : Promise;
-var X_AXIS_VECTOR = vec3.fromValues(1, 0, 0);
-var Y_AXIS_VECTOR = vec3.fromValues(0, 1, 0); // Quaternion to rotate from sensor coordinates to WebVR coordinates
+var STILLNESS_THRESHOLD = 200; // millisecond
 
-var SENSOR_TO_VR = quat.setAxisAngle(quat.create(), X_AXIS_VECTOR, -Math.PI / 2);
-
-var DeviceSensorInput =
+var DeviceMotion =
 /*#__PURE__*/
-function () {
-  var DeviceSensorInput =
-  /*#__PURE__*/
-  function (_Component) {
-    _inheritsLoose(DeviceSensorInput, _Component);
+function (_Component) {
+  _inheritsLoose(DeviceMotion, _Component);
 
-    function DeviceSensorInput(gyroMode) {
-      var _this;
+  function DeviceMotion() {
+    var _this;
 
-      _this = _Component.call(this) || this;
+    _this = _Component.call(this) || this;
+    _this._onDeviceMotion = _this._onDeviceMotion.bind(_assertThisInitialized(_this));
+    _this._onDeviceOrientation = _this._onDeviceOrientation.bind(_assertThisInitialized(_this));
+    _this._onChromeWithoutDeviceMotion = _this._onChromeWithoutDeviceMotion.bind(_assertThisInitialized(_this));
+    _this.isWithoutDeviceMotion = IS_CHROME_WITHOUT_DEVICE_MOTION;
+    _this.isAndroid = IS_ANDROID;
+    _this.stillGyroVec = vec3.create();
+    _this.rawGyroVec = vec3.create();
+    _this.adjustedGyroVec = vec3.create();
+    _this._timer = null;
+    _this.lastDevicemotionTimestamp = 0;
+    _this._isEnabled = false;
 
-      _this._onFirstRead = function () {
-        var sensor = _this._sensor;
+    _this.enable();
 
-        var quaternion = _this._getOrientation();
+    return _this;
+  }
 
-        var minusZDir = vec3.fromValues(0, 0, -1);
-        var firstViewDir = vec3.transformQuat(vec3.create(), minusZDir, quaternion);
-        var yawOffset = util.yawOffsetBetween(firstViewDir, minusZDir);
+  var _proto = DeviceMotion.prototype;
 
-        if (yawOffset === 0) {
-          // If the yawOffset is exactly 0, then device sensor is not ready
-          // So read it again until it has any value in it
-          return;
+  _proto._onChromeWithoutDeviceMotion = function _onChromeWithoutDeviceMotion(e) {
+    var alpha = e.alpha,
+        beta = e.beta,
+        gamma = e.gamma; // There is deviceorientation event trigged with empty values
+    // on Headless Chrome.
+
+    if (alpha === null) {
+      return;
+    } // convert to radian
+
+
+    alpha = (alpha || 0) * Math.PI / 180;
+    beta = (beta || 0) * Math.PI / 180;
+    gamma = (gamma || 0) * Math.PI / 180;
+    this.trigger("devicemotion", {
+      inputEvent: {
+        deviceorientation: {
+          alpha: alpha,
+          beta: beta,
+          gamma: -gamma
         }
+      }
+    });
+  };
 
-        var modifyQuat = quat.setAxisAngle(quat.create(), Y_AXIS_VECTOR, -yawOffset);
-        quat.mul(SENSOR_TO_VR, modifyQuat, SENSOR_TO_VR);
-        _this._calibrated = true;
-        sensor.removeEventListener("reading", _this._onFirstRead);
-        sensor.addEventListener("reading", _this._onSensorRead);
-      };
+  _proto._onDeviceOrientation = function _onDeviceOrientation() {
+    var _this2 = this;
 
-      _this._onSensorRead = function () {
-        if (_this._observer && _this._gyroMode === GYRO_MODE.YAWPITCH) {
-          var delta = _this.getYawPitchDelta();
+    this._timer && clearTimeout(this._timer);
+    this._timer = setTimeout(function () {
+      if (new Date().getTime() - _this2.lastDevicemotionTimestamp < STILLNESS_THRESHOLD) {
+        vec3.copy(_this2.stillGyroVec, _this2.rawGyroVec);
+      }
+    }, STILLNESS_THRESHOLD);
+  };
 
-          _this._observer.change(_assertThisInitialized(_this), {}, {
-            yaw: delta.yaw,
-            pitch: delta.pitch
-          });
-        }
+  _proto._onDeviceMotion = function _onDeviceMotion(e) {
+    // desktop chrome triggers devicemotion event with empthy sensor values.
+    // Those events should ignored.
+    var isGyroSensorAvailable = !(e.rotationRate.alpha == null);
+    var isGravitySensorAvailable = !(e.accelerationIncludingGravity.x == null);
 
-        _this.trigger("change", {
-          isTrusted: true
-        });
-      };
-
-      _this._enabled = false;
-      _this._calibrated = false;
-      _this._sensor = new RelativeOrientationSensor({
-        frequency: 60,
-        coordinateSystem: "screen",
-        // for polyfill
-        referenceFrame: "screen"
-      });
-      _this._prevQuaternion = null;
-      _this._gyroMode = gyroMode; // @egjs/axes related
-
-      _this._observer = null;
-      _this.axes = null;
-      return _this;
+    if (e.interval === 0 || !(isGyroSensorAvailable && isGravitySensorAvailable)) {
+      return;
     }
 
-    var _proto = DeviceSensorInput.prototype;
+    var devicemotionEvent = _extends({}, e);
 
-    _proto.mapAxes = function mapAxes(axes) {
-      this.axes = axes;
+    devicemotionEvent.interval = e.interval;
+    devicemotionEvent.timeStamp = e.timeStamp;
+    devicemotionEvent.type = e.type;
+    devicemotionEvent.rotationRate = {
+      alpha: e.rotationRate.alpha,
+      beta: e.rotationRate.beta,
+      gamma: e.rotationRate.gamma
+    };
+    devicemotionEvent.accelerationIncludingGravity = {
+      x: e.accelerationIncludingGravity.x,
+      y: e.accelerationIncludingGravity.y,
+      z: e.accelerationIncludingGravity.z
+    };
+    devicemotionEvent.acceleration = {
+      x: e.acceleration.x,
+      y: e.acceleration.y,
+      z: e.acceleration.z
     };
 
-    _proto.connect = function connect(observer) {
-      if (this._observer) {
-        return this;
-      }
-
-      this._observer = observer;
-      return this;
-    };
-
-    _proto.disconnect = function disconnect() {
-      if (!this._observer) {
-        return this;
-      }
-
-      this._observer = null;
-      return this;
-    };
-
-    _proto.setGyroMode = function setGyroMode(gyroMode) {
-      this._gyroMode = gyroMode;
-    };
-
-    _proto.enable = function enable() {
-      var _this2 = this;
-
-      if (this._enabled) {
-        return _Promise.resolve("Sensor already enabled");
-      }
-
-      if (!navigator || !navigator.permissions) {
-        // iOS
-        this._startSensor();
-
-        return _Promise.resolve();
-      }
-
-      return _Promise.all([navigator.permissions.query({
-        name: "accelerometer"
-      }), navigator.permissions.query({
-        name: "gyroscope"
-      })]).then(function (results) {
-        if (results.every(function (result) {
-          return result.state === "granted";
-        })) {
-          _this2._startSensor();
-        }
-      })["catch"](function () {
-        // Start it anyway, workaround for Firefox
-        _this2._startSensor();
-      });
-    };
-
-    _proto.disable = function disable() {
-      if (!this._enabled) {
-        return;
-      }
-
-      this._prevQuaternion = null;
-
-      this._sensor.removeEventListener("read", this._onSensorRead);
-
-      this._sensor.stop();
-    };
-
-    _proto.isEnabled = function isEnabled() {
-      return this._enabled;
-    };
-
-    _proto.getYawPitchDelta = function getYawPitchDelta() {
-      var prevQuat = this._prevQuaternion;
-
-      var currentQuat = this._getOrientation();
-
-      if (!prevQuat) {
-        this._prevQuaternion = currentQuat;
-        return {
-          yaw: 0,
-          pitch: 0
-        };
-      }
-
-      var result = {
-        yaw: getDeltaYaw(prevQuat, currentQuat),
-        pitch: getDeltaPitch(prevQuat, currentQuat)
+    if (this.isAndroid) {
+      vec3.set(this.rawGyroVec, e.rotationRate.alpha || 0, e.rotationRate.beta || 0, e.rotationRate.gamma || 0);
+      vec3.subtract(this.adjustedGyroVec, this.rawGyroVec, this.stillGyroVec);
+      this.lastDevicemotionTimestamp = new Date().getTime();
+      devicemotionEvent.adjustedRotationRate = {
+        alpha: this.adjustedGyroVec[0],
+        beta: this.adjustedGyroVec[1],
+        gamma: this.adjustedGyroVec[2]
       };
-      quat.copy(prevQuat, currentQuat);
-      return result;
-    };
+    }
 
-    _proto.getCombinedQuaternion = function getCombinedQuaternion(yaw) {
-      var currentQuat = this._getOrientation();
+    this.trigger("devicemotion", {
+      inputEvent: devicemotionEvent
+    });
+  };
 
-      if (!this._prevQuaternion) {
-        this._prevQuaternion = quat.copy(quat.create(), currentQuat);
+  _proto.enable = function enable() {
+    if (this.isAndroid) {
+      win.addEventListener("deviceorientation", this._onDeviceOrientation);
+    }
+
+    if (this.isWithoutDeviceMotion) {
+      win.addEventListener("deviceorientation", this._onChromeWithoutDeviceMotion);
+    } else {
+      win.addEventListener("devicemotion", this._onDeviceMotion);
+    }
+
+    this._isEnabled = true;
+  };
+
+  _proto.disable = function disable() {
+    win.removeEventListener("deviceorientation", this._onDeviceOrientation);
+    win.removeEventListener("deviceorientation", this._onChromeWithoutDeviceMotion);
+    win.removeEventListener("devicemotion", this._onDeviceMotion);
+    this._isEnabled = false;
+  };
+
+  return DeviceMotion;
+}(Component);
+
+ComplementaryFilter.prototype.run_ = function () {
+  if (!this.isOrientationInitialized) {
+    this.accelQ = this.accelToQuaternion_(this.currentAccelMeasurement.sample);
+    this.previousFilterQ.copy(this.accelQ);
+    this.isOrientationInitialized = true;
+    return;
+  }
+
+  var deltaT = this.currentGyroMeasurement.timestampS - this.previousGyroMeasurement.timestampS; // Convert gyro rotation vector to a quaternion delta.
+
+  var gyroDeltaQ = this.gyroToQuaternionDelta_(this.currentGyroMeasurement.sample, deltaT);
+  this.gyroIntegralQ.multiply(gyroDeltaQ); // filter_1 = K * (filter_0 + gyro * dT) + (1 - K) * accel.
+
+  this.filterQ.copy(this.previousFilterQ);
+  this.filterQ.multiply(gyroDeltaQ); // Calculate the delta between the current estimated gravity and the real
+  // gravity vector from accelerometer.
+
+  var invFilterQ = new MathUtil.Quaternion();
+  invFilterQ.copy(this.filterQ);
+  invFilterQ.inverse();
+  this.estimatedGravity.set(0, 0, -1);
+  this.estimatedGravity.applyQuaternion(invFilterQ);
+  this.estimatedGravity.normalize();
+  this.measuredGravity.copy(this.currentAccelMeasurement.sample);
+  this.measuredGravity.normalize(); // Compare estimated gravity with measured gravity, get the delta quaternion
+  // between the two.
+
+  var deltaQ = new MathUtil.Quaternion();
+  deltaQ.setFromUnitVectors(this.estimatedGravity, this.measuredGravity);
+  deltaQ.inverse(); // Calculate the SLERP target: current orientation plus the measured-estimated
+  // quaternion delta.
+
+  var targetQ = new MathUtil.Quaternion();
+  targetQ.copy(this.filterQ);
+  targetQ.multiply(deltaQ); // SLERP factor: 0 is pure gyro, 1 is pure accel.
+
+  this.filterQ.slerp(targetQ, 1 - this.kFilter);
+  this.previousFilterQ.copy(this.filterQ);
+
+  if (!this.isFilterQuaternionInitialized) {
+    this.isFilterQuaternionInitialized = true;
+  }
+};
+
+ComplementaryFilter.prototype.getOrientation = function () {
+  if (this.isFilterQuaternionInitialized) {
+    return this.filterQ;
+  } else {
+    return null;
+  }
+};
+
+var K_FILTER = 0.98;
+var PREDICTION_TIME_S = 0.040;
+
+var FusionPoseSensor =
+/*#__PURE__*/
+function (_Component) {
+  _inheritsLoose(FusionPoseSensor, _Component);
+
+  function FusionPoseSensor() {
+    var _this;
+
+    _this = _Component.call(this) || this;
+    _this.deviceMotion = new DeviceMotion();
+    _this.accelerometer = new MathUtil.Vector3();
+    _this.gyroscope = new MathUtil.Vector3();
+    _this._onDeviceMotionChange = _this._onDeviceMotionChange.bind(_assertThisInitialized(_this));
+    _this._onScreenOrientationChange = _this._onScreenOrientationChange.bind(_assertThisInitialized(_this));
+    _this.filter = new ComplementaryFilter(K_FILTER);
+    _this.posePredictor = new PosePredictor(PREDICTION_TIME_S);
+    _this.filterToWorldQ = new MathUtil.Quaternion();
+    _this.isFirefoxAndroid = Util.isFirefoxAndroid();
+    _this.isIOS = Util.isIOS(); // Ref https://github.com/immersive-web/cardboard-vr-display/issues/18
+
+    _this.isChromeUsingDegrees = CHROME_VERSION >= 66;
+    _this._isEnabled = false; // Set the filter to world transform, depending on OS.
+
+    if (_this.isIOS) {
+      _this.filterToWorldQ.setFromAxisAngle(new MathUtil.Vector3(1, 0, 0), Math.PI / 2);
+    } else {
+      _this.filterToWorldQ.setFromAxisAngle(new MathUtil.Vector3(1, 0, 0), -Math.PI / 2);
+    }
+
+    _this.inverseWorldToScreenQ = new MathUtil.Quaternion();
+    _this.worldToScreenQ = new MathUtil.Quaternion();
+    _this.originalPoseAdjustQ = new MathUtil.Quaternion();
+
+    _this.originalPoseAdjustQ.setFromAxisAngle(new MathUtil.Vector3(0, 0, 1), -win.orientation * Math.PI / 180);
+
+    _this._setScreenTransform(); // Adjust this filter for being in landscape mode.
+
+
+    if (Util.isLandscapeMode()) {
+      _this.filterToWorldQ.multiply(_this.inverseWorldToScreenQ);
+    } // Keep track of a reset transform for resetSensor.
+
+
+    _this.resetQ = new MathUtil.Quaternion();
+
+    _this.deviceMotion.on("devicemotion", _this._onDeviceMotionChange);
+
+    _this.enable();
+
+    return _this;
+  }
+
+  var _proto = FusionPoseSensor.prototype;
+
+  _proto.enable = function enable() {
+    if (this.isEnabled()) {
+      return;
+    }
+
+    this.deviceMotion.enable();
+    this._isEnabled = true;
+    win.addEventListener("orientationchange", this._onScreenOrientationChange);
+  };
+
+  _proto.disable = function disable() {
+    if (!this.isEnabled()) {
+      return;
+    }
+
+    this.deviceMotion.disable();
+    this._isEnabled = false;
+    win.removeEventListener("orientationchange", this._onScreenOrientationChange);
+  };
+
+  _proto.isEnabled = function isEnabled() {
+    return this._isEnabled;
+  };
+
+  _proto.destroy = function destroy() {
+    this.disable();
+    this.deviceMotion = null;
+  };
+
+  _proto._triggerChange = function _triggerChange() {
+    var orientation = this.getOrientation(); // if orientation is not prepared. don't trigger change event
+
+    if (!orientation) {
+      return;
+    }
+
+    if (!this._prevOrientation) {
+      this._prevOrientation = orientation;
+      return;
+    }
+
+    if (quat.equals(this._prevOrientation, orientation)) {
+      return;
+    }
+
+    this.trigger("change", {
+      quaternion: orientation
+    });
+  };
+
+  _proto.getOrientation = function getOrientation() {
+    var _this2 = this;
+
+    var orientation; // Hack around using deviceorientation instead of devicemotion
+
+    if (this.deviceMotion.isWithoutDeviceMotion && this._deviceOrientationQ) {
+      this.deviceOrientationFixQ = this.deviceOrientationFixQ || function () {
+        var y = new MathUtil.Quaternion().setFromAxisAngle(new MathUtil.Vector3(0, 1, 0), -_this2._alpha);
+        return y;
+      }();
+
+      orientation = this._deviceOrientationQ;
+      var out = new MathUtil.Quaternion();
+      out.copy(orientation);
+      out.multiply(this.filterToWorldQ);
+      out.multiply(this.resetQ);
+      out.multiply(this.worldToScreenQ);
+      out.multiplyQuaternions(this.deviceOrientationFixQ, out); // return quaternion as glmatrix quaternion object
+
+      var out_ = quat.fromValues(out.x, out.y, out.z, out.w);
+      return quat.normalize(out_, out_);
+    } else {
+      // Convert from filter space to the the same system used by the
+      // deviceorientation event.
+      orientation = this.filter.getOrientation();
+
+      if (!orientation) {
+        return null;
       }
 
-      var yawQ = quat.setAxisAngle(quat.create(), Y_AXIS_VECTOR, glMatrix.toRadian(yaw));
-      var outQ = quat.multiply(quat.create(), yawQ, currentQuat);
-      quat.conjugate(outQ, outQ);
-      quat.copy(this._prevQuaternion, currentQuat);
-      return outQ;
-    };
+      var _out = this._convertFusionToPredicted(orientation); // return quaternion as glmatrix quaternion object
 
-    _proto.getDeviceHorizontalRight = function getDeviceHorizontalRight(quaternion) {
-      var currentQuat = quaternion || this._getOrientation();
 
-      var unrotateQuat = quat.conjugate(quat.create(), currentQuat); // Assume that unrotated device center pos is at (0, 0, -1)
+      var _out_ = quat.fromValues(_out.x, _out.y, _out.z, _out.w);
 
-      var origViewDir = vec3.fromValues(0, 0, -1);
-      var viewDir = vec3.transformQuat(vec3.create(), origViewDir, currentQuat); // Where is the right, in current view direction
+      return quat.normalize(_out_, _out_);
+    }
+  };
 
-      var viewXAxis = vec3.cross(vec3.create(), viewDir, Y_AXIS_VECTOR);
-      var deviceHorizontalDir = vec3.add(vec3.create(), viewDir, viewXAxis);
-      var unrotatedHorizontalDir = vec3.create();
-      vec3.transformQuat(unrotatedHorizontalDir, deviceHorizontalDir, unrotateQuat);
-      vec3.sub(unrotatedHorizontalDir, unrotatedHorizontalDir, origViewDir);
-      unrotatedHorizontalDir[2] = 0; // Remove z element
+  _proto._convertFusionToPredicted = function _convertFusionToPredicted(orientation) {
+    // Predict orientation.
+    this.predictedQ = this.posePredictor.getPrediction(orientation, this.gyroscope, this.previousTimestampS); // Convert to THREE coordinate system: -Z forward, Y up, X right.
 
-      vec3.normalize(unrotatedHorizontalDir, unrotatedHorizontalDir);
-      return unrotatedHorizontalDir;
-    };
+    var out = new MathUtil.Quaternion();
+    out.copy(this.filterToWorldQ);
+    out.multiply(this.resetQ);
+    out.multiply(this.predictedQ);
+    out.multiply(this.worldToScreenQ);
+    return out;
+  };
 
-    _proto.destroy = function destroy() {
-      this.disable();
-    };
+  _proto._onDeviceMotionChange = function _onDeviceMotionChange(_ref) {
+    var inputEvent = _ref.inputEvent;
+    var deviceorientation = inputEvent.deviceorientation;
+    var deviceMotion = inputEvent;
+    var accGravity = deviceMotion.accelerationIncludingGravity;
+    var rotRate = deviceMotion.adjustedRotationRate || deviceMotion.rotationRate;
+    var timestampS = deviceMotion.timeStamp / 1000;
 
-    _proto._getOrientation = function _getOrientation() {
-      if (!this._sensor.quaternion) {
-        return quat.create();
+    if (deviceorientation) {
+      if (!this._alpha) {
+        this._alpha = deviceorientation.alpha;
       }
 
-      return quat.multiply(quat.create(), SENSOR_TO_VR, this._sensor.quaternion);
-    };
+      this._deviceOrientationQ = this._deviceOrientationQ || new MathUtil.Quaternion();
 
-    _proto._startSensor = function _startSensor() {
-      var sensor = this._sensor;
-      sensor.start();
+      this._deviceOrientationQ.setFromEulerYXZ(deviceorientation.beta, deviceorientation.alpha, deviceorientation.gamma);
 
-      if (!this._calibrated) {
-        sensor.addEventListener("reading", this._onFirstRead);
-      } else {
-        sensor.addEventListener("reading", this._onSensorRead);
+      this._triggerChange();
+    } else {
+      // Firefox Android timeStamp returns one thousandth of a millisecond.
+      if (this.isFirefoxAndroid) {
+        timestampS /= 1000;
       }
 
-      this._enabled = true;
-    };
+      this.accelerometer.set(-accGravity.x, -accGravity.y, -accGravity.z);
+      this.gyroscope.set(rotRate.alpha, rotRate.beta, rotRate.gamma); // Browsers on iOS, Firefox/Android, and Chrome m66/Android `rotationRate`
+      // is reported in degrees, so we first convert to radians.
 
-    return DeviceSensorInput;
-  }(Component);
+      if (this.isIOS || this.isFirefoxAndroid || this.isChromeUsingDegrees) {
+        this.gyroscope.multiplyScalar(Math.PI / 180);
+      }
 
-  return DeviceSensorInput;
+      this.filter.addAccelMeasurement(this.accelerometer, timestampS);
+      this.filter.addGyroMeasurement(this.gyroscope, timestampS);
+
+      this._triggerChange();
+
+      this.previousTimestampS = timestampS;
+    }
+  };
+
+  _proto._onScreenOrientationChange = function _onScreenOrientationChange(screenOrientation) {
+    this._setScreenTransform(win.orientation);
+  };
+
+  _proto._setScreenTransform = function _setScreenTransform() {
+    this.worldToScreenQ.set(0, 0, 0, 1);
+    var orientation = win.orientation;
+
+    switch (orientation) {
+      case 0:
+        break;
+
+      case 90:
+      case -90:
+      case 180:
+        this.worldToScreenQ.setFromAxisAngle(new MathUtil.Vector3(0, 0, 1), orientation / -180 * Math.PI);
+        break;
+
+      default:
+        break;
+    }
+
+    this.inverseWorldToScreenQ.copy(this.worldToScreenQ);
+    this.inverseWorldToScreenQ.inverse();
+  };
+
+  return FusionPoseSensor;
+}(Component);
+
+function getDeltaYaw$1(prvQ, curQ) {
+  var yawDeltaByYaw = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.YAW_DELTA_BY_YAW);
+  var yawDeltaByRoll = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.YAW_DELTA_BY_ROLL) * Math.sin(util.extractPitchFromQuat(curQ));
+  return yawDeltaByRoll + yawDeltaByYaw;
+}
+
+function getDeltaPitch$1(prvQ, curQ) {
+  var pitchDelta = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.PITCH_DELTA);
+  return pitchDelta;
+}
+
+var TiltMotionInput =
+/*#__PURE__*/
+function (_Component) {
+  _inheritsLoose(TiltMotionInput, _Component);
+
+  function TiltMotionInput(el, options) {
+    var _this;
+
+    _this = _Component.call(this) || this;
+    _this.element = el;
+    _this._prevQuaternion = null;
+    _this._quaternion = null;
+    _this.fusionPoseSensor = null;
+    _this.options = _extends({
+      scale: 1,
+      threshold: 0
+    }, options);
+    _this._onPoseChange = _this._onPoseChange.bind(_assertThisInitialized(_this));
+    return _this;
+  }
+
+  var _proto = TiltMotionInput.prototype;
+
+  _proto.mapAxes = function mapAxes(axes) {
+    this.axes = axes;
+  };
+
+  _proto.connect = function connect(observer) {
+    if (this.observer) {
+      return this;
+    }
+
+    this.observer = observer;
+    this.fusionPoseSensor = new FusionPoseSensor();
+    this.fusionPoseSensor.enable();
+
+    this._attachEvent();
+
+    return this;
+  };
+
+  _proto.disconnect = function disconnect() {
+    if (!this.observer) {
+      return this;
+    }
+
+    this._dettachEvent();
+
+    this.fusionPoseSensor.disable();
+    this.fusionPoseSensor.destroy();
+    this.fusionPoseSensor = null;
+    this.observer = null;
+    return this;
+  };
+
+  _proto.destroy = function destroy() {
+    this.disconnect();
+    this.element = null;
+    this.options = null;
+    this.axes = null;
+    this._prevQuaternion = null;
+    this._quaternion = null;
+  };
+
+  _proto._onPoseChange = function _onPoseChange(event) {
+    if (!this._prevQuaternion) {
+      this._prevQuaternion = quat.clone(event.quaternion);
+      this._quaternion = quat.clone(event.quaternion);
+      return;
+    }
+
+    quat.copy(this._prevQuaternion, this._quaternion);
+    quat.copy(this._quaternion, event.quaternion);
+    this.observer.change(this, event, toAxis(this.axes, [getDeltaYaw$1(this._prevQuaternion, this._quaternion), getDeltaPitch$1(this._prevQuaternion, this._quaternion)]));
+  };
+
+  _proto._attachEvent = function _attachEvent() {
+    this.fusionPoseSensor.on("change", this._onPoseChange);
+  };
+
+  _proto._dettachEvent = function _dettachEvent() {
+    this.fusionPoseSensor.off("change", this._onPoseChange);
+  };
+
+  return TiltMotionInput;
+}(Component);
+
+var screenRotationAngleInst = null;
+var refCount = 0;
+
+var ScreenRotationAngle =
+/*#__PURE__*/
+function () {
+  function ScreenRotationAngle() {
+    refCount++;
+
+    if (screenRotationAngleInst) {
+      return screenRotationAngleInst;
+    }
+    /* eslint-disable */
+
+
+    screenRotationAngleInst = this;
+    /* eslint-enable */
+
+    this._onDeviceOrientation = this._onDeviceOrientation.bind(this);
+    this._onOrientationChange = this._onOrientationChange.bind(this);
+    this._spinR = 0;
+    this._screenOrientationAngle = 0;
+    win.addEventListener("deviceorientation", this._onDeviceOrientation);
+    win.addEventListener("orientationchange", this._onOrientationChange);
+  }
+
+  var _proto = ScreenRotationAngle.prototype;
+
+  _proto._onDeviceOrientation = function _onDeviceOrientation(e) {
+    if (e.beta === null || e.gamma === null) {
+      // (Chrome) deviceorientation is fired with invalid information {alpha=null, beta=null, ...} despite of not dispatching it. We skip it.
+      return;
+    } // Radian
+
+
+    var betaR = glMatrix.toRadian(e.beta);
+    var gammaR = glMatrix.toRadian(e.gamma);
+    /* spinR range = [-180, 180], left side: 0 ~ -180(deg), right side: 0 ~ 180(deg) */
+
+    this._spinR = Math.atan2(Math.cos(betaR) * Math.sin(gammaR), Math.sin(betaR));
+  };
+
+  _proto._onOrientationChange = function _onOrientationChange(e) {
+    if (win.screen && win.screen.orientation && win.screen.orientation.angle !== undefined) {
+      this._screenOrientationAngle = screen.orientation.angle;
+    } else if (win.orientation !== undefined) {
+      /* iOS */
+      this._screenOrientationAngle = win.orientation >= 0 ? win.orientation : 360 + win.orientation;
+    }
+  };
+
+  _proto.getRadian = function getRadian() {
+    // Join with screen orientation
+    // this._testVal = this._spinR + ", " + this._screenOrientationAngle + ", " + window.orientation;
+    return this._spinR + glMatrix.toRadian(this._screenOrientationAngle);
+  };
+
+  _proto.unref = function unref() {
+    if (--refCount > 0) {
+      return;
+    }
+
+    win.removeEventListener("deviceorientation", this._onDeviceOrientation);
+    win.removeEventListener("orientationchange", this._onOrientationChange);
+    this._spinR = 0;
+    this._screenOrientationAngle = 0;
+    /* eslint-disable */
+
+    screenRotationAngleInst = null;
+    /* eslint-enable */
+
+    refCount = 0;
+  };
+
+  return ScreenRotationAngle;
 }();
+
+/**
+ * RotationPanInput is extension of PanInput to compensate coordinates by screen rotation angle.
+ *
+ * The reason for using this function is that in VR mode,
+ * the roll angle is adjusted in the direction opposite to the screen rotation angle.
+ *
+ * Therefore, the angle that the user touches and moves does not match the angle at which the actual object should move.
+ * @extends PanInput
+ */
+
+var RotationPanInput =
+/*#__PURE__*/
+function (_PanInput) {
+  _inheritsLoose(RotationPanInput, _PanInput);
+
+  /**
+   * Constructor
+   *
+   * @private
+   * @param {HTMLElement} el target element
+   * @param {Object} [options] The option object
+   * @param {Boolean} [options.useRotation]  Whether to use rotation(or VR)
+   */
+  function RotationPanInput(el, options) {
+    var _this;
+
+    _this = _PanInput.call(this, el, options) || this;
+    _this._useRotation = false;
+    _this._screenRotationAngle = null;
+
+    _this.setUseRotation(!!(options && options.useRotation));
+
+    _this._userDirection = Axes.DIRECTION_ALL;
+    return _this;
+  }
+
+  var _proto = RotationPanInput.prototype;
+
+  _proto.setUseRotation = function setUseRotation(useRotation) {
+    this._useRotation = useRotation;
+
+    if (this._screenRotationAngle) {
+      this._screenRotationAngle.unref();
+
+      this._screenRotationAngle = null;
+    }
+
+    if (this._useRotation) {
+      this._screenRotationAngle = new ScreenRotationAngle();
+    }
+  };
+
+  _proto.connect = function connect(observer) {
+    // User intetened direction
+    this._userDirection = this._direction; // In VR Mode, Use ALL direction if direction is not none
+    // Because horizontal and vertical is changed dynamically by screen rotation.
+    // this._direction is used to initialize hammerjs
+
+    if (this._useRotation && this._direction & Axes.DIRECTION_ALL) {
+      this._direction = Axes.DIRECTION_HORIZONTAL;
+    }
+
+    _PanInput.prototype.connect.call(this, observer);
+  };
+
+  _proto.getOffset = function getOffset(properties, useDirection) {
+    if (this._useRotation === false) {
+      return _PanInput.prototype.getOffset.call(this, properties, useDirection);
+    }
+
+    var offset = _PanInput.prototype.getOffset.call(this, properties, [true, true]);
+
+    var newOffset = [0, 0];
+
+    var theta = this._screenRotationAngle.getRadian();
+
+    var cosTheta = Math.cos(theta);
+    var sinTheta = Math.sin(theta); // RotateZ
+
+    newOffset[0] = offset[0] * cosTheta - offset[1] * sinTheta;
+    newOffset[1] = offset[1] * cosTheta + offset[0] * sinTheta; // Use only user allowed direction.
+
+    if (!(this._userDirection & Axes.DIRECTION_HORIZONTAL)) {
+      newOffset[0] = 0;
+    } else if (!(this._userDirection & Axes.DIRECTION_VERTICAL)) {
+      newOffset[1] = 0;
+    }
+
+    return newOffset;
+  };
+
+  _proto.destroy = function destroy() {
+    if (this._useRotation) {
+      this._screenRotationAngle && this._screenRotationAngle.unref();
+    }
+
+    _PanInput.prototype.destroy.call(this);
+  };
+
+  return RotationPanInput;
+}(PanInput);
+
+var Y_AXIS_VECTOR = vec3.fromValues(0, 1, 0);
+
+var DeviceQuaternion =
+/*#__PURE__*/
+function (_Component) {
+  _inheritsLoose(DeviceQuaternion, _Component);
+
+  function DeviceQuaternion() {
+    var _this;
+
+    _this = _Component.call(this) || this;
+    _this._fusionPoseSensor = new FusionPoseSensor();
+    _this._quaternion = quat.create();
+
+    _this._fusionPoseSensor.enable();
+
+    _this._fusionPoseSensor.on("change", function (e) {
+      _this._quaternion = e.quaternion;
+
+      _this.trigger("change", {
+        isTrusted: true
+      });
+    });
+
+    return _this;
+  }
+
+  var _proto = DeviceQuaternion.prototype;
+
+  _proto.getCombinedQuaternion = function getCombinedQuaternion(yaw) {
+    var yawQ = quat.setAxisAngle(quat.create(), Y_AXIS_VECTOR, glMatrix.toRadian(-yaw));
+    var conj = quat.conjugate(quat.create(), this._quaternion); // Multiply pitch quaternion -> device quaternion -> yaw quaternion
+
+    var outQ = quat.multiply(quat.create(), conj, yawQ);
+    return outQ;
+  };
+
+  _proto.destroy = function destroy() {
+    // detach all event handler
+    this.off();
+
+    if (this._fusionPoseSensor) {
+      this._fusionPoseSensor.off();
+
+      this._fusionPoseSensor.destroy();
+
+      this._fusionPoseSensor = null;
+    }
+  };
+
+  return DeviceQuaternion;
+}(Component);
 
 var VERSION = "3.3.0-snapshot";
 
-var _Promise$1 = typeof Promise === 'undefined' ? _ESPromise.Promise : Promise;
 var DEFAULT_YAW_RANGE = [-YAW_RANGE_HALF, YAW_RANGE_HALF];
 var DEFAULT_PITCH_RANGE = [-PITCH_RANGE_HALF, PITCH_RANGE_HALF];
 var CIRCULAR_PITCH_RANGE = [-CIRCULAR_PITCH_RANGE_HALF, CIRCULAR_PITCH_RANGE_HALF];
@@ -701,9 +1131,7 @@ function () {
       _this._initialFov = opt.fov;
       _this._enabled = false;
       _this._isAnimating = false;
-      _this._deviceSensor = new DeviceSensorInput().on("change", function (e) {
-        _this._triggerChange(e);
-      });
+      _this._deviceQuaternion = null;
 
       _this._initAxes(opt);
 
@@ -724,10 +1152,11 @@ function () {
       var useRotation = opt.gyroMode === GYRO_MODE.VR;
       this.axesPanInput = new RotationPanInput(this._element, {
         useRotation: useRotation
-      }, this._deviceSensor);
+      });
       this.axesWheelInput = new WheelInput(this._element, {
         scale: -4
       });
+      this.axesTiltMotionInput = null;
       this.axesPinchInput = SUPPORT_TOUCH ? new PinchInput(this._element, {
         scale: -1
       }) : null;
@@ -929,22 +1358,27 @@ function () {
       if (keys.some(function (key) {
         return key === "gyroMode";
       }) && SUPPORT_DEVICEMOTION) {
-        if (!isVR && !isYawPitch) {
-          axes.disconnect(this._deviceSensor);
-
-          this._deviceSensor.disable();
-        } else {
-          axes.connect(["yaw", "pitch"], this._deviceSensor);
-
-          this._deviceSensor.enable()["catch"](function () {}); // Device motion enabling can fail on iOS
-
+        // Disconnect first
+        if (this.axesTiltMotionInput) {
+          this.axes.disconnect(this.axesTiltMotionInput);
+          this.axesTiltMotionInput.destroy();
+          this.axesTiltMotionInput = null;
         }
 
-        this._deviceSensor.setGyroMode(options.gyroMode);
+        if (this._deviceQuaternion) {
+          this._deviceQuaternion.destroy();
+
+          this._deviceQuaternion = null;
+        }
 
         if (isVR) {
-          this.axesPanInput.setUseRotation(isVR);
+          this._initDeviceQuaternion();
+        } else if (isYawPitch) {
+          this.axesTiltMotionInput = new TiltMotionInput(this._element);
+          this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
         }
+
+        this.axesPanInput.setUseRotation(isVR);
       }
 
       if (keys.some(function (key) {
@@ -998,6 +1432,16 @@ function () {
       var yawEnabled = direction & TOUCH_DIRECTION_YAW ? "yaw" : null;
       var pitchEnabled = direction & TOUCH_DIRECTION_PITCH ? "pitch" : null;
       this.axes.connect([yawEnabled, pitchEnabled], this.axesPanInput);
+    };
+
+    _proto._initDeviceQuaternion = function _initDeviceQuaternion() {
+      var _this3 = this;
+
+      this._deviceQuaternion = new DeviceQuaternion();
+
+      this._deviceQuaternion.on("change", function (e) {
+        _this3._triggerChange(e);
+      });
     };
 
     _proto._getValidYawRange = function _getValidYawRange(newYawRange, newFov, newAspectRatio) {
@@ -1141,8 +1585,8 @@ function () {
       event.pitch = pos.pitch;
       event.fov = pos.fov;
 
-      if (opt.gyroMode === GYRO_MODE.VR) {
-        event.quaternion = this._deviceSensor.getCombinedQuaternion(pos.yaw);
+      if (opt.gyroMode === GYRO_MODE.VR && this._deviceQuaternion) {
+        event.quaternion = this._deviceQuaternion.getCombinedQuaternion(pos.yaw);
       }
 
       this.trigger("change", event);
@@ -1197,9 +1641,6 @@ function () {
 
 
       this.updatePanScale();
-      this.enableSensor()["catch"](function () {// This can fail when it's not triggered by user interaction on iOS13+
-        // Just ignore the rejection
-      });
       return this;
     }
     /**
@@ -1220,7 +1661,6 @@ function () {
       }
 
       this.axes.disconnect();
-      this.disableSensor();
       this._enabled = false;
       return this;
     };
@@ -1259,41 +1699,6 @@ function () {
       }, duration);
     };
 
-    _proto.enableSensor = function enableSensor() {
-      var _this3 = this;
-
-      return new _Promise$1(function (resolve, reject) {
-        var activateSensor = function activateSensor() {
-          if (_this3.options.gyroMode !== GYRO_MODE.NONE) {
-            _this3._deviceSensor.enable();
-
-            resolve();
-          } else {
-            reject(new Error("gyroMode not set"));
-          }
-        };
-
-        if (DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === "function") {
-          DeviceMotionEvent.requestPermission().then(function (permissionState) {
-            if (permissionState === "granted") {
-              activateSensor();
-            } else {
-              reject(new Error("denied"));
-            }
-          })["catch"](function (e) {
-            // This can happen when this method was't triggered by user interaction
-            reject(e);
-          });
-        } else {
-          activateSensor();
-        }
-      });
-    };
-
-    _proto.disableSensor = function disableSensor() {
-      this._deviceSensor.disable();
-    };
-
     _proto.getYawPitch = function getYawPitch() {
       var yawPitch = this.axes.get();
       return {
@@ -1308,7 +1713,7 @@ function () {
 
     _proto.getQuaternion = function getQuaternion() {
       var pos = this.axes.get();
-      return this._deviceSensor.getCombinedQuaternion(pos.yaw);
+      return this._deviceQuaternion.getCombinedQuaternion(pos.yaw);
     };
 
     _proto.shouldRenderWithQuaternion = function shouldRenderWithQuaternion() {
@@ -1323,10 +1728,11 @@ function () {
       this.axes && this.axes.destroy();
       this.axisPanInput && this.axisPanInput.destroy();
       this.axesWheelInput && this.axesWheelInput.destroy();
+      this.axesTiltMotionInput && this.axesTiltMotionInput.destroy();
       this.axesDeviceOrientationInput && this.axesDeviceOrientationInput.destroy();
       this.axesPinchInput && this.axesPinchInput.destroy();
       this.axesMoveKeyInput && this.axesMoveKeyInput.destroy();
-      this._deviceSensor && this._deviceSensor.destroy();
+      this._deviceQuaternion && this._deviceQuaternion.destroy();
     };
 
     return YawPitchControl;
@@ -1342,7 +1748,7 @@ function () {
   return YawPitchControl;
 }();
 
-var _Promise$2 = typeof Promise === 'undefined' ? _ESPromise.Promise : Promise;
+var _Promise = typeof Promise === 'undefined' ? _ESPromise.Promise : Promise;
 var STATUS = {
   "NONE": 0,
   "LOADING": 1,
@@ -1378,7 +1784,7 @@ function () {
     _proto.get = function get() {
       var _this2 = this;
 
-      return new _Promise$2(function (res, rej) {
+      return new _Promise(function (res, rej) {
         if (!_this2._image) {
           rej("ImageLoader: image is not defiend");
         } else if (_this2._loadStatus === STATUS.LOADED) {
@@ -1476,7 +1882,7 @@ function () {
         return !ImageLoader.isMaybeLoaded(img);
       });
       var loadPromises = targetsNotLoaded.map(function (img) {
-        return new _Promise$2(function (res, rej) {
+        return new _Promise(function (res, rej) {
           _this4._once(img, "load", function () {
             return res(img);
           });
@@ -1487,7 +1893,7 @@ function () {
         });
       });
 
-      _Promise$2.all(loadPromises).then(function (result) {
+      _Promise.all(loadPromises).then(function (result) {
         return onload(targets.length === 1 ? targets[0] : targets);
       }, function (reason) {
         return onerror(reason);
@@ -1531,7 +1937,7 @@ function () {
   return ImageLoader;
 }();
 
-var _Promise$3 = typeof Promise === 'undefined' ? _ESPromise.Promise : Promise;
+var _Promise$1 = typeof Promise === 'undefined' ? _ESPromise.Promise : Promise;
 
 // import Agent from "@egjs/agent";
 
@@ -1678,7 +2084,7 @@ function () {
   _proto.get = function get() {
     var _this2 = this;
 
-    return new _Promise$3(function (res, rej) {
+    return new _Promise$1(function (res, rej) {
       if (!_this2._video) {
         rej("VideoLoader: video is undefined");
       } else if (_this2._loadStatus === READY_STATUS.LOADING_FAILED) {
@@ -3029,7 +3435,7 @@ function () {
   return CylinderRenderer;
 }();
 
-var _Promise$4 = typeof Promise === 'undefined' ? _ESPromise.Promise : Promise;
+var _Promise$2 = typeof Promise === 'undefined' ? _ESPromise.Promise : Promise;
 var VR_DISPLAY_PRESENT_CHANGE = "vrdisplaypresentchange";
 var DEFAULT_LEFT_BOUNDS = [0, 0, 0.5, 1];
 var DEFAULT_RIGHT_BOUNDS = [0.5, 0, 0.5, 1];
@@ -3122,7 +3528,7 @@ function () {
     _proto.requestPresent = function requestPresent(canvas) {
       var _this2 = this;
 
-      return new _Promise$4(function (resolve, reject) {
+      return new _Promise$2(function (resolve, reject) {
         navigator.getVRDisplays().then(function (displays) {
           var vrDisplay = displays.length && displays[0];
 
@@ -3409,7 +3815,7 @@ function () {
   return WebGLAnimator;
 }();
 
-var _Promise$5 = typeof Promise === 'undefined' ? _ESPromise.Promise : Promise;
+var _Promise$3 = typeof Promise === 'undefined' ? _ESPromise.Promise : Promise;
 var ImageType = PROJECTION_TYPE;
 var DEVICE_PIXEL_RATIO = devicePixelRatio || 1; // DEVICE_PIXEL_RATIO 가 2를 초과하는 경우는 리소스 낭비이므로 2로 맞춘다.
 
@@ -3737,7 +4143,7 @@ function () {
     _proto.bindTexture = function bindTexture() {
       var _this3 = this;
 
-      return new _Promise$5(function (res, rej) {
+      return new _Promise$3(function (res, rej) {
         if (!_this3._contentLoader) {
           rej("ImageLoader is not initialized");
           return;
@@ -4113,11 +4519,11 @@ function () {
       var vr = this._vr;
 
       if (!WEBXR_SUPPORTED && !navigator.getVRDisplays) {
-        return _Promise$5.reject("VR is not available on this browser.");
+        return _Promise$3.reject("VR is not available on this browser.");
       }
 
       if (vr && vr.isPresenting()) {
-        return _Promise$5.resolve("VR already enabled.");
+        return _Promise$3.resolve("VR already enabled.");
       }
 
       return this._requestPresent();
@@ -4132,7 +4538,7 @@ function () {
       this._vr = WEBXR_SUPPORTED ? new XRManager() : new VRManager();
       var vr = this._vr;
       animator.stop();
-      return new _Promise$5(function (resolve, reject) {
+      return new _Promise$3(function (resolve, reject) {
         vr.requestPresent(canvas, gl).then(function () {
           vr.addEndCallback(_this4.exitVR);
           animator.setContext(vr.context);
@@ -4193,7 +4599,7 @@ function () {
   return PanoImageRenderer;
 }();
 
-var _Promise$6 = typeof Promise === 'undefined' ? _ESPromise.Promise : Promise;
+var _Promise$4 = typeof Promise === 'undefined' ? _ESPromise.Promise : Promise;
 
 var PanoViewer =
 /*#__PURE__*/
@@ -4525,31 +4931,43 @@ function () {
       return this._projectionType;
     }
     /**
-     * Reactivate the device's motion sensor. Motion sensor will work only if you enabled `gyroMode` option.
+     * Activate the device's motion sensor, and return the Promise whether the sensor is enabled
      * If it's iOS13+, this method must be used in the context of user interaction, like onclick callback on the button element.
-     * @ko 디바이스의 모션 센서를 재활성화합니다. 모션 센서는 `gyroMode` 옵션을 활성화해야만 사용할 수 있습니다.
+     * @ko 디바이스의 모션 센서를 활성화하고, 활성화 여부를 담는 Promise를 리턴합니다.
      * iOS13+일 경우, 사용자 인터렉션에 의해서 호출되어야 합니다. 예로, 버튼의 onclick 콜백과 같은 콘텍스트에서 호출되어야 합니다.
-     * @see {@link eg.view360.PanoViewer#setGyroMode}
      * @method eg.view360.PanoViewer#enableSensor
      * @return {Promise<string>} Promise containing nothing when resolved, or string of the rejected reason when rejected.<ko>Promise. resolve되었을 경우 아무것도 반환하지 않고, reject되었을 경우 그 이유를 담고있는 string을 반환한다.</ko>
      */
     ;
 
     _proto.enableSensor = function enableSensor() {
-      return this._yawPitchControl.enableSensor();
+      return new _Promise$4(function (resolve, reject) {
+        if (DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === "function") {
+          DeviceMotionEvent.requestPermission().then(function (permissionState) {
+            if (permissionState === "granted") {
+              resolve();
+            } else {
+              reject(new Error("permission denied"));
+            }
+          })["catch"](function (e) {
+            // This can happen when this method wasn't triggered by user interaction
+            reject(e);
+          });
+        } else {
+          resolve();
+        }
+      });
     }
     /**
      * Disable the device's motion sensor.
      * @ko 디바이스의 모션 센서를 비활성화합니다.
-     * @see {@link eg.view360.PanoViewer#setGyroMode}
+     * @deprecated
      * @method eg.view360.PanoViewer#disableSensor
      * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
      */
     ;
 
     _proto.disableSensor = function disableSensor() {
-      this._yawPitchControl.disableSensor();
-
       return this;
     }
     /**
@@ -4568,10 +4986,10 @@ function () {
       var _this2 = this;
 
       if (!this._isReady) {
-        return _Promise$6.reject(new Error("PanoViewer is not ready to show image."));
+        return _Promise$4.reject(new Error("PanoViewer is not ready to show image."));
       }
 
-      return new _Promise$6(function (resolve, reject) {
+      return new _Promise$4(function (resolve, reject) {
         _this2.enableSensor().then(function () {
           return _this2._photoSphereRenderer.enterVR();
         }).then(function (res) {
@@ -5210,7 +5628,7 @@ function () {
     ;
 
     PanoViewer.isGyroSensorAvailable = function isGyroSensorAvailable(callback) {
-      if (!DeviceMotionEvent$1) {
+      if (!DeviceMotionEvent) {
         callback && callback(false);
         return;
       }
@@ -5218,7 +5636,7 @@ function () {
       var onDeviceMotionChange;
 
       function checkGyro() {
-        return new _Promise$6(function (res, rej) {
+        return new _Promise$4(function (res, rej) {
           onDeviceMotionChange = function onDeviceMotionChange(deviceMotion) {
             var isGyroSensorAvailable = !(deviceMotion.rotationRate.alpha == null);
             res(isGyroSensorAvailable);
@@ -5229,14 +5647,14 @@ function () {
       }
 
       function timeout() {
-        return new _Promise$6(function (res, rej) {
+        return new _Promise$4(function (res, rej) {
           setTimeout(function () {
             return res(false);
           }, 1000);
         });
       }
 
-      _Promise$6.race([checkGyro(), timeout()]).then(function (isGyroSensorAvailable) {
+      _Promise$4.race([checkGyro(), timeout()]).then(function (isGyroSensorAvailable) {
         window.removeEventListener("devicemotion", onDeviceMotionChange);
         callback && callback(isGyroSensorAvailable);
 

@@ -5,7 +5,7 @@ Copyright (c) 2017 NAVER Corp.
 https://github.com/naver/egjs-view360
 @version 3.3.0-snapshot
 All-in-one packaged file for ease use of '@egjs/view360' with below dependencies.
-- @egjs/agent ^2.1.5, @egjs/axes ^2.5.8, @egjs/component ^2.1.2, es6-promise ^4.2.5, gl-matrix ^3.1.0, motion-sensors-polyfill ^0.3.1
+- @egjs/agent ^2.1.5, @egjs/axes ^2.5.8, @egjs/component ^2.1.2, es6-promise ^4.2.5, gl-matrix ^3.1.0, motion-sensors-polyfill ^0.3.1, webvr-polyfill ^0.9.41
 */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -54,7 +54,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
   @version 2.1.2
   */
-
   /**
    * Copyright (c) 2015 NAVER Corp.
    * egjs projects are licensed under the MIT license
@@ -373,6 +372,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return self;
   }
+
   /**
    * @private
    * extend object.
@@ -381,8 +381,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {...Object} objects_to_assign
    * @returns {Object} target
    */
-
-
   var assign;
 
   if (typeof Object.assign !== 'function') {
@@ -412,6 +410,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   }
 
   var assign$1 = assign;
+
   var VENDOR_PREFIXES = ['', 'webkit', 'Moz', 'MS', 'ms', 'o'];
   var TEST_ELEMENT = typeof document === "undefined" ? {
     style: {}
@@ -420,6 +419,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   var round = Math.round,
       abs = Math.abs;
   var now = Date.now;
+
   /**
    * @private
    * get the prefixed property
@@ -447,9 +447,8 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return undefined;
   }
+
   /* eslint-disable no-new-func, no-nested-ternary */
-
-
   var win;
 
   if (typeof window === "undefined") {
@@ -461,7 +460,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
   var PREFIXED_TOUCH_ACTION = prefixed(TEST_ELEMENT.style, 'touchAction');
   var NATIVE_TOUCH_ACTION = PREFIXED_TOUCH_ACTION !== undefined;
-
   function getTouchActionProps() {
     if (!NATIVE_TOUCH_ACTION) {
       return false;
@@ -485,6 +483,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   var TOUCH_ACTION_PAN_X = 'pan-x';
   var TOUCH_ACTION_PAN_Y = 'pan-y';
   var TOUCH_ACTION_MAP = getTouchActionProps();
+
   var MOBILE_REGEX = /mobile|tablet|ip(ad|hone|od)|android/i;
   var SUPPORT_TOUCH = 'ontouchstart' in win;
   var SUPPORT_POINTER_EVENTS = prefixed(win, 'PointerEvent') !== undefined;
@@ -508,6 +507,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   var DIRECTION_ALL = DIRECTION_HORIZONTAL | DIRECTION_VERTICAL;
   var PROPS_XY = ['x', 'y'];
   var PROPS_CLIENT_XY = ['clientX', 'clientY'];
+
   /**
    * @private
    * walk objects and arrays
@@ -515,7 +515,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Function} iterator
    * @param {Object} context
    */
-
   function each(obj, iterator, context) {
     var i;
 
@@ -538,6 +537,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       }
     }
   }
+
   /**
    * @private
    * let a boolean value also be a function that must return a boolean
@@ -547,7 +547,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @returns {Boolean}
    */
 
-
   function boolOrFn(val, args) {
     if (typeof val === TYPE_FUNCTION) {
       return val.apply(args ? args[0] || undefined : undefined, args);
@@ -555,6 +554,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return val;
   }
+
   /**
    * @private
    * small indexOf wrapper
@@ -562,18 +562,16 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {String} find
    * @returns {Boolean} found
    */
-
-
   function inStr(str, find) {
     return str.indexOf(find) > -1;
   }
+
   /**
    * @private
    * when the touchActions are collected they are not a valid value, so we need to clean things up. *
    * @param {String} actions
    * @returns {*}
    */
-
 
   function cleanTouchActions(actions) {
     // none
@@ -603,6 +601,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return TOUCH_ACTION_AUTO;
   }
+
   /**
    * @private
    * Touch Action
@@ -611,7 +610,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {String} value
    * @constructor
    */
-
 
   var TouchAction =
   /*#__PURE__*/
@@ -721,6 +719,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return TouchAction;
   }();
+
   /**
    * @private
    * find if a node is in the given parent
@@ -729,8 +728,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {HTMLElement} parent
    * @return {Boolean} found
    */
-
-
   function hasParent(node, parent) {
     while (node) {
       if (node === parent) {
@@ -742,13 +739,13 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return false;
   }
+
   /**
    * @private
    * get the center of all the pointers
    * @param {Array} pointers
    * @return {Object} center contains `x` and `y` properties
    */
-
 
   function getCenter(pointers) {
     var pointersLength = pointers.length; // no need to loop when only one touch
@@ -775,13 +772,13 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       y: round(y / pointersLength)
     };
   }
+
   /**
    * @private
    * create a simple clone from the input used for storage of firstInput and firstMultiple
    * @param {Object} input
    * @returns {Object} clonedInputData
    */
-
 
   function simpleCloneInputData(input) {
     // make a simple copy of the pointers because we will get a reference if we don't
@@ -805,6 +802,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       deltaY: input.deltaY
     };
   }
+
   /**
    * @private
    * calculate the absolute distance between two points
@@ -813,7 +811,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Array} [props] containing x and y keys
    * @return {Number} distance
    */
-
 
   function getDistance(p1, p2, props) {
     if (!props) {
@@ -824,6 +821,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     var y = p2[props[1]] - p1[props[1]];
     return Math.sqrt(x * x + y * y);
   }
+
   /**
    * @private
    * calculate the angle between two coordinates
@@ -832,7 +830,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Array} [props] containing x and y keys
    * @return {Number} angle
    */
-
 
   function getAngle(p1, p2, props) {
     if (!props) {
@@ -843,6 +840,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     var y = p2[props[1]] - p1[props[1]];
     return Math.atan2(y, x) * 180 / Math.PI;
   }
+
   /**
    * @private
    * get the direction between two points
@@ -850,7 +848,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Number} y
    * @return {Number} direction
    */
-
 
   function getDirection(x, y) {
     if (x === y) {
@@ -886,6 +883,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     input.deltaX = prevDelta.x + (center.x - offset.x);
     input.deltaY = prevDelta.y + (center.y - offset.y);
   }
+
   /**
    * @private
    * calculate the velocity between two points. unit is in px per ms.
@@ -894,14 +892,13 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Number} y
    * @return {Object} velocity `x` and `y`
    */
-
-
   function getVelocity(deltaTime, x, y) {
     return {
       x: x / deltaTime || 0,
       y: y / deltaTime || 0
     };
   }
+
   /**
    * @private
    * calculate the scale factor between two pointersets
@@ -911,10 +908,10 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @return {Number} scale
    */
 
-
   function getScale(start, end) {
     return getDistance(end[0], end[1], PROPS_CLIENT_XY) / getDistance(start[0], start[1], PROPS_CLIENT_XY);
   }
+
   /**
    * @private
    * calculate the rotation degrees between two pointersets
@@ -923,17 +920,16 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @return {Number} rotation
    */
 
-
   function getRotation(start, end) {
     return getAngle(end[1], end[0], PROPS_CLIENT_XY) + getAngle(start[1], start[0], PROPS_CLIENT_XY);
   }
+
   /**
    * @private
    * velocity is calculated every x ms
    * @param {Object} session
    * @param {Object} input
    */
-
 
   function computeIntervalInputData(session, input) {
     var last = session.lastInterval || input;
@@ -965,13 +961,13 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     input.velocityY = velocityY;
     input.direction = direction;
   }
+
   /**
   * @private
    * extend the data with some usable properties like scale, rotate, velocity etc
    * @param {Object} manager
    * @param {Object} input
    */
-
 
   function computeInputData(manager, input) {
     var session = manager.session;
@@ -1026,6 +1022,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     input.target = target;
   }
+
   /**
    * @private
    * handle input events
@@ -1033,7 +1030,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {String} eventType
    * @param {Object} input
    */
-
 
   function inputHandler(manager, eventType, input) {
     var pointersLen = input.pointers.length;
@@ -1057,17 +1053,17 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     manager.recognize(input);
     manager.session.prevInput = input;
   }
+
   /**
    * @private
    * split string on whitespace
    * @param {String} str
    * @returns {Array} words
    */
-
-
   function splitStr(str) {
     return str.trim().split(/\s+/g);
   }
+
   /**
    * @private
    * addEventListener with multiple events at once
@@ -1076,12 +1072,12 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Function} handler
    */
 
-
   function addEventListeners(target, types, handler) {
     each(splitStr(types), function (type) {
       target.addEventListener(type, handler, false);
     });
   }
+
   /**
    * @private
    * removeEventListener with multiple events at once
@@ -1090,24 +1086,23 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Function} handler
    */
 
-
   function removeEventListeners(target, types, handler) {
     each(splitStr(types), function (type) {
       target.removeEventListener(type, handler, false);
     });
   }
+
   /**
    * @private
    * get the window object of an element
    * @param {HTMLElement} element
    * @returns {DocumentView|Window}
    */
-
-
   function getWindowForElement(element) {
     var doc = element.ownerDocument || element;
     return doc.defaultView || doc.parentWindow || window;
   }
+
   /**
    * @private
    * create new input type manager
@@ -1116,7 +1111,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @returns {Input}
    * @constructor
    */
-
 
   var Input =
   /*#__PURE__*/
@@ -1172,6 +1166,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return Input;
   }();
+
   /**
    * @private
    * find if a array contains the object using indexOf or a simple polyFill
@@ -1180,8 +1175,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {String} [findByKey]
    * @return {Boolean|Number} false when not found, or the index
    */
-
-
   function inArray(src, find, findByKey) {
     if (src.indexOf && !findByKey) {
       return src.indexOf(find);
@@ -1296,17 +1289,17 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return PointerEventInput;
   }(Input);
+
   /**
    * @private
    * convert array-like objects to real arrays
    * @param {Object} obj
    * @returns {Array}
    */
-
-
   function toArray(obj) {
     return Array.prototype.slice.call(obj, 0);
   }
+
   /**
    * @private
    * unique array with objects based on a key (like 'id') or just by the array's value
@@ -1315,7 +1308,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Boolean} [sort=False]
    * @returns {Array} [{id:1},{id:2}]
    */
-
 
   function uniqueArray(src, key, sort) {
     var results = [];
@@ -1517,6 +1509,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return MouseInput;
   }(Input);
+
   /**
    * @private
    * Combined touch and mouse input
@@ -1527,7 +1520,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @constructor
    * @extends Input
    */
-
 
   var DEDUP_TIMEOUT = 2500;
   var DEDUP_DISTANCE = 25;
@@ -1629,11 +1621,11 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
 
       var _proto = TouchMouseInput.prototype;
+
       /**
        * @private
        * remove the event listeners
        */
-
       _proto.destroy = function destroy() {
         this.touch.destroy();
         this.mouse.destroy();
@@ -1644,6 +1636,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return TouchMouseInput;
   }();
+
   /**
    * @private
    * create new input type manager
@@ -1651,7 +1644,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Hammer} manager
    * @returns {Input}
    */
-
 
   function createInputInstance(manager) {
     var Type; // let inputClass = manager.options.inputClass;
@@ -1672,6 +1664,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return new Type(manager, inputHandler);
   }
+
   /**
    * @private
    * if the argument is an array, we want to execute the fn on each entry
@@ -1682,7 +1675,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Object} [context]
    * @returns {Boolean}
    */
-
 
   function invokeArrayArg(arg, fn, context) {
     if (Array.isArray(arg)) {
@@ -1700,17 +1692,17 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   var STATE_RECOGNIZED = STATE_ENDED;
   var STATE_CANCELLED = 16;
   var STATE_FAILED = 32;
+
   /**
    * @private
    * get a unique id
    * @returns {number} uniqueId
    */
-
   var _uniqueId = 1;
-
   function uniqueId() {
     return _uniqueId++;
   }
+
   /**
    * @private
    * get a recognizer by name if it is bound to a manager
@@ -1718,8 +1710,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Recognizer} recognizer
    * @returns {Recognizer}
    */
-
-
   function getRecognizerByNameIfManager(otherRecognizer, recognizer) {
     var manager = recognizer.manager;
 
@@ -1729,13 +1719,13 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return otherRecognizer;
   }
+
   /**
    * @private
    * get a usable string, used as event postfix
    * @param {constant} state
    * @returns {String} state
    */
-
 
   function stateStr(state) {
     if (state & STATE_CANCELLED) {
@@ -1750,6 +1740,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return '';
   }
+
   /**
    * @private
    * Recognizer flow explained; *
@@ -1786,7 +1777,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @constructor
    * @param {Object} options
    */
-
 
   var Recognizer =
   /*#__PURE__*/
@@ -2064,6 +2054,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return Recognizer;
   }();
+
   /**
    * @private
    * A tap is recognized when the pointer is doing a small tap/click. Multiple taps are recognized if they occur
@@ -2075,7 +2066,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @constructor
    * @extends Recognizer
    */
-
 
   var TapRecognizer =
   /*#__PURE__*/
@@ -2194,13 +2184,13 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return TapRecognizer;
   }(Recognizer);
+
   /**
    * @private
    * This recognizer is just used as a base for the simple attribute recognizers.
    * @constructor
    * @extends Recognizer
    */
-
 
   var AttrRecognizer =
   /*#__PURE__*/
@@ -2263,13 +2253,13 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return AttrRecognizer;
   }(Recognizer);
+
   /**
    * @private
    * direction cons to string
    * @param {constant} direction
    * @returns {String}
    */
-
 
   function directionStr(direction) {
     if (direction === DIRECTION_DOWN) {
@@ -2284,6 +2274,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return '';
   }
+
   /**
    * @private
    * Pan
@@ -2291,7 +2282,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @constructor
    * @extends AttrRecognizer
    */
-
 
   var PanRecognizer =
   /*#__PURE__*/
@@ -2376,6 +2366,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return PanRecognizer;
   }(AttrRecognizer);
+
   /**
    * @private
    * Swipe
@@ -2383,7 +2374,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @constructor
    * @extends AttrRecognizer
    */
-
 
   var SwipeRecognizer =
   /*#__PURE__*/
@@ -2437,6 +2427,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return SwipeRecognizer;
   }(AttrRecognizer);
+
   /**
    * @private
    * Pinch
@@ -2444,7 +2435,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @constructor
    * @extends AttrRecognizer
    */
-
 
   var PinchRecognizer =
   /*#__PURE__*/
@@ -2484,6 +2474,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return PinchRecognizer;
   }(AttrRecognizer);
+
   /**
    * @private
    * Rotate
@@ -2491,7 +2482,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @constructor
    * @extends AttrRecognizer
    */
-
 
   var RotateRecognizer =
   /*#__PURE__*/
@@ -2522,6 +2512,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return RotateRecognizer;
   }(AttrRecognizer);
+
   /**
    * @private
    * Press
@@ -2529,7 +2520,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @constructor
    * @extends Recognizer
    */
-
 
   var PressRecognizer =
   /*#__PURE__*/
@@ -2730,6 +2720,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     event: 'doubletap',
     taps: 2
   }, ['tap']], [PressRecognizer]];
+
   var STOP = 1;
   var FORCED_STOP = 2;
   /**
@@ -3147,6 +3138,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return [all, changed];
   }
+
   /**
    * @private
    * wrap a method with a deprecation warning and stack trace
@@ -3155,8 +3147,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {String} message
    * @returns {Function} A new function wrapping the supplied method.
    */
-
-
   function deprecate(method, name, message) {
     var deprecationMessage = "DEPRECATED METHOD: " + name + "\n" + message + " AT \n";
     return function () {
@@ -3171,6 +3161,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       return method.apply(this, arguments);
     };
   }
+
   /**
    * @private
    * extend object.
@@ -3180,7 +3171,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Boolean} [merge=false]
    * @returns {Object} dest
    */
-
 
   var extend = deprecate(function (dest, src, merge) {
     var keys = Object.keys(src);
@@ -3196,6 +3186,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return dest;
   }, 'extend', 'Use `assign`.');
+
   /**
    * @private
    * merge the values from src in the dest.
@@ -3208,6 +3199,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   var merge = deprecate(function (dest, src) {
     return extend(dest, src, true);
   }, 'merge', 'Use `assign`.');
+
   /**
    * @private
    * simple class inheritance
@@ -3227,6 +3219,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       assign$1(childP, properties);
     }
   }
+
   /**
    * @private
    * simple function bind
@@ -3234,13 +3227,12 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Object} context
    * @returns {Function}
    */
-
-
   function bindFn(fn, context) {
     return function boundFn() {
       return fn.apply(context, arguments);
     };
   }
+
   /**
    * @private
    * Simple way to create a manager with a default set of recognizers.
@@ -3248,7 +3240,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Object} [options]
    * @constructor
    */
-
 
   var Hammer =
   /*#__PURE__*/
@@ -3327,7 +3318,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       preset: preset
     });
     return Hammer;
-  }(); //  style loader but by script tag, not by the loader.
+  }();
 
   /*
   Copyright (c) 2017 NAVER Corp.
@@ -3338,6 +3329,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
   @version 2.6.0
   */
+
   /*! *****************************************************************************
   Copyright (c) Microsoft Corporation. All rights reserved.
   Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -3352,87 +3344,70 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   See the Apache Version 2.0 License for specific language governing permissions
   and limitations under the License.
   ***************************************************************************** */
-
   /* global Reflect, Promise */
 
-  var extendStatics = Object.setPrototypeOf || {
-    __proto__: []
-  } instanceof Array && function (d, b) {
-    d.__proto__ = b;
-  } || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-  };
+  var extendStatics = Object.setPrototypeOf ||
+  { __proto__: [] } instanceof Array && function (d, b) {d.__proto__ = b;} ||
+  function (d, b) {for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];};
 
   function __extends(d, b) {
     extendStatics(d, b);
-
-    function __() {
-      this.constructor = d;
-    }
-
+    function __() {this.constructor = d;}
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
   }
 
   var __assign = Object.assign || function __assign(t) {
     for (var s, i = 1, n = arguments.length; i < n; i++) {
       s = arguments[i];
-
       for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
     }
-
     return t;
   };
 
   function getInsidePosition(destPos, range, circular, bounce) {
     var toDestPos = destPos;
-    var targetRange = [circular[0] ? range[0] : bounce ? range[0] - bounce[0] : range[0], circular[1] ? range[1] : bounce ? range[1] + bounce[1] : range[1]];
+    var targetRange = [
+    circular[0] ? range[0] : bounce ? range[0] - bounce[0] : range[0],
+    circular[1] ? range[1] : bounce ? range[1] + bounce[1] : range[1]];
+
     toDestPos = Math.max(targetRange[0], toDestPos);
     toDestPos = Math.min(targetRange[1], toDestPos);
     return toDestPos;
-  } // determine outside
-
-
+  }
+  // determine outside
   function isOutside(pos, range) {
     return pos < range[0] || pos > range[1];
   }
-
   function getDuration(distance, deceleration) {
-    var duration = Math.sqrt(distance / deceleration * 2); // when duration is under 100, then value is zero
-
+    var duration = Math.sqrt(distance / deceleration * 2);
+    // when duration is under 100, then value is zero
     return duration < 100 ? 0 : duration;
   }
-
   function isCircularable(destPos, range, circular) {
-    return circular[1] && destPos > range[1] || circular[0] && destPos < range[0];
+    return circular[1] && destPos > range[1] ||
+    circular[0] && destPos < range[0];
   }
-
   function getCirculatedPos(pos, range, circular) {
     var toPos = pos;
     var min = range[0];
     var max = range[1];
     var length = max - min;
-
-    if (circular[1] && pos > max) {
-      // right
+    if (circular[1] && pos > max) {// right
       toPos = (toPos - max) % length + min;
     }
-
-    if (circular[0] && pos < min) {
-      // left
+    if (circular[0] && pos < min) {// left
       toPos = (toPos - min) % length + max;
     }
-
     return toPos;
   }
+
   /* eslint-disable no-new-func, no-nested-ternary */
-
-
   var win$1;
-
   if (typeof window === "undefined") {
     // window is undefined in node.js
     win$1 = {};
-  } else {
+  } else
+  {
     win$1 = window;
   }
 
@@ -3440,90 +3415,74 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     // const el = Array.prototype.slice.call(nodes);
     // for IE8
     var el = [];
-
     for (var i = 0, len = nodes.length; i < len; i++) {
       el.push(nodes[i]);
     }
-
     return el;
   }
-
   function $(param, multi) {
-    if (multi === void 0) {
-      multi = false;
-    }
-
+    if (multi === void 0) {multi = false;}
     var el;
-
-    if (typeof param === "string") {
-      // String (HTML, Selector)
+    if (typeof param === "string") {// String (HTML, Selector)
       // check if string is HTML tag format
-      var match = param.match(/^<([a-z]+)\s*([^>]*)>/); // creating element
-
-      if (match) {
-        // HTML
+      var match = param.match(/^<([a-z]+)\s*([^>]*)>/);
+      // creating element
+      if (match) {// HTML
         var dummy = document.createElement("div");
         dummy.innerHTML = param;
         el = toArray$1(dummy.childNodes);
-      } else {
-        // Selector
+      } else
+      {// Selector
         el = toArray$1(document.querySelectorAll(param));
       }
-
       if (!multi) {
         el = el.length >= 1 ? el[0] : undefined;
       }
-    } else if (param === win$1) {
-      // window
+    } else
+    if (param === win$1) {// window
       el = param;
-    } else if (param.nodeName && (param.nodeType === 1 || param.nodeType === 9)) {
-      // HTMLElement, Document
+    } else
+    if (param.nodeName && (
+    param.nodeType === 1 || param.nodeType === 9)) {// HTMLElement, Document
       el = param;
-    } else if ("jQuery" in win$1 && param instanceof jQuery || param.constructor.prototype.jquery) {
-      // jQuery
+    } else
+    if ("jQuery" in win$1 && param instanceof jQuery ||
+    param.constructor.prototype.jquery) {// jQuery
       el = multi ? param.toArray() : param.get(0);
-    } else if (Array.isArray(param)) {
-      el = param.map(function (v) {
-        return $(v);
-      });
-
+    } else
+    if (Array.isArray(param)) {
+      el = param.map(function (v) {return $(v);});
       if (!multi) {
         el = el.length >= 1 ? el[0] : undefined;
       }
     }
-
     return el;
   }
-
   var raf = win$1.requestAnimationFrame || win$1.webkitRequestAnimationFrame;
   var caf = win$1.cancelAnimationFrame || win$1.webkitCancelAnimationFrame;
-
   if (raf && !caf) {
     var keyInfo_1 = {};
     var oldraf_1 = raf;
-
     raf = function (callback) {
       function wrapCallback(timestamp) {
         if (keyInfo_1[key]) {
           callback(timestamp);
         }
       }
-
       var key = oldraf_1(wrapCallback);
       keyInfo_1[key] = true;
       return key;
     };
-
     caf = function (key) {
       delete keyInfo_1[key];
     };
-  } else if (!(raf && caf)) {
+  } else
+  if (!(raf && caf)) {
     raf = function (callback) {
       return win$1.setTimeout(function () {
         callback(win$1.performance && win$1.performance.now && win$1.performance.now() || new Date().getTime());
       }, 16);
     };
-
     caf = win$1.clearTimeout;
   }
   /**
@@ -3531,8 +3490,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
      * @see  https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
      * @private
      */
-
-
   function requestAnimationFrame(fp) {
     return raf(fp);
   }
@@ -3542,109 +3499,80 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     * @see  https://developer.mozilla.org/en-US/docs/Web/API/Window/cancelAnimationFrame
     * @private
     */
-
-
   function cancelAnimationFrame(key) {
     caf(key);
   }
-
   function map(obj, callback) {
     var tranformed = {};
-
     for (var k in obj) {
       k && (tranformed[k] = callback(obj[k], k));
     }
-
     return tranformed;
   }
-
   function filter(obj, callback) {
     var filtered = {};
-
     for (var k in obj) {
       k && callback(obj[k], k) && (filtered[k] = obj[k]);
     }
-
     return filtered;
   }
-
   function every(obj, callback) {
     for (var k in obj) {
       if (k && !callback(obj[k], k)) {
         return false;
       }
     }
-
     return true;
   }
-
   function equal(target, base) {
-    return every(target, function (v, k) {
-      return v === base[k];
-    });
+    return every(target, function (v, k) {return v === base[k];});
   }
-
   var roundNumFunc = {};
-
   function roundNumber(num, roundUnit) {
     // Cache for performance
     if (!roundNumFunc[roundUnit]) {
       roundNumFunc[roundUnit] = getRoundFunc(roundUnit);
     }
-
     return roundNumFunc[roundUnit](num);
   }
-
   function roundNumbers(num, roundUnit) {
     if (!num || !roundUnit) {
       return num;
     }
-
     var isNumber = typeof roundUnit === "number";
-    return map(num, function (value, key) {
-      return roundNumber(value, isNumber ? roundUnit : roundUnit[key]);
-    });
+    return map(num, function (value, key) {return roundNumber(value, isNumber ? roundUnit : roundUnit[key]);});
   }
-
   function getDecimalPlace(val) {
     if (!isFinite(val)) {
       return 0;
     }
-
     var v = val + "";
-
     if (v.indexOf("e") >= 0) {
       // Exponential Format
       // 1e-10, 1e-12
       var p = 0;
       var e = 1;
-
       while (Math.round(val * e) / e !== val) {
         e *= 10;
         p++;
       }
-
       return p;
-    } // In general, following has performance benefit.
+    }
+    // In general, following has performance benefit.
     // https://jsperf.com/precision-calculation
-
-
     return v.indexOf(".") >= 0 ? v.length - v.indexOf(".") - 1 : 0;
   }
-
   function inversePow(n) {
     // replace Math.pow(10, -n) to solve floating point issue.
     // eg. Math.pow(10, -4) => 0.00009999999999999999
     return 1 / Math.pow(10, n);
   }
-
   function getRoundFunc(v) {
     var p = v < 1 ? Math.pow(10, getDecimalPlace(v)) : 1;
     return function (n) {
       if (v === 0) {
         return 0;
       }
-
       return Math.round(Math.round(n / v) * v * p) / p;
     };
   }
@@ -3652,43 +3580,27 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   function minMax(value, min, max) {
     return Math.max(Math.min(value, max), min);
   }
-
-  var AnimationManager =
-  /*#__PURE__*/
-  function () {
+  var AnimationManager = /*#__PURE__*/function () {
     function AnimationManager(_a) {
-      var options = _a.options,
-          itm = _a.itm,
-          em = _a.em,
-          axm = _a.axm;
+      var options = _a.options,itm = _a.itm,em = _a.em,axm = _a.axm;
       this.options = options;
       this.itm = itm;
       this.em = em;
       this.axm = axm;
       this.animationEnd = this.animationEnd.bind(this);
-    }
-
-    var __proto = AnimationManager.prototype;
-
+    }var __proto = AnimationManager.prototype;
     __proto.getDuration = function (depaPos, destPos, wishDuration) {
       var _this = this;
-
       var duration;
-
       if (typeof wishDuration !== "undefined") {
         duration = wishDuration;
-      } else {
-        var durations_1 = map(destPos, function (v, k) {
-          return getDuration(Math.abs(v - depaPos[k]), _this.options.deceleration);
-        });
-        duration = Object.keys(durations_1).reduce(function (max, v) {
-          return Math.max(max, durations_1[v]);
-        }, -Infinity);
+      } else
+      {
+        var durations_1 = map(destPos, function (v, k) {return getDuration(Math.abs(v - depaPos[k]), _this.options.deceleration);});
+        duration = Object.keys(durations_1).reduce(function (max, v) {return Math.max(max, durations_1[v]);}, -Infinity);
       }
-
       return minMax(duration, this.options.minimumDuration, this.options.maximumDuration);
     };
-
     __proto.createAnimationParam = function (pos, duration, option) {
       var depaPos = this.axm.get();
       var destPos = pos;
@@ -3701,75 +3613,58 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         inputEvent: inputEvent,
         input: option && option.input || null,
         isTrusted: !!inputEvent,
-        done: this.animationEnd
-      };
-    };
+        done: this.animationEnd };
 
+    };
     __proto.grab = function (axes, option) {
       if (this._animateParam && axes.length) {
         var orgPos_1 = this.axm.get(axes);
-        var pos = this.axm.map(orgPos_1, function (v, opt) {
-          return getCirculatedPos(v, opt.range, opt.circular);
-        });
-
-        if (!every(pos, function (v, k) {
-          return orgPos_1[k] === v;
-        })) {
+        var pos = this.axm.map(orgPos_1, function (v, opt) {return getCirculatedPos(v, opt.range, opt.circular);});
+        if (!every(pos, function (v, k) {return orgPos_1[k] === v;})) {
           this.em.triggerChange(pos, false, orgPos_1, option, !!option);
         }
-
         this._animateParam = null;
         this._raf && cancelAnimationFrame(this._raf);
         this._raf = null;
         this.em.triggerAnimationEnd(!!(option && option.event));
       }
     };
-
     __proto.getEventInfo = function () {
       if (this._animateParam && this._animateParam.input && this._animateParam.inputEvent) {
         return {
           input: this._animateParam.input,
-          event: this._animateParam.inputEvent
-        };
-      } else {
+          event: this._animateParam.inputEvent };
+
+      } else
+      {
         return null;
       }
     };
-
     __proto.restore = function (option) {
       var pos = this.axm.get();
-      var destPos = this.axm.map(pos, function (v, opt) {
-        return Math.min(opt.range[1], Math.max(opt.range[0], v));
-      });
+      var destPos = this.axm.map(pos, function (v, opt) {return Math.min(opt.range[1], Math.max(opt.range[0], v));});
       this.animateTo(destPos, this.getDuration(pos, destPos), option);
     };
-
     __proto.animationEnd = function () {
       var beforeParam = this.getEventInfo();
-      this._animateParam = null; // for Circular
-
-      var circularTargets = this.axm.filter(this.axm.get(), function (v, opt) {
-        return isCircularable(v, opt.range, opt.circular);
-      });
-      Object.keys(circularTargets).length > 0 && this.setTo(this.axm.map(circularTargets, function (v, opt) {
-        return getCirculatedPos(v, opt.range, opt.circular);
-      }));
+      this._animateParam = null;
+      // for Circular
+      var circularTargets = this.axm.filter(this.axm.get(), function (v, opt) {return isCircularable(v, opt.range, opt.circular);});
+      Object.keys(circularTargets).length > 0 && this.setTo(this.axm.map(circularTargets, function (v, opt) {return getCirculatedPos(v, opt.range, opt.circular);}));
       this.itm.setInterrupt(false);
       this.em.triggerAnimationEnd(!!beforeParam);
-
       if (this.axm.isOutside()) {
         this.restore(beforeParam);
-      } else {
+      } else
+      {
         this.finish(!!beforeParam);
       }
     };
-
     __proto.finish = function (isTrusted) {
       this._animateParam = null;
       this.itm.setInterrupt(false);
       this.em.triggerFinish(isTrusted);
     };
-
     __proto.animateLoop = function (param, complete) {
       if (param.duration) {
         this._animateParam = __assign({}, param);
@@ -3781,55 +3676,52 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         var directions_1 = map(prevPos_1, function (value, key) {
           return value <= destPos_1[key] ? 1 : -1;
         });
-        var originalIntendedPos_1 = map(destPos_1, function (v) {
-          return v;
-        });
+        var originalIntendedPos_1 = map(destPos_1, function (v) {return v;});
         var prevTime_1 = new Date().getTime();
         info_1.startTime = prevTime_1;
-
         (function loop() {
           self_1._raf = null;
           var currentTime = new Date().getTime();
           var ratio = (currentTime - info_1.startTime) / param.duration;
           var easingPer = self_1.easing(ratio);
           var toPos = self_1.axm.map(prevPos_1, function (pos, options, key) {
-            var nextPos = ratio >= 1 ? destPos_1[key] : pos + info_1.delta[key] * (easingPer - prevEasingPer_1); // Subtract distance from distance already moved.
+            var nextPos = ratio >= 1 ?
+            destPos_1[key] :
+            pos + info_1.delta[key] * (easingPer - prevEasingPer_1);
+            // Subtract distance from distance already moved.
             // Recalculate the remaining distance.
             // Fix the bouncing phenomenon by changing the range.
-
             var circulatedPos = getCirculatedPos(nextPos, options.range, options.circular);
-
             if (nextPos !== circulatedPos) {
               // circular
               var rangeOffset = directions_1[key] * (options.range[1] - options.range[0]);
               destPos_1[key] -= rangeOffset;
               prevPos_1[key] -= rangeOffset;
             }
-
             return circulatedPos;
           });
           var isCanceled = !self_1.em.triggerChange(toPos, false, prevPos_1);
           prevPos_1 = toPos;
           prevTime_1 = currentTime;
           prevEasingPer_1 = easingPer;
-
           if (easingPer >= 1) {
             destPos_1 = self_1.getFinalPos(destPos_1, originalIntendedPos_1);
-
             if (!equal(destPos_1, self_1.axm.get(Object.keys(destPos_1)))) {
               self_1.em.triggerChange(destPos_1, true, prevPos_1);
             }
-
             complete();
             return;
-          } else if (isCanceled) {
+          } else
+          if (isCanceled) {
             self_1.finish(false);
-          } else {
+          } else
+          {
             // animationEnd
             self_1._raf = requestAnimationFrame(loop);
           }
         })();
-      } else {
+      } else
+      {
         this.em.triggerChange(param.destPos, true);
         complete();
       }
@@ -3845,67 +3737,52 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * @param originalIntendedPos
         * @param destPos
         */
-
-
     __proto.getFinalPos = function (destPos, originalIntendedPos) {
-      var _this = this; // compare destPos and originalIntendedPos
-
-
+      var _this = this;
+      // compare destPos and originalIntendedPos
       var ERROR_LIMIT = 0.000001;
       var finalPos = map(destPos, function (value, key) {
         if (value >= originalIntendedPos[key] - ERROR_LIMIT && value <= originalIntendedPos[key] + ERROR_LIMIT) {
           // In error range, return original intended
           return originalIntendedPos[key];
-        } else {
+        } else
+        {
           // Out of error range, return rounded pos.
           var roundUnit = _this.getRoundUnit(value, key);
-
           var result = roundNumber(value, roundUnit);
           return result;
         }
       });
       return finalPos;
     };
-
     __proto.getRoundUnit = function (val, key) {
       var roundUnit = this.options.round; // manual mode
-
       var minRoundUnit = null; // auto mode
       // auto mode
-
       if (!roundUnit) {
         // Get minimum round unit
         var options = this.axm.getAxisOptions(key);
         minRoundUnit = inversePow(Math.max(getDecimalPlace(options.range[0]), getDecimalPlace(options.range[1]), getDecimalPlace(val)));
       }
-
       return minRoundUnit || roundUnit;
     };
-
     __proto.getUserControll = function (param) {
       var userWish = param.setTo();
       userWish.destPos = this.axm.get(userWish.destPos);
       userWish.duration = minMax(userWish.duration, this.options.minimumDuration, this.options.maximumDuration);
       return userWish;
     };
-
     __proto.animateTo = function (destPos, duration, option) {
       var _this = this;
-
       var param = this.createAnimationParam(destPos, duration, option);
-
       var depaPos = __assign({}, param.depaPos);
-
-      var retTrigger = this.em.triggerAnimationStart(param); // to control
-
-      var userWish = this.getUserControll(param); // You can't stop the 'animationStart' event when 'circular' is true.
-
-      if (!retTrigger && this.axm.every(userWish.destPos, function (v, opt) {
-        return isCircularable(v, opt.range, opt.circular);
-      })) {
+      var retTrigger = this.em.triggerAnimationStart(param);
+      // to control
+      var userWish = this.getUserControll(param);
+      // You can't stop the 'animationStart' event when 'circular' is true.
+      if (!retTrigger && this.axm.every(userWish.destPos, function (v, opt) {return isCircularable(v, opt.range, opt.circular);})) {
         console.warn("You can't stop the 'animation' event when 'circular' is true.");
       }
-
       if (retTrigger && !equal(userWish.destPos, depaPos)) {
         var inputEvent = option && option.event || null;
         this.animateLoop({
@@ -3915,80 +3792,55 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
           delta: this.axm.getDelta(depaPos, userWish.destPos),
           isTrusted: !!inputEvent,
           inputEvent: inputEvent,
-          input: option && option.input || null
-        }, function () {
-          return _this.animationEnd();
-        });
+          input: option && option.input || null },
+        function () {return _this.animationEnd();});
       }
     };
-
     __proto.easing = function (p) {
       return p > 1 ? 1 : this.options.easing(p);
     };
-
     __proto.setTo = function (pos, duration) {
-      if (duration === void 0) {
-        duration = 0;
-      }
-
+      if (duration === void 0) {duration = 0;}
       var axes = Object.keys(pos);
       this.grab(axes);
       var orgPos = this.axm.get(axes);
-
       if (equal(pos, orgPos)) {
         return this;
       }
-
       this.itm.setInterrupt(true);
-      var movedPos = filter(pos, function (v, k) {
-        return orgPos[k] !== v;
-      });
-
+      var movedPos = filter(pos, function (v, k) {return orgPos[k] !== v;});
       if (!Object.keys(movedPos).length) {
         return this;
       }
-
       movedPos = this.axm.map(movedPos, function (v, opt) {
-        var range = opt.range,
-            circular = opt.circular;
-
+        var range = opt.range,circular = opt.circular;
         if (circular && (circular[0] || circular[1])) {
           return v;
-        } else {
+        } else
+        {
           return getInsidePosition(v, range, circular);
         }
       });
-
       if (equal(movedPos, orgPos)) {
         return this;
       }
-
       if (duration > 0) {
         this.animateTo(movedPos, duration);
-      } else {
+      } else
+      {
         this.em.triggerChange(movedPos);
         this.finish(false);
       }
-
       return this;
     };
-
     __proto.setBy = function (pos, duration) {
-      if (duration === void 0) {
-        duration = 0;
-      }
-
-      return this.setTo(map(this.axm.get(Object.keys(pos)), function (v, k) {
-        return v + pos[k];
-      }), duration);
+      if (duration === void 0) {duration = 0;}
+      return this.setTo(map(this.axm.get(Object.keys(pos)), function (v, k) {return v + pos[k];}), duration);
     };
-
     return AnimationManager;
   }();
 
-  var EventManager =
-  /*#__PURE__*/
-  function () {
+  var EventManager = /*#__PURE__*/function () {
     function EventManager(axes) {
       this.axes = axes;
     }
@@ -4017,19 +3869,15 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
        *   // event.inputEvent
        *   // isTrusted
        * });
-       */
-
-
-    var __proto = EventManager.prototype;
-
+       */var __proto = EventManager.prototype;
     __proto.triggerHold = function (pos, option) {
       var roundPos = this.getRoundPos(pos).roundPos;
       this.axes.trigger("hold", {
         pos: roundPos,
         input: option.input || null,
         inputEvent: option.event || null,
-        isTrusted: true
-      });
+        isTrusted: true });
+
     };
     /**
         * Specifies the coordinates to move after the 'change' event. It works when the holding value of the change event is true.
@@ -4049,7 +3897,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         *   event.holding && event.set({x: 10});
         * });
         */
-
     /** Specifies the animation coordinates to move after the 'release' or 'animationStart' events.
             * @ko 'release' 또는 'animationStart' 이벤트 이후 이동할 좌표를 지정한다.
             * @name setTo
@@ -4068,7 +3915,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
             *   event.setTo({x: 10}, 2000);
             * });
             */
-
     /**
                 * This event is fired when a user release an element on the screen of the device.
                 * @ko 사용자가 기기의 화면에서 손을 뗐을 때 발생하는 이벤트
@@ -4104,13 +3950,8 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
                 *   event.setTo({x: 10}, 2000);
                 * });
                 */
-
-
     __proto.triggerRelease = function (param) {
-      var _a = this.getRoundPos(param.destPos, param.depaPos),
-          roundPos = _a.roundPos,
-          roundDepa = _a.roundDepa;
-
+      var _a = this.getRoundPos(param.destPos, param.depaPos),roundPos = _a.roundPos,roundDepa = _a.roundDepa;
       param.destPos = roundPos;
       param.depaPos = roundDepa;
       param.setTo = this.createUserControll(param.destPos, param.duration);
@@ -4152,21 +3993,12 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         *   event.holding && event.set({x: 10});
         * });
         */
-
-
     __proto.triggerChange = function (pos, isAccurate, depaPos, option, holding) {
-      if (holding === void 0) {
-        holding = false;
-      }
-
+      if (holding === void 0) {holding = false;}
       var am = this.am;
       var axm = am.axm;
       var eventInfo = am.getEventInfo();
-
-      var _a = this.getRoundPos(pos, depaPos),
-          roundPos = _a.roundPos,
-          roundDepa = _a.roundDepa;
-
+      var _a = this.getRoundPos(pos, depaPos),roundPos = _a.roundPos,roundDepa = _a.roundDepa;
       var moveTo = axm.moveTo(roundPos, roundDepa);
       var inputEvent = option && option.event || eventInfo && eventInfo.event || null;
       var param = {
@@ -4176,8 +4008,8 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         inputEvent: inputEvent,
         isTrusted: !!inputEvent,
         input: option && option.input || eventInfo && eventInfo.input || null,
-        set: inputEvent ? this.createUserControll(moveTo.pos) : function () {}
-      };
+        set: inputEvent ? this.createUserControll(moveTo.pos) : function () {} };
+
       var result = this.axes.trigger("change", param);
       inputEvent && axm.set(param.set()["destPos"]);
       return result;
@@ -4218,13 +4050,8 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         *   event.setTo({x: 10}, 2000);
         * });
         */
-
-
     __proto.triggerAnimationStart = function (param) {
-      var _a = this.getRoundPos(param.destPos, param.depaPos),
-          roundPos = _a.roundPos,
-          roundDepa = _a.roundDepa;
-
+      var _a = this.getRoundPos(param.destPos, param.depaPos),roundPos = _a.roundPos,roundDepa = _a.roundDepa;
       param.destPos = roundPos;
       param.depaPos = roundDepa;
       param.setTo = this.createUserControll(param.destPos, param.duration);
@@ -4250,16 +4077,11 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         *   // event.isTrusted
         * });
         */
-
-
     __proto.triggerAnimationEnd = function (isTrusted) {
-      if (isTrusted === void 0) {
-        isTrusted = false;
-      }
-
+      if (isTrusted === void 0) {isTrusted = false;}
       this.axes.trigger("animationEnd", {
-        isTrusted: isTrusted
-      });
+        isTrusted: isTrusted });
+
     };
     /**
         * This event is fired when all actions have been completed.
@@ -4281,95 +4103,69 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         *   // event.isTrusted
         * });
         */
-
-
     __proto.triggerFinish = function (isTrusted) {
-      if (isTrusted === void 0) {
-        isTrusted = false;
-      }
-
+      if (isTrusted === void 0) {isTrusted = false;}
       this.axes.trigger("finish", {
-        isTrusted: isTrusted
-      });
+        isTrusted: isTrusted });
+
     };
-
     __proto.createUserControll = function (pos, duration) {
-      if (duration === void 0) {
-        duration = 0;
-      } // to controll
-
-
+      if (duration === void 0) {duration = 0;}
+      // to controll
       var userControl = {
         destPos: __assign({}, pos),
-        duration: duration
-      };
+        duration: duration };
+
       return function (toPos, userDuration) {
         toPos && (userControl.destPos = __assign({}, toPos));
         userDuration !== undefined && (userControl.duration = userDuration);
         return userControl;
       };
     };
-
     __proto.setAnimationManager = function (am) {
       this.am = am;
     };
-
     __proto.destroy = function () {
       this.axes.off();
     };
-
     __proto.getRoundPos = function (pos, depaPos) {
       // round value if round exist
-      var roundUnit = this.axes.options.round; // if (round == null) {
+      var roundUnit = this.axes.options.round;
+      // if (round == null) {
       // 	return {pos, depaPos}; // undefined, undefined
       // }
-
       return {
         roundPos: roundNumbers(pos, roundUnit),
-        roundDepa: roundNumbers(depaPos, roundUnit)
-      };
-    };
+        roundDepa: roundNumbers(depaPos, roundUnit) };
 
+    };
     return EventManager;
   }();
 
-  var InterruptManager =
-  /*#__PURE__*/
-  function () {
+  var InterruptManager = /*#__PURE__*/function () {
     function InterruptManager(options) {
       this.options = options;
       this._prevented = false; //  check whether the animation event was prevented
-    }
-
-    var __proto = InterruptManager.prototype;
-
+    }var __proto = InterruptManager.prototype;
     __proto.isInterrupting = function () {
       // when interruptable is 'true', return value is always 'true'.
       return this.options.interruptable || this._prevented;
     };
-
     __proto.isInterrupted = function () {
       return !this.options.interruptable && this._prevented;
     };
-
     __proto.setInterrupt = function (prevented) {
       !this.options.interruptable && (this._prevented = prevented);
     };
-
     return InterruptManager;
   }();
 
-  var AxisManager =
-  /*#__PURE__*/
-  function () {
+  var AxisManager = /*#__PURE__*/function () {
     function AxisManager(axis, options) {
       var _this = this;
-
       this.axis = axis;
       this.options = options;
-
       this._complementOptions();
-
       this._pos = Object.keys(this.axis).reduce(function (acc, v) {
         acc[v] = _this.axis[v].range[0];
         return acc;
@@ -4378,71 +4174,53 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     /**
          * set up 'css' expression
          * @private
-         */
-
-
-    var __proto = AxisManager.prototype;
-
+         */var __proto = AxisManager.prototype;
     __proto._complementOptions = function () {
       var _this = this;
-
       Object.keys(this.axis).forEach(function (axis) {
         _this.axis[axis] = __assign({
           range: [0, 100],
           bounce: [0, 0],
-          circular: [false, false]
-        }, _this.axis[axis]);
+          circular: [false, false] },
+        _this.axis[axis]);
         ["bounce", "circular"].forEach(function (v) {
           var axisOption = _this.axis;
           var key = axisOption[axis][v];
-
           if (/string|number|boolean/.test(typeof key)) {
             axisOption[axis][v] = [key, key];
           }
         });
       });
     };
-
     __proto.getDelta = function (depaPos, destPos) {
       var fullDepaPos = this.get(depaPos);
-      return map(this.get(destPos), function (v, k) {
-        return v - fullDepaPos[k];
-      });
+      return map(this.get(destPos), function (v, k) {return v - fullDepaPos[k];});
     };
-
     __proto.get = function (axes) {
       var _this = this;
-
       if (axes && Array.isArray(axes)) {
         return axes.reduce(function (acc, v) {
           if (v && v in _this._pos) {
             acc[v] = _this._pos[v];
           }
-
           return acc;
         }, {});
-      } else {
+      } else
+      {
         return __assign({}, this._pos, axes || {});
       }
     };
-
     __proto.moveTo = function (pos, depaPos) {
-      if (depaPos === void 0) {
-        depaPos = this._pos;
-      }
-
+      if (depaPos === void 0) {depaPos = this._pos;}
       var delta = map(this._pos, function (v, key) {
         return key in pos && key in depaPos ? pos[key] - depaPos[key] : 0;
       });
-      this.set(this.map(pos, function (v, opt) {
-        return opt ? getCirculatedPos(v, opt.range, opt.circular) : 0;
-      }));
+      this.set(this.map(pos, function (v, opt) {return opt ? getCirculatedPos(v, opt.range, opt.circular) : 0;}));
       return {
         pos: __assign({}, this._pos),
-        delta: delta
-      };
-    };
+        delta: delta };
 
+    };
     __proto.set = function (pos) {
       for (var k in pos) {
         if (k && k in this._pos) {
@@ -4450,50 +4228,30 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         }
       }
     };
-
     __proto.every = function (pos, callback) {
       var axisOptions = this.axis;
-      return every(pos, function (value, key) {
-        return callback(value, axisOptions[key], key);
-      });
+      return every(pos, function (value, key) {return callback(value, axisOptions[key], key);});
     };
-
     __proto.filter = function (pos, callback) {
       var axisOptions = this.axis;
-      return filter(pos, function (value, key) {
-        return callback(value, axisOptions[key], key);
-      });
+      return filter(pos, function (value, key) {return callback(value, axisOptions[key], key);});
     };
-
     __proto.map = function (pos, callback) {
       var axisOptions = this.axis;
-      return map(pos, function (value, key) {
-        return callback(value, axisOptions[key], key);
-      });
+      return map(pos, function (value, key) {return callback(value, axisOptions[key], key);});
     };
-
     __proto.isOutside = function (axes) {
-      return !this.every(axes ? this.get(axes) : this._pos, function (v, opt) {
-        return !isOutside(v, opt.range);
-      });
+      return !this.every(axes ? this.get(axes) : this._pos, function (v, opt) {return !isOutside(v, opt.range);});
     };
-
     __proto.getAxisOptions = function (key) {
       return this.axis[key];
     };
-
     return AxisManager;
   }();
 
-  var InputObserver =
-  /*#__PURE__*/
-  function () {
+  var InputObserver = /*#__PURE__*/function () {
     function InputObserver(_a) {
-      var options = _a.options,
-          itm = _a.itm,
-          em = _a.em,
-          axm = _a.axm,
-          am = _a.am;
+      var options = _a.options,itm = _a.itm,em = _a.em,axm = _a.axm,am = _a.am;
       this.isOutside = false;
       this.moveDistance = null;
       this.isStopped = false;
@@ -4502,21 +4260,18 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       this.em = em;
       this.axm = axm;
       this.am = am;
-    } // when move pointer is held in outside
-
-
-    var __proto = InputObserver.prototype;
-
-    __proto.atOutside = function (pos) {
+    }
+    // when move pointer is held in outside
+    var __proto = InputObserver.prototype;__proto.atOutside = function (pos) {
       var _this = this;
-
       if (this.isOutside) {
         return this.axm.map(pos, function (v, opt) {
           var tn = opt.range[0] - opt.bounce[0];
           var tx = opt.range[1] + opt.bounce[1];
           return v > tx ? tx : v < tn ? tn : v;
         });
-      } else {
+      } else
+      {
         // when start pointer is held in inside
         // get a initialization slope value to prevent smooth animation.
         var initSlope_1 = this.am.easing(0.00001) / 0.00001;
@@ -4525,35 +4280,30 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
           var max = opt.range[1];
           var out = opt.bounce;
           var circular = opt.circular;
-
           if (circular && (circular[0] || circular[1])) {
             return v;
-          } else if (v < min) {
-            // left
+          } else
+          if (v < min) {// left
             return min - _this.am.easing((min - v) / (out[0] * initSlope_1)) * out[0];
-          } else if (v > max) {
-            // right
+          } else
+          if (v > max) {// right
             return max + _this.am.easing((v - max) / (out[1] * initSlope_1)) * out[1];
           }
-
           return v;
         });
       }
     };
-
     __proto.get = function (input) {
       return this.axm.get(input.axes);
     };
-
     __proto.hold = function (input, event) {
       if (this.itm.isInterrupted() || !input.axes.length) {
         return;
       }
-
       var changeOption = {
         input: input,
-        event: event
-      };
+        event: event };
+
       this.isStopped = false;
       this.itm.setInterrupt(true);
       this.am.grab(input.axes, changeOption);
@@ -4561,63 +4311,51 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       this.isOutside = this.axm.isOutside(input.axes);
       this.moveDistance = this.axm.get(input.axes);
     };
-
     __proto.change = function (input, event, offset) {
-      if (this.isStopped || !this.itm.isInterrupting() || this.axm.every(offset, function (v) {
-        return v === 0;
-      })) {
+      if (this.isStopped || !this.itm.isInterrupting() || this.axm.every(offset, function (v) {return v === 0;})) {
         return;
       }
-
       var depaPos = this.moveDistance || this.axm.get(input.axes);
-      var destPos; // for outside logic
-
-      destPos = map(depaPos, function (v, k) {
-        return v + (offset[k] || 0);
-      });
-      this.moveDistance && (this.moveDistance = destPos); // from outside to inside
-
-      if (this.isOutside && this.axm.every(depaPos, function (v, opt) {
-        return !isOutside(v, opt.range);
-      })) {
+      var destPos;
+      // for outside logic
+      destPos = map(depaPos, function (v, k) {return v + (offset[k] || 0);});
+      this.moveDistance && (this.moveDistance = destPos);
+      // from outside to inside
+      if (this.isOutside &&
+      this.axm.every(depaPos, function (v, opt) {return !isOutside(v, opt.range);})) {
         this.isOutside = false;
       }
-
       depaPos = this.atOutside(depaPos);
       destPos = this.atOutside(destPos);
       var isCanceled = !this.em.triggerChange(destPos, false, depaPos, {
         input: input,
-        event: event
-      }, true);
-
+        event: event },
+      true);
       if (isCanceled) {
         this.isStopped = true;
         this.moveDistance = null;
         this.am.finish(false);
       }
     };
-
     __proto.release = function (input, event, offset, inputDuration) {
       if (this.isStopped || !this.itm.isInterrupting() || !this.moveDistance) {
         return;
       }
-
       var pos = this.axm.get(input.axes);
       var depaPos = this.axm.get();
       var destPos = this.axm.get(this.axm.map(offset, function (v, opt, k) {
         if (opt.circular && (opt.circular[0] || opt.circular[1])) {
           return pos[k] + v;
-        } else {
+        } else
+        {
           return getInsidePosition(pos[k] + v, opt.range, opt.circular, opt.bounce);
         }
       }));
       var duration = this.am.getDuration(destPos, pos, inputDuration);
-
       if (duration === 0) {
         destPos = __assign({}, depaPos);
-      } // prepare params
-
-
+      }
+      // prepare params
       var param = {
         depaPos: depaPos,
         destPos: destPos,
@@ -4625,52 +4363,49 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         delta: this.axm.getDelta(depaPos, destPos),
         inputEvent: event,
         input: input,
-        isTrusted: true
-      };
-      this.em.triggerRelease(param);
-      this.moveDistance = null; // to contol
+        isTrusted: true };
 
+      this.em.triggerRelease(param);
+      this.moveDistance = null;
+      // to contol
       var userWish = this.am.getUserControll(param);
       var isEqual = equal(userWish.destPos, depaPos);
       var changeOption = {
         input: input,
-        event: event
-      };
+        event: event };
 
       if (isEqual || userWish.duration === 0) {
         !isEqual && this.em.triggerChange(userWish.destPos, false, depaPos, changeOption, true);
         this.itm.setInterrupt(false);
-
         if (this.axm.isOutside()) {
           this.am.restore(changeOption);
-        } else {
+        } else
+        {
           this.em.triggerFinish(true);
         }
-      } else {
+      } else
+      {
         this.am.animateTo(userWish.destPos, userWish.duration, changeOption);
       }
     };
-
     return InputObserver;
-  }(); // export const DIRECTION_NONE = 1;
+  }();
 
-
+  // export const DIRECTION_NONE = 1;
   var TRANSFORM = function () {
     if (typeof document === "undefined") {
       return "";
     }
-
     var bodyStyle = (document.head || document.getElementsByTagName("head")[0]).style;
     var target = ["transform", "webkitTransform", "msTransform", "mozTransform"];
-
     for (var i = 0, len = target.length; i < len; i++) {
       if (target[i] in bodyStyle) {
         return target[i];
       }
     }
-
     return "";
   }();
+
   /**
                                                                                                                                                                                 * @typedef {Object} AxisOption The Axis information. The key of the axis specifies the name to use as the logical virtual coordinate system.
                                                                                                                                                                                 * @ko 축 정보. 축의 키는 논리적인 가상 좌표계로 사용할 이름을 지정한다.
@@ -4684,7 +4419,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
                                                                                                                                                                                 * @property {Boolean} [circular.0=false] Indicates whether to circulate to the coordinate of the minimum <ko>최소 좌표 방향의 순환 여부</ko>
                                                                                                                                                                                 * @property {Boolean} [circular.1=false] Indicates whether to circulate to the coordinate of the maximum <ko>최대 좌표 방향의 순환 여부</ko>
                                                                                                                                                                                **/
-
   /**
                                                                                                                                                                                     * @typedef {Object} AxesOption The option object of the eg.Axes module
                                                                                                                                                                                     * @ko eg.Axes 모듈의 옵션 객체
@@ -4695,7 +4429,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
                                                                                                                                                                                     * @property {Boolean} [interruptable=true] Indicates whether an animation is interruptible.<br>- true: It can be paused or stopped by user action or the API.<br>- false: It cannot be paused or stopped by user action or the API while it is running.<ko>진행 중인 애니메이션 중지 가능 여부.<br>- true: 사용자의 동작이나 API로 애니메이션을 중지할 수 있다.<br>- false: 애니메이션이 진행 중일 때는 사용자의 동작이나 API가 적용되지 않는다</ko>
                                                                                                                                                                                     * @property {Number} [round = null] Rounding unit. For example, 0.1 rounds to 0.1 decimal point(6.1234 => 6.1), 5 rounds to 5 (93 => 95) <br>[Details](https://github.com/naver/egjs-axes/wiki/round-option)<ko>반올림 단위. 예를 들어 0.1 은 소숫점 0.1 까지 반올림(6.1234 => 6.1), 5 는 5 단위로 반올림(93 => 95).<br>[상세내용](https://github.com/naver/egjs-axes/wiki/round-option)</ko>
                                                                                                                                                                                    **/
-
   /**
                                                                                                                                                                                         * @class eg.Axes
                                                                                                                                                                                         * @classdesc A module used to change the information of user action entered by various input devices such as touch screen or mouse into the logical virtual coordinates. You can easily create a UI that responds to user actions.
@@ -4765,24 +4498,12 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
                                                                                                                                                                                         * // [PinchInput] Connect 'something2' axis when two pointers are moving toward (zoom-in) or away from each other (zoom-out).
                                                                                                                                                                                         * axes.connect("something2", pinchInputArea);
                                                                                                                                                                                         */
-
-
-  var Axes =
-  /*#__PURE__*/
-  function (_super) {
+  var Axes = /*#__PURE__*/function (_super) {
     __extends(Axes, _super);
-
     function Axes(axis, options, startPos) {
-      if (axis === void 0) {
-        axis = {};
-      }
-
-      if (options === void 0) {
-        options = {};
-      }
-
+      if (axis === void 0) {axis = {};}
+      if (options === void 0) {options = {};}
       var _this = _super.call(this) || this;
-
       _this.axis = axis;
       _this._inputs = [];
       _this.options = __assign({
@@ -4793,16 +4514,14 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         maximumDuration: Infinity,
         minimumDuration: 0,
         deceleration: 0.0006,
-        round: null
-      }, options);
+        round: null },
+      options);
       _this.itm = new InterruptManager(_this.options);
       _this.axm = new AxisManager(_this.axis, _this.options);
       _this.em = new EventManager(_this);
       _this.am = new AnimationManager(_this);
       _this.io = new InputObserver(_this);
-
       _this.em.setAnimationManager(_this.am);
-
       startPos && _this.em.triggerChange(startPos);
       return _this;
     }
@@ -4829,41 +4548,29 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
        *    .connect(["x"], new eg.Axes.PanInput("#area4"))
        *    .connect(["xOther", "x"], new eg.Axes.PanInput("#area5"))
        *    .connect(["", "xOther"], new eg.Axes.PanInput("#area6"));
-       */
-
-
-    var __proto = Axes.prototype;
-
+       */var __proto = Axes.prototype;
     __proto.connect = function (axes, inputType) {
       var mapped;
-
       if (typeof axes === "string") {
         mapped = axes.split(" ");
-      } else {
+      } else
+      {
         mapped = axes.concat();
-      } // check same instance
-
-
+      }
+      // check same instance
       if (~this._inputs.indexOf(inputType)) {
         this.disconnect(inputType);
-      } // check same element in hammer type for share
-
-
+      }
+      // check same element in hammer type for share
       if ("hammer" in inputType) {
-        var targets = this._inputs.filter(function (v) {
-          return v.hammer && v.element === inputType.element;
-        });
-
+        var targets = this._inputs.filter(function (v) {return v.hammer && v.element === inputType.element;});
         if (targets.length) {
           inputType.hammer = targets[0].hammer;
         }
       }
-
       inputType.mapAxes(mapped);
       inputType.connect(this.io);
-
       this._inputs.push(inputType);
-
       return this;
     };
     /**
@@ -4893,25 +4600,18 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * axes.disconnect(input1); // disconnects input1
         * axes.disconnect(); // disconnects all of them
         */
-
-
     __proto.disconnect = function (inputType) {
       if (inputType) {
         var index = this._inputs.indexOf(inputType);
-
         if (index >= 0) {
           this._inputs[index].disconnect();
-
           this._inputs.splice(index, 1);
         }
-      } else {
-        this._inputs.forEach(function (v) {
-          return v.disconnect();
-        });
-
+      } else
+      {
+        this._inputs.forEach(function (v) {return v.disconnect();});
         this._inputs = [];
       }
-
       return this;
     };
     /**
@@ -4936,8 +4636,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * axes.get(); // {"x": 0, "xOther": -100, "zoom": 50}
         * axes.get(["x", "zoom"]); // {"x": 0, "zoom": 50}
         */
-
-
     __proto.get = function (axes) {
       return this.axm.get(axes);
     };
@@ -4969,13 +4667,8 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * // after 1000 ms
         * axes.get(); // {"x": 100, "xOther": 60, "zoom": 60}
         */
-
-
     __proto.setTo = function (pos, duration) {
-      if (duration === void 0) {
-        duration = 0;
-      }
-
+      if (duration === void 0) {duration = 0;}
       this.am.setTo(pos, duration);
       return this;
     };
@@ -5007,13 +4700,8 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * // after 1000 ms
         * axes.get(); // {"x": 100, "xOther": -40, "zoom": 60}
         */
-
-
     __proto.setBy = function (pos, duration) {
-      if (duration === void 0) {
-        duration = 0;
-      }
-
+      if (duration === void 0) {duration = 0;}
       this.am.setBy(pos, duration);
       return this;
     };
@@ -5040,8 +4728,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * axes.isBounceArea(["x", "zoom"]);
         * axes.isBounceArea();
         */
-
-
     __proto.isBounceArea = function (axes) {
       return this.axm.isOutside(axes);
     };
@@ -5050,8 +4736,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
        * @ko 모듈에 사용한 속성, 이벤트를 해제한다. 모든 inputType과의 연결을 끊는다.
        * @method eg.Axes#destroy
        */
-
-
     __proto.destroy = function () {
       this.disconnect();
       this.em.destroy();
@@ -5066,8 +4750,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * eg.Axes.VERSION;  // ex) 3.3.3
         * @memberof eg.Axes
         */
-
-
     Axes.VERSION = "2.6.0";
     /**
                                      * @name eg.Axes.TRANSFORM
@@ -5079,63 +4761,54 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
                                      * @example
                                      * eg.Axes.TRANSFORM; // "transform" or "webkitTransform"
                                      */
-
     Axes.TRANSFORM = TRANSFORM;
     /**
                                  * @name eg.Axes.DIRECTION_NONE
                                  * @constant
                                  * @type {Number}
                                  */
-
     Axes.DIRECTION_NONE = DIRECTION_NONE;
     /**
                                            * @name eg.Axes.DIRECTION_LEFT
                                            * @constant
                                            * @type {Number}
                                           */
-
     Axes.DIRECTION_LEFT = DIRECTION_LEFT;
     /**
                                            * @name eg.Axes.DIRECTION_RIGHT
                                            * @constant
                                            * @type {Number}
                                           */
-
     Axes.DIRECTION_RIGHT = DIRECTION_RIGHT;
     /**
                                              * @name eg.Axes.DIRECTION_UP
                                              * @constant
                                              * @type {Number}
                                             */
-
     Axes.DIRECTION_UP = DIRECTION_UP;
     /**
                                        * @name eg.Axes.DIRECTION_DOWN
                                        * @constant
                                        * @type {Number}
                                       */
-
     Axes.DIRECTION_DOWN = DIRECTION_DOWN;
     /**
                                            * @name eg.Axes.DIRECTION_HORIZONTAL
                                            * @constant
                                            * @type {Number}
                                           */
-
     Axes.DIRECTION_HORIZONTAL = DIRECTION_HORIZONTAL;
     /**
                                                        * @name eg.Axes.DIRECTION_VERTICAL
                                                        * @constant
                                                        * @type {Number}
                                                       */
-
     Axes.DIRECTION_VERTICAL = DIRECTION_VERTICAL;
     /**
                                                    * @name eg.Axes.DIRECTION_ALL
                                                    * @constant
                                                    * @type {Number}
                                                   */
-
     Axes.DIRECTION_ALL = DIRECTION_ALL;
     return Axes;
   }(Component);
@@ -5143,31 +4816,25 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   var SUPPORT_POINTER_EVENTS$1 = "PointerEvent" in win$1 || "MSPointerEvent" in win$1;
   var SUPPORT_TOUCH$1 = "ontouchstart" in win$1;
   var UNIQUEKEY = "_EGJS_AXES_INPUTTYPE_";
-
   function toAxis(source, offset) {
     return offset.reduce(function (acc, v, i) {
       if (source[i]) {
         acc[source[i]] = v;
       }
-
       return acc;
     }, {});
   }
-
   function createHammer(element, options) {
     try {
       // create Hammer
       return new Manager(element, __assign({}, options));
-    } catch (e) {
+    }
+    catch (e) {
       return null;
     }
   }
-
   function convertInputType(inputType) {
-    if (inputType === void 0) {
-      inputType = [];
-    }
-
+    if (inputType === void 0) {inputType = [];}
     var hasTouch = false;
     var hasMouse = false;
     var hasPointer = false;
@@ -5176,50 +4843,51 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         case "mouse":
           hasMouse = true;
           break;
-
         case "touch":
           hasTouch = SUPPORT_TOUCH$1;
           break;
-
-        case "pointer":
-          hasPointer = SUPPORT_POINTER_EVENTS$1;
+        case "pointer":hasPointer = SUPPORT_POINTER_EVENTS$1;
         // no default
       }
     });
-
     if (hasPointer) {
       return PointerEventInput;
-    } else if (hasTouch && hasMouse) {
+    } else
+    if (hasTouch && hasMouse) {
       return TouchMouseInput;
-    } else if (hasTouch) {
+    } else
+    if (hasTouch) {
       return TouchInput;
-    } else if (hasMouse) {
+    } else
+    if (hasMouse) {
       return MouseInput;
     }
-
     return null;
-  } // get user's direction
+  }
 
-
+  // get user's direction
   function getDirectionByAngle(angle, thresholdAngle) {
     if (thresholdAngle < 0 || thresholdAngle > 90) {
       return DIRECTION_NONE;
     }
-
     var toAngle = Math.abs(angle);
-    return toAngle > thresholdAngle && toAngle < 180 - thresholdAngle ? DIRECTION_VERTICAL : DIRECTION_HORIZONTAL;
+    return toAngle > thresholdAngle && toAngle < 180 - thresholdAngle ?
+    DIRECTION_VERTICAL : DIRECTION_HORIZONTAL;
   }
-
   function getNextOffset(speeds, deceleration) {
     var normalSpeed = Math.sqrt(speeds[0] * speeds[0] + speeds[1] * speeds[1]);
     var duration = Math.abs(normalSpeed / -deceleration);
-    return [speeds[0] / 2 * duration, speeds[1] / 2 * duration];
-  }
+    return [
+    speeds[0] / 2 * duration,
+    speeds[1] / 2 * duration];
 
+  }
   function useDirection(checkType, direction, userDirection) {
     if (userDirection) {
-      return !!(direction === DIRECTION_ALL || direction & checkType && userDirection & checkType);
-    } else {
+      return !!(direction === DIRECTION_ALL ||
+      direction & checkType && userDirection & checkType);
+    } else
+    {
       return !!(direction & checkType);
     }
   }
@@ -5234,7 +4902,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
      * @property {Number} [threshold=0] Minimal pan distance required before recognizing <ko>사용자의 Pan 동작을 인식하기 위해산 최소한의 거리</ko>
      * @property {Object} [hammerManagerOptions={cssProps: {userSelect: "none",touchSelect: "none",touchCallout: "none",userDrag: "none"}] Options of Hammer.Manager <ko>Hammer.Manager의 옵션</ko>
     **/
-
   /**
          * @class eg.Axes.PanInput
          * @classdesc A module that passes the amount of change to eg.Axes when the mouse or touchscreen is down and moved. use less than two axes.
@@ -5259,11 +4926,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
          * @param {HTMLElement|String|jQuery} element An element to use the eg.Axes.PanInput module <ko>eg.Axes.PanInput 모듈을 사용할 엘리먼트</ko>
          * @param {PanInputOption} [options] The option object of the eg.Axes.PanInput module<ko>eg.Axes.PanInput 모듈의 옵션 객체</ko>
          */
-
-
-  var PanInput =
-  /*#__PURE__*/
-  function () {
+  var PanInput = /*#__PURE__*/function () {
     function PanInput(el, options) {
       this.axes = [];
       this.hammer = null;
@@ -5277,11 +4940,9 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
                                   * @see {@link http://hammerjs.github.io/jsdoc/Hammer.html|Hammer.JS API documents}
                                   * @see Hammer.JS applies specific CSS properties by {@link http://hammerjs.github.io/jsdoc/Hammer.defaults.cssProps.html|default} when creating an instance. The eg.Axes module removes all default CSS properties provided by Hammer.JS
                                   */
-
       if (typeof Manager === "undefined") {
         throw new Error("The Hammerjs must be loaded before eg.Axes.PanInput.\nhttp://hammerjs.github.io/");
       }
-
       this.element = $(el);
       this.options = __assign({
         inputType: ["touch", "mouse", "pointer"],
@@ -5295,77 +4956,65 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
             userSelect: "none",
             touchSelect: "none",
             touchCallout: "none",
-            userDrag: "none"
-          }
-        }
-      }, options);
+            userDrag: "none" } } },
+
+
+      options);
       this.onHammerInput = this.onHammerInput.bind(this);
       this.onPanmove = this.onPanmove.bind(this);
       this.onPanend = this.onPanend.bind(this);
-    }
-
-    var __proto = PanInput.prototype;
-
+    }var __proto = PanInput.prototype;
     __proto.mapAxes = function (axes) {
       var useHorizontal = !!axes[0];
       var useVertical = !!axes[1];
-
       if (useHorizontal && useVertical) {
         this._direction = DIRECTION_ALL;
-      } else if (useHorizontal) {
+      } else
+      if (useHorizontal) {
         this._direction = DIRECTION_HORIZONTAL;
-      } else if (useVertical) {
+      } else
+      if (useVertical) {
         this._direction = DIRECTION_VERTICAL;
-      } else {
+      } else
+      {
         this._direction = DIRECTION_NONE;
       }
-
       this.axes = axes;
     };
-
     __proto.connect = function (observer) {
       var hammerOption = {
         direction: this._direction,
-        threshold: this.options.threshold
-      };
+        threshold: this.options.threshold };
 
-      if (this.hammer) {
-        // for sharing hammer instance.
+      if (this.hammer) {// for sharing hammer instance.
         // hammer remove previous PanRecognizer.
         this.removeRecognizer();
         this.dettachEvent();
-      } else {
+      } else
+      {
         var keyValue = this.element[UNIQUEKEY];
-
         if (!keyValue) {
           keyValue = String(Math.round(Math.random() * new Date().getTime()));
         }
-
         var inputClass = convertInputType(this.options.inputType);
-
         if (!inputClass) {
           throw new Error("Wrong inputType parameter!");
         }
-
         this.hammer = createHammer(this.element, __assign({
-          inputClass: inputClass
-        }, this.options.hammerManagerOptions));
+          inputClass: inputClass },
+        this.options.hammerManagerOptions));
         this.element[UNIQUEKEY] = keyValue;
       }
-
       this.panRecognizer = new PanRecognizer(hammerOption);
       this.hammer.add(this.panRecognizer);
       this.attachEvent(observer);
       return this;
     };
-
     __proto.disconnect = function () {
       this.removeRecognizer();
-
       if (this.hammer) {
         this.dettachEvent();
       }
-
       this._direction = DIRECTION_NONE;
       return this;
     };
@@ -5374,15 +5023,11 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
        * @ko 모듈에 사용한 엘리먼트와 속성, 이벤트를 해제한다.
        * @method eg.Axes.PanInput#destroy
        */
-
-
     __proto.destroy = function () {
       this.disconnect();
-
       if (this.hammer && this.hammer.recognizers.length === 0) {
         this.hammer.destroy();
       }
-
       delete this.element[UNIQUEKEY];
       this.element = null;
       this.hammer = null;
@@ -5393,8 +5038,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * @method eg.Axes.PanInput#enable
         * @return {eg.Axes.PanInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
         */
-
-
     __proto.enable = function () {
       this.hammer && (this.hammer.get("pan").options.enable = true);
       return this;
@@ -5405,8 +5048,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * @method eg.Axes.PanInput#disable
         * @return {eg.Axes.PanInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
         */
-
-
     __proto.disable = function () {
       this.hammer && (this.hammer.get("pan").options.enable = false);
       return this;
@@ -5417,90 +5058,85 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * @method eg.Axes.PanInput#isEnable
         * @return {Boolean} Whether to use an input device <ko>입력장치 사용여부</ko>
         */
-
-
     __proto.isEnable = function () {
       return !!(this.hammer && this.hammer.get("pan").options.enable);
     };
-
     __proto.removeRecognizer = function () {
       if (this.hammer && this.panRecognizer) {
         this.hammer.remove(this.panRecognizer);
         this.panRecognizer = null;
       }
     };
-
     __proto.onHammerInput = function (event) {
       if (this.isEnable()) {
         if (event.isFirst) {
           this.observer.hold(this, event);
-        } else if (event.isFinal) {
+        } else
+        if (event.isFinal) {
           this.onPanend(event);
         }
       }
     };
-
     __proto.onPanmove = function (event) {
-      var userDirection = getDirectionByAngle(event.angle, this.options.thresholdAngle); // not support offset properties in Hammerjs - start
-
+      var userDirection = getDirectionByAngle(event.angle, this.options.thresholdAngle);
+      // not support offset properties in Hammerjs - start
       var prevInput = this.hammer.session.prevInput;
       /* eslint-disable no-param-reassign */
-
       if (prevInput) {
         event.offsetX = event.deltaX - prevInput.deltaX;
         event.offsetY = event.deltaY - prevInput.deltaY;
-      } else {
+      } else
+      {
         event.offsetX = 0;
         event.offsetY = 0;
       }
+      var offset = this.getOffset([event.offsetX, event.offsetY], [
+      useDirection(DIRECTION_HORIZONTAL, this._direction, userDirection),
+      useDirection(DIRECTION_VERTICAL, this._direction, userDirection)]);
 
-      var offset = this.getOffset([event.offsetX, event.offsetY], [useDirection(DIRECTION_HORIZONTAL, this._direction, userDirection), useDirection(DIRECTION_VERTICAL, this._direction, userDirection)]);
-      var prevent = offset.some(function (v) {
-        return v !== 0;
-      });
-
+      var prevent = offset.some(function (v) {return v !== 0;});
       if (prevent) {
         event.srcEvent.preventDefault();
         event.srcEvent.stopPropagation();
       }
-
       event.preventSystemEvent = prevent;
       prevent && this.observer.change(this, event, toAxis(this.axes, offset));
     };
-
     __proto.onPanend = function (event) {
-      var offset = this.getOffset([Math.abs(event.velocityX) * (event.deltaX < 0 ? -1 : 1), Math.abs(event.velocityY) * (event.deltaY < 0 ? -1 : 1)], [useDirection(DIRECTION_HORIZONTAL, this._direction), useDirection(DIRECTION_VERTICAL, this._direction)]);
+      var offset = this.getOffset([
+      Math.abs(event.velocityX) * (event.deltaX < 0 ? -1 : 1),
+      Math.abs(event.velocityY) * (event.deltaY < 0 ? -1 : 1)],
+      [
+      useDirection(DIRECTION_HORIZONTAL, this._direction),
+      useDirection(DIRECTION_VERTICAL, this._direction)]);
+
       offset = getNextOffset(offset, this.observer.options.deceleration);
       this.observer.release(this, event, toAxis(this.axes, offset));
     };
-
     __proto.attachEvent = function (observer) {
       this.observer = observer;
-      this.hammer.on("hammer.input", this.onHammerInput).on("panstart panmove", this.onPanmove);
+      this.hammer.on("hammer.input", this.onHammerInput).
+      on("panstart panmove", this.onPanmove);
     };
-
     __proto.dettachEvent = function () {
-      this.hammer.off("hammer.input", this.onHammerInput).off("panstart panmove", this.onPanmove);
+      this.hammer.off("hammer.input", this.onHammerInput).
+      off("panstart panmove", this.onPanmove);
       this.observer = null;
     };
-
     __proto.getOffset = function (properties, direction) {
       var offset = [0, 0];
       var scale = this.options.scale;
-
       if (direction[0]) {
         offset[0] = properties[0] * scale[0];
       }
-
       if (direction[1]) {
         offset[1] = properties[1] * scale[1];
       }
-
       return offset;
     };
-
     return PanInput;
   }();
+
   /**
                                           * @class eg.Axes.RotatePanInput
                                           * @classdesc A module that passes the angle moved by touch to Axes and uses one axis of rotation.<br>[Details](https://github.com/naver/egjs-axes/wiki/RotatePanInput)
@@ -5522,119 +5158,95 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
                                           * @param {PanInputOption} [options] The option object of the eg.Axes.PanInput module<ko>eg.Axes.PanInput 모듈의 옵션 객체</ko>
                                           * @extends eg.Axes.PanInput
                                           */
-
-
-  var RotatePanInput =
-  /*#__PURE__*/
-  function (_super) {
+  var RotatePanInput = /*#__PURE__*/function (_super) {
     __extends(RotatePanInput, _super);
-
     function RotatePanInput(el, options) {
       var _this = _super.call(this, el, options) || this;
-
       _this.prevQuadrant = null;
       _this.lastDiff = 0;
       return _this;
-    }
-
-    var __proto = RotatePanInput.prototype;
-
+    }var __proto = RotatePanInput.prototype;
     __proto.mapAxes = function (axes) {
       this._direction = Axes.DIRECTION_ALL;
       this.axes = axes;
     };
-
     __proto.onHammerInput = function (event) {
       if (this.isEnable()) {
         if (event.isFirst) {
           this.observer.hold(this, event);
           this.onPanstart(event);
-        } else if (event.isFinal) {
+        } else
+        if (event.isFinal) {
           this.onPanend(event);
         }
       }
     };
-
     __proto.onPanstart = function (event) {
       var rect = this.element.getBoundingClientRect();
       /**
                                                         * Responsive
                                                         */
       // TODO: how to do if element is ellipse not circle.
-
       this.coefficientForDistanceToAngle = 360 / (rect.width * Math.PI); // from 2*pi*r * x / 360
       // TODO: provide a way to set origin like https://developer.mozilla.org/en-US/docs/Web/CSS/transform-origin
-
-      this.rotateOrigin = [rect.left + (rect.width - 1) / 2, rect.top + (rect.height - 1) / 2]; // init angle.
-
+      this.rotateOrigin = [rect.left + (rect.width - 1) / 2, rect.top + (rect.height - 1) / 2];
+      // init angle.
       this.prevAngle = null;
       this.triggerChange(event);
     };
-
     __proto.onPanmove = function (event) {
       this.triggerChange(event);
     };
-
     __proto.onPanend = function (event) {
       this.triggerChange(event);
       this.triggerAnimation(event);
     };
-
     __proto.triggerChange = function (event) {
       var angle = this.getAngle(event.center.x, event.center.y);
       var quadrant = this.getQuadrant(event.center.x, event.center.y);
       var diff = this.getDifference(this.prevAngle, angle, this.prevQuadrant, quadrant);
       this.prevAngle = angle;
       this.prevQuadrant = quadrant;
-
       if (diff === 0) {
         return;
       }
-
       this.lastDiff = diff;
       this.observer.change(this, event, toAxis(this.axes, [-diff])); // minus for clockwise
     };
-
     __proto.triggerAnimation = function (event) {
       var vx = event.velocityX;
       var vy = event.velocityY;
       var velocity = Math.sqrt(vx * vx + vy * vy) * (this.lastDiff > 0 ? -1 : 1); // clockwise
-
       var duration = Math.abs(velocity / -this.observer.options.deceleration);
       var distance = velocity / 2 * duration;
       this.observer.release(this, event, toAxis(this.axes, [distance * this.coefficientForDistanceToAngle]));
     };
-
     __proto.getDifference = function (prevAngle, angle, prevQuadrant, quadrant) {
       var diff;
-
       if (prevAngle === null) {
         diff = 0;
-      } else if (prevQuadrant === 1 && quadrant === 4) {
+      } else
+      if (prevQuadrant === 1 && quadrant === 4) {
         diff = -prevAngle - (360 - angle);
-      } else if (prevQuadrant === 4 && quadrant === 1) {
+      } else
+      if (prevQuadrant === 4 && quadrant === 1) {
         diff = 360 - prevAngle + angle;
-      } else {
+      } else
+      {
         diff = angle - prevAngle;
       }
-
       return diff;
     };
-
     __proto.getPosFromOrigin = function (posX, posY) {
       return {
         x: posX - this.rotateOrigin[0],
-        y: this.rotateOrigin[1] - posY
-      };
+        y: this.rotateOrigin[1] - posY };
+
     };
-
     __proto.getAngle = function (posX, posY) {
-      var _a = this.getPosFromOrigin(posX, posY),
-          x = _a.x,
-          y = _a.y;
-
-      var angle = Math.atan2(y, x) * 180 / Math.PI; // console.log(angle, x, y);
-
+      var _a = this.getPosFromOrigin(posX, posY),x = _a.x,y = _a.y;
+      var angle = Math.atan2(y, x) * 180 / Math.PI;
+      // console.log(angle, x, y);
       return angle < 0 ? 360 + angle : angle;
     };
     /**
@@ -5646,28 +5258,23 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         *   3   |    4
         *       |
         */
-
-
     __proto.getQuadrant = function (posX, posY) {
-      var _a = this.getPosFromOrigin(posX, posY),
-          x = _a.x,
-          y = _a.y;
-
+      var _a = this.getPosFromOrigin(posX, posY),x = _a.x,y = _a.y;
       var q = 0;
-
       if (x >= 0 && y >= 0) {
         q = 1;
-      } else if (x < 0 && y >= 0) {
+      } else
+      if (x < 0 && y >= 0) {
         q = 2;
-      } else if (x < 0 && y < 0) {
+      } else
+      if (x < 0 && y < 0) {
         q = 3;
-      } else if (x >= 0 && y < 0) {
+      } else
+      if (x >= 0 && y < 0) {
         q = 4;
       }
-
       return q;
     };
-
     return RotatePanInput;
   }(PanInput);
 

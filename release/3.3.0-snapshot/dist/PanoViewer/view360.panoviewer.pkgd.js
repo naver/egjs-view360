@@ -5,7 +5,7 @@ Copyright (c) 2017 NAVER Corp.
 https://github.com/naver/egjs-view360
 @version 3.3.0-snapshot
 All-in-one packaged file for ease use of '@egjs/view360' with below dependencies.
-- @egjs/agent ^2.1.5, @egjs/axes ^2.5.8, @egjs/component ^2.1.2, es6-promise ^4.2.5, gl-matrix ^3.1.0, motion-sensors-polyfill ^0.3.1
+- @egjs/agent ^2.1.5, @egjs/axes ^2.5.8, @egjs/component ^2.1.2, es6-promise ^4.2.5, gl-matrix ^3.1.0, motion-sensors-polyfill ^0.3.1, webvr-polyfill ^0.9.41
 */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -79,1165 +79,1168 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    *            See https://raw.githubusercontent.com/stefanpenner/es6-promise/master/LICENSE
    * @version   v4.2.8+1e68dce6
    */
+
   (function (global, factory) {
-    module.exports = factory();
-  })(commonjsGlobal, function () {
+  	module.exports = factory();
+  }(commonjsGlobal, (function () {
+  function objectOrFunction(x) {
+    var type = typeof x;
+    return x !== null && (type === 'object' || type === 'function');
+  }
 
-    function objectOrFunction(x) {
-      var type = typeof x;
-      return x !== null && (type === 'object' || type === 'function');
+  function isFunction(x) {
+    return typeof x === 'function';
+  }
+
+
+
+  var _isArray = void 0;
+  if (Array.isArray) {
+    _isArray = Array.isArray;
+  } else {
+    _isArray = function (x) {
+      return Object.prototype.toString.call(x) === '[object Array]';
+    };
+  }
+
+  var isArray = _isArray;
+
+  var len = 0;
+  var vertxNext = void 0;
+  var customSchedulerFn = void 0;
+
+  var asap = function asap(callback, arg) {
+    queue[len] = callback;
+    queue[len + 1] = arg;
+    len += 2;
+    if (len === 2) {
+      // If len is 2, that means that we need to schedule an async flush.
+      // If additional callbacks are queued before the queue is flushed, they
+      // will be processed by this flush that we are scheduling.
+      if (customSchedulerFn) {
+        customSchedulerFn(flush);
+      } else {
+        scheduleFlush();
+      }
     }
+  };
 
-    function isFunction(x) {
-      return typeof x === 'function';
-    }
+  function setScheduler(scheduleFn) {
+    customSchedulerFn = scheduleFn;
+  }
 
-    var _isArray = void 0;
+  function setAsap(asapFn) {
+    asap = asapFn;
+  }
 
-    if (Array.isArray) {
-      _isArray = Array.isArray;
-    } else {
-      _isArray = function (x) {
-        return Object.prototype.toString.call(x) === '[object Array]';
+  var browserWindow = typeof window !== 'undefined' ? window : undefined;
+  var browserGlobal = browserWindow || {};
+  var BrowserMutationObserver = browserGlobal.MutationObserver || browserGlobal.WebKitMutationObserver;
+  var isNode = typeof self === 'undefined' && typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
+
+  // test for web worker but not in IE10
+  var isWorker = typeof Uint8ClampedArray !== 'undefined' && typeof importScripts !== 'undefined' && typeof MessageChannel !== 'undefined';
+
+  // node
+  function useNextTick() {
+    // node version 0.10.x displays a deprecation warning when nextTick is used recursively
+    // see https://github.com/cujojs/when/issues/410 for details
+    return function () {
+      return process.nextTick(flush);
+    };
+  }
+
+  // vertx
+  function useVertxTimer() {
+    if (typeof vertxNext !== 'undefined') {
+      return function () {
+        vertxNext(flush);
       };
     }
 
-    var isArray = _isArray;
-    var len = 0;
-    var vertxNext = void 0;
-    var customSchedulerFn = void 0;
+    return useSetTimeout();
+  }
 
-    var asap = function asap(callback, arg) {
-      queue[len] = callback;
-      queue[len + 1] = arg;
-      len += 2;
+  function useMutationObserver() {
+    var iterations = 0;
+    var observer = new BrowserMutationObserver(flush);
+    var node = document.createTextNode('');
+    observer.observe(node, { characterData: true });
 
-      if (len === 2) {
-        // If len is 2, that means that we need to schedule an async flush.
-        // If additional callbacks are queued before the queue is flushed, they
-        // will be processed by this flush that we are scheduling.
-        if (customSchedulerFn) {
-          customSchedulerFn(flush);
-        } else {
-          scheduleFlush();
+    return function () {
+      node.data = iterations = ++iterations % 2;
+    };
+  }
+
+  // web worker
+  function useMessageChannel() {
+    var channel = new MessageChannel();
+    channel.port1.onmessage = flush;
+    return function () {
+      return channel.port2.postMessage(0);
+    };
+  }
+
+  function useSetTimeout() {
+    // Store setTimeout reference so es6-promise will be unaffected by
+    // other code modifying setTimeout (like sinon.useFakeTimers())
+    var globalSetTimeout = setTimeout;
+    return function () {
+      return globalSetTimeout(flush, 1);
+    };
+  }
+
+  var queue = new Array(1000);
+  function flush() {
+    for (var i = 0; i < len; i += 2) {
+      var callback = queue[i];
+      var arg = queue[i + 1];
+
+      callback(arg);
+
+      queue[i] = undefined;
+      queue[i + 1] = undefined;
+    }
+
+    len = 0;
+  }
+
+  function attemptVertx() {
+    try {
+      var vertx = Function('return this')().require('vertx');
+      vertxNext = vertx.runOnLoop || vertx.runOnContext;
+      return useVertxTimer();
+    } catch (e) {
+      return useSetTimeout();
+    }
+  }
+
+  var scheduleFlush = void 0;
+  // Decide what async method to use to triggering processing of queued callbacks:
+  if (isNode) {
+    scheduleFlush = useNextTick();
+  } else if (BrowserMutationObserver) {
+    scheduleFlush = useMutationObserver();
+  } else if (isWorker) {
+    scheduleFlush = useMessageChannel();
+  } else if (browserWindow === undefined && typeof commonjsRequire === 'function') {
+    scheduleFlush = attemptVertx();
+  } else {
+    scheduleFlush = useSetTimeout();
+  }
+
+  function then(onFulfillment, onRejection) {
+    var parent = this;
+
+    var child = new this.constructor(noop);
+
+    if (child[PROMISE_ID] === undefined) {
+      makePromise(child);
+    }
+
+    var _state = parent._state;
+
+
+    if (_state) {
+      var callback = arguments[_state - 1];
+      asap(function () {
+        return invokeCallback(_state, child, callback, parent._result);
+      });
+    } else {
+      subscribe(parent, child, onFulfillment, onRejection);
+    }
+
+    return child;
+  }
+
+  /**
+    `Promise.resolve` returns a promise that will become resolved with the
+    passed `value`. It is shorthand for the following:
+
+    ```javascript
+    let promise = new Promise(function(resolve, reject){
+      resolve(1);
+    });
+
+    promise.then(function(value){
+      // value === 1
+    });
+    ```
+
+    Instead of writing the above, your code now simply becomes the following:
+
+    ```javascript
+    let promise = Promise.resolve(1);
+
+    promise.then(function(value){
+      // value === 1
+    });
+    ```
+
+    @method resolve
+    @static
+    @param {Any} value value that the returned promise will be resolved with
+    Useful for tooling.
+    @return {Promise} a promise that will become fulfilled with the given
+    `value`
+  */
+  function resolve$1(object) {
+    /*jshint validthis:true */
+    var Constructor = this;
+
+    if (object && typeof object === 'object' && object.constructor === Constructor) {
+      return object;
+    }
+
+    var promise = new Constructor(noop);
+    resolve(promise, object);
+    return promise;
+  }
+
+  var PROMISE_ID = Math.random().toString(36).substring(2);
+
+  function noop() {}
+
+  var PENDING = void 0;
+  var FULFILLED = 1;
+  var REJECTED = 2;
+
+  function selfFulfillment() {
+    return new TypeError("You cannot resolve a promise with itself");
+  }
+
+  function cannotReturnOwn() {
+    return new TypeError('A promises callback cannot return that same promise.');
+  }
+
+  function tryThen(then$$1, value, fulfillmentHandler, rejectionHandler) {
+    try {
+      then$$1.call(value, fulfillmentHandler, rejectionHandler);
+    } catch (e) {
+      return e;
+    }
+  }
+
+  function handleForeignThenable(promise, thenable, then$$1) {
+    asap(function (promise) {
+      var sealed = false;
+      var error = tryThen(then$$1, thenable, function (value) {
+        if (sealed) {
+          return;
         }
+        sealed = true;
+        if (thenable !== value) {
+          resolve(promise, value);
+        } else {
+          fulfill(promise, value);
+        }
+      }, function (reason) {
+        if (sealed) {
+          return;
+        }
+        sealed = true;
+
+        reject(promise, reason);
+      }, 'Settle: ' + (promise._label || ' unknown promise'));
+
+      if (!sealed && error) {
+        sealed = true;
+        reject(promise, error);
+      }
+    }, promise);
+  }
+
+  function handleOwnThenable(promise, thenable) {
+    if (thenable._state === FULFILLED) {
+      fulfill(promise, thenable._result);
+    } else if (thenable._state === REJECTED) {
+      reject(promise, thenable._result);
+    } else {
+      subscribe(thenable, undefined, function (value) {
+        return resolve(promise, value);
+      }, function (reason) {
+        return reject(promise, reason);
+      });
+    }
+  }
+
+  function handleMaybeThenable(promise, maybeThenable, then$$1) {
+    if (maybeThenable.constructor === promise.constructor && then$$1 === then && maybeThenable.constructor.resolve === resolve$1) {
+      handleOwnThenable(promise, maybeThenable);
+    } else {
+      if (then$$1 === undefined) {
+        fulfill(promise, maybeThenable);
+      } else if (isFunction(then$$1)) {
+        handleForeignThenable(promise, maybeThenable, then$$1);
+      } else {
+        fulfill(promise, maybeThenable);
+      }
+    }
+  }
+
+  function resolve(promise, value) {
+    if (promise === value) {
+      reject(promise, selfFulfillment());
+    } else if (objectOrFunction(value)) {
+      var then$$1 = void 0;
+      try {
+        then$$1 = value.then;
+      } catch (error) {
+        reject(promise, error);
+        return;
+      }
+      handleMaybeThenable(promise, value, then$$1);
+    } else {
+      fulfill(promise, value);
+    }
+  }
+
+  function publishRejection(promise) {
+    if (promise._onerror) {
+      promise._onerror(promise._result);
+    }
+
+    publish(promise);
+  }
+
+  function fulfill(promise, value) {
+    if (promise._state !== PENDING) {
+      return;
+    }
+
+    promise._result = value;
+    promise._state = FULFILLED;
+
+    if (promise._subscribers.length !== 0) {
+      asap(publish, promise);
+    }
+  }
+
+  function reject(promise, reason) {
+    if (promise._state !== PENDING) {
+      return;
+    }
+    promise._state = REJECTED;
+    promise._result = reason;
+
+    asap(publishRejection, promise);
+  }
+
+  function subscribe(parent, child, onFulfillment, onRejection) {
+    var _subscribers = parent._subscribers;
+    var length = _subscribers.length;
+
+
+    parent._onerror = null;
+
+    _subscribers[length] = child;
+    _subscribers[length + FULFILLED] = onFulfillment;
+    _subscribers[length + REJECTED] = onRejection;
+
+    if (length === 0 && parent._state) {
+      asap(publish, parent);
+    }
+  }
+
+  function publish(promise) {
+    var subscribers = promise._subscribers;
+    var settled = promise._state;
+
+    if (subscribers.length === 0) {
+      return;
+    }
+
+    var child = void 0,
+        callback = void 0,
+        detail = promise._result;
+
+    for (var i = 0; i < subscribers.length; i += 3) {
+      child = subscribers[i];
+      callback = subscribers[i + settled];
+
+      if (child) {
+        invokeCallback(settled, child, callback, detail);
+      } else {
+        callback(detail);
+      }
+    }
+
+    promise._subscribers.length = 0;
+  }
+
+  function invokeCallback(settled, promise, callback, detail) {
+    var hasCallback = isFunction(callback),
+        value = void 0,
+        error = void 0,
+        succeeded = true;
+
+    if (hasCallback) {
+      try {
+        value = callback(detail);
+      } catch (e) {
+        succeeded = false;
+        error = e;
+      }
+
+      if (promise === value) {
+        reject(promise, cannotReturnOwn());
+        return;
+      }
+    } else {
+      value = detail;
+    }
+
+    if (promise._state !== PENDING) ; else if (hasCallback && succeeded) {
+      resolve(promise, value);
+    } else if (succeeded === false) {
+      reject(promise, error);
+    } else if (settled === FULFILLED) {
+      fulfill(promise, value);
+    } else if (settled === REJECTED) {
+      reject(promise, value);
+    }
+  }
+
+  function initializePromise(promise, resolver) {
+    try {
+      resolver(function resolvePromise(value) {
+        resolve(promise, value);
+      }, function rejectPromise(reason) {
+        reject(promise, reason);
+      });
+    } catch (e) {
+      reject(promise, e);
+    }
+  }
+
+  var id = 0;
+  function nextId() {
+    return id++;
+  }
+
+  function makePromise(promise) {
+    promise[PROMISE_ID] = id++;
+    promise._state = undefined;
+    promise._result = undefined;
+    promise._subscribers = [];
+  }
+
+  function validationError() {
+    return new Error('Array Methods must be provided an Array');
+  }
+
+  var Enumerator = function () {
+    function Enumerator(Constructor, input) {
+      this._instanceConstructor = Constructor;
+      this.promise = new Constructor(noop);
+
+      if (!this.promise[PROMISE_ID]) {
+        makePromise(this.promise);
+      }
+
+      if (isArray(input)) {
+        this.length = input.length;
+        this._remaining = input.length;
+
+        this._result = new Array(this.length);
+
+        if (this.length === 0) {
+          fulfill(this.promise, this._result);
+        } else {
+          this.length = this.length || 0;
+          this._enumerate(input);
+          if (this._remaining === 0) {
+            fulfill(this.promise, this._result);
+          }
+        }
+      } else {
+        reject(this.promise, validationError());
+      }
+    }
+
+    Enumerator.prototype._enumerate = function _enumerate(input) {
+      for (var i = 0; this._state === PENDING && i < input.length; i++) {
+        this._eachEntry(input[i], i);
       }
     };
 
-    function setScheduler(scheduleFn) {
-      customSchedulerFn = scheduleFn;
-    }
-
-    function setAsap(asapFn) {
-      asap = asapFn;
-    }
-
-    var browserWindow = typeof window !== 'undefined' ? window : undefined;
-    var browserGlobal = browserWindow || {};
-    var BrowserMutationObserver = browserGlobal.MutationObserver || browserGlobal.WebKitMutationObserver;
-    var isNode = typeof self === 'undefined' && typeof process !== 'undefined' && {}.toString.call(process) === '[object process]'; // test for web worker but not in IE10
-
-    var isWorker = typeof Uint8ClampedArray !== 'undefined' && typeof importScripts !== 'undefined' && typeof MessageChannel !== 'undefined'; // node
-
-    function useNextTick() {
-      // node version 0.10.x displays a deprecation warning when nextTick is used recursively
-      // see https://github.com/cujojs/when/issues/410 for details
-      return function () {
-        return process.nextTick(flush);
-      };
-    } // vertx
+    Enumerator.prototype._eachEntry = function _eachEntry(entry, i) {
+      var c = this._instanceConstructor;
+      var resolve$$1 = c.resolve;
 
 
-    function useVertxTimer() {
-      if (typeof vertxNext !== 'undefined') {
-        return function () {
-          vertxNext(flush);
-        };
-      }
-
-      return useSetTimeout();
-    }
-
-    function useMutationObserver() {
-      var iterations = 0;
-      var observer = new BrowserMutationObserver(flush);
-      var node = document.createTextNode('');
-      observer.observe(node, {
-        characterData: true
-      });
-      return function () {
-        node.data = iterations = ++iterations % 2;
-      };
-    } // web worker
-
-
-    function useMessageChannel() {
-      var channel = new MessageChannel();
-      channel.port1.onmessage = flush;
-      return function () {
-        return channel.port2.postMessage(0);
-      };
-    }
-
-    function useSetTimeout() {
-      // Store setTimeout reference so es6-promise will be unaffected by
-      // other code modifying setTimeout (like sinon.useFakeTimers())
-      var globalSetTimeout = setTimeout;
-      return function () {
-        return globalSetTimeout(flush, 1);
-      };
-    }
-
-    var queue = new Array(1000);
-
-    function flush() {
-      for (var i = 0; i < len; i += 2) {
-        var callback = queue[i];
-        var arg = queue[i + 1];
-        callback(arg);
-        queue[i] = undefined;
-        queue[i + 1] = undefined;
-      }
-
-      len = 0;
-    }
-
-    function attemptVertx() {
-      try {
-        var vertx = Function('return this')().require('vertx');
-
-        vertxNext = vertx.runOnLoop || vertx.runOnContext;
-        return useVertxTimer();
-      } catch (e) {
-        return useSetTimeout();
-      }
-    }
-
-    var scheduleFlush = void 0; // Decide what async method to use to triggering processing of queued callbacks:
-
-    if (isNode) {
-      scheduleFlush = useNextTick();
-    } else if (BrowserMutationObserver) {
-      scheduleFlush = useMutationObserver();
-    } else if (isWorker) {
-      scheduleFlush = useMessageChannel();
-    } else if (browserWindow === undefined && typeof commonjsRequire === 'function') {
-      scheduleFlush = attemptVertx();
-    } else {
-      scheduleFlush = useSetTimeout();
-    }
-
-    function then(onFulfillment, onRejection) {
-      var parent = this;
-      var child = new this.constructor(noop);
-
-      if (child[PROMISE_ID] === undefined) {
-        makePromise(child);
-      }
-
-      var _state = parent._state;
-
-      if (_state) {
-        var callback = arguments[_state - 1];
-        asap(function () {
-          return invokeCallback(_state, child, callback, parent._result);
-        });
-      } else {
-        subscribe(parent, child, onFulfillment, onRejection);
-      }
-
-      return child;
-    }
-    /**
-      `Promise.resolve` returns a promise that will become resolved with the
-      passed `value`. It is shorthand for the following:
-    
-      ```javascript
-      let promise = new Promise(function(resolve, reject){
-        resolve(1);
-      });
-    
-      promise.then(function(value){
-        // value === 1
-      });
-      ```
-    
-      Instead of writing the above, your code now simply becomes the following:
-    
-      ```javascript
-      let promise = Promise.resolve(1);
-    
-      promise.then(function(value){
-        // value === 1
-      });
-      ```
-    
-      @method resolve
-      @static
-      @param {Any} value value that the returned promise will be resolved with
-      Useful for tooling.
-      @return {Promise} a promise that will become fulfilled with the given
-      `value`
-    */
-
-
-    function resolve$1(object) {
-      /*jshint validthis:true */
-      var Constructor = this;
-
-      if (object && typeof object === 'object' && object.constructor === Constructor) {
-        return object;
-      }
-
-      var promise = new Constructor(noop);
-      resolve(promise, object);
-      return promise;
-    }
-
-    var PROMISE_ID = Math.random().toString(36).substring(2);
-
-    function noop() {}
-
-    var PENDING = void 0;
-    var FULFILLED = 1;
-    var REJECTED = 2;
-
-    function selfFulfillment() {
-      return new TypeError("You cannot resolve a promise with itself");
-    }
-
-    function cannotReturnOwn() {
-      return new TypeError('A promises callback cannot return that same promise.');
-    }
-
-    function tryThen(then$$1, value, fulfillmentHandler, rejectionHandler) {
-      try {
-        then$$1.call(value, fulfillmentHandler, rejectionHandler);
-      } catch (e) {
-        return e;
-      }
-    }
-
-    function handleForeignThenable(promise, thenable, then$$1) {
-      asap(function (promise) {
-        var sealed = false;
-        var error = tryThen(then$$1, thenable, function (value) {
-          if (sealed) {
-            return;
-          }
-
-          sealed = true;
-
-          if (thenable !== value) {
-            resolve(promise, value);
-          } else {
-            fulfill(promise, value);
-          }
-        }, function (reason) {
-          if (sealed) {
-            return;
-          }
-
-          sealed = true;
-          reject(promise, reason);
-        }, 'Settle: ' + (promise._label || ' unknown promise'));
-
-        if (!sealed && error) {
-          sealed = true;
-          reject(promise, error);
-        }
-      }, promise);
-    }
-
-    function handleOwnThenable(promise, thenable) {
-      if (thenable._state === FULFILLED) {
-        fulfill(promise, thenable._result);
-      } else if (thenable._state === REJECTED) {
-        reject(promise, thenable._result);
-      } else {
-        subscribe(thenable, undefined, function (value) {
-          return resolve(promise, value);
-        }, function (reason) {
-          return reject(promise, reason);
-        });
-      }
-    }
-
-    function handleMaybeThenable(promise, maybeThenable, then$$1) {
-      if (maybeThenable.constructor === promise.constructor && then$$1 === then && maybeThenable.constructor.resolve === resolve$1) {
-        handleOwnThenable(promise, maybeThenable);
-      } else {
-        if (then$$1 === undefined) {
-          fulfill(promise, maybeThenable);
-        } else if (isFunction(then$$1)) {
-          handleForeignThenable(promise, maybeThenable, then$$1);
-        } else {
-          fulfill(promise, maybeThenable);
-        }
-      }
-    }
-
-    function resolve(promise, value) {
-      if (promise === value) {
-        reject(promise, selfFulfillment());
-      } else if (objectOrFunction(value)) {
-        var then$$1 = void 0;
-
+      if (resolve$$1 === resolve$1) {
+        var _then = void 0;
+        var error = void 0;
+        var didError = false;
         try {
-          then$$1 = value.then;
-        } catch (error) {
-          reject(promise, error);
-          return;
-        }
-
-        handleMaybeThenable(promise, value, then$$1);
-      } else {
-        fulfill(promise, value);
-      }
-    }
-
-    function publishRejection(promise) {
-      if (promise._onerror) {
-        promise._onerror(promise._result);
-      }
-
-      publish(promise);
-    }
-
-    function fulfill(promise, value) {
-      if (promise._state !== PENDING) {
-        return;
-      }
-
-      promise._result = value;
-      promise._state = FULFILLED;
-
-      if (promise._subscribers.length !== 0) {
-        asap(publish, promise);
-      }
-    }
-
-    function reject(promise, reason) {
-      if (promise._state !== PENDING) {
-        return;
-      }
-
-      promise._state = REJECTED;
-      promise._result = reason;
-      asap(publishRejection, promise);
-    }
-
-    function subscribe(parent, child, onFulfillment, onRejection) {
-      var _subscribers = parent._subscribers;
-      var length = _subscribers.length;
-      parent._onerror = null;
-      _subscribers[length] = child;
-      _subscribers[length + FULFILLED] = onFulfillment;
-      _subscribers[length + REJECTED] = onRejection;
-
-      if (length === 0 && parent._state) {
-        asap(publish, parent);
-      }
-    }
-
-    function publish(promise) {
-      var subscribers = promise._subscribers;
-      var settled = promise._state;
-
-      if (subscribers.length === 0) {
-        return;
-      }
-
-      var child = void 0,
-          callback = void 0,
-          detail = promise._result;
-
-      for (var i = 0; i < subscribers.length; i += 3) {
-        child = subscribers[i];
-        callback = subscribers[i + settled];
-
-        if (child) {
-          invokeCallback(settled, child, callback, detail);
-        } else {
-          callback(detail);
-        }
-      }
-
-      promise._subscribers.length = 0;
-    }
-
-    function invokeCallback(settled, promise, callback, detail) {
-      var hasCallback = isFunction(callback),
-          value = void 0,
-          error = void 0,
-          succeeded = true;
-
-      if (hasCallback) {
-        try {
-          value = callback(detail);
+          _then = entry.then;
         } catch (e) {
-          succeeded = false;
+          didError = true;
           error = e;
         }
 
-        if (promise === value) {
-          reject(promise, cannotReturnOwn());
-          return;
-        }
-      } else {
-        value = detail;
-      }
-
-      if (promise._state !== PENDING) ; else if (hasCallback && succeeded) {
-        resolve(promise, value);
-      } else if (succeeded === false) {
-        reject(promise, error);
-      } else if (settled === FULFILLED) {
-        fulfill(promise, value);
-      } else if (settled === REJECTED) {
-        reject(promise, value);
-      }
-    }
-
-    function initializePromise(promise, resolver) {
-      try {
-        resolver(function resolvePromise(value) {
-          resolve(promise, value);
-        }, function rejectPromise(reason) {
-          reject(promise, reason);
-        });
-      } catch (e) {
-        reject(promise, e);
-      }
-    }
-
-    var id = 0;
-
-    function nextId() {
-      return id++;
-    }
-
-    function makePromise(promise) {
-      promise[PROMISE_ID] = id++;
-      promise._state = undefined;
-      promise._result = undefined;
-      promise._subscribers = [];
-    }
-
-    function validationError() {
-      return new Error('Array Methods must be provided an Array');
-    }
-
-    var Enumerator = function () {
-      function Enumerator(Constructor, input) {
-        this._instanceConstructor = Constructor;
-        this.promise = new Constructor(noop);
-
-        if (!this.promise[PROMISE_ID]) {
-          makePromise(this.promise);
-        }
-
-        if (isArray(input)) {
-          this.length = input.length;
-          this._remaining = input.length;
-          this._result = new Array(this.length);
-
-          if (this.length === 0) {
-            fulfill(this.promise, this._result);
-          } else {
-            this.length = this.length || 0;
-
-            this._enumerate(input);
-
-            if (this._remaining === 0) {
-              fulfill(this.promise, this._result);
-            }
-          }
-        } else {
-          reject(this.promise, validationError());
-        }
-      }
-
-      Enumerator.prototype._enumerate = function _enumerate(input) {
-        for (var i = 0; this._state === PENDING && i < input.length; i++) {
-          this._eachEntry(input[i], i);
-        }
-      };
-
-      Enumerator.prototype._eachEntry = function _eachEntry(entry, i) {
-        var c = this._instanceConstructor;
-        var resolve$$1 = c.resolve;
-
-        if (resolve$$1 === resolve$1) {
-          var _then = void 0;
-
-          var error = void 0;
-          var didError = false;
-
-          try {
-            _then = entry.then;
-          } catch (e) {
-            didError = true;
-            error = e;
-          }
-
-          if (_then === then && entry._state !== PENDING) {
-            this._settledAt(entry._state, i, entry._result);
-          } else if (typeof _then !== 'function') {
-            this._remaining--;
-            this._result[i] = entry;
-          } else if (c === Promise$1) {
-            var promise = new c(noop);
-
-            if (didError) {
-              reject(promise, error);
-            } else {
-              handleMaybeThenable(promise, entry, _then);
-            }
-
-            this._willSettleAt(promise, i);
-          } else {
-            this._willSettleAt(new c(function (resolve$$1) {
-              return resolve$$1(entry);
-            }), i);
-          }
-        } else {
-          this._willSettleAt(resolve$$1(entry), i);
-        }
-      };
-
-      Enumerator.prototype._settledAt = function _settledAt(state, i, value) {
-        var promise = this.promise;
-
-        if (promise._state === PENDING) {
+        if (_then === then && entry._state !== PENDING) {
+          this._settledAt(entry._state, i, entry._result);
+        } else if (typeof _then !== 'function') {
           this._remaining--;
-
-          if (state === REJECTED) {
-            reject(promise, value);
+          this._result[i] = entry;
+        } else if (c === Promise$1) {
+          var promise = new c(noop);
+          if (didError) {
+            reject(promise, error);
           } else {
-            this._result[i] = value;
+            handleMaybeThenable(promise, entry, _then);
           }
+          this._willSettleAt(promise, i);
+        } else {
+          this._willSettleAt(new c(function (resolve$$1) {
+            return resolve$$1(entry);
+          }), i);
         }
-
-        if (this._remaining === 0) {
-          fulfill(promise, this._result);
-        }
-      };
-
-      Enumerator.prototype._willSettleAt = function _willSettleAt(promise, i) {
-        var enumerator = this;
-        subscribe(promise, undefined, function (value) {
-          return enumerator._settledAt(FULFILLED, i, value);
-        }, function (reason) {
-          return enumerator._settledAt(REJECTED, i, reason);
-        });
-      };
-
-      return Enumerator;
-    }();
-    /**
-      `Promise.all` accepts an array of promises, and returns a new promise which
-      is fulfilled with an array of fulfillment values for the passed promises, or
-      rejected with the reason of the first passed promise to be rejected. It casts all
-      elements of the passed iterable to promises as it runs this algorithm.
-    
-      Example:
-    
-      ```javascript
-      let promise1 = resolve(1);
-      let promise2 = resolve(2);
-      let promise3 = resolve(3);
-      let promises = [ promise1, promise2, promise3 ];
-    
-      Promise.all(promises).then(function(array){
-        // The array here would be [ 1, 2, 3 ];
-      });
-      ```
-    
-      If any of the `promises` given to `all` are rejected, the first promise
-      that is rejected will be given as an argument to the returned promises's
-      rejection handler. For example:
-    
-      Example:
-    
-      ```javascript
-      let promise1 = resolve(1);
-      let promise2 = reject(new Error("2"));
-      let promise3 = reject(new Error("3"));
-      let promises = [ promise1, promise2, promise3 ];
-    
-      Promise.all(promises).then(function(array){
-        // Code here never runs because there are rejected promises!
-      }, function(error) {
-        // error.message === "2"
-      });
-      ```
-    
-      @method all
-      @static
-      @param {Array} entries array of promises
-      @param {String} label optional string for labeling the promise.
-      Useful for tooling.
-      @return {Promise} promise that is fulfilled when all `promises` have been
-      fulfilled, or rejected if any of them become rejected.
-      @static
-    */
-
-
-    function all(entries) {
-      return new Enumerator(this, entries).promise;
-    }
-    /**
-      `Promise.race` returns a new promise which is settled in the same way as the
-      first passed promise to settle.
-    
-      Example:
-    
-      ```javascript
-      let promise1 = new Promise(function(resolve, reject){
-        setTimeout(function(){
-          resolve('promise 1');
-        }, 200);
-      });
-    
-      let promise2 = new Promise(function(resolve, reject){
-        setTimeout(function(){
-          resolve('promise 2');
-        }, 100);
-      });
-    
-      Promise.race([promise1, promise2]).then(function(result){
-        // result === 'promise 2' because it was resolved before promise1
-        // was resolved.
-      });
-      ```
-    
-      `Promise.race` is deterministic in that only the state of the first
-      settled promise matters. For example, even if other promises given to the
-      `promises` array argument are resolved, but the first settled promise has
-      become rejected before the other promises became fulfilled, the returned
-      promise will become rejected:
-    
-      ```javascript
-      let promise1 = new Promise(function(resolve, reject){
-        setTimeout(function(){
-          resolve('promise 1');
-        }, 200);
-      });
-    
-      let promise2 = new Promise(function(resolve, reject){
-        setTimeout(function(){
-          reject(new Error('promise 2'));
-        }, 100);
-      });
-    
-      Promise.race([promise1, promise2]).then(function(result){
-        // Code here never runs
-      }, function(reason){
-        // reason.message === 'promise 2' because promise 2 became rejected before
-        // promise 1 became fulfilled
-      });
-      ```
-    
-      An example real-world use case is implementing timeouts:
-    
-      ```javascript
-      Promise.race([ajax('foo.json'), timeout(5000)])
-      ```
-    
-      @method race
-      @static
-      @param {Array} promises array of promises to observe
-      Useful for tooling.
-      @return {Promise} a promise which settles in the same way as the first passed
-      promise to settle.
-    */
-
-
-    function race(entries) {
-      /*jshint validthis:true */
-      var Constructor = this;
-
-      if (!isArray(entries)) {
-        return new Constructor(function (_, reject) {
-          return reject(new TypeError('You must pass an array to race.'));
-        });
       } else {
-        return new Constructor(function (resolve, reject) {
-          var length = entries.length;
+        this._willSettleAt(resolve$$1(entry), i);
+      }
+    };
 
-          for (var i = 0; i < length; i++) {
-            Constructor.resolve(entries[i]).then(resolve, reject);
+    Enumerator.prototype._settledAt = function _settledAt(state, i, value) {
+      var promise = this.promise;
+
+
+      if (promise._state === PENDING) {
+        this._remaining--;
+
+        if (state === REJECTED) {
+          reject(promise, value);
+        } else {
+          this._result[i] = value;
+        }
+      }
+
+      if (this._remaining === 0) {
+        fulfill(promise, this._result);
+      }
+    };
+
+    Enumerator.prototype._willSettleAt = function _willSettleAt(promise, i) {
+      var enumerator = this;
+
+      subscribe(promise, undefined, function (value) {
+        return enumerator._settledAt(FULFILLED, i, value);
+      }, function (reason) {
+        return enumerator._settledAt(REJECTED, i, reason);
+      });
+    };
+
+    return Enumerator;
+  }();
+
+  /**
+    `Promise.all` accepts an array of promises, and returns a new promise which
+    is fulfilled with an array of fulfillment values for the passed promises, or
+    rejected with the reason of the first passed promise to be rejected. It casts all
+    elements of the passed iterable to promises as it runs this algorithm.
+
+    Example:
+
+    ```javascript
+    let promise1 = resolve(1);
+    let promise2 = resolve(2);
+    let promise3 = resolve(3);
+    let promises = [ promise1, promise2, promise3 ];
+
+    Promise.all(promises).then(function(array){
+      // The array here would be [ 1, 2, 3 ];
+    });
+    ```
+
+    If any of the `promises` given to `all` are rejected, the first promise
+    that is rejected will be given as an argument to the returned promises's
+    rejection handler. For example:
+
+    Example:
+
+    ```javascript
+    let promise1 = resolve(1);
+    let promise2 = reject(new Error("2"));
+    let promise3 = reject(new Error("3"));
+    let promises = [ promise1, promise2, promise3 ];
+
+    Promise.all(promises).then(function(array){
+      // Code here never runs because there are rejected promises!
+    }, function(error) {
+      // error.message === "2"
+    });
+    ```
+
+    @method all
+    @static
+    @param {Array} entries array of promises
+    @param {String} label optional string for labeling the promise.
+    Useful for tooling.
+    @return {Promise} promise that is fulfilled when all `promises` have been
+    fulfilled, or rejected if any of them become rejected.
+    @static
+  */
+  function all(entries) {
+    return new Enumerator(this, entries).promise;
+  }
+
+  /**
+    `Promise.race` returns a new promise which is settled in the same way as the
+    first passed promise to settle.
+
+    Example:
+
+    ```javascript
+    let promise1 = new Promise(function(resolve, reject){
+      setTimeout(function(){
+        resolve('promise 1');
+      }, 200);
+    });
+
+    let promise2 = new Promise(function(resolve, reject){
+      setTimeout(function(){
+        resolve('promise 2');
+      }, 100);
+    });
+
+    Promise.race([promise1, promise2]).then(function(result){
+      // result === 'promise 2' because it was resolved before promise1
+      // was resolved.
+    });
+    ```
+
+    `Promise.race` is deterministic in that only the state of the first
+    settled promise matters. For example, even if other promises given to the
+    `promises` array argument are resolved, but the first settled promise has
+    become rejected before the other promises became fulfilled, the returned
+    promise will become rejected:
+
+    ```javascript
+    let promise1 = new Promise(function(resolve, reject){
+      setTimeout(function(){
+        resolve('promise 1');
+      }, 200);
+    });
+
+    let promise2 = new Promise(function(resolve, reject){
+      setTimeout(function(){
+        reject(new Error('promise 2'));
+      }, 100);
+    });
+
+    Promise.race([promise1, promise2]).then(function(result){
+      // Code here never runs
+    }, function(reason){
+      // reason.message === 'promise 2' because promise 2 became rejected before
+      // promise 1 became fulfilled
+    });
+    ```
+
+    An example real-world use case is implementing timeouts:
+
+    ```javascript
+    Promise.race([ajax('foo.json'), timeout(5000)])
+    ```
+
+    @method race
+    @static
+    @param {Array} promises array of promises to observe
+    Useful for tooling.
+    @return {Promise} a promise which settles in the same way as the first passed
+    promise to settle.
+  */
+  function race(entries) {
+    /*jshint validthis:true */
+    var Constructor = this;
+
+    if (!isArray(entries)) {
+      return new Constructor(function (_, reject) {
+        return reject(new TypeError('You must pass an array to race.'));
+      });
+    } else {
+      return new Constructor(function (resolve, reject) {
+        var length = entries.length;
+        for (var i = 0; i < length; i++) {
+          Constructor.resolve(entries[i]).then(resolve, reject);
+        }
+      });
+    }
+  }
+
+  /**
+    `Promise.reject` returns a promise rejected with the passed `reason`.
+    It is shorthand for the following:
+
+    ```javascript
+    let promise = new Promise(function(resolve, reject){
+      reject(new Error('WHOOPS'));
+    });
+
+    promise.then(function(value){
+      // Code here doesn't run because the promise is rejected!
+    }, function(reason){
+      // reason.message === 'WHOOPS'
+    });
+    ```
+
+    Instead of writing the above, your code now simply becomes the following:
+
+    ```javascript
+    let promise = Promise.reject(new Error('WHOOPS'));
+
+    promise.then(function(value){
+      // Code here doesn't run because the promise is rejected!
+    }, function(reason){
+      // reason.message === 'WHOOPS'
+    });
+    ```
+
+    @method reject
+    @static
+    @param {Any} reason value that the returned promise will be rejected with.
+    Useful for tooling.
+    @return {Promise} a promise rejected with the given `reason`.
+  */
+  function reject$1(reason) {
+    /*jshint validthis:true */
+    var Constructor = this;
+    var promise = new Constructor(noop);
+    reject(promise, reason);
+    return promise;
+  }
+
+  function needsResolver() {
+    throw new TypeError('You must pass a resolver function as the first argument to the promise constructor');
+  }
+
+  function needsNew() {
+    throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
+  }
+
+  /**
+    Promise objects represent the eventual result of an asynchronous operation. The
+    primary way of interacting with a promise is through its `then` method, which
+    registers callbacks to receive either a promise's eventual value or the reason
+    why the promise cannot be fulfilled.
+
+    Terminology
+    -----------
+
+    - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
+    - `thenable` is an object or function that defines a `then` method.
+    - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
+    - `exception` is a value that is thrown using the throw statement.
+    - `reason` is a value that indicates why a promise was rejected.
+    - `settled` the final resting state of a promise, fulfilled or rejected.
+
+    A promise can be in one of three states: pending, fulfilled, or rejected.
+
+    Promises that are fulfilled have a fulfillment value and are in the fulfilled
+    state.  Promises that are rejected have a rejection reason and are in the
+    rejected state.  A fulfillment value is never a thenable.
+
+    Promises can also be said to *resolve* a value.  If this value is also a
+    promise, then the original promise's settled state will match the value's
+    settled state.  So a promise that *resolves* a promise that rejects will
+    itself reject, and a promise that *resolves* a promise that fulfills will
+    itself fulfill.
+
+
+    Basic Usage:
+    ------------
+
+    ```js
+    let promise = new Promise(function(resolve, reject) {
+      // on success
+      resolve(value);
+
+      // on failure
+      reject(reason);
+    });
+
+    promise.then(function(value) {
+      // on fulfillment
+    }, function(reason) {
+      // on rejection
+    });
+    ```
+
+    Advanced Usage:
+    ---------------
+
+    Promises shine when abstracting away asynchronous interactions such as
+    `XMLHttpRequest`s.
+
+    ```js
+    function getJSON(url) {
+      return new Promise(function(resolve, reject){
+        let xhr = new XMLHttpRequest();
+
+        xhr.open('GET', url);
+        xhr.onreadystatechange = handler;
+        xhr.responseType = 'json';
+        xhr.setRequestHeader('Accept', 'application/json');
+        xhr.send();
+
+        function handler() {
+          if (this.readyState === this.DONE) {
+            if (this.status === 200) {
+              resolve(this.response);
+            } else {
+              reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));
+            }
           }
-        });
+        };
+      });
+    }
+
+    getJSON('/posts.json').then(function(json) {
+      // on fulfillment
+    }, function(reason) {
+      // on rejection
+    });
+    ```
+
+    Unlike callbacks, promises are great composable primitives.
+
+    ```js
+    Promise.all([
+      getJSON('/posts'),
+      getJSON('/comments')
+    ]).then(function(values){
+      values[0] // => postsJSON
+      values[1] // => commentsJSON
+
+      return values;
+    });
+    ```
+
+    @class Promise
+    @param {Function} resolver
+    Useful for tooling.
+    @constructor
+  */
+
+  var Promise$1 = function () {
+    function Promise(resolver) {
+      this[PROMISE_ID] = nextId();
+      this._result = this._state = undefined;
+      this._subscribers = [];
+
+      if (noop !== resolver) {
+        typeof resolver !== 'function' && needsResolver();
+        this instanceof Promise ? initializePromise(this, resolver) : needsNew();
       }
     }
+
     /**
-      `Promise.reject` returns a promise rejected with the passed `reason`.
-      It is shorthand for the following:
-    
-      ```javascript
-      let promise = new Promise(function(resolve, reject){
-        reject(new Error('WHOOPS'));
-      });
-    
-      promise.then(function(value){
-        // Code here doesn't run because the promise is rejected!
-      }, function(reason){
-        // reason.message === 'WHOOPS'
-      });
-      ```
-    
-      Instead of writing the above, your code now simply becomes the following:
-    
-      ```javascript
-      let promise = Promise.reject(new Error('WHOOPS'));
-    
-      promise.then(function(value){
-        // Code here doesn't run because the promise is rejected!
-      }, function(reason){
-        // reason.message === 'WHOOPS'
-      });
-      ```
-    
-      @method reject
-      @static
-      @param {Any} reason value that the returned promise will be rejected with.
-      Useful for tooling.
-      @return {Promise} a promise rejected with the given `reason`.
-    */
-
-
-    function reject$1(reason) {
-      /*jshint validthis:true */
-      var Constructor = this;
-      var promise = new Constructor(noop);
-      reject(promise, reason);
-      return promise;
+    The primary way of interacting with a promise is through its `then` method,
+    which registers callbacks to receive either a promise's eventual value or the
+    reason why the promise cannot be fulfilled.
+     ```js
+    findUser().then(function(user){
+      // user is available
+    }, function(reason){
+      // user is unavailable, and you are given the reason why
+    });
+    ```
+     Chaining
+    --------
+     The return value of `then` is itself a promise.  This second, 'downstream'
+    promise is resolved with the return value of the first promise's fulfillment
+    or rejection handler, or rejected if the handler throws an exception.
+     ```js
+    findUser().then(function (user) {
+      return user.name;
+    }, function (reason) {
+      return 'default name';
+    }).then(function (userName) {
+      // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
+      // will be `'default name'`
+    });
+     findUser().then(function (user) {
+      throw new Error('Found user, but still unhappy');
+    }, function (reason) {
+      throw new Error('`findUser` rejected and we're unhappy');
+    }).then(function (value) {
+      // never reached
+    }, function (reason) {
+      // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.
+      // If `findUser` rejected, `reason` will be '`findUser` rejected and we're unhappy'.
+    });
+    ```
+    If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
+     ```js
+    findUser().then(function (user) {
+      throw new PedagogicalException('Upstream error');
+    }).then(function (value) {
+      // never reached
+    }).then(function (value) {
+      // never reached
+    }, function (reason) {
+      // The `PedgagocialException` is propagated all the way down to here
+    });
+    ```
+     Assimilation
+    ------------
+     Sometimes the value you want to propagate to a downstream promise can only be
+    retrieved asynchronously. This can be achieved by returning a promise in the
+    fulfillment or rejection handler. The downstream promise will then be pending
+    until the returned promise is settled. This is called *assimilation*.
+     ```js
+    findUser().then(function (user) {
+      return findCommentsByAuthor(user);
+    }).then(function (comments) {
+      // The user's comments are now available
+    });
+    ```
+     If the assimliated promise rejects, then the downstream promise will also reject.
+     ```js
+    findUser().then(function (user) {
+      return findCommentsByAuthor(user);
+    }).then(function (comments) {
+      // If `findCommentsByAuthor` fulfills, we'll have the value here
+    }, function (reason) {
+      // If `findCommentsByAuthor` rejects, we'll have the reason here
+    });
+    ```
+     Simple Example
+    --------------
+     Synchronous Example
+     ```javascript
+    let result;
+     try {
+      result = findResult();
+      // success
+    } catch(reason) {
+      // failure
     }
-
-    function needsResolver() {
-      throw new TypeError('You must pass a resolver function as the first argument to the promise constructor');
+    ```
+     Errback Example
+     ```js
+    findResult(function(result, err){
+      if (err) {
+        // failure
+      } else {
+        // success
+      }
+    });
+    ```
+     Promise Example;
+     ```javascript
+    findResult().then(function(result){
+      // success
+    }, function(reason){
+      // failure
+    });
+    ```
+     Advanced Example
+    --------------
+     Synchronous Example
+     ```javascript
+    let author, books;
+     try {
+      author = findAuthor();
+      books  = findBooksByAuthor(author);
+      // success
+    } catch(reason) {
+      // failure
     }
-
-    function needsNew() {
-      throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
-    }
-    /**
-      Promise objects represent the eventual result of an asynchronous operation. The
-      primary way of interacting with a promise is through its `then` method, which
-      registers callbacks to receive either a promise's eventual value or the reason
-      why the promise cannot be fulfilled.
-    
-      Terminology
-      -----------
-    
-      - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
-      - `thenable` is an object or function that defines a `then` method.
-      - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
-      - `exception` is a value that is thrown using the throw statement.
-      - `reason` is a value that indicates why a promise was rejected.
-      - `settled` the final resting state of a promise, fulfilled or rejected.
-    
-      A promise can be in one of three states: pending, fulfilled, or rejected.
-    
-      Promises that are fulfilled have a fulfillment value and are in the fulfilled
-      state.  Promises that are rejected have a rejection reason and are in the
-      rejected state.  A fulfillment value is never a thenable.
-    
-      Promises can also be said to *resolve* a value.  If this value is also a
-      promise, then the original promise's settled state will match the value's
-      settled state.  So a promise that *resolves* a promise that rejects will
-      itself reject, and a promise that *resolves* a promise that fulfills will
-      itself fulfill.
-    
-    
-      Basic Usage:
-      ------------
-    
-      ```js
-      let promise = new Promise(function(resolve, reject) {
-        // on success
-        resolve(value);
-    
-        // on failure
-        reject(reason);
-      });
-    
-      promise.then(function(value) {
-        // on fulfillment
-      }, function(reason) {
-        // on rejection
-      });
-      ```
-    
-      Advanced Usage:
-      ---------------
-    
-      Promises shine when abstracting away asynchronous interactions such as
-      `XMLHttpRequest`s.
-    
-      ```js
-      function getJSON(url) {
-        return new Promise(function(resolve, reject){
-          let xhr = new XMLHttpRequest();
-    
-          xhr.open('GET', url);
-          xhr.onreadystatechange = handler;
-          xhr.responseType = 'json';
-          xhr.setRequestHeader('Accept', 'application/json');
-          xhr.send();
-    
-          function handler() {
-            if (this.readyState === this.DONE) {
-              if (this.status === 200) {
-                resolve(this.response);
-              } else {
-                reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));
+    ```
+     Errback Example
+     ```js
+     function foundBooks(books) {
+     }
+     function failure(reason) {
+     }
+     findAuthor(function(author, err){
+      if (err) {
+        failure(err);
+        // failure
+      } else {
+        try {
+          findBoooksByAuthor(author, function(books, err) {
+            if (err) {
+              failure(err);
+            } else {
+              try {
+                foundBooks(books);
+              } catch(reason) {
+                failure(reason);
               }
             }
-          };
-        });
+          });
+        } catch(error) {
+          failure(err);
+        }
+        // success
       }
-    
-      getJSON('/posts.json').then(function(json) {
-        // on fulfillment
-      }, function(reason) {
-        // on rejection
-      });
-      ```
-    
-      Unlike callbacks, promises are great composable primitives.
-    
-      ```js
-      Promise.all([
-        getJSON('/posts'),
-        getJSON('/comments')
-      ]).then(function(values){
-        values[0] // => postsJSON
-        values[1] // => commentsJSON
-    
-        return values;
-      });
-      ```
-    
-      @class Promise
-      @param {Function} resolver
-      Useful for tooling.
-      @constructor
+    });
+    ```
+     Promise Example;
+     ```javascript
+    findAuthor().
+      then(findBooksByAuthor).
+      then(function(books){
+        // found books
+    }).catch(function(reason){
+      // something went wrong
+    });
+    ```
+     @method then
+    @param {Function} onFulfilled
+    @param {Function} onRejected
+    Useful for tooling.
+    @return {Promise}
+    */
+
+    /**
+    `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
+    as the catch block of a try/catch statement.
+    ```js
+    function findAuthor(){
+    throw new Error('couldn't find that author');
+    }
+    // synchronous
+    try {
+    findAuthor();
+    } catch(reason) {
+    // something went wrong
+    }
+    // async with promises
+    findAuthor().catch(function(reason){
+    // something went wrong
+    });
+    ```
+    @method catch
+    @param {Function} onRejection
+    Useful for tooling.
+    @return {Promise}
     */
 
 
-    var Promise$1 = function () {
-      function Promise(resolver) {
-        this[PROMISE_ID] = nextId();
-        this._result = this._state = undefined;
-        this._subscribers = [];
+    Promise.prototype.catch = function _catch(onRejection) {
+      return this.then(null, onRejection);
+    };
 
-        if (noop !== resolver) {
-          typeof resolver !== 'function' && needsResolver();
-          this instanceof Promise ? initializePromise(this, resolver) : needsNew();
-        }
-      }
-      /**
-      The primary way of interacting with a promise is through its `then` method,
-      which registers callbacks to receive either a promise's eventual value or the
-      reason why the promise cannot be fulfilled.
-       ```js
-      findUser().then(function(user){
-        // user is available
-      }, function(reason){
-        // user is unavailable, and you are given the reason why
-      });
-      ```
-       Chaining
-      --------
-       The return value of `then` is itself a promise.  This second, 'downstream'
-      promise is resolved with the return value of the first promise's fulfillment
-      or rejection handler, or rejected if the handler throws an exception.
-       ```js
-      findUser().then(function (user) {
-        return user.name;
-      }, function (reason) {
-        return 'default name';
-      }).then(function (userName) {
-        // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
-        // will be `'default name'`
-      });
-       findUser().then(function (user) {
-        throw new Error('Found user, but still unhappy');
-      }, function (reason) {
-        throw new Error('`findUser` rejected and we're unhappy');
-      }).then(function (value) {
-        // never reached
-      }, function (reason) {
-        // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.
-        // If `findUser` rejected, `reason` will be '`findUser` rejected and we're unhappy'.
-      });
-      ```
-      If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
-       ```js
-      findUser().then(function (user) {
-        throw new PedagogicalException('Upstream error');
-      }).then(function (value) {
-        // never reached
-      }).then(function (value) {
-        // never reached
-      }, function (reason) {
-        // The `PedgagocialException` is propagated all the way down to here
-      });
-      ```
-       Assimilation
-      ------------
-       Sometimes the value you want to propagate to a downstream promise can only be
-      retrieved asynchronously. This can be achieved by returning a promise in the
-      fulfillment or rejection handler. The downstream promise will then be pending
-      until the returned promise is settled. This is called *assimilation*.
-       ```js
-      findUser().then(function (user) {
-        return findCommentsByAuthor(user);
-      }).then(function (comments) {
-        // The user's comments are now available
-      });
-      ```
-       If the assimliated promise rejects, then the downstream promise will also reject.
-       ```js
-      findUser().then(function (user) {
-        return findCommentsByAuthor(user);
-      }).then(function (comments) {
-        // If `findCommentsByAuthor` fulfills, we'll have the value here
-      }, function (reason) {
-        // If `findCommentsByAuthor` rejects, we'll have the reason here
-      });
-      ```
-       Simple Example
-      --------------
-       Synchronous Example
-       ```javascript
-      let result;
-       try {
-        result = findResult();
-        // success
-      } catch(reason) {
-        // failure
-      }
-      ```
-       Errback Example
-       ```js
-      findResult(function(result, err){
-        if (err) {
-          // failure
-        } else {
-          // success
-        }
-      });
-      ```
-       Promise Example;
-       ```javascript
-      findResult().then(function(result){
-        // success
-      }, function(reason){
-        // failure
-      });
-      ```
-       Advanced Example
-      --------------
-       Synchronous Example
-       ```javascript
-      let author, books;
-       try {
-        author = findAuthor();
-        books  = findBooksByAuthor(author);
-        // success
-      } catch(reason) {
-        // failure
-      }
-      ```
-       Errback Example
-       ```js
-       function foundBooks(books) {
-       }
-       function failure(reason) {
-       }
-       findAuthor(function(author, err){
-        if (err) {
-          failure(err);
-          // failure
-        } else {
-          try {
-            findBoooksByAuthor(author, function(books, err) {
-              if (err) {
-                failure(err);
-              } else {
-                try {
-                  foundBooks(books);
-                } catch(reason) {
-                  failure(reason);
-                }
-              }
-            });
-          } catch(error) {
-            failure(err);
-          }
-          // success
-        }
-      });
-      ```
-       Promise Example;
-       ```javascript
-      findAuthor().
-        then(findBooksByAuthor).
-        then(function(books){
-          // found books
-      }).catch(function(reason){
-        // something went wrong
-      });
-      ```
-       @method then
-      @param {Function} onFulfilled
-      @param {Function} onRejected
-      Useful for tooling.
-      @return {Promise}
-      */
-
-      /**
-      `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
-      as the catch block of a try/catch statement.
+    /**
+      `finally` will be invoked regardless of the promise's fate just as native
+      try/catch/finally behaves
+    
+      Synchronous example:
+    
       ```js
-      function findAuthor(){
-      throw new Error('couldn't find that author');
+      findAuthor() {
+        if (Math.random() > 0.5) {
+          throw new Error();
+        }
+        return new Author();
       }
-      // synchronous
+    
       try {
-      findAuthor();
-      } catch(reason) {
-      // something went wrong
+        return findAuthor(); // succeed or fail
+      } catch(error) {
+        return findOtherAuther();
+      } finally {
+        // always runs
+        // doesn't affect the return value
       }
-      // async with promises
+      ```
+    
+      Asynchronous example:
+    
+      ```js
       findAuthor().catch(function(reason){
-      // something went wrong
+        return findOtherAuther();
+      }).finally(function(){
+        // author was either found, or not
       });
       ```
-      @method catch
-      @param {Function} onRejection
-      Useful for tooling.
+    
+      @method finally
+      @param {Function} callback
       @return {Promise}
-      */
+    */
 
 
-      Promise.prototype.catch = function _catch(onRejection) {
-        return this.then(null, onRejection);
-      };
-      /**
-        `finally` will be invoked regardless of the promise's fate just as native
-        try/catch/finally behaves
-      
-        Synchronous example:
-      
-        ```js
-        findAuthor() {
-          if (Math.random() > 0.5) {
-            throw new Error();
-          }
-          return new Author();
-        }
-      
-        try {
-          return findAuthor(); // succeed or fail
-        } catch(error) {
-          return findOtherAuther();
-        } finally {
-          // always runs
-          // doesn't affect the return value
-        }
-        ```
-      
-        Asynchronous example:
-      
-        ```js
-        findAuthor().catch(function(reason){
-          return findOtherAuther();
-        }).finally(function(){
-          // author was either found, or not
-        });
-        ```
-      
-        @method finally
-        @param {Function} callback
-        @return {Promise}
-      */
+    Promise.prototype.finally = function _finally(callback) {
+      var promise = this;
+      var constructor = promise.constructor;
 
-
-      Promise.prototype.finally = function _finally(callback) {
-        var promise = this;
-        var constructor = promise.constructor;
-
-        if (isFunction(callback)) {
-          return promise.then(function (value) {
-            return constructor.resolve(callback()).then(function () {
-              return value;
-            });
-          }, function (reason) {
-            return constructor.resolve(callback()).then(function () {
-              throw reason;
-            });
+      if (isFunction(callback)) {
+        return promise.then(function (value) {
+          return constructor.resolve(callback()).then(function () {
+            return value;
           });
-        }
-
-        return promise.then(callback, callback);
-      };
-
-      return Promise;
-    }();
-
-    Promise$1.prototype.then = then;
-    Promise$1.all = all;
-    Promise$1.race = race;
-    Promise$1.resolve = resolve$1;
-    Promise$1.reject = reject$1;
-    Promise$1._setScheduler = setScheduler;
-    Promise$1._setAsap = setAsap;
-    Promise$1._asap = asap;
-    /*global self*/
-
-    function polyfill() {
-      var local = void 0;
-
-      if (typeof commonjsGlobal !== 'undefined') {
-        local = commonjsGlobal;
-      } else if (typeof self !== 'undefined') {
-        local = self;
-      } else {
-        try {
-          local = Function('return this')();
-        } catch (e) {
-          throw new Error('polyfill failed because global object is unavailable in this environment');
-        }
+        }, function (reason) {
+          return constructor.resolve(callback()).then(function () {
+            throw reason;
+          });
+        });
       }
 
-      var P = local.Promise;
+      return promise.then(callback, callback);
+    };
 
-      if (P) {
-        var promiseToString = null;
+    return Promise;
+  }();
 
-        try {
-          promiseToString = Object.prototype.toString.call(P.resolve());
-        } catch (e) {// silently ignored
-        }
+  Promise$1.prototype.then = then;
+  Promise$1.all = all;
+  Promise$1.race = race;
+  Promise$1.resolve = resolve$1;
+  Promise$1.reject = reject$1;
+  Promise$1._setScheduler = setScheduler;
+  Promise$1._setAsap = setAsap;
+  Promise$1._asap = asap;
 
-        if (promiseToString === '[object Promise]' && !P.cast) {
-          return;
-        }
+  /*global self*/
+  function polyfill() {
+    var local = void 0;
+
+    if (typeof commonjsGlobal !== 'undefined') {
+      local = commonjsGlobal;
+    } else if (typeof self !== 'undefined') {
+      local = self;
+    } else {
+      try {
+        local = Function('return this')();
+      } catch (e) {
+        throw new Error('polyfill failed because global object is unavailable in this environment');
+      }
+    }
+
+    var P = local.Promise;
+
+    if (P) {
+      var promiseToString = null;
+      try {
+        promiseToString = Object.prototype.toString.call(P.resolve());
+      } catch (e) {
+        // silently ignored
       }
 
-      local.Promise = Promise$1;
-    } // Strange compat..
+      if (promiseToString === '[object Promise]' && !P.cast) {
+        return;
+      }
+    }
+
+    local.Promise = Promise$1;
+  }
+
+  // Strange compat..
+  Promise$1.polyfill = polyfill;
+  Promise$1.Promise = Promise$1;
+
+  return Promise$1;
+
+  })));
 
 
-    Promise$1.polyfill = polyfill;
-    Promise$1.Promise = Promise$1;
-    return Promise$1;
-  });
+
+
   });
 
   /*
@@ -1249,7 +1252,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
   @version 2.1.2
   */
-
   /**
    * Copyright (c) 2015 NAVER Corp.
    * egjs projects are licensed under the MIT license
@@ -1935,18 +1937,33 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     return out;
   }
   /**
-   * Adds two vec3's
+   * Copy the values from one vec3 to another
    *
    * @param {vec3} out the receiving vector
-   * @param {vec3} a the first operand
-   * @param {vec3} b the second operand
+   * @param {vec3} a the source vector
    * @returns {vec3} out
    */
 
-  function add$4(out, a, b) {
-    out[0] = a[0] + b[0];
-    out[1] = a[1] + b[1];
-    out[2] = a[2] + b[2];
+  function copy$4(out, a) {
+    out[0] = a[0];
+    out[1] = a[1];
+    out[2] = a[2];
+    return out;
+  }
+  /**
+   * Set the components of a vec3 to the given values
+   *
+   * @param {vec3} out the receiving vector
+   * @param {Number} x X component
+   * @param {Number} y Y component
+   * @param {Number} z Z component
+   * @returns {vec3} out
+   */
+
+  function set$5(out, x, y, z) {
+    out[0] = x;
+    out[1] = y;
+    out[2] = z;
     return out;
   }
   /**
@@ -2097,12 +2114,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     return out;
   }
   /**
-   * Alias for {@link vec3.subtract}
-   * @function
-   */
-
-  var sub$4 = subtract$4;
-  /**
    * Alias for {@link vec3.length}
    * @function
    */
@@ -2193,6 +2204,24 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     return out;
   }
   /**
+   * Creates a new vec4 initialized with the given values
+   *
+   * @param {Number} x X component
+   * @param {Number} y Y component
+   * @param {Number} z Z component
+   * @param {Number} w W component
+   * @returns {vec4} a new 4D vector
+   */
+
+  function fromValues$5(x, y, z, w) {
+    var out = new ARRAY_TYPE(4);
+    out[0] = x;
+    out[1] = y;
+    out[2] = z;
+    out[3] = w;
+    return out;
+  }
+  /**
    * Copy the values from one vec4 to another
    *
    * @param {vec4} out the receiving vector
@@ -2242,6 +2271,25 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
   function exactEquals$5(a, b) {
     return a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3];
+  }
+  /**
+   * Returns whether or not the vectors have approximately the same elements in the same position.
+   *
+   * @param {vec4} a The first vector.
+   * @param {vec4} b The second vector.
+   * @returns {Boolean} True if the vectors are equal, false otherwise.
+   */
+
+  function equals$6(a, b) {
+    var a0 = a[0],
+        a1 = a[1],
+        a2 = a[2],
+        a3 = a[3];
+    var b0 = b[0],
+        b1 = b[1],
+        b2 = b[2],
+        b3 = b[3];
+    return Math.abs(a0 - b0) <= EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) && Math.abs(a1 - b1) <= EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) && Math.abs(a2 - b2) <= EPSILON * Math.max(1.0, Math.abs(a2), Math.abs(b2)) && Math.abs(a3 - b3) <= EPSILON * Math.max(1.0, Math.abs(a3), Math.abs(b3));
   }
   /**
    * Perform some operation over an array of vec4s.
@@ -2482,6 +2530,18 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
   var clone$6 = clone$5;
   /**
+   * Creates a new quat initialized with the given values
+   *
+   * @param {Number} x X component
+   * @param {Number} y Y component
+   * @param {Number} z Z component
+   * @param {Number} w W component
+   * @returns {quat} a new quaternion
+   * @function
+   */
+
+  var fromValues$6 = fromValues$5;
+  /**
    * Copy the values from one quat to another
    *
    * @param {quat} out the receiving quaternion
@@ -2491,12 +2551,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    */
 
   var copy$6 = copy$5;
-  /**
-   * Alias for {@link quat.multiply}
-   * @function
-   */
-
-  var mul$6 = multiply$6;
   /**
    * Normalize a quat
    *
@@ -2516,6 +2570,15 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    */
 
   var exactEquals$6 = exactEquals$5;
+  /**
+   * Returns whether or not the quaternions have approximately the same elements in the same position.
+   *
+   * @param {quat} a The first vector.
+   * @param {quat} b The second vector.
+   * @returns {Boolean} True if the vectors are equal, false otherwise.
+   */
+
+  var equals$7 = equals$6;
   /**
    * Sets a quaternion to represent the shortest rotation from one
    * vector to another.
@@ -2756,7 +2819,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   var userAgent$1 = win.navigator.userAgent;
   var SUPPORT_TOUCH = "ontouchstart" in win;
   var SUPPORT_DEVICEMOTION = "ondevicemotion" in win;
-  var DeviceMotionEvent$1 = win.DeviceMotionEvent;
+  var DeviceMotionEvent = win.DeviceMotionEvent;
   var devicePixelRatio = win.devicePixelRatio;
 
   var TRANSFORM = function () {
@@ -2829,6 +2892,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return self;
   }
+
   /**
    * @private
    * extend object.
@@ -2837,8 +2901,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {...Object} objects_to_assign
    * @returns {Object} target
    */
-
-
   var assign;
 
   if (typeof Object.assign !== 'function') {
@@ -2868,6 +2930,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   }
 
   var assign$1 = assign;
+
   var VENDOR_PREFIXES = ['', 'webkit', 'Moz', 'MS', 'ms', 'o'];
   var TEST_ELEMENT = typeof document === "undefined" ? {
     style: {}
@@ -2876,6 +2939,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   var round$3 = Math.round,
       abs = Math.abs;
   var now = Date.now;
+
   /**
    * @private
    * get the prefixed property
@@ -2903,9 +2967,8 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return undefined;
   }
+
   /* eslint-disable no-new-func, no-nested-ternary */
-
-
   var win$1;
 
   if (typeof window === "undefined") {
@@ -2917,7 +2980,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
   var PREFIXED_TOUCH_ACTION = prefixed(TEST_ELEMENT.style, 'touchAction');
   var NATIVE_TOUCH_ACTION = PREFIXED_TOUCH_ACTION !== undefined;
-
   function getTouchActionProps() {
     if (!NATIVE_TOUCH_ACTION) {
       return false;
@@ -2941,6 +3003,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   var TOUCH_ACTION_PAN_X = 'pan-x';
   var TOUCH_ACTION_PAN_Y = 'pan-y';
   var TOUCH_ACTION_MAP = getTouchActionProps();
+
   var MOBILE_REGEX = /mobile|tablet|ip(ad|hone|od)|android/i;
   var SUPPORT_TOUCH$1 = 'ontouchstart' in win$1;
   var SUPPORT_POINTER_EVENTS = prefixed(win$1, 'PointerEvent') !== undefined;
@@ -2964,6 +3027,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   var DIRECTION_ALL = DIRECTION_HORIZONTAL | DIRECTION_VERTICAL;
   var PROPS_XY = ['x', 'y'];
   var PROPS_CLIENT_XY = ['clientX', 'clientY'];
+
   /**
    * @private
    * walk objects and arrays
@@ -2971,7 +3035,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Function} iterator
    * @param {Object} context
    */
-
   function each(obj, iterator, context) {
     var i;
 
@@ -2994,6 +3057,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       }
     }
   }
+
   /**
    * @private
    * let a boolean value also be a function that must return a boolean
@@ -3003,7 +3067,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @returns {Boolean}
    */
 
-
   function boolOrFn(val, args) {
     if (typeof val === TYPE_FUNCTION) {
       return val.apply(args ? args[0] || undefined : undefined, args);
@@ -3011,6 +3074,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return val;
   }
+
   /**
    * @private
    * small indexOf wrapper
@@ -3018,18 +3082,16 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {String} find
    * @returns {Boolean} found
    */
-
-
   function inStr(str, find) {
     return str.indexOf(find) > -1;
   }
+
   /**
    * @private
    * when the touchActions are collected they are not a valid value, so we need to clean things up. *
    * @param {String} actions
    * @returns {*}
    */
-
 
   function cleanTouchActions(actions) {
     // none
@@ -3059,6 +3121,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return TOUCH_ACTION_AUTO;
   }
+
   /**
    * @private
    * Touch Action
@@ -3067,7 +3130,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {String} value
    * @constructor
    */
-
 
   var TouchAction =
   /*#__PURE__*/
@@ -3177,6 +3239,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return TouchAction;
   }();
+
   /**
    * @private
    * find if a node is in the given parent
@@ -3185,8 +3248,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {HTMLElement} parent
    * @return {Boolean} found
    */
-
-
   function hasParent(node, parent) {
     while (node) {
       if (node === parent) {
@@ -3198,13 +3259,13 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return false;
   }
+
   /**
    * @private
    * get the center of all the pointers
    * @param {Array} pointers
    * @return {Object} center contains `x` and `y` properties
    */
-
 
   function getCenter(pointers) {
     var pointersLength = pointers.length; // no need to loop when only one touch
@@ -3231,13 +3292,13 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       y: round$3(y / pointersLength)
     };
   }
+
   /**
    * @private
    * create a simple clone from the input used for storage of firstInput and firstMultiple
    * @param {Object} input
    * @returns {Object} clonedInputData
    */
-
 
   function simpleCloneInputData(input) {
     // make a simple copy of the pointers because we will get a reference if we don't
@@ -3261,6 +3322,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       deltaY: input.deltaY
     };
   }
+
   /**
    * @private
    * calculate the absolute distance between two points
@@ -3269,7 +3331,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Array} [props] containing x and y keys
    * @return {Number} distance
    */
-
 
   function getDistance(p1, p2, props) {
     if (!props) {
@@ -3280,6 +3341,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     var y = p2[props[1]] - p1[props[1]];
     return Math.sqrt(x * x + y * y);
   }
+
   /**
    * @private
    * calculate the angle between two coordinates
@@ -3288,7 +3350,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Array} [props] containing x and y keys
    * @return {Number} angle
    */
-
 
   function getAngle$1(p1, p2, props) {
     if (!props) {
@@ -3299,6 +3360,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     var y = p2[props[1]] - p1[props[1]];
     return Math.atan2(y, x) * 180 / Math.PI;
   }
+
   /**
    * @private
    * get the direction between two points
@@ -3306,7 +3368,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Number} y
    * @return {Number} direction
    */
-
 
   function getDirection(x, y) {
     if (x === y) {
@@ -3342,6 +3403,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     input.deltaX = prevDelta.x + (center.x - offset.x);
     input.deltaY = prevDelta.y + (center.y - offset.y);
   }
+
   /**
    * @private
    * calculate the velocity between two points. unit is in px per ms.
@@ -3350,14 +3412,13 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Number} y
    * @return {Object} velocity `x` and `y`
    */
-
-
   function getVelocity(deltaTime, x, y) {
     return {
       x: x / deltaTime || 0,
       y: y / deltaTime || 0
     };
   }
+
   /**
    * @private
    * calculate the scale factor between two pointersets
@@ -3367,10 +3428,10 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @return {Number} scale
    */
 
-
   function getScale(start, end) {
     return getDistance(end[0], end[1], PROPS_CLIENT_XY) / getDistance(start[0], start[1], PROPS_CLIENT_XY);
   }
+
   /**
    * @private
    * calculate the rotation degrees between two pointersets
@@ -3379,17 +3440,16 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @return {Number} rotation
    */
 
-
   function getRotation$1(start, end) {
     return getAngle$1(end[1], end[0], PROPS_CLIENT_XY) + getAngle$1(start[1], start[0], PROPS_CLIENT_XY);
   }
+
   /**
    * @private
    * velocity is calculated every x ms
    * @param {Object} session
    * @param {Object} input
    */
-
 
   function computeIntervalInputData(session, input) {
     var last = session.lastInterval || input;
@@ -3421,13 +3481,13 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     input.velocityY = velocityY;
     input.direction = direction;
   }
+
   /**
   * @private
    * extend the data with some usable properties like scale, rotate, velocity etc
    * @param {Object} manager
    * @param {Object} input
    */
-
 
   function computeInputData(manager, input) {
     var session = manager.session;
@@ -3482,6 +3542,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     input.target = target;
   }
+
   /**
    * @private
    * handle input events
@@ -3489,7 +3550,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {String} eventType
    * @param {Object} input
    */
-
 
   function inputHandler(manager, eventType, input) {
     var pointersLen = input.pointers.length;
@@ -3513,17 +3573,17 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     manager.recognize(input);
     manager.session.prevInput = input;
   }
+
   /**
    * @private
    * split string on whitespace
    * @param {String} str
    * @returns {Array} words
    */
-
-
   function splitStr(str) {
     return str.trim().split(/\s+/g);
   }
+
   /**
    * @private
    * addEventListener with multiple events at once
@@ -3532,12 +3592,12 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Function} handler
    */
 
-
   function addEventListeners(target, types, handler) {
     each(splitStr(types), function (type) {
       target.addEventListener(type, handler, false);
     });
   }
+
   /**
    * @private
    * removeEventListener with multiple events at once
@@ -3546,24 +3606,23 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Function} handler
    */
 
-
   function removeEventListeners(target, types, handler) {
     each(splitStr(types), function (type) {
       target.removeEventListener(type, handler, false);
     });
   }
+
   /**
    * @private
    * get the window object of an element
    * @param {HTMLElement} element
    * @returns {DocumentView|Window}
    */
-
-
   function getWindowForElement(element) {
     var doc = element.ownerDocument || element;
     return doc.defaultView || doc.parentWindow || window;
   }
+
   /**
    * @private
    * create new input type manager
@@ -3572,7 +3631,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @returns {Input}
    * @constructor
    */
-
 
   var Input =
   /*#__PURE__*/
@@ -3628,6 +3686,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return Input;
   }();
+
   /**
    * @private
    * find if a array contains the object using indexOf or a simple polyFill
@@ -3636,8 +3695,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {String} [findByKey]
    * @return {Boolean|Number} false when not found, or the index
    */
-
-
   function inArray(src, find, findByKey) {
     if (src.indexOf && !findByKey) {
       return src.indexOf(find);
@@ -3752,17 +3809,17 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return PointerEventInput;
   }(Input);
+
   /**
    * @private
    * convert array-like objects to real arrays
    * @param {Object} obj
    * @returns {Array}
    */
-
-
   function toArray(obj) {
     return Array.prototype.slice.call(obj, 0);
   }
+
   /**
    * @private
    * unique array with objects based on a key (like 'id') or just by the array's value
@@ -3771,7 +3828,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Boolean} [sort=False]
    * @returns {Array} [{id:1},{id:2}]
    */
-
 
   function uniqueArray(src, key, sort) {
     var results = [];
@@ -3973,6 +4029,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return MouseInput;
   }(Input);
+
   /**
    * @private
    * Combined touch and mouse input
@@ -3983,7 +4040,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @constructor
    * @extends Input
    */
-
 
   var DEDUP_TIMEOUT = 2500;
   var DEDUP_DISTANCE = 25;
@@ -4085,11 +4141,11 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
 
       var _proto = TouchMouseInput.prototype;
+
       /**
        * @private
        * remove the event listeners
        */
-
       _proto.destroy = function destroy() {
         this.touch.destroy();
         this.mouse.destroy();
@@ -4100,6 +4156,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return TouchMouseInput;
   }();
+
   /**
    * @private
    * create new input type manager
@@ -4107,7 +4164,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Hammer} manager
    * @returns {Input}
    */
-
 
   function createInputInstance(manager) {
     var Type; // let inputClass = manager.options.inputClass;
@@ -4128,6 +4184,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return new Type(manager, inputHandler);
   }
+
   /**
    * @private
    * if the argument is an array, we want to execute the fn on each entry
@@ -4138,7 +4195,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Object} [context]
    * @returns {Boolean}
    */
-
 
   function invokeArrayArg(arg, fn, context) {
     if (Array.isArray(arg)) {
@@ -4156,17 +4212,17 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   var STATE_RECOGNIZED = STATE_ENDED;
   var STATE_CANCELLED = 16;
   var STATE_FAILED = 32;
+
   /**
    * @private
    * get a unique id
    * @returns {number} uniqueId
    */
-
   var _uniqueId = 1;
-
   function uniqueId() {
     return _uniqueId++;
   }
+
   /**
    * @private
    * get a recognizer by name if it is bound to a manager
@@ -4174,8 +4230,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Recognizer} recognizer
    * @returns {Recognizer}
    */
-
-
   function getRecognizerByNameIfManager(otherRecognizer, recognizer) {
     var manager = recognizer.manager;
 
@@ -4185,13 +4239,13 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return otherRecognizer;
   }
+
   /**
    * @private
    * get a usable string, used as event postfix
    * @param {constant} state
    * @returns {String} state
    */
-
 
   function stateStr(state) {
     if (state & STATE_CANCELLED) {
@@ -4206,6 +4260,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return '';
   }
+
   /**
    * @private
    * Recognizer flow explained; *
@@ -4242,7 +4297,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @constructor
    * @param {Object} options
    */
-
 
   var Recognizer =
   /*#__PURE__*/
@@ -4520,6 +4574,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return Recognizer;
   }();
+
   /**
    * @private
    * A tap is recognized when the pointer is doing a small tap/click. Multiple taps are recognized if they occur
@@ -4531,7 +4586,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @constructor
    * @extends Recognizer
    */
-
 
   var TapRecognizer =
   /*#__PURE__*/
@@ -4650,13 +4704,13 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return TapRecognizer;
   }(Recognizer);
+
   /**
    * @private
    * This recognizer is just used as a base for the simple attribute recognizers.
    * @constructor
    * @extends Recognizer
    */
-
 
   var AttrRecognizer =
   /*#__PURE__*/
@@ -4719,13 +4773,13 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return AttrRecognizer;
   }(Recognizer);
+
   /**
    * @private
    * direction cons to string
    * @param {constant} direction
    * @returns {String}
    */
-
 
   function directionStr(direction) {
     if (direction === DIRECTION_DOWN) {
@@ -4740,6 +4794,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return '';
   }
+
   /**
    * @private
    * Pan
@@ -4747,7 +4802,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @constructor
    * @extends AttrRecognizer
    */
-
 
   var PanRecognizer =
   /*#__PURE__*/
@@ -4832,6 +4886,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return PanRecognizer;
   }(AttrRecognizer);
+
   /**
    * @private
    * Swipe
@@ -4839,7 +4894,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @constructor
    * @extends AttrRecognizer
    */
-
 
   var SwipeRecognizer =
   /*#__PURE__*/
@@ -4893,6 +4947,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return SwipeRecognizer;
   }(AttrRecognizer);
+
   /**
    * @private
    * Pinch
@@ -4900,7 +4955,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @constructor
    * @extends AttrRecognizer
    */
-
 
   var PinchRecognizer =
   /*#__PURE__*/
@@ -4940,6 +4994,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return PinchRecognizer;
   }(AttrRecognizer);
+
   /**
    * @private
    * Rotate
@@ -4947,7 +5002,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @constructor
    * @extends AttrRecognizer
    */
-
 
   var RotateRecognizer =
   /*#__PURE__*/
@@ -4978,6 +5032,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return RotateRecognizer;
   }(AttrRecognizer);
+
   /**
    * @private
    * Press
@@ -4985,7 +5040,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @constructor
    * @extends Recognizer
    */
-
 
   var PressRecognizer =
   /*#__PURE__*/
@@ -5186,6 +5240,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     event: 'doubletap',
     taps: 2
   }, ['tap']], [PressRecognizer]];
+
   var STOP = 1;
   var FORCED_STOP = 2;
   /**
@@ -5603,6 +5658,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return [all, changed];
   }
+
   /**
    * @private
    * wrap a method with a deprecation warning and stack trace
@@ -5611,8 +5667,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {String} message
    * @returns {Function} A new function wrapping the supplied method.
    */
-
-
   function deprecate(method, name, message) {
     var deprecationMessage = "DEPRECATED METHOD: " + name + "\n" + message + " AT \n";
     return function () {
@@ -5627,6 +5681,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       return method.apply(this, arguments);
     };
   }
+
   /**
    * @private
    * extend object.
@@ -5636,7 +5691,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Boolean} [merge=false]
    * @returns {Object} dest
    */
-
 
   var extend = deprecate(function (dest, src, merge) {
     var keys = Object.keys(src);
@@ -5652,6 +5706,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
     return dest;
   }, 'extend', 'Use `assign`.');
+
   /**
    * @private
    * merge the values from src in the dest.
@@ -5664,6 +5719,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   var merge = deprecate(function (dest, src) {
     return extend(dest, src, true);
   }, 'merge', 'Use `assign`.');
+
   /**
    * @private
    * simple class inheritance
@@ -5683,6 +5739,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       assign$1(childP, properties);
     }
   }
+
   /**
    * @private
    * simple function bind
@@ -5690,13 +5747,12 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Object} context
    * @returns {Function}
    */
-
-
   function bindFn(fn, context) {
     return function boundFn() {
       return fn.apply(context, arguments);
     };
   }
+
   /**
    * @private
    * Simple way to create a manager with a default set of recognizers.
@@ -5704,7 +5760,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * @param {Object} [options]
    * @constructor
    */
-
 
   var Hammer =
   /*#__PURE__*/
@@ -5783,7 +5838,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       preset: preset
     });
     return Hammer;
-  }(); //  style loader but by script tag, not by the loader.
+  }();
 
   /*
   Copyright (c) 2017 NAVER Corp.
@@ -5794,6 +5849,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
   @version 2.6.0
   */
+
   /*! *****************************************************************************
   Copyright (c) Microsoft Corporation. All rights reserved.
   Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -5808,87 +5864,70 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   See the Apache Version 2.0 License for specific language governing permissions
   and limitations under the License.
   ***************************************************************************** */
-
   /* global Reflect, Promise */
 
-  var extendStatics = Object.setPrototypeOf || {
-    __proto__: []
-  } instanceof Array && function (d, b) {
-    d.__proto__ = b;
-  } || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-  };
+  var extendStatics = Object.setPrototypeOf ||
+  { __proto__: [] } instanceof Array && function (d, b) {d.__proto__ = b;} ||
+  function (d, b) {for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];};
 
   function __extends(d, b) {
     extendStatics(d, b);
-
-    function __() {
-      this.constructor = d;
-    }
-
+    function __() {this.constructor = d;}
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
   }
 
   var __assign = Object.assign || function __assign(t) {
     for (var s, i = 1, n = arguments.length; i < n; i++) {
       s = arguments[i];
-
       for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
     }
-
     return t;
   };
 
   function getInsidePosition(destPos, range, circular, bounce) {
     var toDestPos = destPos;
-    var targetRange = [circular[0] ? range[0] : bounce ? range[0] - bounce[0] : range[0], circular[1] ? range[1] : bounce ? range[1] + bounce[1] : range[1]];
+    var targetRange = [
+    circular[0] ? range[0] : bounce ? range[0] - bounce[0] : range[0],
+    circular[1] ? range[1] : bounce ? range[1] + bounce[1] : range[1]];
+
     toDestPos = Math.max(targetRange[0], toDestPos);
     toDestPos = Math.min(targetRange[1], toDestPos);
     return toDestPos;
-  } // determine outside
-
-
+  }
+  // determine outside
   function isOutside(pos, range) {
     return pos < range[0] || pos > range[1];
   }
-
   function getDuration(distance, deceleration) {
-    var duration = Math.sqrt(distance / deceleration * 2); // when duration is under 100, then value is zero
-
+    var duration = Math.sqrt(distance / deceleration * 2);
+    // when duration is under 100, then value is zero
     return duration < 100 ? 0 : duration;
   }
-
   function isCircularable(destPos, range, circular) {
-    return circular[1] && destPos > range[1] || circular[0] && destPos < range[0];
+    return circular[1] && destPos > range[1] ||
+    circular[0] && destPos < range[0];
   }
-
   function getCirculatedPos(pos, range, circular) {
     var toPos = pos;
     var min = range[0];
     var max = range[1];
     var length = max - min;
-
-    if (circular[1] && pos > max) {
-      // right
+    if (circular[1] && pos > max) {// right
       toPos = (toPos - max) % length + min;
     }
-
-    if (circular[0] && pos < min) {
-      // left
+    if (circular[0] && pos < min) {// left
       toPos = (toPos - min) % length + max;
     }
-
     return toPos;
   }
+
   /* eslint-disable no-new-func, no-nested-ternary */
-
-
   var win$2;
-
   if (typeof window === "undefined") {
     // window is undefined in node.js
     win$2 = {};
-  } else {
+  } else
+  {
     win$2 = window;
   }
 
@@ -5896,90 +5935,74 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     // const el = Array.prototype.slice.call(nodes);
     // for IE8
     var el = [];
-
     for (var i = 0, len = nodes.length; i < len; i++) {
       el.push(nodes[i]);
     }
-
     return el;
   }
-
   function $(param, multi) {
-    if (multi === void 0) {
-      multi = false;
-    }
-
+    if (multi === void 0) {multi = false;}
     var el;
-
-    if (typeof param === "string") {
-      // String (HTML, Selector)
+    if (typeof param === "string") {// String (HTML, Selector)
       // check if string is HTML tag format
-      var match = param.match(/^<([a-z]+)\s*([^>]*)>/); // creating element
-
-      if (match) {
-        // HTML
+      var match = param.match(/^<([a-z]+)\s*([^>]*)>/);
+      // creating element
+      if (match) {// HTML
         var dummy = document.createElement("div");
         dummy.innerHTML = param;
         el = toArray$1(dummy.childNodes);
-      } else {
-        // Selector
+      } else
+      {// Selector
         el = toArray$1(document.querySelectorAll(param));
       }
-
       if (!multi) {
         el = el.length >= 1 ? el[0] : undefined;
       }
-    } else if (param === win$2) {
-      // window
+    } else
+    if (param === win$2) {// window
       el = param;
-    } else if (param.nodeName && (param.nodeType === 1 || param.nodeType === 9)) {
-      // HTMLElement, Document
+    } else
+    if (param.nodeName && (
+    param.nodeType === 1 || param.nodeType === 9)) {// HTMLElement, Document
       el = param;
-    } else if ("jQuery" in win$2 && param instanceof jQuery || param.constructor.prototype.jquery) {
-      // jQuery
+    } else
+    if ("jQuery" in win$2 && param instanceof jQuery ||
+    param.constructor.prototype.jquery) {// jQuery
       el = multi ? param.toArray() : param.get(0);
-    } else if (Array.isArray(param)) {
-      el = param.map(function (v) {
-        return $(v);
-      });
-
+    } else
+    if (Array.isArray(param)) {
+      el = param.map(function (v) {return $(v);});
       if (!multi) {
         el = el.length >= 1 ? el[0] : undefined;
       }
     }
-
     return el;
   }
-
   var raf = win$2.requestAnimationFrame || win$2.webkitRequestAnimationFrame;
   var caf = win$2.cancelAnimationFrame || win$2.webkitCancelAnimationFrame;
-
   if (raf && !caf) {
     var keyInfo_1 = {};
     var oldraf_1 = raf;
-
     raf = function (callback) {
       function wrapCallback(timestamp) {
         if (keyInfo_1[key]) {
           callback(timestamp);
         }
       }
-
       var key = oldraf_1(wrapCallback);
       keyInfo_1[key] = true;
       return key;
     };
-
     caf = function (key) {
       delete keyInfo_1[key];
     };
-  } else if (!(raf && caf)) {
+  } else
+  if (!(raf && caf)) {
     raf = function (callback) {
       return win$2.setTimeout(function () {
         callback(win$2.performance && win$2.performance.now && win$2.performance.now() || new Date().getTime());
       }, 16);
     };
-
     caf = win$2.clearTimeout;
   }
   /**
@@ -5987,8 +6010,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
      * @see  https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
      * @private
      */
-
-
   function requestAnimationFrame(fp) {
     return raf(fp);
   }
@@ -5998,109 +6019,80 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     * @see  https://developer.mozilla.org/en-US/docs/Web/API/Window/cancelAnimationFrame
     * @private
     */
-
-
   function cancelAnimationFrame(key) {
     caf(key);
   }
-
   function map(obj, callback) {
     var tranformed = {};
-
     for (var k in obj) {
       k && (tranformed[k] = callback(obj[k], k));
     }
-
     return tranformed;
   }
-
   function filter(obj, callback) {
     var filtered = {};
-
     for (var k in obj) {
       k && callback(obj[k], k) && (filtered[k] = obj[k]);
     }
-
     return filtered;
   }
-
   function every(obj, callback) {
     for (var k in obj) {
       if (k && !callback(obj[k], k)) {
         return false;
       }
     }
-
     return true;
   }
-
   function equal(target, base) {
-    return every(target, function (v, k) {
-      return v === base[k];
-    });
+    return every(target, function (v, k) {return v === base[k];});
   }
-
   var roundNumFunc = {};
-
   function roundNumber(num, roundUnit) {
     // Cache for performance
     if (!roundNumFunc[roundUnit]) {
       roundNumFunc[roundUnit] = getRoundFunc(roundUnit);
     }
-
     return roundNumFunc[roundUnit](num);
   }
-
   function roundNumbers(num, roundUnit) {
     if (!num || !roundUnit) {
       return num;
     }
-
     var isNumber = typeof roundUnit === "number";
-    return map(num, function (value, key) {
-      return roundNumber(value, isNumber ? roundUnit : roundUnit[key]);
-    });
+    return map(num, function (value, key) {return roundNumber(value, isNumber ? roundUnit : roundUnit[key]);});
   }
-
   function getDecimalPlace(val) {
     if (!isFinite(val)) {
       return 0;
     }
-
     var v = val + "";
-
     if (v.indexOf("e") >= 0) {
       // Exponential Format
       // 1e-10, 1e-12
       var p = 0;
       var e = 1;
-
       while (Math.round(val * e) / e !== val) {
         e *= 10;
         p++;
       }
-
       return p;
-    } // In general, following has performance benefit.
+    }
+    // In general, following has performance benefit.
     // https://jsperf.com/precision-calculation
-
-
     return v.indexOf(".") >= 0 ? v.length - v.indexOf(".") - 1 : 0;
   }
-
   function inversePow(n) {
     // replace Math.pow(10, -n) to solve floating point issue.
     // eg. Math.pow(10, -4) => 0.00009999999999999999
     return 1 / Math.pow(10, n);
   }
-
   function getRoundFunc(v) {
     var p = v < 1 ? Math.pow(10, getDecimalPlace(v)) : 1;
     return function (n) {
       if (v === 0) {
         return 0;
       }
-
       return Math.round(Math.round(n / v) * v * p) / p;
     };
   }
@@ -6108,43 +6100,27 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   function minMax(value, min, max) {
     return Math.max(Math.min(value, max), min);
   }
-
-  var AnimationManager =
-  /*#__PURE__*/
-  function () {
+  var AnimationManager = /*#__PURE__*/function () {
     function AnimationManager(_a) {
-      var options = _a.options,
-          itm = _a.itm,
-          em = _a.em,
-          axm = _a.axm;
+      var options = _a.options,itm = _a.itm,em = _a.em,axm = _a.axm;
       this.options = options;
       this.itm = itm;
       this.em = em;
       this.axm = axm;
       this.animationEnd = this.animationEnd.bind(this);
-    }
-
-    var __proto = AnimationManager.prototype;
-
+    }var __proto = AnimationManager.prototype;
     __proto.getDuration = function (depaPos, destPos, wishDuration) {
       var _this = this;
-
       var duration;
-
       if (typeof wishDuration !== "undefined") {
         duration = wishDuration;
-      } else {
-        var durations_1 = map(destPos, function (v, k) {
-          return getDuration(Math.abs(v - depaPos[k]), _this.options.deceleration);
-        });
-        duration = Object.keys(durations_1).reduce(function (max, v) {
-          return Math.max(max, durations_1[v]);
-        }, -Infinity);
+      } else
+      {
+        var durations_1 = map(destPos, function (v, k) {return getDuration(Math.abs(v - depaPos[k]), _this.options.deceleration);});
+        duration = Object.keys(durations_1).reduce(function (max, v) {return Math.max(max, durations_1[v]);}, -Infinity);
       }
-
       return minMax(duration, this.options.minimumDuration, this.options.maximumDuration);
     };
-
     __proto.createAnimationParam = function (pos, duration, option) {
       var depaPos = this.axm.get();
       var destPos = pos;
@@ -6157,75 +6133,58 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         inputEvent: inputEvent,
         input: option && option.input || null,
         isTrusted: !!inputEvent,
-        done: this.animationEnd
-      };
-    };
+        done: this.animationEnd };
 
+    };
     __proto.grab = function (axes, option) {
       if (this._animateParam && axes.length) {
         var orgPos_1 = this.axm.get(axes);
-        var pos = this.axm.map(orgPos_1, function (v, opt) {
-          return getCirculatedPos(v, opt.range, opt.circular);
-        });
-
-        if (!every(pos, function (v, k) {
-          return orgPos_1[k] === v;
-        })) {
+        var pos = this.axm.map(orgPos_1, function (v, opt) {return getCirculatedPos(v, opt.range, opt.circular);});
+        if (!every(pos, function (v, k) {return orgPos_1[k] === v;})) {
           this.em.triggerChange(pos, false, orgPos_1, option, !!option);
         }
-
         this._animateParam = null;
         this._raf && cancelAnimationFrame(this._raf);
         this._raf = null;
         this.em.triggerAnimationEnd(!!(option && option.event));
       }
     };
-
     __proto.getEventInfo = function () {
       if (this._animateParam && this._animateParam.input && this._animateParam.inputEvent) {
         return {
           input: this._animateParam.input,
-          event: this._animateParam.inputEvent
-        };
-      } else {
+          event: this._animateParam.inputEvent };
+
+      } else
+      {
         return null;
       }
     };
-
     __proto.restore = function (option) {
       var pos = this.axm.get();
-      var destPos = this.axm.map(pos, function (v, opt) {
-        return Math.min(opt.range[1], Math.max(opt.range[0], v));
-      });
+      var destPos = this.axm.map(pos, function (v, opt) {return Math.min(opt.range[1], Math.max(opt.range[0], v));});
       this.animateTo(destPos, this.getDuration(pos, destPos), option);
     };
-
     __proto.animationEnd = function () {
       var beforeParam = this.getEventInfo();
-      this._animateParam = null; // for Circular
-
-      var circularTargets = this.axm.filter(this.axm.get(), function (v, opt) {
-        return isCircularable(v, opt.range, opt.circular);
-      });
-      Object.keys(circularTargets).length > 0 && this.setTo(this.axm.map(circularTargets, function (v, opt) {
-        return getCirculatedPos(v, opt.range, opt.circular);
-      }));
+      this._animateParam = null;
+      // for Circular
+      var circularTargets = this.axm.filter(this.axm.get(), function (v, opt) {return isCircularable(v, opt.range, opt.circular);});
+      Object.keys(circularTargets).length > 0 && this.setTo(this.axm.map(circularTargets, function (v, opt) {return getCirculatedPos(v, opt.range, opt.circular);}));
       this.itm.setInterrupt(false);
       this.em.triggerAnimationEnd(!!beforeParam);
-
       if (this.axm.isOutside()) {
         this.restore(beforeParam);
-      } else {
+      } else
+      {
         this.finish(!!beforeParam);
       }
     };
-
     __proto.finish = function (isTrusted) {
       this._animateParam = null;
       this.itm.setInterrupt(false);
       this.em.triggerFinish(isTrusted);
     };
-
     __proto.animateLoop = function (param, complete) {
       if (param.duration) {
         this._animateParam = __assign({}, param);
@@ -6237,55 +6196,52 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         var directions_1 = map(prevPos_1, function (value, key) {
           return value <= destPos_1[key] ? 1 : -1;
         });
-        var originalIntendedPos_1 = map(destPos_1, function (v) {
-          return v;
-        });
+        var originalIntendedPos_1 = map(destPos_1, function (v) {return v;});
         var prevTime_1 = new Date().getTime();
         info_1.startTime = prevTime_1;
-
         (function loop() {
           self_1._raf = null;
           var currentTime = new Date().getTime();
           var ratio = (currentTime - info_1.startTime) / param.duration;
           var easingPer = self_1.easing(ratio);
           var toPos = self_1.axm.map(prevPos_1, function (pos, options, key) {
-            var nextPos = ratio >= 1 ? destPos_1[key] : pos + info_1.delta[key] * (easingPer - prevEasingPer_1); // Subtract distance from distance already moved.
+            var nextPos = ratio >= 1 ?
+            destPos_1[key] :
+            pos + info_1.delta[key] * (easingPer - prevEasingPer_1);
+            // Subtract distance from distance already moved.
             // Recalculate the remaining distance.
             // Fix the bouncing phenomenon by changing the range.
-
             var circulatedPos = getCirculatedPos(nextPos, options.range, options.circular);
-
             if (nextPos !== circulatedPos) {
               // circular
               var rangeOffset = directions_1[key] * (options.range[1] - options.range[0]);
               destPos_1[key] -= rangeOffset;
               prevPos_1[key] -= rangeOffset;
             }
-
             return circulatedPos;
           });
           var isCanceled = !self_1.em.triggerChange(toPos, false, prevPos_1);
           prevPos_1 = toPos;
           prevTime_1 = currentTime;
           prevEasingPer_1 = easingPer;
-
           if (easingPer >= 1) {
             destPos_1 = self_1.getFinalPos(destPos_1, originalIntendedPos_1);
-
             if (!equal(destPos_1, self_1.axm.get(Object.keys(destPos_1)))) {
               self_1.em.triggerChange(destPos_1, true, prevPos_1);
             }
-
             complete();
             return;
-          } else if (isCanceled) {
+          } else
+          if (isCanceled) {
             self_1.finish(false);
-          } else {
+          } else
+          {
             // animationEnd
             self_1._raf = requestAnimationFrame(loop);
           }
         })();
-      } else {
+      } else
+      {
         this.em.triggerChange(param.destPos, true);
         complete();
       }
@@ -6301,67 +6257,52 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * @param originalIntendedPos
         * @param destPos
         */
-
-
     __proto.getFinalPos = function (destPos, originalIntendedPos) {
-      var _this = this; // compare destPos and originalIntendedPos
-
-
+      var _this = this;
+      // compare destPos and originalIntendedPos
       var ERROR_LIMIT = 0.000001;
       var finalPos = map(destPos, function (value, key) {
         if (value >= originalIntendedPos[key] - ERROR_LIMIT && value <= originalIntendedPos[key] + ERROR_LIMIT) {
           // In error range, return original intended
           return originalIntendedPos[key];
-        } else {
+        } else
+        {
           // Out of error range, return rounded pos.
           var roundUnit = _this.getRoundUnit(value, key);
-
           var result = roundNumber(value, roundUnit);
           return result;
         }
       });
       return finalPos;
     };
-
     __proto.getRoundUnit = function (val, key) {
       var roundUnit = this.options.round; // manual mode
-
       var minRoundUnit = null; // auto mode
       // auto mode
-
       if (!roundUnit) {
         // Get minimum round unit
         var options = this.axm.getAxisOptions(key);
         minRoundUnit = inversePow(Math.max(getDecimalPlace(options.range[0]), getDecimalPlace(options.range[1]), getDecimalPlace(val)));
       }
-
       return minRoundUnit || roundUnit;
     };
-
     __proto.getUserControll = function (param) {
       var userWish = param.setTo();
       userWish.destPos = this.axm.get(userWish.destPos);
       userWish.duration = minMax(userWish.duration, this.options.minimumDuration, this.options.maximumDuration);
       return userWish;
     };
-
     __proto.animateTo = function (destPos, duration, option) {
       var _this = this;
-
       var param = this.createAnimationParam(destPos, duration, option);
-
       var depaPos = __assign({}, param.depaPos);
-
-      var retTrigger = this.em.triggerAnimationStart(param); // to control
-
-      var userWish = this.getUserControll(param); // You can't stop the 'animationStart' event when 'circular' is true.
-
-      if (!retTrigger && this.axm.every(userWish.destPos, function (v, opt) {
-        return isCircularable(v, opt.range, opt.circular);
-      })) {
+      var retTrigger = this.em.triggerAnimationStart(param);
+      // to control
+      var userWish = this.getUserControll(param);
+      // You can't stop the 'animationStart' event when 'circular' is true.
+      if (!retTrigger && this.axm.every(userWish.destPos, function (v, opt) {return isCircularable(v, opt.range, opt.circular);})) {
         console.warn("You can't stop the 'animation' event when 'circular' is true.");
       }
-
       if (retTrigger && !equal(userWish.destPos, depaPos)) {
         var inputEvent = option && option.event || null;
         this.animateLoop({
@@ -6371,80 +6312,55 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
           delta: this.axm.getDelta(depaPos, userWish.destPos),
           isTrusted: !!inputEvent,
           inputEvent: inputEvent,
-          input: option && option.input || null
-        }, function () {
-          return _this.animationEnd();
-        });
+          input: option && option.input || null },
+        function () {return _this.animationEnd();});
       }
     };
-
     __proto.easing = function (p) {
       return p > 1 ? 1 : this.options.easing(p);
     };
-
     __proto.setTo = function (pos, duration) {
-      if (duration === void 0) {
-        duration = 0;
-      }
-
+      if (duration === void 0) {duration = 0;}
       var axes = Object.keys(pos);
       this.grab(axes);
       var orgPos = this.axm.get(axes);
-
       if (equal(pos, orgPos)) {
         return this;
       }
-
       this.itm.setInterrupt(true);
-      var movedPos = filter(pos, function (v, k) {
-        return orgPos[k] !== v;
-      });
-
+      var movedPos = filter(pos, function (v, k) {return orgPos[k] !== v;});
       if (!Object.keys(movedPos).length) {
         return this;
       }
-
       movedPos = this.axm.map(movedPos, function (v, opt) {
-        var range = opt.range,
-            circular = opt.circular;
-
+        var range = opt.range,circular = opt.circular;
         if (circular && (circular[0] || circular[1])) {
           return v;
-        } else {
+        } else
+        {
           return getInsidePosition(v, range, circular);
         }
       });
-
       if (equal(movedPos, orgPos)) {
         return this;
       }
-
       if (duration > 0) {
         this.animateTo(movedPos, duration);
-      } else {
+      } else
+      {
         this.em.triggerChange(movedPos);
         this.finish(false);
       }
-
       return this;
     };
-
     __proto.setBy = function (pos, duration) {
-      if (duration === void 0) {
-        duration = 0;
-      }
-
-      return this.setTo(map(this.axm.get(Object.keys(pos)), function (v, k) {
-        return v + pos[k];
-      }), duration);
+      if (duration === void 0) {duration = 0;}
+      return this.setTo(map(this.axm.get(Object.keys(pos)), function (v, k) {return v + pos[k];}), duration);
     };
-
     return AnimationManager;
   }();
 
-  var EventManager =
-  /*#__PURE__*/
-  function () {
+  var EventManager = /*#__PURE__*/function () {
     function EventManager(axes) {
       this.axes = axes;
     }
@@ -6473,19 +6389,15 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
        *   // event.inputEvent
        *   // isTrusted
        * });
-       */
-
-
-    var __proto = EventManager.prototype;
-
+       */var __proto = EventManager.prototype;
     __proto.triggerHold = function (pos, option) {
       var roundPos = this.getRoundPos(pos).roundPos;
       this.axes.trigger("hold", {
         pos: roundPos,
         input: option.input || null,
         inputEvent: option.event || null,
-        isTrusted: true
-      });
+        isTrusted: true });
+
     };
     /**
         * Specifies the coordinates to move after the 'change' event. It works when the holding value of the change event is true.
@@ -6505,7 +6417,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         *   event.holding && event.set({x: 10});
         * });
         */
-
     /** Specifies the animation coordinates to move after the 'release' or 'animationStart' events.
             * @ko 'release' 또는 'animationStart' 이벤트 이후 이동할 좌표를 지정한다.
             * @name setTo
@@ -6524,7 +6435,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
             *   event.setTo({x: 10}, 2000);
             * });
             */
-
     /**
                 * This event is fired when a user release an element on the screen of the device.
                 * @ko 사용자가 기기의 화면에서 손을 뗐을 때 발생하는 이벤트
@@ -6560,13 +6470,8 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
                 *   event.setTo({x: 10}, 2000);
                 * });
                 */
-
-
     __proto.triggerRelease = function (param) {
-      var _a = this.getRoundPos(param.destPos, param.depaPos),
-          roundPos = _a.roundPos,
-          roundDepa = _a.roundDepa;
-
+      var _a = this.getRoundPos(param.destPos, param.depaPos),roundPos = _a.roundPos,roundDepa = _a.roundDepa;
       param.destPos = roundPos;
       param.depaPos = roundDepa;
       param.setTo = this.createUserControll(param.destPos, param.duration);
@@ -6608,21 +6513,12 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         *   event.holding && event.set({x: 10});
         * });
         */
-
-
     __proto.triggerChange = function (pos, isAccurate, depaPos, option, holding) {
-      if (holding === void 0) {
-        holding = false;
-      }
-
+      if (holding === void 0) {holding = false;}
       var am = this.am;
       var axm = am.axm;
       var eventInfo = am.getEventInfo();
-
-      var _a = this.getRoundPos(pos, depaPos),
-          roundPos = _a.roundPos,
-          roundDepa = _a.roundDepa;
-
+      var _a = this.getRoundPos(pos, depaPos),roundPos = _a.roundPos,roundDepa = _a.roundDepa;
       var moveTo = axm.moveTo(roundPos, roundDepa);
       var inputEvent = option && option.event || eventInfo && eventInfo.event || null;
       var param = {
@@ -6632,8 +6528,8 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         inputEvent: inputEvent,
         isTrusted: !!inputEvent,
         input: option && option.input || eventInfo && eventInfo.input || null,
-        set: inputEvent ? this.createUserControll(moveTo.pos) : function () {}
-      };
+        set: inputEvent ? this.createUserControll(moveTo.pos) : function () {} };
+
       var result = this.axes.trigger("change", param);
       inputEvent && axm.set(param.set()["destPos"]);
       return result;
@@ -6674,13 +6570,8 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         *   event.setTo({x: 10}, 2000);
         * });
         */
-
-
     __proto.triggerAnimationStart = function (param) {
-      var _a = this.getRoundPos(param.destPos, param.depaPos),
-          roundPos = _a.roundPos,
-          roundDepa = _a.roundDepa;
-
+      var _a = this.getRoundPos(param.destPos, param.depaPos),roundPos = _a.roundPos,roundDepa = _a.roundDepa;
       param.destPos = roundPos;
       param.depaPos = roundDepa;
       param.setTo = this.createUserControll(param.destPos, param.duration);
@@ -6706,16 +6597,11 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         *   // event.isTrusted
         * });
         */
-
-
     __proto.triggerAnimationEnd = function (isTrusted) {
-      if (isTrusted === void 0) {
-        isTrusted = false;
-      }
-
+      if (isTrusted === void 0) {isTrusted = false;}
       this.axes.trigger("animationEnd", {
-        isTrusted: isTrusted
-      });
+        isTrusted: isTrusted });
+
     };
     /**
         * This event is fired when all actions have been completed.
@@ -6737,95 +6623,69 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         *   // event.isTrusted
         * });
         */
-
-
     __proto.triggerFinish = function (isTrusted) {
-      if (isTrusted === void 0) {
-        isTrusted = false;
-      }
-
+      if (isTrusted === void 0) {isTrusted = false;}
       this.axes.trigger("finish", {
-        isTrusted: isTrusted
-      });
+        isTrusted: isTrusted });
+
     };
-
     __proto.createUserControll = function (pos, duration) {
-      if (duration === void 0) {
-        duration = 0;
-      } // to controll
-
-
+      if (duration === void 0) {duration = 0;}
+      // to controll
       var userControl = {
         destPos: __assign({}, pos),
-        duration: duration
-      };
+        duration: duration };
+
       return function (toPos, userDuration) {
         toPos && (userControl.destPos = __assign({}, toPos));
         userDuration !== undefined && (userControl.duration = userDuration);
         return userControl;
       };
     };
-
     __proto.setAnimationManager = function (am) {
       this.am = am;
     };
-
     __proto.destroy = function () {
       this.axes.off();
     };
-
     __proto.getRoundPos = function (pos, depaPos) {
       // round value if round exist
-      var roundUnit = this.axes.options.round; // if (round == null) {
+      var roundUnit = this.axes.options.round;
+      // if (round == null) {
       // 	return {pos, depaPos}; // undefined, undefined
       // }
-
       return {
         roundPos: roundNumbers(pos, roundUnit),
-        roundDepa: roundNumbers(depaPos, roundUnit)
-      };
-    };
+        roundDepa: roundNumbers(depaPos, roundUnit) };
 
+    };
     return EventManager;
   }();
 
-  var InterruptManager =
-  /*#__PURE__*/
-  function () {
+  var InterruptManager = /*#__PURE__*/function () {
     function InterruptManager(options) {
       this.options = options;
       this._prevented = false; //  check whether the animation event was prevented
-    }
-
-    var __proto = InterruptManager.prototype;
-
+    }var __proto = InterruptManager.prototype;
     __proto.isInterrupting = function () {
       // when interruptable is 'true', return value is always 'true'.
       return this.options.interruptable || this._prevented;
     };
-
     __proto.isInterrupted = function () {
       return !this.options.interruptable && this._prevented;
     };
-
     __proto.setInterrupt = function (prevented) {
       !this.options.interruptable && (this._prevented = prevented);
     };
-
     return InterruptManager;
   }();
 
-  var AxisManager =
-  /*#__PURE__*/
-  function () {
+  var AxisManager = /*#__PURE__*/function () {
     function AxisManager(axis, options) {
       var _this = this;
-
       this.axis = axis;
       this.options = options;
-
       this._complementOptions();
-
       this._pos = Object.keys(this.axis).reduce(function (acc, v) {
         acc[v] = _this.axis[v].range[0];
         return acc;
@@ -6834,71 +6694,53 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     /**
          * set up 'css' expression
          * @private
-         */
-
-
-    var __proto = AxisManager.prototype;
-
+         */var __proto = AxisManager.prototype;
     __proto._complementOptions = function () {
       var _this = this;
-
       Object.keys(this.axis).forEach(function (axis) {
         _this.axis[axis] = __assign({
           range: [0, 100],
           bounce: [0, 0],
-          circular: [false, false]
-        }, _this.axis[axis]);
+          circular: [false, false] },
+        _this.axis[axis]);
         ["bounce", "circular"].forEach(function (v) {
           var axisOption = _this.axis;
           var key = axisOption[axis][v];
-
           if (/string|number|boolean/.test(typeof key)) {
             axisOption[axis][v] = [key, key];
           }
         });
       });
     };
-
     __proto.getDelta = function (depaPos, destPos) {
       var fullDepaPos = this.get(depaPos);
-      return map(this.get(destPos), function (v, k) {
-        return v - fullDepaPos[k];
-      });
+      return map(this.get(destPos), function (v, k) {return v - fullDepaPos[k];});
     };
-
     __proto.get = function (axes) {
       var _this = this;
-
       if (axes && Array.isArray(axes)) {
         return axes.reduce(function (acc, v) {
           if (v && v in _this._pos) {
             acc[v] = _this._pos[v];
           }
-
           return acc;
         }, {});
-      } else {
+      } else
+      {
         return __assign({}, this._pos, axes || {});
       }
     };
-
     __proto.moveTo = function (pos, depaPos) {
-      if (depaPos === void 0) {
-        depaPos = this._pos;
-      }
-
+      if (depaPos === void 0) {depaPos = this._pos;}
       var delta = map(this._pos, function (v, key) {
         return key in pos && key in depaPos ? pos[key] - depaPos[key] : 0;
       });
-      this.set(this.map(pos, function (v, opt) {
-        return opt ? getCirculatedPos(v, opt.range, opt.circular) : 0;
-      }));
+      this.set(this.map(pos, function (v, opt) {return opt ? getCirculatedPos(v, opt.range, opt.circular) : 0;}));
       return {
         pos: __assign({}, this._pos),
-        delta: delta
-      };
-    };
+        delta: delta };
 
+    };
     __proto.set = function (pos) {
       for (var k in pos) {
         if (k && k in this._pos) {
@@ -6906,50 +6748,30 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         }
       }
     };
-
     __proto.every = function (pos, callback) {
       var axisOptions = this.axis;
-      return every(pos, function (value, key) {
-        return callback(value, axisOptions[key], key);
-      });
+      return every(pos, function (value, key) {return callback(value, axisOptions[key], key);});
     };
-
     __proto.filter = function (pos, callback) {
       var axisOptions = this.axis;
-      return filter(pos, function (value, key) {
-        return callback(value, axisOptions[key], key);
-      });
+      return filter(pos, function (value, key) {return callback(value, axisOptions[key], key);});
     };
-
     __proto.map = function (pos, callback) {
       var axisOptions = this.axis;
-      return map(pos, function (value, key) {
-        return callback(value, axisOptions[key], key);
-      });
+      return map(pos, function (value, key) {return callback(value, axisOptions[key], key);});
     };
-
     __proto.isOutside = function (axes) {
-      return !this.every(axes ? this.get(axes) : this._pos, function (v, opt) {
-        return !isOutside(v, opt.range);
-      });
+      return !this.every(axes ? this.get(axes) : this._pos, function (v, opt) {return !isOutside(v, opt.range);});
     };
-
     __proto.getAxisOptions = function (key) {
       return this.axis[key];
     };
-
     return AxisManager;
   }();
 
-  var InputObserver =
-  /*#__PURE__*/
-  function () {
+  var InputObserver = /*#__PURE__*/function () {
     function InputObserver(_a) {
-      var options = _a.options,
-          itm = _a.itm,
-          em = _a.em,
-          axm = _a.axm,
-          am = _a.am;
+      var options = _a.options,itm = _a.itm,em = _a.em,axm = _a.axm,am = _a.am;
       this.isOutside = false;
       this.moveDistance = null;
       this.isStopped = false;
@@ -6958,21 +6780,18 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       this.em = em;
       this.axm = axm;
       this.am = am;
-    } // when move pointer is held in outside
-
-
-    var __proto = InputObserver.prototype;
-
-    __proto.atOutside = function (pos) {
+    }
+    // when move pointer is held in outside
+    var __proto = InputObserver.prototype;__proto.atOutside = function (pos) {
       var _this = this;
-
       if (this.isOutside) {
         return this.axm.map(pos, function (v, opt) {
           var tn = opt.range[0] - opt.bounce[0];
           var tx = opt.range[1] + opt.bounce[1];
           return v > tx ? tx : v < tn ? tn : v;
         });
-      } else {
+      } else
+      {
         // when start pointer is held in inside
         // get a initialization slope value to prevent smooth animation.
         var initSlope_1 = this.am.easing(0.00001) / 0.00001;
@@ -6981,35 +6800,30 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
           var max = opt.range[1];
           var out = opt.bounce;
           var circular = opt.circular;
-
           if (circular && (circular[0] || circular[1])) {
             return v;
-          } else if (v < min) {
-            // left
+          } else
+          if (v < min) {// left
             return min - _this.am.easing((min - v) / (out[0] * initSlope_1)) * out[0];
-          } else if (v > max) {
-            // right
+          } else
+          if (v > max) {// right
             return max + _this.am.easing((v - max) / (out[1] * initSlope_1)) * out[1];
           }
-
           return v;
         });
       }
     };
-
     __proto.get = function (input) {
       return this.axm.get(input.axes);
     };
-
     __proto.hold = function (input, event) {
       if (this.itm.isInterrupted() || !input.axes.length) {
         return;
       }
-
       var changeOption = {
         input: input,
-        event: event
-      };
+        event: event };
+
       this.isStopped = false;
       this.itm.setInterrupt(true);
       this.am.grab(input.axes, changeOption);
@@ -7017,63 +6831,51 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       this.isOutside = this.axm.isOutside(input.axes);
       this.moveDistance = this.axm.get(input.axes);
     };
-
     __proto.change = function (input, event, offset) {
-      if (this.isStopped || !this.itm.isInterrupting() || this.axm.every(offset, function (v) {
-        return v === 0;
-      })) {
+      if (this.isStopped || !this.itm.isInterrupting() || this.axm.every(offset, function (v) {return v === 0;})) {
         return;
       }
-
       var depaPos = this.moveDistance || this.axm.get(input.axes);
-      var destPos; // for outside logic
-
-      destPos = map(depaPos, function (v, k) {
-        return v + (offset[k] || 0);
-      });
-      this.moveDistance && (this.moveDistance = destPos); // from outside to inside
-
-      if (this.isOutside && this.axm.every(depaPos, function (v, opt) {
-        return !isOutside(v, opt.range);
-      })) {
+      var destPos;
+      // for outside logic
+      destPos = map(depaPos, function (v, k) {return v + (offset[k] || 0);});
+      this.moveDistance && (this.moveDistance = destPos);
+      // from outside to inside
+      if (this.isOutside &&
+      this.axm.every(depaPos, function (v, opt) {return !isOutside(v, opt.range);})) {
         this.isOutside = false;
       }
-
       depaPos = this.atOutside(depaPos);
       destPos = this.atOutside(destPos);
       var isCanceled = !this.em.triggerChange(destPos, false, depaPos, {
         input: input,
-        event: event
-      }, true);
-
+        event: event },
+      true);
       if (isCanceled) {
         this.isStopped = true;
         this.moveDistance = null;
         this.am.finish(false);
       }
     };
-
     __proto.release = function (input, event, offset, inputDuration) {
       if (this.isStopped || !this.itm.isInterrupting() || !this.moveDistance) {
         return;
       }
-
       var pos = this.axm.get(input.axes);
       var depaPos = this.axm.get();
       var destPos = this.axm.get(this.axm.map(offset, function (v, opt, k) {
         if (opt.circular && (opt.circular[0] || opt.circular[1])) {
           return pos[k] + v;
-        } else {
+        } else
+        {
           return getInsidePosition(pos[k] + v, opt.range, opt.circular, opt.bounce);
         }
       }));
       var duration = this.am.getDuration(destPos, pos, inputDuration);
-
       if (duration === 0) {
         destPos = __assign({}, depaPos);
-      } // prepare params
-
-
+      }
+      // prepare params
       var param = {
         depaPos: depaPos,
         destPos: destPos,
@@ -7081,52 +6883,49 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         delta: this.axm.getDelta(depaPos, destPos),
         inputEvent: event,
         input: input,
-        isTrusted: true
-      };
-      this.em.triggerRelease(param);
-      this.moveDistance = null; // to contol
+        isTrusted: true };
 
+      this.em.triggerRelease(param);
+      this.moveDistance = null;
+      // to contol
       var userWish = this.am.getUserControll(param);
       var isEqual = equal(userWish.destPos, depaPos);
       var changeOption = {
         input: input,
-        event: event
-      };
+        event: event };
 
       if (isEqual || userWish.duration === 0) {
         !isEqual && this.em.triggerChange(userWish.destPos, false, depaPos, changeOption, true);
         this.itm.setInterrupt(false);
-
         if (this.axm.isOutside()) {
           this.am.restore(changeOption);
-        } else {
+        } else
+        {
           this.em.triggerFinish(true);
         }
-      } else {
+      } else
+      {
         this.am.animateTo(userWish.destPos, userWish.duration, changeOption);
       }
     };
-
     return InputObserver;
-  }(); // export const DIRECTION_NONE = 1;
+  }();
 
-
+  // export const DIRECTION_NONE = 1;
   var TRANSFORM$1 = function () {
     if (typeof document === "undefined") {
       return "";
     }
-
     var bodyStyle = (document.head || document.getElementsByTagName("head")[0]).style;
     var target = ["transform", "webkitTransform", "msTransform", "mozTransform"];
-
     for (var i = 0, len = target.length; i < len; i++) {
       if (target[i] in bodyStyle) {
         return target[i];
       }
     }
-
     return "";
   }();
+
   /**
                                                                                                                                                                                 * @typedef {Object} AxisOption The Axis information. The key of the axis specifies the name to use as the logical virtual coordinate system.
                                                                                                                                                                                 * @ko 축 정보. 축의 키는 논리적인 가상 좌표계로 사용할 이름을 지정한다.
@@ -7140,7 +6939,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
                                                                                                                                                                                 * @property {Boolean} [circular.0=false] Indicates whether to circulate to the coordinate of the minimum <ko>최소 좌표 방향의 순환 여부</ko>
                                                                                                                                                                                 * @property {Boolean} [circular.1=false] Indicates whether to circulate to the coordinate of the maximum <ko>최대 좌표 방향의 순환 여부</ko>
                                                                                                                                                                                **/
-
   /**
                                                                                                                                                                                     * @typedef {Object} AxesOption The option object of the eg.Axes module
                                                                                                                                                                                     * @ko eg.Axes 모듈의 옵션 객체
@@ -7151,7 +6949,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
                                                                                                                                                                                     * @property {Boolean} [interruptable=true] Indicates whether an animation is interruptible.<br>- true: It can be paused or stopped by user action or the API.<br>- false: It cannot be paused or stopped by user action or the API while it is running.<ko>진행 중인 애니메이션 중지 가능 여부.<br>- true: 사용자의 동작이나 API로 애니메이션을 중지할 수 있다.<br>- false: 애니메이션이 진행 중일 때는 사용자의 동작이나 API가 적용되지 않는다</ko>
                                                                                                                                                                                     * @property {Number} [round = null] Rounding unit. For example, 0.1 rounds to 0.1 decimal point(6.1234 => 6.1), 5 rounds to 5 (93 => 95) <br>[Details](https://github.com/naver/egjs-axes/wiki/round-option)<ko>반올림 단위. 예를 들어 0.1 은 소숫점 0.1 까지 반올림(6.1234 => 6.1), 5 는 5 단위로 반올림(93 => 95).<br>[상세내용](https://github.com/naver/egjs-axes/wiki/round-option)</ko>
                                                                                                                                                                                    **/
-
   /**
                                                                                                                                                                                         * @class eg.Axes
                                                                                                                                                                                         * @classdesc A module used to change the information of user action entered by various input devices such as touch screen or mouse into the logical virtual coordinates. You can easily create a UI that responds to user actions.
@@ -7221,24 +7018,12 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
                                                                                                                                                                                         * // [PinchInput] Connect 'something2' axis when two pointers are moving toward (zoom-in) or away from each other (zoom-out).
                                                                                                                                                                                         * axes.connect("something2", pinchInputArea);
                                                                                                                                                                                         */
-
-
-  var Axes =
-  /*#__PURE__*/
-  function (_super) {
+  var Axes = /*#__PURE__*/function (_super) {
     __extends(Axes, _super);
-
     function Axes(axis, options, startPos) {
-      if (axis === void 0) {
-        axis = {};
-      }
-
-      if (options === void 0) {
-        options = {};
-      }
-
+      if (axis === void 0) {axis = {};}
+      if (options === void 0) {options = {};}
       var _this = _super.call(this) || this;
-
       _this.axis = axis;
       _this._inputs = [];
       _this.options = __assign({
@@ -7249,16 +7034,14 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         maximumDuration: Infinity,
         minimumDuration: 0,
         deceleration: 0.0006,
-        round: null
-      }, options);
+        round: null },
+      options);
       _this.itm = new InterruptManager(_this.options);
       _this.axm = new AxisManager(_this.axis, _this.options);
       _this.em = new EventManager(_this);
       _this.am = new AnimationManager(_this);
       _this.io = new InputObserver(_this);
-
       _this.em.setAnimationManager(_this.am);
-
       startPos && _this.em.triggerChange(startPos);
       return _this;
     }
@@ -7285,41 +7068,29 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
        *    .connect(["x"], new eg.Axes.PanInput("#area4"))
        *    .connect(["xOther", "x"], new eg.Axes.PanInput("#area5"))
        *    .connect(["", "xOther"], new eg.Axes.PanInput("#area6"));
-       */
-
-
-    var __proto = Axes.prototype;
-
+       */var __proto = Axes.prototype;
     __proto.connect = function (axes, inputType) {
       var mapped;
-
       if (typeof axes === "string") {
         mapped = axes.split(" ");
-      } else {
+      } else
+      {
         mapped = axes.concat();
-      } // check same instance
-
-
+      }
+      // check same instance
       if (~this._inputs.indexOf(inputType)) {
         this.disconnect(inputType);
-      } // check same element in hammer type for share
-
-
+      }
+      // check same element in hammer type for share
       if ("hammer" in inputType) {
-        var targets = this._inputs.filter(function (v) {
-          return v.hammer && v.element === inputType.element;
-        });
-
+        var targets = this._inputs.filter(function (v) {return v.hammer && v.element === inputType.element;});
         if (targets.length) {
           inputType.hammer = targets[0].hammer;
         }
       }
-
       inputType.mapAxes(mapped);
       inputType.connect(this.io);
-
       this._inputs.push(inputType);
-
       return this;
     };
     /**
@@ -7349,25 +7120,18 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * axes.disconnect(input1); // disconnects input1
         * axes.disconnect(); // disconnects all of them
         */
-
-
     __proto.disconnect = function (inputType) {
       if (inputType) {
         var index = this._inputs.indexOf(inputType);
-
         if (index >= 0) {
           this._inputs[index].disconnect();
-
           this._inputs.splice(index, 1);
         }
-      } else {
-        this._inputs.forEach(function (v) {
-          return v.disconnect();
-        });
-
+      } else
+      {
+        this._inputs.forEach(function (v) {return v.disconnect();});
         this._inputs = [];
       }
-
       return this;
     };
     /**
@@ -7392,8 +7156,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * axes.get(); // {"x": 0, "xOther": -100, "zoom": 50}
         * axes.get(["x", "zoom"]); // {"x": 0, "zoom": 50}
         */
-
-
     __proto.get = function (axes) {
       return this.axm.get(axes);
     };
@@ -7425,13 +7187,8 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * // after 1000 ms
         * axes.get(); // {"x": 100, "xOther": 60, "zoom": 60}
         */
-
-
     __proto.setTo = function (pos, duration) {
-      if (duration === void 0) {
-        duration = 0;
-      }
-
+      if (duration === void 0) {duration = 0;}
       this.am.setTo(pos, duration);
       return this;
     };
@@ -7463,13 +7220,8 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * // after 1000 ms
         * axes.get(); // {"x": 100, "xOther": -40, "zoom": 60}
         */
-
-
     __proto.setBy = function (pos, duration) {
-      if (duration === void 0) {
-        duration = 0;
-      }
-
+      if (duration === void 0) {duration = 0;}
       this.am.setBy(pos, duration);
       return this;
     };
@@ -7496,8 +7248,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * axes.isBounceArea(["x", "zoom"]);
         * axes.isBounceArea();
         */
-
-
     __proto.isBounceArea = function (axes) {
       return this.axm.isOutside(axes);
     };
@@ -7506,8 +7256,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
        * @ko 모듈에 사용한 속성, 이벤트를 해제한다. 모든 inputType과의 연결을 끊는다.
        * @method eg.Axes#destroy
        */
-
-
     __proto.destroy = function () {
       this.disconnect();
       this.em.destroy();
@@ -7522,8 +7270,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * eg.Axes.VERSION;  // ex) 3.3.3
         * @memberof eg.Axes
         */
-
-
     Axes.VERSION = "2.6.0";
     /**
                                      * @name eg.Axes.TRANSFORM
@@ -7535,63 +7281,54 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
                                      * @example
                                      * eg.Axes.TRANSFORM; // "transform" or "webkitTransform"
                                      */
-
     Axes.TRANSFORM = TRANSFORM$1;
     /**
                                  * @name eg.Axes.DIRECTION_NONE
                                  * @constant
                                  * @type {Number}
                                  */
-
     Axes.DIRECTION_NONE = DIRECTION_NONE;
     /**
                                            * @name eg.Axes.DIRECTION_LEFT
                                            * @constant
                                            * @type {Number}
                                           */
-
     Axes.DIRECTION_LEFT = DIRECTION_LEFT;
     /**
                                            * @name eg.Axes.DIRECTION_RIGHT
                                            * @constant
                                            * @type {Number}
                                           */
-
     Axes.DIRECTION_RIGHT = DIRECTION_RIGHT;
     /**
                                              * @name eg.Axes.DIRECTION_UP
                                              * @constant
                                              * @type {Number}
                                             */
-
     Axes.DIRECTION_UP = DIRECTION_UP;
     /**
                                        * @name eg.Axes.DIRECTION_DOWN
                                        * @constant
                                        * @type {Number}
                                       */
-
     Axes.DIRECTION_DOWN = DIRECTION_DOWN;
     /**
                                            * @name eg.Axes.DIRECTION_HORIZONTAL
                                            * @constant
                                            * @type {Number}
                                           */
-
     Axes.DIRECTION_HORIZONTAL = DIRECTION_HORIZONTAL;
     /**
                                                        * @name eg.Axes.DIRECTION_VERTICAL
                                                        * @constant
                                                        * @type {Number}
                                                       */
-
     Axes.DIRECTION_VERTICAL = DIRECTION_VERTICAL;
     /**
                                                    * @name eg.Axes.DIRECTION_ALL
                                                    * @constant
                                                    * @type {Number}
                                                   */
-
     Axes.DIRECTION_ALL = DIRECTION_ALL;
     return Axes;
   }(Component);
@@ -7599,31 +7336,25 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   var SUPPORT_POINTER_EVENTS$1 = "PointerEvent" in win$2 || "MSPointerEvent" in win$2;
   var SUPPORT_TOUCH$2 = "ontouchstart" in win$2;
   var UNIQUEKEY = "_EGJS_AXES_INPUTTYPE_";
-
   function toAxis(source, offset) {
     return offset.reduce(function (acc, v, i) {
       if (source[i]) {
         acc[source[i]] = v;
       }
-
       return acc;
     }, {});
   }
-
   function createHammer(element, options) {
     try {
       // create Hammer
       return new Manager(element, __assign({}, options));
-    } catch (e) {
+    }
+    catch (e) {
       return null;
     }
   }
-
   function convertInputType(inputType) {
-    if (inputType === void 0) {
-      inputType = [];
-    }
-
+    if (inputType === void 0) {inputType = [];}
     var hasTouch = false;
     var hasMouse = false;
     var hasPointer = false;
@@ -7632,50 +7363,51 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         case "mouse":
           hasMouse = true;
           break;
-
         case "touch":
           hasTouch = SUPPORT_TOUCH$2;
           break;
-
-        case "pointer":
-          hasPointer = SUPPORT_POINTER_EVENTS$1;
+        case "pointer":hasPointer = SUPPORT_POINTER_EVENTS$1;
         // no default
       }
     });
-
     if (hasPointer) {
       return PointerEventInput;
-    } else if (hasTouch && hasMouse) {
+    } else
+    if (hasTouch && hasMouse) {
       return TouchMouseInput;
-    } else if (hasTouch) {
+    } else
+    if (hasTouch) {
       return TouchInput;
-    } else if (hasMouse) {
+    } else
+    if (hasMouse) {
       return MouseInput;
     }
-
     return null;
-  } // get user's direction
+  }
 
-
+  // get user's direction
   function getDirectionByAngle(angle, thresholdAngle) {
     if (thresholdAngle < 0 || thresholdAngle > 90) {
       return DIRECTION_NONE;
     }
-
     var toAngle = Math.abs(angle);
-    return toAngle > thresholdAngle && toAngle < 180 - thresholdAngle ? DIRECTION_VERTICAL : DIRECTION_HORIZONTAL;
+    return toAngle > thresholdAngle && toAngle < 180 - thresholdAngle ?
+    DIRECTION_VERTICAL : DIRECTION_HORIZONTAL;
   }
-
   function getNextOffset(speeds, deceleration) {
     var normalSpeed = Math.sqrt(speeds[0] * speeds[0] + speeds[1] * speeds[1]);
     var duration = Math.abs(normalSpeed / -deceleration);
-    return [speeds[0] / 2 * duration, speeds[1] / 2 * duration];
-  }
+    return [
+    speeds[0] / 2 * duration,
+    speeds[1] / 2 * duration];
 
+  }
   function useDirection(checkType, direction, userDirection) {
     if (userDirection) {
-      return !!(direction === DIRECTION_ALL || direction & checkType && userDirection & checkType);
-    } else {
+      return !!(direction === DIRECTION_ALL ||
+      direction & checkType && userDirection & checkType);
+    } else
+    {
       return !!(direction & checkType);
     }
   }
@@ -7690,7 +7422,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
      * @property {Number} [threshold=0] Minimal pan distance required before recognizing <ko>사용자의 Pan 동작을 인식하기 위해산 최소한의 거리</ko>
      * @property {Object} [hammerManagerOptions={cssProps: {userSelect: "none",touchSelect: "none",touchCallout: "none",userDrag: "none"}] Options of Hammer.Manager <ko>Hammer.Manager의 옵션</ko>
     **/
-
   /**
          * @class eg.Axes.PanInput
          * @classdesc A module that passes the amount of change to eg.Axes when the mouse or touchscreen is down and moved. use less than two axes.
@@ -7715,11 +7446,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
          * @param {HTMLElement|String|jQuery} element An element to use the eg.Axes.PanInput module <ko>eg.Axes.PanInput 모듈을 사용할 엘리먼트</ko>
          * @param {PanInputOption} [options] The option object of the eg.Axes.PanInput module<ko>eg.Axes.PanInput 모듈의 옵션 객체</ko>
          */
-
-
-  var PanInput =
-  /*#__PURE__*/
-  function () {
+  var PanInput = /*#__PURE__*/function () {
     function PanInput(el, options) {
       this.axes = [];
       this.hammer = null;
@@ -7733,11 +7460,9 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
                                   * @see {@link http://hammerjs.github.io/jsdoc/Hammer.html|Hammer.JS API documents}
                                   * @see Hammer.JS applies specific CSS properties by {@link http://hammerjs.github.io/jsdoc/Hammer.defaults.cssProps.html|default} when creating an instance. The eg.Axes module removes all default CSS properties provided by Hammer.JS
                                   */
-
       if (typeof Manager === "undefined") {
         throw new Error("The Hammerjs must be loaded before eg.Axes.PanInput.\nhttp://hammerjs.github.io/");
       }
-
       this.element = $(el);
       this.options = __assign({
         inputType: ["touch", "mouse", "pointer"],
@@ -7751,77 +7476,65 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
             userSelect: "none",
             touchSelect: "none",
             touchCallout: "none",
-            userDrag: "none"
-          }
-        }
-      }, options);
+            userDrag: "none" } } },
+
+
+      options);
       this.onHammerInput = this.onHammerInput.bind(this);
       this.onPanmove = this.onPanmove.bind(this);
       this.onPanend = this.onPanend.bind(this);
-    }
-
-    var __proto = PanInput.prototype;
-
+    }var __proto = PanInput.prototype;
     __proto.mapAxes = function (axes) {
       var useHorizontal = !!axes[0];
       var useVertical = !!axes[1];
-
       if (useHorizontal && useVertical) {
         this._direction = DIRECTION_ALL;
-      } else if (useHorizontal) {
+      } else
+      if (useHorizontal) {
         this._direction = DIRECTION_HORIZONTAL;
-      } else if (useVertical) {
+      } else
+      if (useVertical) {
         this._direction = DIRECTION_VERTICAL;
-      } else {
+      } else
+      {
         this._direction = DIRECTION_NONE;
       }
-
       this.axes = axes;
     };
-
     __proto.connect = function (observer) {
       var hammerOption = {
         direction: this._direction,
-        threshold: this.options.threshold
-      };
+        threshold: this.options.threshold };
 
-      if (this.hammer) {
-        // for sharing hammer instance.
+      if (this.hammer) {// for sharing hammer instance.
         // hammer remove previous PanRecognizer.
         this.removeRecognizer();
         this.dettachEvent();
-      } else {
+      } else
+      {
         var keyValue = this.element[UNIQUEKEY];
-
         if (!keyValue) {
           keyValue = String(Math.round(Math.random() * new Date().getTime()));
         }
-
         var inputClass = convertInputType(this.options.inputType);
-
         if (!inputClass) {
           throw new Error("Wrong inputType parameter!");
         }
-
         this.hammer = createHammer(this.element, __assign({
-          inputClass: inputClass
-        }, this.options.hammerManagerOptions));
+          inputClass: inputClass },
+        this.options.hammerManagerOptions));
         this.element[UNIQUEKEY] = keyValue;
       }
-
       this.panRecognizer = new PanRecognizer(hammerOption);
       this.hammer.add(this.panRecognizer);
       this.attachEvent(observer);
       return this;
     };
-
     __proto.disconnect = function () {
       this.removeRecognizer();
-
       if (this.hammer) {
         this.dettachEvent();
       }
-
       this._direction = DIRECTION_NONE;
       return this;
     };
@@ -7830,15 +7543,11 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
        * @ko 모듈에 사용한 엘리먼트와 속성, 이벤트를 해제한다.
        * @method eg.Axes.PanInput#destroy
        */
-
-
     __proto.destroy = function () {
       this.disconnect();
-
       if (this.hammer && this.hammer.recognizers.length === 0) {
         this.hammer.destroy();
       }
-
       delete this.element[UNIQUEKEY];
       this.element = null;
       this.hammer = null;
@@ -7849,8 +7558,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * @method eg.Axes.PanInput#enable
         * @return {eg.Axes.PanInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
         */
-
-
     __proto.enable = function () {
       this.hammer && (this.hammer.get("pan").options.enable = true);
       return this;
@@ -7861,8 +7568,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * @method eg.Axes.PanInput#disable
         * @return {eg.Axes.PanInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
         */
-
-
     __proto.disable = function () {
       this.hammer && (this.hammer.get("pan").options.enable = false);
       return this;
@@ -7873,90 +7578,85 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * @method eg.Axes.PanInput#isEnable
         * @return {Boolean} Whether to use an input device <ko>입력장치 사용여부</ko>
         */
-
-
     __proto.isEnable = function () {
       return !!(this.hammer && this.hammer.get("pan").options.enable);
     };
-
     __proto.removeRecognizer = function () {
       if (this.hammer && this.panRecognizer) {
         this.hammer.remove(this.panRecognizer);
         this.panRecognizer = null;
       }
     };
-
     __proto.onHammerInput = function (event) {
       if (this.isEnable()) {
         if (event.isFirst) {
           this.observer.hold(this, event);
-        } else if (event.isFinal) {
+        } else
+        if (event.isFinal) {
           this.onPanend(event);
         }
       }
     };
-
     __proto.onPanmove = function (event) {
-      var userDirection = getDirectionByAngle(event.angle, this.options.thresholdAngle); // not support offset properties in Hammerjs - start
-
+      var userDirection = getDirectionByAngle(event.angle, this.options.thresholdAngle);
+      // not support offset properties in Hammerjs - start
       var prevInput = this.hammer.session.prevInput;
       /* eslint-disable no-param-reassign */
-
       if (prevInput) {
         event.offsetX = event.deltaX - prevInput.deltaX;
         event.offsetY = event.deltaY - prevInput.deltaY;
-      } else {
+      } else
+      {
         event.offsetX = 0;
         event.offsetY = 0;
       }
+      var offset = this.getOffset([event.offsetX, event.offsetY], [
+      useDirection(DIRECTION_HORIZONTAL, this._direction, userDirection),
+      useDirection(DIRECTION_VERTICAL, this._direction, userDirection)]);
 
-      var offset = this.getOffset([event.offsetX, event.offsetY], [useDirection(DIRECTION_HORIZONTAL, this._direction, userDirection), useDirection(DIRECTION_VERTICAL, this._direction, userDirection)]);
-      var prevent = offset.some(function (v) {
-        return v !== 0;
-      });
-
+      var prevent = offset.some(function (v) {return v !== 0;});
       if (prevent) {
         event.srcEvent.preventDefault();
         event.srcEvent.stopPropagation();
       }
-
       event.preventSystemEvent = prevent;
       prevent && this.observer.change(this, event, toAxis(this.axes, offset));
     };
-
     __proto.onPanend = function (event) {
-      var offset = this.getOffset([Math.abs(event.velocityX) * (event.deltaX < 0 ? -1 : 1), Math.abs(event.velocityY) * (event.deltaY < 0 ? -1 : 1)], [useDirection(DIRECTION_HORIZONTAL, this._direction), useDirection(DIRECTION_VERTICAL, this._direction)]);
+      var offset = this.getOffset([
+      Math.abs(event.velocityX) * (event.deltaX < 0 ? -1 : 1),
+      Math.abs(event.velocityY) * (event.deltaY < 0 ? -1 : 1)],
+      [
+      useDirection(DIRECTION_HORIZONTAL, this._direction),
+      useDirection(DIRECTION_VERTICAL, this._direction)]);
+
       offset = getNextOffset(offset, this.observer.options.deceleration);
       this.observer.release(this, event, toAxis(this.axes, offset));
     };
-
     __proto.attachEvent = function (observer) {
       this.observer = observer;
-      this.hammer.on("hammer.input", this.onHammerInput).on("panstart panmove", this.onPanmove);
+      this.hammer.on("hammer.input", this.onHammerInput).
+      on("panstart panmove", this.onPanmove);
     };
-
     __proto.dettachEvent = function () {
-      this.hammer.off("hammer.input", this.onHammerInput).off("panstart panmove", this.onPanmove);
+      this.hammer.off("hammer.input", this.onHammerInput).
+      off("panstart panmove", this.onPanmove);
       this.observer = null;
     };
-
     __proto.getOffset = function (properties, direction) {
       var offset = [0, 0];
       var scale = this.options.scale;
-
       if (direction[0]) {
         offset[0] = properties[0] * scale[0];
       }
-
       if (direction[1]) {
         offset[1] = properties[1] * scale[1];
       }
-
       return offset;
     };
-
     return PanInput;
   }();
+
   /**
                                           * @class eg.Axes.RotatePanInput
                                           * @classdesc A module that passes the angle moved by touch to Axes and uses one axis of rotation.<br>[Details](https://github.com/naver/egjs-axes/wiki/RotatePanInput)
@@ -7978,119 +7678,95 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
                                           * @param {PanInputOption} [options] The option object of the eg.Axes.PanInput module<ko>eg.Axes.PanInput 모듈의 옵션 객체</ko>
                                           * @extends eg.Axes.PanInput
                                           */
-
-
-  var RotatePanInput =
-  /*#__PURE__*/
-  function (_super) {
+  var RotatePanInput = /*#__PURE__*/function (_super) {
     __extends(RotatePanInput, _super);
-
     function RotatePanInput(el, options) {
       var _this = _super.call(this, el, options) || this;
-
       _this.prevQuadrant = null;
       _this.lastDiff = 0;
       return _this;
-    }
-
-    var __proto = RotatePanInput.prototype;
-
+    }var __proto = RotatePanInput.prototype;
     __proto.mapAxes = function (axes) {
       this._direction = Axes.DIRECTION_ALL;
       this.axes = axes;
     };
-
     __proto.onHammerInput = function (event) {
       if (this.isEnable()) {
         if (event.isFirst) {
           this.observer.hold(this, event);
           this.onPanstart(event);
-        } else if (event.isFinal) {
+        } else
+        if (event.isFinal) {
           this.onPanend(event);
         }
       }
     };
-
     __proto.onPanstart = function (event) {
       var rect = this.element.getBoundingClientRect();
       /**
                                                         * Responsive
                                                         */
       // TODO: how to do if element is ellipse not circle.
-
       this.coefficientForDistanceToAngle = 360 / (rect.width * Math.PI); // from 2*pi*r * x / 360
       // TODO: provide a way to set origin like https://developer.mozilla.org/en-US/docs/Web/CSS/transform-origin
-
-      this.rotateOrigin = [rect.left + (rect.width - 1) / 2, rect.top + (rect.height - 1) / 2]; // init angle.
-
+      this.rotateOrigin = [rect.left + (rect.width - 1) / 2, rect.top + (rect.height - 1) / 2];
+      // init angle.
       this.prevAngle = null;
       this.triggerChange(event);
     };
-
     __proto.onPanmove = function (event) {
       this.triggerChange(event);
     };
-
     __proto.onPanend = function (event) {
       this.triggerChange(event);
       this.triggerAnimation(event);
     };
-
     __proto.triggerChange = function (event) {
       var angle = this.getAngle(event.center.x, event.center.y);
       var quadrant = this.getQuadrant(event.center.x, event.center.y);
       var diff = this.getDifference(this.prevAngle, angle, this.prevQuadrant, quadrant);
       this.prevAngle = angle;
       this.prevQuadrant = quadrant;
-
       if (diff === 0) {
         return;
       }
-
       this.lastDiff = diff;
       this.observer.change(this, event, toAxis(this.axes, [-diff])); // minus for clockwise
     };
-
     __proto.triggerAnimation = function (event) {
       var vx = event.velocityX;
       var vy = event.velocityY;
       var velocity = Math.sqrt(vx * vx + vy * vy) * (this.lastDiff > 0 ? -1 : 1); // clockwise
-
       var duration = Math.abs(velocity / -this.observer.options.deceleration);
       var distance = velocity / 2 * duration;
       this.observer.release(this, event, toAxis(this.axes, [distance * this.coefficientForDistanceToAngle]));
     };
-
     __proto.getDifference = function (prevAngle, angle, prevQuadrant, quadrant) {
       var diff;
-
       if (prevAngle === null) {
         diff = 0;
-      } else if (prevQuadrant === 1 && quadrant === 4) {
+      } else
+      if (prevQuadrant === 1 && quadrant === 4) {
         diff = -prevAngle - (360 - angle);
-      } else if (prevQuadrant === 4 && quadrant === 1) {
+      } else
+      if (prevQuadrant === 4 && quadrant === 1) {
         diff = 360 - prevAngle + angle;
-      } else {
+      } else
+      {
         diff = angle - prevAngle;
       }
-
       return diff;
     };
-
     __proto.getPosFromOrigin = function (posX, posY) {
       return {
         x: posX - this.rotateOrigin[0],
-        y: this.rotateOrigin[1] - posY
-      };
+        y: this.rotateOrigin[1] - posY };
+
     };
-
     __proto.getAngle = function (posX, posY) {
-      var _a = this.getPosFromOrigin(posX, posY),
-          x = _a.x,
-          y = _a.y;
-
-      var angle = Math.atan2(y, x) * 180 / Math.PI; // console.log(angle, x, y);
-
+      var _a = this.getPosFromOrigin(posX, posY),x = _a.x,y = _a.y;
+      var angle = Math.atan2(y, x) * 180 / Math.PI;
+      // console.log(angle, x, y);
       return angle < 0 ? 360 + angle : angle;
     };
     /**
@@ -8102,30 +7778,26 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         *   3   |    4
         *       |
         */
-
-
     __proto.getQuadrant = function (posX, posY) {
-      var _a = this.getPosFromOrigin(posX, posY),
-          x = _a.x,
-          y = _a.y;
-
+      var _a = this.getPosFromOrigin(posX, posY),x = _a.x,y = _a.y;
       var q = 0;
-
       if (x >= 0 && y >= 0) {
         q = 1;
-      } else if (x < 0 && y >= 0) {
+      } else
+      if (x < 0 && y >= 0) {
         q = 2;
-      } else if (x < 0 && y < 0) {
+      } else
+      if (x < 0 && y < 0) {
         q = 3;
-      } else if (x >= 0 && y < 0) {
+      } else
+      if (x >= 0 && y < 0) {
         q = 4;
       }
-
       return q;
     };
-
     return RotatePanInput;
   }(PanInput);
+
   /**
                                                                                     * @typedef {Object} PinchInputOption The option object of the eg.Axes.PinchInput module
                                                                                     * @ko eg.Axes.PinchInput 모듈의 옵션 객체
@@ -8133,7 +7805,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
                                                                                     * @property {Number} [threshold=0] Minimal scale before recognizing <ko>사용자의 Pinch 동작을 인식하기 위해산 최소한의 배율</ko>
                                                                                     * @property {Object} [hammerManagerOptions={cssProps: {userSelect: "none",touchSelect: "none",touchCallout: "none",userDrag: "none"}] Options of Hammer.Manager <ko>Hammer.Manager의 옵션</ko>
                                                                                    **/
-
   /**
                                                                                         * @class eg.Axes.PinchInput
                                                                                         * @classdesc A module that passes the amount of change to eg.Axes when two pointers are moving toward (zoom-in) or away from each other (zoom-out). use one axis.
@@ -8149,11 +7820,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
                                                                                         * @param {HTMLElement|String|jQuery} element An element to use the eg.Axes.PinchInput module <ko>eg.Axes.PinchInput 모듈을 사용할 엘리먼트</ko>
                                                                                         * @param {PinchInputOption} [options] The option object of the eg.Axes.PinchInput module<ko>eg.Axes.PinchInput 모듈의 옵션 객체</ko>
                                                                                         */
-
-
-  var PinchInput =
-  /*#__PURE__*/
-  function () {
+  var PinchInput = /*#__PURE__*/function () {
     function PinchInput(el, options) {
       this.axes = [];
       this.hammer = null;
@@ -8169,11 +7836,9 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
                                     * @see {@link http://hammerjs.github.io/jsdoc/Hammer.html|Hammer.JS API documents}
                                     * @see Hammer.JS applies specific CSS properties by {@link http://hammerjs.github.io/jsdoc/Hammer.defaults.cssProps.html|default} when creating an instance. The eg.Axes module removes all default CSS properties provided by Hammer.JS
                                     */
-
       if (typeof Manager === "undefined") {
         throw new Error("The Hammerjs must be loaded before eg.Axes.PinchInput.\nhttp://hammerjs.github.io/");
       }
-
       this.element = $(el);
       this.options = __assign({
         scale: 1,
@@ -8186,65 +7851,50 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
             userSelect: "none",
             touchSelect: "none",
             touchCallout: "none",
-            userDrag: "none"
-          }
-        }
-      }, options);
+            userDrag: "none" } } },
+
+
+      options);
       this.onPinchStart = this.onPinchStart.bind(this);
       this.onPinchMove = this.onPinchMove.bind(this);
       this.onPinchEnd = this.onPinchEnd.bind(this);
-    }
-
-    var __proto = PinchInput.prototype;
-
+    }var __proto = PinchInput.prototype;
     __proto.mapAxes = function (axes) {
       this.axes = axes;
     };
-
     __proto.connect = function (observer) {
-      var hammerOption = {
-        threshold: this.options.threshold
-      };
-
-      if (this.hammer) {
-        // for sharing hammer instance.
+      var hammerOption = { threshold: this.options.threshold };
+      if (this.hammer) {// for sharing hammer instance.
         // hammer remove previous PinchRecognizer.
         this.removeRecognizer();
         this.dettachEvent();
-      } else {
+      } else
+      {
         var keyValue = this.element[UNIQUEKEY];
-
         if (!keyValue) {
           keyValue = String(Math.round(Math.random() * new Date().getTime()));
         }
-
         var inputClass = convertInputType(this.options.inputType);
-
         if (!inputClass) {
           throw new Error("Wrong inputType parameter!");
         }
-
         this.hammer = createHammer(this.element, __assign({
-          inputClass: inputClass
-        }, this.options.hammerManagerOptions));
+          inputClass: inputClass },
+        this.options.hammerManagerOptions));
         this.element[UNIQUEKEY] = keyValue;
       }
-
       this.pinchRecognizer = new PinchRecognizer(hammerOption);
       this.hammer.add(this.pinchRecognizer);
       this.attachEvent(observer);
       return this;
     };
-
     __proto.disconnect = function () {
       this.removeRecognizer();
-
       if (this.hammer) {
         this.hammer.remove(this.pinchRecognizer);
         this.pinchRecognizer = null;
         this.dettachEvent();
       }
-
       return this;
     };
     /**
@@ -8252,27 +7902,21 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
        * @ko 모듈에 사용한 엘리먼트와 속성, 이벤트를 해제한다.
        * @method eg.Axes.PinchInput#destroy
        */
-
-
     __proto.destroy = function () {
       this.disconnect();
-
       if (this.hammer && this.hammer.recognizers.length === 0) {
         this.hammer.destroy();
       }
-
       delete this.element[UNIQUEKEY];
       this.element = null;
       this.hammer = null;
     };
-
     __proto.removeRecognizer = function () {
       if (this.hammer && this.pinchRecognizer) {
         this.hammer.remove(this.pinchRecognizer);
         this.pinchRecognizer = null;
       }
     };
-
     __proto.onPinchStart = function (event) {
       this._base = this.observer.get(this)[this.axes[0]];
       var offset = this.getOffset(event.scale);
@@ -8280,13 +7924,11 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       this.observer.change(this, event, toAxis(this.axes, [offset]));
       this._prev = event.scale;
     };
-
     __proto.onPinchMove = function (event) {
       var offset = this.getOffset(event.scale, this._prev);
       this.observer.change(this, event, toAxis(this.axes, [offset]));
       this._prev = event.scale;
     };
-
     __proto.onPinchEnd = function (event) {
       var offset = this.getOffset(event.scale, this._prev);
       this.observer.change(this, event, toAxis(this.axes, [offset]));
@@ -8294,22 +7936,20 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       this._base = null;
       this._prev = null;
     };
-
     __proto.getOffset = function (pinchScale, prev) {
-      if (prev === void 0) {
-        prev = 1;
-      }
-
+      if (prev === void 0) {prev = 1;}
       return this._base * (pinchScale - prev) * this.options.scale;
     };
-
     __proto.attachEvent = function (observer) {
       this.observer = observer;
-      this.hammer.on("pinchstart", this.onPinchStart).on("pinchmove", this.onPinchMove).on("pinchend", this.onPinchEnd);
+      this.hammer.on("pinchstart", this.onPinchStart).
+      on("pinchmove", this.onPinchMove).
+      on("pinchend", this.onPinchEnd);
     };
-
     __proto.dettachEvent = function () {
-      this.hammer.off("pinchstart", this.onPinchStart).off("pinchmove", this.onPinchMove).off("pinchend", this.onPinchEnd);
+      this.hammer.off("pinchstart", this.onPinchStart).
+      off("pinchmove", this.onPinchMove).
+      off("pinchend", this.onPinchEnd);
       this.observer = null;
       this._prev = null;
     };
@@ -8319,8 +7959,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * @method eg.Axes.PinchInput#enable
         * @return {eg.Axes.PinchInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
         */
-
-
     __proto.enable = function () {
       this.hammer && (this.hammer.get("pinch").options.enable = true);
       return this;
@@ -8331,8 +7969,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * @method eg.Axes.PinchInput#disable
         * @return {eg.Axes.PinchInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
         */
-
-
     __proto.disable = function () {
       this.hammer && (this.hammer.get("pinch").options.enable = false);
       return this;
@@ -8343,20 +7979,17 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * @method eg.Axes.PinchInput#isEnable
         * @return {Boolean} Whether to use an input device <ko>입력장치 사용여부</ko>
         */
-
-
     __proto.isEnable = function () {
       return !!(this.hammer && this.hammer.get("pinch").options.enable);
     };
-
     return PinchInput;
   }();
+
   /**
                                          * @typedef {Object} WheelInputOption The option object of the eg.Axes.WheelInput module
                                          * @ko eg.Axes.WheelInput 모듈의 옵션 객체
                                          * @property {Number} [scale=1] Coordinate scale that a user can move<ko>사용자의 동작으로 이동하는 좌표의 배율</ko>
                                         **/
-
   /**
                                              * @class eg.Axes.WheelInput
                                              * @classdesc A module that passes the amount of change to eg.Axes when the mouse wheel is moved. use one axis.
@@ -8373,11 +8006,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
                                              * @param {HTMLElement|String|jQuery} element An element to use the eg.Axes.WheelInput module <ko>eg.Axes.WheelInput 모듈을 사용할 엘리먼트</ko>
                                              * @param {WheelInputOption} [options] The option object of the eg.Axes.WheelInput module<ko>eg.Axes.WheelInput 모듈의 옵션 객체</ko>
                                              */
-
-
-  var WheelInput =
-  /*#__PURE__*/
-  function () {
+  var WheelInput = /*#__PURE__*/function () {
     function WheelInput(el, options) {
       this.axes = [];
       this.element = null;
@@ -8387,23 +8016,18 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       this.element = $(el);
       this.options = __assign({
         scale: 1,
-        useNormalized: true
-      }, options);
+        useNormalized: true },
+      options);
       this.onWheel = this.onWheel.bind(this);
-    }
-
-    var __proto = WheelInput.prototype;
-
+    }var __proto = WheelInput.prototype;
     __proto.mapAxes = function (axes) {
       this.axes = axes;
     };
-
     __proto.connect = function (observer) {
       this.dettachEvent();
       this.attachEvent(observer);
       return this;
     };
-
     __proto.disconnect = function () {
       this.dettachEvent();
       return this;
@@ -8413,54 +8037,42 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
        * @ko 모듈에 사용한 엘리먼트와 속성, 이벤트를 해제한다.
        * @method eg.Axes.WheelInput#destroy
        */
-
-
     __proto.destroy = function () {
       this.disconnect();
       this.element = null;
     };
-
     __proto.onWheel = function (event) {
       var _this = this;
-
       if (!this._isEnabled) {
         return;
       }
-
       event.preventDefault();
-
       if (event.deltaY === 0) {
         return;
       }
-
       if (!this._isHolded) {
         this.observer.hold(this, event);
         this._isHolded = true;
       }
-
       var offset = (event.deltaY > 0 ? -1 : 1) * this.options.scale * (this.options.useNormalized ? 1 : Math.abs(event.deltaY));
       this.observer.change(this, event, toAxis(this.axes, [offset]));
       clearTimeout(this._timer);
       this._timer = setTimeout(function () {
         if (_this._isHolded) {
           _this._isHolded = false;
-
           _this.observer.release(_this, event, toAxis(_this.axes, [0]));
         }
       }, 50);
     };
-
     __proto.attachEvent = function (observer) {
       this.observer = observer;
       this.element.addEventListener("wheel", this.onWheel);
       this._isEnabled = true;
     };
-
     __proto.dettachEvent = function () {
       this.element.removeEventListener("wheel", this.onWheel);
       this._isEnabled = false;
       this.observer = null;
-
       if (this._timer) {
         clearTimeout(this._timer);
         this._timer = null;
@@ -8472,8 +8084,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * @method eg.Axes.WheelInput#enable
         * @return {eg.Axes.WheelInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
         */
-
-
     __proto.enable = function () {
       this._isEnabled = true;
       return this;
@@ -8484,8 +8094,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * @method eg.Axes.WheelInput#disable
         * @return {eg.Axes.WheelInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
         */
-
-
     __proto.disable = function () {
       this._isEnabled = false;
       return this;
@@ -8496,12 +8104,9 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * @method eg.Axes.WheelInput#isEnable
         * @return {Boolean} Whether to use an input device <ko>입력장치 사용여부</ko>
         */
-
-
     __proto.isEnable = function () {
       return this._isEnabled;
     };
-
     return WheelInput;
   }();
 
@@ -8525,7 +8130,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
                    * @property {Number} [scale[0]=1] Coordinate scale for the first axis<ko>첫번째 축의 배율</ko>
                    * @property {Number} [scale[1]=1] Coordinate scale for the decond axis<ko>두번째 축의 배율</ko>
                   **/
-
   /**
                        * @class eg.Axes.MoveKeyInput
                        * @classdesc A module that passes the amount of change to eg.Axes when the move key stroke is occured. use two axis.
@@ -8542,10 +8146,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
                        * @param {HTMLElement|String|jQuery} element An element to use the eg.Axes.MoveKeyInput module <ko>eg.Axes.MoveKeyInput 모듈을 사용할 엘리먼트</ko>
                        * @param {MoveKeyInputOption} [options] The option object of the eg.Axes.MoveKeyInput module<ko>eg.Axes.MoveKeyInput 모듈의 옵션 객체</ko>
                        */
-
-  var MoveKeyInput =
-  /*#__PURE__*/
-  function () {
+  var MoveKeyInput = /*#__PURE__*/function () {
     function MoveKeyInput(el, options) {
       this.axes = [];
       this.element = null;
@@ -8554,29 +8155,23 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       this._timer = null;
       this.element = $(el);
       this.options = __assign({
-        scale: [1, 1]
-      }, options);
+        scale: [1, 1] },
+      options);
       this.onKeydown = this.onKeydown.bind(this);
       this.onKeyup = this.onKeyup.bind(this);
-    }
-
-    var __proto = MoveKeyInput.prototype;
-
+    }var __proto = MoveKeyInput.prototype;
     __proto.mapAxes = function (axes) {
       this.axes = axes;
     };
-
     __proto.connect = function (observer) {
-      this.dettachEvent(); // add tabindex="0" to the container for making it focusable
-
+      this.dettachEvent();
+      // add tabindex="0" to the container for making it focusable
       if (this.element.getAttribute("tabindex") !== "0") {
         this.element.setAttribute("tabindex", "0");
       }
-
       this.attachEvent(observer);
       return this;
     };
-
     __proto.disconnect = function () {
       this.dettachEvent();
       return this;
@@ -8586,81 +8181,63 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
        * @ko 모듈에 사용한 엘리먼트와 속성, 이벤트를 해제한다.
        * @method eg.Axes.MoveKeyInput#destroy
        */
-
-
     __proto.destroy = function () {
       this.disconnect();
       this.element = null;
     };
-
     __proto.onKeydown = function (e) {
       if (!this._isEnabled) {
         return;
       }
-
       var isMoveKey = true;
       var direction = DIRECTION_FORWARD;
       var move = DIRECTION_HORIZONTAL$1;
-
       switch (e.keyCode) {
         case KEY_LEFT_ARROW:
         case KEY_A:
           direction = DIRECTION_REVERSE;
           break;
-
         case KEY_RIGHT_ARROW:
         case KEY_D:
           break;
-
         case KEY_DOWN_ARROW:
         case KEY_S:
           direction = DIRECTION_REVERSE;
           move = DIRECTION_VERTICAL$1;
           break;
-
         case KEY_UP_ARROW:
         case KEY_W:
           move = DIRECTION_VERTICAL$1;
           break;
-
         default:
-          isMoveKey = false;
-      }
+          isMoveKey = false;}
 
-      if (move === DIRECTION_HORIZONTAL$1 && !this.axes[0] || move === DIRECTION_VERTICAL$1 && !this.axes[1]) {
+      if (move === DIRECTION_HORIZONTAL$1 && !this.axes[0] ||
+      move === DIRECTION_VERTICAL$1 && !this.axes[1]) {
         isMoveKey = false;
       }
-
       if (!isMoveKey) {
         return;
       }
-
       var offsets = move === DIRECTION_HORIZONTAL$1 ? [+this.options.scale[0] * direction, 0] : [0, +this.options.scale[1] * direction];
-
       if (!this._isHolded) {
         this.observer.hold(this, event);
         this._isHolded = true;
       }
-
       clearTimeout(this._timer);
       this.observer.change(this, event, toAxis(this.axes, offsets));
     };
-
     __proto.onKeyup = function (e) {
       var _this = this;
-
       if (!this._isHolded) {
         return;
       }
-
       clearTimeout(this._timer);
       this._timer = setTimeout(function () {
         _this.observer.release(_this, e, toAxis(_this.axes, [0, 0]));
-
         _this._isHolded = false;
       }, DELAY);
     };
-
     __proto.attachEvent = function (observer) {
       this.observer = observer;
       this.element.addEventListener("keydown", this.onKeydown, false);
@@ -8668,7 +8245,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       this.element.addEventListener("keyup", this.onKeyup, false);
       this._isEnabled = true;
     };
-
     __proto.dettachEvent = function () {
       this.element.removeEventListener("keydown", this.onKeydown, false);
       this.element.removeEventListener("keypress", this.onKeydown, false);
@@ -8682,8 +8258,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * @method eg.Axes.MoveKeyInput#enable
         * @return {eg.Axes.MoveKeyInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
         */
-
-
     __proto.enable = function () {
       this._isEnabled = true;
       return this;
@@ -8694,8 +8268,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * @method eg.Axes.MoveKeyInput#disable
         * @return {eg.Axes.MoveKeyInput} An instance of a module itself <ko>모듈 자신의 인스턴스</ko>
         */
-
-
     __proto.disable = function () {
       this._isEnabled = false;
       return this;
@@ -8706,12 +8278,9 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         * @method eg.Axes.MoveKeyInput#isEnable
         * @return {Boolean} Whether to use an input device <ko>입력장치 사용여부</ko>
         */
-
-
     __proto.isEnable = function () {
       return this._isEnabled;
     };
-
     return MoveKeyInput;
   }();
 
@@ -8852,654 +8421,741 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   util.getRotationDelta = getRotationDelta;
   util.angleBetweenVec2 = angleBetweenVec2;
 
-  /**
-   * RotationPanInput is extension of PanInput to compensate coordinates by screen rotation angle.
+  function toAxis$1(source, offset) {
+    return offset.reduce(function (acc, v, i) {
+      if (source[i]) {
+        acc[source[i]] = v;
+      }
+
+      return acc;
+    }, {});
+  }
+
+  /*
+   * Copyright 2016 Google Inc. All Rights Reserved.
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
    *
-   * The reason for using this function is that in VR mode,
-   * the roll angle is adjusted in the direction opposite to the screen rotation angle.
+   *     http://www.apache.org/licenses/LICENSE-2.0
    *
-   * Therefore, the angle that the user touches and moves does not match the angle at which the actual object should move.
-   * @extends PanInput
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
    */
 
-  var RotationPanInput =
-  /*#__PURE__*/
-  function (_PanInput) {
-    _inheritsLoose(RotationPanInput, _PanInput);
+  var MathUtil = window.MathUtil || {};
 
-    /**
-     * Constructor
-     *
-     * @private
-     * @param {HTMLElement} el target element
-     * @param {Object} [options] The option object
-     * @param {Boolean} [options.useRotation]  Whether to use rotation(or VR)
-     */
-    function RotationPanInput(el, options, deviceSensor) {
-      var _this;
+  MathUtil.degToRad = Math.PI / 180;
+  MathUtil.radToDeg = 180 / Math.PI;
 
-      _this = _PanInput.call(this, el, options) || this;
-      _this._useRotation = false;
-      _this._deviceSensor = deviceSensor;
+  // Some minimal math functionality borrowed from THREE.Math and stripped down
+  // for the purposes of this library.
 
-      _this.setUseRotation(!!(options && options.useRotation));
 
-      _this._userDirection = Axes.DIRECTION_ALL;
-      return _this;
-    }
-
-    var _proto = RotationPanInput.prototype;
-
-    _proto.setUseRotation = function setUseRotation(useRotation) {
-      this._useRotation = useRotation;
-    };
-
-    _proto.connect = function connect(observer) {
-      // User intetened direction
-      this._userDirection = this._direction; // In VR Mode, Use ALL direction if direction is not none
-      // Because horizontal and vertical is changed dynamically by screen rotation.
-      // this._direction is used to initialize hammerjs
-
-      if (this._useRotation && this._direction & Axes.DIRECTION_ALL) {
-        this._direction = Axes.DIRECTION_HORIZONTAL;
-      }
-
-      _PanInput.prototype.connect.call(this, observer);
-    };
-
-    _proto.getOffset = function getOffset(properties, useDirection) {
-      if (this._useRotation === false) {
-        return _PanInput.prototype.getOffset.call(this, properties, useDirection);
-      }
-
-      var offset = _PanInput.prototype.getOffset.call(this, properties, [true, true]);
-
-      var newOffset = [0, 0];
-
-      var rightAxis = this._deviceSensor.getDeviceHorizontalRight();
-
-      var rightAxisVec2 = fromValues$8(rightAxis[0], rightAxis[1]);
-      var xAxis = fromValues$8(1, 0);
-      var theta = util.angleBetweenVec2(rightAxisVec2, xAxis);
-      var cosTheta = Math.cos(theta);
-      var sinTheta = Math.sin(theta); // RotateZ
-
-      newOffset[0] = offset[0] * cosTheta - offset[1] * sinTheta;
-      newOffset[1] = offset[1] * cosTheta + offset[0] * sinTheta; // Use only user allowed direction.
-
-      if (!(this._userDirection & Axes.DIRECTION_HORIZONTAL)) {
-        newOffset[0] = 0;
-      } else if (!(this._userDirection & Axes.DIRECTION_VERTICAL)) {
-        newOffset[1] = 0;
-      }
-
-      return newOffset;
-    };
-
-    _proto.destroy = function destroy() {
-      _PanInput.prototype.destroy.call(this);
-    };
-
-    return RotationPanInput;
-  }(PanInput);
-
-  // @ts-check
-  const __sensor__ = Symbol("__sensor__");
-  const slot = __sensor__;
-
-  function defineProperties(target, descriptions) {
-    for (const property in descriptions) {
-      Object.defineProperty(target, property, {
-        configurable: true,
-        value: descriptions[property]
-      });
-    }
-  }
-
-  const EventTargetMixin = (superclass, ...eventNames) => class extends superclass {
-    constructor(...args) {
-      // @ts-ignore
-      super(args);
-      const eventTarget = document.createDocumentFragment();
-
-      this.addEventListener = (type, ...args) => {
-        return eventTarget.addEventListener(type, ...args);
-      };
-
-      this.removeEventListener = (...args) => {
-        // @ts-ignore
-        return eventTarget.removeEventListener(...args);
-      };
-
-      this.dispatchEvent = event => {
-        defineProperties(event, {
-          currentTarget: this
-        });
-
-        if (!event.target) {
-          defineProperties(event, {
-            target: this
-          });
-        }
-
-        const methodName = `on${event.type}`;
-
-        if (typeof this[methodName] == "function") {
-          this[methodName](event);
-        }
-
-        const retValue = eventTarget.dispatchEvent(event);
-
-        if (retValue && this.parentNode) {
-          this.parentNode.dispatchEvent(event);
-        }
-
-        defineProperties(event, {
-          currentTarget: null,
-          target: null
-        });
-        return retValue;
-      };
-    }
-
-  };
-  class EventTarget extends EventTargetMixin(Object) {}
-  function defineReadonlyProperties(target, slot, descriptions) {
-    const propertyBag = target[slot];
-
-    for (const property in descriptions) {
-      propertyBag[property] = descriptions[property];
-      Object.defineProperty(target, property, {
-        get: () => propertyBag[property]
-      });
-    }
-  }
-
-  class SensorErrorEvent extends Event {
-    constructor(type, errorEventInitDict) {
-      super(type, errorEventInitDict);
-
-      if (!errorEventInitDict || !(errorEventInitDict.error instanceof DOMException)) {
-        throw TypeError("Failed to construct 'SensorErrorEvent':" + "2nd argument much contain 'error' property");
-      }
-
-      Object.defineProperty(this, "error", {
-        configurable: false,
-        writable: false,
-        value: errorEventInitDict.error
-      });
-    }
-
-  }
-
-  function defineOnEventListener(target, name) {
-    Object.defineProperty(target, `on${name}`, {
-      enumerable: true,
-      configurable: false,
-      writable: true,
-      value: null
-    });
-  }
-
-  const SensorState = {
-    IDLE: 1,
-    ACTIVATING: 2,
-    ACTIVE: 3
-  };
-  class Sensor extends EventTarget {
-    constructor(options) {
-      super();
-      this[slot] = new WeakMap();
-      defineOnEventListener(this, "reading");
-      defineOnEventListener(this, "activate");
-      defineOnEventListener(this, "error");
-      defineReadonlyProperties(this, slot, {
-        activated: false,
-        hasReading: false,
-        timestamp: null
-      });
-      this[slot].state = SensorState.IDLE;
-
-      this[slot].notifyError = (message, name) => {
-        let error = new SensorErrorEvent("error", {
-          error: new DOMException(message, name)
-        });
-        this.dispatchEvent(error);
-        this.stop();
-      };
-
-      this[slot].notifyActivatedState = () => {
-        let activate = new Event("activate");
-        this[slot].activated = true;
-        this.dispatchEvent(activate);
-        this[slot].state = SensorState.ACTIVE;
-      };
-
-      this[slot].activateCallback = () => {};
-
-      this[slot].deactivateCallback = () => {};
-
-      this[slot].frequency = null;
-
-      if (window && window.parent != window.top) {
-        throw new DOMException("Only instantiable in a top-level browsing context", "SecurityError");
-      }
-
-      if (options && typeof options.frequency == "number") {
-        if (options.frequency > 60) {
-          this.frequency = options.frequency;
-        }
-      }
-    }
-
-    start() {
-      if (this[slot].state === SensorState.ACTIVATING || this[slot].state === SensorState.ACTIVE) {
-        return;
-      }
-
-      this[slot].state = SensorState.ACTIVATING;
-      this[slot].activateCallback();
-    }
-
-    stop() {
-      if (this[slot].state === SensorState.IDLE) {
-        return;
-      }
-
-      this[slot].activated = false;
-      this[slot].hasReading = false;
-      this[slot].timestamp = null;
-      this[slot].deactivateCallback();
-      this[slot].state = SensorState.IDLE;
-    }
-
-  }
-
-  // @ts-check
-  const slot$1 = __sensor__;
-  let orientation; // @ts-ignore
-
-  if (screen.orientation) {
-    // @ts-ignore
-    orientation = screen.orientation;
-  } else if (screen.msOrientation) {
-    orientation = screen.msOrientation;
-  } else {
-    orientation = {};
-    Object.defineProperty(orientation, "angle", {
-      get: () => {
-        return window.orientation || 0;
-      }
-    });
-  }
-
-  const DeviceOrientationMixin = (superclass, ...eventNames) => class extends superclass {
-    constructor(...args) {
-      // @ts-ignore
-      super(args);
-
-      for (const eventName of eventNames) {
-        if (`on${eventName}` in window) {
-          this[slot$1].eventName = eventName;
-          break;
-        }
-      }
-
-      this[slot$1].activateCallback = () => {
-        window.addEventListener(this[slot$1].eventName, this[slot$1].handleEvent, {
-          capture: true
-        });
-      };
-
-      this[slot$1].deactivateCallback = () => {
-        window.removeEventListener(this[slot$1].eventName, this[slot$1].handleEvent, {
-          capture: true
-        });
-      };
-    }
-
+  MathUtil.Vector2 = function ( x, y ) {
+    this.x = x || 0;
+    this.y = y || 0;
   };
 
-  function toQuaternionFromEuler(alpha, beta, gamma) {
-    const degToRad = Math.PI / 180;
-    const x = (beta || 0) * degToRad;
-    const y = (gamma || 0) * degToRad;
-    const z = (alpha || 0) * degToRad;
-    const cZ = Math.cos(z * 0.5);
-    const sZ = Math.sin(z * 0.5);
-    const cY = Math.cos(y * 0.5);
-    const sY = Math.sin(y * 0.5);
-    const cX = Math.cos(x * 0.5);
-    const sX = Math.sin(x * 0.5);
-    const qx = sX * cY * cZ - cX * sY * sZ;
-    const qy = cX * sY * cZ + sX * cY * sZ;
-    const qz = cX * cY * sZ + sX * sY * cZ;
-    const qw = cX * cY * cZ - sX * sY * sZ;
-    return [qx, qy, qz, qw];
-  }
+  MathUtil.Vector2.prototype = {
+    constructor: MathUtil.Vector2,
 
-  function rotateQuaternionByAxisAngle(quat, axis, angle) {
-    const sHalfAngle = Math.sin(angle / 2);
-    const cHalfAngle = Math.cos(angle / 2);
-    const transformQuat = [axis[0] * sHalfAngle, axis[1] * sHalfAngle, axis[2] * sHalfAngle, cHalfAngle];
+    set: function ( x, y ) {
+      this.x = x;
+      this.y = y;
 
-    function multiplyQuaternion(a, b) {
-      const qx = a[0] * b[3] + a[3] * b[0] + a[1] * b[2] - a[2] * b[1];
-      const qy = a[1] * b[3] + a[3] * b[1] + a[2] * b[0] - a[0] * b[2];
-      const qz = a[2] * b[3] + a[3] * b[2] + a[0] * b[1] - a[1] * b[0];
-      const qw = a[3] * b[3] - a[0] * b[0] - a[1] * b[1] - a[2] * b[2];
-      return [qx, qy, qz, qw];
-    }
+      return this;
+    },
 
-    function normalizeQuaternion(quat) {
-      const length = Math.sqrt(quat[0] ** 2 + quat[1] ** 2 + quat[2] ** 2 + quat[3] ** 2);
+    copy: function ( v ) {
+      this.x = v.x;
+      this.y = v.y;
 
-      if (length === 0) {
-        return [0, 0, 0, 1];
-      }
+      return this;
+    },
 
-      return quat.map(v => v / length);
-    }
+    subVectors: function ( a, b ) {
+      this.x = a.x - b.x;
+      this.y = a.y - b.y;
 
-    return normalizeQuaternion(multiplyQuaternion(quat, transformQuat));
-  }
-
-  function toMat4FromQuat(mat, q) {
-    const typed = mat instanceof Float32Array || mat instanceof Float64Array;
-
-    if (typed && mat.length >= 16) {
-      mat[0] = 1 - 2 * (q[1] ** 2 + q[2] ** 2);
-      mat[1] = 2 * (q[0] * q[1] - q[2] * q[3]);
-      mat[2] = 2 * (q[0] * q[2] + q[1] * q[3]);
-      mat[3] = 0;
-      mat[4] = 2 * (q[0] * q[1] + q[2] * q[3]);
-      mat[5] = 1 - 2 * (q[0] ** 2 + q[2] ** 2);
-      mat[6] = 2 * (q[1] * q[2] - q[0] * q[3]);
-      mat[7] = 0;
-      mat[8] = 2 * (q[0] * q[2] - q[1] * q[3]);
-      mat[9] = 2 * (q[1] * q[2] + q[0] * q[3]);
-      mat[10] = 1 - 2 * (q[0] ** 2 + q[1] ** 2);
-      mat[11] = 0;
-      mat[12] = 0;
-      mat[13] = 0;
-      mat[14] = 0;
-      mat[15] = 1;
-    }
-
-    return mat;
-  }
-
-  function worldToScreen(quaternion) {
-    return !quaternion ? null : rotateQuaternionByAxisAngle(quaternion, [0, 0, 1], -orientation.angle * Math.PI / 180);
-  } // @ts-ignore
-
-
-  const RelativeOrientationSensor = window.RelativeOrientationSensor || class RelativeOrientationSensor extends DeviceOrientationMixin(Sensor, "deviceorientation") {
-    constructor(options = {}) {
-      super(options);
-
-      switch (options.coordinateSystem || 'world') {
-        case 'screen':
-          Object.defineProperty(this, "quaternion", {
-            get: () => worldToScreen(this[slot$1].quaternion)
-          });
-          break;
-
-        case 'world':
-        default:
-          Object.defineProperty(this, "quaternion", {
-            get: () => this[slot$1].quaternion
-          });
-      }
-
-      this[slot$1].handleEvent = event => {
-        // If there is no sensor we will get values equal to null.
-        if (event.absolute || event.alpha === null) {
-          // Spec: The implementation can still decide to provide
-          // absolute orientation if relative is not available or
-          // the resulting data is more accurate. In either case,
-          // the absolute property must be set accordingly to reflect
-          // the choice.
-          this[slot$1].notifyError("Could not connect to a sensor", "NotReadableError");
-          return;
-        }
-
-        if (!this[slot$1].activated) {
-          this[slot$1].notifyActivatedState();
-        }
-
-        this[slot$1].timestamp = performance.now();
-        this[slot$1].quaternion = toQuaternionFromEuler(event.alpha, event.beta, event.gamma);
-        this[slot$1].hasReading = true;
-        this.dispatchEvent(new Event("reading"));
-      };
-
-      this[slot$1].deactivateCallback = () => {
-        this[slot$1].quaternion = null;
-      };
-    }
-
-    populateMatrix(mat) {
-      toMat4FromQuat(mat, this.quaternion);
-    }
-
-  }; // @ts-ignore
-
-  const AbsoluteOrientationSensor = window.AbsoluteOrientationSensor || class AbsoluteOrientationSensor extends DeviceOrientationMixin(Sensor, "deviceorientationabsolute", "deviceorientation") {
-    constructor(options = {}) {
-      super(options);
-
-      switch (options.coordinateSystem || 'world') {
-        case 'screen':
-          Object.defineProperty(this, "quaternion", {
-            get: () => worldToScreen(this[slot$1].quaternion)
-          });
-          break;
-
-        case 'world':
-        default:
-          Object.defineProperty(this, "quaternion", {
-            get: () => this[slot$1].quaternion
-          });
-      }
-
-      this[slot$1].handleEvent = event => {
-        // If absolute is set, or webkitCompassHeading exists,
-        // absolute values should be available.
-        const isAbsolute = event.absolute === true || "webkitCompassHeading" in event;
-        const hasValue = event.alpha !== null || event.webkitCompassHeading !== undefined;
-
-        if (!isAbsolute || !hasValue) {
-          // Spec: If an implementation can never provide absolute
-          // orientation information, the event should be fired with
-          // the alpha, beta and gamma attributes set to null.
-          this[slot$1].notifyError("Could not connect to a sensor", "NotReadableError");
-          return;
-        }
-
-        if (!this[slot$1].activated) {
-          this[slot$1].notifyActivatedState();
-        }
-
-        this[slot$1].hasReading = true;
-        this[slot$1].timestamp = performance.now();
-        const heading = event.webkitCompassHeading != null ? 360 - event.webkitCompassHeading : event.alpha;
-        this[slot$1].quaternion = toQuaternionFromEuler(heading, event.beta, event.gamma);
-        this.dispatchEvent(new Event("reading"));
-      };
-
-      this[slot$1].deactivateCallback = () => {
-        this[slot$1].quaternion = null;
-      };
-    }
-
-    populateMatrix(mat) {
-      toMat4FromQuat(mat, this.quaternion);
-    }
-
-  }; // @ts-ignore
-
-  const Gyroscope = window.Gyroscope || class Gyroscope extends DeviceOrientationMixin(Sensor, "devicemotion") {
-    constructor(options) {
-      super(options);
-
-      this[slot$1].handleEvent = event => {
-        // If there is no sensor we will get values equal to null.
-        if (event.rotationRate.alpha === null) {
-          this[slot$1].notifyError("Could not connect to a sensor", "NotReadableError");
-          return;
-        }
-
-        if (!this[slot$1].activated) {
-          this[slot$1].notifyActivatedState();
-        }
-
-        this[slot$1].timestamp = performance.now();
-        this[slot$1].x = event.rotationRate.alpha;
-        this[slot$1].y = event.rotationRate.beta;
-        this[slot$1].z = event.rotationRate.gamma;
-        this[slot$1].hasReading = true;
-        this.dispatchEvent(new Event("reading"));
-      };
-
-      defineReadonlyProperties(this, slot$1, {
-        x: null,
-        y: null,
-        z: null
-      });
-
-      this[slot$1].deactivateCallback = () => {
-        this[slot$1].x = null;
-        this[slot$1].y = null;
-        this[slot$1].z = null;
-      };
-    }
-
-  }; // @ts-ignore
-
-  const Accelerometer = window.Accelerometer || class Accelerometer extends DeviceOrientationMixin(Sensor, "devicemotion") {
-    constructor(options) {
-      super(options);
-
-      this[slot$1].handleEvent = event => {
-        // If there is no sensor we will get values equal to null.
-        if (event.accelerationIncludingGravity.x === null) {
-          this[slot$1].notifyError("Could not connect to a sensor", "NotReadableError");
-          return;
-        }
-
-        if (!this[slot$1].activated) {
-          this[slot$1].notifyActivatedState();
-        }
-
-        this[slot$1].timestamp = performance.now();
-        this[slot$1].x = event.accelerationIncludingGravity.x;
-        this[slot$1].y = event.accelerationIncludingGravity.y;
-        this[slot$1].z = event.accelerationIncludingGravity.z;
-        this[slot$1].hasReading = true;
-        this.dispatchEvent(new Event("reading"));
-      };
-
-      defineReadonlyProperties(this, slot$1, {
-        x: null,
-        y: null,
-        z: null
-      });
-
-      this[slot$1].deactivateCallback = () => {
-        this[slot$1].x = null;
-        this[slot$1].y = null;
-        this[slot$1].z = null;
-      };
-    }
-
-  }; // @ts-ignore
-
-  const LinearAccelerationSensor = window.LinearAccelerationSensor || class LinearAccelerationSensor extends DeviceOrientationMixin(Sensor, "devicemotion") {
-    constructor(options) {
-      super(options);
-
-      this[slot$1].handleEvent = event => {
-        // If there is no sensor we will get values equal to null.
-        if (event.acceleration.x === null) {
-          this[slot$1].notifyError("Could not connect to a sensor", "NotReadableError");
-          return;
-        }
-
-        if (!this[slot$1].activated) {
-          this[slot$1].notifyActivatedState();
-        }
-
-        this[slot$1].timestamp = performance.now();
-        this[slot$1].x = event.acceleration.x;
-        this[slot$1].y = event.acceleration.y;
-        this[slot$1].z = event.acceleration.z;
-        this[slot$1].hasReading = true;
-        this.dispatchEvent(new Event("reading"));
-      };
-
-      defineReadonlyProperties(this, slot$1, {
-        x: null,
-        y: null,
-        z: null
-      });
-
-      this[slot$1].deactivateCallback = () => {
-        this[slot$1].x = null;
-        this[slot$1].y = null;
-        this[slot$1].z = null;
-      };
-    }
-
-  }; // @ts-ignore
-
-  const GravitySensor = window.GravitySensor || class GravitySensor extends DeviceOrientationMixin(Sensor, "devicemotion") {
-    constructor(options) {
-      super(options);
-
-      this[slot$1].handleEvent = event => {
-        // If there is no sensor we will get values equal to null.
-        if (event.acceleration.x === null || event.accelerationIncludingGravity.x === null) {
-          this[slot$1].notifyError("Could not connect to a sensor", "NotReadableError");
-          return;
-        }
-
-        if (!this[slot$1].activated) {
-          this[slot$1].notifyActivatedState();
-        }
-
-        this[slot$1].timestamp = performance.now();
-        this[slot$1].x = event.accelerationIncludingGravity.x - event.acceleration.x;
-        this[slot$1].y = event.accelerationIncludingGravity.y - event.acceleration.y;
-        this[slot$1].z = event.accelerationIncludingGravity.z - event.acceleration.z;
-        this[slot$1].hasReading = true;
-        this.dispatchEvent(new Event("reading"));
-      };
-
-      defineReadonlyProperties(this, slot$1, {
-        x: null,
-        y: null,
-        z: null
-      });
-
-      this[slot$1].deactivateCallback = () => {
-        this[slot$1].x = null;
-        this[slot$1].y = null;
-        this[slot$1].z = null;
-      };
-    }
-
+      return this;
+    },
   };
 
-  function getDeltaYaw(prvQ, curQ) {
-    var yawDeltaByYaw = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.YAW_DELTA_BY_YAW);
-    var yawDeltaByRoll = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.YAW_DELTA_BY_ROLL) * Math.sin(util.extractPitchFromQuat(curQ));
-    return yawDeltaByRoll + yawDeltaByYaw;
+  MathUtil.Vector3 = function ( x, y, z ) {
+    this.x = x || 0;
+    this.y = y || 0;
+    this.z = z || 0;
+  };
+
+  MathUtil.Vector3.prototype = {
+    constructor: MathUtil.Vector3,
+
+    set: function ( x, y, z ) {
+      this.x = x;
+      this.y = y;
+      this.z = z;
+
+      return this;
+    },
+
+    copy: function ( v ) {
+      this.x = v.x;
+      this.y = v.y;
+      this.z = v.z;
+
+      return this;
+    },
+
+    length: function () {
+      return Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z );
+    },
+
+    normalize: function () {
+      var scalar = this.length();
+
+      if ( scalar !== 0 ) {
+        var invScalar = 1 / scalar;
+
+        this.multiplyScalar(invScalar);
+      } else {
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
+      }
+
+      return this;
+    },
+
+    multiplyScalar: function ( scalar ) {
+      this.x *= scalar;
+      this.y *= scalar;
+      this.z *= scalar;
+    },
+
+    applyQuaternion: function ( q ) {
+      var x = this.x;
+      var y = this.y;
+      var z = this.z;
+
+      var qx = q.x;
+      var qy = q.y;
+      var qz = q.z;
+      var qw = q.w;
+
+      // calculate quat * vector
+      var ix =  qw * x + qy * z - qz * y;
+      var iy =  qw * y + qz * x - qx * z;
+      var iz =  qw * z + qx * y - qy * x;
+      var iw = - qx * x - qy * y - qz * z;
+
+      // calculate result * inverse quat
+      this.x = ix * qw + iw * - qx + iy * - qz - iz * - qy;
+      this.y = iy * qw + iw * - qy + iz * - qx - ix * - qz;
+      this.z = iz * qw + iw * - qz + ix * - qy - iy * - qx;
+
+      return this;
+    },
+
+    dot: function ( v ) {
+      return this.x * v.x + this.y * v.y + this.z * v.z;
+    },
+
+    crossVectors: function ( a, b ) {
+      var ax = a.x, ay = a.y, az = a.z;
+      var bx = b.x, by = b.y, bz = b.z;
+
+      this.x = ay * bz - az * by;
+      this.y = az * bx - ax * bz;
+      this.z = ax * by - ay * bx;
+
+      return this;
+    },
+  };
+
+  MathUtil.Quaternion = function ( x, y, z, w ) {
+    this.x = x || 0;
+    this.y = y || 0;
+    this.z = z || 0;
+    this.w = ( w !== undefined ) ? w : 1;
+  };
+
+  MathUtil.Quaternion.prototype = {
+    constructor: MathUtil.Quaternion,
+
+    set: function ( x, y, z, w ) {
+      this.x = x;
+      this.y = y;
+      this.z = z;
+      this.w = w;
+
+      return this;
+    },
+
+    copy: function ( quaternion ) {
+      this.x = quaternion.x;
+      this.y = quaternion.y;
+      this.z = quaternion.z;
+      this.w = quaternion.w;
+
+      return this;
+    },
+
+    setFromEulerXYZ: function( x, y, z ) {
+      var c1 = Math.cos( x / 2 );
+      var c2 = Math.cos( y / 2 );
+      var c3 = Math.cos( z / 2 );
+      var s1 = Math.sin( x / 2 );
+      var s2 = Math.sin( y / 2 );
+      var s3 = Math.sin( z / 2 );
+
+      this.x = s1 * c2 * c3 + c1 * s2 * s3;
+      this.y = c1 * s2 * c3 - s1 * c2 * s3;
+      this.z = c1 * c2 * s3 + s1 * s2 * c3;
+      this.w = c1 * c2 * c3 - s1 * s2 * s3;
+
+      return this;
+    },
+
+    setFromEulerYXZ: function( x, y, z ) {
+      var c1 = Math.cos( x / 2 );
+      var c2 = Math.cos( y / 2 );
+      var c3 = Math.cos( z / 2 );
+      var s1 = Math.sin( x / 2 );
+      var s2 = Math.sin( y / 2 );
+      var s3 = Math.sin( z / 2 );
+
+      this.x = s1 * c2 * c3 + c1 * s2 * s3;
+      this.y = c1 * s2 * c3 - s1 * c2 * s3;
+      this.z = c1 * c2 * s3 - s1 * s2 * c3;
+      this.w = c1 * c2 * c3 + s1 * s2 * s3;
+
+      return this;
+    },
+
+    setFromAxisAngle: function ( axis, angle ) {
+      // http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/index.htm
+      // assumes axis is normalized
+
+      var halfAngle = angle / 2, s = Math.sin( halfAngle );
+
+      this.x = axis.x * s;
+      this.y = axis.y * s;
+      this.z = axis.z * s;
+      this.w = Math.cos( halfAngle );
+
+      return this;
+    },
+
+    multiply: function ( q ) {
+      return this.multiplyQuaternions( this, q );
+    },
+
+    multiplyQuaternions: function ( a, b ) {
+      // from http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/code/index.htm
+
+      var qax = a.x, qay = a.y, qaz = a.z, qaw = a.w;
+      var qbx = b.x, qby = b.y, qbz = b.z, qbw = b.w;
+
+      this.x = qax * qbw + qaw * qbx + qay * qbz - qaz * qby;
+      this.y = qay * qbw + qaw * qby + qaz * qbx - qax * qbz;
+      this.z = qaz * qbw + qaw * qbz + qax * qby - qay * qbx;
+      this.w = qaw * qbw - qax * qbx - qay * qby - qaz * qbz;
+
+      return this;
+    },
+
+    inverse: function () {
+      this.x *= -1;
+      this.y *= -1;
+      this.z *= -1;
+
+      this.normalize();
+
+      return this;
+    },
+
+    normalize: function () {
+      var l = Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w );
+
+      if ( l === 0 ) {
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
+        this.w = 1;
+      } else {
+        l = 1 / l;
+
+        this.x = this.x * l;
+        this.y = this.y * l;
+        this.z = this.z * l;
+        this.w = this.w * l;
+      }
+
+      return this;
+    },
+
+    slerp: function ( qb, t ) {
+      if ( t === 0 ) return this;
+      if ( t === 1 ) return this.copy( qb );
+
+      var x = this.x, y = this.y, z = this.z, w = this.w;
+
+      // http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
+
+      var cosHalfTheta = w * qb.w + x * qb.x + y * qb.y + z * qb.z;
+
+      if ( cosHalfTheta < 0 ) {
+        this.w = - qb.w;
+        this.x = - qb.x;
+        this.y = - qb.y;
+        this.z = - qb.z;
+
+        cosHalfTheta = - cosHalfTheta;
+      } else {
+        this.copy( qb );
+      }
+
+      if ( cosHalfTheta >= 1.0 ) {
+        this.w = w;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+
+        return this;
+      }
+
+      var halfTheta = Math.acos( cosHalfTheta );
+      var sinHalfTheta = Math.sqrt( 1.0 - cosHalfTheta * cosHalfTheta );
+
+      if ( Math.abs( sinHalfTheta ) < 0.001 ) {
+        this.w = 0.5 * ( w + this.w );
+        this.x = 0.5 * ( x + this.x );
+        this.y = 0.5 * ( y + this.y );
+        this.z = 0.5 * ( z + this.z );
+
+        return this;
+      }
+
+      var ratioA = Math.sin( ( 1 - t ) * halfTheta ) / sinHalfTheta,
+      ratioB = Math.sin( t * halfTheta ) / sinHalfTheta;
+
+      this.w = ( w * ratioA + this.w * ratioB );
+      this.x = ( x * ratioA + this.x * ratioB );
+      this.y = ( y * ratioA + this.y * ratioB );
+      this.z = ( z * ratioA + this.z * ratioB );
+
+      return this;
+    },
+
+    setFromUnitVectors: function () {
+      // http://lolengine.net/blog/2014/02/24/quaternion-from-two-vectors-final
+      // assumes direction vectors vFrom and vTo are normalized
+
+      var v1, r;
+      var EPS = 0.000001;
+
+      return function ( vFrom, vTo ) {
+        if ( v1 === undefined ) v1 = new MathUtil.Vector3();
+
+        r = vFrom.dot( vTo ) + 1;
+
+        if ( r < EPS ) {
+          r = 0;
+
+          if ( Math.abs( vFrom.x ) > Math.abs( vFrom.z ) ) {
+            v1.set( - vFrom.y, vFrom.x, 0 );
+          } else {
+            v1.set( 0, - vFrom.z, vFrom.y );
+          }
+        } else {
+          v1.crossVectors( vFrom, vTo );
+        }
+
+        this.x = v1.x;
+        this.y = v1.y;
+        this.z = v1.z;
+        this.w = r;
+
+        this.normalize();
+
+        return this;
+      }
+    }(),
+  };
+
+  var mathUtil = MathUtil;
+
+  /**
+   * Given an orientation and the gyroscope data, predicts the future orientation
+   * of the head. This makes rendering appear faster.
+   *
+   * Also see: http://msl.cs.uiuc.edu/~lavalle/papers/LavYerKatAnt14.pdf
+   *
+   * @param {Number} predictionTimeS time from head movement to the appearance of
+   * the corresponding image.
+   */
+  function PosePredictor(predictionTimeS) {
+    this.predictionTimeS = predictionTimeS;
+
+    // The quaternion corresponding to the previous state.
+    this.previousQ = new mathUtil.Quaternion();
+    // Previous time a prediction occurred.
+    this.previousTimestampS = null;
+
+    // The delta quaternion that adjusts the current pose.
+    this.deltaQ = new mathUtil.Quaternion();
+    // The output quaternion.
+    this.outQ = new mathUtil.Quaternion();
   }
-  function getDeltaPitch(prvQ, curQ) {
-    var pitchDelta = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.PITCH_DELTA);
-    return pitchDelta;
+
+  PosePredictor.prototype.getPrediction = function(currentQ, gyro, timestampS) {
+    if (!this.previousTimestampS) {
+      this.previousQ.copy(currentQ);
+      this.previousTimestampS = timestampS;
+      return currentQ;
+    }
+
+    // Calculate axis and angle based on gyroscope rotation rate data.
+    var axis = new mathUtil.Vector3();
+    axis.copy(gyro);
+    axis.normalize();
+
+    var angularSpeed = gyro.length();
+
+    // If we're rotating slowly, don't do prediction.
+    if (angularSpeed < mathUtil.degToRad * 20) {
+      this.outQ.copy(currentQ);
+      this.previousQ.copy(currentQ);
+      return this.outQ;
+    }
+
+    // Get the predicted angle based on the time delta and latency.
+    var deltaT = timestampS - this.previousTimestampS;
+    var predictAngle = angularSpeed * this.predictionTimeS;
+
+    this.deltaQ.setFromAxisAngle(axis, predictAngle);
+    this.outQ.copy(this.previousQ);
+    this.outQ.multiply(this.deltaQ);
+
+    this.previousQ.copy(currentQ);
+
+    return this.outQ;
+  };
+
+
+  var posePredictor = PosePredictor;
+
+  /*
+  object-assign
+  (c) Sindre Sorhus
+  @license MIT
+  */
+  /* eslint-disable no-unused-vars */
+  var getOwnPropertySymbols = Object.getOwnPropertySymbols;
+  var hasOwnProperty = Object.prototype.hasOwnProperty;
+  var propIsEnumerable = Object.prototype.propertyIsEnumerable;
+
+  function toObject(val) {
+  	if (val === null || val === undefined) {
+  		throw new TypeError('Object.assign cannot be called with null or undefined');
+  	}
+
+  	return Object(val);
   }
+
+  function shouldUseNative() {
+  	try {
+  		if (!Object.assign) {
+  			return false;
+  		}
+
+  		// Detect buggy property enumeration order in older V8 versions.
+
+  		// https://bugs.chromium.org/p/v8/issues/detail?id=4118
+  		var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
+  		test1[5] = 'de';
+  		if (Object.getOwnPropertyNames(test1)[0] === '5') {
+  			return false;
+  		}
+
+  		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+  		var test2 = {};
+  		for (var i = 0; i < 10; i++) {
+  			test2['_' + String.fromCharCode(i)] = i;
+  		}
+  		var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
+  			return test2[n];
+  		});
+  		if (order2.join('') !== '0123456789') {
+  			return false;
+  		}
+
+  		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+  		var test3 = {};
+  		'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
+  			test3[letter] = letter;
+  		});
+  		if (Object.keys(Object.assign({}, test3)).join('') !==
+  				'abcdefghijklmnopqrst') {
+  			return false;
+  		}
+
+  		return true;
+  	} catch (err) {
+  		// We don't expect any of the above to throw, but better to be safe.
+  		return false;
+  	}
+  }
+
+  var objectAssign = shouldUseNative() ? Object.assign : function (target, source) {
+  	var from;
+  	var to = toObject(target);
+  	var symbols;
+
+  	for (var s = 1; s < arguments.length; s++) {
+  		from = Object(arguments[s]);
+
+  		for (var key in from) {
+  			if (hasOwnProperty.call(from, key)) {
+  				to[key] = from[key];
+  			}
+  		}
+
+  		if (getOwnPropertySymbols) {
+  			symbols = getOwnPropertySymbols(from);
+  			for (var i = 0; i < symbols.length; i++) {
+  				if (propIsEnumerable.call(from, symbols[i])) {
+  					to[symbols[i]] = from[symbols[i]];
+  				}
+  			}
+  		}
+  	}
+
+  	return to;
+  };
+
+  /*
+   * Copyright 2015 Google Inc. All Rights Reserved.
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *     http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
+
+
+
+  var Util = window.Util || {};
+
+  Util.MIN_TIMESTEP = 0.001;
+  Util.MAX_TIMESTEP = 1;
+
+  Util.base64 = function(mimeType, base64) {
+    return 'data:' + mimeType + ';base64,' + base64;
+  };
+
+  Util.clamp = function(value, min, max) {
+    return Math.min(Math.max(min, value), max);
+  };
+
+  Util.lerp = function(a, b, t) {
+    return a + ((b - a) * t);
+  };
+
+  Util.isIOS = (function() {
+    var isIOS = /iPad|iPhone|iPod/.test(navigator.platform);
+    return function() {
+      return isIOS;
+    };
+  })();
+
+  Util.isSafari = (function() {
+    var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    return function() {
+      return isSafari;
+    };
+  })();
+
+  Util.isFirefoxAndroid = (function() {
+    var isFirefoxAndroid = navigator.userAgent.indexOf('Firefox') !== -1 &&
+        navigator.userAgent.indexOf('Android') !== -1;
+    return function() {
+      return isFirefoxAndroid;
+    };
+  })();
+
+  Util.isLandscapeMode = function() {
+    return (window.orientation == 90 || window.orientation == -90);
+  };
+
+  // Helper method to validate the time steps of sensor timestamps.
+  Util.isTimestampDeltaValid = function(timestampDeltaS) {
+    if (isNaN(timestampDeltaS)) {
+      return false;
+    }
+    if (timestampDeltaS <= Util.MIN_TIMESTEP) {
+      return false;
+    }
+    if (timestampDeltaS > Util.MAX_TIMESTEP) {
+      return false;
+    }
+    return true;
+  };
+
+  Util.getScreenWidth = function() {
+    return Math.max(window.screen.width, window.screen.height) *
+        window.devicePixelRatio;
+  };
+
+  Util.getScreenHeight = function() {
+    return Math.min(window.screen.width, window.screen.height) *
+        window.devicePixelRatio;
+  };
+
+  Util.requestFullscreen = function(element) {
+    if (element.requestFullscreen) {
+      element.requestFullscreen();
+    } else if (element.webkitRequestFullscreen) {
+      element.webkitRequestFullscreen();
+    } else if (element.mozRequestFullScreen) {
+      element.mozRequestFullScreen();
+    } else if (element.msRequestFullscreen) {
+      element.msRequestFullscreen();
+    } else {
+      return false;
+    }
+
+    return true;
+  };
+
+  Util.exitFullscreen = function() {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+      document.mozCancelFullScreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    } else {
+      return false;
+    }
+
+    return true;
+  };
+
+  Util.getFullscreenElement = function() {
+    return document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement;
+  };
+
+  Util.linkProgram = function(gl, vertexSource, fragmentSource, attribLocationMap) {
+    // No error checking for brevity.
+    var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vertexShader, vertexSource);
+    gl.compileShader(vertexShader);
+
+    var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fragmentShader, fragmentSource);
+    gl.compileShader(fragmentShader);
+
+    var program = gl.createProgram();
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+
+    for (var attribName in attribLocationMap)
+      gl.bindAttribLocation(program, attribLocationMap[attribName], attribName);
+
+    gl.linkProgram(program);
+
+    gl.deleteShader(vertexShader);
+    gl.deleteShader(fragmentShader);
+
+    return program;
+  };
+
+  Util.getProgramUniforms = function(gl, program) {
+    var uniforms = {};
+    var uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+    var uniformName = '';
+    for (var i = 0; i < uniformCount; i++) {
+      var uniformInfo = gl.getActiveUniform(program, i);
+      uniformName = uniformInfo.name.replace('[0]', '');
+      uniforms[uniformName] = gl.getUniformLocation(program, uniformName);
+    }
+    return uniforms;
+  };
+
+  Util.orthoMatrix = function (out, left, right, bottom, top, near, far) {
+    var lr = 1 / (left - right),
+        bt = 1 / (bottom - top),
+        nf = 1 / (near - far);
+    out[0] = -2 * lr;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[5] = -2 * bt;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = 0;
+    out[9] = 0;
+    out[10] = 2 * nf;
+    out[11] = 0;
+    out[12] = (left + right) * lr;
+    out[13] = (top + bottom) * bt;
+    out[14] = (far + near) * nf;
+    out[15] = 1;
+    return out;
+  };
+
+  Util.isMobile = function() {
+    var check = false;
+    (function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4)))check = true;})(navigator.userAgent||navigator.vendor||window.opera);
+    return check;
+  };
+
+  Util.extend = objectAssign;
+
+  Util.safariCssSizeWorkaround = function(canvas) {
+    // TODO(smus): Remove this workaround when Safari for iOS is fixed.
+    // iOS only workaround (for https://bugs.webkit.org/show_bug.cgi?id=152556).
+    //
+    // "To the last I grapple with thee;
+    //  from hell's heart I stab at thee;
+    //  for hate's sake I spit my last breath at thee."
+    // -- Moby Dick, by Herman Melville
+    if (Util.isIOS()) {
+      var width = canvas.style.width;
+      var height = canvas.style.height;
+      canvas.style.width = (parseInt(width) + 1) + 'px';
+      canvas.style.height = (parseInt(height)) + 'px';
+      console.log('Resetting width to...', width);
+      setTimeout(function() {
+        console.log('Done. Width is now', width);
+        canvas.style.width = width;
+        canvas.style.height = height;
+      }, 100);
+    }
+
+    // Debug only.
+    window.Util = Util;
+    window.canvas = canvas;
+  };
+
+  var util$1 = Util;
 
   /**
    * Returns a number value indiciating the version of Chrome being used,
@@ -9527,6 +9183,9 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     branch = match[2];
     build = match[3];
   }
+
+  var CHROME_VERSION = version;
+  var IS_CHROME_WITHOUT_DEVICE_MOTION = version === 65 && branch === "3325" && parseInt(build, 10) < 148;
   var IS_ANDROID = /Android/i.test(userAgent$1);
   var CONTROL_MODE_VR = 1;
   var CONTROL_MODE_YAWPITCH = 2;
@@ -9551,240 +9210,901 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     VR: "VR"
   };
 
-  var _Promise = typeof Promise === 'undefined' ? es6Promise.Promise : Promise;
-  var X_AXIS_VECTOR = fromValues$4(1, 0, 0);
-  var Y_AXIS_VECTOR = fromValues$4(0, 1, 0); // Quaternion to rotate from sensor coordinates to WebVR coordinates
+  var STILLNESS_THRESHOLD = 200; // millisecond
 
-  var SENSOR_TO_VR = setAxisAngle(create$6(), X_AXIS_VECTOR, -Math.PI / 2);
-
-  var DeviceSensorInput =
+  var DeviceMotion =
   /*#__PURE__*/
-  function () {
-    var DeviceSensorInput =
-    /*#__PURE__*/
-    function (_Component) {
-      _inheritsLoose(DeviceSensorInput, _Component);
+  function (_Component) {
+    _inheritsLoose(DeviceMotion, _Component);
 
-      function DeviceSensorInput(gyroMode) {
-        var _this;
+    function DeviceMotion() {
+      var _this;
 
-        _this = _Component.call(this) || this;
+      _this = _Component.call(this) || this;
+      _this._onDeviceMotion = _this._onDeviceMotion.bind(_assertThisInitialized(_this));
+      _this._onDeviceOrientation = _this._onDeviceOrientation.bind(_assertThisInitialized(_this));
+      _this._onChromeWithoutDeviceMotion = _this._onChromeWithoutDeviceMotion.bind(_assertThisInitialized(_this));
+      _this.isWithoutDeviceMotion = IS_CHROME_WITHOUT_DEVICE_MOTION;
+      _this.isAndroid = IS_ANDROID;
+      _this.stillGyroVec = create$4();
+      _this.rawGyroVec = create$4();
+      _this.adjustedGyroVec = create$4();
+      _this._timer = null;
+      _this.lastDevicemotionTimestamp = 0;
+      _this._isEnabled = false;
 
-        _this._onFirstRead = function () {
-          var sensor = _this._sensor;
+      _this.enable();
 
-          var quaternion = _this._getOrientation();
+      return _this;
+    }
 
-          var minusZDir = fromValues$4(0, 0, -1);
-          var firstViewDir = transformQuat(create$4(), minusZDir, quaternion);
-          var yawOffset = util.yawOffsetBetween(firstViewDir, minusZDir);
+    var _proto = DeviceMotion.prototype;
 
-          if (yawOffset === 0) {
-            // If the yawOffset is exactly 0, then device sensor is not ready
-            // So read it again until it has any value in it
-            return;
+    _proto._onChromeWithoutDeviceMotion = function _onChromeWithoutDeviceMotion(e) {
+      var alpha = e.alpha,
+          beta = e.beta,
+          gamma = e.gamma; // There is deviceorientation event trigged with empty values
+      // on Headless Chrome.
+
+      if (alpha === null) {
+        return;
+      } // convert to radian
+
+
+      alpha = (alpha || 0) * Math.PI / 180;
+      beta = (beta || 0) * Math.PI / 180;
+      gamma = (gamma || 0) * Math.PI / 180;
+      this.trigger("devicemotion", {
+        inputEvent: {
+          deviceorientation: {
+            alpha: alpha,
+            beta: beta,
+            gamma: -gamma
           }
+        }
+      });
+    };
 
-          var modifyQuat = setAxisAngle(create$6(), Y_AXIS_VECTOR, -yawOffset);
-          mul$6(SENSOR_TO_VR, modifyQuat, SENSOR_TO_VR);
-          _this._calibrated = true;
-          sensor.removeEventListener("reading", _this._onFirstRead);
-          sensor.addEventListener("reading", _this._onSensorRead);
-        };
+    _proto._onDeviceOrientation = function _onDeviceOrientation() {
+      var _this2 = this;
 
-        _this._onSensorRead = function () {
-          if (_this._observer && _this._gyroMode === GYRO_MODE.YAWPITCH) {
-            var delta = _this.getYawPitchDelta();
+      this._timer && clearTimeout(this._timer);
+      this._timer = setTimeout(function () {
+        if (new Date().getTime() - _this2.lastDevicemotionTimestamp < STILLNESS_THRESHOLD) {
+          copy$4(_this2.stillGyroVec, _this2.rawGyroVec);
+        }
+      }, STILLNESS_THRESHOLD);
+    };
 
-            _this._observer.change(_assertThisInitialized(_this), {}, {
-              yaw: delta.yaw,
-              pitch: delta.pitch
-            });
-          }
+    _proto._onDeviceMotion = function _onDeviceMotion(e) {
+      // desktop chrome triggers devicemotion event with empthy sensor values.
+      // Those events should ignored.
+      var isGyroSensorAvailable = !(e.rotationRate.alpha == null);
+      var isGravitySensorAvailable = !(e.accelerationIncludingGravity.x == null);
 
-          _this.trigger("change", {
-            isTrusted: true
-          });
-        };
-
-        _this._enabled = false;
-        _this._calibrated = false;
-        _this._sensor = new RelativeOrientationSensor({
-          frequency: 60,
-          coordinateSystem: "screen",
-          // for polyfill
-          referenceFrame: "screen"
-        });
-        _this._prevQuaternion = null;
-        _this._gyroMode = gyroMode; // @egjs/axes related
-
-        _this._observer = null;
-        _this.axes = null;
-        return _this;
+      if (e.interval === 0 || !(isGyroSensorAvailable && isGravitySensorAvailable)) {
+        return;
       }
 
-      var _proto = DeviceSensorInput.prototype;
+      var devicemotionEvent = _extends({}, e);
 
-      _proto.mapAxes = function mapAxes(axes) {
-        this.axes = axes;
+      devicemotionEvent.interval = e.interval;
+      devicemotionEvent.timeStamp = e.timeStamp;
+      devicemotionEvent.type = e.type;
+      devicemotionEvent.rotationRate = {
+        alpha: e.rotationRate.alpha,
+        beta: e.rotationRate.beta,
+        gamma: e.rotationRate.gamma
+      };
+      devicemotionEvent.accelerationIncludingGravity = {
+        x: e.accelerationIncludingGravity.x,
+        y: e.accelerationIncludingGravity.y,
+        z: e.accelerationIncludingGravity.z
+      };
+      devicemotionEvent.acceleration = {
+        x: e.acceleration.x,
+        y: e.acceleration.y,
+        z: e.acceleration.z
       };
 
-      _proto.connect = function connect(observer) {
-        if (this._observer) {
-          return this;
-        }
-
-        this._observer = observer;
-        return this;
-      };
-
-      _proto.disconnect = function disconnect() {
-        if (!this._observer) {
-          return this;
-        }
-
-        this._observer = null;
-        return this;
-      };
-
-      _proto.setGyroMode = function setGyroMode(gyroMode) {
-        this._gyroMode = gyroMode;
-      };
-
-      _proto.enable = function enable() {
-        var _this2 = this;
-
-        if (this._enabled) {
-          return _Promise.resolve("Sensor already enabled");
-        }
-
-        if (!navigator || !navigator.permissions) {
-          // iOS
-          this._startSensor();
-
-          return _Promise.resolve();
-        }
-
-        return _Promise.all([navigator.permissions.query({
-          name: "accelerometer"
-        }), navigator.permissions.query({
-          name: "gyroscope"
-        })]).then(function (results) {
-          if (results.every(function (result) {
-            return result.state === "granted";
-          })) {
-            _this2._startSensor();
-          }
-        })["catch"](function () {
-          // Start it anyway, workaround for Firefox
-          _this2._startSensor();
-        });
-      };
-
-      _proto.disable = function disable() {
-        if (!this._enabled) {
-          return;
-        }
-
-        this._prevQuaternion = null;
-
-        this._sensor.removeEventListener("read", this._onSensorRead);
-
-        this._sensor.stop();
-      };
-
-      _proto.isEnabled = function isEnabled() {
-        return this._enabled;
-      };
-
-      _proto.getYawPitchDelta = function getYawPitchDelta() {
-        var prevQuat = this._prevQuaternion;
-
-        var currentQuat = this._getOrientation();
-
-        if (!prevQuat) {
-          this._prevQuaternion = currentQuat;
-          return {
-            yaw: 0,
-            pitch: 0
-          };
-        }
-
-        var result = {
-          yaw: getDeltaYaw(prevQuat, currentQuat),
-          pitch: getDeltaPitch(prevQuat, currentQuat)
+      if (this.isAndroid) {
+        set$5(this.rawGyroVec, e.rotationRate.alpha || 0, e.rotationRate.beta || 0, e.rotationRate.gamma || 0);
+        subtract$4(this.adjustedGyroVec, this.rawGyroVec, this.stillGyroVec);
+        this.lastDevicemotionTimestamp = new Date().getTime();
+        devicemotionEvent.adjustedRotationRate = {
+          alpha: this.adjustedGyroVec[0],
+          beta: this.adjustedGyroVec[1],
+          gamma: this.adjustedGyroVec[2]
         };
-        copy$6(prevQuat, currentQuat);
-        return result;
-      };
+      }
 
-      _proto.getCombinedQuaternion = function getCombinedQuaternion(yaw) {
-        var currentQuat = this._getOrientation();
+      this.trigger("devicemotion", {
+        inputEvent: devicemotionEvent
+      });
+    };
 
-        if (!this._prevQuaternion) {
-          this._prevQuaternion = copy$6(create$6(), currentQuat);
+    _proto.enable = function enable() {
+      if (this.isAndroid) {
+        win.addEventListener("deviceorientation", this._onDeviceOrientation);
+      }
+
+      if (this.isWithoutDeviceMotion) {
+        win.addEventListener("deviceorientation", this._onChromeWithoutDeviceMotion);
+      } else {
+        win.addEventListener("devicemotion", this._onDeviceMotion);
+      }
+
+      this._isEnabled = true;
+    };
+
+    _proto.disable = function disable() {
+      win.removeEventListener("deviceorientation", this._onDeviceOrientation);
+      win.removeEventListener("deviceorientation", this._onChromeWithoutDeviceMotion);
+      win.removeEventListener("devicemotion", this._onDeviceMotion);
+      this._isEnabled = false;
+    };
+
+    return DeviceMotion;
+  }(Component);
+
+  function SensorSample(sample, timestampS) {
+    this.set(sample, timestampS);
+  }
+  SensorSample.prototype.set = function(sample, timestampS) {
+    this.sample = sample;
+    this.timestampS = timestampS;
+  };
+
+  SensorSample.prototype.copy = function(sensorSample) {
+    this.set(sensorSample.sample, sensorSample.timestampS);
+  };
+
+  var sensorSample = SensorSample;
+
+  /**
+   * An implementation of a simple complementary filter, which fuses gyroscope and
+   * accelerometer data from the 'devicemotion' event.
+   *
+   * Accelerometer data is very noisy, but stable over the long term.
+   * Gyroscope data is smooth, but tends to drift over the long term.
+   *
+   * This fusion is relatively simple:
+   * 1. Get orientation estimates from accelerometer by applying a low-pass filter
+   *    on that data.
+   * 2. Get orientation estimates from gyroscope by integrating over time.
+   * 3. Combine the two estimates, weighing (1) in the long term, but (2) for the
+   *    short term.
+   */
+  function ComplementaryFilter(kFilter) {
+    this.kFilter = kFilter;
+
+    // Raw sensor measurements.
+    this.currentAccelMeasurement = new sensorSample();
+    this.currentGyroMeasurement = new sensorSample();
+    this.previousGyroMeasurement = new sensorSample();
+
+    // Current filter orientation
+    this.filterQ = new mathUtil.Quaternion();
+    this.previousFilterQ = new mathUtil.Quaternion();
+
+    // Orientation based on the accelerometer.
+    this.accelQ = new mathUtil.Quaternion();
+    // Whether or not the orientation has been initialized.
+    this.isOrientationInitialized = false;
+    // Running estimate of gravity based on the current orientation.
+    this.estimatedGravity = new mathUtil.Vector3();
+    // Measured gravity based on accelerometer.
+    this.measuredGravity = new mathUtil.Vector3();
+
+    // Debug only quaternion of gyro-based orientation.
+    this.gyroIntegralQ = new mathUtil.Quaternion();
+  }
+
+  ComplementaryFilter.prototype.addAccelMeasurement = function(vector, timestampS) {
+    this.currentAccelMeasurement.set(vector, timestampS);
+  };
+
+  ComplementaryFilter.prototype.addGyroMeasurement = function(vector, timestampS) {
+    this.currentGyroMeasurement.set(vector, timestampS);
+
+    var deltaT = timestampS - this.previousGyroMeasurement.timestampS;
+    if (util$1.isTimestampDeltaValid(deltaT)) {
+      this.run_();
+    }
+
+    this.previousGyroMeasurement.copy(this.currentGyroMeasurement);
+  };
+
+  ComplementaryFilter.prototype.run_ = function() {
+
+    if (!this.isOrientationInitialized) {
+      this.accelQ = this.accelToQuaternion_(this.currentAccelMeasurement.sample);
+      this.previousFilterQ.copy(this.accelQ);
+      this.isOrientationInitialized = true;
+      return;
+    }
+
+    var deltaT = this.currentGyroMeasurement.timestampS -
+        this.previousGyroMeasurement.timestampS;
+
+    // Convert gyro rotation vector to a quaternion delta.
+    var gyroDeltaQ = this.gyroToQuaternionDelta_(this.currentGyroMeasurement.sample, deltaT);
+    this.gyroIntegralQ.multiply(gyroDeltaQ);
+
+    // filter_1 = K * (filter_0 + gyro * dT) + (1 - K) * accel.
+    this.filterQ.copy(this.previousFilterQ);
+    this.filterQ.multiply(gyroDeltaQ);
+
+    // Calculate the delta between the current estimated gravity and the real
+    // gravity vector from accelerometer.
+    var invFilterQ = new mathUtil.Quaternion();
+    invFilterQ.copy(this.filterQ);
+    invFilterQ.inverse();
+
+    this.estimatedGravity.set(0, 0, -1);
+    this.estimatedGravity.applyQuaternion(invFilterQ);
+    this.estimatedGravity.normalize();
+
+    this.measuredGravity.copy(this.currentAccelMeasurement.sample);
+    this.measuredGravity.normalize();
+
+    // Compare estimated gravity with measured gravity, get the delta quaternion
+    // between the two.
+    var deltaQ = new mathUtil.Quaternion();
+    deltaQ.setFromUnitVectors(this.estimatedGravity, this.measuredGravity);
+    deltaQ.inverse();
+
+    // Calculate the SLERP target: current orientation plus the measured-estimated
+    // quaternion delta.
+    var targetQ = new mathUtil.Quaternion();
+    targetQ.copy(this.filterQ);
+    targetQ.multiply(deltaQ);
+
+    // SLERP factor: 0 is pure gyro, 1 is pure accel.
+    this.filterQ.slerp(targetQ, 1 - this.kFilter);
+
+    this.previousFilterQ.copy(this.filterQ);
+  };
+
+  ComplementaryFilter.prototype.getOrientation = function() {
+    return this.filterQ;
+  };
+
+  ComplementaryFilter.prototype.accelToQuaternion_ = function(accel) {
+    var normAccel = new mathUtil.Vector3();
+    normAccel.copy(accel);
+    normAccel.normalize();
+    var quat = new mathUtil.Quaternion();
+    quat.setFromUnitVectors(new mathUtil.Vector3(0, 0, -1), normAccel);
+    quat.inverse();
+    return quat;
+  };
+
+  ComplementaryFilter.prototype.gyroToQuaternionDelta_ = function(gyro, dt) {
+    // Extract axis and angle from the gyroscope data.
+    var quat = new mathUtil.Quaternion();
+    var axis = new mathUtil.Vector3();
+    axis.copy(gyro);
+    axis.normalize();
+    quat.setFromAxisAngle(axis, gyro.length() * dt);
+    return quat;
+  };
+
+
+  var complementaryFilter = ComplementaryFilter;
+
+  complementaryFilter.prototype.run_ = function () {
+    if (!this.isOrientationInitialized) {
+      this.accelQ = this.accelToQuaternion_(this.currentAccelMeasurement.sample);
+      this.previousFilterQ.copy(this.accelQ);
+      this.isOrientationInitialized = true;
+      return;
+    }
+
+    var deltaT = this.currentGyroMeasurement.timestampS - this.previousGyroMeasurement.timestampS; // Convert gyro rotation vector to a quaternion delta.
+
+    var gyroDeltaQ = this.gyroToQuaternionDelta_(this.currentGyroMeasurement.sample, deltaT);
+    this.gyroIntegralQ.multiply(gyroDeltaQ); // filter_1 = K * (filter_0 + gyro * dT) + (1 - K) * accel.
+
+    this.filterQ.copy(this.previousFilterQ);
+    this.filterQ.multiply(gyroDeltaQ); // Calculate the delta between the current estimated gravity and the real
+    // gravity vector from accelerometer.
+
+    var invFilterQ = new mathUtil.Quaternion();
+    invFilterQ.copy(this.filterQ);
+    invFilterQ.inverse();
+    this.estimatedGravity.set(0, 0, -1);
+    this.estimatedGravity.applyQuaternion(invFilterQ);
+    this.estimatedGravity.normalize();
+    this.measuredGravity.copy(this.currentAccelMeasurement.sample);
+    this.measuredGravity.normalize(); // Compare estimated gravity with measured gravity, get the delta quaternion
+    // between the two.
+
+    var deltaQ = new mathUtil.Quaternion();
+    deltaQ.setFromUnitVectors(this.estimatedGravity, this.measuredGravity);
+    deltaQ.inverse(); // Calculate the SLERP target: current orientation plus the measured-estimated
+    // quaternion delta.
+
+    var targetQ = new mathUtil.Quaternion();
+    targetQ.copy(this.filterQ);
+    targetQ.multiply(deltaQ); // SLERP factor: 0 is pure gyro, 1 is pure accel.
+
+    this.filterQ.slerp(targetQ, 1 - this.kFilter);
+    this.previousFilterQ.copy(this.filterQ);
+
+    if (!this.isFilterQuaternionInitialized) {
+      this.isFilterQuaternionInitialized = true;
+    }
+  };
+
+  complementaryFilter.prototype.getOrientation = function () {
+    if (this.isFilterQuaternionInitialized) {
+      return this.filterQ;
+    } else {
+      return null;
+    }
+  };
+
+  var K_FILTER = 0.98;
+  var PREDICTION_TIME_S = 0.040;
+
+  var FusionPoseSensor =
+  /*#__PURE__*/
+  function (_Component) {
+    _inheritsLoose(FusionPoseSensor, _Component);
+
+    function FusionPoseSensor() {
+      var _this;
+
+      _this = _Component.call(this) || this;
+      _this.deviceMotion = new DeviceMotion();
+      _this.accelerometer = new mathUtil.Vector3();
+      _this.gyroscope = new mathUtil.Vector3();
+      _this._onDeviceMotionChange = _this._onDeviceMotionChange.bind(_assertThisInitialized(_this));
+      _this._onScreenOrientationChange = _this._onScreenOrientationChange.bind(_assertThisInitialized(_this));
+      _this.filter = new complementaryFilter(K_FILTER);
+      _this.posePredictor = new posePredictor(PREDICTION_TIME_S);
+      _this.filterToWorldQ = new mathUtil.Quaternion();
+      _this.isFirefoxAndroid = util$1.isFirefoxAndroid();
+      _this.isIOS = util$1.isIOS(); // Ref https://github.com/immersive-web/cardboard-vr-display/issues/18
+
+      _this.isChromeUsingDegrees = CHROME_VERSION >= 66;
+      _this._isEnabled = false; // Set the filter to world transform, depending on OS.
+
+      if (_this.isIOS) {
+        _this.filterToWorldQ.setFromAxisAngle(new mathUtil.Vector3(1, 0, 0), Math.PI / 2);
+      } else {
+        _this.filterToWorldQ.setFromAxisAngle(new mathUtil.Vector3(1, 0, 0), -Math.PI / 2);
+      }
+
+      _this.inverseWorldToScreenQ = new mathUtil.Quaternion();
+      _this.worldToScreenQ = new mathUtil.Quaternion();
+      _this.originalPoseAdjustQ = new mathUtil.Quaternion();
+
+      _this.originalPoseAdjustQ.setFromAxisAngle(new mathUtil.Vector3(0, 0, 1), -win.orientation * Math.PI / 180);
+
+      _this._setScreenTransform(); // Adjust this filter for being in landscape mode.
+
+
+      if (util$1.isLandscapeMode()) {
+        _this.filterToWorldQ.multiply(_this.inverseWorldToScreenQ);
+      } // Keep track of a reset transform for resetSensor.
+
+
+      _this.resetQ = new mathUtil.Quaternion();
+
+      _this.deviceMotion.on("devicemotion", _this._onDeviceMotionChange);
+
+      _this.enable();
+
+      return _this;
+    }
+
+    var _proto = FusionPoseSensor.prototype;
+
+    _proto.enable = function enable() {
+      if (this.isEnabled()) {
+        return;
+      }
+
+      this.deviceMotion.enable();
+      this._isEnabled = true;
+      win.addEventListener("orientationchange", this._onScreenOrientationChange);
+    };
+
+    _proto.disable = function disable() {
+      if (!this.isEnabled()) {
+        return;
+      }
+
+      this.deviceMotion.disable();
+      this._isEnabled = false;
+      win.removeEventListener("orientationchange", this._onScreenOrientationChange);
+    };
+
+    _proto.isEnabled = function isEnabled() {
+      return this._isEnabled;
+    };
+
+    _proto.destroy = function destroy() {
+      this.disable();
+      this.deviceMotion = null;
+    };
+
+    _proto._triggerChange = function _triggerChange() {
+      var orientation = this.getOrientation(); // if orientation is not prepared. don't trigger change event
+
+      if (!orientation) {
+        return;
+      }
+
+      if (!this._prevOrientation) {
+        this._prevOrientation = orientation;
+        return;
+      }
+
+      if (equals$7(this._prevOrientation, orientation)) {
+        return;
+      }
+
+      this.trigger("change", {
+        quaternion: orientation
+      });
+    };
+
+    _proto.getOrientation = function getOrientation() {
+      var _this2 = this;
+
+      var orientation; // Hack around using deviceorientation instead of devicemotion
+
+      if (this.deviceMotion.isWithoutDeviceMotion && this._deviceOrientationQ) {
+        this.deviceOrientationFixQ = this.deviceOrientationFixQ || function () {
+          var y = new mathUtil.Quaternion().setFromAxisAngle(new mathUtil.Vector3(0, 1, 0), -_this2._alpha);
+          return y;
+        }();
+
+        orientation = this._deviceOrientationQ;
+        var out = new mathUtil.Quaternion();
+        out.copy(orientation);
+        out.multiply(this.filterToWorldQ);
+        out.multiply(this.resetQ);
+        out.multiply(this.worldToScreenQ);
+        out.multiplyQuaternions(this.deviceOrientationFixQ, out); // return quaternion as glmatrix quaternion object
+
+        var out_ = fromValues$6(out.x, out.y, out.z, out.w);
+        return normalize$2(out_, out_);
+      } else {
+        // Convert from filter space to the the same system used by the
+        // deviceorientation event.
+        orientation = this.filter.getOrientation();
+
+        if (!orientation) {
+          return null;
         }
 
-        var yawQ = setAxisAngle(create$6(), Y_AXIS_VECTOR, toRadian(yaw));
-        var outQ = multiply$6(create$6(), yawQ, currentQuat);
-        conjugate(outQ, outQ);
-        copy$6(this._prevQuaternion, currentQuat);
-        return outQ;
-      };
+        var _out = this._convertFusionToPredicted(orientation); // return quaternion as glmatrix quaternion object
 
-      _proto.getDeviceHorizontalRight = function getDeviceHorizontalRight(quaternion) {
-        var currentQuat = quaternion || this._getOrientation();
 
-        var unrotateQuat = conjugate(create$6(), currentQuat); // Assume that unrotated device center pos is at (0, 0, -1)
+        var _out_ = fromValues$6(_out.x, _out.y, _out.z, _out.w);
 
-        var origViewDir = fromValues$4(0, 0, -1);
-        var viewDir = transformQuat(create$4(), origViewDir, currentQuat); // Where is the right, in current view direction
+        return normalize$2(_out_, _out_);
+      }
+    };
 
-        var viewXAxis = cross(create$4(), viewDir, Y_AXIS_VECTOR);
-        var deviceHorizontalDir = add$4(create$4(), viewDir, viewXAxis);
-        var unrotatedHorizontalDir = create$4();
-        transformQuat(unrotatedHorizontalDir, deviceHorizontalDir, unrotateQuat);
-        sub$4(unrotatedHorizontalDir, unrotatedHorizontalDir, origViewDir);
-        unrotatedHorizontalDir[2] = 0; // Remove z element
+    _proto._convertFusionToPredicted = function _convertFusionToPredicted(orientation) {
+      // Predict orientation.
+      this.predictedQ = this.posePredictor.getPrediction(orientation, this.gyroscope, this.previousTimestampS); // Convert to THREE coordinate system: -Z forward, Y up, X right.
 
-        normalize(unrotatedHorizontalDir, unrotatedHorizontalDir);
-        return unrotatedHorizontalDir;
-      };
+      var out = new mathUtil.Quaternion();
+      out.copy(this.filterToWorldQ);
+      out.multiply(this.resetQ);
+      out.multiply(this.predictedQ);
+      out.multiply(this.worldToScreenQ);
+      return out;
+    };
 
-      _proto.destroy = function destroy() {
-        this.disable();
-      };
+    _proto._onDeviceMotionChange = function _onDeviceMotionChange(_ref) {
+      var inputEvent = _ref.inputEvent;
+      var deviceorientation = inputEvent.deviceorientation;
+      var deviceMotion = inputEvent;
+      var accGravity = deviceMotion.accelerationIncludingGravity;
+      var rotRate = deviceMotion.adjustedRotationRate || deviceMotion.rotationRate;
+      var timestampS = deviceMotion.timeStamp / 1000;
 
-      _proto._getOrientation = function _getOrientation() {
-        if (!this._sensor.quaternion) {
-          return create$6();
+      if (deviceorientation) {
+        if (!this._alpha) {
+          this._alpha = deviceorientation.alpha;
         }
 
-        return multiply$6(create$6(), SENSOR_TO_VR, this._sensor.quaternion);
-      };
+        this._deviceOrientationQ = this._deviceOrientationQ || new mathUtil.Quaternion();
 
-      _proto._startSensor = function _startSensor() {
-        var sensor = this._sensor;
-        sensor.start();
+        this._deviceOrientationQ.setFromEulerYXZ(deviceorientation.beta, deviceorientation.alpha, deviceorientation.gamma);
 
-        if (!this._calibrated) {
-          sensor.addEventListener("reading", this._onFirstRead);
-        } else {
-          sensor.addEventListener("reading", this._onSensorRead);
+        this._triggerChange();
+      } else {
+        // Firefox Android timeStamp returns one thousandth of a millisecond.
+        if (this.isFirefoxAndroid) {
+          timestampS /= 1000;
         }
 
-        this._enabled = true;
-      };
+        this.accelerometer.set(-accGravity.x, -accGravity.y, -accGravity.z);
+        this.gyroscope.set(rotRate.alpha, rotRate.beta, rotRate.gamma); // Browsers on iOS, Firefox/Android, and Chrome m66/Android `rotationRate`
+        // is reported in degrees, so we first convert to radians.
 
-      return DeviceSensorInput;
-    }(Component);
+        if (this.isIOS || this.isFirefoxAndroid || this.isChromeUsingDegrees) {
+          this.gyroscope.multiplyScalar(Math.PI / 180);
+        }
 
-    return DeviceSensorInput;
+        this.filter.addAccelMeasurement(this.accelerometer, timestampS);
+        this.filter.addGyroMeasurement(this.gyroscope, timestampS);
+
+        this._triggerChange();
+
+        this.previousTimestampS = timestampS;
+      }
+    };
+
+    _proto._onScreenOrientationChange = function _onScreenOrientationChange(screenOrientation) {
+      this._setScreenTransform(win.orientation);
+    };
+
+    _proto._setScreenTransform = function _setScreenTransform() {
+      this.worldToScreenQ.set(0, 0, 0, 1);
+      var orientation = win.orientation;
+
+      switch (orientation) {
+        case 0:
+          break;
+
+        case 90:
+        case -90:
+        case 180:
+          this.worldToScreenQ.setFromAxisAngle(new mathUtil.Vector3(0, 0, 1), orientation / -180 * Math.PI);
+          break;
+
+        default:
+          break;
+      }
+
+      this.inverseWorldToScreenQ.copy(this.worldToScreenQ);
+      this.inverseWorldToScreenQ.inverse();
+    };
+
+    return FusionPoseSensor;
+  }(Component);
+
+  function getDeltaYaw$1(prvQ, curQ) {
+    var yawDeltaByYaw = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.YAW_DELTA_BY_YAW);
+    var yawDeltaByRoll = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.YAW_DELTA_BY_ROLL) * Math.sin(util.extractPitchFromQuat(curQ));
+    return yawDeltaByRoll + yawDeltaByYaw;
+  }
+
+  function getDeltaPitch$1(prvQ, curQ) {
+    var pitchDelta = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.PITCH_DELTA);
+    return pitchDelta;
+  }
+
+  var TiltMotionInput =
+  /*#__PURE__*/
+  function (_Component) {
+    _inheritsLoose(TiltMotionInput, _Component);
+
+    function TiltMotionInput(el, options) {
+      var _this;
+
+      _this = _Component.call(this) || this;
+      _this.element = el;
+      _this._prevQuaternion = null;
+      _this._quaternion = null;
+      _this.fusionPoseSensor = null;
+      _this.options = _extends({
+        scale: 1,
+        threshold: 0
+      }, options);
+      _this._onPoseChange = _this._onPoseChange.bind(_assertThisInitialized(_this));
+      return _this;
+    }
+
+    var _proto = TiltMotionInput.prototype;
+
+    _proto.mapAxes = function mapAxes(axes) {
+      this.axes = axes;
+    };
+
+    _proto.connect = function connect(observer) {
+      if (this.observer) {
+        return this;
+      }
+
+      this.observer = observer;
+      this.fusionPoseSensor = new FusionPoseSensor();
+      this.fusionPoseSensor.enable();
+
+      this._attachEvent();
+
+      return this;
+    };
+
+    _proto.disconnect = function disconnect() {
+      if (!this.observer) {
+        return this;
+      }
+
+      this._dettachEvent();
+
+      this.fusionPoseSensor.disable();
+      this.fusionPoseSensor.destroy();
+      this.fusionPoseSensor = null;
+      this.observer = null;
+      return this;
+    };
+
+    _proto.destroy = function destroy() {
+      this.disconnect();
+      this.element = null;
+      this.options = null;
+      this.axes = null;
+      this._prevQuaternion = null;
+      this._quaternion = null;
+    };
+
+    _proto._onPoseChange = function _onPoseChange(event) {
+      if (!this._prevQuaternion) {
+        this._prevQuaternion = clone$6(event.quaternion);
+        this._quaternion = clone$6(event.quaternion);
+        return;
+      }
+
+      copy$6(this._prevQuaternion, this._quaternion);
+      copy$6(this._quaternion, event.quaternion);
+      this.observer.change(this, event, toAxis$1(this.axes, [getDeltaYaw$1(this._prevQuaternion, this._quaternion), getDeltaPitch$1(this._prevQuaternion, this._quaternion)]));
+    };
+
+    _proto._attachEvent = function _attachEvent() {
+      this.fusionPoseSensor.on("change", this._onPoseChange);
+    };
+
+    _proto._dettachEvent = function _dettachEvent() {
+      this.fusionPoseSensor.off("change", this._onPoseChange);
+    };
+
+    return TiltMotionInput;
+  }(Component);
+
+  var screenRotationAngleInst = null;
+  var refCount = 0;
+
+  var ScreenRotationAngle =
+  /*#__PURE__*/
+  function () {
+    function ScreenRotationAngle() {
+      refCount++;
+
+      if (screenRotationAngleInst) {
+        return screenRotationAngleInst;
+      }
+      /* eslint-disable */
+
+
+      screenRotationAngleInst = this;
+      /* eslint-enable */
+
+      this._onDeviceOrientation = this._onDeviceOrientation.bind(this);
+      this._onOrientationChange = this._onOrientationChange.bind(this);
+      this._spinR = 0;
+      this._screenOrientationAngle = 0;
+      win.addEventListener("deviceorientation", this._onDeviceOrientation);
+      win.addEventListener("orientationchange", this._onOrientationChange);
+    }
+
+    var _proto = ScreenRotationAngle.prototype;
+
+    _proto._onDeviceOrientation = function _onDeviceOrientation(e) {
+      if (e.beta === null || e.gamma === null) {
+        // (Chrome) deviceorientation is fired with invalid information {alpha=null, beta=null, ...} despite of not dispatching it. We skip it.
+        return;
+      } // Radian
+
+
+      var betaR = toRadian(e.beta);
+      var gammaR = toRadian(e.gamma);
+      /* spinR range = [-180, 180], left side: 0 ~ -180(deg), right side: 0 ~ 180(deg) */
+
+      this._spinR = Math.atan2(Math.cos(betaR) * Math.sin(gammaR), Math.sin(betaR));
+    };
+
+    _proto._onOrientationChange = function _onOrientationChange(e) {
+      if (win.screen && win.screen.orientation && win.screen.orientation.angle !== undefined) {
+        this._screenOrientationAngle = screen.orientation.angle;
+      } else if (win.orientation !== undefined) {
+        /* iOS */
+        this._screenOrientationAngle = win.orientation >= 0 ? win.orientation : 360 + win.orientation;
+      }
+    };
+
+    _proto.getRadian = function getRadian() {
+      // Join with screen orientation
+      // this._testVal = this._spinR + ", " + this._screenOrientationAngle + ", " + window.orientation;
+      return this._spinR + toRadian(this._screenOrientationAngle);
+    };
+
+    _proto.unref = function unref() {
+      if (--refCount > 0) {
+        return;
+      }
+
+      win.removeEventListener("deviceorientation", this._onDeviceOrientation);
+      win.removeEventListener("orientationchange", this._onOrientationChange);
+      this._spinR = 0;
+      this._screenOrientationAngle = 0;
+      /* eslint-disable */
+
+      screenRotationAngleInst = null;
+      /* eslint-enable */
+
+      refCount = 0;
+    };
+
+    return ScreenRotationAngle;
   }();
+
+  /**
+   * RotationPanInput is extension of PanInput to compensate coordinates by screen rotation angle.
+   *
+   * The reason for using this function is that in VR mode,
+   * the roll angle is adjusted in the direction opposite to the screen rotation angle.
+   *
+   * Therefore, the angle that the user touches and moves does not match the angle at which the actual object should move.
+   * @extends PanInput
+   */
+
+  var RotationPanInput =
+  /*#__PURE__*/
+  function (_PanInput) {
+    _inheritsLoose(RotationPanInput, _PanInput);
+
+    /**
+     * Constructor
+     *
+     * @private
+     * @param {HTMLElement} el target element
+     * @param {Object} [options] The option object
+     * @param {Boolean} [options.useRotation]  Whether to use rotation(or VR)
+     */
+    function RotationPanInput(el, options) {
+      var _this;
+
+      _this = _PanInput.call(this, el, options) || this;
+      _this._useRotation = false;
+      _this._screenRotationAngle = null;
+
+      _this.setUseRotation(!!(options && options.useRotation));
+
+      _this._userDirection = Axes.DIRECTION_ALL;
+      return _this;
+    }
+
+    var _proto = RotationPanInput.prototype;
+
+    _proto.setUseRotation = function setUseRotation(useRotation) {
+      this._useRotation = useRotation;
+
+      if (this._screenRotationAngle) {
+        this._screenRotationAngle.unref();
+
+        this._screenRotationAngle = null;
+      }
+
+      if (this._useRotation) {
+        this._screenRotationAngle = new ScreenRotationAngle();
+      }
+    };
+
+    _proto.connect = function connect(observer) {
+      // User intetened direction
+      this._userDirection = this._direction; // In VR Mode, Use ALL direction if direction is not none
+      // Because horizontal and vertical is changed dynamically by screen rotation.
+      // this._direction is used to initialize hammerjs
+
+      if (this._useRotation && this._direction & Axes.DIRECTION_ALL) {
+        this._direction = Axes.DIRECTION_HORIZONTAL;
+      }
+
+      _PanInput.prototype.connect.call(this, observer);
+    };
+
+    _proto.getOffset = function getOffset(properties, useDirection) {
+      if (this._useRotation === false) {
+        return _PanInput.prototype.getOffset.call(this, properties, useDirection);
+      }
+
+      var offset = _PanInput.prototype.getOffset.call(this, properties, [true, true]);
+
+      var newOffset = [0, 0];
+
+      var theta = this._screenRotationAngle.getRadian();
+
+      var cosTheta = Math.cos(theta);
+      var sinTheta = Math.sin(theta); // RotateZ
+
+      newOffset[0] = offset[0] * cosTheta - offset[1] * sinTheta;
+      newOffset[1] = offset[1] * cosTheta + offset[0] * sinTheta; // Use only user allowed direction.
+
+      if (!(this._userDirection & Axes.DIRECTION_HORIZONTAL)) {
+        newOffset[0] = 0;
+      } else if (!(this._userDirection & Axes.DIRECTION_VERTICAL)) {
+        newOffset[1] = 0;
+      }
+
+      return newOffset;
+    };
+
+    _proto.destroy = function destroy() {
+      if (this._useRotation) {
+        this._screenRotationAngle && this._screenRotationAngle.unref();
+      }
+
+      _PanInput.prototype.destroy.call(this);
+    };
+
+    return RotationPanInput;
+  }(PanInput);
+
+  var Y_AXIS_VECTOR = fromValues$4(0, 1, 0);
+
+  var DeviceQuaternion =
+  /*#__PURE__*/
+  function (_Component) {
+    _inheritsLoose(DeviceQuaternion, _Component);
+
+    function DeviceQuaternion() {
+      var _this;
+
+      _this = _Component.call(this) || this;
+      _this._fusionPoseSensor = new FusionPoseSensor();
+      _this._quaternion = create$6();
+
+      _this._fusionPoseSensor.enable();
+
+      _this._fusionPoseSensor.on("change", function (e) {
+        _this._quaternion = e.quaternion;
+
+        _this.trigger("change", {
+          isTrusted: true
+        });
+      });
+
+      return _this;
+    }
+
+    var _proto = DeviceQuaternion.prototype;
+
+    _proto.getCombinedQuaternion = function getCombinedQuaternion(yaw) {
+      var yawQ = setAxisAngle(create$6(), Y_AXIS_VECTOR, toRadian(-yaw));
+      var conj = conjugate(create$6(), this._quaternion); // Multiply pitch quaternion -> device quaternion -> yaw quaternion
+
+      var outQ = multiply$6(create$6(), conj, yawQ);
+      return outQ;
+    };
+
+    _proto.destroy = function destroy() {
+      // detach all event handler
+      this.off();
+
+      if (this._fusionPoseSensor) {
+        this._fusionPoseSensor.off();
+
+        this._fusionPoseSensor.destroy();
+
+        this._fusionPoseSensor = null;
+      }
+    };
+
+    return DeviceQuaternion;
+  }(Component);
 
   var VERSION = "3.3.0-snapshot";
 
-  var _Promise$1 = typeof Promise === 'undefined' ? es6Promise.Promise : Promise;
   var DEFAULT_YAW_RANGE = [-YAW_RANGE_HALF, YAW_RANGE_HALF];
   var DEFAULT_PITCH_RANGE = [-PITCH_RANGE_HALF, PITCH_RANGE_HALF];
   var CIRCULAR_PITCH_RANGE = [-CIRCULAR_PITCH_RANGE_HALF, CIRCULAR_PITCH_RANGE_HALF];
@@ -9850,9 +10170,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         _this._initialFov = opt.fov;
         _this._enabled = false;
         _this._isAnimating = false;
-        _this._deviceSensor = new DeviceSensorInput().on("change", function (e) {
-          _this._triggerChange(e);
-        });
+        _this._deviceQuaternion = null;
 
         _this._initAxes(opt);
 
@@ -9873,10 +10191,11 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         var useRotation = opt.gyroMode === GYRO_MODE.VR;
         this.axesPanInput = new RotationPanInput(this._element, {
           useRotation: useRotation
-        }, this._deviceSensor);
+        });
         this.axesWheelInput = new WheelInput(this._element, {
           scale: -4
         });
+        this.axesTiltMotionInput = null;
         this.axesPinchInput = SUPPORT_TOUCH ? new PinchInput(this._element, {
           scale: -1
         }) : null;
@@ -10078,22 +10397,27 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         if (keys.some(function (key) {
           return key === "gyroMode";
         }) && SUPPORT_DEVICEMOTION) {
-          if (!isVR && !isYawPitch) {
-            axes.disconnect(this._deviceSensor);
-
-            this._deviceSensor.disable();
-          } else {
-            axes.connect(["yaw", "pitch"], this._deviceSensor);
-
-            this._deviceSensor.enable()["catch"](function () {}); // Device motion enabling can fail on iOS
-
+          // Disconnect first
+          if (this.axesTiltMotionInput) {
+            this.axes.disconnect(this.axesTiltMotionInput);
+            this.axesTiltMotionInput.destroy();
+            this.axesTiltMotionInput = null;
           }
 
-          this._deviceSensor.setGyroMode(options.gyroMode);
+          if (this._deviceQuaternion) {
+            this._deviceQuaternion.destroy();
+
+            this._deviceQuaternion = null;
+          }
 
           if (isVR) {
-            this.axesPanInput.setUseRotation(isVR);
+            this._initDeviceQuaternion();
+          } else if (isYawPitch) {
+            this.axesTiltMotionInput = new TiltMotionInput(this._element);
+            this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
           }
+
+          this.axesPanInput.setUseRotation(isVR);
         }
 
         if (keys.some(function (key) {
@@ -10147,6 +10471,16 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         var yawEnabled = direction & TOUCH_DIRECTION_YAW ? "yaw" : null;
         var pitchEnabled = direction & TOUCH_DIRECTION_PITCH ? "pitch" : null;
         this.axes.connect([yawEnabled, pitchEnabled], this.axesPanInput);
+      };
+
+      _proto._initDeviceQuaternion = function _initDeviceQuaternion() {
+        var _this3 = this;
+
+        this._deviceQuaternion = new DeviceQuaternion();
+
+        this._deviceQuaternion.on("change", function (e) {
+          _this3._triggerChange(e);
+        });
       };
 
       _proto._getValidYawRange = function _getValidYawRange(newYawRange, newFov, newAspectRatio) {
@@ -10290,8 +10624,8 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         event.pitch = pos.pitch;
         event.fov = pos.fov;
 
-        if (opt.gyroMode === GYRO_MODE.VR) {
-          event.quaternion = this._deviceSensor.getCombinedQuaternion(pos.yaw);
+        if (opt.gyroMode === GYRO_MODE.VR && this._deviceQuaternion) {
+          event.quaternion = this._deviceQuaternion.getCombinedQuaternion(pos.yaw);
         }
 
         this.trigger("change", event);
@@ -10346,9 +10680,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
 
         this.updatePanScale();
-        this.enableSensor()["catch"](function () {// This can fail when it's not triggered by user interaction on iOS13+
-          // Just ignore the rejection
-        });
         return this;
       }
       /**
@@ -10369,7 +10700,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         }
 
         this.axes.disconnect();
-        this.disableSensor();
         this._enabled = false;
         return this;
       };
@@ -10408,41 +10738,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         }, duration);
       };
 
-      _proto.enableSensor = function enableSensor() {
-        var _this3 = this;
-
-        return new _Promise$1(function (resolve, reject) {
-          var activateSensor = function activateSensor() {
-            if (_this3.options.gyroMode !== GYRO_MODE.NONE) {
-              _this3._deviceSensor.enable();
-
-              resolve();
-            } else {
-              reject(new Error("gyroMode not set"));
-            }
-          };
-
-          if (DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === "function") {
-            DeviceMotionEvent.requestPermission().then(function (permissionState) {
-              if (permissionState === "granted") {
-                activateSensor();
-              } else {
-                reject(new Error("denied"));
-              }
-            })["catch"](function (e) {
-              // This can happen when this method was't triggered by user interaction
-              reject(e);
-            });
-          } else {
-            activateSensor();
-          }
-        });
-      };
-
-      _proto.disableSensor = function disableSensor() {
-        this._deviceSensor.disable();
-      };
-
       _proto.getYawPitch = function getYawPitch() {
         var yawPitch = this.axes.get();
         return {
@@ -10457,7 +10752,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
       _proto.getQuaternion = function getQuaternion() {
         var pos = this.axes.get();
-        return this._deviceSensor.getCombinedQuaternion(pos.yaw);
+        return this._deviceQuaternion.getCombinedQuaternion(pos.yaw);
       };
 
       _proto.shouldRenderWithQuaternion = function shouldRenderWithQuaternion() {
@@ -10472,10 +10767,11 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         this.axes && this.axes.destroy();
         this.axisPanInput && this.axisPanInput.destroy();
         this.axesWheelInput && this.axesWheelInput.destroy();
+        this.axesTiltMotionInput && this.axesTiltMotionInput.destroy();
         this.axesDeviceOrientationInput && this.axesDeviceOrientationInput.destroy();
         this.axesPinchInput && this.axesPinchInput.destroy();
         this.axesMoveKeyInput && this.axesMoveKeyInput.destroy();
-        this._deviceSensor && this._deviceSensor.destroy();
+        this._deviceQuaternion && this._deviceQuaternion.destroy();
       };
 
       return YawPitchControl;
@@ -10491,7 +10787,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     return YawPitchControl;
   }();
 
-  var _Promise$2 = typeof Promise === 'undefined' ? es6Promise.Promise : Promise;
+  var _Promise = typeof Promise === 'undefined' ? es6Promise.Promise : Promise;
   var STATUS = {
     "NONE": 0,
     "LOADING": 1,
@@ -10527,7 +10823,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       _proto.get = function get() {
         var _this2 = this;
 
-        return new _Promise$2(function (res, rej) {
+        return new _Promise(function (res, rej) {
           if (!_this2._image) {
             rej("ImageLoader: image is not defiend");
           } else if (_this2._loadStatus === STATUS.LOADED) {
@@ -10625,7 +10921,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
           return !ImageLoader.isMaybeLoaded(img);
         });
         var loadPromises = targetsNotLoaded.map(function (img) {
-          return new _Promise$2(function (res, rej) {
+          return new _Promise(function (res, rej) {
             _this4._once(img, "load", function () {
               return res(img);
             });
@@ -10636,7 +10932,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
           });
         });
 
-        _Promise$2.all(loadPromises).then(function (result) {
+        _Promise.all(loadPromises).then(function (result) {
           return onload(targets.length === 1 ? targets[0] : targets);
         }, function (reason) {
           return onerror(reason);
@@ -10680,7 +10976,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     return ImageLoader;
   }();
 
-  var _Promise$3 = typeof Promise === 'undefined' ? es6Promise.Promise : Promise;
+  var _Promise$1 = typeof Promise === 'undefined' ? es6Promise.Promise : Promise;
 
   // import Agent from "@egjs/agent";
 
@@ -10827,7 +11123,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     _proto.get = function get() {
       var _this2 = this;
 
-      return new _Promise$3(function (res, rej) {
+      return new _Promise$1(function (res, rej) {
         if (!_this2._video) {
           rej("VideoLoader: video is undefined");
         } else if (_this2._loadStatus === READY_STATUS.LOADING_FAILED) {
@@ -10907,277 +11203,273 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   var win$3 = typeof window !== "undefined" && window || {};
   var RegExp$1 = win$3.RegExp;
   var navigator$1 = win$3.navigator;
+
   var parseRules = {
-    browser: [{
-      criteria: "PhantomJS",
-      identity: "PhantomJS"
-    }, {
-      criteria: /Whale/,
-      identity: "Whale",
-      versionSearch: "Whale"
-    }, {
-      criteria: /Edge/,
-      identity: "Edge",
-      versionSearch: "Edge"
-    }, {
-      criteria: /MSIE|Trident|Windows Phone/,
-      identity: "IE",
-      versionSearch: "IEMobile|MSIE|rv"
-    }, {
-      criteria: /MiuiBrowser/,
-      identity: "MIUI Browser",
-      versionSearch: "MiuiBrowser"
-    }, {
-      criteria: /SamsungBrowser/,
-      identity: "Samsung Internet",
-      versionSearch: "SamsungBrowser"
-    }, {
-      criteria: /SAMSUNG /,
-      identity: "Samsung Internet",
-      versionSearch: "Version"
-    }, {
-      criteria: /Chrome|CriOS/,
-      identity: "Chrome"
-    }, {
-      criteria: /Android/,
-      identity: "Android Browser",
-      versionSearch: "Version"
-    }, {
-      criteria: /iPhone|iPad/,
-      identity: "Safari",
-      versionSearch: "Version"
-    }, {
-      criteria: "Apple",
-      identity: "Safari",
-      versionSearch: "Version"
-    }, {
-      criteria: "Firefox",
-      identity: "Firefox"
-    }],
-    os: [{
-      criteria: /Windows Phone/,
-      identity: "Windows Phone",
-      versionSearch: "Windows Phone"
-    }, {
-      criteria: "Windows 2000",
-      identity: "Window",
-      versionAlias: "5.0"
-    }, {
-      criteria: /Windows NT/,
-      identity: "Window",
-      versionSearch: "Windows NT"
-    }, {
-      criteria: /iPhone|iPad/,
-      identity: "iOS",
-      versionSearch: "iPhone OS|CPU OS"
-    }, {
-      criteria: "Mac",
-      versionSearch: "OS X",
-      identity: "MAC"
-    }, {
-      criteria: /Android/,
-      identity: "Android"
-    }, {
-      criteria: /Tizen/,
-      identity: "Tizen"
-    }, {
-      criteria: /Web0S/,
-      identity: "WebOS"
-    }],
-    // Webview check condition
-    // ios: If has no version information
-    // Android 5.0 && chrome 40+: Presence of "; wv" in userAgent
-    // Under android 5.0: Presence of "NAVER" or "Daum" in userAgent
-    webview: [{
-      criteria: /iPhone|iPad/,
-      browserVersionSearch: "Version",
-      webviewBrowserVersion: /-1/
-    }, {
-      criteria: /iPhone|iPad|Android/,
-      webviewToken: /NAVER|DAUM|; wv/
-    }],
-    defaultString: {
-      browser: {
-        version: "-1",
-        name: "unknown"
-      },
-      os: {
-        version: "-1",
-        name: "unknown"
-      }
-    }
+  	browser: [{
+  		criteria: "PhantomJS",
+  		identity: "PhantomJS"
+  	}, {
+  		criteria: /Whale/,
+  		identity: "Whale",
+  		versionSearch: "Whale"
+  	}, {
+  		criteria: /Edge/,
+  		identity: "Edge",
+  		versionSearch: "Edge"
+  	}, {
+  		criteria: /MSIE|Trident|Windows Phone/,
+  		identity: "IE",
+  		versionSearch: "IEMobile|MSIE|rv"
+  	}, {
+  		criteria: /MiuiBrowser/,
+  		identity: "MIUI Browser",
+  		versionSearch: "MiuiBrowser"
+  	}, {
+  		criteria: /SamsungBrowser/,
+  		identity: "Samsung Internet",
+  		versionSearch: "SamsungBrowser"
+  	}, {
+  		criteria: /SAMSUNG /,
+  		identity: "Samsung Internet",
+  		versionSearch: "Version"
+  	}, {
+  		criteria: /Chrome|CriOS/,
+  		identity: "Chrome"
+  	}, {
+  		criteria: /Android/,
+  		identity: "Android Browser",
+  		versionSearch: "Version"
+  	}, {
+  		criteria: /iPhone|iPad/,
+  		identity: "Safari",
+  		versionSearch: "Version"
+  	}, {
+  		criteria: "Apple",
+  		identity: "Safari",
+  		versionSearch: "Version"
+  	}, {
+  		criteria: "Firefox",
+  		identity: "Firefox"
+  	}],
+  	os: [{
+  		criteria: /Windows Phone/,
+  		identity: "Windows Phone",
+  		versionSearch: "Windows Phone"
+  	}, {
+  		criteria: "Windows 2000",
+  		identity: "Window",
+  		versionAlias: "5.0"
+  	}, {
+  		criteria: /Windows NT/,
+  		identity: "Window",
+  		versionSearch: "Windows NT"
+  	}, {
+  		criteria: /iPhone|iPad/,
+  		identity: "iOS",
+  		versionSearch: "iPhone OS|CPU OS"
+  	}, {
+  		criteria: "Mac",
+  		versionSearch: "OS X",
+  		identity: "MAC"
+  	}, {
+  		criteria: /Android/,
+  		identity: "Android"
+  	}, {
+  		criteria: /Tizen/,
+  		identity: "Tizen"
+  	}, {
+  		criteria: /Web0S/,
+  		identity: "WebOS"
+  	}],
+
+  	// Webview check condition
+  	// ios: If has no version information
+  	// Android 5.0 && chrome 40+: Presence of "; wv" in userAgent
+  	// Under android 5.0: Presence of "NAVER" or "Daum" in userAgent
+  	webview: [{
+  		criteria: /iPhone|iPad/,
+  		browserVersionSearch: "Version",
+  		webviewBrowserVersion: /-1/
+  	}, {
+  		criteria: /iPhone|iPad|Android/,
+  		webviewToken: /NAVER|DAUM|; wv/
+
+  	}],
+  	defaultString: {
+  		browser: {
+  			version: "-1",
+  			name: "unknown"
+  		},
+  		os: {
+  			version: "-1",
+  			name: "unknown"
+  		}
+  	}
   };
 
   function filter$1(arr, compare) {
-    var result = [];
+  	var result = [];
 
-    for (var i = 0; i < arr.length; i++) {
-      compare(arr[i]) && result.push(arr[i]);
-    }
-
-    return result;
+  	for (var i = 0; i < arr.length; i++) {
+  		compare(arr[i]) && result.push(arr[i]);
+  	}
+  	return result;
   }
 
   function some(arr, compare) {
-    for (var i = 0; i < arr.length; i++) {
-      if (compare(arr[i])) {
-        return true;
-      }
-    }
-
-    return false;
+  	for (var i = 0; i < arr.length; i++) {
+  		if (compare(arr[i])) {
+  			return true;
+  		}
+  	}
+  	return false;
   }
 
   var UA = void 0;
 
   function setUa(ua) {
-    UA = ua;
+  	UA = ua;
   }
 
   function isMatched(base, target) {
-    return target && target.test ? !!target.test(base) : base.indexOf(target) > -1;
+  	return target && target.test ? !!target.test(base) : base.indexOf(target) > -1;
   }
 
   function getIdentityStringFromArray(rules, defaultStrings) {
-    var matchedRule = filter$1(rules, function (rule) {
-      return isMatched(UA, rule.criteria);
-    })[0];
-    return matchedRule && matchedRule.identity || defaultStrings.name;
+  	var matchedRule = filter$1(rules, function (rule) {
+  		return isMatched(UA, rule.criteria);
+  	})[0];
+
+  	return matchedRule && matchedRule.identity || defaultStrings.name;
   }
 
   function getRule(rules, targetIdentity) {
-    return filter$1(rules, function (rule) {
-      var criteria = rule.criteria;
-      var identityMatched = new RegExp(rule.identity, "i").test(targetIdentity);
+  	return filter$1(rules, function (rule) {
+  		var criteria = rule.criteria;
+  		var identityMatched = new RegExp(rule.identity, "i").test(targetIdentity);
 
-      if (criteria ? identityMatched && isMatched(UA, criteria) : identityMatched) {
-        return true;
-      } else {
-        return false;
-      }
-    })[0];
+  		if (criteria ? identityMatched && isMatched(UA, criteria) : identityMatched) {
+  			return true;
+  		} else {
+  			return false;
+  		}
+  	})[0];
   }
 
   function getBrowserName() {
-    return getIdentityStringFromArray(parseRules.browser, parseRules.defaultString.browser);
+  	return getIdentityStringFromArray(parseRules.browser, parseRules.defaultString.browser);
   }
 
   function getBrowserRule(browserName) {
-    var rule = getRule(parseRules.browser, browserName);
+  	var rule = getRule(parseRules.browser, browserName);
 
-    if (!rule) {
-      rule = {
-        criteria: browserName,
-        versionSearch: browserName,
-        identity: browserName
-      };
-    }
+  	if (!rule) {
+  		rule = {
+  			criteria: browserName,
+  			versionSearch: browserName,
+  			identity: browserName
+  		};
+  	}
 
-    return rule;
+  	return rule;
   }
 
   function extractBrowserVersion(versionToken, ua) {
-    var browserVersion = parseRules.defaultString.browser.version;
-    var versionRegexResult = new RegExp("(" + versionToken + ")", "i").exec(ua);
+  	var browserVersion = parseRules.defaultString.browser.version;
+  	var versionRegexResult = new RegExp("(" + versionToken + ")", "i").exec(ua);
 
-    if (!versionRegexResult) {
-      return browserVersion;
-    }
+  	if (!versionRegexResult) {
+  		return browserVersion;
+  	}
 
-    var versionTokenIndex = versionRegexResult.index;
-    var verTkn = versionRegexResult[0];
+  	var versionTokenIndex = versionRegexResult.index;
+  	var verTkn = versionRegexResult[0];
 
-    if (versionTokenIndex > -1) {
-      var versionIndex = versionTokenIndex + verTkn.length + 1;
-      browserVersion = ua.substring(versionIndex).split(" ")[0].replace(/_/g, ".").replace(/;|\)/g, "");
-    }
+  	if (versionTokenIndex > -1) {
+  		var versionIndex = versionTokenIndex + verTkn.length + 1;
 
-    return browserVersion;
+  		browserVersion = ua.substring(versionIndex).split(" ")[0].replace(/_/g, ".").replace(/;|\)/g, "");
+  	}
+  	return browserVersion;
   }
 
   function getBrowserVersion(browserName) {
-    if (!browserName) {
-      return undefined;
-    } // console.log(browserRule);
-    // const versionToken = browserRule ? browserRule.versionSearch : browserName;
+  	if (!browserName) {
+  		return undefined;
+  	}
 
+  	// console.log(browserRule);
+  	// const versionToken = browserRule ? browserRule.versionSearch : browserName;
+  	var browserRule = getBrowserRule(browserName);
+  	var versionToken = browserRule.versionSearch || browserName;
+  	var browserVersion = extractBrowserVersion(versionToken, UA);
 
-    var browserRule = getBrowserRule(browserName);
-    var versionToken = browserRule.versionSearch || browserName;
-    var browserVersion = extractBrowserVersion(versionToken, UA);
-    return browserVersion;
+  	return browserVersion;
   }
 
   function isWebview() {
-    var webviewRules = parseRules.webview;
-    var browserVersion = void 0;
-    return some(filter$1(webviewRules, function (rule) {
-      return isMatched(UA, rule.criteria);
-    }), function (rule) {
-      browserVersion = extractBrowserVersion(rule.browserVersionSearch, UA);
+  	var webviewRules = parseRules.webview;
+  	var browserVersion = void 0;
 
-      if (isMatched(UA, rule.webviewToken) || isMatched(browserVersion, rule.webviewBrowserVersion)) {
-        return true;
-      } else {
-        return false;
-      }
-    });
+  	return some(filter$1(webviewRules, function (rule) {
+  		return isMatched(UA, rule.criteria);
+  	}), function (rule) {
+  		browserVersion = extractBrowserVersion(rule.browserVersionSearch, UA);
+  		if (isMatched(UA, rule.webviewToken) || isMatched(browserVersion, rule.webviewBrowserVersion)) {
+  			return true;
+  		} else {
+  			return false;
+  		}
+  	});
   }
 
   function getOSRule(osName) {
-    return getRule(parseRules.os, osName);
+  	return getRule(parseRules.os, osName);
   }
 
   function getOsName() {
-    return getIdentityStringFromArray(parseRules.os, parseRules.defaultString.os);
+  	return getIdentityStringFromArray(parseRules.os, parseRules.defaultString.os);
   }
 
   function getOsVersion(osName) {
-    var osRule = getOSRule(osName) || {};
-    var defaultOSVersion = parseRules.defaultString.os.version;
-    var osVersion = void 0;
+  	var osRule = getOSRule(osName) || {};
+  	var defaultOSVersion = parseRules.defaultString.os.version;
+  	var osVersion = void 0;
 
-    if (!osName) {
-      return undefined;
-    }
+  	if (!osName) {
+  		return undefined;
+  	}
+  	if (osRule.versionAlias) {
+  		return osRule.versionAlias;
+  	}
+  	var osVersionToken = osRule.versionSearch || osName;
+  	var osVersionRegex = new RegExp("(" + osVersionToken + ")\\s([\\d_\\.]+|\\d_0)", "i");
+  	var osVersionRegexResult = osVersionRegex.exec(UA);
 
-    if (osRule.versionAlias) {
-      return osRule.versionAlias;
-    }
-
-    var osVersionToken = osRule.versionSearch || osName;
-    var osVersionRegex = new RegExp("(" + osVersionToken + ")\\s([\\d_\\.]+|\\d_0)", "i");
-    var osVersionRegexResult = osVersionRegex.exec(UA);
-
-    if (osVersionRegexResult) {
-      osVersion = osVersionRegex.exec(UA)[2].replace(/_/g, ".").replace(/;|\)/g, "");
-    }
-
-    return osVersion || defaultOSVersion;
+  	if (osVersionRegexResult) {
+  		osVersion = osVersionRegex.exec(UA)[2].replace(/_/g, ".").replace(/;|\)/g, "");
+  	}
+  	return osVersion || defaultOSVersion;
   }
 
   function getOs() {
-    var name = getOsName();
-    var version = getOsVersion(name);
-    return {
-      name: name,
-      version: version
-    };
+  	var name = getOsName();
+  	var version = getOsVersion(name);
+
+  	return { name: name, version: version };
   }
 
   function getBrowser() {
-    var name = getBrowserName();
-    var version = getBrowserVersion(name);
-    return {
-      name: name,
-      version: version,
-      webview: isWebview()
-    };
+  	var name = getBrowserName();
+  	var version = getBrowserVersion(name);
+
+  	return { name: name, version: version, webview: isWebview() };
   }
 
   function getIsMobile() {
-    return UA.indexOf("Mobi") !== -1;
+  	return UA.indexOf("Mobi") !== -1;
   }
+
   /**
    * Copyright (c) NAVER Corp.
    * egjs-agent projects are licensed under the MIT license
@@ -11186,7 +11478,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
   /**
    * @namespace eg.agent
    */
-
   /**
    * Extracts browser and operating system information from the user agent string.
    * @ko 유저 에이전트 문자열에서 브라우저와 운영체제 정보를 추출한다.
@@ -11206,16 +11497,17 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
 
   const {os, browser, isMobile} = agent();
    */
-
-
   function agent() {
     var ua = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : navigator$1.userAgent;
+
     setUa(ua);
+
     var agentInfo = {
       os: getOs(),
       browser: getBrowser(),
       isMobile: getIsMobile()
     };
+
     agentInfo.browser.name = agentInfo.browser.name.toLowerCase();
     agentInfo.os.name = agentInfo.os.name.toLowerCase();
     agentInfo.os.version = agentInfo.os.version.toLowerCase();
@@ -11236,8 +11528,6 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
    * eg.agent.VERSION;  // ex) 2.2.0
    * @memberof eg.agent
    */
-
-
   agent.VERSION = "2.1.5";
 
   var WEBGL_ERROR_CODE = {
@@ -12523,7 +12813,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     return CylinderRenderer;
   }();
 
-  var _Promise$4 = typeof Promise === 'undefined' ? es6Promise.Promise : Promise;
+  var _Promise$2 = typeof Promise === 'undefined' ? es6Promise.Promise : Promise;
   var VR_DISPLAY_PRESENT_CHANGE = "vrdisplaypresentchange";
   var DEFAULT_LEFT_BOUNDS = [0, 0, 0.5, 1];
   var DEFAULT_RIGHT_BOUNDS = [0.5, 0, 0.5, 1];
@@ -12616,7 +12906,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       _proto.requestPresent = function requestPresent(canvas) {
         var _this2 = this;
 
-        return new _Promise$4(function (resolve, reject) {
+        return new _Promise$2(function (resolve, reject) {
           navigator.getVRDisplays().then(function (displays) {
             var vrDisplay = displays.length && displays[0];
 
@@ -12903,7 +13193,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     return WebGLAnimator;
   }();
 
-  var _Promise$5 = typeof Promise === 'undefined' ? es6Promise.Promise : Promise;
+  var _Promise$3 = typeof Promise === 'undefined' ? es6Promise.Promise : Promise;
   var ImageType = PROJECTION_TYPE;
   var DEVICE_PIXEL_RATIO = devicePixelRatio || 1; // DEVICE_PIXEL_RATIO 가 2를 초과하는 경우는 리소스 낭비이므로 2로 맞춘다.
 
@@ -13231,7 +13521,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       _proto.bindTexture = function bindTexture() {
         var _this3 = this;
 
-        return new _Promise$5(function (res, rej) {
+        return new _Promise$3(function (res, rej) {
           if (!_this3._contentLoader) {
             rej("ImageLoader is not initialized");
             return;
@@ -13607,11 +13897,11 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         var vr = this._vr;
 
         if (!WEBXR_SUPPORTED && !navigator.getVRDisplays) {
-          return _Promise$5.reject("VR is not available on this browser.");
+          return _Promise$3.reject("VR is not available on this browser.");
         }
 
         if (vr && vr.isPresenting()) {
-          return _Promise$5.resolve("VR already enabled.");
+          return _Promise$3.resolve("VR already enabled.");
         }
 
         return this._requestPresent();
@@ -13626,7 +13916,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         this._vr = WEBXR_SUPPORTED ? new XRManager() : new VRManager();
         var vr = this._vr;
         animator.stop();
-        return new _Promise$5(function (resolve, reject) {
+        return new _Promise$3(function (resolve, reject) {
           vr.requestPresent(canvas, gl).then(function () {
             vr.addEndCallback(_this4.exitVR);
             animator.setContext(vr.context);
@@ -13687,7 +13977,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
     return PanoImageRenderer;
   }();
 
-  var _Promise$6 = typeof Promise === 'undefined' ? es6Promise.Promise : Promise;
+  var _Promise$4 = typeof Promise === 'undefined' ? es6Promise.Promise : Promise;
 
   var PanoViewer =
   /*#__PURE__*/
@@ -14019,31 +14309,43 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         return this._projectionType;
       }
       /**
-       * Reactivate the device's motion sensor. Motion sensor will work only if you enabled `gyroMode` option.
+       * Activate the device's motion sensor, and return the Promise whether the sensor is enabled
        * If it's iOS13+, this method must be used in the context of user interaction, like onclick callback on the button element.
-       * @ko 디바이스의 모션 센서를 재활성화합니다. 모션 센서는 `gyroMode` 옵션을 활성화해야만 사용할 수 있습니다.
+       * @ko 디바이스의 모션 센서를 활성화하고, 활성화 여부를 담는 Promise를 리턴합니다.
        * iOS13+일 경우, 사용자 인터렉션에 의해서 호출되어야 합니다. 예로, 버튼의 onclick 콜백과 같은 콘텍스트에서 호출되어야 합니다.
-       * @see {@link eg.view360.PanoViewer#setGyroMode}
        * @method eg.view360.PanoViewer#enableSensor
        * @return {Promise<string>} Promise containing nothing when resolved, or string of the rejected reason when rejected.<ko>Promise. resolve되었을 경우 아무것도 반환하지 않고, reject되었을 경우 그 이유를 담고있는 string을 반환한다.</ko>
        */
       ;
 
       _proto.enableSensor = function enableSensor() {
-        return this._yawPitchControl.enableSensor();
+        return new _Promise$4(function (resolve, reject) {
+          if (DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === "function") {
+            DeviceMotionEvent.requestPermission().then(function (permissionState) {
+              if (permissionState === "granted") {
+                resolve();
+              } else {
+                reject(new Error("permission denied"));
+              }
+            })["catch"](function (e) {
+              // This can happen when this method wasn't triggered by user interaction
+              reject(e);
+            });
+          } else {
+            resolve();
+          }
+        });
       }
       /**
        * Disable the device's motion sensor.
        * @ko 디바이스의 모션 센서를 비활성화합니다.
-       * @see {@link eg.view360.PanoViewer#setGyroMode}
+       * @deprecated
        * @method eg.view360.PanoViewer#disableSensor
        * @return {eg.view360.PanoViewer} PanoViewer instance<ko>PanoViewer 인스턴스</ko>
        */
       ;
 
       _proto.disableSensor = function disableSensor() {
-        this._yawPitchControl.disableSensor();
-
         return this;
       }
       /**
@@ -14062,10 +14364,10 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         var _this2 = this;
 
         if (!this._isReady) {
-          return _Promise$6.reject(new Error("PanoViewer is not ready to show image."));
+          return _Promise$4.reject(new Error("PanoViewer is not ready to show image."));
         }
 
-        return new _Promise$6(function (resolve, reject) {
+        return new _Promise$4(function (resolve, reject) {
           _this2.enableSensor().then(function () {
             return _this2._photoSphereRenderer.enterVR();
           }).then(function (res) {
@@ -14704,7 +15006,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
       ;
 
       PanoViewer.isGyroSensorAvailable = function isGyroSensorAvailable(callback) {
-        if (!DeviceMotionEvent$1) {
+        if (!DeviceMotionEvent) {
           callback && callback(false);
           return;
         }
@@ -14712,7 +15014,7 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         var onDeviceMotionChange;
 
         function checkGyro() {
-          return new _Promise$6(function (res, rej) {
+          return new _Promise$4(function (res, rej) {
             onDeviceMotionChange = function onDeviceMotionChange(deviceMotion) {
               var isGyroSensorAvailable = !(deviceMotion.rotationRate.alpha == null);
               res(isGyroSensorAvailable);
@@ -14723,14 +15025,14 @@ All-in-one packaged file for ease use of '@egjs/view360' with below dependencies
         }
 
         function timeout() {
-          return new _Promise$6(function (res, rej) {
+          return new _Promise$4(function (res, rej) {
             setTimeout(function () {
               return res(false);
             }, 1000);
           });
         }
 
-        _Promise$6.race([checkGyro(), timeout()]).then(function (isGyroSensorAvailable) {
+        _Promise$4.race([checkGyro(), timeout()]).then(function (isGyroSensorAvailable) {
           window.removeEventListener("devicemotion", onDeviceMotionChange);
           callback && callback(isGyroSensorAvailable);
 
