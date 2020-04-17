@@ -44,7 +44,7 @@ interface StereoFormat {
   TOP_BOTTOM: string;
   LEFT_RIGHT: string;
   NONE: string;
-};
+}
 
 interface TouchDirection {
   NONE: number;
