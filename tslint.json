@@ -18,7 +18,6 @@
         "no-bitwise": false,
         "max-line-length": false,
         "no-misused-new": false,
-        "lines-between-class-members": true,
         "interface-name": [true, "never-prefix"],
         "whitespace": [
             true,
@@ -32,18 +31,12 @@
             "check-type",
             "check-typecast",
             "check-preblock"
-        ],
-        "naming-convention": [
-            true,
-            { "type": "default", "format": "camelCase", "leadingUnderscore": "forbid", "trailingUnderscore": "forbid" },
-            { "type": "variable", "modifiers": ["export", "const"], "format": ["camelCase", "UPPER_CASE"] },
-            { "type": "member", "format": "camelCase" },
-            { "type": "member", "modifiers": ["static"], "format": ["camelCase", "UPPER_CASE"] },
-            { "type": "member", "modifiers": ["private"], "leadingUnderscore": "require" },
-            { "type": "type", "format": ["PascalCase", "UPPER_CASE"] }
         ]
     },
     "linterOptions": {
+        "include": [
+            "declaration/**/*"
+        ],
         "exclude": [
             "node_modules/**/*"
         ]
