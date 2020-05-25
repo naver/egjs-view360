@@ -130,7 +130,7 @@ describe("CylinderRenderer", () => {
 			expect(result2.success).to.be.equal(true);
 		});
 
-		IT("Rotated panorma should be corrected as normal panorama renders", async () => {
+		IT.skip("Rotated panorma should be corrected as normal panorama renders", async () => {
 			// Given
 			// When
 			/**

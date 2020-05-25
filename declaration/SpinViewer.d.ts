@@ -1,5 +1,3 @@
-import Component from "@egjs/component";
-
 declare class SpinViewer {
   static VERSION: string;
   constructor(element: HTMLElement, param: Partial<{

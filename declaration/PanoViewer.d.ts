@@ -44,7 +44,7 @@ interface StereoFormat {
   TOP_BOTTOM: string;
   LEFT_RIGHT: string;
   NONE: string;
-};
+}
 
 interface TouchDirection {
   NONE: number;
@@ -86,7 +86,7 @@ declare class PanoViewer extends Component {
 
   static isSupported(): boolean;
   static isWebGLAvailable(): boolean;
-  static isGyroSensorAvailable(callback: (isAvailable: boolean) => any);
+  static isGyroSensorAvailable(callback: (isAvailable: boolean) => any): void;
 
   constructor(container: HTMLElement, param?: Partial<PanoOptions>);
   destroy(): this;
