@@ -1,4 +1,6 @@
-declare class SpinViewer {
+import Component from "@egjs/component";
+
+declare class SpinViewer extends Component {
   static VERSION: string;
   constructor(element: HTMLElement, param: Partial<{
     imageUrl: string;
