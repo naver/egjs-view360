@@ -2,7 +2,7 @@ import Component from "@egjs/component";
 import Agent from "@egjs/agent";
 
 const agent = Agent();
-const isIE11 = agent.browser.name === "ie" && agent.browser.version === "11.0";
+const isIE11 = agent.browser.name === "ie" && agent.browser.majorVersion === 11;
 
 const EVENTS = {
 	ERROR: "error"

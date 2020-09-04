@@ -71,7 +71,8 @@ describe("CubeRenderer", () => {
 								},
 								os: {
 									name: "ios",
-									version: "8"
+									version: "8",
+									majorVersion: 8,
 								}
 							};
 						}
@@ -101,7 +102,8 @@ describe("CubeRenderer", () => {
 								},
 								os: {
 									name: "ios",
-									version: "9"
+									version: "9",
+									majorVersion: 9,
 								}
 							};
 						}
@@ -128,11 +130,13 @@ describe("CubeRenderer", () => {
 							return {
 								browser: {
 									name: "ie",
-									version: "11"
+									version: "11",
+									majorVersion: 11,
 								},
 								os: {
 									name: "windows",
-									version: "10"
+									version: "10",
+									majorVersion: 10,
 								}
 							};
 						}
@@ -159,11 +163,13 @@ describe("CubeRenderer", () => {
 							return {
 								browser: {
 									name: "ie",
-									version: "11"
+									version: "11",
+									majorVersion: 11,
 								},
 								os: {
 									name: "windows",
-									version: "10"
+									version: "10",
+									majorVersion: 10,
 								}
 							};
 						}

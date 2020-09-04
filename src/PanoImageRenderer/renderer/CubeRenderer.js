@@ -219,7 +219,7 @@ void main(void) {
 		const maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
 		let _imageWidth = this.getSourceTileSize(image);
 
-		if (agent.browser.name === "ie" && parseInt(agent.browser.version, 10) === 11) {
+		if (agent.browser.name === "ie" && agent.browser.majorVersion === 11) {
 			if (!mathUtil.isPowerOfTwo(_imageWidth)) {
 				for (let i = 1; i < maxCubeMapTextureSize; i *= 2) {
 					if (i < _imageWidth) {
@@ -231,13 +231,17 @@ void main(void) {
 				}
 			}
 		}
-		// ios 9 의 경우 텍스쳐 최대사이즈는 1024 이다.
-		if (agent.os.name === "ios" && parseInt(agent.os.version, 10) === 9) {
-			_imageWidth = 1024;
-		}
-		// ios 8 의 경우 텍스쳐 최대사이즈는 512 이다.
-		if (agent.os.name === "ios" && parseInt(agent.os.version, 10) === 8) {
-			_imageWidth = 512;
+		if (agent.os.name === "ios") {
+			const majorVersion = agent.os.majorVersion;
+
+			// ios 9 의 경우 텍스쳐 최대사이즈는 1024 이다.
+			if (majorVersion === 9) {
+				_imageWidth = 1024;
+			}
+			// ios 8 의 경우 텍스쳐 최대사이즈는 512 이다.
+			if (majorVersion === 8) {
+				_imageWidth = 512;
+			}
 		}
 		// maxCubeMapTextureSize 보다는 작고, imageWidth 보다 큰 2의 승수 중 가장 작은 수
 		return Math.min(maxCubeMapTextureSize, _imageWidth);

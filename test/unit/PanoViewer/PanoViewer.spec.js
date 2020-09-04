@@ -240,8 +240,8 @@ describe("PanoViewer", () => {
 			];
 
 			const unstableBrowsers = [
-				{os: {name: "android", version: "4.3"}, browser: {name: "chrome"}},
-				{os: {name: "android", version: "4.4"}, browser: {name: "samsung internet"}}
+				{os: {name: "android", version: "4.3", majorVersion: 4}, browser: {name: "chrome"}},
+				{os: {name: "android", version: "4.4", majorVersion: 4}, browser: {name: "samsung internet"}}
 			];
 
 			const isAvailable = browserList => browserList.map(agentInfo => {

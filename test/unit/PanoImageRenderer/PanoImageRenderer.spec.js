@@ -17,7 +17,8 @@ const RendererOnIE11 = RendererInjector(
 		"@egjs/agent": () => ({
 			browser: {
 				name: "ie",
-				version: "11.0"
+				version: "11.0",
+				majorVersion: 11,
 			}
 		})
 	}
