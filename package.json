@@ -42,7 +42,7 @@
 		"url": "https://github.com/naver/egjs-view360/issues"
 	},
 	"dependencies": {
-		"@egjs/agent": "^2.1.5",
+		"@egjs/agent": "^2.2.1",
 		"@egjs/axes": "^2.5.8",
 		"@egjs/component": "^2.1.2",
 		"es6-promise": "^4.2.5",

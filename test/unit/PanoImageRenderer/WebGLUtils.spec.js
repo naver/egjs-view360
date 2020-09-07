@@ -19,9 +19,9 @@ describe("WebglUtils", () => {
 
 	describe("#isStableWebGL", () => {
 		[
-			{os: {name: "android", version: "6"}, browser: {name: "chrome"}},
-			{os: {name: "android", version: "4.4"}, browser: {name: "chrome"}},
-			{os: {name: "ios", version: "9"}, browser: {name: "safari"}}
+			{os: {name: "android", version: "6", majorVersion: 6}, browser: {name: "chrome"}},
+			{os: {name: "android", version: "4.4", majorVersion: 4}, browser: {name: "chrome"}},
+			{os: {name: "ios", version: "9", majorVersion: 9}, browser: {name: "safari"}}
 		].forEach(agentInfo => {
 			it(`on stable browser: ${JSON.stringify(agentInfo)}`, () => {
 				// Given
@@ -38,8 +38,8 @@ describe("WebglUtils", () => {
 		});
 
 		[
-			{os: {name: "android", version: "4.3"}, browser: {name: "chrome"}},
-			{os: {name: "android", version: "4.4"}, browser: {name: "samsung internet"}}
+			{os: {name: "android", version: "4.3", majorVersion: 4}, browser: {name: "chrome"}},
+			{os: {name: "android", version: "4.4", majorVersion: 4}, browser: {name: "samsung internet"}}
 		].forEach(agentInfo => {
 			it(`on unstable browser: ${JSON.stringify(agentInfo)}`, () => {
 				// Given
