@@ -3,7 +3,7 @@ import {quat} from "gl-matrix";
 import PosePredictor from "webvr-polyfill/src/sensor-fusion/pose-predictor";
 import MathUtil from "webvr-polyfill/src/math-util";
 import Util from "webvr-polyfill/src/util";
-import {window} from "../../utils/browser";
+import {window, IS_IOS, IS_SAFARI_ON_DESKTOP} from "../../utils/browser";
 import DeviceMotion from "./DeviceMotion";
 import ComplementaryFilter from "./ComplementaryFilter";
 import {CHROME_VERSION} from "../consts";
@@ -29,7 +29,7 @@ export default class FusionPoseSensor extends Component {
 		this.filterToWorldQ = new MathUtil.Quaternion();
 
 		this.isFirefoxAndroid = Util.isFirefoxAndroid();
-		this.isIOS = Util.isIOS();
+		this.isIOS = IS_IOS || IS_SAFARI_ON_DESKTOP;
 
 		// Ref https://github.com/immersive-web/cardboard-vr-display/issues/18
 		this.isChromeUsingDegrees = CHROME_VERSION >= 66;
