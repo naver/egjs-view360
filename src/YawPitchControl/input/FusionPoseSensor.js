@@ -29,6 +29,7 @@ export default class FusionPoseSensor extends Component {
 		this.filterToWorldQ = new MathUtil.Quaternion();
 
 		this.isFirefoxAndroid = Util.isFirefoxAndroid();
+		// This includes iPhone & iPad(both desktop and mobile mode) ref #326
 		this.isIOS = IS_IOS || IS_SAFARI_ON_DESKTOP;
 
 		// Ref https://github.com/immersive-web/cardboard-vr-display/issues/18
