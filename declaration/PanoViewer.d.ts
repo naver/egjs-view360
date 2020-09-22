@@ -126,7 +126,11 @@ declare class PanoViewer extends Component {
   }>): this;
   enableSensor(): Promise<string>;
   disableSensor(): this;
-  enterVR(): Promise<string>;
+  enterVR(options: {
+    requiredFeatures?: any[],
+    optionalFeatures?: any[],
+    [key: string]: any,
+  } = {}): Promise<string>;
   exitVR(): this;
 }
 
