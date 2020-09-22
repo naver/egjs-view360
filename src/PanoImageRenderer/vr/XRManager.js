@@ -7,7 +7,7 @@ const XR_REFERENCE_SPACE = "local";
 class XRManager {
 	get context() { return this._xrSession; }
 
-	constructor(options) {
+	constructor(options = {}) {
 		this._clear();
 		this._options = options;
 	}
