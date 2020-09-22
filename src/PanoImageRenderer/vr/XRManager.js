@@ -1,13 +1,15 @@
 import {mat4, glMatrix} from "gl-matrix";
 import {IS_SAFARI_ON_DESKTOP} from "../../utils/browser";
+import {merge} from "../../utils/utils";
 
 const XR_REFERENCE_SPACE = "local";
 
 class XRManager {
 	get context() { return this._xrSession; }
 
-	constructor() {
+	constructor(options) {
 		this._clear();
+		this._options = options;
 	}
 
 	destroy = () => {
@@ -87,9 +89,11 @@ class XRManager {
 	}
 
 	requestPresent(canvas, gl) {
-		return navigator.xr.requestSession("immersive-vr", {
+		const options = merge({
 			requiredFeatures: [XR_REFERENCE_SPACE],
-		}).then(session => {
+		}, this._options);
+
+		return navigator.xr.requestSession("immersive-vr", options).then(session => {
 			const xrLayer = new window.XRWebGLLayer(session, gl);
 
 			session.updateRenderState({baseLayer: xrLayer});
@@ -118,6 +122,7 @@ class XRManager {
 		this._xrRefSpace = null;
 		this._presenting = false;
 		this._yawOffset = 0;
+		this._options = {};
 	}
 }
 

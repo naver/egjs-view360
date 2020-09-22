@@ -687,7 +687,7 @@ class PanoImageRenderer extends Component {
 	/**
 	 * @return Promise
 	 */
-	enterVR() {
+	enterVR(options) {
 		const vr = this._vr;
 
 		if (!WEBXR_SUPPORTED && !navigator.getVRDisplays) {
@@ -697,7 +697,7 @@ class PanoImageRenderer extends Component {
 			return Promise.resolve("VR already enabled.");
 		}
 
-		return this._requestPresent();
+		return this._requestPresent(options);
 	}
 
 	exitVR = () => {
@@ -727,13 +727,13 @@ class PanoImageRenderer extends Component {
 		animator.start();
 	}
 
-	_requestPresent() {
+	_requestPresent(options) {
 		const gl = this.context;
 		const canvas = this.canvas;
 		const animator = this._animator;
 
 		this._vr = WEBXR_SUPPORTED ?
-			new XRManager() :
+			new XRManager(options) :
 			new VRManager();
 
 		const vr = this._vr;
