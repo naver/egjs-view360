@@ -288,9 +288,9 @@ describe("SpinViewer", () => {
 				const diff = after - before;
 
 				// Then
-				expect(diff).be.above(100);
-				expect(diff).be.below(150); // timeout margin 50ms: it cannot be accurate because timeout is not accurate.
 				expect(currAngle).be.equal(10);
+				expect(diff).be.above(100);
+				expect(diff).be.below(200); // timeout margin 100ms: it cannot be accurate because timeout is not accurate.
 				done();
 			});
 
