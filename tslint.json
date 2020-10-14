@@ -19,6 +19,7 @@
         "max-line-length": false,
         "no-misused-new": false,
         "interface-name": [true, "never-prefix"],
+        "member-ordering": [true, {"order": "fields-first"}],
         "whitespace": [
             true,
             "check-decl",
