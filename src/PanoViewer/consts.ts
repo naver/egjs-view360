@@ -32,7 +32,7 @@
  * @type {String}
  * @default "VR"
  */
-import {GYRO_MODE} from "../YawPitchControl/consts";
+import { GYRO_MODE } from "../YawPitchControl/consts";
 
 /**
  * Constant value for errors
@@ -111,7 +111,12 @@ const ERROR_TYPE = {
  * @name EVENTS
  * @memberof eg.view360.PanoViewer
  */
-const EVENTS = {
+const EVENTS: {
+  READY: "ready";
+  VIEW_CHANGE: "viewChange";
+  ANIMATION_END: "animationEnd";
+  ERROR: "error";
+} = {
 	/**
 	 * Events that is fired when PanoViewer is ready to show image and handle user interaction.
 	 * @ko PanoViewer 가 사용자의 인터렉션 및 렌더링이 준비되상태에 발생하는 이벤트
@@ -161,7 +166,13 @@ const EVENTS = {
  * @name PROJECTION_TYPE
  * @memberof eg.view360.PanoViewer
  */
-const PROJECTION_TYPE = {
+const PROJECTION_TYPE: {
+  EQUIRECTANGULAR: "equirectangular";
+  CUBEMAP: "cubemap";
+  CUBESTRIP: "cubestrip";
+  PANORAMA: "panorama";
+  STEREOSCOPIC_EQUI: "stereoequi";
+} = {
 	/**
 	 * Constant value for equirectangular type.
 	 * @ko equirectangular 에 대한 상수 값.
@@ -231,7 +242,11 @@ const PROJECTION_TYPE = {
  * @name STEREO_FORMAT
  * @memberof eg.view360.PanoViewer
  */
-const STEREO_FORMAT = {
+const STEREO_FORMAT: {
+  TOP_BOTTOM: "3dv";
+  LEFT_RIGHT: "3dh";
+  NONE: "";
+} = {
 	/**
 	 * A constant value for format of top bottom stereoscopic 360 equirectangular projection.
 	 * @ko top bottom stereoscopic 360 equirectangular projection 콘텐츠 포맷에 대한 상수값.
