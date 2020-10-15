@@ -84,11 +84,12 @@ declare class PanoViewer extends Component {
   static STEREO_FORMAT: StereoFormat;
   static TOUCH_DIRECTION: TouchDirection;
 
+  constructor(container: HTMLElement, param?: Partial<PanoOptions>);
+
   static isSupported(): boolean;
   static isWebGLAvailable(): boolean;
   static isGyroSensorAvailable(callback: (isAvailable: boolean) => any): void;
 
-  constructor(container: HTMLElement, param?: Partial<PanoOptions>);
   destroy(): this;
   getFov(): number;
   getFovRange(): number[];

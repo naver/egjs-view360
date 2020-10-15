@@ -1,5 +1,5 @@
 import PanoViewer from "./PanoViewer";
-import {VERSION} from "../version";
+import { VERSION } from "../version";
 
 export {
 	PanoViewer,

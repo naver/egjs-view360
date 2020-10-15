@@ -1,4 +1,4 @@
-import {userAgent} from "../utils/browserFeature";
+import { userAgent } from "../utils/browserFeature";
 /**
  * Returns a number value indiciating the version of Chrome being used,
  * or otherwise `null` if not on Chrome.
@@ -13,8 +13,8 @@ import {userAgent} from "../utils/browserFeature";
  * https://github.com/immersive-web/webvr-polyfill/issues/307
  */
 let version = -1; // It should not be null because it will be compared with number
-let branch = null;
-let build = null;
+let branch: string | null = null;
+let build: string | null = null;
 
 const match = /Chrome\/([0-9]+)\.(?:[0-9]*)\.([0-9]*)\.([0-9]*)/i.exec(userAgent);
 
@@ -25,7 +25,7 @@ if (match) {
 }
 
 const CHROME_VERSION = version;
-const IS_CHROME_WITHOUT_DEVICE_MOTION = version === 65 && branch === "3325" && parseInt(build, 10) < 148;
+const IS_CHROME_WITHOUT_DEVICE_MOTION = version === 65 && branch === "3325" && parseInt(build as string, 10) < 148;
 const IS_ANDROID = /Android/i.test(userAgent);
 
 const CONTROL_MODE_VR = 1;
@@ -69,7 +69,11 @@ const KEYMAP = {
 	S: 83,
 };
 
-const GYRO_MODE = {
+const GYRO_MODE: {
+  NONE: "none";
+	YAWPITCH: "yawPitch";
+	VR: "VR";
+} = {
 	NONE: "none",
 	YAWPITCH: "yawPitch",
 	VR: "VR"
