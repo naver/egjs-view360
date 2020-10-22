@@ -7,7 +7,7 @@ import WebGLUtils from "../PanoImageRenderer/WebGLUtils";
 import { ERROR_TYPE, EVENTS, GYRO_MODE, PROJECTION_TYPE, STEREO_FORMAT } from "./consts";
 import { util as mathUtil } from "../utils/math-util.js";
 import { VERSION } from "../version";
-import { ValueOf } from "../types";
+import { CubemapConfig, ValueOf } from "../types";
 
 
 /**
@@ -196,13 +196,7 @@ class PanoViewer extends Component<
   private _image: HTMLElement | string | object;
   private _isVideo: boolean;
   private _projectionType: ValueOf<typeof PROJECTION_TYPE>;
-  private _cubemapConfig: {
-    order: string;
-    tileConfig: {
-      flipHorizontal: boolean;
-      rotation: number;
-    }
-  };
+  private _cubemapConfig: CubemapConfig;
   private _stereoFormat: ValueOf<typeof STEREO_FORMAT>;
   private _width: number;
   private _height: number;
