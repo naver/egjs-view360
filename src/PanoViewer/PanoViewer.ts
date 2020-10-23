@@ -193,7 +193,7 @@ class PanoViewer extends Component<
 
   private _container: HTMLElement;
   // Options
-  private _image: HTMLElement | string | object;
+  private _image: ConstructorParameters<typeof PanoImageRenderer>[0];
   private _isVideo: boolean;
   private _projectionType: ValueOf<typeof PROJECTION_TYPE>;
   private _cubemapConfig: CubemapConfig;
@@ -325,7 +325,7 @@ class PanoViewer extends Component<
     checkXRSupport();
 
     this._container = container;
-    this._image = options.image! || options.video!;
+    this._image = options.image! as HTMLImageElement || options.video! as HTMLVideoElement;
     this._isVideo = !!options.video;
     this._projectionType = options.projectionType || PROJECTION_TYPE.EQUIRECTANGULAR;
     this._cubemapConfig = Object.assign({
@@ -482,7 +482,7 @@ class PanoViewer extends Component<
    * });
    * ```
    */
-  public setVideo(video: string | HTMLElement | object, param: Partial<{
+  public setVideo(video: string | HTMLElement | { type : string; src: string; }, param: Partial<{
     projectionType: PanoViewer["_projectionType"];
     cubemapConfig: PanoViewer["_cubemapConfig"];
     stereoFormat: PanoViewer["_stereoFormat"];
@@ -532,7 +532,7 @@ class PanoViewer extends Component<
    * });
    * ```
    */
-  public setImage(image: string | HTMLElement | object, param: Partial<{
+  public setImage(image: string | HTMLElement | { src: string; type: string; }, param: Partial<{
     projectionType: PanoViewer["_projectionType"];
     cubemapConfig: PanoViewer["_cubemapConfig"];
     stereoFormat: PanoViewer["_stereoFormat"];
@@ -556,7 +556,7 @@ class PanoViewer extends Component<
     }
 
     if (image) {
-      this._image = image;
+      this._image = image as HTMLImageElement;
       this._isVideo = isVideo;
       this._projectionType = param.projectionType || PROJECTION_TYPE.EQUIRECTANGULAR;
       this._cubemapConfig = cubemapConfig;

@@ -136,7 +136,11 @@ class ImageLoader extends Component<{
     return images.length === 1 ? images[0] : images;
   }
 
-  public onceLoaded(target: HTMLImageElement | HTMLImageElement[], onload, onerror) {
+  public onceLoaded(
+    target: HTMLImageElement | HTMLImageElement[],
+    onload: (images: HTMLImageElement | HTMLImageElement[]) => any,
+    onerror: (images: HTMLImageElement | HTMLImageElement[]) => any
+  ) {
     const targets = target instanceof Array ? target : [target];
     const targetsNotLoaded = targets.filter(img => !ImageLoader.isMaybeLoaded(img));
     const loadPromises = targetsNotLoaded.map(img => new Promise((res, rej) => {
@@ -150,21 +154,11 @@ class ImageLoader extends Component<{
     );
   }
 
-  _once(target, type, listener) {
-    const fn = event => {
-      target.removeEventListener(type, fn);
-      listener(event);
-    };
-
-    target.addEventListener(type, fn);
-    this._onceHandlers.push({target, type, fn});
-  }
-
-  getStatus() {
+  public getStatus() {
     return this._loadStatus;
   }
 
-  destroy() {
+  public destroy() {
     this._onceHandlers.forEach(handler => {
       handler.target.removeEventListener(handler.type, handler.fn);
     });
@@ -172,6 +166,16 @@ class ImageLoader extends Component<{
     this._image!.forEach(img => img.src = "");
     this._image = null;
     this._loadStatus = STATUS.NONE;
+  }
+
+  private _once(target: HTMLImageElement, type: string, listener: (evt: Event) => any) {
+    const fn = event => {
+      target.removeEventListener(type, fn);
+      listener(event);
+    };
+
+    target.addEventListener(type, fn);
+    this._onceHandlers.push({target, type, fn});
   }
 }
 

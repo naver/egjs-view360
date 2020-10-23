@@ -557,7 +557,7 @@ class PanoImageRenderer extends Component<{
     });
   }
 
-  private _onContentLoad(image) {
+  private _onContentLoad() {
     this._imageIsReady = true;
 
     this._triggerContentLoad();
@@ -577,8 +577,8 @@ class PanoImageRenderer extends Component<{
     const vsSource = renderer.getVertexShaderSource();
     const fsSource = renderer.getFragmentShaderSource();
 
-    const vertexShader = WebGLUtils.createShader(gl, gl.VERTEX_SHADER, vsSource);
-    const fragmentShader = WebGLUtils.createShader(gl, gl.FRAGMENT_SHADER, fsSource);
+    const vertexShader = WebGLUtils.createShader(gl, gl.VERTEX_SHADER, vsSource)!;
+    const fragmentShader = WebGLUtils.createShader(gl, gl.FRAGMENT_SHADER, fsSource)!;
 
     const shaderProgram = WebGLUtils.createProgram(gl, vertexShader, fragmentShader);
 
@@ -587,20 +587,20 @@ class PanoImageRenderer extends Component<{
     }
 
     gl.useProgram(shaderProgram);
-    shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-    gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
-    shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-    shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
-    shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
-    shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
-    shaderProgram.uEye = gl.getUniformLocation(shaderProgram, "uEye");
+    (shaderProgram as any).vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+    gl.enableVertexAttribArray((shaderProgram as any).vertexPositionAttribute);
+    (shaderProgram as any).pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+    (shaderProgram as any).mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+    (shaderProgram as any).samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
+    (shaderProgram as any).textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
+    (shaderProgram as any).uEye = gl.getUniformLocation(shaderProgram, "uEye");
 
-    gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
+    gl.enableVertexAttribArray((shaderProgram as any).textureCoordAttribute);
 
     // clear buffer
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
     // Use TEXTURE0
-    gl.uniform1i(shaderProgram.samplerUniform, 0);
+    gl.uniform1i((shaderProgram as any).samplerUniform, 0);
 
     this.shaderProgram = shaderProgram;
   }
@@ -653,7 +653,7 @@ class PanoImageRenderer extends Component<{
       gl.deleteTexture(this.texture);
     }
 
-    this.texture = WebGLUtils.createTexture(gl, textureTarget);
+    this.texture = WebGLUtils.createTexture(gl, textureTarget)!;
 
     if (this._imageType === ImageType.CUBESTRIP) {
       // TODO: Apply following options on other projection type.
@@ -671,7 +671,7 @@ class PanoImageRenderer extends Component<{
       throw new Error("WebGLRenderingContext not available.");
     }
 
-    this.context = WebGLUtils.getWebglContext(this.canvas, this._renderingContextAttributes);
+    this.context = WebGLUtils.getWebglContext(this.canvas, this._renderingContextAttributes)!;
 
     if (!this.context) {
       throw new Error("Failed to acquire 3D rendering context");
@@ -806,8 +806,8 @@ class PanoImageRenderer extends Component<{
 
     this._renderer.render({
       gl: this.context,
-      shaderProgram: this.shaderProgram,
-      indexBuffer: this.indexBuffer,
+      shaderProgram: this.shaderProgram!,
+      indexBuffer: this.indexBuffer!,
       mvMatrix: this.mvMatrix,
       pMatrix: this.pMatrix,
     });

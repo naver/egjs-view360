@@ -1,10 +1,14 @@
 import Component from "@egjs/component";
 import Agent from "@egjs/agent";
+import { mat4 } from "gl-matrix";
+import { CubemapConfig, TileConfig } from "src/types";
 
 const agent = Agent();
 const isIE11 = agent.browser.name === "ie" && agent.browser.majorVersion === 11;
 
-const EVENTS = {
+const EVENTS: {
+  ERROR: "error",
+} = {
 	ERROR: "error"
 };
 
@@ -12,8 +16,16 @@ const EVENTS = {
  *
  * Extends Component for firing errors occurs internally.
  */
-class Renderer extends Component {
-	static EVENTS = EVENTS;
+class Renderer extends Component<{
+  [EVENTS.ERROR]: {
+    message: string;
+  }
+}> {
+  public static EVENTS = EVENTS;
+
+  private _forceDimension: { width: number; height: number; } | null;
+  private _pixelCanvas: HTMLCanvasElement | null;
+  private _pixelContext: CanvasRenderingContext2D | null;
 
 	constructor() {
 		super();
@@ -23,12 +35,18 @@ class Renderer extends Component {
 		this._pixelContext = null;
 	}
 
-	render({gl, shaderProgram, indexBuffer, mvMatrix, pMatrix}) {
-		gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
-		gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
+	public render({ gl, shaderProgram, indexBuffer, mvMatrix, pMatrix }: {
+    gl: WebGLRenderingContext;
+    shaderProgram: WebGLProgram;
+    indexBuffer: WebGLBuffer;
+    mvMatrix: mat4;
+    pMatrix: mat4;
+  }) {
+		gl.uniformMatrix4fv((shaderProgram as any).pMatrixUniform, false, pMatrix);
+		gl.uniformMatrix4fv((shaderProgram as any).mvMatrixUniform, false, mvMatrix);
 
 		if (indexBuffer) {
-			gl.drawElements(gl.TRIANGLES, indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+			gl.drawElements(gl.TRIANGLES, (indexBuffer as any).numItems, gl.UNSIGNED_SHORT, 0);
 		}
 	}
 
@@ -51,21 +69,19 @@ class Renderer extends Component {
 	 *
 	 *  - bindTexture
 	 */
-	getDimension(pixelSource) {
-		const width = pixelSource.naturalWidth || pixelSource.videoWidth;
-		const height = pixelSource.naturalHeight || pixelSource.videoHeight;
+	public getDimension(pixelSource: HTMLImageElement | HTMLVideoElement) {
+    const width = (pixelSource as HTMLImageElement).naturalWidth
+      || (pixelSource as HTMLVideoElement).videoWidth;
+    const height = (pixelSource as HTMLImageElement).naturalHeight
+      || (pixelSource as HTMLVideoElement).videoHeight;
 
-		return {width, height};
+		return { width, height };
 	}
 
 	/**
 	 * Update data used by shader
-	 * 	-
-	 *
-	 *
-	 * @param {*} param
 	 */
-	updateShaderData(param) {
+	public updateShaderData(param) {
 		/*
 		* Update following data in implementation layer.
 		* If the data is not changed, it does not need to implement this function.
@@ -81,7 +97,7 @@ class Renderer extends Component {
 	 * @param {HTMLImageElement | HTMLVideoElement} image
 	 * @param {Object = {width, height}} forceDimension Forced dimension to resize
 	 */
-	_initPixelSource(image, forceDimension) {
+	protected _initPixelSource(image: HTMLImageElement | HTMLVideoElement, forceDimension: Renderer["_forceDimension"] = null) {
 		const isIE11Video = isIE11 && (image instanceof HTMLVideoElement);
 
 		if (isIE11Video || forceDimension) {
@@ -95,7 +111,7 @@ class Renderer extends Component {
 		this._forceDimension = forceDimension;
 	}
 
-	_getPixelSource(image) {
+	protected _getPixelSource(image: HTMLImageElement | HTMLVideoElement) {
 		if (!this._pixelCanvas) {
 			return image;
 		}
@@ -117,20 +133,20 @@ class Renderer extends Component {
 		}
 
 		if (this._forceDimension) {
-			this._pixelContext.drawImage(image,
+			this._pixelContext!.drawImage(image,
 				0, 0, contentDimension.width, contentDimension.height,
 				0, 0, textureDimension.width, textureDimension.height);
 		} else {
-			this._pixelContext.drawImage(image, 0, 0);
+			this._pixelContext!.drawImage(image, 0, 0);
 		}
 
 		return this._pixelCanvas;
 	}
 
-	_extractTileConfig(imageConfig) {
-		let tileConfig =
+	protected _extractTileConfig(imageConfig: CubemapConfig) {
+		let tileConfig: TileConfig[] =
 			Array.isArray(imageConfig.tileConfig) ?
-				imageConfig.tileConfig : Array(...Array(6)).map(() => imageConfig.tileConfig);
+				imageConfig.tileConfig : Array(...Array(6)).map(() => imageConfig.tileConfig) as TileConfig[];
 
 		tileConfig = tileConfig.map(
 			config => Object.assign({
@@ -142,7 +158,7 @@ class Renderer extends Component {
 		return tileConfig;
 	}
 
-	_triggerError(error) {
+	protected _triggerError(error) {
 		/* eslint-disable no-console */
 		console.error("Renderer Error:", error);
 		/* eslint-enable no-console */

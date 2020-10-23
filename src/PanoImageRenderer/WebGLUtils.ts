@@ -1,4 +1,5 @@
 import agent from "@egjs/agent";
+import { TypedArray } from "src/types";
 
 const WEBGL_ERROR_CODE = {
 	"0": "NO_ERROR",
@@ -10,12 +11,12 @@ const WEBGL_ERROR_CODE = {
 	"37442": "CONTEXT_LOST_WEBGL"
 };
 
-let webglAvailability = null;
-let MAX_TEXTURE_SIZE_FOR_TEST = null;
+let webglAvailability: boolean | null = null;
+let MAX_TEXTURE_SIZE_FOR_TEST: number | null = null;
 
 export default class WebGLUtils {
-	static createShader(gl, type, source) {
-		const shader = gl.createShader(type);
+	public static createShader(gl: WebGLRenderingContext, type: number, source: string) {
+		const shader = gl.createShader(type)!;
 
 		gl.shaderSource(shader, source);
 		gl.compileShader(shader);
@@ -30,8 +31,8 @@ export default class WebGLUtils {
 		return null;
 	}
 
-	static createProgram(gl, vertexShader, fragmentShader) {
-		const program = gl.createProgram();
+	public static createProgram(gl: WebGLRenderingContext, vertexShader: WebGLShader, fragmentShader: WebGLShader) {
+		const program = gl.createProgram()!;
 
 		gl.attachShader(program, vertexShader);
 		gl.attachShader(program, fragmentShader);
@@ -52,28 +53,28 @@ export default class WebGLUtils {
 		return null;
 	}
 
-	static initBuffer(gl, target /* bind point */, data, itemSize, attr) {
-		const buffer = gl.createBuffer();
+	public static initBuffer(gl: WebGLRenderingContext, target: number /* bind point */, data: TypedArray, itemSize: number, attr?: number) {
+		const buffer = gl.createBuffer()!;
 
 		gl.bindBuffer(target, buffer);
-		gl.bufferData(target, data, gl.STATIC_DRAW);
+    gl.bufferData(target, data, gl.STATIC_DRAW);
 
 		if (buffer) {
-			buffer.itemSize = itemSize;
-			buffer.numItems = data.length / itemSize;
+			(buffer as any).itemSize = itemSize;
+			(buffer as any).numItems = data.length / itemSize;
 		}
 
 		if (attr !== undefined) {
 			gl.enableVertexAttribArray(attr);
-			gl.vertexAttribPointer(attr, buffer.itemSize, gl.FLOAT, false, 0, 0);
+			gl.vertexAttribPointer(attr, (buffer as any).itemSize, gl.FLOAT, false, 0, 0);
 		}
 
 		return buffer;
 	}
 
-	static getWebglContext(canvas, userContextAttributes) {
+	public static getWebglContext(canvas: HTMLCanvasElement, userContextAttributes?: WebGLContextAttributes) {
 		const webglIdentifiers = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
-		let context = null;
+		let context: WebGLRenderingContext | null = null;
 		const contextAttributes = Object.assign({
 			preserveDrawingBuffer: false,
 			antialias: false,
@@ -86,10 +87,11 @@ export default class WebGLUtils {
 
 		canvas.addEventListener("webglcontextcreationerror", onWebglcontextcreationerror);
 
-		for (let i = 0; i < webglIdentifiers.length; i++) {
+    for (const identifier of webglIdentifiers) {
 			try {
-				context = canvas.getContext(webglIdentifiers[i], contextAttributes);
-			} catch (t) {}
+        canvas.getContext("webgl", )
+				context = canvas.getContext(identifier, contextAttributes) as WebGLRenderingContext;
+			} catch (t) {} // tslint:disable-line no-empty
 			if (context) {
 				break;
 			}
@@ -100,7 +102,7 @@ export default class WebGLUtils {
 		return context;
 	}
 
-	static createTexture(gl, textureTarget) {
+	public static createTexture(gl: WebGLRenderingContext, textureTarget: number) {
 		const texture = gl.createTexture();
 
 		gl.bindTexture(textureTarget, texture);
@@ -118,7 +120,7 @@ export default class WebGLUtils {
 	 * @method WebGLUtils#isWebGLAvailable
 	 * @retuen {Boolean} isWebGLAvailable
 	 */
-	static isWebGLAvailable() {
+	public static isWebGLAvailable(): boolean {
 		if (webglAvailability === null) {
 			const canvas = document.createElement("canvas");
 			const webglContext = WebGLUtils.getWebglContext(canvas);
@@ -129,10 +131,12 @@ export default class WebGLUtils {
 			if (webglContext) {
 				const loseContextExtension = webglContext.getExtension("WEBGL_lose_context");
 
-				loseContextExtension && loseContextExtension.loseContext();
+        if (loseContextExtension) {
+          loseContextExtension.loseContext();
+        }
 			}
 		}
-		return webglAvailability;
+		return !!webglAvailability;
 	}
 
 	/**
@@ -140,7 +144,7 @@ export default class WebGLUtils {
 	 * @method WebGLUtils#isStableWebGL
 	 * @retuen {Boolean} isStableWebGL
 	 */
-	static isStableWebGL() {
+	public static isStableWebGL() {
 		const agentInfo = agent();
 		let isStableWebgl = true;
 
@@ -158,7 +162,7 @@ export default class WebGLUtils {
 		return isStableWebgl;
 	}
 
-	static getErrorNameFromWebGLErrorCode(code) {
+	public static getErrorNameFromWebGLErrorCode(code: number | string) {
 		if (!(code in WEBGL_ERROR_CODE)) {
 			return "UNKNOWN_ERROR";
 		}
@@ -170,12 +174,8 @@ export default class WebGLUtils {
 	/**
 	 * This function is wrapper for texImage2D to handle exceptions on texImage2D.
 	 * Purpose is to prevent service from being stopped by script error.
-	 *
-	 * @param {*} gl
-	 * @param {*} target
-	 * @param {*} pixels
 	 */
-	static texImage2D(gl, target, pixels) {
+	public static texImage2D(gl: WebGLRenderingContext, target: number, pixels: TexImageSource) {
 		try {
 			gl.texImage2D(target, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
 		} catch (error) {
@@ -185,7 +185,7 @@ export default class WebGLUtils {
 		}
 	}
 
-	static getMaxTextureSize(gl) {
+	public static getMaxTextureSize(gl: WebGLRenderingContext) {
 		// WARN: MAX_TEXTURE_SIZE_FOR_TEST is used for test
 		return MAX_TEXTURE_SIZE_FOR_TEST || gl.getParameter(gl.MAX_TEXTURE_SIZE);
 	}
@@ -197,7 +197,7 @@ export default class WebGLUtils {
  *
  * @param {Number} size
  */
-function setMaxTextureSizeForTestOnlyPurpose(size) {
+function setMaxTextureSizeForTestOnlyPurpose(size: number) {
 	MAX_TEXTURE_SIZE_FOR_TEST = size;
 }
 

@@ -1,4 +1,4 @@
-import {glMatrix} from "gl-matrix";
+import { glMatrix } from "gl-matrix";
 import Renderer from "./Renderer";
 import WebGLUtils from "../WebGLUtils";
 
@@ -6,28 +6,28 @@ import WebGLUtils from "../WebGLUtils";
 const MIN_ASPECT_RATIO_FOR_FULL_PANORAMA = 6;
 const longitudeBands = 60;
 
-const textureCoordData = [];
-const vertexPositionData = [];
-const indexData = [];
+const textureCoordData: number[] = [];
+const vertexPositionData: number[] = [];
+const indexData: number[] = [];
 
 class CylinderRenderer extends Renderer {
-	static _VERTEX_POSITION_DATA = vertexPositionData;
-	static _TEXTURE_COORD_DATA = textureCoordData;
-	static _INDEX_DATA = indexData;
+	private static _VERTEX_POSITION_DATA = vertexPositionData;
+	private static _TEXTURE_COORD_DATA = textureCoordData;
+	private static _INDEX_DATA = indexData;
 
-	getVertexPositionData() {
+	public getVertexPositionData() {
 		return CylinderRenderer._VERTEX_POSITION_DATA;
 	}
 
-	getIndexData() {
+	public getIndexData() {
 		return CylinderRenderer._INDEX_DATA;
 	}
 
-	getTextureCoordData() {
+	public getTextureCoordData() {
 		return CylinderRenderer._TEXTURE_COORD_DATA;
 	}
 
-	getVertexShaderSource() {
+	public getVertexShaderSource() {
 		return `
 attribute vec3 aVertexPosition;
 attribute vec2 aTextureCoord;
@@ -40,7 +40,7 @@ void main(void) {
 }`;
 	}
 
-	getFragmentShaderSource() {
+	public getFragmentShaderSource() {
 		return `
 precision highp float;
 varying highp vec2 vTextureCoord;
@@ -50,16 +50,16 @@ void main(void) {
 }`;
 	}
 
-	updateTexture(gl, image) {
+	public updateTexture(gl: WebGLRenderingContext, image: HTMLImageElement | HTMLVideoElement) {
 		WebGLUtils.texImage2D(gl, gl.TEXTURE_2D, this._getPixelSource(image));
 	}
 
-	bindTexture(gl, texture, image) {
+	public bindTexture(gl: WebGLRenderingContext, texture: WebGLTexture, image: HTMLImageElement | HTMLVideoElement) {
 		// Make sure image isn't too big
 		const {width, height} = this.getDimension(image);
 		const size = Math.max(width, height);
 		const maxSize = WebGLUtils.getMaxTextureSize(gl);
-		let resizeDimension;
+		let resizeDimension: { width: number, height: number } | undefined;
 
 		if (size > maxSize) {
 			this._triggerError(`Image width(${width}) exceeds device texture limit(${maxSize}))`);
@@ -83,12 +83,12 @@ void main(void) {
 		this.updateTexture(gl, image);
 	}
 
-	updateShaderData({imageAspectRatio = MIN_ASPECT_RATIO_FOR_FULL_PANORAMA}) {
-		let lngIdx;
-		let cylinderMaxRadian;
-		let halfCylinderY;
-		let rotated;
-		let aspectRatio;
+	public updateShaderData({ imageAspectRatio = MIN_ASPECT_RATIO_FOR_FULL_PANORAMA }) {
+		let lngIdx: number;
+		let cylinderMaxRadian: number;
+		let halfCylinderY: number;
+		let rotated: boolean;
+		let aspectRatio: number;
 
 		// Exception case: orientation is rotated.
 		if (imageAspectRatio < 1) {
@@ -110,7 +110,7 @@ void main(void) {
 			halfCylinderY = Math.tan(glMatrix.toRadian(fov / 2));
 		} else {
 			cylinderMaxRadian = aspectRatio;
-			halfCylinderY = 0.5;// Range of cylinder is [-0.5, 0.5] to make height to 1.
+			halfCylinderY = 0.5; // Range of cylinder is [-0.5, 0.5] to make height to 1.
 		}
 
 		// intialize shader data before update
@@ -128,8 +128,8 @@ void main(void) {
 				const x = Math.cos(angle);
 				const y = CYLIDER_Y[yIdx];
 				const z = Math.sin(angle);
-				let u;
-				let v;
+				let u: number;
+				let v: number;
 
 				if (rotated) {
 					// Rotated 90 degree (counter clock wise)
