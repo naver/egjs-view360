@@ -1,6 +1,11 @@
-import {IS_SAFARI_ON_DESKTOP} from "../utils/browser";
+import { IS_SAFARI_ON_DESKTOP } from "../utils/browser";
 
 class WebGLAnimator {
+  private _callback: ((...args: any[]) => any) | null;
+  private _context: any;
+  private _rafId: number;
+  private _rafTimer: number;
+
 	constructor() {
 		this._callback = null;
 		this._context = window;
@@ -8,15 +13,15 @@ class WebGLAnimator {
 		this._rafTimer = -1;
 	}
 
-	setCallback(callback) {
+	public setCallback(callback: (...args: any[]) => any) {
 		this._callback = callback;
 	}
 
-	setContext(context) {
+	public setContext(context: any) {
 		this._context = context;
 	}
 
-	start() {
+	public start() {
 		const context = this._context;
 		const callback = this._callback;
 
@@ -32,7 +37,7 @@ class WebGLAnimator {
 		}
 	}
 
-	stop() {
+	public stop() {
 		if (this._rafId >= 0) {
 			this._context.cancelAnimationFrame(this._rafId);
 		}
@@ -48,8 +53,8 @@ class WebGLAnimator {
 	/**
 	 * There can be more than 1 argument when we use XRSession's raf
 	 */
-	_onLoop = (...args) => {
-		this._callback(...args);
+	private _onLoop = (...args: any[]) => {
+		this._callback!(...args);
 		this._rafId = this._context.requestAnimationFrame(this._onLoop);
 	}
 
@@ -62,10 +67,10 @@ class WebGLAnimator {
 	 * only if requestAnimationFrame is called for next frame while updating frame is delayed (~over 2ms)
 	 * So browser cannot render the frame and may be freezing.
 	 */
-	_onLoopNextTick = (...args) => {
+	private _onLoopNextTick = (...args: any[]) => {
 		const before = performance.now();
 
-		this._callback(...args);
+		this._callback!(...args);
 
 		const diff = performance.now() - before;
 
@@ -74,12 +79,12 @@ class WebGLAnimator {
 			this._rafTimer = -1;
 		}
 
-		/** Use requestAnimationFrame only if current rendering could be possible over 60fps (1000/60) */
+		/* Use requestAnimationFrame only if current rendering could be possible over 60fps (1000/60) */
 		if (diff < 16) {
 			this._rafId = this._context.requestAnimationFrame(this._onLoop);
 		} else {
-			/** Otherwise, Call setTimeout instead of requestAnimationFrame to gaurantee renering should be occurred*/
-			this._rafTimer = setTimeout(this._onLoop, 0);
+			/* Otherwise, Call setTimeout instead of requestAnimationFrame to gaurantee renering should be occurred */
+			this._rafTimer = window.setTimeout(this._onLoop, 0);
 		}
 	}
 }

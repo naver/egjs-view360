@@ -1,17 +1,18 @@
 import Renderer from "./Renderer";
 import WebGLUtils from "../WebGLUtils";
-import {STEREO_FORMAT} from "../../PanoViewer/consts";
+import { STEREO_FORMAT } from "../../PanoViewer/consts";
+import { ValueOf } from "src/types";
 
 const latitudeBands = 60;
 const longitudeBands = 60;
 const radius = 2;
 const ANGLE_CORRECTION_FOR_CENTER_ALIGN = -0.5 * Math.PI;
 
-const textureCoordData = [];
-const vertexPositionData = [];
-const indexData = [];
-let latIdx;
-let lngIdx;
+const textureCoordData: number[] = [];
+const vertexPositionData: number[] = [];
+const indexData: number[] = [];
+let latIdx: number;
+let lngIdx: number;
 
 for (latIdx = 0; latIdx <= latitudeBands; latIdx++) {
 	const theta = (latIdx / latitudeBands - 0.5) * Math.PI;
@@ -41,21 +42,23 @@ for (latIdx = 0; latIdx <= latitudeBands; latIdx++) {
 }
 
 class SphereRenderer extends Renderer {
-	static _VERTEX_POSITION_DATA = vertexPositionData;
-	static _TEXTURE_COORD_DATA = textureCoordData;
-	static _INDEX_DATA = indexData;
+	private static _VERTEX_POSITION_DATA = vertexPositionData;
+	private static _TEXTURE_COORD_DATA = textureCoordData;
+  private static _INDEX_DATA = indexData;
 
-	constructor(format) {
+  private _stereoFormat: ValueOf<typeof STEREO_FORMAT>;
+
+	constructor(format: SphereRenderer["_stereoFormat"]) {
 		super();
 
 		this._stereoFormat = format;
 	}
 
-	render(ctx) {
+	public render(ctx: Parameters<Renderer["render"]>[0]) {
 		const {gl, shaderProgram} = ctx;
 
-		let leftEyeScaleOffset;
-		let rightEyeScaleOffset;
+		let leftEyeScaleOffset: number[];
+		let rightEyeScaleOffset: number[];
 
 		switch (this._stereoFormat) {
 			case STEREO_FORMAT.TOP_BOTTOM:
@@ -78,19 +81,19 @@ class SphereRenderer extends Renderer {
 		super.render(ctx);
 	}
 
-	getVertexPositionData() {
+	public getVertexPositionData() {
 		return SphereRenderer._VERTEX_POSITION_DATA;
 	}
 
-	getIndexData() {
+	public getIndexData() {
 		return SphereRenderer._INDEX_DATA;
 	}
 
-	getTextureCoordData() {
+	public getTextureCoordData() {
 		return SphereRenderer._TEXTURE_COORD_DATA;
 	}
 
-	getVertexShaderSource() {
+	public getVertexShaderSource() {
 		return `
 attribute vec3 aVertexPosition;
 attribute vec2 aTextureCoord;
@@ -106,7 +109,7 @@ void main(void) {
 }`;
 	}
 
-	getFragmentShaderSource() {
+	public getFragmentShaderSource() {
 		return `
 precision highp float;
 varying highp vec2 vTextureCoord;
@@ -116,13 +119,13 @@ void main(void) {
 }`;
 	}
 
-	updateTexture(gl, image) {
+	public updateTexture(gl: WebGLRenderingContext, image: HTMLImageElement | HTMLVideoElement) {
 		WebGLUtils.texImage2D(gl, gl.TEXTURE_2D, this._getPixelSource(image));
 	}
 
-	bindTexture(gl, texture, image) {
+	public bindTexture(gl: WebGLRenderingContext, texture: WebGLTexture, image: HTMLImageElement | HTMLVideoElement) {
 		// Make sure image isn't too big
-		const {width, height} = this.getDimension(image);
+		const { width, height } = this.getDimension(image);
 		const size = Math.max(width, height);
 		const maxSize = WebGLUtils.getMaxTextureSize(gl);
 

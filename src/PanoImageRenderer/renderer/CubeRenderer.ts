@@ -1,12 +1,18 @@
 import Agent from "@egjs/agent";
 import Renderer from "./Renderer.js";
 import WebGLUtils from "../WebGLUtils";
-import {util as mathUtil} from "../../utils/math-util.js";
+import { util as mathUtil } from "../../utils/math-util.js";
+import { CubemapConfig } from "src/types.js";
 
 class CubeRenderer extends Renderer {
-	static _VERTEX_POSITION_DATA = null;
-	static _INDEX_DATA = null;
-	getVertexPositionData() {
+	private static _VERTEX_POSITION_DATA: number[] | null = null;
+  private static _INDEX_DATA: number[] | null = null;
+
+  public static extractOrder(imageConfig: CubemapConfig) {
+		return imageConfig.order || "RLUDBF";
+	}
+
+	public getVertexPositionData() {
 		CubeRenderer._VERTEX_POSITION_DATA =
 			CubeRenderer._VERTEX_POSITION_DATA !== null ? CubeRenderer._VERTEX_POSITION_DATA : [
 				// back
@@ -49,12 +55,12 @@ class CubeRenderer extends Renderer {
 		return CubeRenderer._VERTEX_POSITION_DATA;
 	}
 
-	getIndexData() {
+	public getIndexData() {
 		if (CubeRenderer._INDEX_DATA) {
 			return CubeRenderer._INDEX_DATA;
 		}
 
-		const indexData = [];
+		const indexData: number[] = [];
 		const vertexPositionData = this.getVertexPositionData();
 
 		for (let i = 0; i < (vertexPositionData.length / 3); i += 4) {
@@ -72,11 +78,7 @@ class CubeRenderer extends Renderer {
 		return indexData;
 	}
 
-	static extractOrder(imageConfig) {
-		return imageConfig.order || "RLUDBF";
-	}
-
-	getTextureCoordData(imageConfig) {
+	public getTextureCoordData(imageConfig: CubemapConfig) {
 		const vertexOrder = "BFUDRL";
 		const order = CubeRenderer.extractOrder(imageConfig);
 		const base = this.getVertexPositionData();
@@ -87,21 +89,21 @@ class CubeRenderer extends Renderer {
 			vertexOrder.split("")
 				.map(face => tileConfig[order.indexOf(face)])
 				.map((config, i) => {
-					const rotation = parseInt(config.rotation / 90, 10);
+					const rotation = Math.floor(config.rotation / 90);
 					const ordermap_ = config.flipHorizontal ? [0, 1, 2, 3] : [1, 0, 3, 2];
 
 					for (let r = 0; r < Math.abs(rotation); r++) {
 						if ((config.flipHorizontal && rotation > 0) ||
 							(!config.flipHorizontal && rotation < 0)) {
-							ordermap_.push(ordermap_.shift());
+							ordermap_.push(ordermap_.shift()!);
 						} else {
-							ordermap_.unshift(ordermap_.pop());
+							ordermap_.unshift(ordermap_.pop()!);
 						}
 					}
 
 					const elemPerTile = elemSize * vertexPerTile;
 					const tileVertex = base.slice(i * elemPerTile, i * elemPerTile + elemPerTile);
-					const tileTemp = [];
+					const tileTemp: number[][] = [];
 
 					for (let j = 0; j < vertexPerTile; j++) {
 						tileTemp[ordermap_[j]] = tileVertex.splice(0, elemSize);
@@ -115,7 +117,7 @@ class CubeRenderer extends Renderer {
 		return textureCoordData;
 	}
 
-	getVertexShaderSource() {
+	public getVertexShaderSource() {
 		return `
 attribute vec3 aVertexPosition;
 attribute vec3 aTextureCoord;
@@ -128,7 +130,7 @@ void main(void) {
 }`;
 	}
 
-	getFragmentShaderSource() {
+	public getFragmentShaderSource() {
 		return `
 precision highp float;
 uniform samplerCube uSampler;
@@ -138,7 +140,7 @@ void main(void) {
 }`;
 	}
 
-	updateTexture(gl, image, imageConfig) {
+	public updateTexture(gl: WebGLRenderingContext, image, imageConfig) {
 		const baseOrder = "RLUDBF";
 		const order = CubeRenderer.extractOrder(imageConfig);
 		const orderMap = {};
@@ -166,17 +168,17 @@ void main(void) {
 					WebGLUtils.texImage2D(gl, gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, tile);
 				}
 			}
-		} catch (e) {
+		} catch (e: any) {
 			this._triggerError(e);
 		}
 	}
 
-	bindTexture(gl, texture, image, imageConfig) {
+	public bindTexture(gl: WebGLRenderingContext, texture, image, imageConfig: CubemapConfig) {
 		gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
 		this.updateTexture(gl, image, imageConfig);
 	}
 
-	getSourceTileSize(image) {
+	public getSourceTileSize(image: HTMLImageElement | HTMLVideoElement) {
 		const {width, height} = this.getDimension(image);
 		const aspectRatio = width / height;
 		let inputTextureSize;
@@ -193,7 +195,7 @@ void main(void) {
 		return inputTextureSize;
 	}
 
-	extractTileFromImage(image, tileIdx, outputTextureSize) {
+	public extractTileFromImage(image: HTMLImageElement | HTMLVideoElement, tileIdx: number, outputTextureSize: number) {
 		const {width} = this.getDimension(image);
 		const inputTextureSize = this.getSourceTileSize(image);
 
@@ -205,16 +207,16 @@ void main(void) {
 		const tilePerRow = width / inputTextureSize;
 
 		const x = inputTextureSize * tileIdx % (inputTextureSize * tilePerRow);
-		const y = parseInt(tileIdx / tilePerRow, 10) * (inputTextureSize);
+		const y = Math.floor(tileIdx / tilePerRow) * (inputTextureSize);
 
-		context.drawImage(
+		context!.drawImage(
 			image, x, y,
 			inputTextureSize, inputTextureSize, 0, 0, outputTextureSize, outputTextureSize
 		);
 		return canvas;
 	}
 
-	getMaxCubeMapTextureSize(gl, image) {
+	public getMaxCubeMapTextureSize(gl: WebGLRenderingContext, image: HTMLImageElement | HTMLVideoElement) {
 		const agent = Agent();
 		const maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
 		let _imageWidth = this.getSourceTileSize(image);

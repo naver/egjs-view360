@@ -1,9 +1,12 @@
 
 import Renderer from "./Renderer.js";
 import WebGLUtils from "../WebGLUtils";
+import { CubemapConfig, TileConfig } from "src/types.js";
 
 export default class CubeStripRenderer extends Renderer {
-	getVertexShaderSource() {
+  private _vertices: number[];
+
+	public getVertexShaderSource() {
 		return `
 attribute vec3 aVertexPosition;
 attribute vec2 aTextureCoord;
@@ -16,7 +19,7 @@ void main(void) {
 }`;
 	}
 
-	getFragmentShaderSource() {
+	public getFragmentShaderSource() {
 		return `
 #define PI 3.14159265359
 precision highp float;
@@ -76,7 +79,7 @@ void main(void) {
 }`;
 	}
 
-	getVertexPositionData() {
+	public getVertexPositionData() {
 		if (!this._vertices) {
 			this._vertices = [
 				// back
@@ -120,10 +123,10 @@ void main(void) {
 		return this._vertices;
 	}
 
-	getIndexData() {
+	public getIndexData() {
 		// TODO: 한번만 계산하도록 수정하기
 		const indices = (() => {
-			const indexData = [];
+			const indexData: number[] = [];
 
 			for (let i = 0; i < (this._vertices.length / 3); i += 4) {
 				indexData.push(
@@ -141,12 +144,12 @@ void main(void) {
 		return indices;
 	}
 
-	getTextureCoordData(imageConfig) {
+	public getTextureCoordData(imageConfig: CubemapConfig) {
 		// TODO: make it cols, rows as config.
 		const cols = 3;
 		const rows = 2;
 		const order = imageConfig.order || "RLUDFB";
-		let coords = [];
+		let coords: number[][] = [];
 
 		// 텍스쳐의 좌표는 윗쪽이 큰 값을 가지므로 row 는 역순으로 넣는다.
 		for (let r = rows - 1; r >= 0; r--) {
@@ -177,11 +180,11 @@ void main(void) {
 			.reduce((acc, val) => acc.concat(val), []);
 	}
 
-	updateTexture(gl, image) {
+	public updateTexture(gl: WebGLRenderingContext, image: HTMLImageElement | HTMLVideoElement) {
 		WebGLUtils.texImage2D(gl, gl.TEXTURE_2D, this._getPixelSource(image));
 	}
 
-	bindTexture(gl, texture, image) {
+	public bindTexture(gl: WebGLRenderingContext, texture: WebGLTexture, image: HTMLImageElement | HTMLVideoElement) {
 		// Make sure image isn't too big
 		const {width, height} = this.getDimension(image);
 		const size = Math.max(width, height);
@@ -202,7 +205,7 @@ void main(void) {
 		this.updateTexture(gl, image);
 	}
 
-	_transformCoord(coord, tileConfig) {
+	private _transformCoord(coord: number[], tileConfig: TileConfig) {
 		let newCoord = coord.slice();
 
 		if (tileConfig.flipHorizontal) {
@@ -216,7 +219,7 @@ void main(void) {
 		return newCoord;
 	}
 
-	_shrinkCoord(coord) {
+	private _shrinkCoord(coord: number[]) {
 		const SHRINK_Y = 0.00;
 		const SHRINK_X = 0.00;
 
@@ -228,16 +231,16 @@ void main(void) {
 		];
 	}
 
-	_rotateCoord(coord, rotationAngle) {
+	private _rotateCoord(coord: number[], rotationAngle: number) {
 		const SIZE = 2; // coord means x,y coordinates. Two values(x, y) makes a one coord.
-		const shiftCount = parseInt(rotationAngle / 90, 10) % 4;
+		const shiftCount = Math.floor(rotationAngle / 90) % 4;
 
 		if (shiftCount === 0) {
 			return coord;
 		}
 
 		let moved;
-		let rotatedCoord = [];
+		let rotatedCoord: number[] = [];
 
 		if (shiftCount > 0) {
 			moved = coord.splice(0, shiftCount * SIZE);
@@ -250,7 +253,7 @@ void main(void) {
 		return rotatedCoord;
 	}
 
-	_flipHorizontalCoord(coord) {
+	private _flipHorizontalCoord(coord: number[]) {
 		return [
 			coord[2], coord[3],
 			coord[0], coord[1],

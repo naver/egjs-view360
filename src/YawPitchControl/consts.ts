@@ -25,7 +25,7 @@ if (match) {
 }
 
 const CHROME_VERSION = version;
-const IS_CHROME_WITHOUT_DEVICE_MOTION = version === 65 && branch === "3325" && parseInt(build as string, 10) < 148;
+const IS_CHROME_WITHOUT_DEVICE_MOTION = version === 65 && branch === "3325" && parseInt(build!, 10) < 148;
 const IS_ANDROID = /Android/i.test(userAgent);
 
 const CONTROL_MODE_VR = 1;
