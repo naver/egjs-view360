@@ -1,5 +1,5 @@
 import Component from "@egjs/component";
-import { glMatrix, quat } from "gl-matrix";
+import { quat } from "gl-matrix";
 import { DeviceMotionEvent, checkXRSupport } from "../utils/browserFeature";
 import YawPitchControl, { YawPitchControlOptions } from "../YawPitchControl/YawPitchControl";
 import PanoImageRenderer from "../PanoImageRenderer/PanoImageRenderer";
@@ -462,7 +462,7 @@ class PanoViewer extends Component<
       return null;
     }
 
-    return this._photoSphereRenderer.getContent() as HTMLVideoElement;
+    return this._photoSphereRenderer!.getContent() as HTMLVideoElement;
   }
 
   /**
@@ -511,7 +511,7 @@ class PanoViewer extends Component<
       return null;
     }
 
-    return this._photoSphereRenderer.getContent();
+    return this._photoSphereRenderer!.getContent();
   }
 
   /**
@@ -576,7 +576,7 @@ class PanoViewer extends Component<
    * @return PanoViewer instance<ko>PanoViewer 인스턴스</ko>
    */
   public keepUpdate(doUpdate: boolean) {
-    this._photoSphereRenderer.keepUpdate(doUpdate);
+    this._photoSphereRenderer!.keepUpdate(doUpdate);
     return this;
   }
 
@@ -646,7 +646,7 @@ class PanoViewer extends Component<
 
     return new Promise((resolve, reject) => {
       this.enableSensor()
-        .then(() => this._photoSphereRenderer.enterVR(options))
+        .then(() => this._photoSphereRenderer!.enterVR(options))
         .then((res: string) => resolve(res))
         .catch(e => reject(e));
     });
@@ -658,7 +658,7 @@ class PanoViewer extends Component<
    * @return PanoViewer instance<ko>PanoViewer 인스턴스</ko>
    */
   public exitVR() {
-    this._photoSphereRenderer.exitVR();
+    this._photoSphereRenderer!.exitVR();
     return this;
   }
 
@@ -762,7 +762,7 @@ class PanoViewer extends Component<
     this._height = height;
 
     this._aspectRatio = width / height;
-    this._photoSphereRenderer.updateViewportDimensions(width, height);
+    this._photoSphereRenderer!.updateViewportDimensions(width, height);
     this._yawPitchControl!.option("aspectRatio", this._aspectRatio);
     this._yawPitchControl!.updatePanScale({height});
 
@@ -884,7 +884,7 @@ class PanoViewer extends Component<
     this._yawPitchControl!.lookAt({yaw, pitch, fov}, duration);
 
     if (duration === 0) {
-      this._photoSphereRenderer.renderWithYawPitch(yaw, pitch, fov);
+      this._photoSphereRenderer!.renderWithYawPitch(yaw, pitch, fov);
     }
     return this;
   }
@@ -962,7 +962,7 @@ class PanoViewer extends Component<
         stereoFormat: this._stereoFormat
       },
     );
-    this._photoSphereRenderer.setYawPitchControl(this._yawPitchControl);
+    this._photoSphereRenderer.setYawPitchControl(this._yawPitchControl!);
 
     this._bindRendererHandler();
 
@@ -987,7 +987,7 @@ class PanoViewer extends Component<
   private _updateYawPitchIfNeeded() {
     if (this._projectionType === PanoViewer.ProjectionType.PANORAMA) {
       // update fov by aspect ratio
-      const image = this._photoSphereRenderer.getContent();
+      const image = this._photoSphereRenderer!.getContent()! as HTMLImageElement;
       let imageAspectRatio = image.naturalWidth / image.naturalHeight;
       let yawSize;
       let maxFov;
@@ -1022,11 +1022,11 @@ class PanoViewer extends Component<
   }
 
   private	_bindRendererHandler() {
-    this._photoSphereRenderer.on(PanoImageRenderer.EVENTS.ERROR, e => {
+    this._photoSphereRenderer!.on(PanoImageRenderer.EVENTS.ERROR, e => {
       this.trigger(EVENTS.ERROR, e);
     });
 
-    this._photoSphereRenderer.on(PanoImageRenderer.EVENTS.RENDERING_CONTEXT_LOST, e => {
+    this._photoSphereRenderer!.on(PanoImageRenderer.EVENTS.RENDERING_CONTEXT_LOST, e => {
       this._deactivate();
       this.trigger(EVENTS.ERROR, {
         type: ERROR_TYPE.RENDERING_CONTEXT_LOST,
@@ -1036,24 +1036,24 @@ class PanoViewer extends Component<
   }
 
   private _initYawPitchControl(yawPitchConfig: Partial<YawPitchControlOptions>) {
-		this._yawPitchControl = new YawPitchControl(yawPitchConfig);
+    this._yawPitchControl = new YawPitchControl(yawPitchConfig);
 
-		this._yawPitchControl.on(EVENTS.ANIMATION_END, e => {
-			this.trigger(EVENTS.ANIMATION_END, e);
-		});
+    this._yawPitchControl.on(EVENTS.ANIMATION_END, e => {
+      this.trigger(EVENTS.ANIMATION_END, e);
+    });
 
-		this._yawPitchControl.on("change", e => {
-			this._yaw = e.yaw;
-			this._pitch = e.pitch;
-			this._fov = e.fov;
-			this._quaternion = e.quaternion;
+    this._yawPitchControl.on("change", e => {
+      this._yaw = e.yaw;
+      this._pitch = e.pitch;
+      this._fov = e.fov;
+      this._quaternion = e.quaternion;
 
-			this.trigger(EVENTS.VIEW_CHANGE, e);
-		});
-	}
+      this.trigger(EVENTS.VIEW_CHANGE, e);
+    });
+  }
 
   private _activate() {
-    this._photoSphereRenderer.attachTo(this._container);
+    this._photoSphereRenderer!.attachTo(this._container);
     this._yawPitchControl!.enable();
 
     this.updateViewportDimensions();
@@ -1064,7 +1064,7 @@ class PanoViewer extends Component<
     this._updateYawPitchIfNeeded();
 
     this.trigger(EVENTS.READY);
-    this._photoSphereRenderer.startRender();
+    this._photoSphereRenderer!.startRender();
   }
 
   /**
@@ -1072,7 +1072,7 @@ class PanoViewer extends Component<
    */
   private _deactivate() {
     if (this._isReady) {
-      this._photoSphereRenderer.stopRender();
+      this._photoSphereRenderer!.stopRender();
       this._yawPitchControl!.disable();
       this._isReady = false;
     }

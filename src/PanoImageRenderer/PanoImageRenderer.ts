@@ -24,7 +24,7 @@ let DEVICE_PIXEL_RATIO = devicePixelRatio || 1;
 
 // DEVICE_PIXEL_RATIO 가 2를 초과하는 경우는 리소스 낭비이므로 2로 맞춘다.
 if (DEVICE_PIXEL_RATIO > 2) {
-	DEVICE_PIXEL_RATIO = 2;
+  DEVICE_PIXEL_RATIO = 2;
 }
 
 // define custom events name
@@ -35,23 +35,23 @@ if (DEVICE_PIXEL_RATIO > 2) {
  */
 const EVENTS: {
   BIND_TEXTURE: "bindTexture";
-	IMAGE_LOADED: "imageLoaded";
-	ERROR: "error";
-	RENDERING_CONTEXT_LOST: "renderingContextLost";
-	RENDERING_CONTEXT_RESTORE: "renderingContextRestore";
+  IMAGE_LOADED: "imageLoaded";
+  ERROR: "error";
+  RENDERING_CONTEXT_LOST: "renderingContextLost";
+  RENDERING_CONTEXT_RESTORE: "renderingContextRestore";
 } = {
-	BIND_TEXTURE: "bindTexture",
-	IMAGE_LOADED: "imageLoaded",
-	ERROR: "error",
-	RENDERING_CONTEXT_LOST: "renderingContextLost",
-	RENDERING_CONTEXT_RESTORE: "renderingContextRestore",
+  BIND_TEXTURE: "bindTexture",
+  IMAGE_LOADED: "imageLoaded",
+  ERROR: "error",
+  RENDERING_CONTEXT_LOST: "renderingContextLost",
+  RENDERING_CONTEXT_RESTORE: "renderingContextRestore",
 };
 
 const ERROR_TYPE = {
-	INVALID_DEVICE: 10,
-	NO_WEBGL: 11,
-	FAIL_IMAGE_LOAD: 12,
-	RENDERER_ERROR: 13
+  INVALID_DEVICE: 10,
+  NO_WEBGL: 11,
+  FAIL_IMAGE_LOAD: 12,
+  RENDERER_ERROR: 13
 };
 
 class PanoImageRenderer extends Component<{
@@ -68,7 +68,7 @@ class PanoImageRenderer extends Component<{
   [EVENTS.RENDERING_CONTEXT_LOST]: void;
   [EVENTS.RENDERING_CONTEXT_RESTORE]: void;
 }> {
-	public static EVENTS = EVENTS;
+  public static EVENTS = EVENTS;
   public static ERROR_TYPE = ERROR_TYPE;
 
   public sphericalConfig: {
@@ -105,818 +105,818 @@ class PanoImageRenderer extends Component<{
 
   private _renderer: Renderer;
   private _contentLoader: ImageLoader | VideoLoader | null;
-	private _image: HTMLElement | null;
+  private _image: HTMLImageElement | HTMLImageElement[] | HTMLVideoElement | null;
   private _imageConfig: CubemapConfig | null;
   private _imageType: ValueOf<typeof PROJECTION_TYPE>;
   private _imageIsReady: boolean;
   private _isVideo: boolean;
   private _isCubeMap: boolean;
-	private _shouldForceDraw: boolean;
+  private _shouldForceDraw: boolean;
   private _keepUpdate: boolean;
 
   private _yawPitchControl: YawPitchControl;
   private _animator: WebGLAnimator;
   private _vr: VRManager | XRManager | null;
 
-	constructor(
-    image: string | object | HTMLElement,
+  constructor(
+    image: Parameters<ImageLoader["set"]>[0] | Parameters<VideoLoader["set"]>[0],
     width: number,
     height: number,
     isVideo: boolean,
     sphericalConfig: PanoImageRenderer["sphericalConfig"],
     renderingContextAttributes?: WebGLContextAttributes
-	) {
-		// Super constructor
-		super();
+  ) {
+    // Super constructor
+    super();
 
-		this.sphericalConfig = sphericalConfig;
-		this.fieldOfView = sphericalConfig.fieldOfView;
+    this.sphericalConfig = sphericalConfig;
+    this.fieldOfView = sphericalConfig.fieldOfView;
 
-		this.width = width;
-		this.height = height;
+    this.width = width;
+    this.height = height;
 
-		this._lastQuaternion = null;
-		this._lastYaw = null;
-		this._lastPitch = null;
-		this._lastFieldOfView = null;
+    this._lastQuaternion = null;
+    this._lastYaw = null;
+    this._lastPitch = null;
+    this._lastFieldOfView = null;
 
-		this.pMatrix = mat4.create();
-		this.mvMatrix = mat4.create();
+    this.pMatrix = mat4.create();
+    this.mvMatrix = mat4.create();
 
-		// initialzie pMatrix
-		mat4.perspective(this.pMatrix, glMatrix.toRadian(this.fieldOfView), width / height, 0.1, 100);
+    // initialzie pMatrix
+    mat4.perspective(this.pMatrix, glMatrix.toRadian(this.fieldOfView), width / height, 0.1, 100);
 
-		this.textureCoordBuffer = null;
-		this.vertexBuffer = null;
-		this.indexBuffer = null;
+    this.textureCoordBuffer = null;
+    this.vertexBuffer = null;
+    this.indexBuffer = null;
 
     this.canvas = this._initCanvas(width, height);
 
     this.canvas.getContext("webgl", )
-		this._setDefaultCanvasStyle();
-		this._wrapper = null; // canvas wrapper
-		this._wrapperOrigStyle = null;
+    this._setDefaultCanvasStyle();
+    this._wrapper = null; // canvas wrapper
+    this._wrapperOrigStyle = null;
 
-		this._renderingContextAttributes = renderingContextAttributes;
-		this._image = null;
-		this._imageConfig = null;
-		this._imageIsReady = false;
-		this._shouldForceDraw = false;
-		this._keepUpdate = false; // Flag to specify 'continuous update' on video even when still.
+    this._renderingContextAttributes = renderingContextAttributes;
+    this._image = null;
+    this._imageConfig = null;
+    this._imageIsReady = false;
+    this._shouldForceDraw = false;
+    this._keepUpdate = false; // Flag to specify 'continuous update' on video even when still.
 
-		this._onContentLoad = this._onContentLoad.bind(this);
-		this._onContentError = 	this._onContentError.bind(this);
+    this._onContentLoad = this._onContentLoad.bind(this);
+    this._onContentError = 	this._onContentError.bind(this);
 
-		this._animator = new WebGLAnimator();
+    this._animator = new WebGLAnimator();
 
-		// VR/XR manager
-		this._vr = null;
+    // VR/XR manager
+    this._vr = null;
 
-		if (image) {
-			this.setImage({
-				image,
-				imageType: sphericalConfig.imageType,
-				isVideo,
-				cubemapConfig: sphericalConfig.cubemapConfig
-			});
-		}
-	}
+    if (image) {
+      this.setImage({
+        image,
+        imageType: sphericalConfig.imageType,
+        isVideo,
+        cubemapConfig: sphericalConfig.cubemapConfig
+      });
+    }
+  }
 
-	// FIXME: Please refactor me to have more loose connection to yawpitchcontrol
-	public setYawPitchControl(yawPitchControl: YawPitchControl) {
-		this._yawPitchControl = yawPitchControl;
-	}
+  // FIXME: Please refactor me to have more loose connection to yawpitchcontrol
+  public setYawPitchControl(yawPitchControl: YawPitchControl) {
+    this._yawPitchControl = yawPitchControl;
+  }
 
-	public getContent() {
-		return this._image;
-	}
+  public getContent() {
+    return this._image;
+  }
 
-	public setImage({
+  public setImage({
     image,
     imageType,
     isVideo = false,
     cubemapConfig,
   }: {
-    image: string | object | HTMLElement;
+    image: Parameters<ImageLoader["set"]>[0] | Parameters<VideoLoader["set"]>[0];
     imageType: PanoImageRenderer["_imageType"];
     isVideo: boolean;
     cubemapConfig: CubemapConfig;
   }) {
-		this._imageIsReady = false;
-		this._isVideo = isVideo;
-		this._imageConfig = Object.assign(
-			{
-				/* RLUDBF is abnormal, we use it on CUBEMAP only */
-				order: (imageType === ImageType.CUBEMAP) ? "RLUDBF" : "RLUDFB",
-				tileConfig: {
-					flipHorizontal: false,
-					rotation: 0
-				}
-			},
-			cubemapConfig
-		);
-		this._setImageType(imageType);
+    this._imageIsReady = false;
+    this._isVideo = isVideo;
+    this._imageConfig = Object.assign(
+      {
+        /* RLUDBF is abnormal, we use it on CUBEMAP only */
+        order: (imageType === ImageType.CUBEMAP) ? "RLUDBF" : "RLUDFB",
+        tileConfig: {
+          flipHorizontal: false,
+          rotation: 0
+        }
+      },
+      cubemapConfig
+    );
+    this._setImageType(imageType);
 
-		if (this._contentLoader) {
-			this._contentLoader.destroy();
-		}
+    if (this._contentLoader) {
+      this._contentLoader.destroy();
+    }
 
-		if (isVideo) {
-			this._contentLoader = new VideoLoader();
-			this._keepUpdate = true;
-		} else {
-			this._contentLoader = new ImageLoader();
-			this._keepUpdate = false;
-		}
+    if (isVideo) {
+      this._contentLoader = new VideoLoader();
+      this._keepUpdate = true;
+    } else {
+      this._contentLoader = new ImageLoader();
+      this._keepUpdate = false;
+    }
 
-		// img element or img url
-		this._contentLoader.set(image);
+    // img element or img url
+    this._contentLoader.set(image as any);
 
-		// 이미지의 사이즈를 캐시한다.
-		// image is reference for content in contentLoader, so it may be not valid if contentLoader is destroyed.
-		this._image = this._contentLoader.getElement();
+    // 이미지의 사이즈를 캐시한다.
+    // image is reference for content in contentLoader, so it may be not valid if contentLoader is destroyed.
+    this._image = this._contentLoader.getElement();
 
-		return this._contentLoader.get()
-			.then(this._onContentLoad, this._onContentError)
-			.catch(e => setTimeout(() => { throw e; })); // Prevent exceptions from being isolated in promise chain.
+    return this._contentLoader.get()
+      .then(this._onContentLoad, this._onContentError)
+      .catch(e => setTimeout(() => { throw e; })); // Prevent exceptions from being isolated in promise chain.
   }
 
-	public isImageLoaded() {
-		return !!this._image && this._imageIsReady &&
-			(!this._isVideo || (this._image as HTMLVideoElement).readyState >= 2 /* HAVE_CURRENT_DATA */);
-	}
+  public isImageLoaded() {
+    return !!this._image && this._imageIsReady &&
+      (!this._isVideo || (this._image as HTMLVideoElement).readyState >= 2 /* HAVE_CURRENT_DATA */);
+  }
 
-	public bindTexture() {
-		return new Promise((res, rej) => {
-			if (!this._contentLoader) {
-				rej("ImageLoader is not initialized");
-				return;
-			}
+  public bindTexture() {
+    return new Promise((res, rej) => {
+      if (!this._contentLoader) {
+        rej("ImageLoader is not initialized");
+        return;
+      }
 
-			this._contentLoader.get()
-				.then(() => {
-					this._bindTexture();
-				}, rej)
-				.then(res);
-		});
-	}
+      this._contentLoader.get()
+        .then(() => {
+          this._bindTexture();
+        }, rej)
+        .then(res);
+    });
+  }
 
-	// 부모 엘리먼트에 canvas 를 붙임
-	public attachTo(parentElement) {
-		this.detach();
-		parentElement.appendChild(this.canvas);
-		this._wrapper = parentElement;
-	}
+  // 부모 엘리먼트에 canvas 를 붙임
+  public attachTo(parentElement) {
+    this.detach();
+    parentElement.appendChild(this.canvas);
+    this._wrapper = parentElement;
+  }
 
-	public forceContextLoss() {
-		if (this.hasRenderingContext()) {
-			const loseContextExtension = this.context.getExtension("WEBGL_lose_context");
+  public forceContextLoss() {
+    if (this.hasRenderingContext()) {
+      const loseContextExtension = this.context.getExtension("WEBGL_lose_context");
 
-			if (loseContextExtension) {
-				loseContextExtension.loseContext();
-			}
-		}
-	}
+      if (loseContextExtension) {
+        loseContextExtension.loseContext();
+      }
+    }
+  }
 
-	// 부모 엘리먼트에서 canvas 를 제거
-	public detach() {
-		if (this.canvas.parentElement) {
-			this.canvas.parentElement.removeChild(this.canvas);
-		}
-	}
+  // 부모 엘리먼트에서 canvas 를 제거
+  public detach() {
+    if (this.canvas.parentElement) {
+      this.canvas.parentElement.removeChild(this.canvas);
+    }
+  }
 
-	public destroy() {
-		if (this._contentLoader) {
-			this._contentLoader.destroy();
-		}
+  public destroy() {
+    if (this._contentLoader) {
+      this._contentLoader.destroy();
+    }
 
-		this._animator.stop();
-		this.detach();
-		this.forceContextLoss();
+    this._animator.stop();
+    this.detach();
+    this.forceContextLoss();
 
-		this.off();
+    this.off();
 
-		this.canvas.removeEventListener("webglcontextlost", this._onWebglcontextlost);
-		this.canvas.removeEventListener("webglcontextrestored", this._onWebglcontextrestored);
-	}
+    this.canvas.removeEventListener("webglcontextlost", this._onWebglcontextlost);
+    this.canvas.removeEventListener("webglcontextrestored", this._onWebglcontextrestored);
+  }
 
-	public hasRenderingContext() {
-		if (!(this.context && !this.context.isContextLost())) {
-			return false;
-		} else if (
-			this.context &&
-			!this.context.getProgramParameter(this.shaderProgram!, this.context.LINK_STATUS)) {
-			return false;
-		}
-		return true;
+  public hasRenderingContext() {
+    if (!(this.context && !this.context.isContextLost())) {
+      return false;
+    } else if (
+      this.context &&
+      !this.context.getProgramParameter(this.shaderProgram!, this.context.LINK_STATUS)) {
+      return false;
+    }
+    return true;
   }
 
   public updateFieldOfView(fieldOfView) {
-		this.fieldOfView = fieldOfView;
-		this._updateViewport();
-	}
+    this.fieldOfView = fieldOfView;
+    this._updateViewport();
+  }
 
-	public updateViewportDimensions(width, height) {
-		let viewPortChanged = false;
+  public updateViewportDimensions(width, height) {
+    let viewPortChanged = false;
 
-		this.width = width;
-		this.height = height;
+    this.width = width;
+    this.height = height;
 
-		const w = width * DEVICE_PIXEL_RATIO;
-		const h = height * DEVICE_PIXEL_RATIO;
+    const w = width * DEVICE_PIXEL_RATIO;
+    const h = height * DEVICE_PIXEL_RATIO;
 
-		if (w !== this.canvas.width) {
-			this.canvas.width = w;
-			viewPortChanged = true;
-		}
+    if (w !== this.canvas.width) {
+      this.canvas.width = w;
+      viewPortChanged = true;
+    }
 
-		if (h !== this.canvas.height) {
-			this.canvas.height = h;
-			viewPortChanged = true;
-		}
+    if (h !== this.canvas.height) {
+      this.canvas.height = h;
+      viewPortChanged = true;
+    }
 
-		if (!viewPortChanged) {
-			return;
-		}
+    if (!viewPortChanged) {
+      return;
+    }
 
-		this._updateViewport();
-		this._shouldForceDraw = true;
+    this._updateViewport();
+    this._shouldForceDraw = true;
   }
 
   public keepUpdate(doUpdate) {
-		if (doUpdate && this.isImageLoaded() === false) {
-			// Force to draw a frame after image is loaded on render()
-			this._shouldForceDraw = true;
-		}
+    if (doUpdate && this.isImageLoaded() === false) {
+      // Force to draw a frame after image is loaded on render()
+      this._shouldForceDraw = true;
+    }
 
-		this._keepUpdate = doUpdate;
-	}
-
-	public startRender() {
-		this._animator.setCallback(this._render.bind(this));
-		this._animator.start();
-	}
-
-	public stopRender() {
-		this._animator.stop();
-	}
-
-	public renderWithQuaternion(quaternion, fieldOfView) {
-		if (!this.isImageLoaded()) {
-			return;
-		}
-
-		if (this._keepUpdate === false &&
-			this._lastQuaternion && quat.exactEquals(this._lastQuaternion, quaternion) &&
-			this.fieldOfView && this.fieldOfView === fieldOfView &&
-			this._shouldForceDraw === false) {
-			return;
-		}
-
-		// updatefieldOfView only if fieldOfView is changed.
-		if (fieldOfView !== undefined && fieldOfView !== this.fieldOfView) {
-			this.updateFieldOfView(fieldOfView);
-		}
-
-		this.mvMatrix = mat4.fromQuat(mat4.create(), quaternion);
-
-		this._draw();
-
-		this._lastQuaternion = quat.clone(quaternion);
-		if (this._shouldForceDraw) {
-			this._shouldForceDraw = false;
-		}
-	}
-
-	public renderWithYawPitch(yaw, pitch, fieldOfView) {
-		if (!this.isImageLoaded()) {
-			return;
-		}
-
-		if (this._keepUpdate === false &&
-				this._lastYaw !== null && this._lastYaw === yaw &&
-				this._lastPitch !== null && this._lastPitch === pitch &&
-				this.fieldOfView && this.fieldOfView === fieldOfView &&
-				this._shouldForceDraw === false) {
-			return;
-		}
-
-		// fieldOfView 가 존재하면서 기존의 값과 다를 경우에만 업데이트 호출
-		if (fieldOfView !== undefined && fieldOfView !== this.fieldOfView) {
-			this.updateFieldOfView(fieldOfView);
-		}
-
-		mat4.identity(this.mvMatrix);
-		mat4.rotateX(this.mvMatrix, this.mvMatrix, -glMatrix.toRadian(pitch));
-		mat4.rotateY(this.mvMatrix, this.mvMatrix, -glMatrix.toRadian(yaw));
-
-		this._draw();
-
-		this._lastYaw = yaw;
-		this._lastPitch = pitch;
-		if (this._shouldForceDraw) {
-			this._shouldForceDraw = false;
-		}
+    this._keepUpdate = doUpdate;
   }
 
-	/**
-	 * Returns projection renderer by each type
-	 */
-	public getProjectionRenderer() {
-		return this._renderer;
-	}
-
-	/**
-	 * @return Promise
-	 */
-	public enterVR(options) {
-		const vr = this._vr;
-
-		if (!WEBXR_SUPPORTED && !navigator.getVRDisplays) {
-			return Promise.reject("VR is not available on this browser.");
-		}
-		if (vr && vr.isPresenting()) {
-			return Promise.resolve("VR already enabled.");
-		}
-
-		return this._requestPresent(options);
-	}
-
-	public exitVR = () => {
-		const vr = this._vr;
-		const gl = this.context;
-		const animator = this._animator;
-
-		if (!vr) return;
-
-		vr.removeEndCallback(this.exitVR);
-		vr.destroy();
-		this._vr = null;
-
-		// Restore canvas & context on iOS
-		if (IS_IOS) {
-			this._restoreStyle();
-		}
-		this.updateViewportDimensions(this.width, this.height);
-		this._updateViewport();
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		this._bindBuffers();
-		this._shouldForceDraw = true;
-
-		animator.stop();
-		animator.setContext(window);
-		animator.setCallback(this._render.bind(this));
-		animator.start();
-	}
-
-	private _setImageType(imageType) {
-		if (!imageType || this._imageType === imageType) {
-			return;
-		}
-
-		this._imageType = imageType;
-		this._isCubeMap = imageType === ImageType.CUBEMAP;
-
-		if (this._renderer) {
-			this._renderer.off();
-		}
-
-		switch (imageType) {
-			case ImageType.CUBEMAP:
-				this._renderer = new CubeRenderer();
-				break;
-			case ImageType.CUBESTRIP:
-				this._renderer = new CubeStripRenderer();
-				break;
-			case ImageType.PANORAMA:
-				this._renderer = new CylinderRenderer();
-				break;
-			case ImageType.STEREOSCOPIC_EQUI:
-				this._renderer = new SphereRenderer(this.sphericalConfig.stereoFormat);
-				break;
-			default:
-				this._renderer = new SphereRenderer(STEREO_FORMAT.NONE);
-				break;
-		}
-
-		this._renderer.on(Renderer.EVENTS.ERROR, e => {
-			this.trigger(EVENTS.ERROR, {
-				type: ERROR_TYPE.RENDERER_ERROR,
-				message: e.message
-			});
-		});
-
-		this._initWebGL();
-	}
-
-	private _initCanvas(width: number, height: number) {
-		const canvas = document.createElement("canvas");
-
-		canvas.width = width;
-		canvas.height = height;
-
-		this._onWebglcontextlost = this._onWebglcontextlost.bind(this);
-		this._onWebglcontextrestored = this._onWebglcontextrestored.bind(this);
-
-		canvas.addEventListener("webglcontextlost", this._onWebglcontextlost);
-		canvas.addEventListener("webglcontextrestored", this._onWebglcontextrestored);
-
-		return canvas;
-	}
-
-	private _setDefaultCanvasStyle() {
-		const canvas = this.canvas;
-
-		canvas.style.bottom = "0";
-		canvas.style.left = "0";
-		canvas.style.right = "0";
-		canvas.style.top = "0";
-		canvas.style.margin = "auto";
-		canvas.style.maxHeight = "100%";
-		canvas.style.maxWidth = "100%";
-		canvas.style.outline = "none";
-		canvas.style.position = "absolute";
-	}
-
-	private _onContentError(error) {
-		this._imageIsReady = false;
-		this._image = null;
-		this.trigger(EVENTS.ERROR, {
-			type: ERROR_TYPE.FAIL_IMAGE_LOAD,
-			message: "failed to load image"
-		});
-
-		return false;
-	}
-
-	private _triggerContentLoad() {
-		this.trigger(EVENTS.IMAGE_LOADED, {
-			content: this._image as HTMLElement,
-			isVideo: this._isVideo,
-			projectionType: this._imageType
-		});
+  public startRender() {
+    this._animator.setCallback(this._render.bind(this));
+    this._animator.start();
   }
 
-	private _onContentLoad(image) {
-		this._imageIsReady = true;
+  public stopRender() {
+    this._animator.stop();
+  }
 
-		this._triggerContentLoad();
-		return true;
-	}
+  public renderWithQuaternion(quaternion, fieldOfView) {
+    if (!this.isImageLoaded()) {
+      return;
+    }
 
-	private _initShaderProgram() {
-		const gl = this.context;
+    if (this._keepUpdate === false &&
+      this._lastQuaternion && quat.exactEquals(this._lastQuaternion, quaternion) &&
+      this.fieldOfView && this.fieldOfView === fieldOfView &&
+      this._shouldForceDraw === false) {
+      return;
+    }
 
-		if (this.shaderProgram) {
-			gl.deleteProgram(this.shaderProgram);
-			this.shaderProgram = null;
-		}
+    // updatefieldOfView only if fieldOfView is changed.
+    if (fieldOfView !== undefined && fieldOfView !== this.fieldOfView) {
+      this.updateFieldOfView(fieldOfView);
+    }
 
-		const renderer = this._renderer;
+    this.mvMatrix = mat4.fromQuat(mat4.create(), quaternion);
 
-		const vsSource = renderer.getVertexShaderSource();
-		const fsSource = renderer.getFragmentShaderSource();
+    this._draw();
 
-		const vertexShader = WebGLUtils.createShader(gl, gl.VERTEX_SHADER, vsSource);
-		const fragmentShader = WebGLUtils.createShader(gl, gl.FRAGMENT_SHADER, fsSource);
+    this._lastQuaternion = quat.clone(quaternion);
+    if (this._shouldForceDraw) {
+      this._shouldForceDraw = false;
+    }
+  }
 
-		const shaderProgram = WebGLUtils.createProgram(gl, vertexShader, fragmentShader);
+  public renderWithYawPitch(yaw, pitch, fieldOfView) {
+    if (!this.isImageLoaded()) {
+      return;
+    }
 
-		if (!shaderProgram) {
-			throw new Error(`Failed to intialize shaders: ${WebGLUtils.getErrorNameFromWebGLErrorCode(gl.getError())}`);
-		}
+    if (this._keepUpdate === false &&
+        this._lastYaw !== null && this._lastYaw === yaw &&
+        this._lastPitch !== null && this._lastPitch === pitch &&
+        this.fieldOfView && this.fieldOfView === fieldOfView &&
+        this._shouldForceDraw === false) {
+      return;
+    }
 
-		gl.useProgram(shaderProgram);
-		shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-		gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
-		shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-		shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
-		shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
-		shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
-		shaderProgram.uEye = gl.getUniformLocation(shaderProgram, "uEye");
+    // fieldOfView 가 존재하면서 기존의 값과 다를 경우에만 업데이트 호출
+    if (fieldOfView !== undefined && fieldOfView !== this.fieldOfView) {
+      this.updateFieldOfView(fieldOfView);
+    }
 
-		gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
+    mat4.identity(this.mvMatrix);
+    mat4.rotateX(this.mvMatrix, this.mvMatrix, -glMatrix.toRadian(pitch));
+    mat4.rotateY(this.mvMatrix, this.mvMatrix, -glMatrix.toRadian(yaw));
 
-		// clear buffer
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
-		// Use TEXTURE0
-		gl.uniform1i(shaderProgram.samplerUniform, 0);
+    this._draw();
 
-		this.shaderProgram = shaderProgram;
-	}
+    this._lastYaw = yaw;
+    this._lastPitch = pitch;
+    if (this._shouldForceDraw) {
+      this._shouldForceDraw = false;
+    }
+  }
 
-	private _onWebglcontextlost(e) {
-		e.preventDefault();
-		this.trigger(EVENTS.RENDERING_CONTEXT_LOST);
-	}
+  /**
+   * Returns projection renderer by each type
+   */
+  public getProjectionRenderer() {
+    return this._renderer;
+  }
 
-	private _onWebglcontextrestored(e) {
-		this._initWebGL();
-		this.trigger(EVENTS.RENDERING_CONTEXT_RESTORE);
-	}
+  /**
+   * @return Promise
+   */
+  public enterVR(options) {
+    const vr = this._vr;
 
-	private _updateViewport() {
-		mat4.perspective(
-			this.pMatrix,
-			glMatrix.toRadian(this.fieldOfView),
-			this.canvas.width / this.canvas.height,
-			0.1,
-			100);
+    if (!WEBXR_SUPPORTED && !navigator.getVRDisplays) {
+      return Promise.reject("VR is not available on this browser.");
+    }
+    if (vr && vr.isPresenting()) {
+      return Promise.resolve("VR already enabled.");
+    }
 
-		this.context.viewport(0, 0, this.context.drawingBufferWidth, this.context.drawingBufferHeight);
-	}
+    return this._requestPresent(options);
+  }
 
-	private _initWebGL() {
-		let gl: WebGLRenderingContext;
+  public exitVR = () => {
+    const vr = this._vr;
+    const gl = this.context;
+    const animator = this._animator;
 
-		// TODO: Following code does need to be executed only if width/height, cubicStrip property is changed.
-		try {
-			this._initRenderingContext();
-			gl = this.context;
+    if (!vr) return;
 
-			this.updateViewportDimensions(this.width, this.height);
-			this._initShaderProgram();
-		} catch (e) {
-			this.trigger(EVENTS.ERROR, {
-				type: ERROR_TYPE.NO_WEBGL,
-				message: "no webgl support"
-			});
-			this.destroy();
-			console.error(e); // eslint-disable-line no-console
-			return;
-		}
-		// 캔버스를 투명으로 채운다.
-		gl.clearColor(0, 0, 0, 0);
-		const textureTarget = this._isCubeMap ? gl.TEXTURE_CUBE_MAP : gl.TEXTURE_2D;
+    vr.removeEndCallback(this.exitVR);
+    vr.destroy();
+    this._vr = null;
 
-		if (this.texture) {
+    // Restore canvas & context on iOS
+    if (IS_IOS) {
+      this._restoreStyle();
+    }
+    this.updateViewportDimensions(this.width, this.height);
+    this._updateViewport();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    this._bindBuffers();
+    this._shouldForceDraw = true;
+
+    animator.stop();
+    animator.setContext(window);
+    animator.setCallback(this._render.bind(this));
+    animator.start();
+  }
+
+  private _setImageType(imageType) {
+    if (!imageType || this._imageType === imageType) {
+      return;
+    }
+
+    this._imageType = imageType;
+    this._isCubeMap = imageType === ImageType.CUBEMAP;
+
+    if (this._renderer) {
+      this._renderer.off();
+    }
+
+    switch (imageType) {
+      case ImageType.CUBEMAP:
+        this._renderer = new CubeRenderer();
+        break;
+      case ImageType.CUBESTRIP:
+        this._renderer = new CubeStripRenderer();
+        break;
+      case ImageType.PANORAMA:
+        this._renderer = new CylinderRenderer();
+        break;
+      case ImageType.STEREOSCOPIC_EQUI:
+        this._renderer = new SphereRenderer(this.sphericalConfig.stereoFormat);
+        break;
+      default:
+        this._renderer = new SphereRenderer(STEREO_FORMAT.NONE);
+        break;
+    }
+
+    this._renderer.on(Renderer.EVENTS.ERROR, e => {
+      this.trigger(EVENTS.ERROR, {
+        type: ERROR_TYPE.RENDERER_ERROR,
+        message: e.message
+      });
+    });
+
+    this._initWebGL();
+  }
+
+  private _initCanvas(width: number, height: number) {
+    const canvas = document.createElement("canvas");
+
+    canvas.width = width;
+    canvas.height = height;
+
+    this._onWebglcontextlost = this._onWebglcontextlost.bind(this);
+    this._onWebglcontextrestored = this._onWebglcontextrestored.bind(this);
+
+    canvas.addEventListener("webglcontextlost", this._onWebglcontextlost);
+    canvas.addEventListener("webglcontextrestored", this._onWebglcontextrestored);
+
+    return canvas;
+  }
+
+  private _setDefaultCanvasStyle() {
+    const canvas = this.canvas;
+
+    canvas.style.bottom = "0";
+    canvas.style.left = "0";
+    canvas.style.right = "0";
+    canvas.style.top = "0";
+    canvas.style.margin = "auto";
+    canvas.style.maxHeight = "100%";
+    canvas.style.maxWidth = "100%";
+    canvas.style.outline = "none";
+    canvas.style.position = "absolute";
+  }
+
+  private _onContentError(error) {
+    this._imageIsReady = false;
+    this._image = null;
+    this.trigger(EVENTS.ERROR, {
+      type: ERROR_TYPE.FAIL_IMAGE_LOAD,
+      message: "failed to load image"
+    });
+
+    return false;
+  }
+
+  private _triggerContentLoad() {
+    this.trigger(EVENTS.IMAGE_LOADED, {
+      content: this._image as HTMLElement,
+      isVideo: this._isVideo,
+      projectionType: this._imageType
+    });
+  }
+
+  private _onContentLoad(image) {
+    this._imageIsReady = true;
+
+    this._triggerContentLoad();
+    return true;
+  }
+
+  private _initShaderProgram() {
+    const gl = this.context;
+
+    if (this.shaderProgram) {
+      gl.deleteProgram(this.shaderProgram);
+      this.shaderProgram = null;
+    }
+
+    const renderer = this._renderer;
+
+    const vsSource = renderer.getVertexShaderSource();
+    const fsSource = renderer.getFragmentShaderSource();
+
+    const vertexShader = WebGLUtils.createShader(gl, gl.VERTEX_SHADER, vsSource);
+    const fragmentShader = WebGLUtils.createShader(gl, gl.FRAGMENT_SHADER, fsSource);
+
+    const shaderProgram = WebGLUtils.createProgram(gl, vertexShader, fragmentShader);
+
+    if (!shaderProgram) {
+      throw new Error(`Failed to intialize shaders: ${WebGLUtils.getErrorNameFromWebGLErrorCode(gl.getError())}`);
+    }
+
+    gl.useProgram(shaderProgram);
+    shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+    gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+    shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+    shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+    shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
+    shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
+    shaderProgram.uEye = gl.getUniformLocation(shaderProgram, "uEye");
+
+    gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
+
+    // clear buffer
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
+    // Use TEXTURE0
+    gl.uniform1i(shaderProgram.samplerUniform, 0);
+
+    this.shaderProgram = shaderProgram;
+  }
+
+  private _onWebglcontextlost(e) {
+    e.preventDefault();
+    this.trigger(EVENTS.RENDERING_CONTEXT_LOST);
+  }
+
+  private _onWebglcontextrestored(e) {
+    this._initWebGL();
+    this.trigger(EVENTS.RENDERING_CONTEXT_RESTORE);
+  }
+
+  private _updateViewport() {
+    mat4.perspective(
+      this.pMatrix,
+      glMatrix.toRadian(this.fieldOfView),
+      this.canvas.width / this.canvas.height,
+      0.1,
+      100);
+
+    this.context.viewport(0, 0, this.context.drawingBufferWidth, this.context.drawingBufferHeight);
+  }
+
+  private _initWebGL() {
+    let gl: WebGLRenderingContext;
+
+    // TODO: Following code does need to be executed only if width/height, cubicStrip property is changed.
+    try {
+      this._initRenderingContext();
+      gl = this.context;
+
+      this.updateViewportDimensions(this.width, this.height);
+      this._initShaderProgram();
+    } catch (e) {
+      this.trigger(EVENTS.ERROR, {
+        type: ERROR_TYPE.NO_WEBGL,
+        message: "no webgl support"
+      });
+      this.destroy();
+      console.error(e); // eslint-disable-line no-console
+      return;
+    }
+    // 캔버스를 투명으로 채운다.
+    gl.clearColor(0, 0, 0, 0);
+    const textureTarget = this._isCubeMap ? gl.TEXTURE_CUBE_MAP : gl.TEXTURE_2D;
+
+    if (this.texture) {
       gl.deleteTexture(this.texture);
-		}
+    }
 
-		this.texture = WebGLUtils.createTexture(gl, textureTarget);
+    this.texture = WebGLUtils.createTexture(gl, textureTarget);
 
-		if (this._imageType === ImageType.CUBESTRIP) {
-			// TODO: Apply following options on other projection type.
-			gl.enable(gl.CULL_FACE);
-			// gl.enable(gl.DEPTH_TEST);
-		}
-	}
+    if (this._imageType === ImageType.CUBESTRIP) {
+      // TODO: Apply following options on other projection type.
+      gl.enable(gl.CULL_FACE);
+      // gl.enable(gl.DEPTH_TEST);
+    }
+  }
 
-	private _initRenderingContext() {
-		if (this.hasRenderingContext()) {
-			return;
-		}
+  private _initRenderingContext() {
+    if (this.hasRenderingContext()) {
+      return;
+    }
 
-		if (!window.WebGLRenderingContext) {
-			throw new Error("WebGLRenderingContext not available.");
-		}
+    if (!window.WebGLRenderingContext) {
+      throw new Error("WebGLRenderingContext not available.");
+    }
 
-		this.context = WebGLUtils.getWebglContext(this.canvas, this._renderingContextAttributes);
+    this.context = WebGLUtils.getWebglContext(this.canvas, this._renderingContextAttributes);
 
-		if (!this.context) {
-			throw new Error("Failed to acquire 3D rendering context");
-		}
-	}
+    if (!this.context) {
+      throw new Error("Failed to acquire 3D rendering context");
+    }
+  }
 
-	private _initBuffers() {
-		const vertexPositionData = this._renderer.getVertexPositionData();
-		const indexData = this._renderer.getIndexData();
-		const textureCoordData = this._renderer.getTextureCoordData(this._imageConfig);
-		const gl = this.context;
+  private _initBuffers() {
+    const vertexPositionData = this._renderer.getVertexPositionData();
+    const indexData = this._renderer.getIndexData();
+    const textureCoordData = this._renderer.getTextureCoordData(this._imageConfig);
+    const gl = this.context;
 
-		this.vertexBuffer = WebGLUtils.initBuffer(
-			gl, gl.ARRAY_BUFFER, new Float32Array(vertexPositionData), 3,
-			(this.shaderProgram as any).vertexPositionAttribute);
+    this.vertexBuffer = WebGLUtils.initBuffer(
+      gl, gl.ARRAY_BUFFER, new Float32Array(vertexPositionData), 3,
+      (this.shaderProgram as any).vertexPositionAttribute);
 
-		this.indexBuffer = WebGLUtils.initBuffer(
-			gl, gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexData), 1);
+    this.indexBuffer = WebGLUtils.initBuffer(
+      gl, gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexData), 1);
 
-		this.textureCoordBuffer = WebGLUtils.initBuffer(
-			gl, gl.ARRAY_BUFFER, new Float32Array(textureCoordData), this._isCubeMap ? 3 : 2,
-			(this.shaderProgram as any).textureCoordAttribute);
+    this.textureCoordBuffer = WebGLUtils.initBuffer(
+      gl, gl.ARRAY_BUFFER, new Float32Array(textureCoordData), this._isCubeMap ? 3 : 2,
+      (this.shaderProgram as any).textureCoordAttribute);
 
-		this._bindBuffers();
-	}
+    this._bindBuffers();
+  }
 
-	private _bindTexture() {
-		// Detect if it is EAC Format while CUBESTRIP mode.
-		// We assume it is EAC if image is not 3/2 ratio.
-		if (this._imageType === ImageType.CUBESTRIP) {
-			const {width, height} = this._renderer.getDimension(this._image);
-			const isEAC = width && height && width / height !== 1.5 ? 1 : 0;
+  private _bindTexture() {
+    // Detect if it is EAC Format while CUBESTRIP mode.
+    // We assume it is EAC if image is not 3/2 ratio.
+    if (this._imageType === ImageType.CUBESTRIP) {
+      const {width, height} = this._renderer.getDimension(this._image);
+      const isEAC = width && height && width / height !== 1.5 ? 1 : 0;
 
-			this.context.uniform1f(this.context.getUniformLocation(this.shaderProgram!, "uIsEAC"), isEAC);
-		} else if (this._imageType === ImageType.PANORAMA) {
-			const {width, height} = this._renderer.getDimension(this._image);
-			const imageAspectRatio = width && height && width / height;
+      this.context.uniform1f(this.context.getUniformLocation(this.shaderProgram!, "uIsEAC"), isEAC);
+    } else if (this._imageType === ImageType.PANORAMA) {
+      const {width, height} = this._renderer.getDimension(this._image);
+      const imageAspectRatio = width && height && width / height;
 
-			this._renderer.updateShaderData({imageAspectRatio});
-		}
+      this._renderer.updateShaderData({imageAspectRatio});
+    }
 
-		// intialize shader buffers after image is loaded.(by updateShaderData)
-		// because buffer may be differ by image size.(eg. CylinderRenderer)
-		this._initBuffers();
+    // intialize shader buffers after image is loaded.(by updateShaderData)
+    // because buffer may be differ by image size.(eg. CylinderRenderer)
+    this._initBuffers();
 
-		this._renderer.bindTexture(
-			this.context,
-			this.texture,
-			this._image,
-			this._imageConfig,
-		);
-		this._shouldForceDraw = true;
+    this._renderer.bindTexture(
+      this.context,
+      this.texture,
+      this._image,
+      this._imageConfig,
+    );
+    this._shouldForceDraw = true;
 
-		this.trigger(EVENTS.BIND_TEXTURE);
-	}
+    this.trigger(EVENTS.BIND_TEXTURE);
+  }
 
-	private _updateTexture() {
-		this._renderer.updateTexture(
-			this.context,
-			this._image,
-			this._imageConfig,
-		);
-	}
+  private _updateTexture() {
+    this._renderer.updateTexture(
+      this.context,
+      this._image,
+      this._imageConfig,
+    );
+  }
 
-	private _render() {
-		const yawPitchControl = this._yawPitchControl;
-		const fov = yawPitchControl.getFov();
+  private _render() {
+    const yawPitchControl = this._yawPitchControl;
+    const fov = yawPitchControl.getFov();
 
-		if (yawPitchControl.shouldRenderWithQuaternion()) {
-			const quaternion = yawPitchControl.getQuaternion();
+    if (yawPitchControl.shouldRenderWithQuaternion()) {
+      const quaternion = yawPitchControl.getQuaternion();
 
-			this.renderWithQuaternion(quaternion, fov);
-		} else {
-			const yawPitch = yawPitchControl.getYawPitch();
+      this.renderWithQuaternion(quaternion, fov);
+    } else {
+      const yawPitch = yawPitchControl.getYawPitch();
 
-			this.renderWithYawPitch(yawPitch.yaw, yawPitch.pitch, fov);
-		}
-	}
+      this.renderWithYawPitch(yawPitch.yaw, yawPitch.pitch, fov);
+    }
+  }
 
-	private _renderStereo = (time, frame) => {
-		const vr = this._vr;
-		const gl = this.context;
+  private _renderStereo = (time, frame) => {
+    const vr = this._vr;
+    const gl = this.context;
 
-		const eyeParams = vr.getEyeParams(gl, frame);
+    const eyeParams = vr.getEyeParams(gl, frame);
 
-		if (!eyeParams) return;
+    if (!eyeParams) return;
 
-		vr.beforeRender(gl, frame);
+    vr.beforeRender(gl, frame);
 
-		// Render both eyes
-		for (const eyeIndex of [0, 1]) {
-			const eyeParam = eyeParams[eyeIndex];
+    // Render both eyes
+    for (const eyeIndex of [0, 1]) {
+      const eyeParam = eyeParams[eyeIndex];
 
-			this.mvMatrix = eyeParam.mvMatrix;
-			this.pMatrix = eyeParam.pMatrix;
+      this.mvMatrix = eyeParam.mvMatrix;
+      this.pMatrix = eyeParam.pMatrix;
 
-			gl.viewport(...eyeParam.viewport as [number, number, number, number]);
-			gl.uniform1f((this.shaderProgram as any).uEye, eyeIndex);
+      gl.viewport(...eyeParam.viewport as [number, number, number, number]);
+      gl.uniform1f((this.shaderProgram as any).uEye, eyeIndex);
 
-			this._bindBuffers();
-			this._draw();
-		}
+      this._bindBuffers();
+      this._draw();
+    }
 
-		vr.afterRender();
-	}
+    vr.afterRender();
+  }
 
-	private _bindBuffers() {
-		const gl = this.context;
-		const program = this.shaderProgram;
+  private _bindBuffers() {
+    const gl = this.context;
+    const program = this.shaderProgram;
 
-		const vertexBuffer = this.vertexBuffer;
-		const textureCoordBuffer = this.textureCoordBuffer;
+    const vertexBuffer = this.vertexBuffer;
+    const textureCoordBuffer = this.textureCoordBuffer;
 
-		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-		gl.enableVertexAttribArray((program as any).vertexPositionAttribute);
-		gl.vertexAttribPointer(
-			(program as any).vertexPositionAttribute, (vertexBuffer as any).itemSize, gl.FLOAT, false, 0, 0
-		);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    gl.enableVertexAttribArray((program as any).vertexPositionAttribute);
+    gl.vertexAttribPointer(
+      (program as any).vertexPositionAttribute, (vertexBuffer as any).itemSize, gl.FLOAT, false, 0, 0
+    );
 
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-		gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
-		gl.enableVertexAttribArray((program as any).textureCoordAttribute);
-		gl.vertexAttribPointer(
-			(program as any).textureCoordAttribute, (textureCoordBuffer as any).itemSize, gl.FLOAT, false, 0, 0
-		);
-	}
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
+    gl.enableVertexAttribArray((program as any).textureCoordAttribute);
+    gl.vertexAttribPointer(
+      (program as any).textureCoordAttribute, (textureCoordBuffer as any).itemSize, gl.FLOAT, false, 0, 0
+    );
+  }
 
-	private _draw() {
-		if (this._isVideo && this._keepUpdate) {
-			this._updateTexture();
-		}
+  private _draw() {
+    if (this._isVideo && this._keepUpdate) {
+      this._updateTexture();
+    }
 
-		this._renderer.render({
-			gl: this.context,
-			shaderProgram: this.shaderProgram,
-			indexBuffer: this.indexBuffer,
-			mvMatrix: this.mvMatrix,
-			pMatrix: this.pMatrix,
-		});
-	}
+    this._renderer.render({
+      gl: this.context,
+      shaderProgram: this.shaderProgram,
+      indexBuffer: this.indexBuffer,
+      mvMatrix: this.mvMatrix,
+      pMatrix: this.pMatrix,
+    });
+  }
 
-	private _requestPresent(options) {
-		const gl = this.context;
-		const canvas = this.canvas;
-		const animator = this._animator;
+  private _requestPresent(options) {
+    const gl = this.context;
+    const canvas = this.canvas;
+    const animator = this._animator;
 
-		this._vr = WEBXR_SUPPORTED ?
-			new XRManager(options) :
-			new VRManager();
+    this._vr = WEBXR_SUPPORTED ?
+      new XRManager(options) :
+      new VRManager();
 
-		const vr = this._vr;
+    const vr = this._vr;
 
-		animator.stop();
-		return new Promise((resolve, reject) => {
-			vr.requestPresent(canvas, gl)
-				.then(() => {
-					vr.addEndCallback(this.exitVR);
-					animator.setContext(vr.context);
-					animator.setCallback(this._onFirstVRFrame);
+    animator.stop();
+    return new Promise((resolve, reject) => {
+      vr.requestPresent(canvas, gl)
+        .then(() => {
+          vr.addEndCallback(this.exitVR);
+          animator.setContext(vr.context);
+          animator.setCallback(this._onFirstVRFrame);
 
-					if (IS_IOS) {
-						this._setWrapperFullscreen();
-					}
+          if (IS_IOS) {
+            this._setWrapperFullscreen();
+          }
 
-					this._shouldForceDraw = true;
-					animator.start();
+          this._shouldForceDraw = true;
+          animator.start();
 
-					resolve("success");
-				})
-				.catch(e => {
-					vr.destroy();
-					this._vr = null;
-					animator.start();
+          resolve("success");
+        })
+        .catch(e => {
+          vr.destroy();
+          this._vr = null;
+          animator.start();
 
-					reject(e);
-				});
-		});
-	}
+          reject(e);
+        });
+    });
+  }
 
-	private _onFirstVRFrame = (time, frame) => {
-		const vr = this._vr;
-		const gl = this.context;
-		const animator = this._animator;
+  private _onFirstVRFrame = (time, frame) => {
+    const vr = this._vr;
+    const gl = this.context;
+    const animator = this._animator;
 
-		// If rendering is not ready, wait for next frame
-		if (!vr.canRender(frame)) return;
+    // If rendering is not ready, wait for next frame
+    if (!vr.canRender(frame)) return;
 
-		const minusZDir = vec3.fromValues(0, 0, -1);
-		const eyeParam = vr.getEyeParams(gl, frame)[0];
-		// Extract only rotation
-		const mvMatrix = mat3.fromMat4(mat3.create(), eyeParam.mvMatrix);
-		const pMatrix = mat3.fromMat4(mat3.create(), eyeParam.pMatrix);
+    const minusZDir = vec3.fromValues(0, 0, -1);
+    const eyeParam = vr.getEyeParams(gl, frame)[0];
+    // Extract only rotation
+    const mvMatrix = mat3.fromMat4(mat3.create(), eyeParam.mvMatrix);
+    const pMatrix = mat3.fromMat4(mat3.create(), eyeParam.pMatrix);
 
-		const mvInv = mat3.invert(mat3.create(), mvMatrix);
-		const pInv = mat3.invert(mat3.create(), pMatrix);
-		const viewDir = vec3.transformMat3(vec3.create(), minusZDir, pInv);
+    const mvInv = mat3.invert(mat3.create(), mvMatrix);
+    const pInv = mat3.invert(mat3.create(), pMatrix);
+    const viewDir = vec3.transformMat3(vec3.create(), minusZDir, pInv);
 
-		vec3.transformMat3(viewDir, viewDir, mvInv);
+    vec3.transformMat3(viewDir, viewDir, mvInv);
 
-		const yawOffset = mathUtil.yawOffsetBetween(viewDir, vec3.fromValues(0, 0, 1));
+    const yawOffset = mathUtil.yawOffsetBetween(viewDir, vec3.fromValues(0, 0, 1));
 
-		if (yawOffset === 0) {
-			// If the yawOffset is exactly 0, then device sensor is not ready
-			// So read it again until it has any value in it
-			return;
-		}
+    if (yawOffset === 0) {
+      // If the yawOffset is exactly 0, then device sensor is not ready
+      // So read it again until it has any value in it
+      return;
+    }
 
-		vr.setYawOffset(yawOffset);
-		animator.setCallback(this._renderStereo);
-	}
+    vr.setYawOffset(yawOffset);
+    animator.setCallback(this._renderStereo);
+  }
 
-	private _setWrapperFullscreen() {
-		const wrapper = this._wrapper;
+  private _setWrapperFullscreen() {
+    const wrapper = this._wrapper;
 
-		if (!wrapper) return;
+    if (!wrapper) return;
 
-		this._wrapperOrigStyle = wrapper.getAttribute("style");
-		const wrapperStyle = wrapper.style;
+    this._wrapperOrigStyle = wrapper.getAttribute("style");
+    const wrapperStyle = wrapper.style;
 
-		wrapperStyle.width = "100vw";
-		wrapperStyle.height = "100vh";
-		wrapperStyle.position = "fixed";
-		wrapperStyle.left = "0";
-		wrapperStyle.top = "0";
-		wrapperStyle.zIndex = "9999";
-	}
+    wrapperStyle.width = "100vw";
+    wrapperStyle.height = "100vh";
+    wrapperStyle.position = "fixed";
+    wrapperStyle.left = "0";
+    wrapperStyle.top = "0";
+    wrapperStyle.zIndex = "9999";
+  }
 
-	private _restoreStyle() {
-		const wrapper = this._wrapper;
-		const canvas = this.canvas;
+  private _restoreStyle() {
+    const wrapper = this._wrapper;
+    const canvas = this.canvas;
 
-		if (!wrapper) return;
+    if (!wrapper) return;
 
-		if (this._wrapperOrigStyle) {
-			wrapper.setAttribute("style", this._wrapperOrigStyle);
-		} else {
-			wrapper.removeAttribute("style");
-		}
+    if (this._wrapperOrigStyle) {
+      wrapper.setAttribute("style", this._wrapperOrigStyle);
+    } else {
+      wrapper.removeAttribute("style");
+    }
 
-		this._wrapperOrigStyle = null;
+    this._wrapperOrigStyle = null;
 
-		// Restore canvas style
-		canvas.removeAttribute("style");
-		this._setDefaultCanvasStyle();
-	}
+    // Restore canvas style
+    canvas.removeAttribute("style");
+    this._setDefaultCanvasStyle();
+  }
 }
 
 export default PanoImageRenderer;
