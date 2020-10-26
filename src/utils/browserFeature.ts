@@ -2,7 +2,7 @@
  * Copyright (c) 2015 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
-import {window as win, document as doc} from "./browser";
+import { window as win, document as doc } from "./browser";
 
 win.Float32Array = (typeof win.Float32Array !== "undefined") ? win.Float32Array : win.Array;
 
@@ -14,7 +14,7 @@ const SUPPORT_DEVICEMOTION = "ondevicemotion" in win;
 const DeviceMotionEvent = win.DeviceMotionEvent;
 const devicePixelRatio = win.devicePixelRatio;
 
-const TRANSFORM = (function() {
+const TRANSFORM = (() => {
 	const docStyle = doc.documentElement.style;
 	const target = ["transform", "webkitTransform", "msTransform", "mozTransform"];
 
@@ -33,6 +33,8 @@ const SUPPORT_WILLCHANGE = win.CSS && win.CSS.supports &&
 let WEBXR_SUPPORTED = false;
 
 const checkXRSupport = () => {
+  const navigator = window.navigator as any;
+
 	if (!navigator.xr) {
 		return;
 	}
@@ -40,11 +42,11 @@ const checkXRSupport = () => {
 	if (navigator.xr.isSessionSupported) {
 		navigator.xr.isSessionSupported("immersive-vr").then(res => {
 			WEBXR_SUPPORTED = res;
-		}).catch(() => {});
+		}).catch(() => {}); // tslint:disable-line no-empty
 	} else if (navigator.xr.supportsSession) {
 		navigator.xr.supportsSession("immersive-vr").then(res => {
 			WEBXR_SUPPORTED = res;
-		}).catch(() => {});
+		}).catch(() => {}); // tslint:disable-line no-empty
 	}
 }
 
