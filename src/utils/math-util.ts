@@ -31,26 +31,26 @@ THE SOFTWARE. */
 // Some minimal math functionality borrowed from gl-Matrix and stripped down
 // for the purposes of this library.
 
-import {vec2, vec3, quat} from "gl-matrix";
+import { vec2, vec3, quat } from "gl-matrix";
 
-function quatToVec3(quaternion) {
+function quatToVec3(quaternion: quat) {
 	const baseV = vec3.fromValues(0, 0, 1);
 
 	vec3.transformQuat(baseV, baseV, quaternion);
 	return baseV;
 }
 
-function toDegree(a){
+function toDegree(a: number) {
 	return a * 180 / Math.PI;
 }
 
-const util = {};
+const util: any = {};
 
-util.isPowerOfTwo = function(n) {
+util.isPowerOfTwo = (n: number) => {
 	return n && (n & (n - 1)) === 0;
 };
 
-util.extractPitchFromQuat = function(quaternion) {
+util.extractPitchFromQuat = (quaternion: quat) => {
 	const baseV = quatToVec3(quaternion);
 
 	return -1 * Math.atan2(
@@ -58,9 +58,9 @@ util.extractPitchFromQuat = function(quaternion) {
 		Math.sqrt(Math.pow(baseV[0], 2) + Math.pow(baseV[2], 2)));
 };
 
-util.hypot = Math.hypot || function(x, y) {
+util.hypot = Math.hypot || ((x: number, y : number) => {
 	return Math.sqrt(x * x + y * y);
-};
+});
 
 // implement reference
 // the general equation of a plane : http://www.gisdeveloper.co.kr/entry/평면의-공식
@@ -134,7 +134,7 @@ function getRotationDelta(prevQ, curQ, rotateKind) {
 	const coefficientA = vecN[0];
 	const coefficientB = vecN[1];
 	const coefficientC = vecN[2];
-//	const coefficientD = -1 * vec3.dot(vecN, meshPoint1);
+  // const coefficientD = -1 * vec3.dot(vecN, meshPoint1);
 
 	// a point on the plane
 	curPoint = vec3.fromValues(meshPoint[0], meshPoint[1], meshPoint[2]);
@@ -162,7 +162,9 @@ function getRotationDelta(prevQ, curQ, rotateKind) {
 		(vec3.length(projectedPrevPoint) * vec3.length(curPoint));
 
 	// defensive block
-	trigonometricRatio > 1 && (trigonometricRatio = 1);
+	if (trigonometricRatio > 1) {
+    trigonometricRatio = 1;
+  }
 
 	const theta = Math.acos(trigonometricRatio);
 
@@ -186,13 +188,13 @@ function getRotationDelta(prevQ, curQ, rotateKind) {
 	return toDegree(deltaRadian);
 }
 
-function angleBetweenVec2(v1, v2) {
+function angleBetweenVec2(v1: vec2, v2: vec2) {
 	const det = v1[0] * v2[1] - v2[0] * v1[1];
 	const theta = -Math.atan2(det, vec2.dot(v1, v2));
 	return theta;
 }
 
-util.yawOffsetBetween = function(viewDir, targetDir) {
+util.yawOffsetBetween = (viewDir: number, targetDir: number) => {
 	const viewDirXZ = vec2.fromValues(viewDir[0], viewDir[2]);
 	const targetDirXZ = vec2.fromValues(targetDir[0], targetDir[2]);
 
