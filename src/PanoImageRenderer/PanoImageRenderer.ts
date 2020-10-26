@@ -17,6 +17,7 @@ import { PROJECTION_TYPE, STEREO_FORMAT } from "../PanoViewer/consts";
 import { IS_IOS } from "../utils/browser";
 import { CubemapConfig, ValueOf } from "src/types";
 import YawPitchControl from "src/YawPitchControl/YawPitchControl";
+import { XRFrame } from "webxr";
 
 const ImageType = PROJECTION_TYPE;
 
@@ -681,7 +682,7 @@ class PanoImageRenderer extends Component<{
   private _initBuffers() {
     const vertexPositionData = this._renderer.getVertexPositionData();
     const indexData = this._renderer.getIndexData();
-    const textureCoordData = this._renderer.getTextureCoordData(this._imageConfig);
+    const textureCoordData = this._renderer.getTextureCoordData(this._imageConfig!);
     const gl = this.context;
 
     this.vertexBuffer = WebGLUtils.initBuffer(
@@ -702,12 +703,12 @@ class PanoImageRenderer extends Component<{
     // Detect if it is EAC Format while CUBESTRIP mode.
     // We assume it is EAC if image is not 3/2 ratio.
     if (this._imageType === ImageType.CUBESTRIP) {
-      const {width, height} = this._renderer.getDimension(this._image);
+      const { width, height } = this._renderer.getDimension(this._image as HTMLImageElement | HTMLVideoElement);
       const isEAC = width && height && width / height !== 1.5 ? 1 : 0;
 
       this.context.uniform1f(this.context.getUniformLocation(this.shaderProgram!, "uIsEAC"), isEAC);
     } else if (this._imageType === ImageType.PANORAMA) {
-      const {width, height} = this._renderer.getDimension(this._image);
+      const { width, height } = this._renderer.getDimension(this._image as HTMLImageElement | HTMLVideoElement);
       const imageAspectRatio = width && height && width / height;
 
       this._renderer.updateShaderData({imageAspectRatio});
@@ -720,8 +721,8 @@ class PanoImageRenderer extends Component<{
     this._renderer.bindTexture(
       this.context,
       this.texture,
-      this._image,
-      this._imageConfig,
+      this._image as HTMLImageElement | HTMLVideoElement,
+      this._imageConfig!,
     );
     this._shouldForceDraw = true;
 
@@ -731,8 +732,8 @@ class PanoImageRenderer extends Component<{
   private _updateTexture() {
     this._renderer.updateTexture(
       this.context,
-      this._image,
-      this._imageConfig,
+      this._image as HTMLImageElement | HTMLVideoElement,
+      this._imageConfig!,
     );
   }
 
@@ -751,15 +752,15 @@ class PanoImageRenderer extends Component<{
     }
   }
 
-  private _renderStereo = (time, frame) => {
+  private _renderStereo = (time: number, frame: XRFrame) => {
     const vr = this._vr;
     const gl = this.context;
 
-    const eyeParams = vr.getEyeParams(gl, frame);
+    const eyeParams = vr!.getEyeParams(gl, frame);
 
     if (!eyeParams) return;
 
-    vr.beforeRender(gl, frame);
+    vr!.beforeRender(gl, frame);
 
     // Render both eyes
     for (const eyeIndex of [0, 1]) {
@@ -775,7 +776,7 @@ class PanoImageRenderer extends Component<{
       this._draw();
     }
 
-    vr.afterRender();
+    vr!.afterRender();
   }
 
   private _bindBuffers() {
@@ -852,7 +853,7 @@ class PanoImageRenderer extends Component<{
   }
 
   private _onFirstVRFrame = (time, frame) => {
-    const vr = this._vr;
+    const vr = this._vr!;
     const gl = this.context;
     const animator = this._animator;
 
@@ -860,7 +861,7 @@ class PanoImageRenderer extends Component<{
     if (!vr.canRender(frame)) return;
 
     const minusZDir = vec3.fromValues(0, 0, -1);
-    const eyeParam = vr.getEyeParams(gl, frame)[0];
+    const eyeParam = vr.getEyeParams(gl, frame)![0];
     // Extract only rotation
     const mvMatrix = mat3.fromMat4(mat3.create(), eyeParam.mvMatrix);
     const pMatrix = mat3.fromMat4(mat3.create(), eyeParam.pMatrix);
