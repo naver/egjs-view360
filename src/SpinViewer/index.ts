@@ -1,9 +1,9 @@
 import SpinViewer from "./SpinViewer";
 import SpriteImage from "./SpriteImage";
-import {VERSION} from "../version";
+import { VERSION } from "../version";
 
 export {
-	SpinViewer,
-	SpriteImage,
-	VERSION
+  SpinViewer,
+  SpriteImage,
+  VERSION
 };

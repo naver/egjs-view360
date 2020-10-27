@@ -13,7 +13,7 @@
 		"printsizes": "print-sizes ./dist --exclude=\\.map",
 		"test": "karma start",
 		"test:chrome": "karma start --chrome",
-		"lint": "eslint src && tslint declaration/**/*",
+		"lint": "tslint src/**/*",
 		"jsdoc": "rm -rf ./doc && jsdoc -c jsdoc.json",
 		"coverage": "karma start --coverage",
 		"coverage:nogl": "karma start --coverage --nogl",
