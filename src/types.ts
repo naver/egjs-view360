@@ -11,3 +11,7 @@ export interface CubemapConfig {
 }
 
 export type TypedArray = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array;
+
+export type Mutable<T extends object> = {
+  -readonly [K in keyof T]: T[K]
+}
