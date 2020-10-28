@@ -1,36 +1,124 @@
-const babel = require("rollup-plugin-babel");
-const replace = require("rollup-plugin-replace");
-const json = require("rollup-plugin-json");
-const version = process.env.NIGHTLY || require("./package.json").version;
-const merge = require("./rollup/merge").mergeList;
-const banner = require("./rollup/banner").banner;
+const buildHelper = require("@egjs/build-helper");
 
-const replaceVersion = replace({
-	"#__VERSION__#": version,
-	delimiters: ["", ""]
-});
+const external = {
+  "@egjs/axes": "eg.Axes",
+  "@egjs/component": "eg.Component",
+  "@egjs/agent": "eg.agent",
+  "gl-matrix": "glMatrix",
+  "webvr-polyfill": "WebVRPolyfill",
+}
+const name = "eg.view360";
 
-const defaultConfig = {
-	plugins: [
-		babel({
-			include: ["src/**"],
-			configFile: "./babel.config.js"
-		}),
-		replaceVersion,
-		json(),
-	],
-	output: {
-		name: "eg.view360",
-		banner,
-		freeze: false,
-		format: "umd",
-		interop: false,
-		sourcemap: true
-	}
-};
-
-export default merge(defaultConfig, [
-	...require("./rollup/rollup.config.esm"),
-	...require("./rollup/rollup.config.development"),
-	...require("./rollup/rollup.config.pkgd")
+export default buildHelper([
+  {
+    name,
+    input: "./src/index.umd.ts",
+    output: "./dist/view360.js",
+    format: "umd",
+    commonjs: true,
+    external,
+  },
+  {
+    name,
+    input: "./src/PanoViewer/index.umd.ts",
+    output: "./dist/view360.panoviewer.js",
+    format: "umd",
+    commonjs: true,
+    external,
+  },
+  {
+    name,
+    input: "./src/SpinViewer/index.umd.ts",
+    output: "./dist/view360.spinviewer.js",
+    format: "umd",
+    commonjs: true,
+    external,
+  },
+  {
+    name,
+    input: "./src/index.umd.ts",
+    output: "./dist/view360.min.js",
+    format: "umd",
+    commonjs: true,
+    uglify: true,
+    external,
+  },
+  {
+    name,
+    input: "./src/PanoViewer/index.umd.ts",
+    output: "./dist/view360.panoviewer.min.js",
+    format: "umd",
+    commonjs: true,
+    uglify: true,
+    external,
+  },
+  {
+    name,
+    input: "./src/SpinViewer/index.umd.ts",
+    output: "./dist/view360.spinviewer.min.js",
+    format: "umd",
+    commonjs: true,
+    uglify: true,
+    external,
+  },
+  {
+    name,
+    input: "./src/index.umd.ts",
+    output: "./dist/view360.pkgd.js",
+    format: "umd",
+    commonjs: true,
+    resolve: true,
+  },
+  {
+    name,
+    input: "./src/PanoViewer/index.umd.ts",
+    output: "./dist/view360.panoviewer.pkgd.js",
+    format: "umd",
+    commonjs: true,
+    resolve: true,
+  },
+  {
+    name,
+    input: "./src/SpinViewer/index.umd.ts",
+    output: "./dist/view360.spinviewer.pkgd.js",
+    format: "umd",
+    commonjs: true,
+    resolve: true,
+  },
+  {
+    name,
+    input: "./src/index.umd.ts",
+    output: "./dist/view360.pkgd.min.js",
+    format: "umd",
+    commonjs: true,
+    resolve: true,
+    uglify: true,
+  },
+  {
+    name,
+    input: "./src/PanoViewer/index.umd.ts",
+    output: "./dist/view360.panoviewer.pkgd.min.js",
+    format: "umd",
+    commonjs: true,
+    resolve: true,
+    uglify: true,
+  },
+  {
+    name,
+    input: "./src/SpinViewer/index.umd.ts",
+    output: "./dist/view360.spinviewer.pkgd.min.js",
+    format: "umd",
+    commonjs: true,
+    resolve: true,
+    uglify: true,
+  },
+  {
+    input: "./src/index.ts",
+    output: "./dist/view360.esm.js",
+    format: "esm",
+    exports: "named",
+    commonjs: true,
+    external,
+  },
 ]);
+
