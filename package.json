@@ -8,7 +8,6 @@
 	"types": "declaration/index.d.ts",
 	"scripts": {
 		"start": "webpack-dev-server --open --host 0.0.0.0",
-		"build:webpack": "webpack --env.mode=production && webpack --env.mode=packaged",
 		"build": "rm -rf ./dist && rollup -c && npm run printsizes",
 		"printsizes": "print-sizes ./dist --exclude=\\.map",
 		"test": "karma start",
@@ -29,6 +28,10 @@
 		"prepush": "npm run lint",
 		"commitmsg": "node config/validate-commit-msg.js",
 		"changelog": "node config/changelog.js"
+  },
+  "repository": {
+		"type": "git",
+		"url": "https://github.com/naver/egjs-view360"
 	},
 	"author": {
 		"name": "NAVER Corp."
@@ -44,9 +47,9 @@
 	"dependencies": {
 		"@egjs/agent": "^2.2.1",
 		"@egjs/axes": "^2.7.1",
+		"@egjs/component": "^2.2.2",
 		"es6-promise": "^4.2.5",
 		"gl-matrix": "^3.3.0",
-		"motion-sensors-polyfill": "^0.3.1",
 		"webvr-polyfill": "^0.9.41"
 	},
 	"devDependencies": {
@@ -56,8 +59,8 @@
 		"@babel/plugin-transform-modules-commonjs": "^7.1.0",
 		"@babel/preset-env": "^7.0.0",
 		"@daybrush/jsdoc": "^0.3.8",
+		"@egjs/build-helper": "^0.1.2",
 		"@egjs/common-demo": "github:naver/egjs#common-demo",
-		"@egjs/component": "^2.2.2",
 		"@egjs/visible": "^2.1.0",
 		"@types/webxr": "^0.1.0",
 		"babel-eslint": "^10.0.1",
