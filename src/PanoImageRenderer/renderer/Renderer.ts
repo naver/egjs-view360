@@ -157,10 +157,12 @@ abstract class Renderer extends Component<{
         imageConfig.tileConfig : Array(...Array(6)).map(() => imageConfig.tileConfig) as TileConfig[];
 
     tileConfig = tileConfig.map(
-      config => Object.assign({
-        flipHorizontal: false,
-        rotation: 0
-      }, config)
+      config => ({
+        ...{
+          flipHorizontal: false,
+          rotation: 0
+        }, ...config
+      })
     );
 
     return tileConfig;

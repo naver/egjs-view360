@@ -75,11 +75,13 @@ export default class WebGLUtils {
   public static getWebglContext(canvas: HTMLCanvasElement, userContextAttributes?: WebGLContextAttributes) {
     const webglIdentifiers = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
     let context: WebGLRenderingContext | null = null;
-    const contextAttributes = Object.assign({
-      preserveDrawingBuffer: false,
-      antialias: false,
-      xrCompatible: true
-    }, userContextAttributes);
+    const contextAttributes = {
+      ...{
+        preserveDrawingBuffer: false,
+        antialias: false,
+        xrCompatible: true
+      }, ...userContextAttributes
+    };
 
     function onWebglcontextcreationerror(e) {
       return e.statusMessage;

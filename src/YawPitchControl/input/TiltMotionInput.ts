@@ -30,7 +30,7 @@ export default class TiltMotionInput extends Component<{}> {
   private _quaternion: quat | null;
 
 
-  constructor(el: HTMLElement, options: Partial<{ scale: number; threshold: number; }>) {
+  constructor(el: HTMLElement, options: Partial<{ scale: number; threshold: number; }> = {}) {
     super();
     this.element = el;
 
@@ -39,10 +39,12 @@ export default class TiltMotionInput extends Component<{}> {
 
     this.fusionPoseSensor = null;
 
-    this.options = Object.assign({
-      scale: 1,
-      threshold: 0,
-    }, options);
+    this.options = {
+      ...{
+        scale: 1,
+        threshold: 0,
+      }, ...options
+    };
 
     this._onPoseChange = this._onPoseChange.bind(this);
   }

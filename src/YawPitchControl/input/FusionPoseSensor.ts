@@ -1,8 +1,8 @@
 import Component from "@egjs/component";
 import { quat } from "gl-matrix";
-import PosePredictor from "webvr-polyfill/src/sensor-fusion/pose-predictor";
-import MathUtil from "webvr-polyfill/src/math-util";
-import Util from "webvr-polyfill/src/util";
+import PosePredictor from "./lib/webvr-polyfill/pose-predictor";
+import MathUtil from "./lib/webvr-polyfill/math-util";
+import Util from "./lib/webvr-polyfill/util";
 import { window, IS_IOS, IS_SAFARI_ON_DESKTOP } from "../../utils/browser";
 import DeviceMotion from "./DeviceMotion";
 import ComplementaryFilter from "./ComplementaryFilter";

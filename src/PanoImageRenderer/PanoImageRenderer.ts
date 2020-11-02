@@ -1,4 +1,6 @@
 import Component from "@egjs/component";
+import { XRFrame } from "webxr";
+import Promise from "promise-polyfill";
 import { glMatrix, vec3, mat3, mat4, quat } from "gl-matrix";
 import ImageLoader from "./ImageLoader";
 import VideoLoader from "./VideoLoader";
@@ -15,9 +17,8 @@ import { util as mathUtil } from "../utils/math-util";
 import { devicePixelRatio, WEBXR_SUPPORTED } from "../utils/browserFeature";
 import { PROJECTION_TYPE, STEREO_FORMAT } from "../PanoViewer/consts";
 import { IS_IOS } from "../utils/browser";
-import { CubemapConfig, ValueOf } from "src/types";
-import YawPitchControl from "src/YawPitchControl/YawPitchControl";
-import { XRFrame } from "webxr";
+import { CubemapConfig, ValueOf } from "../types";
+import YawPitchControl from "../YawPitchControl/YawPitchControl";
 
 const ImageType = PROJECTION_TYPE;
 
@@ -205,8 +206,8 @@ class PanoImageRenderer extends Component<{
   }) {
     this._imageIsReady = false;
     this._isVideo = isVideo;
-    this._imageConfig = Object.assign(
-      {
+    this._imageConfig = {
+      ...{
         /* RLUDBF is abnormal, we use it on CUBEMAP only */
         order: (imageType === ImageType.CUBEMAP) ? "RLUDBF" : "RLUDFB",
         tileConfig: {
@@ -214,8 +215,8 @@ class PanoImageRenderer extends Component<{
           rotation: 0
         }
       },
-      cubemapConfig
-    );
+      ...cubemapConfig
+    };
     this._setImageType(imageType);
 
     if (this._contentLoader) {
