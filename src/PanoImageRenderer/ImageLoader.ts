@@ -1,5 +1,6 @@
+import Promise from "promise-polyfill";
 import Component from "@egjs/component";
-import { ValueOf } from "src/types";
+import { ValueOf } from "../types";
 
 const STATUS: {
   "NONE": 0;

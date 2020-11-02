@@ -114,7 +114,7 @@ export default class DeviceMotion extends Component<{
       return;
     }
 
-    const devicemotionEvent = Object.assign({}, e) as Mutable<DeviceMotionEvent>;
+    const devicemotionEvent = {...e} as Mutable<DeviceMotionEvent>;
 
     devicemotionEvent.interval = e.interval;
     devicemotionEvent.timeStamp = e.timeStamp;

@@ -4,7 +4,7 @@
     "module": "es2015",
     "target": "es5",
     "moduleResolution": "node",
-    "lib": ["es2015", "dom"],
+    "lib": ["es2015", "es2015.promise", "dom"],
     "sourceMap": true,
     "strictNullChecks": true,
     "downlevelIteration": true,

@@ -1,4 +1,5 @@
 import Component from "@egjs/component";
+import Promise from "promise-polyfill";
 import { quat } from "gl-matrix";
 import { DeviceMotionEvent, checkXRSupport } from "../utils/browserFeature";
 import YawPitchControl, { YawPitchControlOptions } from "../YawPitchControl/YawPitchControl";
@@ -204,7 +205,7 @@ class PanoViewer extends Component<
   private _pitch: number;
   private _fov: number;
   private _gyroMode: ValueOf<typeof GYRO_MODE>;
-  private _quaternion: typeof quat | null;
+  private _quaternion: quat | null;
   private _aspectRatio: number;
   private _isReady: boolean;
 
@@ -328,14 +329,16 @@ class PanoViewer extends Component<
     this._image = options.image! as HTMLImageElement || options.video! as HTMLVideoElement;
     this._isVideo = !!options.video;
     this._projectionType = options.projectionType || PROJECTION_TYPE.EQUIRECTANGULAR;
-    this._cubemapConfig = Object.assign({
-      /* RLUDBF is abnormal, we use it on CUBEMAP only for backward compatibility*/
-      order: this._projectionType === PROJECTION_TYPE.CUBEMAP ? "RLUDBF" : "RLUDFB",
-      tileConfig: {
-        flipHorizontal: false,
-        rotation: 0
-      }
-    }, options.cubemapConfig);
+    this._cubemapConfig = {
+      ...{
+        /* RLUDBF is abnormal, we use it on CUBEMAP only for backward compatibility*/
+        order: this._projectionType === PROJECTION_TYPE.CUBEMAP ? "RLUDBF" : "RLUDFB",
+        tileConfig: {
+          flipHorizontal: false,
+          rotation: 0
+        }
+      }, ...options.cubemapConfig
+    };
     this._stereoFormat = options.stereoFormat || STEREO_FORMAT.TOP_BOTTOM;
 
     // If the width and height are not provided, will use the size of the container.
@@ -358,16 +361,19 @@ class PanoViewer extends Component<
     const fovRange = options.fovRange || [30, 110];
     const touchDirection = PanoViewer._isValidTouchDirection(options.touchDirection) ?
       options.touchDirection : YawPitchControl.TOUCH_DIRECTION_ALL;
-    const yawPitchConfig = Object.assign(options, {
-      element: container,
-      yaw: this._yaw,
-      pitch: this._pitch,
-      fov: this._fov,
-      gyroMode: this._gyroMode,
-      fovRange,
-      aspectRatio: this._aspectRatio,
-      touchDirection
-    });
+    const yawPitchConfig = {
+      ...options,
+      ...{
+        element: container,
+        yaw: this._yaw,
+        pitch: this._pitch,
+        fov: this._fov,
+        gyroMode: this._gyroMode,
+        fovRange,
+        aspectRatio: this._aspectRatio,
+        touchDirection
+      }
+    };
 
     this._isReady = false;
 
@@ -538,13 +544,15 @@ class PanoViewer extends Component<
     stereoFormat: PanoViewer["_stereoFormat"];
     isVideo: boolean;
   }> = {}) {
-    const cubemapConfig = Object.assign({
-      order: "RLUDBF",
-      tileConfig: {
-        flipHorizontal: false,
-        rotation: 0
-      }
-    }, param.cubemapConfig);
+    const cubemapConfig = {
+      ...{
+        order: "RLUDBF",
+        tileConfig: {
+          flipHorizontal: false,
+          rotation: 0
+        }
+      }, ...param.cubemapConfig
+    };
     const stereoFormat = param.stereoFormat || STEREO_FORMAT.TOP_BOTTOM;
     const isVideo = !!(param.isVideo);
 

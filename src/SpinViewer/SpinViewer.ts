@@ -153,7 +153,7 @@ class SpinViewer extends Component<{
 
     this._el = element;
 
-    const opt = Object.assign({}, options);
+    const opt = {...options};
     const colCount = opt.colCount || 1;
     const rowCount = opt.rowCount || 1;
 

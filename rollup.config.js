@@ -1,13 +1,18 @@
-const buildHelper = require("@egjs/build-helper");
+import buildHelper from "@egjs/build-helper";
+import inject from "@rollup/plugin-inject";
 
 const external = {
   "@egjs/axes": "eg.Axes",
   "@egjs/component": "eg.Component",
   "@egjs/agent": "eg.agent",
-  "gl-matrix": "glMatrix",
-  "webvr-polyfill": "WebVRPolyfill",
+  "gl-matrix": "glMatrix"
 }
 const name = "eg.view360";
+const plugins = [
+  // inject({
+  //   Promise: ['es6-promise', 'Promise']
+  // })
+];
 
 export default buildHelper([
   {
@@ -17,22 +22,25 @@ export default buildHelper([
     format: "umd",
     commonjs: true,
     external,
+    plugins
   },
   {
     name,
     input: "./src/PanoViewer/index.umd.ts",
-    output: "./dist/view360.panoviewer.js",
+    output: "./dist/PanoViewer/view360.panoviewer.js",
     format: "umd",
     commonjs: true,
     external,
+    plugins
   },
   {
     name,
     input: "./src/SpinViewer/index.umd.ts",
-    output: "./dist/view360.spinviewer.js",
+    output: "./dist/SpinViewer/view360.spinviewer.js",
     format: "umd",
     commonjs: true,
     external,
+    plugins
   },
   {
     name,
@@ -42,24 +50,27 @@ export default buildHelper([
     commonjs: true,
     uglify: true,
     external,
+    plugins
   },
   {
     name,
     input: "./src/PanoViewer/index.umd.ts",
-    output: "./dist/view360.panoviewer.min.js",
+    output: "./dist/PanoViewer/view360.panoviewer.min.js",
     format: "umd",
     commonjs: true,
     uglify: true,
     external,
+    plugins
   },
   {
     name,
     input: "./src/SpinViewer/index.umd.ts",
-    output: "./dist/view360.spinviewer.min.js",
+    output: "./dist/SpinViewer/view360.spinviewer.min.js",
     format: "umd",
     commonjs: true,
     uglify: true,
     external,
+    plugins
   },
   {
     name,
@@ -68,22 +79,25 @@ export default buildHelper([
     format: "umd",
     commonjs: true,
     resolve: true,
+    plugins
   },
   {
     name,
     input: "./src/PanoViewer/index.umd.ts",
-    output: "./dist/view360.panoviewer.pkgd.js",
+    output: "./dist/PanoViewer/view360.panoviewer.pkgd.js",
     format: "umd",
     commonjs: true,
     resolve: true,
+    plugins
   },
   {
     name,
     input: "./src/SpinViewer/index.umd.ts",
-    output: "./dist/view360.spinviewer.pkgd.js",
+    output: "./dist/SpinViewer/view360.spinviewer.pkgd.js",
     format: "umd",
     commonjs: true,
     resolve: true,
+    plugins
   },
   {
     name,
@@ -93,24 +107,27 @@ export default buildHelper([
     commonjs: true,
     resolve: true,
     uglify: true,
+    plugins
   },
   {
     name,
     input: "./src/PanoViewer/index.umd.ts",
-    output: "./dist/view360.panoviewer.pkgd.min.js",
+    output: "./dist/PanoViewer/view360.panoviewer.pkgd.min.js",
     format: "umd",
     commonjs: true,
     resolve: true,
     uglify: true,
+    plugins
   },
   {
     name,
     input: "./src/SpinViewer/index.umd.ts",
-    output: "./dist/view360.spinviewer.pkgd.min.js",
+    output: "./dist/SpinViewer/view360.spinviewer.pkgd.min.js",
     format: "umd",
     commonjs: true,
     resolve: true,
     uglify: true,
+    plugins
   },
   {
     input: "./src/index.ts",
@@ -119,6 +136,8 @@ export default buildHelper([
     exports: "named",
     commonjs: true,
     external,
+    sourcemap: false,
+    plugins
   },
 ]);
 

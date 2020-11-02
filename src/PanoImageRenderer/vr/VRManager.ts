@@ -1,3 +1,4 @@
+import Promise from "promise-polyfill";
 import { mat4 } from "gl-matrix";
 
 const VR_DISPLAY_PRESENT_CHANGE = "vrdisplaypresentchange";

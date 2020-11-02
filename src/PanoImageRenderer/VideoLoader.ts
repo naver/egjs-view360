@@ -1,6 +1,6 @@
 // import Agent from "@egjs/agent";
-
-import { ValueOf } from "src/types";
+import Promise from "promise-polyfill";
+import { ValueOf } from "../types";
 
 /* Ref https://www.w3schools.com/tags/av_prop_readystate.asp */
 const READY_STATUS: {

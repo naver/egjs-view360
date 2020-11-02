@@ -1,5 +1,5 @@
-import MathUtil from "webvr-polyfill/src/math-util";
-import ComplementaryFilter from "webvr-polyfill/src/sensor-fusion/complementary-filter";
+import MathUtil from "./lib/webvr-polyfill/math-util";
+import ComplementaryFilter from "./lib/webvr-polyfill/complementary-filter";
 
 ComplementaryFilter.prototype.run_ = function() {
   if (!this.isOrientationInitialized) {

@@ -50,7 +50,7 @@ type YawPitchControlEvents = {
     yaw: number;
     pitch: number;
     fov: number;
-    quaternion: typeof quat | null;
+    quaternion: quat | null;
     targetElement: HTMLElement;
     isTrusted: boolean
   };
@@ -84,7 +84,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
   private _initialFov: number;
   private _enabled: boolean;
   private _isAnimating: boolean;
-  private _deviceQuaternion: DeviceQuaternion;
+  private _deviceQuaternion: DeviceQuaternion | null;
 
   private axes: Axes;
   private axesPanInput: RotationPanInput;
@@ -112,21 +112,23 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
 	constructor(options: Partial<YawPitchControlOptions>) {
 		super();
 
-		const opt = Object.assign({
-			element: null,
-			yaw: 0,
-			pitch: 0,
-			fov: 65,
-			showPolePoint: false,
-			useZoom: true,
-			useKeyboard: true,
-			gyroMode: GYRO_MODE.YAWPITCH,
-			touchDirection: TOUCH_DIRECTION_ALL,
-			yawRange: DEFAULT_YAW_RANGE,
-			pitchRange: DEFAULT_PITCH_RANGE,
-			fovRange: [30, 110],
-			aspectRatio: 1, /* TODO: Need Mandatory? */
-		}, options);
+		const opt = {
+      ...{
+        element: null,
+        yaw: 0,
+        pitch: 0,
+        fov: 65,
+        showPolePoint: false,
+        useZoom: true,
+        useKeyboard: true,
+        gyroMode: GYRO_MODE.YAWPITCH,
+        touchDirection: TOUCH_DIRECTION_ALL,
+        yawRange: DEFAULT_YAW_RANGE,
+        pitchRange: DEFAULT_PITCH_RANGE,
+        fovRange: [30, 110],
+        aspectRatio: 1, /* TODO: Need Mandatory? */
+      }, ...options
+    };
 
 		this._element = opt.element;
 		this._initialFov = opt.fov;
@@ -186,7 +188,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
 		} else {
       const options = key; // Retrieving object here
 			changedKeyList = Object.keys(options);
-			newOptions = Object.assign({}, options);
+			newOptions = {...options};
 		}
 
 		this._setOptions(this._getValidatedOptions(newOptions));
@@ -273,7 +275,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
 	public getQuaternion() {
 		const pos = this.axes.get();
 
-		return this._deviceQuaternion.getCombinedQuaternion(pos.yaw);
+		return this._deviceQuaternion!.getCombinedQuaternion(pos.yaw);
 	}
 
 	public shouldRenderWithQuaternion() {
@@ -299,7 +301,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
 		const pRange = this._updatePitchRange(opt.pitchRange, opt.fov, opt.showPolePoint);
 		const useRotation = opt.gyroMode === GYRO_MODE.VR;
 
-		this.axesPanInput = new RotationPanInput(this._element, {useRotation});
+		this.axesPanInput = new RotationPanInput(this._element!, {useRotation});
 		this.axesWheelInput = new WheelInput(this._element, {scale: -4});
 		this.axesTiltMotionInput = null;
 		this.axesPinchInput = SUPPORT_TOUCH ? new PinchInput(this._element, {scale: -1}) : null;
@@ -444,7 +446,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
 			if (isVR) {
 				this._initDeviceQuaternion();
 			} else if (isYawPitch) {
-				this.axesTiltMotionInput = new TiltMotionInput(this._element);
+				this.axesTiltMotionInput = new TiltMotionInput(this._element!);
 				this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
 			}
 
