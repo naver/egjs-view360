@@ -1,7 +1,7 @@
 import {glMatrix, quat} from "gl-matrix";
 import PanoViewerInjector from "inject-loader!../../src/PanoViewer/PanoViewer";
 import PanoImageRendererForUnitTest from "./PanoImageRendererForUnitTest";
-import {util as mathUtil} from "../../src/utils/math-util.js";
+import {util as mathUtil} from "../../src/utils/math-util";
 import PanoViewer from "../../src/PanoViewer/PanoViewer";
 
 const resemble = window.resemble;

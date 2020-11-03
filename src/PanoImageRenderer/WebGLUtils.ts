@@ -1,5 +1,5 @@
 import agent from "@egjs/agent";
-import { TypedArray } from "src/types";
+import { TypedArray } from "../types";
 
 const WEBGL_ERROR_CODE = {
   "0": "NO_ERROR",

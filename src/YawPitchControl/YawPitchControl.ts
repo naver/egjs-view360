@@ -24,7 +24,7 @@ import {
 	TOUCH_DIRECTION_NONE,
 } from "./consts";
 import { VERSION } from "../version";
-import { ValueOf } from "src/types";
+import { ValueOf } from "../types";
 
 const DEFAULT_YAW_RANGE = [-YAW_RANGE_HALF, YAW_RANGE_HALF];
 const DEFAULT_PITCH_RANGE = [-PITCH_RANGE_HALF, PITCH_RANGE_HALF];

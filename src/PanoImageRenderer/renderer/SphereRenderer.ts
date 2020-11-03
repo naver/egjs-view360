@@ -1,7 +1,7 @@
 import Renderer from "./Renderer";
 import WebGLUtils from "../WebGLUtils";
 import { STEREO_FORMAT } from "../../PanoViewer/consts";
-import { ValueOf } from "src/types";
+import { ValueOf } from "../../types";
 
 const latitudeBands = 60;
 const longitudeBands = 60;
