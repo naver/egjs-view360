@@ -1,5 +1,4 @@
 import buildHelper from "@egjs/build-helper";
-import inject from "@rollup/plugin-inject";
 
 const external = {
   "@egjs/axes": "eg.Axes",
@@ -8,11 +7,7 @@ const external = {
   "gl-matrix": "glMatrix"
 }
 const name = "eg.view360";
-const plugins = [
-  // inject({
-  //   Promise: ['es6-promise', 'Promise']
-  // })
-];
+const plugins = [];
 
 export default buildHelper([
   {

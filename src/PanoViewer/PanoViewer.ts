@@ -6,7 +6,7 @@ import YawPitchControl, { YawPitchControlOptions } from "../YawPitchControl/YawP
 import PanoImageRenderer from "../PanoImageRenderer/PanoImageRenderer";
 import WebGLUtils from "../PanoImageRenderer/WebGLUtils";
 import { ERROR_TYPE, EVENTS, GYRO_MODE, PROJECTION_TYPE, STEREO_FORMAT } from "./consts";
-import { util as mathUtil } from "../utils/math-util.js";
+import { util as mathUtil } from "../utils/math-util";
 import { VERSION } from "../version";
 import { CubemapConfig, ValueOf } from "../types";
 

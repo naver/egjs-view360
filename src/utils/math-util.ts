@@ -32,7 +32,7 @@ THE SOFTWARE. */
 // for the purposes of this library.
 
 import { vec2, vec3, quat } from "gl-matrix";
-import { ValueOf } from "src/types";
+import { ValueOf } from "../types";
 
 function quatToVec3(quaternion: quat) {
   const baseV = vec3.fromValues(0, 0, 1);

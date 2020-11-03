@@ -1,7 +1,7 @@
 
-import Renderer from "./Renderer.js";
+import Renderer from "./Renderer";
 import WebGLUtils from "../WebGLUtils";
-import { CubemapConfig, TileConfig } from "src/types.js";
+import { CubemapConfig, TileConfig } from "../../types";
 
 export default class CubeStripRenderer extends Renderer {
   private _vertices: number[];

@@ -1,8 +1,8 @@
 import Agent from "@egjs/agent";
-import Renderer from "./Renderer.js";
+import Renderer from "./Renderer";
 import WebGLUtils from "../WebGLUtils";
-import { util as mathUtil } from "../../utils/math-util.js";
-import { CubemapConfig } from "src/types.js";
+import { util as mathUtil } from "../../utils/math-util";
+import { CubemapConfig } from "../../types";
 
 class CubeRenderer extends Renderer {
   private static _VERTEX_POSITION_DATA: number[] | null = null;

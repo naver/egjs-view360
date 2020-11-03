@@ -1,6 +1,6 @@
 import Component from "@egjs/component";
 import { vec3 } from "gl-matrix";
-import { Mutable } from "src/types";
+import { Mutable } from "../../types";
 import { window } from "../../utils/browser";
 import { IS_CHROME_WITHOUT_DEVICE_MOTION, IS_ANDROID } from "../consts";
 
