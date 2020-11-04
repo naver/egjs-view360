@@ -14,11 +14,13 @@ function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2) {
 			yaw, pitch, fov
 		}, 0);
 
-		// Then
-		compare(answerFile, inst._photoSphereRenderer.canvas, (pct, data) => {
-			expect(pct).to.be.below(threshold);
-			res();
-		});
+    // Then
+    window.requestAnimationFrame(() => {
+      compare(answerFile, inst._photoSphereRenderer.canvas, (pct, data) => {
+        expect(pct).to.be.below(threshold);
+        res();
+      });
+    })
 	});
 }
 
@@ -44,7 +46,9 @@ describe("PanoViewer", () => {
 
 		beforeEach(() => {
 			target = sandbox();
-			target.innerHTML = `<div></div>`;
+      target.innerHTML = `<div></div>`;
+      target.style.width = "2000px";
+			target.style.height = "2000px";
 		});
 
 		afterEach(() => {
@@ -126,8 +130,6 @@ describe("PanoViewer", () => {
 			// Given
 			panoViewer = createPanoViewerForRenderingTest(target, {
 				projectionType: "cubemap",
-				width: 200,
-				height: 200,
 				showPolePoint: true,
 				image: "./images/test_cube_1x6_naver.jpg",
 				cubemapConfig: {
@@ -149,7 +151,7 @@ describe("PanoViewer", () => {
 						[0, -90, 90, `./images/PanoViewer/test_cube_0_-90_90${suffix}`, 2]
 					]
 				).then(() => {
-					done();
+          done();
 				});
 			});
 		});

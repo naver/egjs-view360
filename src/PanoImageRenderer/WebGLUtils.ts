@@ -79,7 +79,7 @@ export default class WebGLUtils {
       ...{
         preserveDrawingBuffer: false,
         antialias: false,
-        xrCompatible: true
+        xrCompatible: true,
       }, ...userContextAttributes
     };
 
@@ -91,7 +91,6 @@ export default class WebGLUtils {
 
     for (const identifier of webglIdentifiers) {
       try {
-        canvas.getContext("webgl", )
         context = canvas.getContext(identifier, contextAttributes) as WebGLRenderingContext;
       } catch (t) {} // tslint:disable-line no-empty
       if (context) {

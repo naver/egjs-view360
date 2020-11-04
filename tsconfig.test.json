@@ -13,7 +13,7 @@
   },
   "include": [
     "./src/**/*.ts",
-    "./test/unit/*.ts"
+    "./test/unit/**/*.ts"
   ],
   "exclude": [
     "./node_modules/**/*.ts"

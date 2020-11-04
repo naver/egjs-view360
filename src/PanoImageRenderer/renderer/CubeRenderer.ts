@@ -168,7 +168,7 @@ void main(void) {
           WebGLUtils.texImage2D(gl, gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, tile);
         }
       }
-    } catch (e: any) {
+    } catch (e) {
       this._triggerError(e);
     }
   }

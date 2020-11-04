@@ -64,9 +64,9 @@ module.exports = config => {
 								compilerOptions: {
 									module: "es5",
 								},
-							}
-						}
-					}
+              }
+            }
+          }
         ]
       }
     },
