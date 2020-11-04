@@ -1,9 +1,9 @@
-import {expect} from "chai";
-import CubeRendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/CubeRenderer"; // eslint-disable-line import/no-duplicates
-import {compare} from "../util";
+import { expect } from "chai";
+import { compare } from "../util";
 import CubeRenderer from "../../../src/PanoImageRenderer/renderer/CubeRenderer"; // eslint-disable-line import/no-duplicates
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 import Renderer from "../../../src/PanoImageRenderer/renderer/Renderer";
+import CubeRendererInjector from "inject-loader!../../../src/PanoImageRenderer/renderer/CubeRenderer"; // eslint-disable-line import/no-duplicates
 
 const WEBGL_AVAILABILITY = WebGLUtils.isWebGLAvailable();
 const IT = WEBGL_AVAILABILITY ? it : it.skip;

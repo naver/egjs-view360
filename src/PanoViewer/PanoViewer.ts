@@ -647,9 +647,9 @@ class PanoViewer extends Component<
     requiredFeatures?: any[];
     optionalFeatures?: any[];
     [key: string]: any;
-  } = {}): Promise<string> {
+  } = {}): globalThis.Promise<string> {
     if (!this._isReady) {
-      return Promise.reject(new Error("PanoViewer is not ready to show image."));
+      return Promise.reject(new Error("PanoViewer is not ready to show image.")) as any;
     }
 
     return new Promise((resolve, reject) => {
@@ -657,7 +657,7 @@ class PanoViewer extends Component<
         .then(() => this._photoSphereRenderer!.enterVR(options))
         .then((res: string) => resolve(res))
         .catch(e => reject(e));
-    });
+    }) as any;
   }
 
   /**

@@ -27,7 +27,7 @@ function getImageBlob(path, callback) {
 function compare(path, canvas, callback) {
 	getImageBlob(path, reference => {
 		canvas.toBlob(canvasData => {
-			resemble(reference)
+      resemble(reference)
 				.compareTo(canvasData)
 				.ignoreAntialiasing()
 				.onComplete(data => {
@@ -49,7 +49,8 @@ function createPanoViewerForRenderingTest(target, options) {
 
 function createPanoImageRenderer(image, isVideo, projectionType, cubemapConfig = {},
 	options = {fieldOfView: 65, width: 200, height: 200},
-	stereoFormat = PanoViewer.STEREO_FORMAT.TOP_BOTTOM) {
+  stereoFormat = PanoViewer.STEREO_FORMAT.TOP_BOTTOM,
+  renderingContextAttributes = {}) {
 	const sphericalConfig = {
 		fieldOfView: options.fieldOfView,
 		imageType: projectionType,
@@ -67,7 +68,7 @@ function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuat
 
 		// inst is PanoViewer
 		if (inst.lookAt) {
-			inst.lookAt({yaw, pitch, fov});
+      inst.lookAt({yaw, pitch, fov});
 		} else if (isQuaternion) {
 			const quaternion = quat.create();
 
@@ -76,22 +77,23 @@ function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuat
 			inst.renderWithQuaternion(quaternion, fov);
 		} else {
 			inst.renderWithYawPitch(yaw, pitch, fov);
-		}
+    }
 
-		// Then
-		compare(answerFile, canvas, (diff, data) => {
-			const result = {
-				success: diff < threshold,
-				difference: diff,
-				threshold
-			};
+    // Then
+    // console.log(canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"));
+    compare(answerFile, canvas, (diff, data) => {
+      const result = {
+        success: diff < threshold,
+        difference: diff,
+        threshold
+      };
 
-			if (result.success) {
-				res(result);
-			} else {
-				rej(result);
-			}
-		});
+      if (result.success) {
+        res(result);
+      } else {
+        rej(result);
+      }
+    });
 	});
 }
 

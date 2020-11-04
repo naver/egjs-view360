@@ -42,29 +42,29 @@ describe("SphereRenderer", () => {
 		const suffix = `_${deviceRatio}x.png`;
 
 		beforeEach(() => {
-			target = sandbox();
+      target = sandbox();
 
-			target.style.width = "300px";
-			target.style.height = "300px";
+			target.style.width = "2000px";
+			target.style.height = "2000px";
 		});
 
 		afterEach(() => {
 			cleanup();
 		});
 
-		IT("should render streoscopic equirectangular image (2:1 ratio)", async () => {
+		IT("should render stereoscopic equirectangular image (2:1 ratio)", async () => {
 			/**
 			 * Given / When
 			 */
 			const viewer = createPanoViewerForRenderingTest(target, {
 				image: "./images/PanoViewer/Stereoscopic/stereoscopic1.png",
-				projectionType: PanoViewer.PROJECTION_TYPE.STEREOSCOPIC_EQUI,
-			});
+        projectionType: PanoViewer.PROJECTION_TYPE.STEREOSCOPIC_EQUI,
+      });
 
-			await new Promise(res => viewer.on("ready", res));
+      await new Promise(res => viewer.on("ready", res));
 
 			// Then
-			const renderer = viewer._photoSphereRenderer;
+      const renderer = viewer._photoSphereRenderer;
 			const result = await renderAndCompareSequentially(
 				renderer,
 				[[0, 0, 65, `./images/PanoViewer/Stereoscopic/stereoscopic1_0_0_65${suffix}`, 2]]
@@ -80,7 +80,7 @@ describe("SphereRenderer", () => {
 			const viewer = createPanoViewerForRenderingTest(target, {
 				image: "./images/PanoViewer/Stereoscopic/stereoscopic2.png",
 				projectionType: PanoViewer.PROJECTION_TYPE.STEREOSCOPIC_EQUI,
-				stereoFormat: PanoViewer.STEREO_FORMAT.TOP_BOTTOM
+        stereoFormat: PanoViewer.STEREO_FORMAT.TOP_BOTTOM,
 			});
 
 			await new Promise(res => viewer.on("ready", res));
@@ -96,16 +96,16 @@ describe("SphereRenderer", () => {
 		});
 
 		IT("default equirectangular rendering and stereo rendering should not affect each other", async () => {
-			const threashold = 3;
+			const threshold = 3;
 
 			const stereoTarget = sandbox("stereo");
 			const defTarget = sandbox("default");
 
-			defTarget.style.width = "200px";
-			defTarget.style.height = "200px";
+			defTarget.style.width = "2000px";
+			defTarget.style.height = "2000px";
 
-			stereoTarget.style.width = "300px";
-			stereoTarget.style.height = "300px";
+			stereoTarget.style.width = "3000px";
+			stereoTarget.style.height = "3000px";
 
 			/**
 			 * This test is needed because streoscopic is working by sphererRenderer
@@ -114,12 +114,12 @@ describe("SphereRenderer", () => {
 			const stereoEquiViewer = createPanoViewerForRenderingTest(stereoTarget, {
 				image: "./images/PanoViewer/Stereoscopic/stereoscopic2.png",
 				projectionType: PanoViewer.PROJECTION_TYPE.STEREOSCOPIC_EQUI,
-				stereoFormat: PanoViewer.STEREO_FORMAT.TOP_BOTTOM
+        stereoFormat: PanoViewer.STEREO_FORMAT.TOP_BOTTOM,
 			});
 
 			const defaultEquiViewer = createPanoViewerForRenderingTest(defTarget, {
 				image: "./images/test_equi.jpg",
-				projectionType: PanoViewer.PROJECTION_TYPE.EQUIRECTANGULAR,
+        projectionType: PanoViewer.PROJECTION_TYPE.EQUIRECTANGULAR,
 			});
 
 			await Promise.all([
@@ -130,13 +130,13 @@ describe("SphereRenderer", () => {
 			// Then
 			const result1 = await renderAndCompareSequentially(
 				stereoEquiViewer,
-				[[0, 0, 65, `./images/PanoViewer/Stereoscopic/stereoscopic2_0_0_65${suffix}`, threashold]]
-			);
+				[[0, 0, 65, `./images/PanoViewer/Stereoscopic/stereoscopic2_0_0_65${suffix}`, threshold]]
+      );
 
 			const result2 = await renderAndCompareSequentially(
 				defaultEquiViewer,
-				[[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threashold]],
-			);
+				[[0, 0, 90, `./images/PanoViewer/test_cube_0_0_90${suffix}`, threshold]],
+      );
 
 			expect(result1.success).to.be.equal(true);
 			expect(result2.success).to.be.equal(true);
