@@ -99,7 +99,7 @@ class VRManager {
         return Promise.reject(new Error("Display lacking capability to present."));
       }
 
-      vrDisplay.requestPresent([{source: canvas}]).then(() => {
+      return vrDisplay.requestPresent([{source: canvas}]).then(() => {
         const leftEye = vrDisplay.getEyeParameters(EYES.LEFT);
         const rightEye = vrDisplay.getEyeParameters(EYES.RIGHT);
 

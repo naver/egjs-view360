@@ -1,11 +1,8 @@
-import PanoViewer from "./PanoViewer";
+import PanoViewer, { PanoViewerEvent } from "./PanoViewer";
 import { VERSION } from "../version";
-
-import { polyfill } from "es6-promise";
-
-polyfill();
 
 export {
   PanoViewer,
+  PanoViewerEvent,
   VERSION
 };

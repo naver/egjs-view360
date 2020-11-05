@@ -49,8 +49,8 @@
     "@egjs/agent": "^2.2.1",
     "@egjs/axes": "^2.7.1",
     "@egjs/component": "^2.2.2",
-    "es6-promise": "^4.2.5",
-    "gl-matrix": "^3.3.0"
+    "gl-matrix": "^3.3.0",
+    "promise-polyfill": "^8.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
@@ -92,7 +92,6 @@
     "marked": "^0.4.0",
     "mocha": "^5.2.0",
     "print-sizes": "0.0.3",
-    "promise-polyfill": "^8.2.0",
     "replace-in-file": "^3.4.2",
     "resemblejs": "^3.2.3",
     "rollup": "^2.32.1",
