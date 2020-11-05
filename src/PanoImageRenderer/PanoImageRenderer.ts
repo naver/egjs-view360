@@ -303,11 +303,11 @@ class PanoImageRenderer extends Component<{
   }
 
   public hasRenderingContext() {
-    if (!(this.context && !this.context.isContextLost())) {
-      return false;
-    } else if (
-      this.context &&
-      !this.context.getProgramParameter(this.shaderProgram!, this.context.LINK_STATUS)) {
+    const ctx = this.context;
+    if (
+      !ctx
+      || ctx.isContextLost()
+      || !ctx.getProgramParameter(this.shaderProgram!, ctx.LINK_STATUS)) {
       return false;
     }
     return true;
