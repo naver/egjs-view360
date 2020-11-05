@@ -27,7 +27,7 @@ For more information, visit [Change Notes](https://github.com/naver/egjs-view360
      - Touch (Panning, Pinch-Zoom)
      - Mouse Move, Wheel
      - Keyboard (Arrow key, AWDS Key)
-  
+
 
 ## Components
 egjs-view360 provides the following components.
@@ -56,7 +56,7 @@ It is a component that supports the **outside-in viewing** method in which the o
 
 In addition to the integrated version of PanoViewer and SpinViewer, we have released a separate version. Here we describe the integrated version. If you want to reduce the size of the library through the use of individual modules, please refer to the [PanoViewer guide](https://naver.github.io/egjs-view360/panoviewer.html) or the [SpinViewer guide](https://naver.github.io/egjs-view360/spinviewer.html)
 
-Download dist files from repo directly or install it via npm. 
+Download dist files from repo directly or install it via npm.
 
 ### For development (Uncompressed)
 
@@ -110,7 +110,7 @@ The following are the supported browsers.
 
 egjs-view360 has the dependencies for the following libraries:
 
-|[eg.Component](http://github.com/naver/egjs-component)|[eg.Axes](http://github.com/naver/egjs-axes)|[eg.Agent](http://github.com/naver/egjs-agent)|[es6-promise](https://github.com/stefanpenner/es6-promise)|[webvr-polyfill](https://github.com/googlevr/webvr-polyfill)|
+|[eg.Component](http://github.com/naver/egjs-component)|[eg.Axes](http://github.com/naver/egjs-axes)|[eg.Agent](http://github.com/naver/egjs-agent)|[promise-polyfill](https://github.com/taylorhakes/promise-polyfill)|[webvr-polyfill](https://github.com/googlevr/webvr-polyfill)|
 |----|----|---|---|---|
 |2.0.0+|2.3.0+|2.1.1+|4.1.1|0.9.16|
 

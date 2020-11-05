@@ -2,12 +2,7 @@ import Component from "@egjs/component";
 import { TRANSFORM, SUPPORT_WILLCHANGE } from "../utils/browserFeature";
 import { VERSION } from "../version";
 
-/**
- * @memberof eg.view360
- * @extends eg.Component
- * SpriteImage
- */
-class SpriteImage extends Component<{
+export type SpriteImageEvent = {
   /**
    * Events that occur when component loading is complete
    * @ko 컴포넌트 로딩이 완료되면 발생하는 이벤트
@@ -49,7 +44,14 @@ class SpriteImage extends Component<{
   imageError: {
     imageUrl?: string;
   }
-}> {
+}
+
+/**
+ * @memberof eg.view360
+ * @extends eg.Component
+ * SpriteImage
+ */
+class SpriteImage extends Component<SpriteImageEvent> {
   public static VERSION = VERSION;
 
   private _el: HTMLElement;

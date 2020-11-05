@@ -5,12 +5,7 @@ import { VERSION } from "../version";
 
 const DEFAULT_PAN_SCALE = 0.21;
 
-/**
- * @memberof eg.view360
- * @extends eg.Component
- * SpinViewer
- */
-class SpinViewer extends Component<{
+export type SpinViewerEvent = {
   /**
    * Events that occur when component loading is complete
    * @ko 컴포넌트 로딩이 완료되면 발생하는 이벤트
@@ -31,7 +26,7 @@ class SpinViewer extends Component<{
   load: {
     target: HTMLElement;
     bgElement: HTMLDivElement;
-  };
+  }
   /**
    * An event that occurs when the image index is changed by the user's left / right panning
    * @ko 사용자의 좌우 Panning 에 의해 이미지 인덱스가 변경되었을때 발생하는 이벤트
@@ -94,7 +89,14 @@ class SpinViewer extends Component<{
   animationEnd: {
     isTrusted: boolean;
   }
-}> {
+}
+
+/**
+ * @memberof eg.view360
+ * @extends eg.Component
+ * SpinViewer
+ */
+class SpinViewer extends Component<SpinViewerEvent> {
   /**
    * Version info string
    * @ko 버전정보 문자열
