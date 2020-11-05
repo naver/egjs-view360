@@ -24,10 +24,11 @@ export default class WebGLUtils {
 
     if (success) {
       return shader;
-    } else {
-      // eslint-disable-next-line
-      console.error(gl.getShaderInfoLog(shader));
     }
+
+    // eslint-disable-next-line
+    console.error(gl.getShaderInfoLog(shader));
+
     return null;
   }
 

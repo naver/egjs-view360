@@ -89,29 +89,24 @@ class VRManager {
   }
 
   public requestPresent(canvas: HTMLCanvasElement) {
-    return new Promise((resolve, reject) => {
-      navigator.getVRDisplays().then(displays => {
-        const vrDisplay = displays.length && displays[0];
+    return navigator.getVRDisplays().then(displays => {
+      const vrDisplay = displays.length && displays[0];
 
-        if (!vrDisplay) {
-          reject(new Error("No displays available."));
-          return;
-        }
-        if (!vrDisplay.capabilities.canPresent) {
-          reject(new Error("Display lacking capability to present."));
-          return;
-        }
+      if (!vrDisplay) {
+        return Promise.reject(new Error("No displays available."));
+      }
+      if (!vrDisplay.capabilities.canPresent) {
+        return Promise.reject(new Error("Display lacking capability to present."));
+      }
 
-        vrDisplay.requestPresent([{source: canvas}]).then(() => {
-          const leftEye = vrDisplay.getEyeParameters(EYES.LEFT);
-          const rightEye = vrDisplay.getEyeParameters(EYES.RIGHT);
+      vrDisplay.requestPresent([{source: canvas}]).then(() => {
+        const leftEye = vrDisplay.getEyeParameters(EYES.LEFT);
+        const rightEye = vrDisplay.getEyeParameters(EYES.RIGHT);
 
-          canvas.width = Math.max(leftEye.renderWidth, rightEye.renderWidth) * 2;
-          canvas.height = Math.max(leftEye.renderHeight, rightEye.renderHeight);
+        canvas.width = Math.max(leftEye.renderWidth, rightEye.renderWidth) * 2;
+        canvas.height = Math.max(leftEye.renderHeight, rightEye.renderHeight);
 
-          this._setDisplay(vrDisplay);
-          resolve();
-        });
+        this._setDisplay(vrDisplay);
       });
     });
   }
