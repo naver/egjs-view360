@@ -41,12 +41,9 @@ describe("SphereRenderer", () => {
 		const deviceRatio = window.devicePixelRatio;
 		const suffix = `_${deviceRatio}x.png`;
 
-		beforeEach(() => {
-      target = sandbox();
-
-			target.style.width = "2000px";
-			target.style.height = "2000px";
-		});
+    before(() => {
+      cleanup();
+    });
 
 		afterEach(() => {
 			cleanup();
@@ -56,6 +53,9 @@ describe("SphereRenderer", () => {
 			/**
 			 * Given / When
 			 */
+      target = sandbox();
+			target.style.width = "2000px";
+			target.style.height = "2000px";
 			const viewer = createPanoViewerForRenderingTest(target, {
 				image: "./images/PanoViewer/Stereoscopic/stereoscopic1.png",
         projectionType: PanoViewer.PROJECTION_TYPE.STEREOSCOPIC_EQUI,
@@ -77,6 +77,9 @@ describe("SphereRenderer", () => {
 			/**
 			 * Given / When
 			 */
+      target = sandbox();
+			target.style.width = "3000px";
+			target.style.height = "3000px";
 			const viewer = createPanoViewerForRenderingTest(target, {
 				image: "./images/PanoViewer/Stereoscopic/stereoscopic2.png",
 				projectionType: PanoViewer.PROJECTION_TYPE.STEREOSCOPIC_EQUI,

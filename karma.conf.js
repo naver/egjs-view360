@@ -108,7 +108,7 @@ module.exports = config => {
       dir: "./coverage"
     };
     karmaConfig.webpack.module.rules.unshift({
-      test: /\.js$/,
+      test: /\.ts$/,
       exclude: /(node_modules|test)/,
       loader: "istanbul-instrumenter-loader"
     });
