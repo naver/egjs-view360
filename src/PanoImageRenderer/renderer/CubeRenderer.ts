@@ -1,4 +1,4 @@
-import Agent from "@egjs/agent";
+import agent from "@egjs/agent";
 import Renderer from "./Renderer";
 import WebGLUtils from "../WebGLUtils";
 import { util as mathUtil } from "../../utils/math-util";
@@ -217,11 +217,11 @@ void main(void) {
   }
 
   public getMaxCubeMapTextureSize(gl: WebGLRenderingContext, image: HTMLImageElement | HTMLVideoElement) {
-    const agent = Agent();
+    const agentInfo = agent();
     const maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
     let _imageWidth = this.getSourceTileSize(image);
 
-    if (agent.browser.name === "ie" && agent.browser.majorVersion === 11) {
+    if (agentInfo.browser.name === "ie" && agentInfo.browser.majorVersion === 11) {
       if (!mathUtil.isPowerOfTwo(_imageWidth)) {
         for (let i = 1; i < maxCubeMapTextureSize; i *= 2) {
           if (i < _imageWidth) {
@@ -233,8 +233,8 @@ void main(void) {
         }
       }
     }
-    if (agent.os.name === "ios") {
-      const majorVersion = agent.os.majorVersion;
+    if (agentInfo.os.name === "ios") {
+      const majorVersion = agentInfo.os.majorVersion;
 
       // ios 9 의 경우 텍스쳐 최대사이즈는 1024 이다.
       if (majorVersion === 9) {

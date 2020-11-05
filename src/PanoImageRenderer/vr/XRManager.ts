@@ -87,19 +87,11 @@ class XRManager {
   }
 
   public addEndCallback(callback: (evt?: Event) => any) {
-    const session = this._xrSession;
-
-    if (!session) return;
-
-    session.addEventListener("end", callback);
+    this._xrSession?.addEventListener("end", callback);
   }
 
   public removeEndCallback(callback: (evt?: Event) => any) {
-    const session = this._xrSession;
-
-    if (!session) return;
-
-    session.removeEventListener("end", callback);
+    this._xrSession?.removeEventListener("end", callback);
   }
 
   public requestPresent(canvas: HTMLCanvasElement, gl: WebGLRenderingContext) {

@@ -1,10 +1,10 @@
 import Component from "@egjs/component";
-import Agent from "@egjs/agent";
+import agent from "@egjs/agent";
 import { mat4 } from "gl-matrix";
 import { CubemapConfig, TileConfig } from "../../types";
 
-const agent = Agent();
-const isIE11 = agent.browser.name === "ie" && agent.browser.majorVersion === 11;
+const agentInfo = agent();
+const isIE11 = agentInfo.browser.name === "ie" && agentInfo.browser.majorVersion === 11;
 
 const EVENTS: {
   ERROR: "error",

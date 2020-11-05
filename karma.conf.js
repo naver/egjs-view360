@@ -28,9 +28,9 @@ module.exports = config => {
 
     webpack: {
       devtool: "inline-source-map",
-			resolve: {
+      resolve: {
         extensions: [".ts", ".js"]
-			},
+      },
       mode: "none",
       module: {
         rules: [
@@ -50,20 +50,20 @@ module.exports = config => {
               ],
               "plugins": [
                 "@babel/plugin-transform-modules-commonjs",
-								["@babel/plugin-proposal-class-properties", {"loose": true}],
+                ["@babel/plugin-proposal-class-properties", {"loose": true}],
               ]
             }
           },
           {
-						test: /\.ts$/,
-						exclude: /node_modules/,
-						use: {
-							loader: "ts-loader",
-							options: {
-								transpileOnly: true,
-								compilerOptions: {
-									module: "es5",
-								},
+            test: /\.ts$/,
+            exclude: /node_modules/,
+            use: {
+              loader: "ts-loader",
+              options: {
+                transpileOnly: true,
+                compilerOptions: {
+                  module: "es5",
+                },
               }
             }
           }
@@ -102,18 +102,18 @@ module.exports = config => {
   karmaConfig.browsers.push(config.chrome ? "Chrome" : "ChromeHeadlessGL");
 
   if (config.coverage) {
-		karmaConfig.reporters.push("coverage-istanbul");
-		karmaConfig.coverageIstanbulReporter = {
-			reports: ["text-summary", "html", "lcovonly"],
-			dir: "./coverage"
-		};
-		karmaConfig.webpack.module.rules.unshift({
-			test: /\.js$/,
-			exclude: /(node_modules|test)/,
-			loader: "istanbul-instrumenter-loader"
-		});
-		karmaConfig.singleRun = true;
-	}
+    karmaConfig.reporters.push("coverage-istanbul");
+    karmaConfig.coverageIstanbulReporter = {
+      reports: ["text-summary", "html", "lcovonly"],
+      dir: "./coverage"
+    };
+    karmaConfig.webpack.module.rules.unshift({
+      test: /\.js$/,
+      exclude: /(node_modules|test)/,
+      loader: "istanbul-instrumenter-loader"
+    });
+    karmaConfig.singleRun = true;
+  }
 
   config.set(karmaConfig);
 };
