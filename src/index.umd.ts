@@ -4,7 +4,7 @@ import { VERSION } from "./version";
 
 export default {
   PanoViewer,
-	SpinViewer,
-	SpriteImage,
-	VERSION
+  SpinViewer,
+  SpriteImage,
+  VERSION
 };
