@@ -422,6 +422,8 @@ var viewer = new eg.view360.PanoViewer(container, {
         });
     }).on("viewChange", function (e) {
         setHotspotOffsets(viewer);
+    }).on("error", e => {
+      console.error(e);
     });
 
     window.addEventListener("resize", function (e) {
