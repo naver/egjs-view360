@@ -24,14 +24,15 @@ var PanoControls = (function() {
 		var pieView = new PieView(pieEl);
 		panoViewer.on({
 			"ready": function () {
-				var yawRange = panoViewer.getYawRange();
-				pieView.setState(panoViewer.getYaw(), panoViewer._getHFov(), yawRange[1] - yawRange[0]);
+        var yawRange = panoViewer.getYawRange();
+        var hfov = (180 / Math.PI) * (2 * Math.atan(panoViewer._aspectRatio * Math.tan(panoViewer.getFov() * Math.PI / 360)));
+				pieView.setState(panoViewer.getYaw(), hfov, yawRange[1] - yawRange[0]);
 				showLoading(false);
 			},
 			"viewChange": function (e) {
-					var hfov = panoViewer._getHFov();
-					pieView.setState(e.yaw,  hfov);
-					// console.log("viewChange");
+        var hfov = (180 / Math.PI) * (2 * Math.atan(panoViewer._aspectRatio * Math.tan(panoViewer.getFov() * Math.PI / 360)));
+        pieView.setState(e.yaw,  hfov);
+        // console.log("viewChange");
 			}
 		});
 
@@ -49,7 +50,7 @@ var PanoControls = (function() {
 			panoViewer.updateViewportDimensions();
 
 			var yaw = panoViewer.getYaw();
-			var hfov = panoViewer._getHFov();
+			var hfov = (180 / Math.PI) * (2 * Math.atan(panoViewer._aspectRatio * Math.tan(panoViewer.getFov() * Math.PI / 360)));
 			pieView.setState(yaw,  hfov);
 		}));
 
