@@ -154,7 +154,6 @@ class PanoImageRenderer extends Component<{
 
     this.canvas = this._initCanvas(width, height);
 
-    this.canvas.getContext("webgl", )
     this._setDefaultCanvasStyle();
     this._wrapper = null; // canvas wrapper
     this._wrapperOrigStyle = null;

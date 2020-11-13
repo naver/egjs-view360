@@ -12,7 +12,7 @@
     <script src="../../../node_modules/@egjs/axes/dist/axes.js"></script>
     <script src="../../../dist/view360.js"></script>
     <!-- <script src="../../../dist/PanoViewer/view360.panoviewer.pkgd.min.js"></script> -->
-    
+
     <script src="../lib/jquery-3.3.1.min.js"></script>
     <script src="../lib/screenfull.js"></script>
     <script src="../lib/util.js"></script>
@@ -68,25 +68,26 @@
         }
         ).on({
             "ready": function () {
-                var yawRange = panoViewer.getYawRange();
-                pieView.setState(panoViewer.getYaw(), panoViewer._getHFov(), yawRange[1] - yawRange[0]);
+              var yawRange = panoViewer.getYawRange();
+              var hfov = (180 / Math.PI) * (2 * Math.atan(panoViewer._aspectRatio * Math.tan(panoViewer.getFov() * Math.PI / 360)));
+              pieView.setState(panoViewer.getYaw(), hfov, yawRange[1] - yawRange[0]);
             },
             "viewChange": function (e) {
-                var hfov = panoViewer._getHFov();
-                pieView.setState(e.yaw,  hfov);
+              var hfov = (180 / Math.PI) * (2 * Math.atan(panoViewer._aspectRatio * Math.tan(panoViewer.getFov() * Math.PI / 360)));
+              pieView.setState(e.yaw,  hfov);
             },
             "error": function(e) {
-                console.error(e);
+              console.error(e);
             }
         });
 
         // resize handler
         window.addEventListener("resize", debounce(function() {
-            panoViewer.updateViewportDimensions();
-            
-            var yaw = panoViewer.getYaw();
-            var hfov = panoViewer._getHFov();
-            pieView.setState(yaw,  hfov);
+          panoViewer.updateViewportDimensions();
+
+          var yaw = panoViewer.getYaw();
+          var hfov = (180 / Math.PI) * (2 * Math.atan(panoViewer._aspectRatio * Math.tan(panoViewer.getFov() * Math.PI / 360)));
+          pieView.setState(yaw,  hfov);
         }));
 
         // create file input
@@ -97,10 +98,10 @@
 
             // inject an image with the src url
             reader.onload = function (event) {
-                the_url = event.target.result;
+              the_url = event.target.result;
 
-                panoViewer.setImage(the_url, { projectionType: "panorama" });
-                panoViewer.updateViewportDimensions();
+              panoViewer.setImage(the_url, { projectionType: "panorama" });
+              panoViewer.updateViewportDimensions();
             }
 
             // when the file is read it triggers the onload event above.
@@ -116,16 +117,16 @@
             var requestFullscreen;
 
             if (screenfull.enabled) {
-                requestFullscreen = screenfull.isFullscreen;
+              requestFullscreen = screenfull.isFullscreen;
             } else {
-                requestFullscreen = mode === "full";
+              requestFullscreen = mode === "full";
             }
-                
+
             if (requestFullscreen) {
-                fullscreenContainer.appendChild(rootNode);
+              fullscreenContainer.appendChild(rootNode);
 	            fullscreenContainer.style.display = "block";
             } else {
-                originalContainer.appendChild(rootNode);
+              originalContainer.appendChild(rootNode);
 	            fullscreenContainer.style.display = "none";
             }
 
@@ -137,17 +138,17 @@
 
         document.querySelector(".enterfs").addEventListener("click", function() {
             if (screenfull.enabled) {
-                screenfull.request();
+              screenfull.request();
             } else {
-                changeMode("full");
+              changeMode("full");
             }
         });
 
         document.querySelector(".exitfs").addEventListener("click", function() {
             if (screenfull.enabled) {
-                screenfull.exit();
+              screenfull.exit();
             } else {
-                changeMode("orignal");
+              changeMode("orignal");
             }
         });
     </script>
