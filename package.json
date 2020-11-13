@@ -46,7 +46,6 @@
     "url": "https://github.com/naver/egjs-view360/issues"
   },
   "dependencies": {
-    "@egjs/agent": "^2.2.1",
     "@egjs/axes": "^2.7.1",
     "@egjs/component": "^2.2.2",
     "gl-matrix": "^3.3.0",
@@ -58,6 +57,7 @@
     "@babel/plugin-transform-modules-commonjs": "^7.12.1",
     "@babel/preset-env": "^7.12.1",
     "@daybrush/jsdoc": "^0.3.8",
+    "@egjs/agent": "^2.2.1",
     "@egjs/build-helper": "^0.1.2",
     "@egjs/common-demo": "github:naver/egjs#common-demo",
     "@egjs/visible": "^2.1.0",

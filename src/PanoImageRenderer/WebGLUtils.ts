@@ -153,7 +153,7 @@ export default class WebGLUtils {
     if (agentInfo.os.name === "android") {
       const version = parseFloat(agentInfo.os.version);
 
-      if (version <= 4.3) {
+      if (version <= 4.3 && version >= 1) {
         isStableWebgl = false;
       } else if (version === 4.4) {
         if (agentInfo.browser.name !== "chrome") {
