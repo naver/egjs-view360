@@ -25,15 +25,14 @@ var PanoControls = (function() {
 		panoViewer.on({
 			"ready": function () {
         var yawRange = panoViewer.getYawRange();
-        var fov = panoViewer.getFov();
-        var hfov = 2 * Math.atan(panoViewer._aspectRatio * Math.tan(fov * Math.PI / 360)) * 180 / Math.PI;
-        pieView.setState(panoViewer.getYaw(), hfov, yawRange[1] - yawRange[0]);
+        var hfov = (180 / Math.PI) * (2 * Math.atan(panoViewer._aspectRatio * Math.tan(panoViewer.getFov() * Math.PI / 360)));
+				pieView.setState(panoViewer.getYaw(), hfov, yawRange[1] - yawRange[0]);
 				showLoading(false);
 			},
 			"viewChange": function (e) {
-        var fov = panoViewer.getFov();
-        var hfov = 2 * Math.atan(panoViewer._aspectRatio * Math.tan(fov * Math.PI / 360)) * 180 / Math.PI;
-        pieView.setState(e.yaw, hfov);
+        var hfov = (180 / Math.PI) * (2 * Math.atan(panoViewer._aspectRatio * Math.tan(panoViewer.getFov() * Math.PI / 360)));
+        pieView.setState(e.yaw,  hfov);
+        // console.log("viewChange");
 			}
 		});
 
@@ -50,9 +49,8 @@ var PanoControls = (function() {
 		window.addEventListener("resize", debounce(function() {
 			panoViewer.updateViewportDimensions();
 
-      var fov = panoViewer.getFov();
-      var hfov = 2 * Math.atan(panoViewer._aspectRatio * Math.tan(fov * Math.PI / 360)) * 180 / Math.PI;
 			var yaw = panoViewer.getYaw();
+			var hfov = (180 / Math.PI) * (2 * Math.atan(panoViewer._aspectRatio * Math.tan(panoViewer.getFov() * Math.PI / 360)));
 			pieView.setState(yaw,  hfov);
 		}));
 
