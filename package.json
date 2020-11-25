@@ -48,6 +48,7 @@
 	"dependencies": {
 		"@egjs/axes": "^2.7.1",
 		"@egjs/component": "^2.2.2",
+		"@egjs/imready": "^1.0.0",
 		"gl-matrix": "^3.3.0",
 		"promise-polyfill": "^8.2.0"
 	},

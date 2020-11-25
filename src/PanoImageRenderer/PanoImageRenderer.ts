@@ -2,6 +2,7 @@ import Component from "@egjs/component";
 import { XRFrame } from "webxr";
 import Promise from "promise-polyfill";
 import { glMatrix, vec3, mat3, mat4, quat } from "gl-matrix";
+import ImReady, { OnReady } from "@egjs/imready";
 import ImageLoader from "./ImageLoader";
 import VideoLoader from "./VideoLoader";
 import WebGLUtils from "./WebGLUtils";
@@ -17,8 +18,9 @@ import { util as mathUtil } from "../utils/math-util";
 import { devicePixelRatio, WEBXR_SUPPORTED } from "../utils/browserFeature";
 import { PROJECTION_TYPE, STEREO_FORMAT } from "../PanoViewer/consts";
 import { IS_IOS } from "../utils/browser";
-import { CubemapConfig, ValueOf } from "../types";
+import { CubemapConfig, ImageCandidate, ValueOf, VideoCandidate } from "../types";
 import YawPitchControl from "../YawPitchControl/YawPitchControl";
+import { toImageElement, toVideoElement } from "../utils/utils";
 
 const ImageType = PROJECTION_TYPE;
 
@@ -106,7 +108,7 @@ class PanoImageRenderer extends Component<{
   private _renderingContextAttributes?: WebGLContextAttributes;
 
   private _renderer: Renderer;
-  private _contentLoader: ImageLoader | VideoLoader | null;
+  private _contentLoader: ImReady | null;
   private _image: HTMLImageElement | HTMLImageElement[] | HTMLVideoElement | null;
   private _imageConfig: CubemapConfig | null;
   private _imageType: ValueOf<typeof PROJECTION_TYPE>;
@@ -121,7 +123,7 @@ class PanoImageRenderer extends Component<{
   private _vr: VRManager | XRManager | null;
 
   constructor(
-    image: Parameters<ImageLoader["set"]>[0] | Parameters<VideoLoader["set"]>[0],
+    image: ImageCandidate | VideoCandidate,
     width: number,
     height: number,
     isVideo: boolean,
@@ -198,7 +200,7 @@ class PanoImageRenderer extends Component<{
     isVideo = false,
     cubemapConfig,
   }: {
-    image: Parameters<ImageLoader["set"]>[0] | Parameters<VideoLoader["set"]>[0];
+    image: ImageCandidate | VideoCandidate;
     imageType: PanoImageRenderer["_imageType"];
     isVideo: boolean;
     cubemapConfig: CubemapConfig;
@@ -222,24 +224,19 @@ class PanoImageRenderer extends Component<{
       this._contentLoader.destroy();
     }
 
+    this._contentLoader = new ImReady()
+      .on("ready", this._onContentLoad)
+      .on("error", this._onContentError);
+
     if (isVideo) {
-      this._contentLoader = new VideoLoader();
-      this._keepUpdate = true;
-    } else {
-      this._contentLoader = new ImageLoader();
+      this._image = toVideoElement(image as VideoCandidate);
+      this._contentLoader.check([this._image]);
       this._keepUpdate = false;
+    } else {
+      this._image = toImageElement(image as ImageCandidate);
+      this._contentLoader.check(Array.isArray(this._image) ? this._image : [this._image])
+      this._keepUpdate = true;
     }
-
-    // img element or img url
-    this._contentLoader.set(image as any);
-
-    // 이미지의 사이즈를 캐시한다.
-    // image is reference for content in contentLoader, so it may be not valid if contentLoader is destroyed.
-    this._image = this._contentLoader.getElement();
-
-    return this._contentLoader.get()
-      .then(this._onContentLoad, this._onContentError)
-      .catch(e => setTimeout(() => { throw e; })); // Prevent exceptions from being isolated in promise chain.
   }
 
   public isImageLoaded() {
@@ -249,16 +246,30 @@ class PanoImageRenderer extends Component<{
 
   public bindTexture() {
     return new Promise((res, rej) => {
-      if (!this._contentLoader) {
-        rej("ImageLoader is not initialized");
-        return;
+      const contentLoader = this._contentLoader;
+
+      if (!this._image) {
+        return rej("Image is not defined");
       }
 
-      this._contentLoader.get()
-        .then(() => {
-          this._bindTexture();
-        }, rej)
-        .then(res);
+      if (!contentLoader) {
+        return rej("ImageLoader is not initialized");
+      }
+
+      if (contentLoader.isReady()) {
+        this._bindTexture();
+        res();
+      } else {
+        contentLoader.check(Array.isArray(this._image) ? this._image : [this._image]);
+        contentLoader.once("ready", e => {
+          if (e.errorCount > 0) {
+            rej("Failed to load images.");
+          } else {
+            this._bindTexture();
+            res();
+          }
+        })
+      }
     });
   }
 
@@ -558,11 +569,12 @@ class PanoImageRenderer extends Component<{
     });
   }
 
-  private _onContentLoad() {
+  private _onContentLoad(e: OnReady) {
+    if (e.errorCount > 0) return;
+
     this._imageIsReady = true;
 
     this._triggerContentLoad();
-    return true;
   }
 
   private _initShaderProgram() {
