@@ -94,7 +94,7 @@
 		"mocha": "^5.2.0",
 		"print-sizes": "0.0.3",
 		"replace-in-file": "^3.4.2",
-		"resemblejs": "^3.2.3",
+		"resemblejs": "^3.2.5",
 		"rollup": "^2.32.1",
 		"sinon": "^6.3.3",
 		"sync-exec": "^0.6.2",
