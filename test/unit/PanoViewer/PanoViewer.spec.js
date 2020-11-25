@@ -131,11 +131,11 @@ describe("PanoViewer", () => {
 			panoViewer = createPanoViewerForRenderingTest(target, {
 				projectionType: "cubemap",
 				showPolePoint: true,
-				image: "./images/test_cube_1x6_naver.jpg",
+        image: "./images/test_cube_1x6_naver.jpg",
 				cubemapConfig: {
 					tileConfig: {flipHorizontal: true, rotation: 0}
 				}
-			});
+      });
 
 			// When
 			panoViewer.on("ready", () => {

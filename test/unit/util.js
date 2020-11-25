@@ -27,11 +27,12 @@ function getImageBlob(path, callback) {
 function compare(path, canvas, callback) {
 	getImageBlob(path, reference => {
 		canvas.toBlob(canvasData => {
-      resemble(reference)
+			resemble(reference)
 				.compareTo(canvasData)
+				.scaleToSameSize()
 				.ignoreAntialiasing()
 				.onComplete(data => {
-					const pct = parseFloat(data.misMatchPercentage);
+          const pct = parseFloat(data.misMatchPercentage);
 
 					callback(pct, data);
 				});

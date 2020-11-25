@@ -41,9 +41,9 @@ describe("SphereRenderer", () => {
 		const deviceRatio = window.devicePixelRatio;
 		const suffix = `_${deviceRatio}x.png`;
 
-    before(() => {
-      cleanup();
-    });
+		before(() => {
+		  cleanup();
+		});
 
 		afterEach(() => {
 			cleanup();
@@ -54,8 +54,8 @@ describe("SphereRenderer", () => {
 			 * Given / When
 			 */
       target = sandbox();
-			target.style.width = "2000px";
-			target.style.height = "2000px";
+			target.style.width = "300px";
+			target.style.height = "300px";
 			const viewer = createPanoViewerForRenderingTest(target, {
 				image: "./images/PanoViewer/Stereoscopic/stereoscopic1.png",
         projectionType: PanoViewer.PROJECTION_TYPE.STEREOSCOPIC_EQUI,
@@ -78,8 +78,8 @@ describe("SphereRenderer", () => {
 			 * Given / When
 			 */
       target = sandbox();
-			target.style.width = "3000px";
-			target.style.height = "3000px";
+			target.style.width = "300px";
+			target.style.height = "300px";
 			const viewer = createPanoViewerForRenderingTest(target, {
 				image: "./images/PanoViewer/Stereoscopic/stereoscopic2.png",
 				projectionType: PanoViewer.PROJECTION_TYPE.STEREOSCOPIC_EQUI,
@@ -104,11 +104,11 @@ describe("SphereRenderer", () => {
 			const stereoTarget = sandbox("stereo");
 			const defTarget = sandbox("default");
 
-			defTarget.style.width = "2000px";
-			defTarget.style.height = "2000px";
+			defTarget.style.width = "200px";
+			defTarget.style.height = "200px";
 
-			stereoTarget.style.width = "3000px";
-			stereoTarget.style.height = "3000px";
+			stereoTarget.style.width = "300px";
+			stereoTarget.style.height = "300px";
 
 			/**
 			 * This test is needed because streoscopic is working by sphererRenderer
