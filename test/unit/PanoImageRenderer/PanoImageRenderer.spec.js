@@ -227,7 +227,7 @@ describe("PanoImageRenderer", () => {
 	});
 
 	describe("error event", () => {
-		IT("Should trigger error event when invalis image url", done => {
+		IT("Should trigger error event when invalid image url", done => {
 			// Given
 			const sourceImg = new Image();
 
