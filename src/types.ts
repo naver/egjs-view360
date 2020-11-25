@@ -15,3 +15,6 @@ export type TypedArray = Int8Array | Uint8Array | Int16Array | Uint16Array | Int
 export type Mutable<T extends object> = {
   -readonly [K in keyof T]: T[K]
 }
+
+export type ImageCandidate = HTMLImageElement | string | (HTMLImageElement | string)[];
+export type VideoCandidate = HTMLVideoElement | string | { src: string; type: string } | (string | { src: string; type: string })[];
