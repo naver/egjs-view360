@@ -251,7 +251,7 @@ var json = {
         "folders": {}
       }
     }
-  } 
+  }
 };
 
 var gridView = new GridView(document.querySelector(".grid-chart"), 0, 0);
@@ -286,7 +286,7 @@ var gui = new dat.GUI(json);
 gui.remember(object);
 
 var params = {
-    loadFile : function() { 
+    loadFile : function() {
       document.querySelector('#file').click();
     },
     aspectRatio: 1,
@@ -427,8 +427,8 @@ gui.add(params, 'SIZE', 100, 1024).onChange(function(value) {
   panoViewer.updateViewportDimensions();
 });
 
-gui.add(params, 'aspectRatio', 
-  { 
+gui.add(params, 'aspectRatio',
+  {
     "1:1": 1, "16:9": 16/9, "9:16": 9/16,
     "2:1": 2, "1:2": 1/2, "21:9": 21/9, "9:21": 9/21
   }

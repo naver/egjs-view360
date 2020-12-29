@@ -39,8 +39,6 @@ export default class WebGLUtils {
     gl.attachShader(program, fragmentShader);
     gl.linkProgram(program);
 
-    gl.detachShader(program, vertexShader);
-    gl.detachShader(program, fragmentShader);
     gl.deleteShader(vertexShader);
     gl.deleteShader(fragmentShader);
 
