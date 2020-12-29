@@ -160,7 +160,7 @@ var json = {
         "folders": {}
       }
     }
-  } 
+  }
 };
 var gridView = new GridView(document.querySelector(".grid-chart"), 0, 0);
 var threePanoView = new ThreePanoView(document.querySelector( '.pano-viewer' ), object.image, 0, 0, object.pitchRangeSize < 65 ? object.pitchRangeSize : 65, 1);
@@ -268,7 +268,7 @@ function render() {
   const yawRange = yawpitch.options.yawRange;
   const pitchRange = yawpitch.options.pitchRange;
   const fovRange = yawpitch.options.fovRange;
-  
+
   threePanoView.render(yaw, pitch, fov);
   gridView.render(yaw, pitch, yawRange, pitchRange);
 

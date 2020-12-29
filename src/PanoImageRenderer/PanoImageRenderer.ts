@@ -601,13 +601,13 @@ class PanoImageRenderer extends Component<{
 
     gl.useProgram(shaderProgram);
     (shaderProgram as any).vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-    gl.enableVertexAttribArray((shaderProgram as any).vertexPositionAttribute);
     (shaderProgram as any).pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
     (shaderProgram as any).mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
     (shaderProgram as any).samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
     (shaderProgram as any).textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
     (shaderProgram as any).uEye = gl.getUniformLocation(shaderProgram, "uEye");
 
+    gl.enableVertexAttribArray((shaderProgram as any).vertexPositionAttribute);
     gl.enableVertexAttribArray((shaderProgram as any).textureCoordAttribute);
 
     // clear buffer

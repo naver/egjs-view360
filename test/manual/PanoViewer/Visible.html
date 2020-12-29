@@ -134,7 +134,7 @@ var visible = new eg.Visible(document,{
 			viewerEl.classList.add("inactive");
 			instance.destroy();
 			photo360ViewerMap[key] = null;
-		} 
+		}
 	});
 
 	// 보이게 된 엘리먼트 처리
@@ -145,7 +145,7 @@ var visible = new eg.Visible(document,{
 		var instance = photo360ViewerMap[key];
 
 		// 인스턴스가 없으면 초기화 후 키 생성
-		if (!instance) { 
+		if (!instance) {
 			delete viewerEl["__photo360__"];
 			key = (new Date()).getTime() + idx;
 
@@ -164,7 +164,8 @@ var visible = new eg.Visible(document,{
 				}, 10);
 			}).on("suspend", function(evt) {
 				viewerEl.classList.add("inactive");
-			}).on("error", function() {
+			}).on("error", function(e) {
+        console.error(e);
 				alert("이 브라우저는 webgl 을 지원하지 않습니다. 따라서 PanoViewer 가 동작할 수 없습니다.");
 			});
       		viewerEl.classList.add("loading");
