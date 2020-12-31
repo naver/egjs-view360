@@ -3,8 +3,6 @@ import { XRFrame } from "webxr";
 import Promise from "promise-polyfill";
 import { glMatrix, vec3, mat3, mat4, quat } from "gl-matrix";
 import ImReady, { OnReady } from "@egjs/imready";
-import ImageLoader from "./ImageLoader";
-import VideoLoader from "./VideoLoader";
 import WebGLUtils from "./WebGLUtils";
 import Renderer from "./renderer/Renderer";
 import CubeRenderer from "./renderer/CubeRenderer";

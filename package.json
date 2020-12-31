@@ -1,6 +1,6 @@
 {
 	"name": "@egjs/view360",
-	"version": "3.4.1-snapshot",
+	"version": "3.4.2",
 	"description": "360 integrated viewing solution from inside-out view to outside-in view. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.",
 	"main": "dist/view360.js",
 	"module": "dist/view360.esm.js",
@@ -8,8 +8,8 @@
 	"types": "declaration/index.d.ts",
 	"scripts": {
 		"start": "webpack-dev-server --open --host 0.0.0.0",
-    "build": "rm -rf ./dist && rollup -c && npm run declaration && npm run printsizes",
-    "watch": "rollup -c -w",
+		"build": "rm -rf ./dist && rollup -c && npm run declaration && npm run printsizes",
+		"watch": "rollup -c -w",
 		"declaration": "rm -rf declaration && tsc -p tsconfig.declaration.json",
 		"printsizes": "print-sizes ./dist --exclude=\\.map",
 		"test": "karma start",
