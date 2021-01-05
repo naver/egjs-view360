@@ -208,3 +208,4 @@ demo/_data/version.yml
 demo/release/
 dist/
 declaration/
+.jekyll-cache/
