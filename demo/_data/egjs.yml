@@ -9,7 +9,7 @@ css:
 GA: UA-70842526-23
 github:
   user: naver
-  repo: egjs-view360 
+  repo: egjs-view360
 js:
   - common/js/tab.js
   - common/js/hash.js
@@ -47,6 +47,9 @@ subComponents:
     - name: Naver Partner Square
       image: ./common/img/thumbnail/naver_partner_square.jpg
       url: https://partners.naver.com/
+    - name: Galerie Born
+      image: ./common/img/thumbnail/galerie_born.png
+      url: https://galerie-born.com/winter-2020-2021/
   projections:
     - name: Equirectangular
       id: equirectangular
@@ -90,7 +93,7 @@ subComponents:
           description: Scroll this page by touch on a mobile device or by wheel-scroll on a PC
           link: examples/panoviewer/controls/doc-embeded.html
           sort: 10
-        - name: Direction key & Wheel Zoom  
+        - name: Direction key & Wheel Zoom
           image: panoviewer/directionkey.png
           description: Direction key & Wheel Zoom
           link: examples/panoviewer/controls/keyboard-wheel.html
