@@ -229,11 +229,11 @@ class PanoImageRenderer extends Component<{
     if (isVideo) {
       this._image = toVideoElement(image as VideoCandidate);
       this._contentLoader.check([this._image]);
-      this._keepUpdate = false;
+      this._keepUpdate = true;
     } else {
       this._image = toImageElement(image as ImageCandidate);
       this._contentLoader.check(Array.isArray(this._image) ? this._image : [this._image])
-      this._keepUpdate = true;
+      this._keepUpdate = false;
     }
   }
 
