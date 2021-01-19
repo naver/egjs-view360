@@ -1020,7 +1020,35 @@ describe("PanoImageRenderer", () => {
 				expect(isDrawCalled).to.be.equal(false);
 				done();
 			});
-		});
+    });
+
+    IT("should update video texture by default", async () => {
+			// Given
+			const thresholdMargin = 4; // Some test cases are fail on TRAVIS CI. So make it margin.
+			const srcVideo = document.createElement("video");
+
+			srcVideo.src = "./images/PanoViewer/pano.mp4";
+			srcVideo.muted = true;
+			const inst = createPanoImageRenderer(srcVideo, true, "equirectangular");
+
+			await isVideoLoaded(srcVideo);
+			await inst.bindTexture();
+
+			// When
+			srcVideo.currentTime = 1;
+
+			// Video frame is updated very slowly on CI Evironment(Ubuntu 14). So apply moderately large timeout.
+			await TestHelper.wait(1000);
+
+			// Then
+			/**
+			 * following image is not exactly captured on 1 sec. It's 'about' time.
+			 * It is captured on this test case after following render test.
+			 */
+			await renderAndCompareSequentially(
+				inst, [[0, 0, 65, `./images/PanoViewer/pano_1sec_0_0_65${suffix}`, threshold + thresholdMargin]]
+			);
+    });
 
 		IT("should not update video texture when keepUpdate(false) although it is playing", async () => {
 			// Given
