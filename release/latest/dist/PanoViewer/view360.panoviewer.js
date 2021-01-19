@@ -4,7 +4,7 @@ name: @egjs/view360
 license: MIT
 author: NAVER Corp.
 repository: https://github.com/naver/egjs-view360
-version: 3.4.4
+version: 3.4.3
 */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('@egjs/component'), require('promise-polyfill'), require('@egjs/agent'), require('@egjs/axes'), require('gl-matrix'), require('@egjs/imready')) :
@@ -2164,7 +2164,7 @@ version: 3.4.4
       return DeviceQuaternion;
     }(Component);
 
-    var VERSION = "3.4.4";
+    var VERSION = "3.4.3";
 
     var DEFAULT_YAW_RANGE = [-YAW_RANGE_HALF, YAW_RANGE_HALF];
     var DEFAULT_PITCH_RANGE = [-PITCH_RANGE_HALF, PITCH_RANGE_HALF];

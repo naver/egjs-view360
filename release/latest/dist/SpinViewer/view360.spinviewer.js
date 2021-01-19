@@ -4,7 +4,7 @@ name: @egjs/view360
 license: MIT
 author: NAVER Corp.
 repository: https://github.com/naver/egjs-view360
-version: 3.4.4
+version: 3.4.3
 */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('@egjs/component'), require('@egjs/axes'), require('@egjs/agent')) :
@@ -104,7 +104,7 @@ version: 3.4.4
 
     var SUPPORT_WILLCHANGE = win.CSS && win.CSS.supports && win.CSS.supports("will-change", "transform");
 
-    var VERSION = "3.4.4";
+    var VERSION = "3.4.3";
 
     /**
      * @memberof eg.view360
