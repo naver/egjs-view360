@@ -78,43 +78,49 @@ class CubeRenderer extends Renderer {
     return indexData;
   }
 
-  public getTextureCoordData(imageConfig: CubemapConfig) {
+  public getTextureCoordData({ image, imageConfig }: {
+    image: HTMLImageElement | HTMLVideoElement;
+    imageConfig: CubemapConfig;
+  }) {
     const vertexOrder = "BFUDRL";
     const order = CubeRenderer.extractOrder(imageConfig);
     const base = this.getVertexPositionData();
     const tileConfig = this._extractTileConfig(imageConfig);
     const elemSize = 3;
     const vertexPerTile = 4;
-    const textureCoordData =
-      vertexOrder.split("")
-        .map(face => tileConfig[order.indexOf(face)])
-        .map((config, i) => {
-          const rotation = Math.floor(config.rotation / 90);
-          const ordermap_ = config.flipHorizontal ? [0, 1, 2, 3] : [1, 0, 3, 2];
+    const { gap } = imageConfig;
 
-          for (let r = 0; r < Math.abs(rotation); r++) {
-            if ((config.flipHorizontal && rotation > 0) ||
-              (!config.flipHorizontal && rotation < 0)) {
-              ordermap_.push(ordermap_.shift()!);
-            } else {
-              ordermap_.unshift(ordermap_.pop()!);
-            }
+    const texCoords = vertexOrder.split("")
+      .map(face => tileConfig[order.indexOf(face)])
+      .map((config, i) => {
+        const rotation = Math.floor(config.rotation / 90);
+        const ordermap_ = config.flipHorizontal ? [0, 1, 2, 3] : [1, 0, 3, 2];
+
+        for (let r = 0; r < Math.abs(rotation); r++) {
+          if ((config.flipHorizontal && rotation > 0) ||
+            (!config.flipHorizontal && rotation < 0)) {
+            ordermap_.push(ordermap_.shift()!);
+          } else {
+            ordermap_.unshift(ordermap_.pop()!);
           }
+        }
 
-          const elemPerTile = elemSize * vertexPerTile;
-          const tileVertex = base.slice(i * elemPerTile, i * elemPerTile + elemPerTile);
-          const tileTemp: number[][] = [];
+        const elemPerTile = elemSize * vertexPerTile;
+        const tileVertex = base.slice(i * elemPerTile, i * elemPerTile + elemPerTile);
+        const tileTemp: number[][] = [];
 
-          for (let j = 0; j < vertexPerTile; j++) {
-            tileTemp[ordermap_[j]] = tileVertex.splice(0, elemSize);
-          }
-          return tileTemp;
-        })
-        .join()
-        .split(",")
-        .map(v => parseInt(v, 10));
+        for (let j = 0; j < vertexPerTile; j++) {
+          tileTemp[ordermap_[j]] = tileVertex.splice(0, elemSize);
+        }
+        return tileTemp;
+      })
+      .map(coord => this._shrinkCoord({ image, faceCoords: coord, gap }))
+      .reduce((acc: number[], val: number[][]) => [
+        ...acc,
+        ...val.reduce((coords, coord) => [...coords, ...coord], [])
+      ], []);
 
-    return textureCoordData;
+    return texCoords;
   }
 
   public getVertexShaderSource() {
@@ -247,6 +253,30 @@ void main(void) {
     }
     // maxCubeMapTextureSize 보다는 작고, imageWidth 보다 큰 2의 승수 중 가장 작은 수
     return Math.min(maxCubeMapTextureSize, _imageWidth);
+  }
+
+  private _shrinkCoord(coordData: {
+    image: HTMLImageElement | HTMLVideoElement;
+    faceCoords: number[][];
+    gap: number
+  }) {
+    const { image, faceCoords, gap } = coordData;
+
+    const inputTextureSize = Array.isArray(image)
+      ? this.getDimension(image[0]).width
+      : this.getSourceTileSize(image);
+
+    // Shrink by "gap" px
+    const SHRINK_MULTIPLIER = 1 - gap * (2 / inputTextureSize);
+
+    const axisMultipliers = [0, 1, 2].map(axisIndex => {
+      const axisDir = Math.sign(faceCoords[0][axisIndex]);
+      const notSameDir = faceCoords.some(coord => Math.sign(coord[axisIndex]) !== axisDir);
+
+      return notSameDir;
+    }).map(notSameDir => notSameDir ? SHRINK_MULTIPLIER : 1);
+
+    return faceCoords.map(coords => coords.map((coord, axisIndex) => coord * axisMultipliers[axisIndex]));
   }
 }
 

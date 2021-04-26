@@ -212,7 +212,8 @@ class PanoImageRenderer extends Component<{
         tileConfig: {
           flipHorizontal: false,
           rotation: 0
-        }
+        },
+        gap: 0
       },
       ...cubemapConfig
     };
@@ -690,9 +691,14 @@ class PanoImageRenderer extends Component<{
   }
 
   private _initBuffers() {
+    const image = this._image as HTMLImageElement | HTMLVideoElement;
+
     const vertexPositionData = this._renderer.getVertexPositionData();
     const indexData = this._renderer.getIndexData();
-    const textureCoordData = this._renderer.getTextureCoordData(this._imageConfig!);
+    const textureCoordData = this._renderer.getTextureCoordData({
+      image,
+      imageConfig: this._imageConfig!
+    });
     const gl = this.context;
 
     this.vertexBuffer = WebGLUtils.initBuffer(

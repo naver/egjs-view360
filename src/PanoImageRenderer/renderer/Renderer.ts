@@ -94,7 +94,10 @@ abstract class Renderer extends Component<{
 
   public abstract getVertexPositionData(): number[];
   public abstract getIndexData(): number[];
-  public abstract getTextureCoordData(imageConfig?: CubemapConfig): number[];
+  public abstract getTextureCoordData(textureData: {
+    image: HTMLImageElement | HTMLVideoElement;
+    imageConfig: CubemapConfig;
+  }): number[];
   public abstract getVertexShaderSource(): string;
   public abstract getFragmentShaderSource(): string;
   public abstract bindTexture(gl: WebGLRenderingContext, texture: WebGLTexture, image: HTMLImageElement | HTMLVideoElement, imageConfig?: CubemapConfig): void;
