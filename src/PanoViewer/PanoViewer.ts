@@ -335,7 +335,8 @@ class PanoViewer extends Component<PanoViewerEvent> {
         tileConfig: {
           flipHorizontal: false,
           rotation: 0
-        }
+        },
+        gap: 0
       }, ...options.cubemapConfig
     };
     this._stereoFormat = options.stereoFormat || STEREO_FORMAT.TOP_BOTTOM;
@@ -549,7 +550,8 @@ class PanoViewer extends Component<PanoViewerEvent> {
         tileConfig: {
           flipHorizontal: false,
           rotation: 0
-        }
+        },
+        gap: 0
       }, ...param.cubemapConfig
     };
     const stereoFormat = param.stereoFormat || STEREO_FORMAT.TOP_BOTTOM;
