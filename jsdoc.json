@@ -4,7 +4,7 @@
 		"dictionaries": ["jsdoc","closure"]
 	},
 	"source": {
-		"include": ["src", "src/PanoViewer", "src/SpinViewer", "README.md", "node_modules/@egjs/component/src/component.ts"],
+		"include": ["src", "src/PanoViewer", "src/SpinViewer", "README.md", "node_modules/@egjs/component/src/Component.ts"],
 		"exclude": ["src/SpinViewer/SpriteImage.js"],
 		"includePattern": ".+\\.ts(doc|x)?$",
 		"excludePattern": "(^|\\/|\\\\)_"

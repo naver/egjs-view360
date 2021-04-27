@@ -4,7 +4,9 @@ const external = {
   "@egjs/axes": "eg.Axes",
   "@egjs/component": "eg.Component",
   "@egjs/agent": "eg.agent",
-  "gl-matrix": "glMatrix"
+  "@egjs/imready": "eg.ImReady",
+  "gl-matrix": "glMatrix",
+  "promise-polyfill": "Promise"
 }
 const name = "eg.view360";
 const plugins = [];
