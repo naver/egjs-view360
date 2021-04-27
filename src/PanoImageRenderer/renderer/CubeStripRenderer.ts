@@ -153,7 +153,7 @@ void main(void) {
     const rows = 2;
 
     const textureSize = this.getDimension(image);
-    const { gap } = imageConfig;
+    const { trim } = imageConfig;
 
     const order = imageConfig.order || "RLUDFB";
     let coords: number[][] = [];
@@ -177,7 +177,7 @@ void main(void) {
     // Transform Coord By Flip & Rotation
     coords = coords
     // shrink coord to avoid pixel bleeding
-      .map(coord => this._shrinkCoord(coord, textureSize, gap))
+      .map(coord => this._shrinkCoord(coord, textureSize, trim))
       .map((coord, i) => this._transformCoord(coord, tileConfigs[i]));
 
     // vertices 에서 지정된 순서대로 그대로 그리기 위해 vertex 의 순서를 BFUDRL 로 재배치
@@ -226,12 +226,12 @@ void main(void) {
     return newCoord;
   }
 
-  private _shrinkCoord(coord: number[], textureSize: { width: number; height: number }, gap: number) {
+  private _shrinkCoord(coord: number[], textureSize: { width: number; height: number }, trim: number) {
     const { width, height } = textureSize;
 
-    // Shrink by "gap" px
-    const SHRINK_Y = gap * (1 / height);
-    const SHRINK_X = gap * (1 / width);
+    // Shrink by "trim" px
+    const SHRINK_Y = trim * (1 / height);
+    const SHRINK_X = trim * (1 / width);
 
     return [
       coord[0] + SHRINK_X, coord[1] + SHRINK_Y,

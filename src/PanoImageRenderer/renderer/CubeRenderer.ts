@@ -88,7 +88,7 @@ class CubeRenderer extends Renderer {
     const tileConfig = this._extractTileConfig(imageConfig);
     const elemSize = 3;
     const vertexPerTile = 4;
-    const { gap } = imageConfig;
+    const { trim } = imageConfig;
 
     const texCoords = vertexOrder.split("")
       .map(face => tileConfig[order.indexOf(face)])
@@ -114,7 +114,7 @@ class CubeRenderer extends Renderer {
         }
         return tileTemp;
       })
-      .map(coord => this._shrinkCoord({ image, faceCoords: coord, gap }))
+      .map(coord => this._shrinkCoord({ image, faceCoords: coord, trim }))
       .reduce((acc: number[], val: number[][]) => [
         ...acc,
         ...val.reduce((coords, coord) => [...coords, ...coord], [])
@@ -258,16 +258,16 @@ void main(void) {
   private _shrinkCoord(coordData: {
     image: HTMLImageElement | HTMLVideoElement;
     faceCoords: number[][];
-    gap: number
+    trim: number
   }) {
-    const { image, faceCoords, gap } = coordData;
+    const { image, faceCoords, trim } = coordData;
 
     const inputTextureSize = Array.isArray(image)
       ? this.getDimension(image[0]).width
       : this.getSourceTileSize(image);
 
-    // Shrink by "gap" px
-    const SHRINK_MULTIPLIER = 1 - gap * (2 / inputTextureSize);
+    // Shrink by "trim" px
+    const SHRINK_MULTIPLIER = 1 - trim * (2 / inputTextureSize);
 
     const axisMultipliers = [0, 1, 2].map(axisIndex => {
       const axisDir = Math.sign(faceCoords[0][axisIndex]);
