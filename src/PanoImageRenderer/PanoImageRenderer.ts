@@ -213,7 +213,7 @@ class PanoImageRenderer extends Component<{
           flipHorizontal: false,
           rotation: 0
         },
-        gap: 0
+        trim: 0
       },
       ...cubemapConfig
     };

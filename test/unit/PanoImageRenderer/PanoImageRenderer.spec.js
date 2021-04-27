@@ -676,67 +676,67 @@ describe("PanoImageRenderer", () => {
 				expect(result.success).to.be.equal(true);
 			});
 
-      IT("cubemap 3x2 - gap", async () => {
+      IT("cubemap 3x2 - trim", async () => {
 				// Given
 				const sourceImg = new Image();
 
 				sourceImg.src = "./images/test_cube_3x2_small.png";
 
-				const inst_gap0 = createPanoImageRenderer(sourceImg, false, "cubemap", { gap: 0, order: "RLUDFB" });
-        const inst_gap2 = createPanoImageRenderer(sourceImg, false, "cubemap", { gap: 2, order: "RLUDFB" });
+				const inst_trim0 = createPanoImageRenderer(sourceImg, false, "cubemap", { trim: 0, order: "RLUDFB" });
+        const inst_trim2 = createPanoImageRenderer(sourceImg, false, "cubemap", { trim: 2, order: "RLUDFB" });
 
         await Promise.all([
-          new Promise(res => inst_gap0.on("imageLoaded", res)),
-          new Promise(res => inst_gap2.on("imageLoaded", res))
+          new Promise(res => inst_trim0.on("imageLoaded", res)),
+          new Promise(res => inst_trim2.on("imageLoaded", res))
         ]);
 
 				// When
-				await inst_gap0.bindTexture();
-        await inst_gap2.bindTexture();
+				await inst_trim0.bindTexture();
+        await inst_trim2.bindTexture();
 
 				// Then
-				const result_gap0 = await renderAndCompareSequentially(
-					inst_gap0, [[135, -45, 30, `./images/PanoViewer/test_cube_gap_0${suffix}`, threshold]]
+				const result_trim0 = await renderAndCompareSequentially(
+					inst_trim0, [[135, -45, 30, `./images/PanoViewer/test_cube_trim_0${suffix}`, threshold]]
 				);
 
-        const result_gap2 = await renderAndCompareSequentially(
-					inst_gap2, [[135, -45, 30, `./images/PanoViewer/test_cube_gap_2${suffix}`, threshold]]
+        const result_trim2 = await renderAndCompareSequentially(
+					inst_trim2, [[135, -45, 30, `./images/PanoViewer/test_cube_trim_2${suffix}`, threshold]]
 				);
 
-				expect(result_gap0.success).to.be.equal(true);
-        expect(result_gap2.success).to.be.equal(true);
+				expect(result_trim0.success).to.be.equal(true);
+        expect(result_trim2.success).to.be.equal(true);
 			});
 
-			IT("cubestrip 3x2 - gap", async () => {
+			IT("cubestrip 3x2 - trim", async () => {
 				// Given
 				const sourceImg = new Image();
 
 				sourceImg.src = "./images/test_cube_3x2_small.png";
         "RLUDFB"
 
-				const inst_gap0 = createPanoImageRenderer(sourceImg, false, "cubestrip", { gap: 0 });
-        const inst_gap2 = createPanoImageRenderer(sourceImg, false, "cubestrip", { gap: 2 });
+				const inst_trim0 = createPanoImageRenderer(sourceImg, false, "cubestrip", { trim: 0 });
+        const inst_trim2 = createPanoImageRenderer(sourceImg, false, "cubestrip", { trim: 2 });
 
         await Promise.all([
-          new Promise(res => inst_gap0.on("imageLoaded", res)),
-          new Promise(res => inst_gap2.on("imageLoaded", res))
+          new Promise(res => inst_trim0.on("imageLoaded", res)),
+          new Promise(res => inst_trim2.on("imageLoaded", res))
         ]);
 
 				// When
-				await inst_gap0.bindTexture();
-        await inst_gap2.bindTexture();
+				await inst_trim0.bindTexture();
+        await inst_trim2.bindTexture();
 
 				// Then
-				const result_gap0 = await renderAndCompareSequentially(
-					inst_gap0, [[135, -45, 30, `./images/PanoViewer/test_cube_gap_0${suffix}`, threshold]]
+				const result_trim0 = await renderAndCompareSequentially(
+					inst_trim0, [[135, -45, 30, `./images/PanoViewer/test_cube_trim_0${suffix}`, threshold]]
 				);
 
-        const result_gap2 = await renderAndCompareSequentially(
-					inst_gap2, [[135, -45, 30, `./images/PanoViewer/test_cube_gap_2${suffix}`, threshold]]
+        const result_trim2 = await renderAndCompareSequentially(
+					inst_trim2, [[135, -45, 30, `./images/PanoViewer/test_cube_trim_2${suffix}`, threshold]]
 				);
 
-				expect(result_gap0.success).to.be.equal(true);
-        expect(result_gap2.success).to.be.equal(true);
+				expect(result_trim0.success).to.be.equal(true);
+        expect(result_trim2.success).to.be.equal(true);
 			});
 
 			// This test will fail on iOS safari, because video will not start load without use interaction.

@@ -8,7 +8,7 @@ export type TileConfig = {
 export interface CubemapConfig {
   order: string;
   tileConfig: TileConfig | TileConfig[];
-  gap: number;
+  trim: number;
 }
 
 export type TypedArray = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array;
