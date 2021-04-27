@@ -63,7 +63,10 @@ var panoViewer = new PanoViewer(container, {
 
     var panoViewer = new PanoViewer(container, {
         projectionType: "cubestrip",
-        image: "../../img/test_cube_3x2_RLUDFB.jpg"
+        image: "../../img/test_cube_3x2_RLUDFB.jpg",
+        cubemapConfig: {
+          trim: 3
+        }
     });
 
     PanoControls.init(document.querySelector(".viewer"), panoViewer);

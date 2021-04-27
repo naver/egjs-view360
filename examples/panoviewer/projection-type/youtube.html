@@ -74,7 +74,8 @@ var panoViewer = new PanoViewer(container, {
             projectionType: "cubestrip",
             cubemapConfig: {
                 order: "BLFDRU",
-                tileConfig: [{rotation: 0}, {rotation: 0}, {rotation: 0}, {rotation: 0}, {rotation: -90}, {rotation: 180}]
+                tileConfig: [{rotation: 0}, {rotation: 0}, {rotation: 0}, {rotation: 0}, {rotation: -90}, {rotation: 180}],
+                trim: 3
             }
         });
 
