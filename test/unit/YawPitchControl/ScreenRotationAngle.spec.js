@@ -169,7 +169,7 @@ describe("ScreenRotationAngle", () => {
 	});
 
 	describe("#unref", () => {
-		it("should intialize angle & not affected by deviceorientation.", done => {
+		it("should initialize angle & not affected by deviceorientation.", done => {
 			// Given
 			const sr = new ScreenRotationAngle();
 

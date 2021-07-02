@@ -113,7 +113,7 @@ void main(void) {
       halfCylinderY = 0.5; // Range of cylinder is [-0.5, 0.5] to make height to 1.
     }
 
-    // intialize shader data before update
+    // initialize shader data before update
     textureCoordData.length = 0;
     vertexPositionData.length = 0;
     indexData.length = 0;
