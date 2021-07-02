@@ -595,7 +595,7 @@ class PanoImageRenderer extends Component<{
     const shaderProgram = WebGLUtils.createProgram(gl, vertexShader, fragmentShader);
 
     if (!shaderProgram) {
-      throw new Error(`Failed to intialize shaders: ${WebGLUtils.getErrorNameFromWebGLErrorCode(gl.getError())}`);
+      throw new Error(`Failed to initialize shaders: ${WebGLUtils.getErrorNameFromWebGLErrorCode(gl.getError())}`);
     }
 
     gl.useProgram(shaderProgram);
@@ -730,7 +730,7 @@ class PanoImageRenderer extends Component<{
       this._renderer.updateShaderData({imageAspectRatio});
     }
 
-    // intialize shader buffers after image is loaded.(by updateShaderData)
+    // initialize shader buffers after image is loaded.(by updateShaderData)
     // because buffer may be differ by image size.(eg. CylinderRenderer)
     this._initBuffers();
 
