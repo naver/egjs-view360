@@ -8,14 +8,14 @@ win.Float32Array = (typeof win.Float32Array !== "undefined") ? win.Float32Array 
 
 const Float32Array = win.Float32Array;
 const getComputedStyle = win.getComputedStyle;
-const userAgent = win.navigator.userAgent;
+const userAgent = win.navigator && win.navigator.userAgent;
 const SUPPORT_TOUCH = "ontouchstart" in win;
 const SUPPORT_DEVICEMOTION = "ondevicemotion" in win;
 const DeviceMotionEvent = win.DeviceMotionEvent;
 const devicePixelRatio = win.devicePixelRatio;
 
 const TRANSFORM = (() => {
-	const docStyle = doc.documentElement.style;
+	const docStyle = doc?.documentElement.style ?? {};
 	const target = ["transform", "webkitTransform", "msTransform", "mozTransform"];
 
 	for (let i = 0, len = target.length; i < len; i++) {
