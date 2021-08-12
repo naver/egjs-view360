@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 
-var MathUtil = window.MathUtil || {};
+import { window as win } from "../../../../utils/browser";
+
+const MathUtil = win.MathUtil || {};
 
 MathUtil.degToRad = Math.PI / 180;
 MathUtil.radToDeg = 180 / Math.PI;
@@ -82,10 +84,10 @@ MathUtil.Vector3.prototype = {
   },
 
   normalize: function () {
-    var scalar = this.length();
+    const scalar = this.length();
 
     if ( scalar !== 0 ) {
-      var invScalar = 1 / scalar;
+      const invScalar = 1 / scalar;
 
       this.multiplyScalar(invScalar);
     } else {
@@ -104,20 +106,20 @@ MathUtil.Vector3.prototype = {
   },
 
   applyQuaternion: function ( q ) {
-    var x = this.x;
-    var y = this.y;
-    var z = this.z;
+    const x = this.x;
+    const y = this.y;
+    const z = this.z;
 
-    var qx = q.x;
-    var qy = q.y;
-    var qz = q.z;
-    var qw = q.w;
+    const qx = q.x;
+    const qy = q.y;
+    const qz = q.z;
+    const qw = q.w;
 
     // calculate quat * vector
-    var ix =  qw * x + qy * z - qz * y;
-    var iy =  qw * y + qz * x - qx * z;
-    var iz =  qw * z + qx * y - qy * x;
-    var iw = - qx * x - qy * y - qz * z;
+    const ix =  qw * x + qy * z - qz * y;
+    const iy =  qw * y + qz * x - qx * z;
+    const iz =  qw * z + qx * y - qy * x;
+    const iw = - qx * x - qy * y - qz * z;
 
     // calculate result * inverse quat
     this.x = ix * qw + iw * - qx + iy * - qz - iz * - qy;
@@ -132,8 +134,12 @@ MathUtil.Vector3.prototype = {
   },
 
   crossVectors: function ( a, b ) {
-    var ax = a.x, ay = a.y, az = a.z;
-    var bx = b.x, by = b.y, bz = b.z;
+    const ax = a.x;
+    const ay = a.y;
+    const az = a.z;
+    const bx = b.x;
+    const by = b.y;
+    const bz = b.z;
 
     this.x = ay * bz - az * by;
     this.y = az * bx - ax * bz;
@@ -172,12 +178,12 @@ MathUtil.Quaternion.prototype = {
   },
 
   setFromEulerXYZ: function( x, y, z ) {
-    var c1 = Math.cos( x / 2 );
-    var c2 = Math.cos( y / 2 );
-    var c3 = Math.cos( z / 2 );
-    var s1 = Math.sin( x / 2 );
-    var s2 = Math.sin( y / 2 );
-    var s3 = Math.sin( z / 2 );
+    const c1 = Math.cos( x / 2 );
+    const c2 = Math.cos( y / 2 );
+    const c3 = Math.cos( z / 2 );
+    const s1 = Math.sin( x / 2 );
+    const s2 = Math.sin( y / 2 );
+    const s3 = Math.sin( z / 2 );
 
     this.x = s1 * c2 * c3 + c1 * s2 * s3;
     this.y = c1 * s2 * c3 - s1 * c2 * s3;
@@ -188,12 +194,12 @@ MathUtil.Quaternion.prototype = {
   },
 
   setFromEulerYXZ: function( x, y, z ) {
-    var c1 = Math.cos( x / 2 );
-    var c2 = Math.cos( y / 2 );
-    var c3 = Math.cos( z / 2 );
-    var s1 = Math.sin( x / 2 );
-    var s2 = Math.sin( y / 2 );
-    var s3 = Math.sin( z / 2 );
+    const c1 = Math.cos( x / 2 );
+    const c2 = Math.cos( y / 2 );
+    const c3 = Math.cos( z / 2 );
+    const s1 = Math.sin( x / 2 );
+    const s2 = Math.sin( y / 2 );
+    const s3 = Math.sin( z / 2 );
 
     this.x = s1 * c2 * c3 + c1 * s2 * s3;
     this.y = c1 * s2 * c3 - s1 * c2 * s3;
@@ -207,7 +213,8 @@ MathUtil.Quaternion.prototype = {
     // http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/index.htm
     // assumes axis is normalized
 
-    var halfAngle = angle / 2, s = Math.sin( halfAngle );
+    const halfAngle = angle / 2;
+    const s = Math.sin( halfAngle );
 
     this.x = axis.x * s;
     this.y = axis.y * s;
@@ -224,8 +231,14 @@ MathUtil.Quaternion.prototype = {
   multiplyQuaternions: function ( a, b ) {
     // from http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/code/index.htm
 
-    var qax = a.x, qay = a.y, qaz = a.z, qaw = a.w;
-    var qbx = b.x, qby = b.y, qbz = b.z, qbw = b.w;
+    const qax = a.x;
+    const qay = a.y;
+    const qaz = a.z;
+    const qaw = a.w;
+    const qbx = b.x;
+    const qby = b.y;
+    const qbz = b.z;
+    const qbw = b.w;
 
     this.x = qax * qbw + qaw * qbx + qay * qbz - qaz * qby;
     this.y = qay * qbw + qaw * qby + qaz * qbx - qax * qbz;
@@ -246,7 +259,7 @@ MathUtil.Quaternion.prototype = {
   },
 
   normalize: function () {
-    var l = Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w );
+    let l = Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w );
 
     if ( l === 0 ) {
       this.x = 0;
@@ -269,11 +282,14 @@ MathUtil.Quaternion.prototype = {
     if ( t === 0 ) return this;
     if ( t === 1 ) return this.copy( qb );
 
-    var x = this.x, y = this.y, z = this.z, w = this.w;
+    const x = this.x;
+    const y = this.y;
+    const z = this.z;
+    const w = this.w;
 
     // http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
 
-    var cosHalfTheta = w * qb.w + x * qb.x + y * qb.y + z * qb.z;
+    let cosHalfTheta = w * qb.w + x * qb.x + y * qb.y + z * qb.z;
 
     if ( cosHalfTheta < 0 ) {
       this.w = - qb.w;
@@ -295,8 +311,8 @@ MathUtil.Quaternion.prototype = {
       return this;
     }
 
-    var halfTheta = Math.acos( cosHalfTheta );
-    var sinHalfTheta = Math.sqrt( 1.0 - cosHalfTheta * cosHalfTheta );
+    const halfTheta = Math.acos( cosHalfTheta );
+    const sinHalfTheta = Math.sqrt( 1.0 - cosHalfTheta * cosHalfTheta );
 
     if ( Math.abs( sinHalfTheta ) < 0.001 ) {
       this.w = 0.5 * ( w + this.w );
@@ -307,8 +323,8 @@ MathUtil.Quaternion.prototype = {
       return this;
     }
 
-    var ratioA = Math.sin( ( 1 - t ) * halfTheta ) / sinHalfTheta,
-    ratioB = Math.sin( t * halfTheta ) / sinHalfTheta;
+    const ratioA = Math.sin( ( 1 - t ) * halfTheta ) / sinHalfTheta;
+    const ratioB = Math.sin( t * halfTheta ) / sinHalfTheta;
 
     this.w = ( w * ratioA + this.w * ratioB );
     this.x = ( x * ratioA + this.x * ratioB );
@@ -322,8 +338,9 @@ MathUtil.Quaternion.prototype = {
     // http://lolengine.net/blog/2014/02/24/quaternion-from-two-vectors-final
     // assumes direction vectors vFrom and vTo are normalized
 
-    var v1, r;
-    var EPS = 0.000001;
+    let v1;
+    let r;
+    const EPS = 0.000001;
 
     return function ( vFrom, vTo ) {
       if ( v1 === undefined ) v1 = new MathUtil.Vector3();
@@ -354,4 +371,4 @@ MathUtil.Quaternion.prototype = {
   }(),
 };
 
-module.exports = MathUtil;
+export default MathUtil;
