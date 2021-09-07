@@ -112,6 +112,11 @@ subComponents:
           description: View partial panorama image by setting yawRange, pitchRange, fovRange
           link: examples/panoviewer/etc/partial_panorama.html
           sort: 15
+        - name: m3u8 HLS video
+          image: panoviewer/hls.png
+          description: Play .m3u8 HLS video with hls.js
+          link: examples/panoviewer/etc/hls.html
+          sort: 16
     - name: Cubemap
       id: cubemap
       image: cubemap.jpg

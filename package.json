@@ -7,9 +7,8 @@
 	"es2015": "dist/view360.esm.js",
 	"types": "declaration/index.d.ts",
 	"scripts": {
-		"start": "webpack-dev-server --open --host 0.0.0.0",
+		"start": "rollup -c ./rollup.config.dev.js -w",
 		"build": "rm -rf ./dist && rollup -c && npm run declaration && npm run printsizes",
-		"watch": "rollup -c -w",
 		"declaration": "rm -rf declaration && tsc -p tsconfig.declaration.json",
 		"printsizes": "print-sizes ./dist --exclude=\\.map",
 		"test": "karma start",
