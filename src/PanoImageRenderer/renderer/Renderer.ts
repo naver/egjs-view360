@@ -1,4 +1,4 @@
-import Component from "@egjs/component";
+import Component, { ComponentEvent } from "@egjs/component";
 import agent from "@egjs/agent";
 import { mat4 } from "gl-matrix";
 
@@ -178,9 +178,9 @@ abstract class Renderer extends Component<{
     console.error("Renderer Error:", error);
     /* eslint-enable no-console */
 
-    this.trigger(EVENTS.ERROR, {
+    this.trigger(new ComponentEvent(EVENTS.ERROR, {
       message: typeof error === "string" ? error : error.message
-    });
+    }));
   }
 }
 

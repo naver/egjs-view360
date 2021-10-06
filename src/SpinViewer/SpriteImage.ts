@@ -1,4 +1,4 @@
-import Component from "@egjs/component";
+import Component, { ComponentEvent } from "@egjs/component";
 
 import { TRANSFORM, SUPPORT_WILLCHANGE } from "../utils/browserFeature";
 import { VERSION } from "../version";
@@ -171,9 +171,9 @@ class SpriteImage extends Component<SpriteImageEvent> {
 
     if (!opt.imageUrl) {
       setTimeout(() => {
-        this.trigger("imageError", {
+        this.trigger(new ComponentEvent("imageError", {
           imageUrl: opt.imageUrl
-        });
+        }));
       }, 0);
       return;
     }
@@ -188,10 +188,10 @@ class SpriteImage extends Component<SpriteImageEvent> {
       this._el.appendChild(this._bg);
       this.setColRow(this._colRow[0], this._colRow[1]);
 
-      this.trigger("load", {
+      this.trigger(new ComponentEvent("load", {
         target: this._el,
         bgElement: this._bg
-      });
+      }));
 
       if (this._autoPlayReservedInfo) {
         this.play(this._autoPlayReservedInfo);
@@ -200,9 +200,9 @@ class SpriteImage extends Component<SpriteImageEvent> {
     };
 
     this._image.onerror = () => {
-      this.trigger("imageError", {
+      this.trigger(new ComponentEvent("imageError", {
         imageUrl: opt.imageUrl
-      });
+      }));
     };
 
     this._image.src = opt.imageUrl;

@@ -1,4 +1,4 @@
-import Component from "@egjs/component";
+import Component, { ComponentEvent } from "@egjs/component";
 import Axes, { PanInput } from "@egjs/axes";
 
 import { VERSION } from "../version";
@@ -169,12 +169,12 @@ class SpinViewer extends Component<SpinViewerEvent> {
     // Init SpriteImage
     this._sprites = new SpriteImage(element, opt).on({
       "load": evt => {
-        this.trigger("load", evt);
+        this.trigger(new ComponentEvent("load", evt));
       },
       "imageError": evt => {
-        this.trigger("imageError", {
+        this.trigger(new ComponentEvent("imageError", {
           imageUrl: evt.imageUrl
-        });
+        }));
       }
     });
 
@@ -194,16 +194,16 @@ class SpinViewer extends Component<SpinViewerEvent> {
 
         this._sprites.setFrameIndex(frameIndex);
 
-        this.trigger("change", {
+        this.trigger(new ComponentEvent("change", {
           frameIndex,
           colRow: this._sprites.getColRow(),
           angle: evt.pos.angle
-        });
+        }));
       },
       "animationEnd": evt => {
-        this.trigger("animationEnd", {
+        this.trigger(new ComponentEvent("animationEnd", {
           isTrusted: evt.isTrusted
-        });
+        }));
       }
     });
 

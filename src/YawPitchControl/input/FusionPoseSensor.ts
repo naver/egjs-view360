@@ -1,4 +1,4 @@
-import Component from "@egjs/component";
+import Component, { ComponentEvent } from "@egjs/component";
 import { quat } from "gl-matrix";
 
 import { window, IS_IOS, IS_SAFARI_ON_DESKTOP } from "../../utils/browser";
@@ -189,7 +189,7 @@ export default class FusionPoseSensor extends Component<{
       return;
     }
 
-    this.trigger("change", { quaternion: orientation });
+    this.trigger(new ComponentEvent("change", { quaternion: orientation }));
   }
 
   private _convertFusionToPredicted(orientation: quat) {

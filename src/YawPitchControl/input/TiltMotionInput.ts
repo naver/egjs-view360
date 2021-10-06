@@ -21,6 +21,7 @@ const getDeltaPitch = (prvQ: quat, curQ: quat): number => {
   return pitchDelta;
 };
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export default class TiltMotionInput extends Component<{}> {
   public element: HTMLElement;
   public options: { scale: number; threshold: number };

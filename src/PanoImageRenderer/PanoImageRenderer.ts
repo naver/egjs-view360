@@ -1,4 +1,4 @@
-import Component from "@egjs/component";
+import Component, { ComponentEvent } from "@egjs/component";
 import { XRFrame } from "webxr";
 import Promise from "promise-polyfill";
 import { glMatrix, vec3, mat3, mat4, quat } from "gl-matrix";
@@ -70,9 +70,9 @@ class PanoImageRenderer extends Component<{
     isVideo: boolean;
     projectionType: ValueOf<typeof PROJECTION_TYPE>;
   };
-  [EVENTS.BIND_TEXTURE]: void;
-  [EVENTS.RENDERING_CONTEXT_LOST]: void;
-  [EVENTS.RENDERING_CONTEXT_RESTORE]: void;
+  [EVENTS.BIND_TEXTURE]: ComponentEvent;
+  [EVENTS.RENDERING_CONTEXT_LOST]: ComponentEvent;
+  [EVENTS.RENDERING_CONTEXT_RESTORE]: ComponentEvent;
 }> {
   public static EVENTS = EVENTS;
   public static ERROR_TYPE = ERROR_TYPE;
@@ -516,10 +516,10 @@ class PanoImageRenderer extends Component<{
     }
 
     this._renderer.on(Renderer.EVENTS.ERROR, e => {
-      this.trigger(EVENTS.ERROR, {
+      this.trigger(new ComponentEvent(EVENTS.ERROR, {
         type: ERROR_TYPE.RENDERER_ERROR,
         message: e.message
-      });
+      }));
     });
 
     this._initWebGL();
@@ -557,20 +557,20 @@ class PanoImageRenderer extends Component<{
   private _onContentError() {
     this._imageIsReady = false;
     this._image = null;
-    this.trigger(EVENTS.ERROR, {
+    this.trigger(new ComponentEvent(EVENTS.ERROR, {
       type: ERROR_TYPE.FAIL_IMAGE_LOAD,
       message: "failed to load image"
-    });
+    }));
 
     return false;
   }
 
   private _triggerContentLoad() {
-    this.trigger(EVENTS.IMAGE_LOADED, {
+    this.trigger(new ComponentEvent(EVENTS.IMAGE_LOADED, {
       content: this._image as HTMLElement,
       isVideo: this._isVideo,
       projectionType: this._imageType
-    });
+    }));
   }
 
   private _onContentLoad(e: OnReady) {
@@ -624,12 +624,12 @@ class PanoImageRenderer extends Component<{
 
   private _onWebglcontextlost(e) {
     e.preventDefault();
-    this.trigger(EVENTS.RENDERING_CONTEXT_LOST);
+    this.trigger(new ComponentEvent(EVENTS.RENDERING_CONTEXT_LOST));
   }
 
   private _onWebglcontextrestored() {
     this._initWebGL();
-    this.trigger(EVENTS.RENDERING_CONTEXT_RESTORE);
+    this.trigger(new ComponentEvent(EVENTS.RENDERING_CONTEXT_RESTORE));
   }
 
   private _updateViewport() {
@@ -654,10 +654,10 @@ class PanoImageRenderer extends Component<{
       this.updateViewportDimensions(this.width, this.height);
       this._initShaderProgram();
     } catch (e) {
-      this.trigger(EVENTS.ERROR, {
+      this.trigger(new ComponentEvent(EVENTS.ERROR, {
         type: ERROR_TYPE.NO_WEBGL,
         message: "no webgl support"
-      });
+      }));
       this.destroy();
       console.error(e); // eslint-disable-line no-console
       return;
@@ -747,7 +747,7 @@ class PanoImageRenderer extends Component<{
     );
     this._shouldForceDraw = true;
 
-    this.trigger(EVENTS.BIND_TEXTURE);
+    this.trigger(new ComponentEvent(EVENTS.BIND_TEXTURE));
   }
 
   private _updateTexture() {

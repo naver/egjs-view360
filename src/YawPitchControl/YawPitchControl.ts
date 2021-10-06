@@ -1,4 +1,4 @@
-import Component from "@egjs/component";
+import Component, { ComponentEvent } from "@egjs/component";
 import Axes, { PinchInput, MoveKeyInput, WheelInput } from "@egjs/axes";
 import { vec2, quat, glMatrix } from "gl-matrix";
 
@@ -81,6 +81,8 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
   public static TOUCH_DIRECTION_YAW = TOUCH_DIRECTION_YAW;
   public static TOUCH_DIRECTION_PITCH = TOUCH_DIRECTION_PITCH;
   public static TOUCH_DIRECTION_NONE = TOUCH_DIRECTION_NONE;
+
+  public options: YawPitchControlOptions;
 
   private _element: HTMLElement | null;
   private _initialFov: number;
@@ -336,7 +338,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
         // Restore maximumDuration not to be spin too mush.
         this._axes.options.maximumDuration = MC_MAXIMUM_DURATION;
 
-        this.trigger("hold", { isTrusted: evt.isTrusted });
+        this.trigger(new ComponentEvent("hold", { isTrusted: evt.isTrusted }));
       },
       change: (evt: any) => {
         if (evt.delta.fov !== 0) {
@@ -349,7 +351,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
         this._triggerChange(evt);
       },
       animationEnd: (evt: any) => {
-        this.trigger("animationEnd", { isTrusted: evt.isTrusted });
+        this.trigger(new ComponentEvent("animationEnd", { isTrusted: evt.isTrusted }));
       }
     });
   }
@@ -413,7 +415,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
       const prevFov = axes.get().fov;
       let nextFov = axes.get().fov;
 
-      vec2.copy(axes.axis.fov.range as any, fovRange);
+      vec2.copy(axes.axis.fov.range as vec2, fovRange as vec2);
 
       if (nextFov < fovRange[0]) {
         nextFov = fovRange[0];
@@ -655,7 +657,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
     const pos = this._axes.get();
     const opt = this.options;
     const event: YawPitchControlEvents["change"] = {
-      targetElement: opt.element,
+      targetElement: opt.element as HTMLElement,
       isTrusted: evt.isTrusted,
       yaw: pos.yaw,
       pitch: pos.pitch,
@@ -666,7 +668,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
     if (opt.gyroMode === GYRO_MODE.VR && this._deviceQuaternion) {
       event.quaternion = this._deviceQuaternion.getCombinedQuaternion(pos.yaw);
     }
-    this.trigger("change", event);
+    this.trigger(new ComponentEvent("change", event));
   }
 
   // TODO: makes constant to be logic

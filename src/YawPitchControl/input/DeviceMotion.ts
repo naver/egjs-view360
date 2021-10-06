@@ -1,4 +1,4 @@
-import Component from "@egjs/component";
+import Component, { ComponentEvent } from "@egjs/component";
 import { vec3 } from "gl-matrix";
 
 import { Mutable } from "../../types";
@@ -82,7 +82,7 @@ export default class DeviceMotion extends Component<{
     beta = (beta || 0) * Math.PI / 180;
     gamma = (gamma || 0) * Math.PI / 180;
 
-    this.trigger("devicemotion", {
+    this.trigger(new ComponentEvent("devicemotion", {
       inputEvent: {
         deviceorientation: {
           alpha,
@@ -90,7 +90,7 @@ export default class DeviceMotion extends Component<{
           gamma: -gamma
         }
       }
-    });
+    }));
   }
 
   private _onDeviceOrientation() {
@@ -151,8 +151,8 @@ export default class DeviceMotion extends Component<{
         gamma: this.adjustedGyroVec[2]};
     }
 
-    this.trigger("devicemotion", {
+    this.trigger(new ComponentEvent("devicemotion", {
       inputEvent: devicemotionEvent
-    });
+    }));
   }
 }

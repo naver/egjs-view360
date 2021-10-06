@@ -1,4 +1,4 @@
-import Component from "@egjs/component";
+import Component, { ComponentEvent } from "@egjs/component";
 import Promise from "promise-polyfill";
 import { quat } from "gl-matrix";
 
@@ -28,7 +28,7 @@ export interface PanoViewerEvent {
    * });
    * ```
    */
-  ready: void;
+  ready: ComponentEvent; // eslint-disable-line @typescript-eslint/ban-types
 
   /**
    * Events that is fired when direction or fov is changed.
@@ -362,20 +362,20 @@ class PanoViewer extends Component<PanoViewerEvent> {
     // Raises the error event if webgl is not supported.
     if (!WebGLUtils.isWebGLAvailable()) {
       setTimeout(() => {
-        this.trigger(EVENTS.ERROR, {
+        this.trigger(new ComponentEvent(EVENTS.ERROR, {
           type: ERROR_TYPE.NO_WEBGL,
           message: "no webgl support"
-        });
+        }));
       }, 0);
       return this;
     }
 
     if (!WebGLUtils.isStableWebGL()) {
       setTimeout(() => {
-        this.trigger(EVENTS.ERROR, {
+        this.trigger(new ComponentEvent(EVENTS.ERROR, {
           type: ERROR_TYPE.INVALID_DEVICE,
           message: "blacklisted browser"
-        });
+        }));
       }, 0);
 
       return this;
@@ -383,10 +383,10 @@ class PanoViewer extends Component<PanoViewerEvent> {
 
     if (!!options.image && !!options.video) {
       setTimeout(() => {
-        this.trigger(EVENTS.ERROR, {
+        this.trigger(new ComponentEvent(EVENTS.ERROR, {
           type: ERROR_TYPE.INVALID_RESOURCE,
           message: "Specifying multi resouces(both image and video) is not valid."
-        });
+        }));
       }, 0);
       return this;
     }
@@ -978,10 +978,10 @@ class PanoViewer extends Component<PanoViewerEvent> {
       .bindTexture()
       .then(() => this._activate())
       .catch(() => {
-        this.trigger(EVENTS.ERROR, {
+        this.trigger(new ComponentEvent(EVENTS.ERROR, {
           type: ERROR_TYPE.FAIL_BIND_TEXTURE,
           message: "failed to bind texture"
-        });
+        }));
       });
   }
 
@@ -1031,15 +1031,15 @@ class PanoViewer extends Component<PanoViewerEvent> {
 
   private	_bindRendererHandler() {
     this._photoSphereRenderer!.on(PanoImageRenderer.EVENTS.ERROR, e => {
-      this.trigger(EVENTS.ERROR, e);
+      this.trigger(new ComponentEvent(EVENTS.ERROR, e));
     });
 
     this._photoSphereRenderer!.on(PanoImageRenderer.EVENTS.RENDERING_CONTEXT_LOST, () => {
       this._deactivate();
-      this.trigger(EVENTS.ERROR, {
+      this.trigger(new ComponentEvent(EVENTS.ERROR, {
         type: ERROR_TYPE.RENDERING_CONTEXT_LOST,
         message: "webgl rendering context lost"
-      });
+      }));
     });
   }
 
@@ -1047,7 +1047,7 @@ class PanoViewer extends Component<PanoViewerEvent> {
     this._yawPitchControl = new YawPitchControl(yawPitchConfig);
 
     this._yawPitchControl.on(EVENTS.ANIMATION_END, e => {
-      this.trigger(EVENTS.ANIMATION_END, e);
+      this.trigger(new ComponentEvent(EVENTS.ANIMATION_END, e));
     });
 
     this._yawPitchControl.on("change", e => {
@@ -1056,7 +1056,7 @@ class PanoViewer extends Component<PanoViewerEvent> {
       this._fov = e.fov;
       this._quaternion = e.quaternion;
 
-      this.trigger(EVENTS.VIEW_CHANGE, e);
+      this.trigger(new ComponentEvent(EVENTS.VIEW_CHANGE, e));
     });
   }
 
@@ -1071,7 +1071,7 @@ class PanoViewer extends Component<PanoViewerEvent> {
     // update yawPitchControl after isReady status is true.
     this._updateYawPitchIfNeeded();
 
-    this.trigger(EVENTS.READY);
+    this.trigger(new ComponentEvent(EVENTS.READY));
     this._photoSphereRenderer!.startRender();
   }
 

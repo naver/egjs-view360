@@ -1,4 +1,4 @@
-import Component from "@egjs/component";
+import Component, { ComponentEvent } from "@egjs/component";
 import { vec3, glMatrix, quat } from "gl-matrix";
 
 import FusionPoseSensor from "./input/FusionPoseSensor";
@@ -23,7 +23,7 @@ export default class DeviceQuaternion extends Component<{
     this._fusionPoseSensor.on("change", e => {
       this._quaternion = e.quaternion;
 
-      this.trigger("change", { isTrusted: true });
+      this.trigger(new ComponentEvent("change", { isTrusted: true }));
     });
   }
 
