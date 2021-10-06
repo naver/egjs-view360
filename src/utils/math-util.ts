@@ -211,6 +211,10 @@ util.yawOffsetBetween = (viewDir: number, targetDir: number) => {
   return theta;
 }
 
+util.sign = (x: number) => Math.sign
+  ? Math.sign(x)
+  : (Number(x > 0) - Number(x < 0)) || +x;
+
 util.toDegree = toDegree;
 util.getRotationDelta = getRotationDelta;
 util.angleBetweenVec2 = angleBetweenVec2;

@@ -78,7 +78,6 @@ export default class WebGLUtils {
       ...{
         preserveDrawingBuffer: false,
         antialias: false,
-        xrCompatible: true,
       }, ...userContextAttributes
     };
 

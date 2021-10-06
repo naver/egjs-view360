@@ -270,8 +270,8 @@ void main(void) {
     const SHRINK_MULTIPLIER = 1 - trim * (2 / inputTextureSize);
 
     const axisMultipliers = [0, 1, 2].map(axisIndex => {
-      const axisDir = Math.sign(faceCoords[0][axisIndex]);
-      const notSameDir = faceCoords.some(coord => Math.sign(coord[axisIndex]) !== axisDir);
+      const axisDir = mathUtil.sign(faceCoords[0][axisIndex]);
+      const notSameDir = faceCoords.some(coord => mathUtil.sign(coord[axisIndex]) !== axisDir);
 
       return notSameDir;
     }).map(notSameDir => notSameDir ? SHRINK_MULTIPLIER : 1);

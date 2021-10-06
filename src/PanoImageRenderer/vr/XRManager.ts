@@ -94,14 +94,14 @@ class XRManager {
     this._xrSession?.removeEventListener("end", callback);
   }
 
-  public requestPresent(canvas: HTMLCanvasElement, gl: WebGLRenderingContext) {
+  public async requestPresent(canvas: HTMLCanvasElement, gl: WebGLRenderingContext) {
     const options = merge({
       requiredFeatures: [XR_REFERENCE_SPACE],
     }, this._options);
 
     const attributes = gl.getContextAttributes();
     if (attributes && (attributes as any).xrCompatible !== true) {
-      (gl as any).makeXRCompatible();
+      await (gl as any).makeXRCompatible();
     }
 
     return (navigator as any).xr.requestSession("immersive-vr", options).then(session => {
