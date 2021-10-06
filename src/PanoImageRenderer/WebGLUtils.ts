@@ -1,4 +1,5 @@
 import agent from "@egjs/agent";
+
 import { TypedArray } from "../types";
 
 const WEBGL_ERROR_CODE = {
@@ -12,6 +13,7 @@ const WEBGL_ERROR_CODE = {
 };
 
 let webglAvailability: boolean | null = null;
+// eslint-disable-next-line @typescript-eslint/naming-convention
 let MAX_TEXTURE_SIZE_FOR_TEST: number | null = null;
 
 export default class WebGLUtils {
@@ -81,16 +83,14 @@ export default class WebGLUtils {
       }, ...userContextAttributes
     };
 
-    function onWebglcontextcreationerror(e) {
-      return e.statusMessage;
-    }
+    const onWebglcontextcreationerror = e => e.statusMessage;
 
     canvas.addEventListener("webglcontextcreationerror", onWebglcontextcreationerror);
 
     for (const identifier of webglIdentifiers) {
       try {
         context = canvas.getContext(identifier, contextAttributes) as WebGLRenderingContext;
-      } catch (t) {} // tslint:disable-line no-empty
+      } catch (t) {} // eslint-disable-line no-empty
       if (context) {
         break;
       }
@@ -193,12 +193,11 @@ export default class WebGLUtils {
 /**
  * This function should not be used in service code. It's provided only for test purpose.
  * It should be set to null or 0 when test is done.
- *
  * @param {Number} size
  */
-function setMaxTextureSizeForTestOnlyPurpose(size: number) {
+const setMaxTextureSizeForTestOnlyPurpose = (size: number) => {
   MAX_TEXTURE_SIZE_FOR_TEST = size;
-}
+};
 
 export {
   setMaxTextureSizeForTestOnlyPurpose

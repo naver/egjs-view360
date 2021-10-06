@@ -1,16 +1,18 @@
 import Component from "@egjs/component";
 import Promise from "promise-polyfill";
 import { quat } from "gl-matrix";
+
 import { DeviceMotionEvent, checkXRSupport } from "../utils/browserFeature";
 import YawPitchControl, { YawPitchControlOptions } from "../YawPitchControl/YawPitchControl";
 import PanoImageRenderer from "../PanoImageRenderer/PanoImageRenderer";
 import WebGLUtils from "../PanoImageRenderer/WebGLUtils";
-import { ERROR_TYPE, EVENTS, GYRO_MODE, PROJECTION_TYPE, STEREO_FORMAT } from "./consts";
 import { util as mathUtil } from "../utils/math-util";
 import { VERSION } from "../version";
 import { CubemapConfig, ValueOf } from "../types";
 
-export type PanoViewerEvent = {
+import { ERROR_TYPE, EVENTS, GYRO_MODE, PROJECTION_TYPE, STEREO_FORMAT } from "./consts";
+
+export interface PanoViewerEvent {
   /**
    * Events that is fired when PanoViewer is ready to go.
    * @ko PanoViewer 가 준비된 상태에 발생하는 이벤트
@@ -124,6 +126,74 @@ export type PanoViewerEvent = {
  */
 class PanoViewer extends Component<PanoViewerEvent> {
   /**
+   * Check whether the current environment can execute PanoViewer
+   * @ko 현재 브라우저 환경에서 PanoViewer 실행이 가능한지 여부를 반환합니다.
+   * @return PanoViewer executable <ko>PanoViewer 실행가능 여부</ko>
+   */
+  public static isSupported(): boolean {
+    return WebGLUtils.isWebGLAvailable() && WebGLUtils.isStableWebGL();
+  }
+
+  /**
+   * Check whether the current environment supports the WebGL
+   * @ko 현재 브라우저 환경이 WebGL 을 지원하는지 여부를 확인합니다.
+   * @return WebGL support <ko>WebGL 지원여부</ko>
+   */
+  public static isWebGLAvailable(): boolean {
+    return WebGLUtils.isWebGLAvailable();
+  }
+
+  /**
+   * Check whether the current environment supports the gyro sensor.
+   * @ko 현재 브라우저 환경이 자이로 센서를 지원하는지 여부를 확인합니다.
+   * @param callback Function to take the gyro sensor availability as argument <ko>자이로 센서를 지원하는지 여부를 인자로 받는 함수</ko>
+   */
+  public static isGyroSensorAvailable(callback: (isAvailable: boolean) => any) {
+    if (!DeviceMotionEvent && callback) {
+      callback(false);
+      return;
+    }
+
+    let onDeviceMotionChange;
+
+    const checkGyro = () => new Promise(res => {
+      onDeviceMotionChange = deviceMotion => {
+        const isGyroSensorAvailable = !(deviceMotion.rotationRate.alpha == null);
+
+        res(isGyroSensorAvailable);
+      };
+
+      window.addEventListener("devicemotion", onDeviceMotionChange);
+    });
+
+    const timeout = () => new Promise(res => {
+      setTimeout(() => res(false), 1000);
+    });
+
+    Promise.race([checkGyro(), timeout()]).then((isGyroSensorAvailable: boolean) => {
+      window.removeEventListener("devicemotion", onDeviceMotionChange);
+
+      if (callback) {
+        callback(isGyroSensorAvailable);
+      }
+
+      PanoViewer.isGyroSensorAvailable = fb => {
+        if (fb) {
+          fb(isGyroSensorAvailable);
+        }
+        return isGyroSensorAvailable;
+      };
+    });
+  }
+
+  private static _isValidTouchDirection(direction) {
+    return direction === PanoViewer.TOUCH_DIRECTION.NONE ||
+      direction === PanoViewer.TOUCH_DIRECTION.YAW ||
+      direction === PanoViewer.TOUCH_DIRECTION.PITCH ||
+      direction === PanoViewer.TOUCH_DIRECTION.ALL;
+  }
+
+  /**
    * Version info string
    * @ko 버전정보 문자열
    * @name VERSION
@@ -139,6 +209,7 @@ class PanoViewer extends Component<PanoViewerEvent> {
   public static PROJECTION_TYPE = PROJECTION_TYPE;
   public static GYRO_MODE = GYRO_MODE;
   // This should be deprecated!
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   public static ProjectionType = PROJECTION_TYPE;
   public static STEREO_FORMAT = STEREO_FORMAT;
 
@@ -266,7 +337,7 @@ class PanoViewer extends Component<PanoViewerEvent> {
    * }
    * ```
    */
-  constructor(container: HTMLElement, options: Partial<{
+  public constructor(container: HTMLElement, options: Partial<{
     image: string | HTMLElement;
     video: string | HTMLElement;
     projectionType: PanoViewer["_projectionType"];
@@ -382,78 +453,6 @@ class PanoViewer extends Component<PanoViewerEvent> {
   }
 
   /**
-   * Check whether the current environment can execute PanoViewer
-   * @ko 현재 브라우저 환경에서 PanoViewer 실행이 가능한지 여부를 반환합니다.
-   * @return PanoViewer executable <ko>PanoViewer 실행가능 여부</ko>
-   */
-  public static isSupported(): boolean {
-    return WebGLUtils.isWebGLAvailable() && WebGLUtils.isStableWebGL();
-  }
-
-  /**
-   * Check whether the current environment supports the WebGL
-   * @ko 현재 브라우저 환경이 WebGL 을 지원하는지 여부를 확인합니다.
-   * @return WebGL support <ko>WebGL 지원여부</ko>
-   */
-  public static isWebGLAvailable(): boolean {
-    return WebGLUtils.isWebGLAvailable();
-  }
-
-  /**
-   * Check whether the current environment supports the gyro sensor.
-   * @ko 현재 브라우저 환경이 자이로 센서를 지원하는지 여부를 확인합니다.
-   * @param callback Function to take the gyro sensor availability as argument <ko>자이로 센서를 지원하는지 여부를 인자로 받는 함수</ko>
-   */
-  public static isGyroSensorAvailable(callback: (isAvailable: boolean) => any) {
-    if (!DeviceMotionEvent && callback) {
-      callback(false);
-      return;
-    }
-
-    let onDeviceMotionChange;
-
-    function checkGyro() {
-      return new Promise((res, rej) => {
-        onDeviceMotionChange = deviceMotion => {
-          const isGyroSensorAvailable = !(deviceMotion.rotationRate.alpha == null);
-
-          res(isGyroSensorAvailable);
-        };
-
-        window.addEventListener("devicemotion", onDeviceMotionChange);
-      });
-    }
-
-    function timeout() {
-      return new Promise((res, rej) => {
-        setTimeout(() => res(false), 1000);
-      });
-    }
-
-    Promise.race([checkGyro(), timeout()]).then((isGyroSensorAvailable: boolean) => {
-      window.removeEventListener("devicemotion", onDeviceMotionChange);
-
-      if (callback) {
-        callback(isGyroSensorAvailable);
-      }
-
-      PanoViewer.isGyroSensorAvailable = fb => {
-        if (fb) {
-          fb(isGyroSensorAvailable);
-        }
-        return isGyroSensorAvailable;
-      };
-    });
-  }
-
-  private static _isValidTouchDirection(direction) {
-    return direction === PanoViewer.TOUCH_DIRECTION.NONE ||
-      direction === PanoViewer.TOUCH_DIRECTION.YAW ||
-      direction === PanoViewer.TOUCH_DIRECTION.PITCH ||
-      direction === PanoViewer.TOUCH_DIRECTION.ALL;
-  }
-
-  /**
    * Get the video element that the viewer is currently playing. You can use this for playback.
    * @ko 뷰어가 현재 사용 중인 비디오 요소를 얻습니다. 이 요소를 이용해 비디오의 컨트롤을 할 수 있습니다.
    * @return HTMLVideoElement<ko>HTMLVideoElement</ko>
@@ -488,7 +487,7 @@ class PanoViewer extends Component<PanoViewerEvent> {
    * });
    * ```
    */
-  public setVideo(video: string | HTMLElement | { type : string; src: string; }, param: Partial<{
+  public setVideo(video: string | HTMLElement | { type: string; src: string }, param: Partial<{
     projectionType: PanoViewer["_projectionType"];
     cubemapConfig: PanoViewer["_cubemapConfig"];
     stereoFormat: PanoViewer["_stereoFormat"];
@@ -538,7 +537,7 @@ class PanoViewer extends Component<PanoViewerEvent> {
    * });
    * ```
    */
-  public setImage(image: string | HTMLElement | { src: string; type: string; }, param: Partial<{
+  public setImage(image: string | HTMLElement | { src: string; type: string }, param: Partial<{
     projectionType: PanoViewer["_projectionType"];
     cubemapConfig: PanoViewer["_cubemapConfig"];
     stereoFormat: PanoViewer["_stereoFormat"];
@@ -930,7 +929,7 @@ class PanoViewer extends Component<PanoViewerEvent> {
    * ```
    */
   public getTouchDirection(): number {
-    return this._yawPitchControl!.option("touchDirection") as number;
+    return this._yawPitchControl!.option("touchDirection") ;
   }
 
   /**
@@ -1035,7 +1034,7 @@ class PanoViewer extends Component<PanoViewerEvent> {
       this.trigger(EVENTS.ERROR, e);
     });
 
-    this._photoSphereRenderer!.on(PanoImageRenderer.EVENTS.RENDERING_CONTEXT_LOST, e => {
+    this._photoSphereRenderer!.on(PanoImageRenderer.EVENTS.RENDERING_CONTEXT_LOST, () => {
       this._deactivate();
       this.trigger(EVENTS.ERROR, {
         type: ERROR_TYPE.RENDERING_CONTEXT_LOST,

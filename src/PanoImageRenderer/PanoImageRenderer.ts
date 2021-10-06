@@ -3,6 +3,15 @@ import { XRFrame } from "webxr";
 import Promise from "promise-polyfill";
 import { glMatrix, vec3, mat3, mat4, quat } from "gl-matrix";
 import ImReady, { OnReady } from "@egjs/imready";
+
+import { util as mathUtil } from "../utils/math-util";
+import { devicePixelRatio, WEBXR_SUPPORTED } from "../utils/browserFeature";
+import { PROJECTION_TYPE, STEREO_FORMAT } from "../PanoViewer/consts";
+import { IS_IOS } from "../utils/browser";
+import { CubemapConfig, ImageCandidate, ValueOf, VideoCandidate } from "../types";
+import YawPitchControl from "../YawPitchControl/YawPitchControl";
+import { toImageElement, toVideoElement } from "../utils/utils";
+
 import WebGLUtils from "./WebGLUtils";
 import Renderer from "./renderer/Renderer";
 import CubeRenderer from "./renderer/CubeRenderer";
@@ -12,16 +21,11 @@ import CylinderRenderer from "./renderer/CylinderRenderer";
 import VRManager from "./vr/VRManager";
 import XRManager from "./vr/XRManager";
 import WebGLAnimator from "./WebGLAnimator";
-import { util as mathUtil } from "../utils/math-util";
-import { devicePixelRatio, WEBXR_SUPPORTED } from "../utils/browserFeature";
-import { PROJECTION_TYPE, STEREO_FORMAT } from "../PanoViewer/consts";
-import { IS_IOS } from "../utils/browser";
-import { CubemapConfig, ImageCandidate, ValueOf, VideoCandidate } from "../types";
-import YawPitchControl from "../YawPitchControl/YawPitchControl";
-import { toImageElement, toVideoElement } from "../utils/utils";
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const ImageType = PROJECTION_TYPE;
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 let DEVICE_PIXEL_RATIO = devicePixelRatio || 1;
 
 // DEVICE_PIXEL_RATIO 가 2를 초과하는 경우는 리소스 낭비이므로 2로 맞춘다.
@@ -46,7 +50,7 @@ const EVENTS: {
   IMAGE_LOADED: "imageLoaded",
   ERROR: "error",
   RENDERING_CONTEXT_LOST: "renderingContextLost",
-  RENDERING_CONTEXT_RESTORE: "renderingContextRestore",
+  RENDERING_CONTEXT_RESTORE: "renderingContextRestore"
 };
 
 const ERROR_TYPE = {
@@ -60,12 +64,12 @@ class PanoImageRenderer extends Component<{
   [EVENTS.ERROR]: {
     type: number;
     message: string;
-  },
+  };
   [EVENTS.IMAGE_LOADED]: {
     content: HTMLElement;
     isVideo: boolean;
     projectionType: ValueOf<typeof PROJECTION_TYPE>;
-  }
+  };
   [EVENTS.BIND_TEXTURE]: void;
   [EVENTS.RENDERING_CONTEXT_LOST]: void;
   [EVENTS.RENDERING_CONTEXT_RESTORE]: void;
@@ -81,6 +85,7 @@ class PanoImageRenderer extends Component<{
     stereoFormat: ValueOf<typeof STEREO_FORMAT>;
     cubemapConfig: CubemapConfig;
   };
+
   public fieldOfView: number;
   public width: number;
   public height: number;
@@ -120,7 +125,7 @@ class PanoImageRenderer extends Component<{
   private _animator: WebGLAnimator;
   private _vr: VRManager | XRManager | null;
 
-  constructor(
+  public constructor(
     image: ImageCandidate | VideoCandidate,
     width: number,
     height: number,
@@ -196,7 +201,7 @@ class PanoImageRenderer extends Component<{
     image,
     imageType,
     isVideo = false,
-    cubemapConfig,
+    cubemapConfig
   }: {
     image: ImageCandidate | VideoCandidate;
     imageType: PanoImageRenderer["_imageType"];
@@ -233,7 +238,7 @@ class PanoImageRenderer extends Component<{
       this._keepUpdate = true;
     } else {
       this._image = toImageElement(image as ImageCandidate);
-      this._contentLoader.check(Array.isArray(this._image) ? this._image : [this._image])
+      this._contentLoader.check(Array.isArray(this._image) ? this._image : [this._image]);
       this._keepUpdate = false;
     }
   }
@@ -267,7 +272,7 @@ class PanoImageRenderer extends Component<{
             this._bindTexture();
             res();
           }
-        })
+        });
       }
     });
   }
@@ -443,7 +448,7 @@ class PanoImageRenderer extends Component<{
   public enterVR(options) {
     const vr = this._vr;
 
-    if (!WEBXR_SUPPORTED && !navigator.getVRDisplays) {
+    if (!WEBXR_SUPPORTED && !(navigator as any).getVRDisplays) {
       return Promise.reject("VR is not available on this browser.");
     }
     if (vr && vr.isPresenting()) {
@@ -478,7 +483,7 @@ class PanoImageRenderer extends Component<{
     animator.setContext(window);
     animator.setCallback(this._render.bind(this));
     animator.start();
-  }
+  };
 
   private _setImageType(imageType) {
     if (!imageType || this._imageType === imageType) {
@@ -549,7 +554,7 @@ class PanoImageRenderer extends Component<{
     canvas.style.position = "absolute";
   }
 
-  private _onContentError(error) {
+  private _onContentError() {
     this._imageIsReady = false;
     this._image = null;
     this.trigger(EVENTS.ERROR, {
@@ -622,7 +627,7 @@ class PanoImageRenderer extends Component<{
     this.trigger(EVENTS.RENDERING_CONTEXT_LOST);
   }
 
-  private _onWebglcontextrestored(e) {
+  private _onWebglcontextrestored() {
     this._initWebGL();
     this.trigger(EVENTS.RENDERING_CONTEXT_RESTORE);
   }
@@ -793,7 +798,7 @@ class PanoImageRenderer extends Component<{
     }
 
     vr!.afterRender();
-  }
+  };
 
   private _bindBuffers() {
     const gl = this.context;
@@ -826,7 +831,7 @@ class PanoImageRenderer extends Component<{
       shaderProgram: this.shaderProgram!,
       indexBuffer: this.indexBuffer!,
       mvMatrix: this.mvMatrix,
-      pMatrix: this.pMatrix,
+      pMatrix: this.pMatrix
     });
   }
 
@@ -898,7 +903,7 @@ class PanoImageRenderer extends Component<{
 
     vr.setYawOffset(yawOffset);
     animator.setCallback(this._renderStereo);
-  }
+  };
 
   private _setWrapperFullscreen() {
     const wrapper = this._wrapper;

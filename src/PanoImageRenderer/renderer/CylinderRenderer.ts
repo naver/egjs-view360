@@ -1,6 +1,8 @@
 import { glMatrix } from "gl-matrix";
-import Renderer from "./Renderer";
+
 import WebGLUtils from "../WebGLUtils";
+
+import Renderer from "./Renderer";
 
 // const latitudeBands = 60;
 const MIN_ASPECT_RATIO_FOR_FULL_PANORAMA = 6;
@@ -59,7 +61,7 @@ void main(void) {
     const {width, height} = this.getDimension(image);
     const size = Math.max(width, height);
     const maxSize = WebGLUtils.getMaxTextureSize(gl);
-    let resizeDimension: { width: number, height: number } | undefined;
+    let resizeDimension: { width: number; height: number } | undefined;
 
     if (size > maxSize) {
       this._triggerError(`Image width(${width}) exceeds device texture limit(${maxSize}))`);

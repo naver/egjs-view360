@@ -3,8 +3,8 @@ import { SpinViewer, SpriteImage } from "./SpinViewer";
 import { VERSION } from "./version";
 
 export {
-	PanoViewer,
-	SpinViewer,
-	SpriteImage,
-	VERSION
+  PanoViewer,
+  SpinViewer,
+  SpriteImage,
+  VERSION
 };

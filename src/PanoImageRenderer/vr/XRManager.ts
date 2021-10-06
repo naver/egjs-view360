@@ -1,5 +1,6 @@
 import { mat4, glMatrix } from "gl-matrix";
 import { XRFrame, XRLayer, XRReferenceSpace, XRSession, XRSessionInit } from "webxr";
+
 import { IS_SAFARI_ON_DESKTOP } from "../../utils/browser";
 import { merge } from "../../utils/utils";
 
@@ -17,7 +18,7 @@ class XRManager {
   private _yawOffset: number;
   private _presenting: boolean;
 
-  constructor(options: XRSessionOptions = {}) {
+  public constructor(options: XRSessionOptions = {}) {
     this._clear();
     this._options = options;
   }
@@ -31,11 +32,10 @@ class XRManager {
 
     if (xrSession) {
       // Capture to avoid errors
-      // tslint:disable-next-line no-empty
-      xrSession.end().then(() => {}, () => {});
+      xrSession.end().then(() => void 0, () => void 0);
     }
     this._clear();
-  }
+  };
 
   public canRender(frame: XRFrame) {
     const pose = frame.getViewerPose(this._xrRefSpace!);
@@ -50,7 +50,7 @@ class XRManager {
     gl.bindFramebuffer(gl.FRAMEBUFFER, baseLayer!.framebuffer);
   }
 
-  // tslint:disable-next-line no-empty
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   public afterRender() {}
 
   public getEyeParams(gl: WebGLRenderingContext, frame: XRFrame) {
@@ -96,7 +96,7 @@ class XRManager {
 
   public async requestPresent(canvas: HTMLCanvasElement, gl: WebGLRenderingContext) {
     const options = merge({
-      requiredFeatures: [XR_REFERENCE_SPACE],
+      requiredFeatures: [XR_REFERENCE_SPACE]
     }, this._options);
 
     const attributes = gl.getContextAttributes();

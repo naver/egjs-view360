@@ -19,9 +19,9 @@ let build: string | null = null;
 const match = /Chrome\/([0-9]+)\.(?:[0-9]*)\.([0-9]*)\.([0-9]*)/i.exec(userAgent);
 
 if (match) {
-	version = parseInt(match[1], 10);
-	branch = match[2];
-	build = match[3];
+  version = parseInt(match[1], 10);
+  branch = match[2];
+  build = match[3];
 }
 
 const CHROME_VERSION = version;
@@ -59,51 +59,51 @@ const CIRCULAR_PITCH_RANGE_HALF = 180;
 const PINCH_EVENTS = "pinchstart pinchmove pinchend";
 
 const KEYMAP = {
-	LEFT_ARROW: 37,
-	A: 65,
-	UP_ARROW: 38,
-	W: 87,
-	RIGHT_ARROW: 39,
-	D: 68,
-	DOWN_ARROW: 40,
-	S: 83,
+  LEFT_ARROW: 37,
+  A: 65,
+  UP_ARROW: 38,
+  W: 87,
+  RIGHT_ARROW: 39,
+  D: 68,
+  DOWN_ARROW: 40,
+  S: 83
 };
 
 const GYRO_MODE: {
   NONE: "none";
-	YAWPITCH: "yawPitch";
-	VR: "VR";
+  YAWPITCH: "yawPitch";
+  VR: "VR";
 } = {
-	NONE: "none",
-	YAWPITCH: "yawPitch",
-	VR: "VR"
+  NONE: "none",
+  YAWPITCH: "yawPitch",
+  VR: "VR"
 };
 
 export {
-	GYRO_MODE,
+  GYRO_MODE,
 
-	CONTROL_MODE_VR,
-	CONTROL_MODE_YAWPITCH,
+  CONTROL_MODE_VR,
+  CONTROL_MODE_YAWPITCH,
 
-	TOUCH_DIRECTION_NONE,
-	TOUCH_DIRECTION_YAW,
-	TOUCH_DIRECTION_PITCH,
-	TOUCH_DIRECTION_ALL,
+  TOUCH_DIRECTION_NONE,
+  TOUCH_DIRECTION_YAW,
+  TOUCH_DIRECTION_PITCH,
+  TOUCH_DIRECTION_ALL,
 
-	MC_DECELERATION,
-	MC_MAXIMUM_DURATION,
-	MC_BIND_SCALE,
-	MIN_FIELD_OF_VIEW,
-	MAX_FIELD_OF_VIEW,
-	PAN_SCALE,
-	DELTA_THRESHOLD,
-	YAW_RANGE_HALF,
-	PITCH_RANGE_HALF,
-	CIRCULAR_PITCH_RANGE_HALF,
-	PINCH_EVENTS,
-	KEYMAP,
+  MC_DECELERATION,
+  MC_MAXIMUM_DURATION,
+  MC_BIND_SCALE,
+  MIN_FIELD_OF_VIEW,
+  MAX_FIELD_OF_VIEW,
+  PAN_SCALE,
+  DELTA_THRESHOLD,
+  YAW_RANGE_HALF,
+  PITCH_RANGE_HALF,
+  CIRCULAR_PITCH_RANGE_HALF,
+  PINCH_EVENTS,
+  KEYMAP,
 
-	CHROME_VERSION,
-	IS_CHROME_WITHOUT_DEVICE_MOTION,
-	IS_ANDROID
+  CHROME_VERSION,
+  IS_CHROME_WITHOUT_DEVICE_MOTION,
+  IS_ANDROID
 };

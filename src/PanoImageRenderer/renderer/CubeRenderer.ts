@@ -1,16 +1,18 @@
 import agent from "@egjs/agent";
-import Renderer from "./Renderer";
+
 import WebGLUtils from "../WebGLUtils";
 import { util as mathUtil } from "../../utils/math-util";
 import { CubemapConfig } from "../../types";
 
-class CubeRenderer extends Renderer {
-  private static _VERTEX_POSITION_DATA: number[] | null = null;
-  private static _INDEX_DATA: number[] | null = null;
+import Renderer from "./Renderer";
 
+class CubeRenderer extends Renderer {
   public static extractOrder(imageConfig: CubemapConfig) {
     return imageConfig.order || "RLUDBF";
   }
+
+  private static _VERTEX_POSITION_DATA: number[] | null = null;
+  private static _INDEX_DATA: number[] | null = null;
 
   public getVertexPositionData() {
     CubeRenderer._VERTEX_POSITION_DATA =
@@ -94,14 +96,14 @@ class CubeRenderer extends Renderer {
       .map(face => tileConfig[order.indexOf(face)])
       .map((config, i) => {
         const rotation = Math.floor(config.rotation / 90);
-        const ordermap_ = config.flipHorizontal ? [0, 1, 2, 3] : [1, 0, 3, 2];
+        const ordermap = config.flipHorizontal ? [0, 1, 2, 3] : [1, 0, 3, 2];
 
         for (let r = 0; r < Math.abs(rotation); r++) {
           if ((config.flipHorizontal && rotation > 0) ||
             (!config.flipHorizontal && rotation < 0)) {
-            ordermap_.push(ordermap_.shift()!);
+            ordermap.push(ordermap.shift()!);
           } else {
-            ordermap_.unshift(ordermap_.pop()!);
+            ordermap.unshift(ordermap.pop()!);
           }
         }
 
@@ -110,7 +112,7 @@ class CubeRenderer extends Renderer {
         const tileTemp: number[][] = [];
 
         for (let j = 0; j < vertexPerTile; j++) {
-          tileTemp[ordermap_[j]] = tileVertex.splice(0, elemSize);
+          tileTemp[ordermap[j]] = tileVertex.splice(0, elemSize);
         }
         return tileTemp;
       })
@@ -225,15 +227,15 @@ void main(void) {
   public getMaxCubeMapTextureSize(gl: WebGLRenderingContext, image: HTMLImageElement | HTMLVideoElement) {
     const agentInfo = agent();
     const maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
-    let _imageWidth = this.getSourceTileSize(image);
+    let imageWidth = this.getSourceTileSize(image);
 
     if (agentInfo.browser.name === "ie" && agentInfo.browser.majorVersion === 11) {
-      if (!mathUtil.isPowerOfTwo(_imageWidth)) {
+      if (!mathUtil.isPowerOfTwo(imageWidth)) {
         for (let i = 1; i < maxCubeMapTextureSize; i *= 2) {
-          if (i < _imageWidth) {
+          if (i < imageWidth) {
             continue;
           } else {
-            _imageWidth = i;
+            imageWidth = i;
             break;
           }
         }
@@ -244,21 +246,21 @@ void main(void) {
 
       // ios 9 의 경우 텍스쳐 최대사이즈는 1024 이다.
       if (majorVersion === 9) {
-        _imageWidth = 1024;
+        imageWidth = 1024;
       }
       // ios 8 의 경우 텍스쳐 최대사이즈는 512 이다.
       if (majorVersion === 8) {
-        _imageWidth = 512;
+        imageWidth = 512;
       }
     }
     // maxCubeMapTextureSize 보다는 작고, imageWidth 보다 큰 2의 승수 중 가장 작은 수
-    return Math.min(maxCubeMapTextureSize, _imageWidth);
+    return Math.min(maxCubeMapTextureSize, imageWidth);
   }
 
   private _shrinkCoord(coordData: {
     image: HTMLImageElement | HTMLVideoElement;
     faceCoords: number[][];
-    trim: number
+    trim: number;
   }) {
     const { image, faceCoords, trim } = coordData;
 

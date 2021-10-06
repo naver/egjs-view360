@@ -1,13 +1,14 @@
 import Component from "@egjs/component";
 import agent from "@egjs/agent";
 import { mat4 } from "gl-matrix";
+
 import { CubemapConfig, TileConfig } from "../../types";
 
 const agentInfo = agent();
 const isIE11 = agentInfo.browser.name === "ie" && agentInfo.browser.majorVersion === 11;
 
 const EVENTS: {
-  ERROR: "error",
+  ERROR: "error";
 } = {
   ERROR: "error"
 };
@@ -19,21 +20,33 @@ const EVENTS: {
 abstract class Renderer extends Component<{
   [EVENTS.ERROR]: {
     message: string;
-  }
+  };
 }> {
   public static EVENTS = EVENTS;
 
-  private _forceDimension: { width: number; height: number; } | null;
+  private _forceDimension: { width: number; height: number } | null;
   private _pixelCanvas: HTMLCanvasElement | null;
   private _pixelContext: CanvasRenderingContext2D | null;
 
-  constructor() {
+  public constructor() {
     super();
 
     this._forceDimension = null;
     this._pixelCanvas = null;
     this._pixelContext = null;
   }
+
+  public abstract getVertexPositionData(): number[];
+  public abstract getIndexData(): number[];
+  public abstract getTextureCoordData(textureData: {
+    image: HTMLImageElement | HTMLVideoElement;
+    imageConfig: CubemapConfig;
+  }): number[];
+
+  public abstract getVertexShaderSource(): string;
+  public abstract getFragmentShaderSource(): string;
+  public abstract bindTexture(gl: WebGLRenderingContext, texture: WebGLTexture, image: HTMLImageElement | HTMLVideoElement, imageConfig?: CubemapConfig): void;
+  public abstract updateTexture(gl: WebGLRenderingContext, image: HTMLImageElement | HTMLVideoElement, imageConfig?: CubemapConfig): void;
 
   public render({ gl, shaderProgram, indexBuffer, mvMatrix, pMatrix }: {
     gl: WebGLRenderingContext;
@@ -81,7 +94,7 @@ abstract class Renderer extends Component<{
   /**
    * Update data used by shader
    */
-  public updateShaderData(param) {
+  public updateShaderData(param) { // eslint-disable-line @typescript-eslint/no-unused-vars
     /*
     * Update following data in implementation layer.
     * If the data is not changed, it does not need to implement this function.
@@ -91,17 +104,6 @@ abstract class Renderer extends Component<{
     * - _INDEX_DATA
     */
   }
-
-  public abstract getVertexPositionData(): number[];
-  public abstract getIndexData(): number[];
-  public abstract getTextureCoordData(textureData: {
-    image: HTMLImageElement | HTMLVideoElement;
-    imageConfig: CubemapConfig;
-  }): number[];
-  public abstract getVertexShaderSource(): string;
-  public abstract getFragmentShaderSource(): string;
-  public abstract bindTexture(gl: WebGLRenderingContext, texture: WebGLTexture, image: HTMLImageElement | HTMLVideoElement, imageConfig?: CubemapConfig): void;
-  public abstract updateTexture(gl: WebGLRenderingContext, image: HTMLImageElement | HTMLVideoElement, imageConfig?: CubemapConfig): void;
 
   /**
    *

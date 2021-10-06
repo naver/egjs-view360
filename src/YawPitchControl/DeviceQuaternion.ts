@@ -1,5 +1,6 @@
 import Component from "@egjs/component";
 import { vec3, glMatrix, quat } from "gl-matrix";
+
 import FusionPoseSensor from "./input/FusionPoseSensor";
 
 const Y_AXIS_VECTOR = vec3.fromValues(0, 1, 0);
@@ -7,12 +8,12 @@ const Y_AXIS_VECTOR = vec3.fromValues(0, 1, 0);
 export default class DeviceQuaternion extends Component<{
   change: {
     isTrusted: boolean;
-  }
+  };
 }> {
   private _fusionPoseSensor: FusionPoseSensor | null;
   private _quaternion: quat;
 
-  constructor() {
+  public constructor() {
     super();
 
     this._fusionPoseSensor = new FusionPoseSensor();

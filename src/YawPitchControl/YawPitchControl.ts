@@ -1,11 +1,15 @@
 import Component from "@egjs/component";
 import Axes, { PinchInput, MoveKeyInput, WheelInput } from "@egjs/axes";
 import { vec2, quat, glMatrix } from "gl-matrix";
-import { getComputedStyle, SUPPORT_TOUCH, SUPPORT_DEVICEMOTION } from "../utils/browserFeature";
+
+import { SUPPORT_TOUCH, SUPPORT_DEVICEMOTION } from "../utils/browserFeature";
+import { util as mathUtil } from "../utils/math-util";
+import { VERSION } from "../version";
+import { ValueOf } from "../types";
+
 import TiltMotionInput from "./input/TiltMotionInput";
 import RotationPanInput from "./input/RotationPanInput";
 import DeviceQuaternion from "./DeviceQuaternion";
-import { util as mathUtil } from "../utils/math-util";
 import {
   GYRO_MODE,
   TOUCH_DIRECTION_YAW,
@@ -21,16 +25,15 @@ import {
   CIRCULAR_PITCH_RANGE_HALF,
   CONTROL_MODE_VR,
   CONTROL_MODE_YAWPITCH,
-  TOUCH_DIRECTION_NONE,
+  TOUCH_DIRECTION_NONE
 } from "./consts";
-import { VERSION } from "../version";
-import { ValueOf } from "../types";
+
 
 const DEFAULT_YAW_RANGE = [-YAW_RANGE_HALF, YAW_RANGE_HALF];
 const DEFAULT_PITCH_RANGE = [-PITCH_RANGE_HALF, PITCH_RANGE_HALF];
 const CIRCULAR_PITCH_RANGE = [-CIRCULAR_PITCH_RANGE_HALF, CIRCULAR_PITCH_RANGE_HALF];
 
-export type YawPitchControlOptions = {
+export interface YawPitchControlOptions {
   element: HTMLElement | null;
   yaw: number;
   pitch: number;
@@ -44,15 +47,15 @@ export type YawPitchControlOptions = {
   pitchRange: number[];
   fovRange: number[];
   aspectRatio: number;
-};
-type YawPitchControlEvents = {
+}
+interface YawPitchControlEvents {
   change: {
     yaw: number;
     pitch: number;
     fov: number;
     quaternion: quat | null;
     targetElement: HTMLElement;
-    isTrusted: boolean
+    isTrusted: boolean;
   };
   hold: {
     isTrusted: boolean;
@@ -60,11 +63,10 @@ type YawPitchControlEvents = {
   animationEnd: {
     isTrusted: boolean;
   };
-};
+}
 
 /**
  * A module used to provide coordinate based on yaw/pitch orientation. This module receives user touch action, keyboard, mouse and device orientation(if it exists) as input, then combines them and converts it to yaw/pitch coordinates.
- *
  * @alias eg.YawPitchControl
  * @extends eg.Component
  *
@@ -86,12 +88,12 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
   private _isAnimating: boolean;
   private _deviceQuaternion: DeviceQuaternion | null;
 
-  private axes: Axes;
-  private axesPanInput: RotationPanInput;
-  private axesWheelInput: WheelInput;
-  private axesTiltMotionInput: TiltMotionInput | null;
-  private axesPinchInput: PinchInput | null;
-  private axesMoveKeyInput: MoveKeyInput;
+  private _axes: Axes;
+  private _axesPanInput: RotationPanInput;
+  private _axesWheelInput: WheelInput;
+  private _axesTiltMotionInput: TiltMotionInput | null;
+  private _axesPinchInput: PinchInput | null;
+  private _axesMoveKeyInput: MoveKeyInput;
 
   /**
    * @param {object} options The option object of the eg.YawPitch module
@@ -109,7 +111,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
    * @param {number[]} [options.fovRange=[30, 110] Range of FOV
    * @param {number} [options.aspectRatio=1] Aspect Ratio
    */
-  constructor(options: Partial<YawPitchControlOptions>) {
+  public constructor(options: Partial<YawPitchControlOptions>) {
     super();
 
     const opt = {
@@ -126,7 +128,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
         yawRange: DEFAULT_YAW_RANGE,
         pitchRange: DEFAULT_PITCH_RANGE,
         fovRange: [30, 110],
-        aspectRatio: 1, /* TODO: Need Mandatory? */
+        aspectRatio: 1 /* TODO: Need Mandatory? */
       }, ...options
     };
 
@@ -150,12 +152,12 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
   public updatePanScale(param: Partial<{
     height: number;
   }> = {}) {
-    const fov = this.axes.get().fov;
+    const fov = this._axes.get().fov;
     const areaHeight = param.height || parseInt(window.getComputedStyle(this._element!).height, 10);
     const scale = MC_BIND_SCALE[0] * fov / this._initialFov * PAN_SCALE / areaHeight;
 
-    this.axesPanInput.options.scale = [scale, scale];
-    this.axes.options.deceleration = MC_DECELERATION * fov / MAX_FIELD_OF_VIEW;
+    this._axesPanInput.options.scale = [scale, scale];
+    this._axes.options.deceleration = MC_DECELERATION * fov / MAX_FIELD_OF_VIEW;
 
     return this;
   }
@@ -198,7 +200,6 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
 
   /**
    * Enable YawPitch functionality
-   *
    * @method eg.YawPitch#enable
    */
   public enable() {
@@ -219,7 +220,6 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
 
   /**
    * Disable YawPitch functionality
-   *
    * @method eg.YawPitch#disable
    */
   public disable(persistOrientation: boolean = false) {
@@ -231,28 +231,27 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
     if (!persistOrientation) {
       this._resetOrientation();
     }
-    this.axes.disconnect();
+    this._axes.disconnect();
     this._enabled = false;
     return this;
   }
 
   /**
    * Set one or more of yaw, pitch, fov
-   *
    * @param {Object} coordinate yaw, pitch, fov
    * @param {Number} duration Animation duration. if it is above 0 then it's animated.
    */
   public lookAt({yaw, pitch, fov}, duration) {
-    const pos = this.axes.get();
+    const pos = this._axes.get();
 
     const y = yaw === undefined ? 0 : yaw - pos.yaw;
     const p = pitch === undefined ? 0 : pitch - pos.pitch;
     const f = fov === undefined ? 0 : fov - pos.fov;
 
     // Allow duration of animation to have more than MC_MAXIMUM_DURATION.
-    this.axes.options.maximumDuration = Infinity;
+    this._axes.options.maximumDuration = Infinity;
 
-    this.axes.setBy({
+    this._axes.setBy({
       yaw: y,
       pitch: p,
       fov: f
@@ -260,20 +259,20 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
   }
 
   public getYawPitch() {
-    const yawPitch = this.axes.get();
+    const yawPitch = this._axes.get();
 
     return {
       yaw: yawPitch.yaw,
-      pitch: yawPitch.pitch,
+      pitch: yawPitch.pitch
     };
   }
 
   public getFov() {
-    return this.axes.get().fov;
+    return this._axes.get().fov;
   }
 
   public getQuaternion() {
-    const pos = this.axes.get();
+    const pos = this._axes.get();
 
     return this._deviceQuaternion!.getCombinedQuaternion(pos.yaw);
   }
@@ -286,14 +285,15 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
    * Destroys objects
    */
   public destroy() {
-    /* tslint:disable no-unused-expression */
-    this.axes && this.axes.destroy();
-    this.axesPanInput && this.axesPanInput.destroy();
-    this.axesWheelInput && this.axesWheelInput.destroy();
-    this.axesTiltMotionInput && this.axesTiltMotionInput.destroy();
-    this.axesPinchInput && this.axesPinchInput.destroy();
-    this.axesMoveKeyInput && this.axesMoveKeyInput.destroy();
+    /* eslint-disable @typescript-eslint/no-unused-expressions */
+    this._axes && this._axes.destroy();
+    this._axesPanInput && this._axesPanInput.destroy();
+    this._axesWheelInput && this._axesWheelInput.destroy();
+    this._axesTiltMotionInput && this._axesTiltMotionInput.destroy();
+    this._axesPinchInput && this._axesPinchInput.destroy();
+    this._axesMoveKeyInput && this._axesMoveKeyInput.destroy();
     this._deviceQuaternion && this._deviceQuaternion.destroy();
+    /* eslint-enable @typescript-eslint/no-unused-expressions */
   }
 
   private _initAxes(opt: YawPitchControlOptions) {
@@ -301,13 +301,13 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
     const pRange = this._updatePitchRange(opt.pitchRange, opt.fov, opt.showPolePoint);
     const useRotation = opt.gyroMode === GYRO_MODE.VR;
 
-    this.axesPanInput = new RotationPanInput(this._element!, {useRotation});
-    this.axesWheelInput = new WheelInput(this._element, {scale: -4});
-    this.axesTiltMotionInput = null;
-    this.axesPinchInput = SUPPORT_TOUCH ? new PinchInput(this._element, {scale: -1}) : null;
-    this.axesMoveKeyInput = new MoveKeyInput(this._element, {scale: [-6, 6]});
+    this._axesPanInput = new RotationPanInput(this._element!, {useRotation});
+    this._axesWheelInput = new WheelInput(this._element, {scale: -4});
+    this._axesTiltMotionInput = null;
+    this._axesPinchInput = SUPPORT_TOUCH ? new PinchInput(this._element, {scale: -1}) : null;
+    this._axesMoveKeyInput = new MoveKeyInput(this._element, {scale: [-6, 6]});
 
-    this.axes = new Axes({
+    this._axes = new Axes({
       yaw: {
         range: yRange,
         circular: this._isCircular(yRange),
@@ -322,7 +322,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
         range: opt.fovRange,
         circular: [false, false],
         bounce: [0, 0]
-      },
+      }
     }, {
       deceleration: MC_DECELERATION,
       maximumDuration: MC_MAXIMUM_DURATION
@@ -334,7 +334,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
       // TODO: change event type after Axes event type inference update
       hold: (evt: any) => {
         // Restore maximumDuration not to be spin too mush.
-        this.axes.options.maximumDuration = MC_MAXIMUM_DURATION;
+        this._axes.options.maximumDuration = MC_MAXIMUM_DURATION;
 
         this.trigger("hold", { isTrusted: evt.isTrusted });
       },
@@ -350,7 +350,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
       },
       animationEnd: (evt: any) => {
         this.trigger("animationEnd", { isTrusted: evt.isTrusted });
-      },
+      }
     });
   }
 
@@ -386,7 +386,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
 
   private _applyOptions(keys: string[]) {
     const options = this.options;
-    const axes = this.axes;
+    const axes = this._axes;
     const isVR = options.gyroMode === GYRO_MODE.VR;
     const isYawPitch = options.gyroMode === GYRO_MODE.YAWPITCH;
     // If it's VR mode, restrict user interaction to yaw direction only
@@ -432,10 +432,10 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
 
     if (keys.some(key => key === "gyroMode") && SUPPORT_DEVICEMOTION) {
       // Disconnect first
-      if (this.axesTiltMotionInput) {
-        this.axes.disconnect(this.axesTiltMotionInput);
-        this.axesTiltMotionInput.destroy();
-        this.axesTiltMotionInput = null;
+      if (this._axesTiltMotionInput) {
+        this._axes.disconnect(this._axesTiltMotionInput);
+        this._axesTiltMotionInput.destroy();
+        this._axesTiltMotionInput = null;
       }
 
       if (this._deviceQuaternion) {
@@ -446,20 +446,20 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
       if (isVR) {
         this._initDeviceQuaternion();
       } else if (isYawPitch) {
-        this.axesTiltMotionInput = new TiltMotionInput(this._element!);
-        this.axes.connect(["yaw", "pitch"], this.axesTiltMotionInput);
+        this._axesTiltMotionInput = new TiltMotionInput(this._element!);
+        this._axes.connect(["yaw", "pitch"], this._axesTiltMotionInput);
       }
 
-      this.axesPanInput.setUseRotation(isVR);
+      this._axesPanInput.setUseRotation(isVR);
     }
 
     if (keys.some(key => key === "useKeyboard")) {
       const useKeyboard = options.useKeyboard;
 
       if (useKeyboard) {
-        axes.connect(["yaw", "pitch"], this.axesMoveKeyInput);
+        axes.connect(["yaw", "pitch"], this._axesMoveKeyInput);
       } else {
-        axes.disconnect(this.axesMoveKeyInput);
+        axes.disconnect(this._axesMoveKeyInput);
       }
     }
 
@@ -467,9 +467,9 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
       const useZoom = options.useZoom;
 
       // Disconnect first
-      axes.disconnect(this.axesWheelInput);
+      axes.disconnect(this._axesWheelInput);
       if (useZoom) {
-        axes.connect(["fov"], this.axesWheelInput);
+        axes.connect(["fov"], this._axesWheelInput);
       }
     }
 
@@ -481,32 +481,32 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
   }
 
   private _togglePinchInputByOption(touchDirection: YawPitchControlOptions["touchDirection"], useZoom: boolean) {
-    if (this.axesPinchInput) {
+    if (this._axesPinchInput) {
       // disconnect first
-      this.axes.disconnect(this.axesPinchInput);
+      this._axes.disconnect(this._axesPinchInput);
 
       // If the touchDirection option is not ALL, pinchInput should be disconnected to make use of a native scroll.
       if (
         useZoom &&
         touchDirection === TOUCH_DIRECTION_ALL &&
         // TODO: Get rid of using private property of axes instance.
-        (this.axes as any)._inputs.indexOf(this.axesPinchInput) === -1
+        (this._axes as any)._inputs.indexOf(this._axesPinchInput) === -1
       ) {
-        this.axes.connect(["fov"], this.axesPinchInput);
+        this._axes.connect(["fov"], this._axesPinchInput);
       }
     }
   }
 
   private _enableTouch(direction: YawPitchControlOptions["touchDirection"]) {
     // Disconnect first
-    if (this.axesPanInput) {
-      this.axes.disconnect(this.axesPanInput);
+    if (this._axesPanInput) {
+      this._axes.disconnect(this._axesPanInput);
     }
 
     const yawEnabled = direction & TOUCH_DIRECTION_YAW ? "yaw" : null;
     const pitchEnabled = direction & TOUCH_DIRECTION_PITCH ? "pitch" : null;
 
-    this.axes.connect([yawEnabled, pitchEnabled] as string[], this.axesPanInput);
+    this._axes.connect([yawEnabled, pitchEnabled] as string[], this._axesPanInput);
   }
 
   private _initDeviceQuaternion() {
@@ -518,7 +518,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
 
   private _getValidYawRange(newYawRange: number[], newFov?: number, newAspectRatio?: number) {
     const ratio = this._adjustAspectRatio(newAspectRatio || this.options.aspectRatio || 1);
-    const fov = newFov || this.axes.get().fov;
+    const fov = newFov || this._axes.get().fov;
     const horizontalFov = fov * ratio;
     const isValid = newYawRange[1] - newYawRange[0] >= horizontalFov;
 
@@ -530,7 +530,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
   }
 
   private _getValidPitchRange(newPitchRange: number[], newFov?: number) {
-    const fov = newFov || this.axes.get().fov;
+    const fov = newFov || this._axes.get().fov;
     const isValid = newPitchRange[1] - newPitchRange[0] >= fov;
 
     if (isValid) {
@@ -557,20 +557,20 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
    */
   private _updateControlScale(changeEvt?: any) { // TODO: Change type after Axes type inference update
     const opt = this.options;
-    const fov = this.axes.get().fov;
+    const fov = this._axes.get().fov;
 
     const pRange = this._updatePitchRange(opt.pitchRange, fov, opt.showPolePoint);
     const yRange = this._updateYawRange(opt.yawRange, fov, opt.aspectRatio);
 
     // TODO: If not changed!?
-    const pos = this.axes.get();
+    const pos = this._axes.get();
     let y = pos.yaw;
     let p = pos.pitch;
 
-    vec2.copy(this.axes.axis.yaw.range as any, yRange as any);
-    vec2.copy(this.axes.axis.pitch.range as any, pRange as any);
-    this.axes.axis.yaw.circular = this._isCircular(yRange);
-    this.axes.axis.pitch.circular = this._isCircular(pRange);
+    vec2.copy(this._axes.axis.yaw.range as any, yRange as any);
+    vec2.copy(this._axes.axis.pitch.range as any, pRange as any);
+    this._axes.axis.yaw.circular = this._isCircular(yRange);
+    this._axes.axis.pitch.circular = this._isCircular(pRange);
 
     /**
      * update yaw/pitch by it's range.
@@ -590,13 +590,13 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
     if (changeEvt) {
       changeEvt.set({
         yaw: y,
-        pitch: p,
+        pitch: p
       });
     }
 
-    this.axes.setTo({
+    this._axes.setTo({
       yaw: y,
-      pitch: p,
+      pitch: p
     }, 0);
 
     return this;
@@ -641,7 +641,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
      */
     // Ref : https://github.com/naver/egjs-view360/issues/290
     const halfHorizontalFov =
-      mathUtil.toDegree(Math.atan2(aspectRatio, 1 / Math.tan(glMatrix.toRadian(fov / 2))));
+      mathUtil.toDegree(Math.atan2(aspectRatio, 1 / Math.tan(glMatrix.toRadian(fov / 2)))) as number;
 
     // Round value as movableCood do.
     return [
@@ -652,7 +652,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
 
   // TODO: update param type after Axes event type inference update
   private _triggerChange(evt: any) {
-    const pos = this.axes.get();
+    const pos = this._axes.get();
     const opt = this.options;
     const event: YawPitchControlEvents["change"] = {
       targetElement: opt.element,
@@ -660,7 +660,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
       yaw: pos.yaw,
       pitch: pos.pitch,
       fov: pos.fov,
-      quaternion: null,
+      quaternion: null
     };
 
     if (opt.gyroMode === GYRO_MODE.VR && this._deviceQuaternion) {
@@ -710,17 +710,17 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
     return this._lerp(outputA, outputB, (input - inputA) / (inputB - inputA));
   }
 
-  private _lerp(a, b, fraction) {
+  private _lerp(a: number, b: number, fraction: number) {
     return a + fraction * (b - a);
   }
 
   private _resetOrientation() {
     const opt = this.options;
 
-    this.axes.setTo({
+    this._axes.setTo({
       yaw: opt.yaw,
       pitch: opt.pitch,
-      fov: opt.fov,
+      fov: opt.fov
     }, 0);
 
     return this;

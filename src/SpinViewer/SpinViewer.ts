@@ -1,11 +1,13 @@
 import Component from "@egjs/component";
 import Axes, { PanInput } from "@egjs/axes";
-import SpriteImage from "./SpriteImage";
+
 import { VERSION } from "../version";
+
+import SpriteImage from "./SpriteImage";
 
 const DEFAULT_PAN_SCALE = 0.21;
 
-export type SpinViewerEvent = {
+export interface SpinViewerEvent {
   /**
    * Events that occur when component loading is complete
    * @ko 컴포넌트 로딩이 완료되면 발생하는 이벤트
@@ -26,7 +28,7 @@ export type SpinViewerEvent = {
   load: {
     target: HTMLElement;
     bgElement: HTMLDivElement;
-  }
+  };
   /**
    * An event that occurs when the image index is changed by the user's left / right panning
    * @ko 사용자의 좌우 Panning 에 의해 이미지 인덱스가 변경되었을때 발생하는 이벤트
@@ -88,7 +90,7 @@ export type SpinViewerEvent = {
    */
   animationEnd: {
     isTrusted: boolean;
-  }
+  };
 }
 
 /**
@@ -141,7 +143,7 @@ class SpinViewer extends Component<SpinViewerEvent> {
    * });
    * ```
    */
-  constructor(element: HTMLElement, options: Partial<{
+  public constructor(element: HTMLElement, options: Partial<{
     imageUrl: string;
     rowCount: number;
     colCount: number;

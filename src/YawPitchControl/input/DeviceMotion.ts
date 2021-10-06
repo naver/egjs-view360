@@ -1,5 +1,6 @@
 import Component from "@egjs/component";
 import { vec3 } from "gl-matrix";
+
 import { Mutable } from "../../types";
 import { window } from "../../utils/browser";
 import { IS_CHROME_WITHOUT_DEVICE_MOTION, IS_ANDROID } from "../consts";
@@ -13,22 +14,22 @@ export default class DeviceMotion extends Component<{
         alpha: number;
         beta: number;
         gamma: number;
-      }
-    }
-  },
+      };
+    };
+  };
 }> {
   public readonly isWithoutDeviceMotion: boolean;
   public readonly isAndroid: boolean;
 
   public stillGyroVec: vec3;
   public rawGyroVec: vec3;
-  public adjustedGyroVec: vec3
+  public adjustedGyroVec: vec3;
   public lastDevicemotionTimestamp: number;
 
   private _timer: number;
   private _isEnabled: boolean;
 
-  constructor() {
+  public constructor() {
     super();
     this._onDeviceMotion = this._onDeviceMotion.bind(this);
     this._onDeviceOrientation = this._onDeviceOrientation.bind(this);
@@ -122,17 +123,17 @@ export default class DeviceMotion extends Component<{
     devicemotionEvent.rotationRate = {
       alpha: e.rotationRate!.alpha,
       beta: e.rotationRate!.beta,
-      gamma: e.rotationRate!.gamma,
+      gamma: e.rotationRate!.gamma
     };
     devicemotionEvent.accelerationIncludingGravity = {
       x: e.accelerationIncludingGravity!.x,
       y: e.accelerationIncludingGravity!.y,
-      z: e.accelerationIncludingGravity!.z,
+      z: e.accelerationIncludingGravity!.z
     };
     devicemotionEvent.acceleration = {
       x: e.acceleration!.x,
       y: e.acceleration!.y,
-      z: e.acceleration!.z,
+      z: e.acceleration!.z
     };
 
     if (this.isAndroid) {

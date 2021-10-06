@@ -1,3 +1,4 @@
+/* eslint-disable */
 /*
  * Copyright 2015 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,9 +14,9 @@
  * limitations under the License.
  */
 
-import SensorSample from "./sensor-sample"
-import MathUtil from "./math-util"
-import Util from "./util"
+import SensorSample from "./sensor-sample";
+import MathUtil from "./math-util";
+import Util from "./util";
 
 /**
  * An implementation of a simple complementary filter, which fuses gyroscope and
@@ -87,7 +88,7 @@ class ComplementaryFilter {
     }
 
     this.previousGyroMeasurement.copy(this.currentGyroMeasurement);
-  }
+  };
 
   public getOrientation() {
     return this.filterQ;
@@ -133,13 +134,13 @@ class ComplementaryFilter {
 
     if (Util.isDebug()) {
       console.log("Delta: %d deg, G_est: (%s, %s, %s), G_meas: (%s, %s, %s)",
-                  MathUtil.radToDeg * Util.getQuaternionAngle(deltaQ),
-                  (this.estimatedGravity.x).toFixed(1),
-                  (this.estimatedGravity.y).toFixed(1),
-                  (this.estimatedGravity.z).toFixed(1),
-                  (this.measuredGravity.x).toFixed(1),
-                  (this.measuredGravity.y).toFixed(1),
-                  (this.measuredGravity.z).toFixed(1));
+        MathUtil.radToDeg * Util.getQuaternionAngle(deltaQ),
+        (this.estimatedGravity.x).toFixed(1),
+        (this.estimatedGravity.y).toFixed(1),
+        (this.estimatedGravity.z).toFixed(1),
+        (this.measuredGravity.x).toFixed(1),
+        (this.measuredGravity.y).toFixed(1),
+        (this.measuredGravity.z).toFixed(1));
     }
 
     // Calculate the SLERP target: current orientation plus the measured-estimated
@@ -173,6 +174,6 @@ class ComplementaryFilter {
     quat.setFromAxisAngle(axis, gyro.length() * dt);
     return quat;
   }
-};
+}
 
 export default ComplementaryFilter;

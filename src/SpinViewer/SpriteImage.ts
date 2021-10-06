@@ -1,8 +1,9 @@
 import Component from "@egjs/component";
+
 import { TRANSFORM, SUPPORT_WILLCHANGE } from "../utils/browserFeature";
 import { VERSION } from "../version";
 
-export type SpriteImageEvent = {
+export interface SpriteImageEvent {
   /**
    * Events that occur when component loading is complete
    * @ko 컴포넌트 로딩이 완료되면 발생하는 이벤트
@@ -23,7 +24,7 @@ export type SpriteImageEvent = {
   load: {
     target: HTMLElement;
     bgElement: HTMLDivElement;
-  }
+  };
   /**
    * An event that occurs when the image index is changed by the user's left / right panning
    * @ko 사용자의 좌우 Panning 에 의해 이미지 인덱스가 변경되었을때 발생하는 이벤트
@@ -43,7 +44,7 @@ export type SpriteImageEvent = {
    */
   imageError: {
     imageUrl?: string;
-  }
+  };
 }
 
 /**
@@ -52,6 +53,46 @@ export type SpriteImageEvent = {
  * SpriteImage
  */
 class SpriteImage extends Component<SpriteImageEvent> {
+  private static _createBgDiv(img: HTMLImageElement, rowCount: number, colCount: number, autoHeight: boolean) {
+    const el = document.createElement("div");
+
+    el.style.position = "relative";
+    el.style.overflow = "hidden";
+
+    img.style.position = "absolute";
+    img.style.width = `${colCount * 100}%`;
+    img.style.height = `${rowCount * 100}%`;
+    /** Prevent image from being dragged on IE10, IE11, Safari especially */
+    img.ondragstart = () => (false); // img.style.pointerEvents = "none";
+    // Use hardware accelerator if available
+    if (SUPPORT_WILLCHANGE) {
+      (img.style.willChange = "transform");
+    }
+
+    el.appendChild(img);
+
+    const unitWidth = img.width / colCount;
+    const unitHeight = img.height / rowCount;
+
+    if (autoHeight) {
+      const r = unitHeight / unitWidth;
+
+      el.style.paddingBottom = `${r * 100}%`;
+    } else {
+      el.style.height = "100%";
+    }
+
+    return el;
+  }
+
+  private static _getSizeString(size) {
+    if (typeof size === "number") {
+      return `${size}px`;
+    }
+
+    return size;
+  }
+
   public static VERSION = VERSION;
 
   private _el: HTMLElement;
@@ -64,7 +105,7 @@ class SpriteImage extends Component<SpriteImageEvent> {
   private _colRow: number[];
   private _image: HTMLImageElement;
   private _bg: HTMLDivElement;
-  private _autoPlayReservedInfo: { interval: number; playCount: number; } | null;
+  private _autoPlayReservedInfo: { interval: number; playCount: number } | null;
   private _autoPlayTimer: number;
 
   /**
@@ -96,7 +137,7 @@ class SpriteImage extends Component<SpriteImageEvent> {
    * 	rowCount: 24
    * });
    */
-  constructor(element: HTMLElement, options: Partial<{
+  public constructor(element: HTMLElement, options: Partial<{
     imageUrl: string;
     rowCount: number;
     colCount: number;
@@ -158,53 +199,13 @@ class SpriteImage extends Component<SpriteImageEvent> {
       }
     };
 
-    this._image.onerror = e => {
+    this._image.onerror = () => {
       this.trigger("imageError", {
         imageUrl: opt.imageUrl
       });
     };
 
     this._image.src = opt.imageUrl;
-  }
-
-  private static _createBgDiv(img: HTMLImageElement, rowCount: number, colCount: number, autoHeight: boolean) {
-    const el = document.createElement("div");
-
-    el.style.position = "relative";
-    el.style.overflow = "hidden";
-
-    img.style.position = "absolute";
-    img.style.width = `${colCount * 100}%`;
-    img.style.height = `${rowCount * 100}%`;
-    /** Prevent image from being dragged on IE10, IE11, Safari especially */
-    img.ondragstart = () => (false); // img.style.pointerEvents = "none";
-    // Use hardware accelerator if available
-    if (SUPPORT_WILLCHANGE) {
-      (img.style.willChange = "transform");
-    }
-
-    el.appendChild(img);
-
-    const unitWidth = img.width / colCount;
-    const unitHeight = img.height / rowCount;
-
-    if (autoHeight) {
-      const r = unitHeight / unitWidth;
-
-      el.style.paddingBottom = `${r * 100}%`;
-    } else {
-      el.style.height = "100%";
-    }
-
-    return el;
-  }
-
-  private static _getSizeString(size) {
-    if (typeof size === "number") {
-      return `${size}px`;
-    }
-
-    return size;
   }
 
   /**

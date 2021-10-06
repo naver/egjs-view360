@@ -1,12 +1,15 @@
 import Component from "@egjs/component";
 import { quat } from "gl-matrix";
+
+import { window, IS_IOS, IS_SAFARI_ON_DESKTOP } from "../../utils/browser";
+import { CHROME_VERSION } from "../consts";
+
 import PosePredictor from "./lib/webvr-polyfill/pose-predictor";
 import MathUtil from "./lib/webvr-polyfill/math-util";
 import Util from "./lib/webvr-polyfill/util";
-import { window, IS_IOS, IS_SAFARI_ON_DESKTOP } from "../../utils/browser";
 import DeviceMotion from "./DeviceMotion";
 import ComplementaryFilter from "./ComplementaryFilter";
-import { CHROME_VERSION } from "../consts";
+
 
 const K_FILTER = 0.98;
 const PREDICTION_TIME_S = 0.040;
@@ -14,7 +17,7 @@ const PREDICTION_TIME_S = 0.040;
 export default class FusionPoseSensor extends Component<{
   change: {
     quaternion: quat;
-  }
+  };
 }> {
   public deviceMotion: DeviceMotion | null;
   public accelerometer: any;
@@ -38,7 +41,7 @@ export default class FusionPoseSensor extends Component<{
   private _prevOrientation: quat;
   private _alpha: number;
 
-  constructor() {
+  public constructor() {
     super();
 
     this.deviceMotion = new DeviceMotion();
@@ -138,14 +141,14 @@ export default class FusionPoseSensor extends Component<{
       out.multiplyQuaternions(this.deviceOrientationFixQ, out);
 
       // return quaternion as glmatrix quaternion object
-      const out_ = quat.fromValues(
+      const outQuat = quat.fromValues(
         out.x,
         out.y,
         out.z,
         out.w
       );
 
-      return quat.normalize(out_, out_);
+      return quat.normalize(outQuat, outQuat);
     } else {
       // Convert from filter space to the the same system used by the
       // deviceorientation event.
@@ -158,14 +161,14 @@ export default class FusionPoseSensor extends Component<{
       const out = this._convertFusionToPredicted(orientation);
 
       // return quaternion as glmatrix quaternion object
-      const out_ = quat.fromValues(
+      const outQuat = quat.fromValues(
         out.x,
         out.y,
         out.z,
         out.w
       );
 
-      return quat.normalize(out_, out_);
+      return quat.normalize(outQuat, outQuat);
     }
   }
 
