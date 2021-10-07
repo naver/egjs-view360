@@ -135,6 +135,6 @@ export default buildHelper([
     external,
     sourcemap: false,
     plugins
-  },
+  }
 ]);
 

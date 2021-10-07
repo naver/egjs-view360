@@ -1,0 +1,54 @@
+{
+  "name": "@egjs/vue-view360",
+  "version": "3.0.0",
+  "description": "360 integrated viewing solution from inside-out view to outside-in view. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.",
+  "main": "dist/view360.cjs.js",
+  "module": "dist/view360.esm.js",
+  "types": "declaration/index.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "start": "vue-cli-service demo",
+    "build": "rm -rf dist && rollup -c && npm run declaration",
+    "declaration": "rm -rf declaration && tsc -p tsconfig.declaration.json",
+    "lint": "vue-cli-service lint --no-fix",
+    "demo": "vue-cli-service demo"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/naver/egjs-view360/tree/master/packages/vue-view360"
+  },
+  "author": {
+    "name": "NAVER Corp."
+  },
+  "namespace": {
+    "eg": "eg"
+  },
+  "homepage": "https://naver.github.io/egjs-view360",
+  "bugs": {
+    "url": "https://github.com/naver/egjs-view360/issues"
+  },
+  "license": "MIT",
+  "browserslist": [
+    "last 2 version",
+    "ie 11",
+    "not op_mini all"
+  ],
+  "dependencies": {
+    "@egjs/view360": "^3.5.1"
+  },
+  "peerDependencies": {
+    "vue": "^2.0.0"
+  },
+  "devDependencies": {
+    "@egjs/build-helper": "^0.1.2",
+    "@vue/cli-plugin-typescript": "^3.7.0",
+    "@vue/cli-service": "^3.7.0",
+    "rollup-plugin-vue": "^6.0.0",
+    "tslib": "^2.3.1",
+    "typescript": "^3.9.3",
+    "vue": "^2.0.0",
+    "vue-cli-plugin-p11n": "^0.3.0",
+    "vue-router": "^3.0.6",
+    "vue-template-compiler": "^2.5.21"
+  }
+}

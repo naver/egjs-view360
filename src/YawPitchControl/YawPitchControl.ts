@@ -82,7 +82,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
   public static TOUCH_DIRECTION_PITCH = TOUCH_DIRECTION_PITCH;
   public static TOUCH_DIRECTION_NONE = TOUCH_DIRECTION_NONE;
 
-  public options: YawPitchControlOptions = {};
+  public options: YawPitchControlOptions;
 
   private _element: HTMLElement | null;
   private _initialFov: number;
@@ -115,6 +115,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
    */
   public constructor(options: Partial<YawPitchControlOptions>) {
     super();
+    this.options = {} as any;
 
     const opt = {
       ...{
