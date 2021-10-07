@@ -3,10 +3,12 @@
  * egjs projects are licensed under the MIT license
  */
 import PanoViewer from "./PanoViewer";
+import SpinViewer from "./SpinViewer";
 
-export * from "~/index";
+export * from "@egjs/view360";
 export * from "./types";
 
 export {
-  PanoViewer
+  PanoViewer,
+  SpinViewer
 }

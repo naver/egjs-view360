@@ -5,8 +5,9 @@ import {
   Route
 } from "react-router-dom";
 import Header from "./Header";
-import Rerender from "./case/Rerender";
-import Video from "./case/Video";
+import Rerender from "./pano/Rerender";
+import Video from "./pano/Video";
+import Default from "./spin/Default";
 import "./App.css";
 
 export default class App extends Component<{}> {
@@ -19,6 +20,9 @@ export default class App extends Component<{}> {
         </Route>
         <Route path="/video">
           <Video />
+        </Route>
+        <Route path="/spin">
+          <Default />
         </Route>
       </Switch>
     </Router>);

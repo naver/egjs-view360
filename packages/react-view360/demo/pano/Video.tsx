@@ -1,21 +1,20 @@
 import React from "react";
 import { PanoViewer } from "src/index";
 
-export default class RerenderVideo extends React.Component<{}, { image: number, overlay: boolean }> {
+export default class RerenderVideo extends React.Component<{}, { overlay: boolean }> {
   private _panoViewer: PanoViewer;
 
   public constructor(props) {
     super(props);
 
     this.state = {
-      image: 1,
       overlay: true
     }
   }
 
   public render() {
     return <div>
-      <h1>Rerender</h1>
+      <h1>Video</h1>
       <button onClick={() => { this.forceUpdate(); }}>Force Update</button>
       <PanoViewer ref={ref => {
         ref && (this._panoViewer = ref);

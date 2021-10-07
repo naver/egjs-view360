@@ -1,11 +1,15 @@
 .header {
   display: flex;
   flex-direction: row;
+  align-items: center;
+}
+
+.header * {
+  margin-right: 0.75rem;
 }
 
 .header li {
   display: inline-block;
-  margin-right: 0.75rem;
   font-size: 1.25rem;
 }
 
@@ -30,4 +34,9 @@
 
 .overlay.hidden {
   display: none;
+}
+
+#spin {
+  max-width: 400px;
+  position: relative;
 }

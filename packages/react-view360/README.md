@@ -37,9 +37,15 @@ npm install --save @egjs/react-view360
 
 ## 🏃 Quick Start
 ```tsx
-import { PanoViewer } from "@egjs/react-view360";
+import { PanoViewer, PROJECTION_TYPE } from "@egjs/react-view360";
 
-<PanoViewer />
+<PanoViewer
+  tag="div"
+  image="PATH_TO_YOUR_PANORAMA_IMAGE"
+  useZoom={false}
+  projectionType={PROJECTION_TYPE.CUBEMAP}
+  cubemapConfig={{ tileConfig: { flipHorizontal: true, rotation: 0 } }}
+/>
 ```
 
 ## 🙌 Contributing

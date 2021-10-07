@@ -3,17 +3,26 @@
  * egjs projects are licensed under the MIT license
  */
 import * as React from "react";
-import { PanoViewer as VanillaPanoViewer, PanoViewerOptions, withPanoViewerMethods, PANOVIEWER_EVENTS, PANOVIEWER_OPTIONS, updatePanoViewer } from "~/index";
+import {
+  PanoViewer as VanillaPanoViewer,
+  PanoViewerOptions,
+  withPanoViewerMethods,
+  PANOVIEWER_EVENTS,
+  PANOVIEWER_OPTIONS,
+  updatePanoViewer
+} from "@egjs/view360";
 
-import { DEFAULT_PROPS } from "./consts";
+import { PANOVIEWER_DEFAULT_PROPS } from "./consts";
 import { PanoViewerProps } from "./types";
 
 class PanoViewer extends React.PureComponent<Partial<PanoViewerProps & PanoViewerOptions>> {
-  public static defaultProps: PanoViewerProps = DEFAULT_PROPS;
+  public static defaultProps: PanoViewerProps = PANOVIEWER_DEFAULT_PROPS;
 
   @withPanoViewerMethods private _vanillaPanoViewer: VanillaPanoViewer;
   private _containerEl: HTMLElement;
   private _prevProps: Partial<PanoViewerProps & PanoViewerOptions>;
+
+  public get element() { return this._containerEl; }
 
   public componentDidMount() {
     const props = { ...this.props };
@@ -47,7 +56,7 @@ class PanoViewer extends React.PureComponent<Partial<PanoViewerProps & PanoViewe
     const attributes: { [key: string]: any } = {};
 
     for (const name in props) {
-      if (!(name in DEFAULT_PROPS) && !(name in PANOVIEWER_OPTIONS)) {
+      if (!(name in PANOVIEWER_DEFAULT_PROPS) && !(name in PANOVIEWER_OPTIONS)) {
         attributes[name] = props[name];
       }
     }
