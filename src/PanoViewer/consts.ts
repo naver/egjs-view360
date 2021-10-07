@@ -32,7 +32,7 @@
  * @type {String}
  * @default "VR"
  */
-import { PanoViewerOptions } from "src";
+import { PanoViewerOptions } from "../PanoViewer/PanoViewer";
 import { GYRO_MODE } from "../YawPitchControl/consts";
 
 /**
@@ -278,7 +278,7 @@ const STEREO_FORMAT: {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const PANOVIEWER_OPTIONS: { [key in keyof PanoViewerOptions]: boolean } = {
+const PANOVIEWER_OPTIONS: { [key in keyof PanoViewerOptions]: true } = {
   image: true,
   video: true,
   projectionType: true,

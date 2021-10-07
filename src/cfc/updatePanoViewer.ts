@@ -32,7 +32,7 @@ export default (panoViewer: PanoViewer, newProps: Partial<PanoViewerOptions>, pr
   });
 };
 
-const isPropChanged = (val: any, prevVal: any): val is true => !!val && val !== prevVal;
+const isPropChanged = (val: any, prevVal: any): val is true => val != null && val !== prevVal;
 const updateOption = (panoViewer: PanoViewer, optionName: string, newProps: Partial<PanoViewerOptions>, prevProps: Partial<PanoViewerOptions>) => {
   if (isPropChanged(newProps[optionName], prevProps[optionName])) {
     panoViewer[`set${optionName[0].toUpperCase()}${optionName.slice(1)}`](newProps[optionName]);

@@ -37,7 +37,7 @@ export interface PanoViewerOptions {
 export interface PanoViewerEvent {
   ready: ReadyEvent;
   viewChange: ViewChangeEvent;
-  animationEnd: AnimationEndEvent;
+  animationEnd: AnimationEndEvent<PanoViewer>;
   error: ErrorEvent;
 }
 
