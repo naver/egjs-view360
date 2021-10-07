@@ -2,7 +2,7 @@ import agent from "@egjs/agent";
 
 import WebGLUtils from "../WebGLUtils";
 import { util as mathUtil } from "../../utils/math-util";
-import { CubemapConfig } from "../../types";
+import { CubemapConfig } from "../../types/internal";
 
 import Renderer from "./Renderer";
 

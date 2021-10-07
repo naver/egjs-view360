@@ -2,7 +2,7 @@ import Component, { ComponentEvent } from "@egjs/component";
 import agent from "@egjs/agent";
 import { mat4 } from "gl-matrix";
 
-import { CubemapConfig, TileConfig } from "../../types";
+import { CubemapConfig, TileConfig } from "../../types/internal";
 
 const agentInfo = agent();
 const isIE11 = agentInfo.browser.name === "ie" && agentInfo.browser.majorVersion === 11;

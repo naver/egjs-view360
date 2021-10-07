@@ -1,5 +1,5 @@
-import { ImageCandidate, VideoCandidate } from "../types";
-import { Merged } from "../types";
+import { ImageCandidate, VideoCandidate } from "../types/internal";
+import { Merged } from "../types/internal";
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export const merge = <From extends object, To extends object>(target: From, ...srcs: To[]): Merged<From, To> => {

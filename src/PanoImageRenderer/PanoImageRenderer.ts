@@ -8,7 +8,7 @@ import { util as mathUtil } from "../utils/math-util";
 import { devicePixelRatio, WEBXR_SUPPORTED } from "../utils/browserFeature";
 import { PROJECTION_TYPE, STEREO_FORMAT } from "../PanoViewer/consts";
 import { IS_IOS } from "../utils/browser";
-import { CubemapConfig, ImageCandidate, ValueOf, VideoCandidate } from "../types";
+import { CubemapConfig, ImageCandidate, ValueOf, VideoCandidate } from "../types/internal";
 import YawPitchControl from "../YawPitchControl/YawPitchControl";
 import { toImageElement, toVideoElement } from "../utils/utils";
 

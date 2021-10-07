@@ -33,7 +33,7 @@ THE SOFTWARE. */
 
 import { vec2, vec3, quat } from "gl-matrix";
 
-import { ValueOf } from "../types";
+import { ValueOf } from "../types/internal";
 
 const quatToVec3 = (quaternion: quat) => {
   const baseV = vec3.fromValues(0, 0, 1);

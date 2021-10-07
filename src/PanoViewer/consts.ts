@@ -32,6 +32,7 @@
  * @type {String}
  * @default "VR"
  */
+import { PanoViewerOptions } from "src";
 import { GYRO_MODE } from "../YawPitchControl/consts";
 
 /**
@@ -111,7 +112,7 @@ const ERROR_TYPE = {
  * @name EVENTS
  * @memberof eg.view360.PanoViewer
  */
-const EVENTS: {
+const PANOVIEWER_EVENTS: {
   READY: "ready";
   VIEW_CHANGE: "viewChange";
   ANIMATION_END: "animationEnd";
@@ -276,10 +277,33 @@ const STEREO_FORMAT: {
   NONE: ""
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const PANOVIEWER_OPTIONS: { [key in keyof PanoViewerOptions]: boolean } = {
+  image: true,
+  video: true,
+  projectionType: true,
+  cubemapConfig: true,
+  stereoFormat: true,
+  width: true,
+  height: true,
+  yaw: true,
+  pitch: true,
+  fov: true,
+  showPolePoint: true,
+  useZoom: true,
+  useKeyboard: true,
+  gyroMode: true,
+  yawRange: true,
+  pitchRange: true,
+  fovRange: true,
+  touchDirection: true
+};
+
 export {
   GYRO_MODE,
-  EVENTS,
+  PANOVIEWER_EVENTS,
   ERROR_TYPE,
   PROJECTION_TYPE,
-  STEREO_FORMAT
+  STEREO_FORMAT,
+  PANOVIEWER_OPTIONS
 };

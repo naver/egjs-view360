@@ -1,6 +1,6 @@
 import WebGLUtils from "../WebGLUtils";
 import { STEREO_FORMAT } from "../../PanoViewer/consts";
-import { ValueOf } from "../../types";
+import { ValueOf } from "../../types/internal";
 
 import Renderer from "./Renderer";
 

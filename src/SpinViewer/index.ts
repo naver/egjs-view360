@@ -6,7 +6,10 @@ import SpriteImage, { SpriteImageEvent } from "./SpriteImage";
 export {
   SpinViewer,
   SpriteImage,
-  SpinViewerEvent,
-  SpriteImageEvent,
   VERSION
+};
+
+export type {
+  SpinViewerEvent,
+  SpriteImageEvent
 };

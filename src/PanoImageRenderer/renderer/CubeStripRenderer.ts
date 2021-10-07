@@ -1,6 +1,6 @@
 
 import WebGLUtils from "../WebGLUtils";
-import { CubemapConfig, TileConfig } from "../../types";
+import { CubemapConfig, TileConfig } from "../../types/internal";
 
 import Renderer from "./Renderer";
 

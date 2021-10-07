@@ -5,7 +5,7 @@ import { vec2, quat, glMatrix } from "gl-matrix";
 import { SUPPORT_TOUCH, SUPPORT_DEVICEMOTION } from "../utils/browserFeature";
 import { util as mathUtil } from "../utils/math-util";
 import { VERSION } from "../version";
-import { ValueOf } from "../types";
+import { ValueOf } from "../types/internal";
 
 import TiltMotionInput from "./input/TiltMotionInput";
 import RotationPanInput from "./input/RotationPanInput";
@@ -82,7 +82,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
   public static TOUCH_DIRECTION_PITCH = TOUCH_DIRECTION_PITCH;
   public static TOUCH_DIRECTION_NONE = TOUCH_DIRECTION_NONE;
 
-  public options: YawPitchControlOptions;
+  public options: YawPitchControlOptions = {};
 
   private _element: HTMLElement | null;
   private _initialFov: number;
