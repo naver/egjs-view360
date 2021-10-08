@@ -37,7 +37,7 @@ npm install --save @egjs/react-view360
 
 ## 🏃 Quick Start
 ```tsx
-import { PanoViewer, PROJECTION_TYPE } from "@egjs/react-view360";
+import { PanoViewer, SpinViewer, PROJECTION_TYPE } from "@egjs/react-view360";
 
 <PanoViewer
   tag="div"
@@ -45,6 +45,16 @@ import { PanoViewer, PROJECTION_TYPE } from "@egjs/react-view360";
   useZoom={false}
   projectionType={PROJECTION_TYPE.CUBEMAP}
   cubemapConfig={{ tileConfig: { flipHorizontal: true, rotation: 0 } }}
+  onViewChange={e => {
+    // DO_SOMETHING
+  }}
+/>
+
+<SpinViewer
+  tag="div"
+  imageUrl="PATH_TO_YOUR_SPRITE_IMAGE"
+  rowCount={42}
+  scale={1}
 />
 ```
 

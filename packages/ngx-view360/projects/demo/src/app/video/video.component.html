@@ -1,0 +1,13 @@
+<div>
+  <button (click)="forceUpdate()">Force Update</button>
+  <ngx-pano-viewer
+    #pano
+    id="viewer"
+    [video]="'https://naver.github.io/egjs-view360/examples/img/equi.mp4'"
+  >
+  <div
+    [ngClass]="overlayClass"
+    (click)="startVideo()"
+  >Click to play</div>
+  </ngx-pano-viewer>
+</div>

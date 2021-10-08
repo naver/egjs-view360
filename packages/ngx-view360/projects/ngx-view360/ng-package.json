@@ -1,0 +1,14 @@
+{
+  "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+  "dest": "../../dist/ngx-view360",
+  "lib": {
+    "entryFile": "src/public-api.ts",
+    "umdModuleIds": {
+      "@egjs/view360": "View360",
+      "@egjs/component": "Component"
+    }
+  },
+  "whitelistedNonPeerDependencies": [
+    "@egjs/view360"
+  ]
+}

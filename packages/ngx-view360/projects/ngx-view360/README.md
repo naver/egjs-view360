@@ -1,19 +1,19 @@
 <h1 align=center>
-  @egjs/vue-view360
+  @egjs/ngx-view360
 </h1>
 
 <p align=center>
-  <a href="https://www.npmjs.com/package/@egjs/vue-view360" target="_blank">
-    <img src="https://img.shields.io/npm/v/@egjs/vue-view360.svg?style=flat-square&color=00d8ff&label=version&logo=NPM">
+  <a href="https://www.npmjs.com/package/@egjs/ngx-view360" target="_blank">
+    <img src="https://img.shields.io/npm/v/@egjs/ngx-view360.svg?style=flat-square&color=dd0031&label=version&logo=NPM">
   </a>
-  <a href="https://www.npmjs.com/package/@egjs/vue-view360" target="_blank">
-    <img alt="npm bundle size (scoped)" src="https://img.shields.io/bundlephobia/minzip/@egjs/vue-view360.svg?style=flat-square&label=%F0%9F%92%BE%20gzipped&color=007acc">
+  <a href="https://www.npmjs.com/package/@egjs/ngx-view360" target="_blank">
+    <img alt="npm bundle size (scoped)" src="https://img.shields.io/bundlephobia/minzip/@egjs/ngx-view360.svg?style=flat-square&label=%F0%9F%92%BE%20gzipped&color=007acc">
   </a>
   <a href="https://github.com/naver/egjs-view360/graphs/commit-activity">
     <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/m/naver/egjs-view360.svg?style=flat-square&label=%E2%AC%86%20commits&color=08CE5D">
   </a>
-  <a href="https://www.npmjs.com/package/@egjs/vue-view360" target="_blank">
-    <img src="https://img.shields.io/npm/dm/@egjs/vue-view360.svg?style=flat-square&label=%E2%AC%87%20downloads&color=08CE5D" alt="npm downloads per month">
+  <a href="https://www.npmjs.com/package/@egjs/ngx-view360" target="_blank">
+    <img src="https://img.shields.io/npm/dm/@egjs/ngx-view360.svg?style=flat-square&label=%E2%AC%87%20downloads&color=08CE5D" alt="npm downloads per month">
   </a>
   <a href="https://github.com/naver/egjs-view360/graphs/contributors" target="_blank">
     <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/naver/egjs-view360.svg?label=%F0%9F%91%A5%20contributors&style=flat-square&color=08CE5D"></a>
@@ -23,64 +23,65 @@
 </p>
 
 <p align=center>
-  Vue wrapper of <a href="https://github.com/naver/egjs-view360">@egjs/view360</a>
+  Angular wrapper of <a href="https://github.com/naver/egjs-view360">@egjs/view360</a>
 </p>
 
 <p align=center>
   <a href="https://naver.github.io/egjs-view360/">Demo</a> / <a href="https://naver.github.io/egjs-view360/release/latest/doc/">Documentation</a> / <a href="https://naver.github.io/egjs/">Other components</a>
 </p>
 
-<p align=center>
-  ⚠️ If you're looking for View360 for Vue 3, check out <a href="https://github.com/naver/egjs-view360/blob/master/packages/vue3-view360/README.md">@egjs/vue3-view360</a>
-</p>
-
 ## ⚙️ Installation
 ```sh
-npm install --save @egjs/vue-view360
+npm install --save @egjs/ngx-view360
 ```
-
-## ❗ Changes from [@egjs/view360](https://github.com/naver/egjs-view360)
-- All `camelCased` event names became **`kebab-case`**
-  - e.g., `viewChange` => **`view-change`**
 
 ## 🏃 Quick Start
-### Global registration
-```js
-import View360 from "@egjs/vue-view360";
-
-Vue.use(View360);
+### Module definition
+```diff
++import { NgxPanoViewerModule, NgxSpinViewerModule } from '@egjs/ngx-view360';
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+ 
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
++   /* Add in imports */
++   NgxPanoViewerModule 
++   NgxSpinViewerModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { } /* Your app */
 ```
 
-### Local registration
-```js
-import { PanoViewer, SpinViewer } from "@egjs/vue-view360";
-
-export default {
-  components: {
-    PanoViewer,
-  }
-}
-```
-
-### Usage
-```vue
-<template>
+### Template & Script
+```ts
+@Component({
+  selector: 'view360-demo',
+  template: `
   <div>
-    <PanoViewer
-      :tag="'div'"
-      :image="PATH_TO_YOUR_PANORAMA_IMAGE"
-      @view-change="e => {
-        // DO_SOMETHING
-      }"
+    <ngx-pano-viewer
+      [image]="PATH_TO_YOUR_PANORAMA_IMAGE"
+      [useZoom]="false"
+      (viewChange)="onViewChange($event)"
     />
-    <SpinViewer
-      :tag="'div'"
-      :imageUrl="PATH_TO_YOUR_PANORAMA_IMAGE"
-      :rowCount="42"
-      :scale="1"
+    <ngx-spin-viewer
+      [imageUrl]="PATH_TO_YOUR_SPRITE_IMAGE"
+      [rowCount]="42"
+      [scale]="1"
     />
   </div>
-</template>
+  `
+})
+export class View360Demo {
+  onViewChange(e) {
+    // DO_SOMETHING
+  }
+}
 ```
 
 ## 🙌 Contributing

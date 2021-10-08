@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { ComponentEvent } from "@egjs/component";
-import { SpinViewer } from "src";
 
 import PanoViewer from "../PanoViewer/PanoViewer";
+import SpinViewer from "../SpinViewer/SpinViewer";
 
 /**
  * Events that is fired when PanoViewer is ready to go.
