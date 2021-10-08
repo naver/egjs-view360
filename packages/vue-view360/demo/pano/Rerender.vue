@@ -11,6 +11,7 @@
       :useZoom="false"
       :projectionType="'cubemap'"
       :cubemapConfig="{ tileConfig: { flipHorizontal: true, rotation: 0 } }"
+      :canvasClass="'some-other-canvas'"
       />
   </div>
 </template>

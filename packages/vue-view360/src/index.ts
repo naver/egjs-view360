@@ -17,7 +17,7 @@ const plugin = {
   version
 };
 
-export * from "~/index";
+export * from "@egjs/view360";
 
 export default plugin;
 export {

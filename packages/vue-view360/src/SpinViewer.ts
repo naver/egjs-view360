@@ -4,8 +4,10 @@ import {
   SpinViewer as VanillaSpinViewer,
   SPINVIEWER_EVENTS,
   SPINVIEWER_OPTIONS,
-  withSpinViewerMethods
-} from "~/index";
+  withSpinViewerMethods,
+  DEFAULT_WRAPPER_CLASS,
+  DEFAULT_IMAGE_CLASS
+} from "@egjs/view360";
 
 import { getProps } from "./utils";
 import { SpinViewerProps } from "./types";
@@ -55,6 +57,14 @@ export default Vue.extend<{
     }
   },
   render(h: CreateElement) {
-    return h(this.tag, { ref: "container" }, this.$slots.default);
+    const wrapperClass = this.wrapperClass ?? DEFAULT_WRAPPER_CLASS;
+    const imageClass = this.imageClass ?? DEFAULT_IMAGE_CLASS;
+
+    return h(this.tag, { ref: "container" }, [
+      h("div", { staticClass: wrapperClass }, [
+        h("img", { staticClass: imageClass })
+      ]),
+      this.$slots.default
+    ]);
   }
 });

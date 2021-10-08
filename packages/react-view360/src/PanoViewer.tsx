@@ -9,7 +9,8 @@ import {
   withPanoViewerMethods,
   PANOVIEWER_EVENTS,
   PANOVIEWER_OPTIONS,
-  updatePanoViewer
+  updatePanoViewer,
+  DEFAULT_CANVAS_CLASS
 } from "@egjs/view360";
 
 import { PANOVIEWER_DEFAULT_PROPS } from "./consts";
@@ -53,6 +54,7 @@ class PanoViewer extends React.PureComponent<Partial<PanoViewerProps & PanoViewe
   public render() {
     const props = this.props;
     const Container = props.tag as any;
+    const canvasClass = props.canvasClass ?? DEFAULT_CANVAS_CLASS;
     const attributes: { [key: string]: any } = {};
 
     for (const name in props) {
@@ -64,6 +66,7 @@ class PanoViewer extends React.PureComponent<Partial<PanoViewerProps & PanoViewe
     return <Container {...attributes} ref={(e?: HTMLElement) => {
       e && (this._containerEl = e);
     }}>
+      <canvas className={canvasClass} />
       { this.props.children }
     </Container>;
   }

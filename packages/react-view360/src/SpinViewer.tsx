@@ -2,12 +2,15 @@
  * Copyright (c) 2017 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
+/* eslint-disable jsx-a11y/alt-text */
 import * as React from "react";
 import {
   SpinViewer as VanillaSpinViewer,
   SpinViewerOptions,
   SPINVIEWER_EVENTS,
   SPINVIEWER_OPTIONS,
+  DEFAULT_IMAGE_CLASS,
+  DEFAULT_WRAPPER_CLASS,
   withSpinViewerMethods
 } from "@egjs/view360";
 
@@ -48,6 +51,8 @@ class SpinViewer extends React.PureComponent<Partial<SpinViewerProps & SpinViewe
   public render() {
     const props = this.props;
     const Container = props.tag as any;
+    const wrapperClass = props.wrapperClass ?? DEFAULT_WRAPPER_CLASS;
+    const imageClass = props.imageClass ?? DEFAULT_IMAGE_CLASS;
     const attributes: { [key: string]: any } = {};
 
     for (const name in props) {
@@ -59,6 +64,9 @@ class SpinViewer extends React.PureComponent<Partial<SpinViewerProps & SpinViewe
     return <Container {...attributes} ref={(e?: HTMLElement) => {
       e && (this._containerEl = e);
     }}>
+      <div className={wrapperClass}>
+        <img className={imageClass} />
+      </div>
       { this.props.children }
     </Container>;
   }

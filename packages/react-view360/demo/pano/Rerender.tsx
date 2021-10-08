@@ -33,6 +33,7 @@ export default class Rerender extends React.Component<{}, { image: number }> {
         useZoom={false}
         projectionType={PROJECTION_TYPE.CUBEMAP}
         cubemapConfig={{ tileConfig: { flipHorizontal: true, rotation: 0 } }}
+        canvasClass="some-other-class"
       />
     </div>
   }

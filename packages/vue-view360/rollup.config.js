@@ -3,8 +3,7 @@ const VuePlugin = require("rollup-plugin-vue");
 
 const defaultOptions = {
   sourcemap: true,
-  plugins: [VuePlugin()],
-  external: {}
+  plugins: [VuePlugin()]
 };
 export default buildHelper([
   {

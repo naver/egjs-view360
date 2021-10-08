@@ -1,6 +1,7 @@
 <template>
   <div>
     <button @click="rerender">Force Rerender</button>
+    <button @click="addChild">Increase Children</button>
     <pano-viewer
       id="viewer"
       ref="pano"
@@ -11,6 +12,7 @@
       <div class="overlay" @click="play" :class="{ hidden: !overlay }">
         Click to play
       </div>
+      <div v-for="child in children" :key="child">{{ child }}</div>
     </pano-viewer>
   </div>
 </template>
@@ -20,7 +22,8 @@ import Vue from "vue";
 export default Vue.extend({
   data() {
     return {
-      overlay: true
+      overlay: true,
+      children: [0, 1, 2]
     }
   },
   methods: {
@@ -36,6 +39,10 @@ export default Vue.extend({
     updateVideo() {
       const video = this.$refs.pano.getVideo();
       video.loop = true;
+    },
+    addChild() {
+      const last = this.children[this.children.length - 1];
+      this.children = [...this.children, last + 1, last + 2];
     }
   }
 })

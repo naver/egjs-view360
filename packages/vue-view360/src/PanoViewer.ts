@@ -5,8 +5,9 @@ import {
   PANOVIEWER_OPTIONS,
   PANOVIEWER_EVENTS,
   withPanoViewerMethods,
-  updatePanoViewer
-} from "~/index";
+  updatePanoViewer,
+  DEFAULT_CANVAS_CLASS
+} from "@egjs/view360";
 
 import { getProps } from "./utils";
 import { PanoViewerProps } from "./types";
@@ -81,6 +82,13 @@ export default Vue.extend<{
     }
   },
   render(h: CreateElement) {
-    return h(this.tag, { ref: "container" }, this.$slots.default);
+    const canvasClass = this.canvasClass ?? DEFAULT_CANVAS_CLASS;
+
+    return h(this.tag, { ref: "container" },
+      [
+        h("canvas", { staticClass: canvasClass }),
+        this.$slots.default
+      ]
+    );
   }
 });
