@@ -120,6 +120,7 @@ class PanoImageRenderer extends Component<{
   private _isCubeMap: boolean;
   private _shouldForceDraw: boolean;
   private _keepUpdate: boolean;
+  private _hasExternalCanvas: boolean;
 
   private _yawPitchControl: YawPitchControl;
   private _animator: WebGLAnimator;
@@ -130,6 +131,8 @@ class PanoImageRenderer extends Component<{
     width: number,
     height: number,
     isVideo: boolean,
+    container: HTMLElement,
+    canvasClass: string,
     sphericalConfig: PanoImageRenderer["sphericalConfig"],
     renderingContextAttributes?: WebGLContextAttributes
   ) {
@@ -157,7 +160,7 @@ class PanoImageRenderer extends Component<{
     this.vertexBuffer = null;
     this.indexBuffer = null;
 
-    this.canvas = this._initCanvas(width, height);
+    this.canvas = this._initCanvas(container, canvasClass, width, height);
 
     this._setDefaultCanvasStyle();
     this._wrapper = null; // canvas wrapper
@@ -279,8 +282,10 @@ class PanoImageRenderer extends Component<{
 
   // 부모 엘리먼트에 canvas 를 붙임
   public attachTo(parentElement) {
-    this.detach();
-    parentElement.appendChild(this.canvas);
+    if (!this._hasExternalCanvas) {
+      this.detach();
+      parentElement.appendChild(this.canvas);
+    }
     this._wrapper = parentElement;
   }
 
@@ -296,7 +301,7 @@ class PanoImageRenderer extends Component<{
 
   // 부모 엘리먼트에서 canvas 를 제거
   public detach() {
-    if (this.canvas.parentElement) {
+    if (!this._hasExternalCanvas && this.canvas.parentElement) {
       this.canvas.parentElement.removeChild(this.canvas);
     }
   }
@@ -525,8 +530,11 @@ class PanoImageRenderer extends Component<{
     this._initWebGL();
   }
 
-  private _initCanvas(width: number, height: number) {
-    const canvas = document.createElement("canvas");
+  private _initCanvas(container: HTMLElement, canvasClass: string, width: number, height: number) {
+    const canvasInContainer = container.querySelector<HTMLCanvasElement>(`.${canvasClass}`);
+    const canvas = canvasInContainer || this._createCanvas(canvasClass);
+
+    this._hasExternalCanvas = !!canvasInContainer;
 
     canvas.width = width;
     canvas.height = height;
@@ -536,6 +544,14 @@ class PanoImageRenderer extends Component<{
 
     canvas.addEventListener("webglcontextlost", this._onWebglcontextlost);
     canvas.addEventListener("webglcontextrestored", this._onWebglcontextrestored);
+
+    return canvas;
+  }
+
+  private _createCanvas(className: string) {
+    const canvas = document.createElement("canvas");
+
+    canvas.className = className;
 
     return canvas;
   }

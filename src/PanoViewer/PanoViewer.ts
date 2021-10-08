@@ -11,7 +11,7 @@ import { VERSION } from "../version";
 import { CubemapConfig, ValueOf } from "../types/internal";
 import { AnimationEndEvent, ReadyEvent, ViewChangeEvent, ErrorEvent } from "../types/event";
 
-import { ERROR_TYPE, PANOVIEWER_EVENTS as EVENTS, GYRO_MODE, PROJECTION_TYPE, STEREO_FORMAT } from "./consts";
+import { ERROR_TYPE, PANOVIEWER_EVENTS as EVENTS, GYRO_MODE, PROJECTION_TYPE, STEREO_FORMAT, DEFAULT_CANVAS_CLASS } from "./consts";
 
 export interface PanoViewerOptions {
   image: string | HTMLElement;
@@ -32,6 +32,7 @@ export interface PanoViewerOptions {
   pitchRange: number[];
   fovRange: number[];
   touchDirection: ValueOf<typeof PanoViewer.TOUCH_DIRECTION>;
+  canvasClass: string;
 }
 
 export interface PanoViewerEvent {
@@ -200,6 +201,7 @@ class PanoViewer extends Component<PanoViewerEvent> {
   private _quaternion: quat | null;
   private _aspectRatio: number;
   private _isReady: boolean;
+  private _canvasClass: string;
 
   // Internal Values
   private _photoSphereRenderer: PanoImageRenderer | null;
@@ -233,6 +235,7 @@ class PanoViewer extends Component<PanoViewerEvent> {
    * @param {Array} [options.pitchRange=[-90, 90]] Range of controllable Pitch values <ko>제어 가능한 Pitch 값의 범위</ko>
    * @param {Array} [options.fovRange=[30, 110]] Range of controllable vertical field of view values <ko>제어 가능한 수직 field of view 값의 범위</ko>
    * @param {Number} [options.touchDirection= {@link eg.view360.PanoViewer.TOUCH_DIRECTION.ALL}(6)] Direction of touch that can be controlled by user <br/>{@link eg.view360.PanoViewer.TOUCH_DIRECTION}<ko>사용자가 터치로 조작 가능한 방향 <br/>{@link eg.view360.PanoViewer.TOUCH_DIRECTION}</ko>
+   * @param {String} [options.canvasClass="view360-canvas"] A class name for the canvas element inside the container element. PanoViewer will use the canvas that has this class instead of creating one if it exists<ko>콘테이너 엘리먼트 내부의 캔버스 엘리먼트의 클래스 이름. PanoViewer는 해당 클래스를 갖는 캔버스 엘리먼트가 콘테이너 엘리먼트 내부에 존재할 경우, 새로 생성하는 대신 그 엘리먼트를 사용할 것입니다</ko>
    *
    * @example
    * ```
@@ -332,6 +335,9 @@ class PanoViewer extends Component<PanoViewerEvent> {
     this._quaternion = null;
 
     this._aspectRatio = this._height !== 0 ? this._width / this._height : 1;
+
+    this._canvasClass = options.canvasClass || DEFAULT_CANVAS_CLASS;
+
     const fovRange = options.fovRange || [30, 110];
     const touchDirection = PanoViewer._isValidTouchDirection(options.touchDirection) ?
       options.touchDirection : YawPitchControl.TOUCH_DIRECTION_ALL;
@@ -864,6 +870,8 @@ class PanoViewer extends Component<PanoViewerEvent> {
       this._width,
       this._height,
       this._isVideo,
+      this._container,
+      this._canvasClass,
       {
         initialYaw: yaw,
         initialPitch: pitch,

@@ -3,6 +3,9 @@ import Component, { ComponentEvent } from "@egjs/component";
 import { TRANSFORM, SUPPORT_WILLCHANGE } from "../utils/browserFeature";
 import { VERSION } from "../version";
 
+import { SpinViewerOptions } from "./SpinViewer";
+import { DEFAULT_IMAGE_CLASS, DEFAULT_WRAPPER_CLASS } from "./consts";
+
 export interface SpriteImageEvent {
   /**
    * Events that occur when component loading is complete
@@ -53,8 +56,8 @@ export interface SpriteImageEvent {
  * SpriteImage
  */
 class SpriteImage extends Component<SpriteImageEvent> {
-  private static _createBgDiv(img: HTMLImageElement, rowCount: number, colCount: number, autoHeight: boolean) {
-    const el = document.createElement("div");
+  private static _createBgDiv(wrapperInContainer: HTMLDivElement | null, img: HTMLImageElement, rowCount: number, colCount: number, autoHeight: boolean) {
+    const el = wrapperInContainer || document.createElement("div");
 
     el.style.position = "relative";
     el.style.overflow = "hidden";
@@ -62,6 +65,7 @@ class SpriteImage extends Component<SpriteImageEvent> {
     img.style.position = "absolute";
     img.style.width = `${colCount * 100}%`;
     img.style.height = `${rowCount * 100}%`;
+
     /** Prevent image from being dragged on IE10, IE11, Safari especially */
     img.ondragstart = () => (false); // img.style.pointerEvents = "none";
     // Use hardware accelerator if available
@@ -71,8 +75,8 @@ class SpriteImage extends Component<SpriteImageEvent> {
 
     el.appendChild(img);
 
-    const unitWidth = img.width / colCount;
-    const unitHeight = img.height / rowCount;
+    const unitWidth = img.naturalWidth / colCount;
+    const unitHeight = img.naturalHeight / rowCount;
 
     if (autoHeight) {
       const r = unitHeight / unitWidth;
@@ -137,17 +141,7 @@ class SpriteImage extends Component<SpriteImageEvent> {
    * 	rowCount: 24
    * });
    */
-  public constructor(element: HTMLElement, options: Partial<{
-    imageUrl: string;
-    rowCount: number;
-    colCount: number;
-    width: number | string;
-    height: number | string;
-    autoHeight: boolean;
-    colRow: number[];
-    frameIndex: number;
-    scale: number;
-  }> = {}) {
+  public constructor(element: HTMLElement, options: Partial<SpinViewerOptions> = {}) {
     super();
     const opt = options || {};
 
@@ -169,6 +163,9 @@ class SpriteImage extends Component<SpriteImageEvent> {
     this._el.style.width = SpriteImage._getSizeString(this._width);
     this._el.style.height = SpriteImage._getSizeString(this._height);
 
+    const wrapperClass = opt.wrapperClass || DEFAULT_WRAPPER_CLASS;
+    const imageClass = opt.imageClass || DEFAULT_IMAGE_CLASS;
+
     if (!opt.imageUrl) {
       setTimeout(() => {
         this.trigger(new ComponentEvent("imageError", {
@@ -178,13 +175,33 @@ class SpriteImage extends Component<SpriteImageEvent> {
       return;
     }
 
-    this._image = new Image();
+    const imageInContainer = element.querySelector<HTMLImageElement>(`.${imageClass}`);
+    const wrapperInContainer = element.querySelector<HTMLDivElement>(`.${wrapperClass}`);
+
+    if (wrapperInContainer && imageInContainer) {
+      // Set it to invisible to prevent wrapper being resized
+      imageInContainer.style.display = "none";
+    }
+
+    this._image = imageInContainer || new Image();
     /**
      * Event
      */
-    this._image.onload = () => {
+
+    const image = this._image;
+
+    image.onload = () => {
+      if (wrapperInContainer && imageInContainer) {
+        imageInContainer.style.display = "";
+      }
+
       this._bg = SpriteImage._createBgDiv(
-        this._image, this._rowCount, this._colCount, this._autoHeight);
+        wrapperInContainer,
+        image,
+        this._rowCount,
+        this._colCount,
+        this._autoHeight
+      );
       this._el.appendChild(this._bg);
       this.setColRow(this._colRow[0], this._colRow[1]);
 
@@ -199,13 +216,13 @@ class SpriteImage extends Component<SpriteImageEvent> {
       }
     };
 
-    this._image.onerror = () => {
+    image.onerror = () => {
       this.trigger(new ComponentEvent("imageError", {
         imageUrl: opt.imageUrl
       }));
     };
 
-    this._image.src = opt.imageUrl;
+    image.src = opt.imageUrl;
   }
 
   /**

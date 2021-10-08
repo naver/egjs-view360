@@ -296,8 +296,11 @@ const PANOVIEWER_OPTIONS: { [key in keyof PanoViewerOptions]: true } = {
   yawRange: true,
   pitchRange: true,
   fovRange: true,
-  touchDirection: true
+  touchDirection: true,
+  canvasClass: true
 };
+
+const DEFAULT_CANVAS_CLASS = "view360-canvas";
 
 export {
   GYRO_MODE,
@@ -305,5 +308,6 @@ export {
   ERROR_TYPE,
   PROJECTION_TYPE,
   STEREO_FORMAT,
-  PANOVIEWER_OPTIONS
+  PANOVIEWER_OPTIONS,
+  DEFAULT_CANVAS_CLASS
 };
