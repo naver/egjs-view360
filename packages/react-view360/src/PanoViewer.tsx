@@ -16,14 +16,23 @@ import {
 import { PANOVIEWER_DEFAULT_PROPS } from "./consts";
 import { PanoViewerProps } from "./types";
 
-class PanoViewer extends React.PureComponent<Partial<PanoViewerProps & PanoViewerOptions>> {
+type PanoViewerPropsAndOptions = Partial<PanoViewerProps & PanoViewerOptions>;
+
+class PanoViewer extends React.PureComponent<PanoViewerPropsAndOptions> {
   public static defaultProps: PanoViewerProps = PANOVIEWER_DEFAULT_PROPS;
 
   @withPanoViewerMethods private _vanillaPanoViewer: VanillaPanoViewer;
   private _containerEl: HTMLElement;
   private _prevProps: Partial<PanoViewerProps & PanoViewerOptions>;
+  private _canvasKey: number;
 
   public get element() { return this._containerEl; }
+
+  public constructor(props: PanoViewerPropsAndOptions) {
+    super(props);
+
+    this._canvasKey = -1;
+  }
 
   public componentDidMount() {
     const props = { ...this.props };
@@ -39,6 +48,16 @@ class PanoViewer extends React.PureComponent<Partial<PanoViewerProps & PanoViewe
 
   public componentWillUnmount() {
     this._vanillaPanoViewer.destroy();
+  }
+
+  public componentWillUpdate(nextProps: PanoViewerPropsAndOptions) {
+    const props = this.props;
+
+    if ((nextProps.image != null && nextProps.image !== props.image)
+      || (nextProps.video != null && nextProps.video !== props.video)) {
+      // Re-generate canvas
+      this._canvasKey = this._generateCanvasKey();
+    }
   }
 
   public componentDidUpdate() {
@@ -66,7 +85,7 @@ class PanoViewer extends React.PureComponent<Partial<PanoViewerProps & PanoViewe
     return <Container {...attributes} ref={(e?: HTMLElement) => {
       e && (this._containerEl = e);
     }}>
-      <canvas className={canvasClass} />
+      <canvas className={canvasClass} key={this._canvasKey} />
       { this.props.children }
     </Container>;
   }
@@ -85,6 +104,19 @@ class PanoViewer extends React.PureComponent<Partial<PanoViewerProps & PanoViewe
         props[propName](e);
       });
     });
+  }
+
+  private _generateCanvasKey() {
+    let newKey: number;
+    const oldKey = this._canvasKey;
+
+    do {
+      const array = new Uint32Array(1);
+      crypto.getRandomValues(array);
+      newKey = array[0];
+    } while (newKey === oldKey);
+
+    return newKey;
   }
 }
 

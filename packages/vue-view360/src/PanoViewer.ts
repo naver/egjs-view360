@@ -9,7 +9,7 @@ import {
   DEFAULT_CANVAS_CLASS
 } from "@egjs/view360";
 
-import { getProps } from "./utils";
+import { generateCanvasKey, getProps } from "./utils";
 import { PanoViewerProps } from "./types";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -21,6 +21,7 @@ const PropDefintion = Object.keys(PANOVIEWER_OPTIONS).reduce((props, optionName)
 export default Vue.extend<{
   _prevProps: PanoViewerProps;
   _vanillaPanoViewer: VanillaPanoViewer;
+  _canvasKey: number;
 }, {}, {}, PanoViewerProps>({
   props: {
     ...PropDefintion,
@@ -29,6 +30,9 @@ export default Vue.extend<{
       required: false,
       default: "div"
     }
+  },
+  created() {
+    this._canvasKey = -1;
   },
   mounted() {
     const props = getProps(this) as PanoViewerProps;
@@ -64,18 +68,33 @@ export default Vue.extend<{
 
     panoViewer?.destroy();
   },
+  updated() {
+    this.$emit("updated");
+  },
   watch: {
     $props: {
       handler() {
         const panoViewer = this._vanillaPanoViewer;
         if (!panoViewer) return;
 
-        const props = getProps(this) as PanoViewerProps;
+        const nextProps = getProps(this) as PanoViewerProps;
         const prevProps = this._prevProps;
 
-        updatePanoViewer(panoViewer, props, prevProps);
+        if ((nextProps.image != null && nextProps.image !== prevProps.image)
+          || (nextProps.video != null && nextProps.video !== prevProps.video)) {
+          this._canvasKey = generateCanvasKey(this._canvasKey);
+          this.$forceUpdate();
 
-        this._prevProps = props;
+          // Update after render
+          this.$once("updated", () => {
+            updatePanoViewer(panoViewer, nextProps, prevProps);
+          });
+        } else {
+          // Update immediately
+          updatePanoViewer(panoViewer, nextProps, prevProps);
+        }
+
+        this._prevProps = nextProps;
       },
       deep: true,
       immediate: true
@@ -86,7 +105,7 @@ export default Vue.extend<{
 
     return h(this.tag, { ref: "container" },
       [
-        h("canvas", { staticClass: canvasClass }),
+        h("canvas", { staticClass: canvasClass, key: this._canvasKey }),
         this.$slots.default
       ]
     );

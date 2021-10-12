@@ -79,7 +79,7 @@ export default class WebGLUtils {
     const contextAttributes = {
       ...{
         preserveDrawingBuffer: false,
-        antialias: false,
+        antialias: false
       }, ...userContextAttributes
     };
 
