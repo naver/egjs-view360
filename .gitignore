@@ -161,7 +161,8 @@ fabric.properties
 _site/
 .sass-cache/
 .jekyll-metadata
-
+cert.crt
+cert.key
 
 ### SublimeText ###
 # cache files for sublime text
