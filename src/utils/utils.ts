@@ -1,39 +1,41 @@
-import { ImageCandidate, VideoCandidate } from "../types";
+import { ImageCandidate, VideoCandidate } from "../types/internal";
+import { Merged } from "../types/internal";
 
-export function merge(target, ...srcs) {
-	srcs.forEach(source => {
+// eslint-disable-next-line @typescript-eslint/ban-types
+export const merge = <From extends object, To extends object>(target: From, ...srcs: To[]): Merged<From, To> => {
+  srcs.forEach(source => {
 	  Object.keys(source).forEach(key => {
-		const value = source[key];
-		if (Array.isArray(target[key]) && Array.isArray(value)) {
-			target[key] = [...target[key], ...value];
-		} else {
-			target[key] = value;
-		}
+      const value = source[key];
+      if (Array.isArray(target[key]) && Array.isArray(value)) {
+        target[key] = [...target[key], ...value];
+      } else {
+        target[key] = value;
+      }
 	  });
-	});
+  });
 
-	return target;
-}
+  return target as Merged<From, To>;
+};
 
-export function toImageElement(image: ImageCandidate): HTMLImageElement | HTMLImageElement[] {
+export const toImageElement = (image: ImageCandidate): HTMLImageElement | HTMLImageElement[] => {
   const images = image instanceof Array ? image : [image];
   const parsedImages = images.map(img => {
-    let _img = img;
+    let imgEl = img;
 
     if (typeof img === "string") {
-      _img = new Image();
-      _img.crossOrigin = "anonymous";
-      _img.src = img;
+      imgEl = new Image();
+      imgEl.crossOrigin = "anonymous";
+      imgEl.src = img;
     }
-    return _img as HTMLImageElement;
+    return imgEl as HTMLImageElement;
   });
 
   return parsedImages.length === 1
     ? parsedImages[0]
     : parsedImages;
-}
+};
 
-export function toVideoElement(videoCandidate: VideoCandidate): HTMLVideoElement {
+export const toVideoElement = (videoCandidate: VideoCandidate): HTMLVideoElement => {
   if (videoCandidate instanceof HTMLVideoElement) {
     return videoCandidate;
   } else {
@@ -58,13 +60,13 @@ export function toVideoElement(videoCandidate: VideoCandidate): HTMLVideoElement
 
     return video;
   }
-}
+};
 
 /**
  *
  * @param {Object | String} videoUrl Object or String containing Video Source URL<ko>비디오 URL 정보를 담고 있는 문자열이나 객체 {type, src}</ko>
  */
-function appendSourceElement(video: HTMLVideoElement, videoUrl: string | { src: string; type: string }) {
+export const appendSourceElement = (video: HTMLVideoElement, videoUrl: string | { src: string; type: string }) => {
   let videoSrc: string | undefined;
   let videoType: string | undefined;
 
@@ -87,4 +89,4 @@ function appendSourceElement(video: HTMLVideoElement, videoUrl: string | { src: 
   }
 
   video.appendChild(sourceElement);
-}
+};

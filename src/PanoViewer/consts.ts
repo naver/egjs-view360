@@ -32,6 +32,7 @@
  * @type {String}
  * @default "VR"
  */
+import { PanoViewerOptions } from "../PanoViewer/PanoViewer";
 import { GYRO_MODE } from "../YawPitchControl/consts";
 
 /**
@@ -101,7 +102,7 @@ const ERROR_TYPE = {
    * @type {Number}
    * @default 15
    */
-  RENDERING_CONTEXT_LOST: 15,
+  RENDERING_CONTEXT_LOST: 15
 };
 
 /**
@@ -111,7 +112,7 @@ const ERROR_TYPE = {
  * @name EVENTS
  * @memberof eg.view360.PanoViewer
  */
-const EVENTS: {
+const PANOVIEWER_EVENTS: {
   READY: "ready";
   VIEW_CHANGE: "viewChange";
   ANIMATION_END: "animationEnd";
@@ -196,7 +197,6 @@ const PROJECTION_TYPE: {
   /**
    * Constant value for cubestrip type.
    * Cubestrip is a format for a single image with a combination of six cube faces. It is almost identical to cubemap, but it is implemented in a different way. It aims at better performance and efficiency. In addition, it automatically detects and supports EAC.
-   *
    * @ko cubemap 에 대한 상수 값.Cubestrip 은 cube 면이 6개가 조합된 조합을 한장의 이미지를 위한 포맷이다. cubemap 과 사용방법이 거의 동일하지만 다른 방식으로 구현되었다. 보다 좋은 성능과 효율성을 목적으로 한다. 더불어 자동으로 EAC 를 감지하고 지원한다.
    * @name CUBESTRIP
    * @memberof eg.view360.PanoViewer.PROJECTION_TYPE
@@ -209,7 +209,6 @@ const PROJECTION_TYPE: {
    * Constant value for PANORAMA type.
    *
    * PANORAMA is a format for a panorma image which is taken from smartphone.
-   *
    * @ko PANORAMA 에 대한 상수값. 파노라마는 스마트 폰에서 가져온 파노라마 이미지의 형식입니다.
    *
    * @name PANORAMA
@@ -223,7 +222,6 @@ const PROJECTION_TYPE: {
    * Constant value for EQUI_STEREOSCOPY type.
    *
    * Constant value for EQUI_STEREOSCOPY. Stereoscopy image format of EQUIRECTANGULAR. It is an experimental function to show a stereoscopic type equirectangular image on a plane. It does not support stereoscopic viewing function through special visual equipment at present.
-   *
    * @ko EQUI_STEREOSCOPY 에 대한 상수값. EQUIRECTANGULAR 의 Stereoscopy 이미지 형식입니다. Stereoscopic 형태의 equirectangular 이미지를 평면에 보여주기 위한 실험적인 기능으로 현재는 특수한 시각 장비를 통한 입체적인 보기 기능은 지원하지 않습니다.
    *
    * @name STEREOSCOPIC_EQUI
@@ -232,7 +230,7 @@ const PROJECTION_TYPE: {
    * @type {String}
    * @default stereoequi
    */
-  STEREOSCOPIC_EQUI: "stereoequi",
+  STEREOSCOPIC_EQUI: "stereoequi"
 };
 
 /**
@@ -276,13 +274,40 @@ const STEREO_FORMAT: {
    * @type {String}
    * @default ""
    */
-  NONE: "",
+  NONE: ""
 };
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const PANOVIEWER_OPTIONS: { [key in keyof PanoViewerOptions]: true } = {
+  image: true,
+  video: true,
+  projectionType: true,
+  cubemapConfig: true,
+  stereoFormat: true,
+  width: true,
+  height: true,
+  yaw: true,
+  pitch: true,
+  fov: true,
+  showPolePoint: true,
+  useZoom: true,
+  useKeyboard: true,
+  gyroMode: true,
+  yawRange: true,
+  pitchRange: true,
+  fovRange: true,
+  touchDirection: true,
+  canvasClass: true
+};
+
+const DEFAULT_CANVAS_CLASS = "view360-canvas";
 
 export {
   GYRO_MODE,
-  EVENTS,
+  PANOVIEWER_EVENTS,
   ERROR_TYPE,
   PROJECTION_TYPE,
-  STEREO_FORMAT
+  STEREO_FORMAT,
+  PANOVIEWER_OPTIONS,
+  DEFAULT_CANVAS_CLASS
 };

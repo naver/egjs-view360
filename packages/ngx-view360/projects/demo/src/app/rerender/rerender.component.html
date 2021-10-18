@@ -1,0 +1,15 @@
+<div>
+  <h1>Rerender</h1>
+  <button (click)="changeImage()">Change Image</button>
+  <button (click)="forceUpdate()">Force Update</button>
+  <button (click)="fullscreen()">Fullscreen</button>
+  <ngx-pano-viewer
+    #pano
+    id="viewer"
+    [image]="imageUrl"
+    [useZoom]="false"
+    [projectionType]="'cubemap'"
+    [cubemapConfig]="{ tileConfig: { flipHorizontal: true, rotation: 0 } }"
+    [canvasClass]="'some-other-class'"
+  ></ngx-pano-viewer>
+</div>

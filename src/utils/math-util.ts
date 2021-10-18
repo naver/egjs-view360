@@ -32,24 +32,21 @@ THE SOFTWARE. */
 // for the purposes of this library.
 
 import { vec2, vec3, quat } from "gl-matrix";
-import { ValueOf } from "../types";
 
-function quatToVec3(quaternion: quat) {
+import { ValueOf } from "../types/internal";
+
+const quatToVec3 = (quaternion: quat) => {
   const baseV = vec3.fromValues(0, 0, 1);
 
   vec3.transformQuat(baseV, baseV, quaternion);
   return baseV;
-}
+};
 
-function toDegree(a: number) {
-  return a * 180 / Math.PI;
-}
+const toDegree = (a: number) => a * 180 / Math.PI;
 
 const util: any = {};
 
-util.isPowerOfTwo = (n: number) => {
-  return n && (n & (n - 1)) === 0;
-};
+util.isPowerOfTwo = (n: number) => n && (n & (n - 1)) === 0;
 
 util.extractPitchFromQuat = (quaternion: quat) => {
   const baseV = quatToVec3(quaternion);
@@ -59,37 +56,35 @@ util.extractPitchFromQuat = (quaternion: quat) => {
     Math.sqrt(Math.pow(baseV[0], 2) + Math.pow(baseV[2], 2)));
 };
 
-util.hypot = Math.hypot || ((x: number, y : number) => {
-  return Math.sqrt(x * x + y * y);
-});
+util.hypot = Math.hypot || ((x: number, y: number) => Math.sqrt(x * x + y * y));
 
 // implement reference
 // the general equation of a plane : http://www.gisdeveloper.co.kr/entry/평면의-공식
 // calculating angle between two vectors : http://darkpgmr.tistory.com/121
 const ROTATE_CONSTANT: {
-  PITCH_DELTA: 1,
-  YAW_DELTA_BY_ROLL: 2,
-  YAW_DELTA_BY_YAW: 3,
+  PITCH_DELTA: 1;
+  YAW_DELTA_BY_ROLL: 2;
+  YAW_DELTA_BY_YAW: 3;
 } = {
   PITCH_DELTA: 1,
   YAW_DELTA_BY_ROLL: 2,
-  YAW_DELTA_BY_YAW: 3,
+  YAW_DELTA_BY_YAW: 3
 };
 
 ROTATE_CONSTANT[ROTATE_CONSTANT.PITCH_DELTA] = {
   targetAxis: [0, 1, 0],
-  meshPoint: [0, 0, 1],
+  meshPoint: [0, 0, 1]
 };
 ROTATE_CONSTANT[ROTATE_CONSTANT.YAW_DELTA_BY_ROLL] = {
   targetAxis: [0, 1, 0],
-  meshPoint: [1, 0, 0],
+  meshPoint: [1, 0, 0]
 };
 ROTATE_CONSTANT[ROTATE_CONSTANT.YAW_DELTA_BY_YAW] = {
   targetAxis: [1, 0, 0],
-  meshPoint: [0, 0, 1],
+  meshPoint: [0, 0, 1]
 };
 
-function getRotationDelta(prevQ: quat, curQ: quat, rotateKind: ValueOf<typeof ROTATE_CONSTANT>) {
+const getRotationDelta = (prevQ: quat, curQ: quat, rotateKind: ValueOf<typeof ROTATE_CONSTANT>) => {
   const targetAxis = vec3.fromValues(
     ROTATE_CONSTANT[rotateKind].targetAxis[0],
     ROTATE_CONSTANT[rotateKind].targetAxis[1],
@@ -191,13 +186,13 @@ function getRotationDelta(prevQ: quat, curQ: quat, rotateKind: ValueOf<typeof RO
   const deltaRadian = theta * thetaDirection * rotateDirection;
 
   return toDegree(deltaRadian);
-}
+};
 
-function angleBetweenVec2(v1: vec2, v2: vec2) {
+const angleBetweenVec2 = (v1: vec2, v2: vec2) => {
   const det = v1[0] * v2[1] - v2[0] * v1[1];
   const theta = -Math.atan2(det, vec2.dot(v1, v2));
   return theta;
-}
+};
 
 util.yawOffsetBetween = (viewDir: number, targetDir: number) => {
   const viewDirXZ = vec2.fromValues(viewDir[0], viewDir[2]);
@@ -209,7 +204,7 @@ util.yawOffsetBetween = (viewDir: number, targetDir: number) => {
   const theta = -angleBetweenVec2(viewDirXZ, targetDirXZ);
 
   return theta;
-}
+};
 
 util.sign = (x: number) => Math.sign
   ? Math.sign(x)
@@ -221,5 +216,5 @@ util.angleBetweenVec2 = angleBetweenVec2;
 
 export {
   util,
-  ROTATE_CONSTANT,
+  ROTATE_CONSTANT
 };

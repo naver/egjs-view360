@@ -1,27 +1,30 @@
 import Component from "@egjs/component";
 import { quat } from "gl-matrix";
-import { toAxis } from "../utils";
-import FusionPoseSensor from "./FusionPoseSensor";
-import { util, ROTATE_CONSTANT } from "../../utils/math-util";
 import { IInputTypeObserver } from "@egjs/axes/declaration/inputType/InputType";
 
-function getDeltaYaw(prvQ, curQ) {
-  const yawDeltaByYaw = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.YAW_DELTA_BY_YAW);
+import { toAxis } from "../utils";
+import { util, ROTATE_CONSTANT } from "../../utils/math-util";
+
+import FusionPoseSensor from "./FusionPoseSensor";
+
+const getDeltaYaw = (prvQ: quat, curQ: quat): number => {
+  const yawDeltaByYaw = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.YAW_DELTA_BY_YAW) as number;
   const yawDeltaByRoll = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.YAW_DELTA_BY_ROLL) *
     Math.sin(util.extractPitchFromQuat(curQ));
 
   return yawDeltaByRoll + yawDeltaByYaw;
-}
+};
 
-function getDeltaPitch(prvQ, curQ) {
+const getDeltaPitch = (prvQ: quat, curQ: quat): number => {
   const pitchDelta = util.getRotationDelta(prvQ, curQ, ROTATE_CONSTANT.PITCH_DELTA);
 
   return pitchDelta;
-}
+};
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export default class TiltMotionInput extends Component<{}> {
   public element: HTMLElement;
-  public options: { scale: number; threshold: number; };
+  public options: { scale: number; threshold: number };
   public fusionPoseSensor: FusionPoseSensor | null;
   public axes: string[];
   public observer: IInputTypeObserver | null;
@@ -29,8 +32,7 @@ export default class TiltMotionInput extends Component<{}> {
   private _prevQuaternion: quat | null;
   private _quaternion: quat | null;
 
-
-  constructor(el: HTMLElement, options: Partial<{ scale: number; threshold: number; }> = {}) {
+  public constructor(el: HTMLElement, options: Partial<{ scale: number; threshold: number }> = {}) {
     super();
     this.element = el;
 
@@ -42,7 +44,7 @@ export default class TiltMotionInput extends Component<{}> {
     this.options = {
       ...{
         scale: 1,
-        threshold: 0,
+        threshold: 0
       }, ...options
     };
 
@@ -97,8 +99,8 @@ export default class TiltMotionInput extends Component<{}> {
     quat.copy(this._quaternion!, event.quaternion);
 
     this.observer!.change(this, event, toAxis(this.axes, [
-      getDeltaYaw(this._prevQuaternion, this._quaternion),
-      getDeltaPitch(this._prevQuaternion, this._quaternion)
+      getDeltaYaw(this._prevQuaternion, this._quaternion as quat),
+      getDeltaPitch(this._prevQuaternion, this._quaternion as quat)
     ]));
   }
 

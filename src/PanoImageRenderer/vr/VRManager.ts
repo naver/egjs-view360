@@ -7,7 +7,7 @@ const DEFAULT_RIGHT_BOUNDS = [0.5, 0, 0.5, 1];
 const EYES = {
   LEFT: "left",
   RIGHT: "right"
-};
+} as const;
 
 class VRManager {
   private _vrDisplay: VRDisplay | null;
@@ -16,7 +16,7 @@ class VRManager {
   private _leftBounds: number[];
   private _rightBounds: number[];
 
-  constructor() {
+  public constructor() {
     this._frameData = new window.VRFrameData();
     this._clear();
   }
@@ -29,11 +29,11 @@ class VRManager {
     this.removeEndCallback(this.destroy);
 
     if (vrDisplay && vrDisplay.isPresenting) {
-      vrDisplay.exitPresent();
+      void vrDisplay.exitPresent();
     }
 
     this._clear();
-  }
+  };
 
   public canRender() {
     return Boolean(this._vrDisplay);
@@ -66,12 +66,12 @@ class VRManager {
       {
         viewport: [0, 0, halfWidth, height],
         mvMatrix: leftMVMatrix,
-        pMatrix: frameData.leftProjectionMatrix,
+        pMatrix: frameData.leftProjectionMatrix
       },
       {
         viewport: [halfWidth, 0, halfWidth, height],
         mvMatrix: rightMVMatrix,
-        pMatrix: frameData.rightProjectionMatrix,
+        pMatrix: frameData.rightProjectionMatrix
       }
     ];
   }

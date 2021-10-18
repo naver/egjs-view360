@@ -2,7 +2,7 @@ class SensorSample {
   public sample;
   public timestampS;
 
-  constructor(sample?, timestampS?) {
+  public constructor(sample?, timestampS?) {
     this.set(sample, timestampS);
   }
 

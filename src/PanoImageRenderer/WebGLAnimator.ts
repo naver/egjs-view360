@@ -6,7 +6,7 @@ class WebGLAnimator {
   private _rafId: number;
   private _rafTimer: number;
 
-  constructor() {
+  public constructor() {
     this._callback = null;
     this._context = window;
     this._rafId = -1;
@@ -56,7 +56,7 @@ class WebGLAnimator {
   private _onLoop = (...args: any[]) => {
     this._callback!(...args);
     this._rafId = this._context.requestAnimationFrame(this._onLoop);
-  }
+  };
 
   /**
    * MacOS X Safari Bug Fix
@@ -86,7 +86,7 @@ class WebGLAnimator {
       /* Otherwise, Call setTimeout instead of requestAnimationFrame to gaurantee renering should be occurred */
       this._rafTimer = window.setTimeout(this._onLoop, 0);
     }
-  }
+  };
 }
 
 export default WebGLAnimator;

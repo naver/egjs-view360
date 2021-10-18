@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import Axes, { PanInput } from "@egjs/axes";
 import { IInputTypeObserver } from "@egjs/axes/declaration/inputType/InputType";
 import { PanInputOption } from "@egjs/axes/declaration/inputType/PanInput";
+
 import ScreenRotationAngle from "../ScreenRotationAngle";
 
 /**
@@ -12,7 +14,7 @@ import ScreenRotationAngle from "../ScreenRotationAngle";
  * Therefore, the angle that the user touches and moves does not match the angle at which the actual object should move.
  * @extends PanInput
  */
- // @ts-ignore
+// @ts-ignore
 export default class RotationPanInput extends PanInput {
   private _useRotation: boolean;
   private _screenRotationAngle: ScreenRotationAngle | null;
@@ -20,13 +22,12 @@ export default class RotationPanInput extends PanInput {
 
   /**
    * Constructor
-   *
    * @private
    * @param {HTMLElement} el target element
    * @param {Object} [options] The option object
    * @param {Boolean} [options.useRotation]  Whether to use rotation(or VR)
    */
-  constructor(el: HTMLElement, options: Partial<{ useRotation: boolean } & PanInputOption > = {}) {
+  public constructor(el: HTMLElement, options: Partial<{ useRotation: boolean } & PanInputOption> = {}) {
     super(el, options);
 
     this._useRotation = false;
@@ -72,6 +73,7 @@ export default class RotationPanInput extends PanInput {
     super.destroy();
   }
 
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   private getOffset(properties: number[], useDirection: boolean[]) {
     if (this._useRotation === false) {
       // @ts-ignore

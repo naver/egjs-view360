@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-implied-eval */
 /**
  * Copyright (c) 2015 NAVER Corp.
  * egjs projects are licensed under the MIT license
@@ -22,10 +23,10 @@ const IS_SAFARI_ON_DESKTOP = osName === "mac" && browserName === "safari";
 const IS_SAMSUNG_BROWSER = browserName === "samsung internet";
 
 export {
-	win as window,
-	doc as document,
+  win as window,
+  doc as document,
   nav as navigator,
-	IS_IOS,
-	IS_SAFARI_ON_DESKTOP,
-	IS_SAMSUNG_BROWSER
+  IS_IOS,
+  IS_SAFARI_ON_DESKTOP,
+  IS_SAMSUNG_BROWSER
 };

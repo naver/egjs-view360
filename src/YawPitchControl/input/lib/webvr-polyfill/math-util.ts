@@ -1,3 +1,4 @@
+/* eslint-disable */
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +25,7 @@ MathUtil.radToDeg = 180 / Math.PI;
 // for the purposes of this library.
 
 
-MathUtil.Vector2 = function ( x, y ) {
+MathUtil.Vector2 = function( x, y ) {
   this.x = x || 0;
   this.y = y || 0;
 };
@@ -32,29 +33,29 @@ MathUtil.Vector2 = function ( x, y ) {
 MathUtil.Vector2.prototype = {
   constructor: MathUtil.Vector2,
 
-  set: function ( x, y ) {
+  set: function( x, y ) {
     this.x = x;
     this.y = y;
 
     return this;
   },
 
-  copy: function ( v ) {
+  copy: function( v ) {
     this.x = v.x;
     this.y = v.y;
 
     return this;
   },
 
-  subVectors: function ( a, b ) {
+  subVectors: function( a, b ) {
     this.x = a.x - b.x;
     this.y = a.y - b.y;
 
     return this;
-  },
+  }
 };
 
-MathUtil.Vector3 = function ( x, y, z ) {
+MathUtil.Vector3 = function( x, y, z ) {
   this.x = x || 0;
   this.y = y || 0;
   this.z = z || 0;
@@ -63,7 +64,7 @@ MathUtil.Vector3 = function ( x, y, z ) {
 MathUtil.Vector3.prototype = {
   constructor: MathUtil.Vector3,
 
-  set: function ( x, y, z ) {
+  set: function( x, y, z ) {
     this.x = x;
     this.y = y;
     this.z = z;
@@ -71,7 +72,7 @@ MathUtil.Vector3.prototype = {
     return this;
   },
 
-  copy: function ( v ) {
+  copy: function( v ) {
     this.x = v.x;
     this.y = v.y;
     this.z = v.z;
@@ -79,11 +80,11 @@ MathUtil.Vector3.prototype = {
     return this;
   },
 
-  length: function () {
+  length: function() {
     return Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z );
   },
 
-  normalize: function () {
+  normalize: function() {
     const scalar = this.length();
 
     if ( scalar !== 0 ) {
@@ -99,13 +100,13 @@ MathUtil.Vector3.prototype = {
     return this;
   },
 
-  multiplyScalar: function ( scalar ) {
+  multiplyScalar: function( scalar ) {
     this.x *= scalar;
     this.y *= scalar;
     this.z *= scalar;
   },
 
-  applyQuaternion: function ( q ) {
+  applyQuaternion: function( q ) {
     const x = this.x;
     const y = this.y;
     const z = this.z;
@@ -129,11 +130,11 @@ MathUtil.Vector3.prototype = {
     return this;
   },
 
-  dot: function ( v ) {
+  dot: function( v ) {
     return this.x * v.x + this.y * v.y + this.z * v.z;
   },
 
-  crossVectors: function ( a, b ) {
+  crossVectors: function( a, b ) {
     const ax = a.x;
     const ay = a.y;
     const az = a.z;
@@ -146,10 +147,10 @@ MathUtil.Vector3.prototype = {
     this.z = ax * by - ay * bx;
 
     return this;
-  },
+  }
 };
 
-MathUtil.Quaternion = function ( x, y, z, w ) {
+MathUtil.Quaternion = function( x, y, z, w ) {
   this.x = x || 0;
   this.y = y || 0;
   this.z = z || 0;
@@ -159,7 +160,7 @@ MathUtil.Quaternion = function ( x, y, z, w ) {
 MathUtil.Quaternion.prototype = {
   constructor: MathUtil.Quaternion,
 
-  set: function ( x, y, z, w ) {
+  set: function( x, y, z, w ) {
     this.x = x;
     this.y = y;
     this.z = z;
@@ -168,7 +169,7 @@ MathUtil.Quaternion.prototype = {
     return this;
   },
 
-  copy: function ( quaternion ) {
+  copy: function( quaternion ) {
     this.x = quaternion.x;
     this.y = quaternion.y;
     this.z = quaternion.z;
@@ -209,7 +210,7 @@ MathUtil.Quaternion.prototype = {
     return this;
   },
 
-  setFromAxisAngle: function ( axis, angle ) {
+  setFromAxisAngle: function( axis, angle ) {
     // http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/index.htm
     // assumes axis is normalized
 
@@ -224,11 +225,11 @@ MathUtil.Quaternion.prototype = {
     return this;
   },
 
-  multiply: function ( q ) {
+  multiply: function( q ) {
     return this.multiplyQuaternions( this, q );
   },
 
-  multiplyQuaternions: function ( a, b ) {
+  multiplyQuaternions: function( a, b ) {
     // from http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/code/index.htm
 
     const qax = a.x;
@@ -248,7 +249,7 @@ MathUtil.Quaternion.prototype = {
     return this;
   },
 
-  inverse: function () {
+  inverse: function() {
     this.x *= -1;
     this.y *= -1;
     this.z *= -1;
@@ -258,7 +259,7 @@ MathUtil.Quaternion.prototype = {
     return this;
   },
 
-  normalize: function () {
+  normalize: function() {
     let l = Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w );
 
     if ( l === 0 ) {
@@ -278,7 +279,7 @@ MathUtil.Quaternion.prototype = {
     return this;
   },
 
-  slerp: function ( qb, t ) {
+  slerp: function( qb, t ) {
     if ( t === 0 ) return this;
     if ( t === 1 ) return this.copy( qb );
 
@@ -334,7 +335,7 @@ MathUtil.Quaternion.prototype = {
     return this;
   },
 
-  setFromUnitVectors: function () {
+  setFromUnitVectors: function() {
     // http://lolengine.net/blog/2014/02/24/quaternion-from-two-vectors-final
     // assumes direction vectors vFrom and vTo are normalized
 
@@ -342,7 +343,7 @@ MathUtil.Quaternion.prototype = {
     let r;
     const EPS = 0.000001;
 
-    return function ( vFrom, vTo ) {
+    return function( vFrom, vTo ) {
       if ( v1 === undefined ) v1 = new MathUtil.Vector3();
 
       r = vFrom.dot( vTo ) + 1;
@@ -367,8 +368,8 @@ MathUtil.Quaternion.prototype = {
       this.normalize();
 
       return this;
-    }
-  }(),
+    };
+  }()
 };
 
 export default MathUtil;

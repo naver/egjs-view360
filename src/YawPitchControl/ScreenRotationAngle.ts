@@ -1,4 +1,5 @@
 import { glMatrix } from "gl-matrix";
+
 import { window } from "../utils/browser";
 
 // Singleton
@@ -9,7 +10,7 @@ export default class ScreenRotationAngle {
   private _spinR: number;
   private _screenOrientationAngle: number;
 
-  constructor() {
+  public constructor() {
     refCount++;
 
     if (screenRotationAngleInst) {
@@ -64,13 +65,13 @@ export default class ScreenRotationAngle {
     this._spinR = Math.atan2(Math.cos(betaR) * Math.sin(gammaR), Math.sin(betaR));
   }
 
-  private _onOrientationChange(e: DeviceOrientationEvent) {
+  private _onOrientationChange() {
     if (window.screen && window.screen.orientation && window.screen.orientation.angle !== undefined) {
       this._screenOrientationAngle = screen.orientation.angle;
     } else if (window.orientation !== undefined) {
       /* iOS */
       this._screenOrientationAngle = window.orientation >= 0 ?
-        window.orientation : 360 + window.orientation;
+        window.orientation : 360 + (window.orientation as number);
     }
   }
 }

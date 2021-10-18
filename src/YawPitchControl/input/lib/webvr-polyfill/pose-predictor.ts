@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 /*
  * Copyright 2015 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +22,6 @@ import Util from "./util";
  * of the head. This makes rendering appear faster.
  *
  * Also see: http://msl.cs.uiuc.edu/~lavalle/papers/LavYerKatAnt14.pdf
- *
  * @param {Number} predictionTimeS time from head movement to the appearance of
  * the corresponding image.
  */
@@ -31,7 +32,7 @@ class PosePredictor {
   public deltaQ;
   public outQ;
 
-  constructor(predictionTimeS) {
+  public constructor(predictionTimeS) {
     this.predictionTimeS = predictionTimeS;
 
     // The quaternion corresponding to the previous state.
@@ -63,7 +64,7 @@ class PosePredictor {
     if (angularSpeed < MathUtil.degToRad * 20) {
       if (Util.isDebug()) {
         console.log("Moving slowly, at %s deg/s: no prediction",
-                    (MathUtil.radToDeg * angularSpeed).toFixed(1));
+          (MathUtil.radToDeg * angularSpeed).toFixed(1));
       }
       this.outQ.copy(currentQ);
       this.previousQ.copy(currentQ);

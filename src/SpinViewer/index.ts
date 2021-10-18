@@ -1,11 +1,17 @@
-import SpinViewer, { SpinViewerEvent } from "./SpinViewer";
-import SpriteImage, { SpriteImageEvent } from "./SpriteImage";
 import { VERSION } from "../version";
+
+import SpinViewer, { SpinViewerEvent, SpinViewerOptions } from "./SpinViewer";
+import SpriteImage, { SpriteImageEvent } from "./SpriteImage";
 
 export {
   SpinViewer,
   SpriteImage,
-  SpinViewerEvent,
-  SpriteImageEvent,
   VERSION
+};
+export * from "./consts";
+
+export type {
+  SpinViewerEvent,
+  SpinViewerOptions,
+  SpriteImageEvent
 };

@@ -1,0 +1,42 @@
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.header * {
+  margin-right: 0.75rem;
+}
+
+.header li {
+  display: inline-block;
+  font-size: 1.25rem;
+}
+
+#viewer {
+  width: 500px;
+  height: 500px;
+  position: relative;
+}
+
+.overlay {
+  z-index: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.overlay.hidden {
+  display: none;
+}
+
+#spin {
+  max-width: 400px;
+  position: relative;
+}

@@ -1,7 +1,8 @@
-import Renderer from "./Renderer";
 import WebGLUtils from "../WebGLUtils";
 import { STEREO_FORMAT } from "../../PanoViewer/consts";
-import { ValueOf } from "../../types";
+import { ValueOf } from "../../types/internal";
+
+import Renderer from "./Renderer";
 
 const latitudeBands = 60;
 const longitudeBands = 60;
@@ -48,7 +49,7 @@ class SphereRenderer extends Renderer {
 
   private _stereoFormat: ValueOf<typeof STEREO_FORMAT>;
 
-  constructor(format: SphereRenderer["_stereoFormat"]) {
+  public constructor(format: SphereRenderer["_stereoFormat"]) {
     super();
 
     this._stereoFormat = format;
