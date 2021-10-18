@@ -1,6 +1,6 @@
 {
 	"name": "@egjs/view360",
-	"version": "3.6.0-snapshot",
+	"version": "3.6.1",
 	"description": "360 integrated viewing solution from inside-out view to outside-in view. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.",
 	"main": "dist/view360.js",
 	"module": "dist/view360.esm.js",
@@ -29,7 +29,7 @@
 		"prepush": "npm run lint",
 		"commitmsg": "node config/validate-commit-msg.js",
 		"changelog": "node config/changelog.js",
-    "packages": "npm run packages:update && npm run packages:build && npm run packages:publish",
+		"packages": "npm run packages:update && npm run packages:build && npm run packages:publish",
 		"packages:update": "pvu --update=react-view360,ngx-view360/projects/ngx-view360,vue-view360",
 		"packages:build": "pvu --build=react-view360,ngx-view360,vue-view360",
 		"packages:publish": "pvu --publish=react-view360,ngx-view360/dist/ngx-view360,vue-view360"
