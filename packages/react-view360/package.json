@@ -15,10 +15,10 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
-    "@egjs/view360": "^3.5.1"
+    "@egjs/view360": "^3.6.0"
   },
   "peerDependencies": {
-    "react": "^16.0.0"
+    "react": ">=16.0.0"
   },
   "devDependencies": {
     "@egjs/build-helper": "0.0.5",

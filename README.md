@@ -1,4 +1,13 @@
-# egjs-view360 [![npm version](https://badge.fury.io/js/%40egjs%2Fview360.svg)](https://badge.fury.io/js/%40egjs%2Fview360) [![Build Status](https://travis-ci.org/naver/egjs-view360.svg?branch=master)](https://travis-ci.org/naver/egjs-view360) [![Coverage Status](https://coveralls.io/repos/github/naver/egjs-view360/badge.svg?branch=master)](https://coveralls.io/github/naver/egjs-view360?branch=master)
+# egjs-view360
+<p>
+  <a href="https://badge.fury.io/js/%40egjs%2Fview360" target="_blank"><img alt="npm version" src="https://badge.fury.io/js/%40egjs%2Fview360.svg" /></a>
+  <a href="https://travis-ci.org/naver/egjs-view360" target="_blank"><img alt="Build Status" src="https://travis-ci.org/naver/egjs-view360.svg?branch=master" /></a>
+  <a href="https://coveralls.io/github/naver/egjs-view360?branch=master" target="_blank"><img alt="Coverage Status" src="https://coveralls.io/repos/github/naver/egjs-view360/badge.svg?branch=master" /></a>
+  <a href="https://github.com/naver/egjs-view360/blob/master/packages/ngx-view360/README.md" target="_blank"><img alt="Angular" src="https://img.shields.io/static/v1.svg?label=&message=Angular&style=flat-square&logo=Angular&color=dd0031" /></a>
+  <a href="https://github.com/naver/egjs-view360/blob/master/packages/react-view360/README.md" target="_blank"><img alt="React" src="https://img.shields.io/static/v1.svg?label=&message=React&style=flat-square&logo=React&logoColor=white&color=61dafb" /></a>
+  <a href="https://github.com/naver/egjs-view360/blob/master/packages/vue-view360/README.md" target="_blank"><img alt="Vue" src="https://img.shields.io/static/v1.svg?label=&message=Vue&style=flat-square&logo=Vue.js&logoColor=white&color=42b883" /></a>
+  <img src="https://img.shields.io/static/v1.svg?label=&message=TypeScript&color=294E80&style=flat-square&logo=typescript" />
+</p>
 
 egjs-view360 is a 360 integrated viewing solution from **inside-out view** to **outside-in view**. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.
 
@@ -6,13 +15,6 @@ egjs-view360 is a 360 integrated viewing solution from **inside-out view** to **
 - [Getting Started and Demos Website](https://naver.github.io/egjs-view360)
 - [API documentation](https://naver.github.io/egjs-view360/release/latest/doc/)
 - [Wiki Guide](https://github.com/naver/egjs-view360/wiki)
-
-## `NEW` v3.3 Released
-- VR support for all projection types
-- See [our guide](https://github.com/naver/egjs-view360/wiki/Checklist-for-the-Sensor-and-VR) to add VR in your viewer.
-
-For more information, visit [Change Notes](https://github.com/naver/egjs-view360/releases)
-
 
 ## What view360 can do?
 
@@ -114,6 +116,12 @@ egjs-view360 has the dependencies for the following libraries:
 |----|----|---|---|---|
 |2.0.0+|2.3.0+|2.1.1+|4.1.1|0.9.16|
 
+## 📦 Packages
+|Package|Version|Description|
+|:-----:|:-----:|:-----:|
+|[**@egjs/ngx-view360**](https://github.com/naver/egjs-view360/blob/master/packages/ngx-view360/README.md)|<a href="https://www.npmjs.com/package/@egjs/ngx-view360" target="_blank"><img src="https://img.shields.io/npm/v/@egjs/ngx-view360.svg?style=flat-square&color=dd0031&label=%F0%9F%94%96" alt="version" /></a>|[Angular](https://angular.io/) port of @egjs/view360|
+|[**@egjs/react-view360**](https://github.com/naver/egjs-view360/blob/master/packages/react-view360/README.md)|<a href="https://www.npmjs.com/package/@egjs/react-view360" target="_blank"><img src="https://img.shields.io/npm/v/@egjs/react-view360.svg?style=flat-square&color=00d8ff&label=%F0%9F%94%96" alt="version" /></a>|[React](https://reactjs.org/) port of @egjs/view360|
+|[**@egjs/vue-view360**](https://github.com/naver/egjs-view360/blob/master/packages/vue-view360/README.md)|<a href="https://www.npmjs.com/package/@egjs/vue-view360" target="_blank"><img src="https://img.shields.io/npm/v/@egjs/vue-view360.svg?style=flat-square&color=42b883&label=%F0%9F%94%96" alt="version" /></a>|[Vue.js@2](https://vuejs.org/v2/guide/index.html) port of @egjs/view360|
 
 ## How to start developing egjs-view360?
 
