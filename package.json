@@ -106,6 +106,7 @@
 		"marked": "^0.4.0",
 		"mocha": "^5.2.0",
 		"print-sizes": "0.0.3",
+		"pvu": "^0.5.1",
 		"replace-in-file": "^3.4.2",
 		"resemblejs": "^3.2.5",
 		"rollup": "^2.32.1",
