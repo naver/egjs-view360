@@ -140,7 +140,7 @@ export class NgxPanoViewerComponent extends PanoViewerInterface
   }
 
   private _bindEvents() {
-    const panoViewer = this._vanillaPanoViewer!;
+    const panoViewer = this._vanillaPanoViewer;
 
     Object.keys(PANOVIEWER_EVENTS).forEach(evtKey => {
       const evtName = PANOVIEWER_EVENTS[evtKey];

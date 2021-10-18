@@ -7,7 +7,11 @@
     "@angular/core": ">=10.0.0"
   },
   "dependencies": {
-    "@egjs/view360": "^3.5.1"
+    "@egjs/view360": "^3.6.0"
+  },
+  "devDependencies": {
+    "@angular/common": "~10.0.0",
+    "@angular/core": "~10.0.0"
   },
   "repository": {
     "type": "git",

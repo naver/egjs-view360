@@ -22,13 +22,4 @@ const plugin = {
   install,
   version
 };
-
-export * from "@egjs/view360";
-
 export default plugin;
-export {
-  PanoViewer,
-  SpinViewer,
-  install,
-  version
-};

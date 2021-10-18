@@ -16,7 +16,7 @@ webpack.*.js
 tslint*
 
 #docs
-demo
+demo/
 jsdoc.json
 
 #editor settings

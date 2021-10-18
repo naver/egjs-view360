@@ -60,12 +60,6 @@ export default Vue.extend<{
   beforeDestroy() {
     const panoViewer = this._vanillaPanoViewer;
 
-    // Turn off video if it has one
-    const video = panoViewer?.getVideo();
-    if (video) {
-      video.pause();
-    }
-
     panoViewer?.destroy();
   },
   updated() {
