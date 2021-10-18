@@ -473,13 +473,14 @@ class PanoViewer extends Component<PanoViewerEvent> {
     }
 
     if (image) {
+      this._deactivate();
+
       this._image = image as HTMLImageElement;
       this._isVideo = isVideo;
       this._projectionType = param.projectionType || PROJECTION_TYPE.EQUIRECTANGULAR;
       this._cubemapConfig = cubemapConfig;
       this._stereoFormat = stereoFormat;
 
-      this._deactivate();
       this._initRenderer(this._yaw, this._pitch, this._fov, this._projectionType, this._cubemapConfig);
     }
 
@@ -990,6 +991,12 @@ class PanoViewer extends Component<PanoViewerEvent> {
    * Destroy webgl context and block user interaction and stop rendering
    */
   private _deactivate() {
+    // Turn off the video if it has one
+    const video = this.getVideo();
+    if (video) {
+      video.pause();
+    }
+
     if (this._isReady) {
       this._photoSphereRenderer!.stopRender();
       this._yawPitchControl!.disable();
