@@ -30,10 +30,6 @@
   <a href="https://naver.github.io/egjs-view360/">Demo</a> / <a href="https://naver.github.io/egjs-view360/release/latest/doc/">Documentation</a> / <a href="https://naver.github.io/egjs/">Other components</a>
 </p>
 
-<p align=center>
-  ⚠️ If you're looking for View360 for Vue 3, check out <a href="https://github.com/naver/egjs-view360/blob/master/packages/vue3-view360/README.md">@egjs/vue3-view360</a>
-</p>
-
 ## ⚙️ Installation
 ```sh
 npm install --save @egjs/vue-view360
