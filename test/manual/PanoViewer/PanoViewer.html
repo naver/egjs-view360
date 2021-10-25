@@ -80,7 +80,7 @@
 <script src="../../../node_modules/@egjs/axes/dist/axes.js"></script>
 <script src="../../../dist/view360.js"></script> -->
 
-<script src="../../../dist/PanoViewer/view360.panoviewer.pkgd.js"></script>
+<script src="../../../dist/view360.pkgd.js"></script>
 
 <script src="../js/GridView.js"></script>
 <!--<script src="./js/OptionControls.js"></script>-->
@@ -448,7 +448,7 @@ gui.add(params, 'aspectRatio',
 });
 
 panoViewer.on("viewChange", function(e) {
-  render()
+  render();
 });
 
 
