@@ -104,6 +104,8 @@ class XRManager {
       await (gl as any).makeXRCompatible();
     }
 
+    console.log("here")
+
     return (navigator as any).xr.requestSession("immersive-vr", options).then(session => {
       const xrLayer = new (window as any).XRWebGLLayer(session, gl);
 

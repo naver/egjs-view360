@@ -49,20 +49,20 @@ export interface YawPitchControlOptions {
   aspectRatio: number;
 }
 interface YawPitchControlEvents {
-  change: {
+  change: ComponentEvent<{
     yaw: number;
     pitch: number;
     fov: number;
     quaternion: quat | null;
     targetElement: HTMLElement;
     isTrusted: boolean;
-  };
-  hold: {
+  }>;
+  hold: ComponentEvent<{
     isTrusted: boolean;
-  };
-  animationEnd: {
+  }>;
+  animationEnd: ComponentEvent<{
     isTrusted: boolean;
-  };
+  }>;
 }
 
 /**
@@ -657,7 +657,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
   private _triggerChange(evt: any) {
     const pos = this._axes.get();
     const opt = this.options;
-    const event: YawPitchControlEvents["change"] = {
+    const event: YawPitchControlEvents["change"] extends ComponentEvent<infer T> ? T : never = {
       targetElement: opt.element as HTMLElement,
       isTrusted: evt.isTrusted,
       yaw: pos.yaw,
@@ -669,6 +669,7 @@ class YawPitchControl extends Component<YawPitchControlEvents> {
     if (opt.gyroMode === GYRO_MODE.VR && this._deviceQuaternion) {
       event.quaternion = this._deviceQuaternion.getCombinedQuaternion(pos.yaw);
     }
+
     this.trigger(new ComponentEvent("change", event));
   }
 

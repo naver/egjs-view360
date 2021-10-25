@@ -968,7 +968,13 @@ class PanoViewer extends Component<PanoViewerEvent> {
       this._fov = e.fov;
       this._quaternion = e.quaternion;
 
-      this.trigger(new ComponentEvent(EVENTS.VIEW_CHANGE, e));
+      this.trigger(new ComponentEvent(EVENTS.VIEW_CHANGE, {
+        yaw: e.yaw,
+        pitch: e.pitch,
+        fov: e.fov,
+        quaternion: e.quaternion,
+        isTrusted: e.isTrusted
+      }));
     });
   }
 

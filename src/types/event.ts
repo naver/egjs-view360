@@ -43,6 +43,7 @@ export interface ViewChangeEvent<T extends PanoViewer = PanoViewer> extends Comp
   yaw: number;
   pitch: number;
   fov: number;
+  isTrusted: boolean;
 }
 
 /**
