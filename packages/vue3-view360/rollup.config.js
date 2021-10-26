@@ -4,8 +4,7 @@ const vue = require("rollup-plugin-vue");
 
 const external = {
   "vue": "Vue",
-  "vue-class-component": "VueClassComponent",
-  "@egjs/view360": "View360",
+  "@egjs/view360": "eg.View360",
   "@egjs/axes": "eg.Axes",
   "@egjs/component": "eg.Component"
 };

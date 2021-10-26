@@ -1,0 +1,30 @@
+.viewer {
+  width: 400px;
+  height: 400px;
+  position: absolute;
+}
+
+.overlay {
+  z-index: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.overlay.hidden {
+  display: none;
+}
+
+#spin {
+  max-width: 400px;
+  position: relative;
+}
+.view360-image {
+  left: 0;
+}
