@@ -1,7 +1,9 @@
+/* eslint-disable */
 import {glMatrix, quat} from "gl-matrix";
 import PanoViewerInjector from "inject-loader!../../src/PanoViewer/PanoViewer";
 import PanoImageRendererForUnitTest from "./PanoImageRendererForUnitTest";
 import {util as mathUtil} from "../../src/utils/math-util";
+import { DEFAULT_CANVAS_CLASS } from "../../src/PanoViewer/consts"
 import PanoViewer from "../../src/PanoViewer/PanoViewer";
 
 const resemble = window.resemble;
@@ -60,7 +62,7 @@ function createPanoImageRenderer(image, isVideo, projectionType, cubemapConfig =
 	};
 
 	return new PanoImageRendererForUnitTest(
-		image, options.width, options.height, isVideo, sphericalConfig);
+		image, options.width, options.height, isVideo, document.createElement("div"), DEFAULT_CANVAS_CLASS, sphericalConfig);
 }
 
 function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2, isQuaternion) {

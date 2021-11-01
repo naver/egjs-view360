@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 import {expect} from "chai";
 import sinon from "sinon";
 import {glMatrix, quat} from "gl-matrix";
@@ -872,7 +873,7 @@ describe("YawPitchControl", function() {
 			let target;
 			const attachThenHandler = (expected, then) => {
 				inst.on("change", e => {
-					const deceleration = inst.axes.options.deceleration;
+					const deceleration = inst._axes.options.deceleration;
 
 					results.push(deceleration);
 					if (results.length < expected.length) {
@@ -1237,14 +1238,14 @@ describe("YawPitchControl", function() {
 			it("should update panScale if fov is changed by fovRange's change", () => {
 				// Given
 				const prevFov = yawpitch.getFov();
-				const prevPanScale = yawpitch.axesPanInput.options.scale;
+				const prevPanScale = yawpitch._axesPanInput.options.scale;
 
 				// When
 				yawpitch.option("fovRange", [prevFov + 10, prevFov + 30]);
 
 				// Then
 				const currFov = yawpitch.getFov();
-				const currPanScale = yawpitch.axesPanInput.options.scale;
+				const currPanScale = yawpitch._axesPanInput.options.scale;
 
 				expect(currFov).to.not.equal(prevFov);
 				expect(prevPanScale).to.not.equal(currPanScale);
@@ -1279,7 +1280,7 @@ describe("YawPitchControl", function() {
 				[30, 45, 60, 75, 90, 120, 240].forEach(newFov => {
 					inst.option({"fov": newFov});
 
-					yaw = inst.axes.axis.yaw;
+					yaw = inst._axes.axis.yaw;
 					calculatedRangeSize = yaw.range[1] - yaw.range[0];
 					expectedRangeSize = (YAW_RANGE[1] - YAW_RANGE[0]) - inst.getFov();
 

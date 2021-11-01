@@ -1,3 +1,4 @@
+// eslint-disable-next-line max-classes-per-file
 import {expect} from "chai";
 import sinon from "sinon";
 import {mat4} from "gl-matrix";
@@ -10,8 +11,7 @@ import PanoImageRendererForUnitTest from "../PanoImageRendererForUnitTest";
 import {compare, createPanoImageRenderer, renderAndCompareSequentially, isVideoLoaded, createVideoElement, sandbox, cleanup} from "../util";
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils";
 import TestHelper from "../YawPitchControl/testHelper";
-import {PROJECTION_TYPE} from "../../../src/PanoViewer/consts";
-import PanoViewer from "../../../src/PanoViewer/PanoViewer";
+import {PROJECTION_TYPE, DEFAULT_CANVAS_CLASS} from "../../../src/PanoViewer/consts";
 
 const RendererOnIE11 = RendererInjector(
 	{
@@ -164,7 +164,7 @@ describe("PanoImageRenderer", () => {
 			sourceImg.src = "./images/test_equi.jpg";
 
 			// When
-			const inst = new MockedPanoImageRenderer(sourceImg, 200, 200, false, {
+			const inst = new MockedPanoImageRenderer(sourceImg, 200, 200, false, document.createElement("div"), DEFAULT_CANVAS_CLASS, {
 				initialYaw: 0,
 				initialpitch: 0,
 				imageType: "equirectangular",
@@ -189,7 +189,7 @@ describe("PanoImageRenderer", () => {
 			sourceImg.src = "./images/test_equi.jpg";
 
 			// When
-			const inst = new MockedPanoImageRenderer(sourceImg, 200, 200, false, {
+			const inst = new MockedPanoImageRenderer(sourceImg, 200, 200, false, document.createElement("div"), DEFAULT_CANVAS_CLASS, {
 				initialYaw: 0,
 				initialpitch: 0,
 				imageType: "equirectangular",
@@ -214,7 +214,7 @@ describe("PanoImageRenderer", () => {
 			sourceImg.src = "./images/test_equi.jpg";
 
 			// When
-			const inst = new MockedPanoImageRenderer(sourceImg, 200, 200, false, {
+			const inst = new MockedPanoImageRenderer(sourceImg, 200, 200, false, document.createElement("div"), DEFAULT_CANVAS_CLASS, {
 				initialYaw: 0,
 				initialpitch: 0,
 				imageType: "equirectangular",
@@ -904,7 +904,7 @@ describe("PanoImageRenderer", () => {
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/test_equi.jpg";
-			const inst = new PanoImageRendererOnIE11ForTest(sourceImg, 200, 200, false, {
+			const inst = new PanoImageRendererOnIE11ForTest(sourceImg, 200, 200, false, document.createElement("div"), DEFAULT_CANVAS_CLASS, {
 				imageType: "equirectangular",
 				fieldOfView: 65
 			});
@@ -936,7 +936,7 @@ describe("PanoImageRenderer", () => {
 			const isVideo = true;
 			const thresholdMargin = 4; /* Exceptional Case */
 
-			const inst = new PanoImageRendererOnIE11ForTest(sourceImg, 200, 200, isVideo, {
+			const inst = new PanoImageRendererOnIE11ForTest(sourceImg, 200, 200, isVideo, document.createElement("div"), DEFAULT_CANVAS_CLASS, {
 				imageType: "equirectangular",
 				fieldOfView: 65
 			});
@@ -971,7 +971,7 @@ describe("PanoImageRenderer", () => {
 			const isVideo = true;
 			const thresholdMargin = 4; /* Exceptional Case */
 
-			const inst = new PanoImageRendererOnIE11ForTest(sourceImg, 200, 200, isVideo, {
+			const inst = new PanoImageRendererOnIE11ForTest(sourceImg, 200, 200, isVideo, document.createElement("div"), DEFAULT_CANVAS_CLASS, {
 				imageType: "equirectangular",
 				fieldOfView: 65
 			});
@@ -1403,7 +1403,7 @@ describe("PanoImageRenderer", () => {
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/PanoViewer/Stereoscopic/stereoscopic1.png";
-			inst = new PanoImageRendererVR(sourceImg, 200, 200, false, {
+			inst = new PanoImageRendererVR(sourceImg, 200, 200, false, document.createElement("div"), DEFAULT_CANVAS_CLASS, {
 				fieldOfView: 65,
 				imageType: PROJECTION_TYPE.STEREOSCOPIC_EQUI,
 			});
@@ -1522,7 +1522,7 @@ describe("PanoImageRenderer", () => {
 			const sourceImg = new Image();
 
 			sourceImg.src = "./images/PanoViewer/Stereoscopic/stereoscopic1.png";
-			inst = new PanoImageRendererVRWithManagerMocked(sourceImg, 200, 200, false, {
+			inst = new PanoImageRendererVRWithManagerMocked(sourceImg, 200, 200, false, document.createElement("div"), DEFAULT_CANVAS_CLASS, {
 				fieldOfView: 65,
 				imageType: PROJECTION_TYPE.STEREOSCOPIC_EQUI,
 			});
@@ -1575,7 +1575,7 @@ describe("PanoImageRenderer", () => {
 
 		it("should apply correct yaw offset", async () => {
 			// Given
-			const renderer = new PanoImageRendererXR(sourceImg, 200, 200, false, {
+			const renderer = new PanoImageRendererXR(sourceImg, 200, 200, false, document.createElement("div"), DEFAULT_CANVAS_CLASS, {
 				fieldOfView: 65,
 				imageType: PROJECTION_TYPE.STEREOSCOPIC_EQUI,
 			});

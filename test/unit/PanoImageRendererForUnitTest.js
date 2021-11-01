@@ -10,7 +10,7 @@ const DEBUG_CONTEXT_ATTRIBUTES = {
  *
  */
 export default class PanoImageRendererForUnitTest extends PanoImageRenderer {
-	constructor(image, width, height, isVideo, sphericalConfig) {
-		super(image, width, height, isVideo, sphericalConfig, DEBUG_CONTEXT_ATTRIBUTES);
+	constructor(image, width, height, isVideo, container, canvasClass, sphericalConfig) {
+		super(image, width, height, isVideo, container, canvasClass, sphericalConfig, DEBUG_CONTEXT_ATTRIBUTES);
 	}
 }

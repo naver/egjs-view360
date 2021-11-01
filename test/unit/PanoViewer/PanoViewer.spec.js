@@ -5,7 +5,7 @@ import WebglUtilsInjector from "inject-loader!../../../src/PanoImageRenderer/Web
 import PanoViewer from "../../../src/PanoViewer/PanoViewer"; // eslint-disable-line import/no-duplicates
 import WebGLUtils from "../../../src/PanoImageRenderer/WebGLUtils"; // eslint-disable-line import/no-duplicates
 import {compare, createPanoViewerForRenderingTest, sandbox, cleanup} from "../util";
-import {ERROR_TYPE, EVENTS} from "../../../src/PanoViewer/consts";
+import {ERROR_TYPE, PANOVIEWER_EVENTS as EVENTS} from "../../../src/PanoViewer/consts";
 
 function promiseFactory(inst, yaw, pitch, fov, answerFile, threshold = 2) {
 	return new Promise(res => {
@@ -389,6 +389,21 @@ describe("PanoViewer", () => {
 				panoViewer.destroy();
 				done();
 			});
+
+      IT("should trigger 'viewChange' event", done => {
+        // Given
+        const panoViewer = new PanoViewer(target, {
+          image: "./images/test_equi.png"
+        });
+        const changeSpy = sinon.spy();
+        panoViewer.on(EVENTS.VIEW_CHANGE, changeSpy);
+
+        // When
+        panoViewer.lookAt({yaw: 10, pitch: 10}, 0);
+
+        // Then
+        expect(changeSpy.calledOnce).to.be.true;
+      });
 		});
 	});
 
