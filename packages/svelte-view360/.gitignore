@@ -1,4 +1,5 @@
 /node_modules/
 /public/build/
+lib/
 
 .DS_Store

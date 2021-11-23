@@ -7,12 +7,13 @@
   "sideEffects": false,
   "es2015": "dist/view360.esm.js",
   "types": "declaration/index.d.ts",
-  "svelte": "dist/view360.esm.js",
+  "svelte": "lib/index.js",
   "scripts": {
-    "build": "rm -rf dist && rollup -c ./rollup.config.build.js && npm run declaration",
-    "dev": "rollup -c -w",
+    "build": "rm -rf dist && rollup -c ./rollup.config.build.js && npm run build:lib && npm run declaration",
+    "build:lib": "rm -rf lib && node ./build",
     "declaration": "rm -rf declaration && tsc -p tsconfig.declaration.json",
     "postdeclaration": "cpx './src/**.d.ts' 'declaration'",
+    "dev": "rollup -c -w",
     "start": "sirv public --no-clear",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },

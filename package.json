@@ -30,9 +30,9 @@
 		"commitmsg": "node config/validate-commit-msg.js",
 		"changelog": "node config/changelog.js",
 		"packages": "npm run packages:update && npm run packages:build && npm run packages:publish",
-		"packages:update": "pvu --update=react-view360,ngx-view360/projects/ngx-view360,vue-view360",
-		"packages:build": "pvu --build=react-view360,ngx-view360,vue-view360",
-		"packages:publish": "pvu --publish=react-view360,ngx-view360/dist/ngx-view360,vue-view360"
+		"packages:update": "pvu --update=react-view360,ngx-view360/projects/ngx-view360,vue-view360,vue3-view360,svelte-view360",
+		"packages:build": "pvu --build=react-view360,ngx-view360,vue-view360,vue3-view360,svelte-view360",
+		"packages:publish": "pvu --publish=react-view360,ngx-view360/dist/ngx-view360,vue-view360,vue3-view360,svelte-view360"
 	},
 	"repository": {
 		"type": "git",

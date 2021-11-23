@@ -6,4 +6,7 @@ public/
 .env
 rollup.config.js
 rollup.config.build.js
+build.js
+replace.js
 tsconfig.json
+tsconfig.declaration.json
