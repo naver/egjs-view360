@@ -17,7 +17,7 @@ export interface PanoViewerOptions {
   image: string | HTMLElement;
   video: string | HTMLElement;
   projectionType: ValueOf<typeof PROJECTION_TYPE>;
-  cubemapConfig: CubemapConfig;
+  cubemapConfig: Partial<CubemapConfig>;
   stereoFormat: ValueOf<typeof STEREO_FORMAT>;
   width: number;
   height: number;
