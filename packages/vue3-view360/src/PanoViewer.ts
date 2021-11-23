@@ -1,7 +1,11 @@
-/* eslint-disable @typescript-eslint/ban-types */
-import Vue, { CreateElement } from "vue";
+/**
+ * Copyright (c) 2015 NAVER Corp.
+ * egjs projects are licensed under the MIT license
+ */
+import { defineComponent, PropType, h } from "vue";
 import {
   PanoViewer as VanillaPanoViewer,
+  PanoViewerOptions,
   PANOVIEWER_OPTIONS,
   PANOVIEWER_EVENTS,
   withPanoViewerMethods,
@@ -10,44 +14,56 @@ import {
   generateCanvasKey,
   DEFAULT_CANVAS_CLASS
 } from "@egjs/view360";
+import Component from "@egjs/component";
 
 import { PanoViewerProps } from "./types";
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-const PropDefintion = Object.keys(PANOVIEWER_OPTIONS).reduce((props, optionName) => {
-  props[optionName] = null;
-  return props;
-}, {}) as any;
+type PropTypes = {
+  [key in keyof PanoViewerOptions]: {
+    type: PropType<PanoViewerOptions[key]>;
+  }
+};
 
-export default Vue.extend<{
-  _prevProps: PanoViewerProps;
-  _vanillaPanoViewer: VanillaPanoViewer;
-  _canvasKey: number;
-}, {}, {}, PanoViewerProps>({
+const panoOptions = Object.keys(PANOVIEWER_OPTIONS).reduce((propObj, optionName) => {
+  propObj[optionName] = null;
+  return propObj;
+}, {} as {[key: string]: any}) as PropTypes;
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const PanoViewer = defineComponent({
   props: {
-    ...PropDefintion,
+    ...panoOptions,
     tag: {
       type: String,
       required: false,
       default: "div"
     }
   },
-  created() {
-    this._canvasKey = -1;
+  data() {
+    return {
+      canvasKey: -1
+    } as {
+      canvasKey: number;
+      prevProps: PanoViewerProps;
+      vanillaPanoViewer: VanillaPanoViewer;
+      updateEmitter: Component<{ updated: void }>;
+    };
   },
   mounted() {
     const props = getValidProps(this.$props) as PanoViewerProps;
 
-    this._vanillaPanoViewer = new VanillaPanoViewer(
+    this.updateEmitter = new Component();
+    this.vanillaPanoViewer = new VanillaPanoViewer(
       this.$refs.container as HTMLElement,
       props
     );
 
-    withPanoViewerMethods(this, "_vanillaPanoViewer");
-    this._prevProps = props;
+    withPanoViewerMethods(this, "vanillaPanoViewer");
+    this.prevProps = props;
 
-    const panoViewer = this._vanillaPanoViewer;
-    const events = Object.keys(PANOVIEWER_EVENTS).map(key => PANOVIEWER_EVENTS[key]);
+    const panoViewer = this.vanillaPanoViewer;
+    const events = (Object.keys(PANOVIEWER_EVENTS) as Array<keyof typeof PANOVIEWER_EVENTS>)
+      .map(key => PANOVIEWER_EVENTS[key]);
 
     events.forEach(eventName => {
       panoViewer.on(eventName, (e: any) => {
@@ -59,29 +75,29 @@ export default Vue.extend<{
     });
   },
   beforeDestroy() {
-    const panoViewer = this._vanillaPanoViewer;
+    const panoViewer = this.vanillaPanoViewer;
 
     panoViewer?.destroy();
   },
   updated() {
-    this.$emit("updated");
+    this.updateEmitter.trigger("updated");
   },
   watch: {
     $props: {
       handler() {
-        const panoViewer = this._vanillaPanoViewer;
+        const panoViewer = this.vanillaPanoViewer as VanillaPanoViewer;
         if (!panoViewer) return;
 
         const nextProps = getValidProps(this.$props) as PanoViewerProps;
-        const prevProps = this._prevProps;
+        const prevProps = this.prevProps;
 
         if ((nextProps.image != null && nextProps.image !== prevProps.image)
           || (nextProps.video != null && nextProps.video !== prevProps.video)) {
-          this._canvasKey = generateCanvasKey(this._canvasKey);
+          this.canvasKey = generateCanvasKey(this.canvasKey);
           this.$forceUpdate();
 
           // Update after render
-          this.$once("updated", () => {
+          this.updateEmitter.once("updated", () => {
             updatePanoViewer(panoViewer, nextProps, prevProps);
           });
         } else {
@@ -89,20 +105,22 @@ export default Vue.extend<{
           updatePanoViewer(panoViewer, nextProps, prevProps);
         }
 
-        this._prevProps = nextProps;
+        this.prevProps = nextProps;
       },
       deep: true,
       immediate: true
     }
   },
-  render(h: CreateElement) {
+  render() {
     const canvasClass = this.canvasClass ?? DEFAULT_CANVAS_CLASS;
 
     return h(this.tag, { ref: "container" },
       [
-        h("canvas", { staticClass: canvasClass, key: this._canvasKey }),
-        this.$slots.default
+        h("canvas", { class: canvasClass, key: this.canvasKey }),
+        this.$slots.default?.()
       ]
     );
   }
 });
+
+export default PanoViewer;

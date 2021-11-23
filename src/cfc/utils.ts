@@ -1,7 +1,7 @@
-export const getProps = (thisVal: any) => {
-  return Object.keys(thisVal.$props).reduce((props, propName) => {
-    if (thisVal.$props[propName] != null) {
-      props[propName] = thisVal.$props[propName];
+export const getValidProps = (propsObj: any) => {
+  return Object.keys(propsObj).reduce((props, propName) => {
+    if (propsObj[propName] != null) {
+      props[propName] = propsObj[propName];
     }
 
     return props;

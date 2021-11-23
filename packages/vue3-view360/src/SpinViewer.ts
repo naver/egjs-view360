@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import Vue, { CreateElement } from "vue";
+import { defineComponent, PropType, h } from "vue";
 import {
   SpinViewer as VanillaSpinViewer,
+  SpinViewerOptions,
   SPINVIEWER_EVENTS,
   SPINVIEWER_OPTIONS,
   withSpinViewerMethods,
@@ -10,36 +11,42 @@ import {
   DEFAULT_IMAGE_CLASS
 } from "@egjs/view360";
 
-import { SpinViewerProps } from "./types";
+type PropTypes = {
+  [key in keyof SpinViewerOptions]: {
+    type: PropType<SpinViewerOptions[key]>;
+  }
+};
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-const PropDefintion = Object.keys(SPINVIEWER_OPTIONS).reduce((props, optionName) => {
-  props[optionName] = null;
-  return props;
-}, {}) as any;
+const spinOptions = Object.keys(SPINVIEWER_OPTIONS).reduce((propObj, optionName) => {
+  propObj[optionName] = null;
+  return propObj;
+}, {} as {[key: string]: any}) as PropTypes;
 
-export default Vue.extend<{
-  _vanillaSpinViewer: VanillaSpinViewer;
-}, {}, {}, SpinViewerProps>({
+export default defineComponent({
   props: {
-    ...PropDefintion,
+    ...spinOptions,
     tag: {
       type: String,
       required: false,
       default: "div"
     }
   },
+  data() {
+    return {} as {
+      vanillaSpinViewer: VanillaSpinViewer;
+    };
+  },
   mounted() {
-    const props = getValidProps(this.$props);
+    const props = getValidProps(this);
 
-    this._vanillaSpinViewer = new VanillaSpinViewer(
+    this.vanillaSpinViewer = new VanillaSpinViewer(
       this.$refs.container as HTMLElement,
       props
     );
 
-    withSpinViewerMethods(this, "_vanillaSpinViewer");
+    withSpinViewerMethods(this, "vanillaSpinViewer");
 
-    const spinViewer = this._vanillaSpinViewer;
+    const spinViewer = this.vanillaSpinViewer;
     const events = Object.keys(SPINVIEWER_EVENTS).map(key => SPINVIEWER_EVENTS[key]);
 
     events.forEach(eventName => {
@@ -53,18 +60,18 @@ export default Vue.extend<{
   },
   watch: {
     scale(newVal) {
-      this._vanillaSpinViewer?.setScale(newVal);
+      this.vanillaSpinViewer?.setScale(newVal);
     }
   },
-  render(h: CreateElement) {
+  render() {
     const wrapperClass = this.wrapperClass ?? DEFAULT_WRAPPER_CLASS;
     const imageClass = this.imageClass ?? DEFAULT_IMAGE_CLASS;
 
     return h(this.tag, { ref: "container" }, [
-      h("div", { staticClass: wrapperClass }, [
-        h("img", { staticClass: imageClass })
+      h("div", { class: wrapperClass }, [
+        h("img", { class: imageClass })
       ]),
-      this.$slots.default
+      this.$slots.default?.()
     ]);
   }
 });

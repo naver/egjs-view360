@@ -342,7 +342,7 @@ module.exports = {
       "error",
       "never"
     ],
-    "prefer-arrow/prefer-arrow-functions": "error",
+    "prefer-arrow/prefer-arrow-functions": "off",
     "prefer-const": "error",
     "quote-props": "off",
     "radix": "error",
