@@ -6,11 +6,10 @@ import {
   SPINVIEWER_EVENTS,
   SPINVIEWER_OPTIONS,
   withSpinViewerMethods,
+  getValidProps,
   DEFAULT_WRAPPER_CLASS,
   DEFAULT_IMAGE_CLASS
 } from "@egjs/view360";
-
-import { getProps } from "./utils";
 
 type PropTypes = {
   [key in keyof SpinViewerOptions]: {
@@ -38,7 +37,7 @@ export default defineComponent({
     };
   },
   mounted() {
-    const props = getProps(this);
+    const props = getValidProps(this);
 
     this.vanillaSpinViewer = new VanillaSpinViewer(
       this.$refs.container as HTMLElement,

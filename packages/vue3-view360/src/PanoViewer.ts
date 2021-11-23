@@ -10,11 +10,12 @@ import {
   PANOVIEWER_EVENTS,
   withPanoViewerMethods,
   updatePanoViewer,
+  getValidProps,
+  generateCanvasKey,
   DEFAULT_CANVAS_CLASS
 } from "@egjs/view360";
 import Component from "@egjs/component";
 
-import { generateCanvasKey, getProps } from "./utils";
 import { PanoViewerProps } from "./types";
 
 type PropTypes = {
@@ -49,7 +50,7 @@ const PanoViewer = defineComponent({
     };
   },
   mounted() {
-    const props = getProps(this) as PanoViewerProps;
+    const props = getValidProps(this.$props) as PanoViewerProps;
 
     this.updateEmitter = new Component();
     this.vanillaPanoViewer = new VanillaPanoViewer(
@@ -87,7 +88,7 @@ const PanoViewer = defineComponent({
         const panoViewer = this.vanillaPanoViewer as VanillaPanoViewer;
         if (!panoViewer) return;
 
-        const nextProps = getProps(this) as PanoViewerProps;
+        const nextProps = getValidProps(this.$props) as PanoViewerProps;
         const prevProps = this.prevProps;
 
         if ((nextProps.image != null && nextProps.image !== prevProps.image)

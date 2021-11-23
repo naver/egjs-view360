@@ -5,11 +5,11 @@ import {
   SPINVIEWER_EVENTS,
   SPINVIEWER_OPTIONS,
   withSpinViewerMethods,
+  getValidProps,
   DEFAULT_WRAPPER_CLASS,
   DEFAULT_IMAGE_CLASS
 } from "@egjs/view360";
 
-import { getProps } from "./utils";
 import { SpinViewerProps } from "./types";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -30,7 +30,7 @@ export default Vue.extend<{
     }
   },
   mounted() {
-    const props = getProps(this);
+    const props = getValidProps(this.$props);
 
     this._vanillaSpinViewer = new VanillaSpinViewer(
       this.$refs.container as HTMLElement,

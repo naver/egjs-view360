@@ -6,10 +6,11 @@ import {
   PANOVIEWER_EVENTS,
   withPanoViewerMethods,
   updatePanoViewer,
+  getValidProps,
+  generateCanvasKey,
   DEFAULT_CANVAS_CLASS
 } from "@egjs/view360";
 
-import { generateCanvasKey, getProps } from "./utils";
 import { PanoViewerProps } from "./types";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -35,7 +36,7 @@ export default Vue.extend<{
     this._canvasKey = -1;
   },
   mounted() {
-    const props = getProps(this) as PanoViewerProps;
+    const props = getValidProps(this.$props) as PanoViewerProps;
 
     this._vanillaPanoViewer = new VanillaPanoViewer(
       this.$refs.container as HTMLElement,
@@ -71,7 +72,7 @@ export default Vue.extend<{
         const panoViewer = this._vanillaPanoViewer;
         if (!panoViewer) return;
 
-        const nextProps = getProps(this) as PanoViewerProps;
+        const nextProps = getValidProps(this.$props) as PanoViewerProps;
         const prevProps = this._prevProps;
 
         if ((nextProps.image != null && nextProps.image !== prevProps.image)
