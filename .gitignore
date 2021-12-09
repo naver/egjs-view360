@@ -207,7 +207,7 @@ report/
 temp/
 demo/_data/version.yml
 demo/release/
-
+dist/
 packages/**/*/dist/
 declaration/
 .jekyll-cache/
