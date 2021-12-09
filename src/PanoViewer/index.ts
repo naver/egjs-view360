@@ -1,6 +1,7 @@
 import { VERSION } from "../version";
 
-import PanoViewer, { PanoViewerEvent, PanoViewerOptions } from "./PanoViewer";
+import PanoViewer from "./PanoViewer";
+import type { PanoViewerEvent, PanoViewerOptions } from "./PanoViewer";
 
 export {
   PanoViewer,

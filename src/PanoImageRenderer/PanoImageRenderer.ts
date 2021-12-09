@@ -83,7 +83,7 @@ class PanoImageRenderer extends Component<{
     fieldOfView: number;
     imageType: ValueOf<typeof PROJECTION_TYPE>;
     stereoFormat: ValueOf<typeof STEREO_FORMAT>;
-    cubemapConfig: CubemapConfig;
+    cubemapConfig: Partial<CubemapConfig>;
   };
 
   public fieldOfView: number;
@@ -209,7 +209,7 @@ class PanoImageRenderer extends Component<{
     image: ImageCandidate | VideoCandidate;
     imageType: PanoImageRenderer["_imageType"];
     isVideo: boolean;
-    cubemapConfig: CubemapConfig;
+    cubemapConfig: Partial<CubemapConfig>;
   }) {
     this._imageIsReady = false;
     this._isVideo = isVideo;

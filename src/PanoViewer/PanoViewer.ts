@@ -190,7 +190,7 @@ class PanoViewer extends Component<PanoViewerEvent> {
   private _image: ConstructorParameters<typeof PanoImageRenderer>[0];
   private _isVideo: boolean;
   private _projectionType: ValueOf<typeof PROJECTION_TYPE>;
-  private _cubemapConfig: CubemapConfig;
+  private _cubemapConfig: Partial<CubemapConfig>;
   private _stereoFormat: ValueOf<typeof STEREO_FORMAT>;
   private _width: number;
   private _height: number;

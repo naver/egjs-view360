@@ -1,7 +1,9 @@
 import { VERSION } from "../version";
 
-import SpinViewer, { SpinViewerEvent, SpinViewerOptions } from "./SpinViewer";
-import SpriteImage, { SpriteImageEvent } from "./SpriteImage";
+import SpinViewer from "./SpinViewer";
+import type { SpinViewerEvent, SpinViewerOptions } from "./SpinViewer";
+import SpriteImage from "./SpriteImage";
+import type { SpriteImageEvent } from "./SpriteImage";
 
 export {
   SpinViewer,
