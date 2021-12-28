@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
     <title>eg.view360 examples Video.js with view360</title>
     <link rel="stylesheet" type="text/css" href="../../../common/css/demo.css">
-    <link href="https://vjs.zencdn.net/5.4.6/video-js.css" rel="stylesheet" type="text/css">
+    <link href="https://vjs.zencdn.net/7.17.0/video-js.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" type="text/css" href="../../../common/css/PanoControls.css">
 
     <script src="../../../common/js/jquery-2.2.4.js"></script>
@@ -14,7 +14,7 @@
     <script src="../../../common/js/qrcode.js"></script>
     <script src="../../../common/js/PieView.js"></script>
     <script src="../../../common/js/screenfull.min.js"></script>
-    <script src="https://vjs.zencdn.net/5.4.6/video.js"></script>
+    <script src="https://vjs.zencdn.net/7.17.0/video.js"></script>
     <script src="../../../release/latest/dist/view360.pkgd.js"></script>
     <script src="../../../common/js/PanoControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9.7.2/dist/sweetalert2.all.min.js"></script>
@@ -168,15 +168,13 @@ var video = document.querySelector(".viewer video");
 </div>
 </body>
 <script>
-    var video = document.querySelector(".viewer video");
-
-    videojs("video").ready(function () {
+  videojs("video").ready(function () {
+        var video = document.querySelector(".viewer video");
         var videoContainer = document.querySelector("#video");
         var view360Container = document.createElement('div');
 
         view360Container.className = "container";
         videoContainer.insertBefore(view360Container, videoContainer.firstChild);
-        // video.style.display = "none";
 
         var panoViewer = new eg.view360.PanoViewer(view360Container,
             {
@@ -185,7 +183,7 @@ var video = document.querySelector(".viewer video");
                 useZoom: false,
             }
         );
-        window.panoViewer
+
         window.addEventListener("resize", function() {
             panoViewer.updateViewportDimensions();
         });
