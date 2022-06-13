@@ -1,6 +1,6 @@
 import Component from "@egjs/component";
 import { quat } from "gl-matrix";
-import { IInputTypeObserver } from "@egjs/axes/declaration/inputType/InputType";
+import { InputTypeObserver } from "@egjs/axes/declaration/inputType/InputType";
 
 import { toAxis } from "../utils";
 import { util, ROTATE_CONSTANT } from "../../utils/math-util";
@@ -27,7 +27,7 @@ export default class TiltMotionInput extends Component<{}> {
   public options: { scale: number; threshold: number };
   public fusionPoseSensor: FusionPoseSensor | null;
   public axes: string[];
-  public observer: IInputTypeObserver | null;
+  public observer: InputTypeObserver | null;
 
   private _prevQuaternion: quat | null;
   private _quaternion: quat | null;
@@ -55,7 +55,7 @@ export default class TiltMotionInput extends Component<{}> {
     this.axes = axes;
   }
 
-  public connect(observer: IInputTypeObserver) {
+  public connect(observer: InputTypeObserver) {
     if (this.observer) {
       return this;
     }

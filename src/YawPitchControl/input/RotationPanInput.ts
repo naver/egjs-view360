@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import Axes, { PanInput } from "@egjs/axes";
-import { IInputTypeObserver } from "@egjs/axes/declaration/inputType/InputType";
+import { InputTypeObserver } from "@egjs/axes/declaration/inputType/InputType";
 import { PanInputOption } from "@egjs/axes/declaration/inputType/PanInput";
 
 import ScreenRotationAngle from "../ScreenRotationAngle";
@@ -14,7 +13,6 @@ import ScreenRotationAngle from "../ScreenRotationAngle";
  * Therefore, the angle that the user touches and moves does not match the angle at which the actual object should move.
  * @extends PanInput
  */
-// @ts-ignore
 export default class RotationPanInput extends PanInput {
   private _useRotation: boolean;
   private _screenRotationAngle: ScreenRotationAngle | null;
@@ -51,7 +49,7 @@ export default class RotationPanInput extends PanInput {
     }
   }
 
-  public connect(observer: IInputTypeObserver) {
+  public connect(observer: InputTypeObserver) {
     // User intetened direction
     this._userDirection = this._direction;
 
@@ -73,15 +71,12 @@ export default class RotationPanInput extends PanInput {
     super.destroy();
   }
 
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  private getOffset(properties: number[], useDirection: boolean[]) {
+  protected _getOffset(properties: number[], useDirection: boolean[]) {
     if (this._useRotation === false) {
-      // @ts-ignore
-      return super.getOffset(properties, useDirection);
+      return super._getOffset(properties, useDirection);
     }
 
-    // @ts-ignore
-    const offset = super.getOffset(properties, [true, true]);
+    const offset = super._getOffset(properties, [true, true]);
     const newOffset = [0, 0];
 
     const theta = this._screenRotationAngle!.getRadian();

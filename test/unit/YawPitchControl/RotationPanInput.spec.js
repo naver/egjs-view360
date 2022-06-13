@@ -53,7 +53,7 @@ describe("RotationPanInput", () => {
 			// When
 			const scale = this.inst.options.scale;
 			const inputProperties = [10, 10];
-			const result = this.inst.getOffset(inputProperties, [true, true]);
+			const result = this.inst._getOffset(inputProperties, [true, true]);
 
 			// Then
 			const expected = inputProperties.map((input, index) => input * scale[index]);
@@ -83,7 +83,7 @@ describe("RotationPanInput", () => {
 			// When
 			const scale = this.inst.options.scale;
 			const input = [10, 10];
-			const result = this.inst.getOffset(input, [true, true]);
+			const result = this.inst._getOffset(input, [true, true]);
 
 			// Then
 			const expected = [
