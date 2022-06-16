@@ -1,6 +1,6 @@
 {
   "name": "@egjs/vue3-view360",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "360 integrated viewing solution from inside-out view to outside-in view. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.",
   "main": "dist/view360.cjs.js",
   "module": "dist/view360.esm.js",
@@ -29,7 +29,7 @@
     "not op_mini all"
   ],
   "dependencies": {
-    "@egjs/view360": "~3.6.2"
+    "@egjs/view360": "~3.6.3"
   },
   "peerDependencies": {
     "vue": "^3.0.0"
