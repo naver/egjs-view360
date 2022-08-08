@@ -1,0 +1,28 @@
+.header-github-link:hover,
+.header-npm-link:hover {
+  opacity: 0.6;
+}
+
+.header-github-link::before,
+.header-npm-link::before {
+  content: '';
+  width: 24px;
+  height: 24px;
+  display: flex;
+}
+
+.header-github-link {
+  margin-right: 0.5rem;
+}
+
+.header-github-link::before {
+  background: url("../../static/icon/github.svg") no-repeat;
+}
+
+html[data-theme='dark'] .header-github-link::before {
+  background: url("../../static/icon/github_white.svg") no-repeat;
+}
+
+.header-npm-link::before {
+  background: url("../../static/icon/npm.svg") no-repeat;
+}

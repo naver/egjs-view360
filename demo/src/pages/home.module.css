@@ -1,0 +1,42 @@
+@font-face
+{
+  font-family: 'Staatliches';
+  font-weight: normal;
+  font-style: normal;
+  src: url('/font/Staatliches/Staatliches-Regular.ttf');
+}
+
+.max400 {
+  width: 100%;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.packageName {
+  font-family: 'Staatliches', monospace;
+}
+
+.badges {
+  display: inline-block;
+  text-align: center;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.badges *:not(:last-child) {
+  margin-right: 0.5rem;
+}
+
+.btnsWrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.mainTabs {
+  margin-left: auto;
+  margin-right: auto;
+  width: max-content;
+  max-width: 100%;
+}

@@ -202,13 +202,10 @@ GitHub.sublime-settings
 !.vscode/extensions.json
 
 ### Custom ###
-doc/
-report/
-temp/
-demo/_data/version.yml
 demo/release/
-
 dist/
-packages/**/*/dist/
+outjs/
 declaration/
-.jekyll-cache/
+css/
+TODO.md
+*.pem

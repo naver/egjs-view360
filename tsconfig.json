@@ -4,16 +4,16 @@
     "module": "es2015",
     "target": "es5",
     "moduleResolution": "node",
-    "lib": ["es2015", "es2015.promise", "dom"],
+    "lib": ["es2015", "dom"],
     "sourceMap": true,
     "strictNullChecks": true,
     "downlevelIteration": true,
     "experimentalDecorators": true,
-    "esModuleInterop": true,
-    "baseUrl": "."
+    "esModuleInterop": true
   },
   "include": [
     "./src/**/*.ts",
+    "./test/**/*.ts"
   ],
   "exclude": [
     "node_modules"

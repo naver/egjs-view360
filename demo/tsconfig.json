@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "experimentalDecorators": true
+  },
+  "include": [
+    "../src/*",
+    "./**/*.ts",
+    "./**/*.tsx"
+  ]
+}
