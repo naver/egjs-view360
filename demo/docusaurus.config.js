@@ -3,6 +3,7 @@
 
 const lightCodeTheme = require("prism-react-renderer/themes/oceanicNext");
 const darkCodeTheme = require("prism-react-renderer/themes/palenight");
+const sass = require("./plugin/sass");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -16,7 +17,7 @@ const config = {
   organizationName: "naver",
   projectName: "naver.github.io",
   trailingSlash: false,
-  plugins: ["docusaurus-plugin-sass"],
+  plugins: [sass],
   presets: [
     [
       "@docusaurus/preset-classic",
@@ -37,7 +38,6 @@ const config = {
             require.resolve("./src/styles/custom.css"),
             require.resolve("./src/styles/global.css"),
             // require.resolve("../packages/view360/sass/view360-bundle.sass"),
-            require.resolve("./src/styles/bulma-override.sass")
           ]
         },
         googleAnalytics: {
@@ -65,15 +65,15 @@ const config = {
             label: "Docs",
             position: "left"
           },
-          // {
-          //   type: "doc",
-          //   docId: "api/View360",
-          //   label: "API",
-          //   position: "left"
-          // },
           {
             type: "doc",
-            docId: "options/source/src",
+            docId: "api/Class/PanoViewer",
+            label: "API",
+            position: "left"
+          },
+          {
+            type: "doc",
+            docId: "options/PanoViewer/source/src",
             label: "Options",
             position: "left"
           },
@@ -107,13 +107,13 @@ const config = {
                 label: "Getting Started",
                 to: "docs/"
               },
-              // {
-              //   label: "API",
-              //   to: "docs/api/View360"
-              // },
+              {
+                label: "API",
+                to: "docs/api/Class/PanoViewer"
+              },
               {
                 label: "Options",
-                to: "docs/options/source/src"
+                to: "docs/options/PanoViewer/source/src"
               },
               {
                 label: "Events",

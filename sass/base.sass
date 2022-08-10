@@ -1,0 +1,49 @@
+.view360-container
+  position: relative
+  touch-action: pan-y
+  &:fullscreen
+    width: 100vw
+    height: 100vh
+    padding: 0
+  &.is-square,
+  &.is-1by1
+    padding-top: 100%
+  &.is-5by4
+    padding-top: 80%
+  &.is-4by3
+    padding-top: 75%
+  &.is-3by2
+    padding-top: 66.6666%
+  &.is-5by3
+    padding-top: 60%
+  &.is-16by9
+    padding-top: 56.25%
+  &.is-2by1
+    padding-top: 50%
+  &.is-3by1
+    padding-top: 33.3333%
+  &.is-4by5
+    padding-top: 125%
+  &.is-3by4
+    padding-top: 133.3333%
+  &.is-2by3
+    padding-top: 150%
+  &.is-3by5
+    padding-top: 166.6666%
+  &.is-9by16
+    padding-top: 177.7777%
+  &.is-1by2
+    padding-top: 200%
+  &.is-1by3
+    padding-top: 300%
+
+.view360-canvas
+  position: absolute
+  left: 0
+  top: 0
+  width: 100%
+  height: 100%
+  user-select: none
+  -webkit-user-drag: none
+  &.ctx-lost
+    text-indent: 0.001px

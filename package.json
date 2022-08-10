@@ -6,6 +6,10 @@
 	"module": "dist/view360.esm.js",
 	"es2015": "dist/view360.esm.js",
 	"types": "declaration/index.d.ts",
+  "sideEffects": [
+		"**/*.css",
+		"**/*.sass"
+	],
 	"scripts": {
 		"start": "rollup -c ./rollup.config.dev.js -w",
 		"build": "rm -rf ./dist && rollup -c && npm run declaration && npm run printsizes",
@@ -14,7 +18,7 @@
 		"test": "karma start",
 		"test:chrome": "karma start --chrome",
 		"lint": "eslint 'src/**/*.ts'",
-		"jsdoc": "rm -rf ./doc && jsdoc -c jsdoc.json",
+		"docs": "typedoc --options typedoc.json && ts-node -O '{\"module\":\"commonjs\"}' docgen/generate.ts",
 		"coverage": "karma start --coverage",
 		"coverage:nogl": "karma start --coverage --nogl",
 		"release": "release-helper upstream"
@@ -34,7 +38,7 @@
 	"bugs": {
 		"url": "https://github.com/naver/egjs-view360/issues"
 	},
-  "keywords": [
+	"keywords": [
 		"360-photo",
 		"360-video",
 		"view360",
@@ -49,17 +53,18 @@
 		"360"
 	],
 	"devDependencies": {
-		"@daybrush/jsdoc": "^0.3.8",
 		"@egjs/release-helper": "0.0.3",
+    "@rollup/plugin-babel": "^5.3.0",
+		"@rollup/plugin-commonjs": "^11.1.0",
+		"@rollup/plugin-node-resolve": "^7.1.3",
+		"@rollup/plugin-replace": "^4.0.0",
 		"@types/karma-chai": "^0.1.2",
 		"@types/mocha": "^8.0.3",
-		"@types/webxr": "^0.1.0",
 		"@typescript-eslint/eslint-plugin": "^4.33.0",
 		"@typescript-eslint/eslint-plugin-tslint": "^4.18.0",
 		"@typescript-eslint/parser": "^4.18.0",
 		"chai": "^4.1.2",
 		"cpx": "^1.5.0",
-		"egjs-jsdoc-template": "1.4.4",
 		"eslint": "^7.22.0",
 		"eslint-plugin-import": "^2.22.1",
 		"eslint-plugin-jsdoc": "^30.7.9",
@@ -78,17 +83,25 @@
 		"karma-sourcemap-loader": "^0.3.7",
 		"karma-typescript": "^5.2.0",
 		"karma-webpack": "^3.0.5",
-		"marked": "^0.4.0",
 		"mocha": "^5.2.0",
 		"print-sizes": "0.0.3",
-		"rollup": "^2.32.1",
+		"rollup": "^1.32.1",
+    "rollup-plugin-glslify": "^1.2.1",
+		"rollup-plugin-livereload": "^1.3.0",
+		"rollup-plugin-prototype-minify": "^1.1.0",
+		"rollup-plugin-serve": "^1.0.1",
+		"rollup-plugin-typescript2": "^0.27.0",
+		"rollup-plugin-uglify": "^6.0.4",
+		"rollup-plugin-visualizer": "^4.0.4",
 		"sinon": "^6.3.3",
+		"ts-node": "^10.9.1",
 		"tslint": "^6.1.2",
-		"typescript": "^3.9.3"
+		"typedoc": "^0.23.10",
+		"typescript": "^4.7.4"
 	},
-  "husky": {
-    "hooks": {
-      "commit-msg": "node ./config/validate-commit-msg.js"
-    }
-  }
+	"husky": {
+		"hooks": {
+			"commit-msg": "node ./config/validate-commit-msg.js"
+		}
+	}
 }
