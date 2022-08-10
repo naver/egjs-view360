@@ -37,7 +37,7 @@ const config = {
           customCss: [
             require.resolve("./src/styles/custom.css"),
             require.resolve("./src/styles/global.css"),
-            // require.resolve("../packages/view360/sass/view360-bundle.sass"),
+            // require.resolve("../sass/view360.sass")
           ]
         },
         googleAnalytics: {

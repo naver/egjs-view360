@@ -285,7 +285,6 @@
     "guard-for-in": "off",
     "id-blacklist": "off",
     "id-match": "off",
-    "import/order": ["error", {"newlines-between": "always"}],
     "jsdoc/check-alignment": "error",
     "jsdoc/check-indentation": "off",
     "jsdoc/newline-after-description": ["error", "never"],

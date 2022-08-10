@@ -11,7 +11,7 @@ module.exports = {
       type: "category",
       label: "PanoViewer",
       collapsible: true,
-      collapsed: false,
+      collapsed: true,
       items: [
         {
           type: "category",

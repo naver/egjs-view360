@@ -126,3 +126,14 @@ export const toPowerOfTwo = (val: number) => {
 
 export const getObjectOption = <T extends boolean | Partial<object>>(val: T): NoBoolean<T> => typeof val === "object" ? val : {} as any;
 export const toBooleanString = (val: boolean) => val ? "true" : "false";
+
+export const getAllAttributes = (element: HTMLElement) => {
+  const attribNames: string[] = "getAttributeNames" in element
+    ? element.getAttributeNames()
+    : [].slice.call(element.attributes).map(attr => attr.nodeName);
+
+  return attribNames.reduce((attribs, name) => ({
+    ...attribs,
+    [name]: element.getAttribute(name)
+  }), {});
+};

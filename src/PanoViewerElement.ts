@@ -2,14 +2,16 @@
  * Copyright (c) 2022 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
-import elStyles from "../sass/pano-el.sass";
-import commonStyles from "../sass/pano-viewer.sass";
-
+import PanoViewerBase from "./PanoViewerBase";
 import { EL_DIV, EL_SLOT } from "./const/browser";
 import { DEFAULT_CLASS } from "./const/external";
+import elStyles from "../sass/pano-el.sass";
+import commonStyles from "../sass/pano-viewer.sass";
+import { getAllAttributes } from "./utils";
 
 class PanoViewerElement extends HTMLElement {
   public shadowRoot: ShadowRoot;
+  public viewer: PanoViewerBase;
 
   public constructor() {
     super();
@@ -17,18 +19,32 @@ class PanoViewerElement extends HTMLElement {
     this.attachShadow({ mode: "open" });
 
     const rootEl = this.shadowRoot;
+    const styles = this._createStyles();
     const template = this._createTemplate();
 
+    rootEl.appendChild(styles);
     rootEl.appendChild(template);
   }
 
-  private _createTemplate(): HTMLElement {
+  public connectedCallback() {
+    const container = this.shadowRoot.querySelector(`.${DEFAULT_CLASS.CONTAINER}`) as HTMLElement;
+    const options = getAllAttributes(this);
+
+    this.viewer = new PanoViewerBase(container, {
+      ...options
+    });
+  }
+
+  public disconnectedCallback() {
+    this.viewer.destroy();
+  }
+
+  private _createTemplate() {
     const container = document.createElement(EL_DIV);
 
     container.classList.add(DEFAULT_CLASS.CONTAINER);
-
-    container.appendChild(this._createStyles());
     container.appendChild(this._createCanvasSlot());
+    container.appendChild(this._createEmptySlot());
 
     return container;
   }
@@ -56,6 +72,10 @@ class PanoViewerElement extends HTMLElement {
     slot.appendChild(canvas);
 
     return slot;
+  }
+
+  private _createEmptySlot() {
+    return document.createElement(EL_SLOT);
   }
 }
 

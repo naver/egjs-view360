@@ -4,14 +4,13 @@
  */
 import View360Error from "./core/View360Error";
 import ERROR from "./const/error";
-import { merge } from "./utils";
 
 /**
  * @interface
  * @see [Options](/docs/options/source/src) page for detailed information
  */
 export interface PanoViewerOptions {
-  src: string | HTMLElement | null;
+  src: string | HTMLElement;
 }
 
 /**
@@ -19,7 +18,7 @@ export interface PanoViewerOptions {
  */
 class PanoViewerBase {
   protected _rootEl: HTMLElement;
-  protected _src: PanoViewerOptions["src"];
+  protected _src?: PanoViewerOptions["src"];
 
   public get root() { return this._rootEl; }
   public get src() { return this._src; }
@@ -29,7 +28,7 @@ class PanoViewerBase {
    * @param {PanoViewerOptions} options
    */
   public constructor(root: HTMLElement, {
-    src = null
+    src
   }: Partial<PanoViewerOptions> = {}) {
     this._rootEl = root;
     this._src = src;
