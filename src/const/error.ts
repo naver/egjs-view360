@@ -19,7 +19,9 @@ export const ERROR_CODES: {
   ELEMENT_NOT_FOUND: 1,
   CANVAS_NOT_FOUND: 2,
   WEBGL_NOT_SUPPORTED: 3,
-  PROVIDE_SRC_FIRST: 4
+  PROVIDE_SRC_FIRST: 4,
+  FAILED_COMPILE_SHADER: 5,
+  FAILED_COMPILE_PROGRAM: 6
 };
 
 export const MESSAGES = {
@@ -27,7 +29,9 @@ export const MESSAGES = {
   ELEMENT_NOT_FOUND: (query: string) => `Element with selector "${query}" not found.`,
   CANVAS_NOT_FOUND: "The canvas element was not found inside the given root element.",
   WEBGL_NOT_SUPPORTED: "WebGL is not supported on this browser.",
-  PROVIDE_SRC_FIRST: "\"src\" should be provided before initialization."
+  PROVIDE_SRC_FIRST: "\"src\" should be provided before initialization.",
+  FAILED_COMPILE_SHADER: (msg: string | null) => `Failed compiling shader - "${msg}"`,
+  FAILED_COMPILE_PROGRAM: (msg: string | null) => `Failed compiling WebGL program - "${msg}"`,
 };
 
 export default {

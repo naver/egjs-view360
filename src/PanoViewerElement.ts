@@ -2,16 +2,18 @@
  * Copyright (c) 2022 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
-import PanoViewerBase from "./PanoViewerBase";
+import PanoViewerCore, { PanoViewerEvents } from "./PanoViewerCore";
 import { EL_DIV, EL_SLOT } from "./const/browser";
 import { DEFAULT_CLASS } from "./const/external";
 import elStyles from "../sass/pano-el.sass";
 import commonStyles from "../sass/pano-viewer.sass";
 import { getAllAttributes } from "./utils";
+import Emittable from "./type/Emittable";
+import { EventKey } from "./type/utils";
 
-class PanoViewerElement extends HTMLElement {
+class PanoViewerElement extends HTMLElement implements Emittable<PanoViewerEvents> {
   public shadowRoot: ShadowRoot;
-  public viewer: PanoViewerBase;
+  private _core: PanoViewerCore;
 
   public constructor() {
     super();
@@ -30,13 +32,25 @@ class PanoViewerElement extends HTMLElement {
     const container = this.shadowRoot.querySelector(`.${DEFAULT_CLASS.CONTAINER}`) as HTMLElement;
     const options = getAllAttributes(this);
 
-    this.viewer = new PanoViewerBase(container, {
+    this._core = new PanoViewerCore(container, this, {
       ...options
     });
   }
 
   public disconnectedCallback() {
-    this.viewer.destroy();
+    this._core.destroy();
+  }
+
+  // public addEventListener<K extends keyof HTMLElementEventMap | keyof PanoViewerEvents>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions | undefined): void {
+  //   super.addEventListener(type, listener, options);
+  // }
+
+  public trigger<K extends EventKey<PanoViewerEvents>>(eventName: K, param: Omit<PanoViewerEvents[K], "target">): this {
+    const evt = new CustomEvent(eventName, { detail: param });
+
+    this.dispatchEvent(evt);
+
+    return this;
   }
 
   private _createTemplate() {

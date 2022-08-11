@@ -38,5 +38,23 @@ export const PROJECTION_TYPE = {
  */
 export const DEFAULT_CLASS = {
   CONTAINER: "view360-container",
-  CANVAS: "view360-canvas"
+  CANVAS: "view360-canvas",
+  CTX_LOST: "ctx-lost"
+} as const;
+
+export const EVENTS = {
+  READY: "ready",
+  LOAD: "load",
+  RESIZE: "resize",
+  BEFORE_RENDER: "beforeRender",
+  RENDER: "render",
+  PROGRESS: "progress",
+  INPUT_START: "inputStart",
+  INPUT_END: "inputEnd",
+  CAMERA_CHANGE: "cameraChange",
+  ANIMATION_START: "animationStart",
+  ANIMATION_LOOP: "animationLoop",
+  ANIMATION_FINISHED: "animationFinished",
+  ANNOTATION_FOCUS: "annotationFocus",
+  ANNOTATION_UNFOCUS: "annotationUnfocus"
 } as const;

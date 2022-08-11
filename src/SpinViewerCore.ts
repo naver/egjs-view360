@@ -14,7 +14,7 @@ export interface SpinViewerOptions {
 /**
  *
  */
-class SpinViewerBase {
+class SpinViewerCore {
   public constructor({
 
   }: Partial<SpinViewerOptions> = {}) {
@@ -22,4 +22,4 @@ class SpinViewerBase {
   }
 }
 
-export default SpinViewerBase;
+export default SpinViewerCore;
