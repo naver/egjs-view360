@@ -13,7 +13,6 @@ class WebGLRenderer extends Renderer {
   protected _rootEl: HTMLCanvasElement;
   protected _gl: WebGLRenderingContext;
   protected _contextLost: boolean;
-  protected _program: WebGLProgram | null;
 
   public constructor(emitter: Emittable<RendererEvents>, canvas: HTMLCanvasElement) {
     super(emitter, canvas);
@@ -22,15 +21,30 @@ class WebGLRenderer extends Renderer {
     canvas.addEventListener(BROWSER.EVENTS.CONTEXT_RESTORED, this._onContextRestore);
 
     this._contextLost = false;
-    this._program = null;
   }
 
   public init() {
-    this._gl = this._getContext();
-    this._program = this._createWebGLProgram();
+    const gl = this._getContext();
+
+    this._gl = gl;
+  }
+
+  public resize() {
+    super.resize();
+
+    const canvas = this._rootEl;
+    const canvasSize = this._elementSize;
+    const pixelRatio = this._pixelRatio;
+
+    canvas.width = canvasSize.x * pixelRatio;
+    canvas.height = canvasSize.y * pixelRatio;
   }
 
   protected _onRender() {
+    const gl = this._gl;
+    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
     // TODO:
   }
 
@@ -63,42 +77,6 @@ class WebGLRenderer extends Renderer {
     }
 
     return context;
-  }
-
-  private _createWebGLProgram() {
-    const gl = this._gl;
-
-    const program = gl.createProgram()!;
-    const vs = this._compileShader(VS, gl.VERTEX_SHADER);
-    const fs = this._compileShader(FS, gl.FRAGMENT_SHADER);
-
-    gl.attachShader(program, vs);
-    gl.attachShader(program, fs);
-    gl.linkProgram(program);
-
-    if (!gl.getProgramParameter( program, gl.LINK_STATUS)) {
-      throw new View360Error(ERROR.MESSAGES.FAILED_COMPILE_PROGRAM(gl.getProgramInfoLog(program)), ERROR.CODES.FAILED_COMPILE_PROGRAM);
-    }
-
-    return program;
-  }
-
-  private _compileShader(src: string, type: WebGLRenderingContextBase["VERTEX_SHADER"] | WebGLRenderingContextBase["FRAGMENT_SHADER"]) {
-    const gl = this._gl;
-    const shader = gl.createShader(type);
-
-    if (!shader) {
-      throw new View360Error(ERROR.MESSAGES.FAILED_COMPILE_SHADER(`Unexpected Error: ${gl.getError()}`), ERROR.CODES.FAILED_COMPILE_SHADER);
-    }
-
-    gl.shaderSource(shader, src);
-    gl.compileShader(shader);
-
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-      throw new View360Error(ERROR.MESSAGES.FAILED_COMPILE_SHADER(gl.getShaderInfoLog(shader)), ERROR.CODES.FAILED_COMPILE_SHADER);
-    }
-
-    return shader;
   }
 
   private _onContextLost = () => {

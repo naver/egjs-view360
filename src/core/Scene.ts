@@ -2,5 +2,8 @@
  * Copyright (c) 2022 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
-import "./pano-viewer";
-import "./spin-viewer";
+class Scene {
+
+}
+
+export default Scene;

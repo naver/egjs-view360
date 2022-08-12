@@ -2,6 +2,9 @@
  * Copyright (c) 2022 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
+import Scene from "../core/Scene";
+import Camera from "../core/Camera";
+import Vector2 from "../math/Vector2";
 import { EVENTS } from "../const/external";
 import * as EVENT_TYPES from "../type/event";
 import Emittable from "../type/Emittable";
@@ -18,6 +21,8 @@ abstract class Renderer {
   protected _emitter: Emittable<RendererEvents>;
   protected _rootEl: HTMLElement;
   protected _renderQueued: boolean;
+  protected _elementSize: Vector2;
+  protected _pixelRatio: number;
 
   /**
    *
@@ -27,6 +32,8 @@ abstract class Renderer {
     this._emitter = emitter;
     this._rootEl = root;
     this._renderQueued = false;
+    this._elementSize = new Vector2();
+    this._pixelRatio = 1;
   }
 
   public abstract init(): void;
@@ -43,6 +50,16 @@ abstract class Renderer {
    *
    */
   public resize() {
+    const rootEl = this._rootEl;
+
+    this._elementSize.set(rootEl.clientWidth, rootEl.clientHeight);
+    this._pixelRatio = window.devicePixelRatio;
+  }
+
+  /**
+   *
+   */
+  public render(scene: Scene, camera: Camera) {
 
   }
 
