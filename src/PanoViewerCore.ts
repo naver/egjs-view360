@@ -29,7 +29,8 @@ export interface PanoViewerEvents {
  * @see [Options](/docs/options/source/src) page for detailed information
  */
 export interface PanoViewerOptions {
-  src: string | HTMLElement;
+  src: string | string[];
+  isVideo: boolean;
   canvasSelector: string;
 }
 
@@ -42,20 +43,23 @@ class PanoViewerCore {
   private _renderer: WebGLRenderer;
   private _camera: Camera;
   private _animator: FrameAnimator;
-  private _scene: Scene | null;
+  private _scene: Scene;
   private _initialized: boolean;
 
   private _src?: PanoViewerOptions["src"];
+  private _isVideo: PanoViewerOptions["isVideo"];
   private _canvasSelector: PanoViewerOptions["canvasSelector"];
 
   public get root() { return this._rootEl; }
   public get src() { return this._src; }
+  public get isVideo() { return this._isVideo; }
 
   /**
    *
    */
   public constructor(root: HTMLElement, eventEmitter: Emittable<PanoViewerEvents>, {
     src,
+    isVideo = false,
     canvasSelector = "canvas"
   }: Partial<PanoViewerOptions> = {}) {
     this._rootEl = root;
@@ -64,13 +68,14 @@ class PanoViewerCore {
 
     // Options
     this._src = src;
+    this._isVideo = isVideo;
     this._canvasSelector = canvasSelector;
 
     // Core components
     const canvas = findCanvas(root, canvasSelector);
     this._renderer = new WebGLRenderer(eventEmitter, canvas);
     this._camera = new Camera();
-    this._scene = null;
+    this._scene = new Scene();
     this._animator = new FrameAnimator();
   }
 
@@ -87,7 +92,7 @@ class PanoViewerCore {
     }
 
     this._renderer.init();
-    this._scene = this._generateScene();
+    this._fillScene();
 
     this._animator.start(this._renderFrame);
   }
@@ -107,9 +112,10 @@ class PanoViewerCore {
     this._renderer.render(scene, camera);
   };
 
-  private _generateScene() {
+  private _fillScene() {
+    const scene = this._scene;
+
     // TODO: 현재 옵션에 따라 Scene 구조 생성
-    return new Scene();
   }
 }
 

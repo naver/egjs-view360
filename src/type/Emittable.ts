@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2022 NAVER Corp.
+ * egjs projects are licensed under the MIT license
+ */
 import { EventKey } from "./utils";
 
 interface Emittable<T> {

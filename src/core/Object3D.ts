@@ -2,8 +2,8 @@
  * Copyright (c) 2022 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
-import Renderer from "./Renderer";
+class Object3D {
 
-export {
-  Renderer as Renderer
-};
+}
+
+export default Object3D;

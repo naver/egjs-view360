@@ -10,7 +10,6 @@ import { DEFAULT_CLASS } from "../const/external";
 import Emittable from "../type/Emittable";
 
 class WebGLRenderer extends Renderer {
-  protected _rootEl: HTMLCanvasElement;
   protected _gl: WebGLRenderingContext;
   protected _contextLost: boolean;
 
@@ -29,17 +28,6 @@ class WebGLRenderer extends Renderer {
     this._gl = gl;
   }
 
-  public resize() {
-    super.resize();
-
-    const canvas = this._rootEl;
-    const canvasSize = this._elementSize;
-    const pixelRatio = this._pixelRatio;
-
-    canvas.width = canvasSize.x * pixelRatio;
-    canvas.height = canvasSize.y * pixelRatio;
-  }
-
   protected _onRender() {
     const gl = this._gl;
     gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
@@ -49,7 +37,7 @@ class WebGLRenderer extends Renderer {
   }
 
   private _getContext() {
-    const canvas = this._rootEl;
+    const canvas = this._canvas;
     const webglIdentifiers = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
     let context: WebGLRenderingContext | null = null;
     const contextAttributes = {
@@ -57,9 +45,9 @@ class WebGLRenderer extends Renderer {
       antialias: false
     };
 
-    const onWebglcontextcreationerror = e => e.statusMessage;
+    const onWebglContextCreationError = e => e.statusMessage;
 
-    canvas.addEventListener(BROWSER.EVENTS.CONTEXT_CREATE_ERROR, onWebglcontextcreationerror);
+    canvas.addEventListener(BROWSER.EVENTS.CONTEXT_CREATE_ERROR, onWebglContextCreationError);
 
     for (const identifier of webglIdentifiers) {
       try {
@@ -70,7 +58,7 @@ class WebGLRenderer extends Renderer {
       }
     }
 
-    canvas.removeEventListener(BROWSER.EVENTS.CONTEXT_CREATE_ERROR, onWebglcontextcreationerror);
+    canvas.removeEventListener(BROWSER.EVENTS.CONTEXT_CREATE_ERROR, onWebglContextCreationError);
 
     if (!context) {
       throw new View360Error(ERROR.MESSAGES.WEBGL_NOT_SUPPORTED, ERROR.CODES.WEBGL_NOT_SUPPORTED);
@@ -80,12 +68,12 @@ class WebGLRenderer extends Renderer {
   }
 
   private _onContextLost = () => {
-    const canvas = this._rootEl;
+    const canvas = this._canvas;
     canvas.classList.add(DEFAULT_CLASS.CTX_LOST);
   };
 
   private _onContextRestore = () => {
-    const canvas = this._rootEl;
+    const canvas = this._canvas;
     canvas.classList.remove(DEFAULT_CLASS.CTX_LOST);
   };
 }

@@ -19,18 +19,18 @@ export interface RendererEvents {
  */
 abstract class Renderer {
   protected _emitter: Emittable<RendererEvents>;
-  protected _rootEl: HTMLElement;
+  protected _canvas: HTMLCanvasElement;
   protected _renderQueued: boolean;
   protected _elementSize: Vector2;
   protected _pixelRatio: number;
 
   /**
    *
-   * @param root
+   * @param canvas
    */
-  public constructor(emitter: Emittable<RendererEvents>, root: HTMLElement) {
+  public constructor(emitter: Emittable<RendererEvents>, canvas: HTMLCanvasElement) {
     this._emitter = emitter;
-    this._rootEl = root;
+    this._canvas = canvas;
     this._renderQueued = false;
     this._elementSize = new Vector2();
     this._pixelRatio = 1;
@@ -50,10 +50,14 @@ abstract class Renderer {
    *
    */
   public resize() {
-    const rootEl = this._rootEl;
+    const canvas = this._canvas;
+    const canvasSize = this._elementSize;
+    const pixelRatio = this._pixelRatio;
 
-    this._elementSize.set(rootEl.clientWidth, rootEl.clientHeight);
+    this._elementSize.set(canvas.clientWidth, canvas.clientHeight);
     this._pixelRatio = window.devicePixelRatio;
+    canvas.width = canvasSize.x * pixelRatio;
+    canvas.height = canvasSize.y * pixelRatio;
   }
 
   /**
@@ -79,20 +83,19 @@ abstract class Renderer {
 
   private _renderFrame(delta: number) {
     const emitter = this._emitter;
-    const deltaMiliSec = delta * 1000;
 
     this._renderQueued = false;
 
     emitter.trigger(EVENTS.BEFORE_RENDER, {
       type: EVENTS.BEFORE_RENDER,
-      delta: deltaMiliSec
+      delta
     });
 
     this._onRender();
 
     emitter.trigger(EVENTS.RENDER, {
       type: EVENTS.RENDER,
-      delta: deltaMiliSec
+      delta
     });
   }
 }

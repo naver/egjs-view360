@@ -22,6 +22,7 @@ module.exports = {
       "@typescript-eslint/no-empty-interface": "off",
       "@typescript-eslint/no-non-null-assertion": "off",
       "@typescript-eslint/explicit-module-boundary-types": "off",
+      "@typescript-eslint/ban-types": "off",
       "@typescript-eslint/member-ordering": ["error", {
         "default": [
           // Index signature

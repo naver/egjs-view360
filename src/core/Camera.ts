@@ -3,6 +3,7 @@
  * egjs projects are licensed under the MIT license
  */
 class Camera {
+  
 }
 
 export default Camera;
