@@ -50,7 +50,7 @@
 		"url": "https://github.com/naver/egjs-view360/issues"
 	},
 	"dependencies": {
-		"@egjs/axes": "^3.3.0",
+		"@egjs/axes": "^3.7.0",
 		"@egjs/component": "^3.0.1",
 		"@egjs/imready": "^1.1.2",
 		"gl-matrix": "^3.3.0",
