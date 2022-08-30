@@ -2,25 +2,28 @@
  * Copyright (c) 2022 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
-import ShaderProgram from "../core/ShaderProgram";
+import Geometry from "../geometry/Geometry";
+import Material from "../core/Material";
+import Entity from "../core/Entity";
+import WebGLRenderer from "../renderer/WebGLRenderer";
 
 /** */
-class Projection {
+class Projection extends Entity {
   protected _uniforms: Record<string, any>;
+  protected _geometry: Geometry;
+  protected _material: Material;
 
-  private _vs: string;
-  private _fs: string;
+  public constructor(geometry: Geometry, material: Material) {
+    super();
 
-  public constructor(vertexShader: string, fragmentShader: string, uniforms: Record<string, any>) {
-    this._vs = vertexShader;
-    this._fs = fragmentShader;
-    this._uniforms = uniforms;
+    this._geometry = geometry;
+    this._material = material;
   }
 
-  public createProgram(gl: WebGLRenderingContext): ShaderProgram {
-    const program = new ShaderProgram(gl, this._vs, this._fs);
-
-    return program;
+  public render(renderer: WebGLRenderer) {
+    renderer.useMaterial(this._material);
+    renderer.drawGeometry(this._geometry);
+    super.render(renderer);
   }
 }
 

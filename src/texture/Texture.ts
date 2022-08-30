@@ -5,18 +5,9 @@
 /**
  *
  */
-abstract class Texture {
-  private _source: TexImageSource;
-
-  public get source() { return this._source; }
-
-  public constructor(source: TexImageSource) {
-    this._source = source;
-  }
-
-  public update() {
-    // DO_NOTHING
-  }
+interface Texture {
+  update(): void;
+  createWebGLTexture(gl: WebGLRenderingContext): WebGLTexture;
 }
 
 export default Texture;

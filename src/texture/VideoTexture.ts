@@ -7,14 +7,21 @@ import Texture from "./Texture";
 /**
  *
  */
-class VideoTexture extends Texture {
+class VideoTexture implements Texture {
+  private _video: HTMLVideoElement;
+
   public constructor(video: HTMLVideoElement) {
-    super(video);
+    this._video = video;
   }
 
   public update() {
     // TODO:
+    // this._source.requestVideoFrameCallback();
   }
+
+  public createWebGLTexture(gl: WebGLRenderingContext): WebGLTexture {
+
+  };
 }
 
 export default VideoTexture;

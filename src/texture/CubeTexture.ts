@@ -4,14 +4,11 @@
  */
 import Texture from "./Texture";
 
-/**
- *
- */
-class ImageTexture implements Texture {
-  private _image: HTMLImageElement;
+class CubeTexture implements Texture {
+  private _images: HTMLImageElement[];
 
-  public constructor(image: HTMLImageElement) {
-    this._image = image;
+  public constructor(image: HTMLImageElement[]) {
+    this._images = image;
   }
 
   public update() {
@@ -23,4 +20,4 @@ class ImageTexture implements Texture {
   };
 }
 
-export default ImageTexture;
+export default CubeTexture;

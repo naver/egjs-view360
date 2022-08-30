@@ -3,15 +3,19 @@
  * egjs projects are licensed under the MIT license
  */
 import Camera from "./core/Camera";
-import Scene from "./core/Scene";
+import Entity from "./core/Entity";
+import TextureLoader from "./core/TextureLoader";
 import FrameAnimator from "./core/FrameAnimator";
 import View360Error from "./core/View360Error";
+import Projection from "./projection/Projection";
 import WebGLRenderer from "./renderer/WebGLRenderer";
 import ERROR from "./const/error";
 import { EVENTS } from "./const/external";
 import { findCanvas } from "./utils";
 import Emittable from "./type/Emittable";
 import * as EVENT_TYPES from "./type/event";
+import Texture from "./texture/Texture";
+import EquirectProjection from "./projection/EquirectProjection";
 
 /**
  * @interface
@@ -43,7 +47,7 @@ class PanoViewerCore {
   private _renderer: WebGLRenderer;
   private _camera: Camera;
   private _animator: FrameAnimator;
-  private _scene: Scene;
+  private _scene: Entity;
   private _initialized: boolean;
 
   private _src?: PanoViewerOptions["src"];
@@ -51,8 +55,18 @@ class PanoViewerCore {
   private _canvasSelector: PanoViewerOptions["canvasSelector"];
 
   public get root() { return this._rootEl; }
-  public get src() { return this._src; }
   public get isVideo() { return this._isVideo; }
+
+  public get src() { return this._src; }
+  public set src(val: PanoViewerOptions["src"] | undefined) {
+    if (!val) return;
+
+    if (this._initialized) {
+      this.load(val, this._isVideo);
+    } else {
+      this._src = val;
+    }
+  }
 
   /**
    *
@@ -75,7 +89,7 @@ class PanoViewerCore {
     const canvas = findCanvas(root, canvasSelector);
     this._renderer = new WebGLRenderer(eventEmitter, canvas);
     this._camera = new Camera();
-    this._scene = new Scene();
+    this._scene = new Entity();
     this._animator = new FrameAnimator();
   }
 
@@ -92,30 +106,44 @@ class PanoViewerCore {
     }
 
     this._renderer.init();
-    this._fillScene();
 
-    this._animator.start(this._renderFrame);
+    const texture = await this._loadTexture(this._src, this._isVideo);
+    const projection = this._createProjection(texture);
+
+    this._animator.start(this.renderFrame);
+  }
+
+  public async load(src: string | string[], isVideo: boolean) {
+    const contentLoader = new TextureLoader();
+    const texture = await contentLoader.load(src, isVideo);
+
+    this._src = src;
   }
 
   /**
    */
   public resize() {
     this._renderer.resize();
+    this._renderer.renderFrame(this._scene, this._camera, 0);
   }
 
-  private _renderFrame = () => {
+  public renderFrame = () => {
     const scene = this._scene;
     const camera = this._camera;
 
     if (!scene) return;
 
-    this._renderer.render(scene, camera);
+    this._renderer.queueRender(scene, camera);
   };
 
-  private _fillScene() {
-    const scene = this._scene;
+  private _createProjection(texture: Texture): Projection {
+    // TODO: add more projections
+    return new EquirectProjection(texture);
+  }
 
-    // TODO: 현재 옵션에 따라 Scene 구조 생성
+  private async _loadTexture(src: string | string[], isVideo: boolean): Promise<Texture> {
+    const contentLoader = new TextureLoader();
+    return await contentLoader.load(src, isVideo);
   }
 }
 

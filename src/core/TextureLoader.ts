@@ -4,46 +4,69 @@
  */
 import ImReady from "@egjs/imready";
 import ImageTexture from "../texture/ImageTexture";
+import CubeTexture from "../texture/CubeTexture";
 import VideoTexture from "../texture/VideoTexture";
 import { isString } from "../utils";
+import Texture from "../texture/Texture";
 
 /**
  *
  */
-class ContentLoader {
+class TextureLoader {
   private _loadChecker: ImReady;
 
   constructor() {
     this._loadChecker = new ImReady();
   }
 
-  public async loadImage(src: string | string[]) {
-    const checker = this._loadChecker;
+  public async load(src: string | string[], isVideo): Promise<Texture> {
+    if (isVideo) {
+      return this.loadVideo(src);
+    } else {
+      if (Array.isArray(src) && src.length > 1) {
+        return this.loadCubeImage(src);
+      } else {
+        return this.loadImage(src);
+      }
+    }
+  }
+
+  public async loadImage(src: string | string[]): Promise<ImageTexture> {
     const images = this._toImageArray(src);
 
-    return new Promise((resolve, reject) => {
-      checker.once("ready", evt => {
-        if (evt.errorCount > 0) return;
-        resolve(images.map(img => new ImageTexture(img)));
-      });
-      checker.once("error", reject);
-
-      checker.check(images);
+    return this._load(images, resolve => {
+      resolve(new ImageTexture(images[0]));
     });
   }
 
-  public async loadVideo(src: string | string[]) {
-    const loader = this._loadChecker;
+  public async loadCubeImage(src: string[]): Promise<CubeTexture> {
+    const images = this._toImageArray(src);
+
+    return this._load(images, resolve => {
+      resolve(new CubeTexture(images));
+    });
+  }
+
+  public async loadVideo(src: string | string[]): Promise<VideoTexture> {
     const video = this._toVideoElement(src);
+
+    return this._load([video], resolve => {
+      resolve(new VideoTexture(video));
+    });
+  }
+
+  private _load<T>(content: HTMLElement[], onLoad: (resolve: (value: T) => void) => void): Promise<T> {
+    const loader = this._loadChecker;
 
     return new Promise((resolve, reject) => {
       loader.once("ready", evt => {
         if (evt.errorCount > 0) return;
-        resolve(new VideoTexture(video));
-      });
-      loader.once("error", reject);
 
-      loader.check([video]);
+        onLoad(resolve);
+      });
+
+      loader.once("error", reject);
+      loader.check(content);
     });
   }
 
@@ -95,4 +118,4 @@ class ContentLoader {
   }
 }
 
-export default ContentLoader;
+export default TextureLoader;

@@ -10,4 +10,4 @@ export {
   Camera,
   Transform,
   View360Error
-}
+};
