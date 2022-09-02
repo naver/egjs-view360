@@ -3,11 +3,12 @@
  * egjs projects are licensed under the MIT license
  */
 import Geometry from "./Geometry";
+import WebGLContext from "../webgl/WebGLContext";
 
 /** */
 class SphereGeometry extends Geometry {
   /** */
-  public constructor(radius = 2, widthSegments = 60, heightSegments = 60) {
+  public constructor(ctx: WebGLContext, radius = 2, widthSegments = 60, heightSegments = 60) {
     const ANGLE_CORRECTION_FOR_CENTER_ALIGN = -0.5 * Math.PI;
 
     const uvs: number[] = [];
@@ -41,9 +42,9 @@ class SphereGeometry extends Geometry {
           indicies.push(a, b, a + 1, b, b + 1, a + 1);
         }
       }
-
-      super(vertices, indicies, uvs);
     }
+
+    super(ctx, vertices, indicies, uvs);
   }
 }
 

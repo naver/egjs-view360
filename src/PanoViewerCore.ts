@@ -91,10 +91,13 @@ class PanoViewerCore {
     this._camera = new Camera();
     this._scene = new Entity();
     this._animator = new FrameAnimator();
+
+    this.init();
   }
 
   public destroy() {
     this._renderer.destroy();
+    this._animator.stop();
   }
 
   /**
@@ -110,6 +113,7 @@ class PanoViewerCore {
     const texture = await this._loadTexture(this._src, this._isVideo);
     const projection = this._createProjection(texture);
 
+    this._scene.add(projection);
     this._animator.start(this.renderFrame);
   }
 
@@ -124,21 +128,27 @@ class PanoViewerCore {
    */
   public resize() {
     this._renderer.resize();
-    this._renderer.renderFrame(this._scene, this._camera, 0);
+
+    this.renderFrame(0);
   }
 
-  public renderFrame = () => {
+  public renderFrame = (delta: number) => {
     const scene = this._scene;
     const camera = this._camera;
 
-    if (!scene) return;
+    if (delta > 0) {
+      // scene.update();
+      // camera.update();
+    }
 
-    this._renderer.queueRender(scene, camera);
+    this._renderer.render(scene, camera);
   };
 
   private _createProjection(texture: Texture): Projection {
+    const ctx = this._renderer.ctx;
+
     // TODO: add more projections
-    return new EquirectProjection(texture);
+    return new EquirectProjection(texture, ctx);
   }
 
   private async _loadTexture(src: string | string[], isVideo: boolean): Promise<Texture> {

@@ -46,6 +46,7 @@
   },
   "devDependencies": {
     "docusaurus-plugin-sass": "^0.2.2",
+    "glslify-loader": "^2.0.0",
     "raw-loader": "^4.0.2",
     "remark-breaks": "^2.0.2",
     "sass": "^1.43.4",

@@ -1,6 +1,6 @@
 module.exports = function(context, options) {
   return {
-    name: "docusaurus-plugin-glslify",
+    name: "docusaurus-sass",
     configureWebpack() {
       return {
         module: {

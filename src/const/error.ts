@@ -11,6 +11,7 @@
  * @property {2} CANVAS_NOT_FOUND The element given is not a \<canvas\> element
  * @property {3} WEBGL_NOT_SUPPORTED The browser does not support WebGL
  * @property {4} PROVIDE_SRC_FIRST `init()` is called before setting `src`
+ * @property {5} FAILED_LINKING_PROGRAM Failed linking WebGL program
  */
 export const ERROR_CODES: {
   [key in keyof typeof MESSAGES]: number;
@@ -20,8 +21,7 @@ export const ERROR_CODES: {
   CANVAS_NOT_FOUND: 2,
   WEBGL_NOT_SUPPORTED: 3,
   PROVIDE_SRC_FIRST: 4,
-  FAILED_COMPILE_SHADER: 5,
-  FAILED_COMPILE_PROGRAM: 6
+  FAILED_LINKING_PROGRAM: 5
 };
 
 export const MESSAGES = {
@@ -30,8 +30,7 @@ export const MESSAGES = {
   CANVAS_NOT_FOUND: "The canvas element was not found inside the given root element.",
   WEBGL_NOT_SUPPORTED: "WebGL is not supported on this browser.",
   PROVIDE_SRC_FIRST: "\"src\" should be provided before initialization.",
-  FAILED_COMPILE_SHADER: (msg: string | null) => `Failed compiling shader - "${msg}"`,
-  FAILED_COMPILE_PROGRAM: (msg: string | null) => `Failed compiling WebGL program - "${msg}"`,
+  FAILED_LINKING_PROGRAM: (msg: string | null, shaderLog: string | null) => `Failed linking WebGL program - "${msg}\nShader compile Log: ${shaderLog}`,
 };
 
 export default {

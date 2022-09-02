@@ -3,73 +3,47 @@
  * egjs projects are licensed under the MIT license
  */
 import Renderer, { RendererEvents } from "./Renderer";
-import View360Error from "../core/View360Error";
 import Camera from "../core/Camera";
 import Entity from "../core/Entity";
-import Material from "../core/Material";
-import Geometry from "../geometry/Geometry";
 import { EVENTS } from "../const/external";
-import ERROR from "../const/error";
-import * as BROWSER from "../const/browser";
-import { DEFAULT_CLASS } from "../const/external";
 import Emittable from "../type/Emittable";
+import WebGLContext from "../webgl/WebGLContext";
 
 class WebGLRenderer extends Renderer {
-  private _ctx: WebGLRenderingContext;
-  private _contextLost: boolean;
+  public readonly ctx: WebGLContext;
   private _renderQueued: boolean;
-  private _lastFrameTime: number;
 
   public constructor(emitter: Emittable<RendererEvents>, canvas: HTMLCanvasElement) {
     super(emitter, canvas);
 
-    canvas.addEventListener(BROWSER.EVENTS.CONTEXT_LOST, this._onContextLost);
-    canvas.addEventListener(BROWSER.EVENTS.CONTEXT_RESTORED, this._onContextRestore);
-
-    this._contextLost = false;
+    this.ctx = new WebGLContext(canvas);
     this._renderQueued = false;
-    this._lastFrameTime = 0;
   }
 
   public init() {
-    const gl = this._getContext();
-
-    this._gl = gl;
-    this._lastFrameTime = Date.now();
+    this.ctx.init();
   }
 
   public destroy(): void {
     this._renderQueued = false;
   }
 
-  public resize() {
-    super.resize();
-
-    const gl = this._gl;
-    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-  }
-
   /**
    *
    */
-  public renderFrame(entity: Entity, camera: Camera, delta?: number) {
-    const time = Date.now();
+  public render(entity: Entity, camera: Camera) {
     const emitter = this._emitter;
-    const timeDelta = delta ?? (time - this._lastFrameTime);
 
     this._renderQueued = false;
 
     emitter.trigger(EVENTS.BEFORE_RENDER, {
-      type: EVENTS.BEFORE_RENDER,
-      delta: timeDelta
+      type: EVENTS.BEFORE_RENDER
     });
 
-    this._onRender(entity, camera, timeDelta);
-    this._lastFrameTime = time;
+    this._onRender(entity, camera);
 
     emitter.trigger(EVENTS.RENDER, {
-      type: EVENTS.RENDER,
-      delta: timeDelta
+      type: EVENTS.RENDER
     });
   }
 
@@ -84,44 +58,20 @@ class WebGLRenderer extends Renderer {
     this._renderQueued = true;
 
     requestAnimationFrame(() => {
-      const delta = Date.now() - this._lastFrameTime;
-      this.renderFrame(entity, camera, delta);
+      this.render(entity, camera);
     });
   }
 
-  public drawGeometry(geometry: Geometry) {
-    // gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(), gl.STATIC_DRAW);
-    // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-    // gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(), gl.STATIC_DRAW);
-    // gl.drawElements(gl.TRIANGLES);
-  }
+  protected _onRender(entity: Entity, camera: Camera) {
+    const ctx = this.ctx;
 
-  public useMaterial(material: Material) {
-    // gl.useProgram()
-  }
+    if (ctx.lost) return;
 
-  protected _onRender(entity: Entity, camera: Camera, delta: number) {
-    if (this._contextLost) return;
-
-    const gl = this._gl;
-    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-
-    entity.render(this);
-
+    ctx.clear();
     // TODO:
+    ctx.updateUniforms(camera);
+    entity.render(this);
   }
-
-  private _onContextLost = () => {
-    const canvas = this._canvas;
-    canvas.classList.add(DEFAULT_CLASS.CTX_LOST);
-  };
-
-  private _onContextRestore = () => {
-    const canvas = this._canvas;
-    canvas.classList.remove(DEFAULT_CLASS.CTX_LOST);
-  };
 }
 
 export default WebGLRenderer;

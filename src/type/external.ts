@@ -8,3 +8,5 @@ export interface CubemapConfig {
   tileConfig: TileConfig | TileConfig[];
   trim: number;
 }
+
+export type VAO = WebGLVertexArrayObject | WebGLVertexArrayObjectOES;

@@ -1,14 +1,12 @@
-attribute vec3 aVertexPosition;
-attribute vec2 aTextureCoord;
+attribute vec3 position;
+attribute vec2 uv;
 
 uniform mat4 uMVMatrix;
 uniform mat4 uPMatrix;
-uniform float uEye;
-uniform vec4 uTexScaleOffset[2];
 
-varying highp vec2 vTextureCoord;
+varying highp vec2 vUV;
 
 void main() {
-  vTextureCoord = aTextureCoord.xy;
-  gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+  vUV = uv;
+  gl_Position = vec4(position, 1.0);
 }

@@ -37,12 +37,10 @@ export interface ResizeEvent<T> {
  * @type {object}
  * @property {string} type A type of the event.
  * @property {T} target An instance of PanoViewerBase that triggered this event.
- * @property {number} delta Time passed from the previous render call, in milisecond.
  */
 export interface BeforeRenderEvent<T> {
   type: string;
   target: T;
-  delta: number;
 }
 
 /**
@@ -51,10 +49,8 @@ export interface BeforeRenderEvent<T> {
  * @type {object}
  * @property {string} type A type of the event.
  * @property {T} target An instance of PanoViewerBase that triggered this event.
- * @property {number} delta Time passed from the previous render call, in milisecond.
  */
 export interface RenderEvent<T> {
   type: string;
   target: T;
-  delta: number;
 }

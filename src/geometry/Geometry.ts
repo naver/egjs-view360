@@ -3,22 +3,19 @@
  * egjs projects are licensed under the MIT license
  */
 import BufferAttribute from "../core/BufferAttribute";
+import WebGLContext from "../webgl/WebGLContext";
 
 /** */
 abstract class Geometry {
-  protected _vertices: BufferAttribute<Float32Array>;
-  protected _indicies: BufferAttribute<Uint16Array>;
-  protected _uvs: BufferAttribute<Float32Array>;
-
-  public get vertices() { return this._vertices; }
-  public get indicies() { return this._indicies; }
-  public get uvs() { return this._uvs; }
+  public readonly vertices: BufferAttribute<Float32Array>;
+  public readonly indicies: BufferAttribute<Uint16Array>;
+  public readonly uvs: BufferAttribute<Float32Array>;
 
   /** */
-  public constructor(vertices: number[], indicies: number[], uvs: number[]) {
-    this._vertices = new BufferAttribute(new Float32Array(vertices), 3);
-    this._indicies = new BufferAttribute(new Uint16Array(indicies), 1);
-    this._uvs = new BufferAttribute(new Float32Array(uvs), 2);
+  public constructor(ctx: WebGLContext, vertices: number[], indicies: number[], uvs: number[]) {
+    this.vertices = new BufferAttribute(new Float32Array(vertices), 3, ctx.createBuffer());
+    this.indicies = new BufferAttribute(new Uint16Array(indicies), 1, ctx.createBuffer());
+    this.uvs = new BufferAttribute(new Float32Array(uvs), 2, ctx.createBuffer());
   }
 }
 

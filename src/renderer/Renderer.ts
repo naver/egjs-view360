@@ -47,6 +47,7 @@ abstract class Renderer {
 
     canvas.width = canvasSize.x * devicePixelRatio;
     canvas.height = canvasSize.y * devicePixelRatio;
+
     this._pixelRatio = devicePixelRatio;
   }
 }

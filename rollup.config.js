@@ -1,14 +1,13 @@
-import buildHelper from "@egjs/build-helper";
+import buildHelper from "./config/build-helper";
 
 const external = {
   "@egjs/axes": "eg.Axes",
   "@egjs/component": "eg.Component",
   "@egjs/agent": "eg.agent",
   "@egjs/imready": "eg.ImReady",
-  "gl-matrix": "glMatrix",
-  "promise-polyfill": "Promise"
-}
-const name = "eg.view360";
+  "gl-matrix": "glMatrix"
+};
+const name = "View360";
 const plugins = [];
 
 export default buildHelper([
