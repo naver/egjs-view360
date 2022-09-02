@@ -6,8 +6,11 @@
  *
  */
 interface Texture {
+  webglTexture: WebGLTexture;
+  width: number;
+  height: number;
+  source: TexImageSource;
   update(): void;
-  createWebGLTexture(gl: WebGLRenderingContext): WebGLTexture;
 }
 
 export default Texture;

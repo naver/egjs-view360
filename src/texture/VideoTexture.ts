@@ -8,9 +8,17 @@ import Texture from "./Texture";
  *
  */
 class VideoTexture implements Texture {
+  public readonly webglTexture: WebGLTexture;
+
   private _video: HTMLVideoElement;
 
-  public constructor(video: HTMLVideoElement) {
+  public get width() { return this._video.videoWidth; }
+  public get height() { return this._video.videoHeight; }
+  public get source() { return this._video; }
+
+  public constructor(video: HTMLVideoElement, webglTexture: WebGLTexture) {
+    this.webglTexture = webglTexture;
+
     this._video = video;
   }
 
@@ -18,10 +26,6 @@ class VideoTexture implements Texture {
     // TODO:
     // this._source.requestVideoFrameCallback();
   }
-
-  public createWebGLTexture(gl: WebGLRenderingContext): WebGLTexture {
-
-  };
 }
 
 export default VideoTexture;

@@ -3,9 +3,10 @@
  * egjs projects are licensed under the MIT license
  */
 import ShaderProgram from "../core/ShaderProgram";
+import Camera from "../core/Camera";
 import Entity from "../core/Entity";
 import WebGLRenderer from "../renderer/WebGLRenderer";
-import VertexArrayObject from "../core/VAO";
+import VertexArrayObject from "../core/VertexArrayObject";
 
 /** */
 class Projection extends Entity {
@@ -20,11 +21,14 @@ class Projection extends Entity {
     this._program = program;
   }
 
-  public render(renderer: WebGLRenderer) {
-    renderer.ctx.useProgram(this._program);
-    renderer.ctx.drawVAO(this._vao);
+  public render(renderer: WebGLRenderer, camera: Camera) {
+    const ctx = renderer.ctx;
 
-    super.render(renderer);
+    ctx.useProgram(this._program);
+    ctx.updateUniforms(this, camera, this._program);
+    ctx.drawVAO(this._vao);
+
+    super.render(renderer, camera);
   }
 }
 

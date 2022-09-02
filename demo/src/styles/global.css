@@ -26,3 +26,20 @@ html[data-theme='dark'] .header-github-link::before {
 .header-npm-link::before {
   background: url("../../static/icon/npm.svg") no-repeat;
 }
+
+.pano-wrapper {
+  width: 100%;
+  padding: 50% 0 0 0;
+  margin: 0;
+  position: relative;
+}
+
+.pano-wrapper > pano-viewer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}

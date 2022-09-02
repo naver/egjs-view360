@@ -3,6 +3,7 @@
  * egjs projects are licensed under the MIT license
  */
 import { mat4 } from "gl-matrix";
+import Camera from "./Camera";
 import WebGLRenderer from "../renderer/WebGLRenderer";
 import Renderable from "../type/Renderable";
 
@@ -10,16 +11,18 @@ import Renderable from "../type/Renderable";
  *
  */
 class Entity implements Renderable {
+  public localMatrix: mat4;
+  public worldMatrix: mat4;
+
   private _parent: Entity | null;
   private _children: Entity[];
-  private _localMatrix: mat4;
-  private _worldMatrix: mat4;
 
   public constructor() {
+    this.localMatrix = mat4.create();
+    this.worldMatrix = mat4.create();
+
     this._parent = null;
     this._children = [];
-    this._localMatrix = mat4.create();
-    this._worldMatrix = mat4.create();
   }
 
   public destroy() {
@@ -35,9 +38,9 @@ class Entity implements Renderable {
     });
   }
 
-  public render(renderer: WebGLRenderer) {
+  public render(renderer: WebGLRenderer, camera: Camera) {
     this._children.forEach(child => {
-      child.render(renderer);
+      child.render(renderer, camera);
     });
   }
 }

@@ -2,14 +2,17 @@
  * Copyright (c) 2022 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
+import { mat4 } from "gl-matrix";
 import Camera from "../core/Camera";
+import Entity from "../core/Entity";
 import ShaderProgram from "../core/ShaderProgram";
 import View360Error from "../core/View360Error";
 import Geometry from "../geometry/Geometry";
 import * as BROWSER from "../const/browser";
 import ERROR from "../const/error";
 import { DEFAULT_CLASS } from "../const/external";
-import VertexArrayObject from "../core/VAO";
+import VertexArrayObject from "../core/VertexArrayObject";
+import BufferAttribute from "../core/BufferAttribute";
 
 class WebGLContext {
   private _canvas: HTMLCanvasElement;
@@ -17,16 +20,21 @@ class WebGLContext {
   private _contextLost: boolean;
   private _maxTextureSize: number;
   private _isWebGL2: boolean;
-  private _supportVAO: boolean;
+  private _extensions: {
+    vao: OES_vertex_array_object | null
+  };
 
   public get maxTextureSize() { return this._maxTextureSize; }
   public get isWebGL2() { return this._isWebGL2; }
-  public get supportVAO() { return this._supportVAO; }
+  public get supportVAO() { return this._isWebGL2 || !!this._extensions.vao; }
   public get lost() { return this._contextLost; }
 
   public constructor(canvas: HTMLCanvasElement) {
     this._canvas = canvas;
     this._contextLost = false;
+    this._extensions = {
+      vao: null
+    };
   }
 
   public init() {
@@ -37,7 +45,10 @@ class WebGLContext {
     const gl = this._gl;
     this._maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
     this._isWebGL2 = gl instanceof WebGL2RenderingContext;
-    this._supportVAO = this._isWebGL2 || !!gl.getExtension("OES_vertex_array_object");
+
+    if (!this._isWebGL2) {
+      this._extensions.vao = gl.getExtension("OES_vertex_array_object");
+    }
 
     canvas.addEventListener(BROWSER.EVENTS.CONTEXT_LOST, this._onContextLost);
     canvas.addEventListener(BROWSER.EVENTS.CONTEXT_RESTORED, this._onContextRestore);
@@ -51,38 +62,16 @@ class WebGLContext {
   }
 
   public processGeometry(geometry: Geometry, shaderProgram: ShaderProgram) {
-    const gl = this._gl;
-    const vao = this.createVAO();
+    const vao = this._createNativeVAO();
 
-    if (this._isWebGL2) {
-      (gl as WebGL2RenderingContext).bindVertexArray(vao);
-    } else {
-      const ext = gl.getExtension("OES_vertex_array_object")!;
+    if (vao) {
+      this._bindNativeVAO(vao);
 
-      ext.bindVertexArrayOES(vao);
-    }
+      this._supplyIndiciesData(geometry.indicies);
+      this._supplyAttributeData(geometry.vertices, shaderProgram.program, "position");
+      this._supplyAttributeData(geometry.uvs, shaderProgram.program, "uv");
 
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, geometry.indicies.buffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, geometry.indicies.data, gl.STATIC_DRAW);
-
-    const positionLoc = gl.getAttribLocation(shaderProgram.program, "position");
-    gl.bindBuffer(gl.ARRAY_BUFFER, geometry.vertices.buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, geometry.vertices.data, gl.STATIC_DRAW);
-    gl.vertexAttribPointer(positionLoc, geometry.vertices.itemSize, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(positionLoc);
-
-    const uvLoc = gl.getAttribLocation(shaderProgram.program, "uv");
-    gl.bindBuffer(gl.ARRAY_BUFFER, geometry.uvs.buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, geometry.uvs.data, gl.STATIC_DRAW);
-    gl.vertexAttribPointer(uvLoc, geometry.uvs.itemSize, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(uvLoc);
-
-    if (this._isWebGL2) {
-      (gl as WebGL2RenderingContext).bindVertexArray(null);
-    } else {
-      const ext = gl.getExtension("OES_vertex_array_object")!;
-
-      ext.bindVertexArrayOES(null);
+      this._bindNativeVAO(null);
     }
 
     return vao;
@@ -91,21 +80,45 @@ class WebGLContext {
   public drawVAO(vao: VertexArrayObject) {
     const gl = this._gl;
 
-    if (this._isWebGL2) {
-      (gl as WebGL2RenderingContext).bindVertexArray(vao.obj);
-    } else {
-      const ext = gl.getExtension("OES_vertex_array_object")!;
-
-      ext.bindVertexArrayOES(vao.obj);
-    }
+    this._bindNativeVAO(vao.obj);
 
     gl.drawElements(gl.TRIANGLES, vao.indicesCount, gl.UNSIGNED_SHORT, 0);
   }
 
-  public updateUniforms(camera: Camera) {
+  public getUniformLocations(program: WebGLProgram, uniforms: Record<string, any>) {
     const gl = this._gl;
 
+    const uniformLocations = Object.keys(uniforms).reduce((locations, key) => {
+      locations[key] = gl.getUniformLocation(program, key);
 
+      return locations;
+    }, {});
+
+    return {
+      ...this._getCommonUniformLocations(program),
+      ...uniformLocations
+    };
+  }
+
+  public updateUniforms(entity: Entity, camera: Camera, shaderProgram: ShaderProgram) {
+    const gl = this._gl;
+
+    const uniforms = shaderProgram.uniforms;
+    const uniformLocations = shaderProgram.uniformLocations;
+    const worldMatrix = entity.worldMatrix;
+
+    const mvMatrix = mat4.create();
+    mat4.multiply(mvMatrix, camera.viewMatrix, worldMatrix);
+
+    gl.uniformMatrix4fv(uniformLocations.uMVMatrix, false, mvMatrix);
+    gl.uniformMatrix4fv(uniformLocations.uPMatrix, false, camera.projectionMatrix);
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, uniforms.uTexture.webglTexture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, uniforms.uTexture.width, uniforms.uTexture.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, uniforms.uTexture.source);
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.uniform1i(uniformLocations.utexture, 0);
   }
 
   public useProgram(shaderProgram: ShaderProgram) {
@@ -149,17 +162,49 @@ class WebGLContext {
     return this._gl.createBuffer()!;
   }
 
-  public createVAO() {
+  public createTexture(): WebGLTexture {
+    return this._gl.createTexture()!;
+  }
+
+  private _createNativeVAO() {
     const gl = this._gl;
 
     if (this._isWebGL2) {
       return (gl as WebGL2RenderingContext).createVertexArray()!;
     } else {
-      const ext = gl.getExtension("OES_vertex_array_object");
+      const ext = this._extensions.vao;
 
-      // FIXME: extension 존재하지 않을 경우
-      return ext!.createVertexArrayOES()!;
+      return ext?.createVertexArrayOES() || null;
     }
+  }
+
+  private _bindNativeVAO(vao: WebGLVertexArrayObject | null) {
+    const gl = this._gl;
+
+    if (this._isWebGL2) {
+      (gl as WebGL2RenderingContext).bindVertexArray(vao);
+    } else {
+      const ext = this._extensions.vao;
+
+      ext?.bindVertexArrayOES(vao);
+    }
+  }
+
+  private _supplyIndiciesData(indicies: BufferAttribute<Uint16Array>) {
+    const gl = this._gl;
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicies.buffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indicies.data, gl.STATIC_DRAW);
+  }
+
+  private _supplyAttributeData(attribute: BufferAttribute<Float32Array>, program: WebGLProgram, name: string) {
+    const gl = this._gl;
+    const attribLocation = gl.getAttribLocation(program, name);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, attribute.buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, attribute.data, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(attribLocation, attribute.itemSize, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(attribLocation);
   }
 
   private _compileShader(type: number, src: string) {
@@ -170,6 +215,15 @@ class WebGLContext {
     gl.compileShader(shader);
 
     return shader;
+  }
+
+  private _getCommonUniformLocations(program: WebGLProgram) {
+    const gl = this._gl;
+
+    return {
+      uMVMatrix: gl.getUniformLocation(program, "uMVMatrix"),
+      uPMatrix: gl.getUniformLocation(program, "uPMatrix"),
+    };
   }
 
   private _getContext(canvas: HTMLCanvasElement) {

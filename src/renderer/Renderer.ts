@@ -20,6 +20,10 @@ abstract class Renderer {
   protected _elementSize: { x: number, y: number };
   protected _pixelRatio: number;
 
+  public get width() { return this._elementSize.x; }
+  public get height() { return this._elementSize.y; }
+  public get aspect() { return this._elementSize.x / this._elementSize.y; }
+
   /**
    *
    * @param canvas
@@ -31,7 +35,6 @@ abstract class Renderer {
     this._pixelRatio = 1;
   }
 
-  public abstract init(): void;
   public abstract destroy(): void;
 
   /**

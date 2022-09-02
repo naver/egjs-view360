@@ -8,18 +8,21 @@ import CubeTexture from "../texture/CubeTexture";
 import VideoTexture from "../texture/VideoTexture";
 import { isString } from "../utils";
 import Texture from "../texture/Texture";
+import WebGLContext from "../webgl/WebGLContext";
 
 /**
  *
  */
 class TextureLoader {
   private _loadChecker: ImReady;
+  private _ctx: WebGLContext;
 
-  constructor() {
+  constructor(ctx: WebGLContext) {
     this._loadChecker = new ImReady();
+    this._ctx = ctx;
   }
 
-  public async load(src: string | string[], isVideo): Promise<Texture> {
+  public async load(src: string | string[], isVideo: boolean): Promise<Texture> {
     if (isVideo) {
       return this.loadVideo(src);
     } else {
@@ -35,7 +38,9 @@ class TextureLoader {
     const images = this._toImageArray(src);
 
     return this._load(images, resolve => {
-      resolve(new ImageTexture(images[0]));
+      const webglTexture = this._ctx.createTexture();
+
+      resolve(new ImageTexture(images[0], webglTexture));
     });
   }
 
@@ -43,7 +48,9 @@ class TextureLoader {
     const images = this._toImageArray(src);
 
     return this._load(images, resolve => {
-      resolve(new CubeTexture(images));
+      const webglTexture = this._ctx.createTexture();
+
+      resolve(new CubeTexture(images, webglTexture));
     });
   }
 
@@ -51,7 +58,9 @@ class TextureLoader {
     const video = this._toVideoElement(src);
 
     return this._load([video], resolve => {
-      resolve(new VideoTexture(video));
+      const webglTexture = this._ctx.createTexture();
+
+      resolve(new VideoTexture(video, webglTexture));
     });
   }
 

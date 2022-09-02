@@ -2,10 +2,11 @@
  * Copyright (c) 2022 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
-import { Renderer } from "../renderer";
+import Camera from "../core/Camera";
+import Renderer from "../renderer/Renderer";
 
 interface Renderable {
-  render(renderer: Renderer): void;
+  render(renderer: Renderer, camera: Camera): void;
 }
 
 export default Renderable;

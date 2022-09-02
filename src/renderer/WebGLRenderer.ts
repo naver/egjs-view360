@@ -20,10 +20,6 @@ class WebGLRenderer extends Renderer {
     this._renderQueued = false;
   }
 
-  public init() {
-    this.ctx.init();
-  }
-
   public destroy(): void {
     this._renderQueued = false;
   }
@@ -68,9 +64,7 @@ class WebGLRenderer extends Renderer {
     if (ctx.lost) return;
 
     ctx.clear();
-    // TODO:
-    ctx.updateUniforms(camera);
-    entity.render(this);
+    entity.render(this, camera);
   }
 }
 

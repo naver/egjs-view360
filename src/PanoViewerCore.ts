@@ -2,6 +2,7 @@
  * Copyright (c) 2022 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
+import { vec3 } from "gl-matrix";
 import Camera from "./core/Camera";
 import Entity from "./core/Entity";
 import TextureLoader from "./core/TextureLoader";
@@ -108,7 +109,15 @@ class PanoViewerCore {
       throw new View360Error(ERROR.MESSAGES.PROVIDE_SRC_FIRST, ERROR.CODES.PROVIDE_SRC_FIRST);
     }
 
-    this._renderer.init();
+    const renderer = this._renderer;
+    const camera = this._camera;
+
+    renderer.ctx.init();
+    renderer.resize();
+    camera.setAspect(renderer.width, renderer.height);
+
+    // FIXME:
+    camera.lookAtPos(vec3.fromValues(0, 0, -1));
 
     const texture = await this._loadTexture(this._src, this._isVideo);
     const projection = this._createProjection(texture);
@@ -118,7 +127,8 @@ class PanoViewerCore {
   }
 
   public async load(src: string | string[], isVideo: boolean) {
-    const contentLoader = new TextureLoader();
+    const ctx = this._renderer.ctx;
+    const contentLoader = new TextureLoader(ctx);
     const texture = await contentLoader.load(src, isVideo);
 
     this._src = src;
@@ -127,7 +137,11 @@ class PanoViewerCore {
   /**
    */
   public resize() {
-    this._renderer.resize();
+    const renderer = this._renderer;
+    const camera = this._camera;
+
+    renderer.resize();
+    camera.setAspect(renderer.width, renderer.height);
 
     this.renderFrame(0);
   }
@@ -152,7 +166,9 @@ class PanoViewerCore {
   }
 
   private async _loadTexture(src: string | string[], isVideo: boolean): Promise<Texture> {
-    const contentLoader = new TextureLoader();
+    const ctx = this._renderer.ctx;
+    const contentLoader = new TextureLoader(ctx);
+
     return await contentLoader.load(src, isVideo);
   }
 }

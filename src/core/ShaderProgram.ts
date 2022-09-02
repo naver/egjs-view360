@@ -7,10 +7,12 @@ import WebGLContext from "../webgl/WebGLContext";
 class ShaderProgram {
   public readonly program: WebGLProgram;
   public readonly uniforms: Record<string, any>;
+  public readonly uniformLocations: Record<string, any>;
 
   public constructor(ctx: WebGLContext, vertexShader: string, fragmentShader: string, uniforms: Record<string, any>) {
     this.program = ctx.createProgram(vertexShader, fragmentShader);
     this.uniforms = uniforms;
+    this.uniformLocations = ctx.getUniformLocations(this.program, uniforms);
   }
 }
 

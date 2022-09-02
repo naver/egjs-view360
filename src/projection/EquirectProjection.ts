@@ -3,7 +3,7 @@
  * egjs projects are licensed under the MIT license
  */
 import Projection from "./Projection";
-import VertexArrayObject from "../core/VAO";
+import VertexArrayObject from "../core/VertexArrayObject";
 import WebGLContext from "../webgl/WebGLContext";
 import Texture from "../texture/Texture";
 import ShaderProgram from "../core/ShaderProgram";
