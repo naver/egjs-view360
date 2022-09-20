@@ -2,8 +2,22 @@
  * Copyright (c) 2022 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
-import Control from "./Control";
+
+import AnimationControl from "./AnimationControl";
+import CameraControl from "./CameraControl";
+import PanoControl from "./PanoControl";
+import RotateControl, { RotateControlOptions } from "./RotateControl";
+import ZoomControl, { ZoomControlOptions } from "./ZoomControl";
 
 export {
-  Control
+  AnimationControl,
+  PanoControl,
+  RotateControl,
+  ZoomControl
+};
+
+export type {
+  CameraControl,
+  RotateControlOptions,
+  ZoomControlOptions
 };

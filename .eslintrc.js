@@ -6,9 +6,13 @@ module.exports = {
   parser: "@typescript-eslint/parser",
   plugins: [
     "@typescript-eslint",
+    "compat",
+    "es"
   ],
   extends: [
-    "eslint:recommended"
+    "eslint:recommended",
+    "plugin:compat/recommended",
+    "plugin:es/restrict-to-es2015"
   ],
   overrides: [{
     files: [
@@ -23,6 +27,7 @@ module.exports = {
       "@typescript-eslint/no-non-null-assertion": "off",
       "@typescript-eslint/explicit-module-boundary-types": "off",
       "@typescript-eslint/ban-types": "off",
+      "@typescript-eslint/no-inferrable-types": "off",
       "@typescript-eslint/member-ordering": ["error", {
         "default": [
           // Index signature
@@ -43,11 +48,15 @@ module.exports = {
           "protected-instance-method",
           "private-instance-method"
         ]
-      }],
+      }]
     }
   }],
   rules: {
     quotes: ["error", "double"],
-    semi: ["error", "always"]
+    semi: ["error", "always"],
+    "es/no-optional-chaining": "off",
+    "es/no-rest-spread-properties": "off",
+    "es/no-async-functions": "off",
+    "no-empty-pattern": "off"
   }
 };

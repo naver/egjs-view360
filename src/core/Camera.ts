@@ -31,7 +31,7 @@ class Camera {
 
   /** */
   public lookAt(yaw: number, pitch: number, zoom: number) {
-    // TODO:
+
   }
 
   /** */

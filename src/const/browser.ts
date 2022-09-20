@@ -30,3 +30,16 @@ export const EVENTS = {
 
 export const EL_DIV = "div";
 export const EL_SLOT = "slot";
+
+// https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent.button
+export enum MOUSE_BUTTON {
+  LEFT,
+  MIDDLE,
+  RIGHT
+}
+
+export const CURSOR = {
+  GRAB: "grab",
+  GRABBING: "grabbing",
+  NONE: ""
+} as const;

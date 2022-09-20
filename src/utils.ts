@@ -60,7 +60,7 @@ export const isCSSSelector = (val: any) => {
 
   try {
     dummyEl.querySelector(val);
-  } catch {
+  } catch (err) {
     return false;
   }
 
@@ -122,6 +122,16 @@ export const toPowerOfTwo = (val: number) => {
   }
 
   return result;
+};
+
+export const findIndex = <T>(array: T[], checker: (val: T) => boolean): number => {
+  for (let idx = 0; idx < array.length; idx++) {
+    if (checker(array[idx])) {
+      return idx;
+    }
+  }
+
+  return -1;
 };
 
 export const getObjectOption = <T extends boolean | Partial<object>>(val: T): NoBoolean<T> => typeof val === "object" ? val : {} as any;

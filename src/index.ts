@@ -10,7 +10,6 @@ import SpinViewerCore, { SpinViewerOptions } from "./SpinViewerCore";
 import SpinViewerElement from "./SpinViewerElement";
 
 export * from "./core";
-export * from "./math";
 export * from "./control";
 export * from "./renderer";
 export * from "./const/external";
