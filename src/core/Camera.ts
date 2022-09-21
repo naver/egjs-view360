@@ -21,7 +21,7 @@ class Camera {
     this.projectionMatrix = mat4.create();
 
     this._up = vec3.fromValues(0, 1, 0);
-    this._fov = 50; // FIXME:
+    this._fov = 80; // FIXME:
     this._aspect = 1;
   }
 
@@ -31,7 +31,19 @@ class Camera {
 
   /** */
   public lookAt(yaw: number, pitch: number, zoom: number) {
+    const yawRad = toRadian(yaw);
+    const pitchRad = toRadian(pitch);
+    const newPos = vec3.create();
 
+    newPos[1] = Math.sin(pitchRad);
+    newPos[2] = Math.cos(pitchRad);
+
+    newPos[0] = newPos[2] * Math.sin(-yawRad);
+    newPos[2] = -newPos[2] * Math.cos(-yawRad);
+
+    console.log(yaw, pitch);
+
+    this.lookAtPos(newPos);
   }
 
   /** */
@@ -45,7 +57,6 @@ class Camera {
     const eye = mat4.getTranslation(vec3.create(), viewMatrix);
 
     mat4.lookAt(viewMatrix, eye, dir, up);
-    mat4.invert(viewMatrix, viewMatrix);
 
     mat4.perspective(projMatrix, toRadian(this._fov), this._aspect, 0.1, 10);
   }

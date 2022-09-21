@@ -3,12 +3,14 @@
  * egjs projects are licensed under the MIT license
  */
 import Geometry from "./Geometry";
+import WebGLContext from "../webgl/WebGLContext";
 
 /**
  *
  */
 class CubeGeometry extends Geometry {
   public constructor() {
+    // FIXME:
     super([], [], []);
   }
 }

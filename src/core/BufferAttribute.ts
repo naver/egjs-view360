@@ -9,14 +9,12 @@ import { TypedArray } from "../type/utils";
  */
 class BufferAttribute<T extends TypedArray> {
   public readonly data: T;
-  public readonly buffer: WebGLBuffer;
   public itemSize: number;
   public count: number;
 
   /** */
-  public constructor(data: T, itemSize: number, buffer: WebGLBuffer) {
+  public constructor(data: T, itemSize: number) {
     this.data = data;
-    this.buffer = buffer;
     this.itemSize = itemSize;
     this.count = data.length / itemSize;
   }

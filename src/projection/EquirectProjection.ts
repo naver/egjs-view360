@@ -15,17 +15,17 @@ import fs from "../shader/equirect.frag";
  *
  */
 class EquirectProjection extends Projection {
-  public constructor(texture: Texture, ctx: WebGLContext) {
+  public constructor(ctx: WebGLContext, texture: Texture) {
     const uniforms = {
       uTexture: texture
     };
 
-    const geometry = new SphereGeometry(ctx);
+    const geometry = new SphereGeometry();
     const program = new ShaderProgram(ctx, vs, fs, uniforms);
 
-    const vao = ctx.processGeometry(geometry, program);
+    const vao = ctx.createVAO(geometry, program);
 
-    super(new VertexArrayObject(vao, geometry.indicies.count), program);
+    super(vao, program);
   }
 }
 

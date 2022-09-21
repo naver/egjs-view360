@@ -8,7 +8,7 @@ import WebGLContext from "../webgl/WebGLContext";
 /** */
 class SphereGeometry extends Geometry {
   /** */
-  public constructor(ctx: WebGLContext, radius = 2, widthSegments = 60, heightSegments = 60) {
+  public constructor(radius = 2, widthSegments = 60, heightSegments = 60) {
     const ANGLE_CORRECTION_FOR_CENTER_ALIGN = -0.5 * Math.PI;
 
     const uvs: number[] = [];
@@ -44,7 +44,7 @@ class SphereGeometry extends Geometry {
       }
     }
 
-    super(ctx, vertices, indicies, uvs);
+    super(vertices, indicies, uvs);
   }
 }
 

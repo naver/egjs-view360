@@ -13,6 +13,7 @@ import ERROR from "../const/error";
 import { DEFAULT_CLASS } from "../const/external";
 import VertexArrayObject from "../core/VertexArrayObject";
 import BufferAttribute from "../core/BufferAttribute";
+import Texture from "../texture/Texture";
 
 class WebGLContext {
   private _canvas: HTMLCanvasElement;
@@ -61,28 +62,32 @@ class WebGLContext {
     gl.clear(gl.COLOR_BUFFER_BIT);
   }
 
-  public processGeometry(geometry: Geometry, shaderProgram: ShaderProgram) {
-    const vao = this._createNativeVAO();
+  public createVAO(geometry: Geometry, shaderProgram: ShaderProgram) {
+    const nativeVAO = this._createNativeVAO();
 
-    if (vao) {
-      this._bindNativeVAO(vao);
+    if (nativeVAO) {
+      this._bindNativeVAO(nativeVAO);
 
-      this._supplyIndiciesData(geometry.indicies);
-      this._supplyAttributeData(geometry.vertices, shaderProgram.program, "position");
-      this._supplyAttributeData(geometry.uvs, shaderProgram.program, "uv");
+      this._supplyIndiciesData(geometry.indicies, this.createBuffer());
+      this._supplyAttributeData(geometry.vertices, shaderProgram.program, "position", this.createBuffer());
+      this._supplyAttributeData(geometry.uvs, shaderProgram.program, "uv", this.createBuffer());
 
       this._bindNativeVAO(null);
-    }
 
-    return vao;
+      return new VertexArrayObject(nativeVAO, geometry.indicies.count, true);
+    } else {
+      return new VertexArrayObject(geometry, geometry.indicies.count, false);
+    }
   }
 
   public drawVAO(vao: VertexArrayObject) {
     const gl = this._gl;
 
-    this._bindNativeVAO(vao.obj);
+    if (vao.isNative) {
+      this._bindNativeVAO(vao.obj);
+    }
 
-    gl.drawElements(gl.TRIANGLES, vao.indicesCount, gl.UNSIGNED_SHORT, 0);
+    gl.drawElements(gl.TRIANGLES, vao.count, gl.UNSIGNED_SHORT, 0);
   }
 
   public getUniformLocations(program: WebGLProgram, uniforms: Record<string, any>) {
@@ -113,12 +118,9 @@ class WebGLContext {
     gl.uniformMatrix4fv(uniformLocations.uMVMatrix, false, mvMatrix);
     gl.uniformMatrix4fv(uniformLocations.uPMatrix, false, camera.projectionMatrix);
 
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, uniforms.uTexture.webglTexture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, uniforms.uTexture.width, uniforms.uTexture.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, uniforms.uTexture.source);
-
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.uniform1i(uniformLocations.utexture, 0);
+    // gl.uniform1i(uniformLocations.uTexture, 0);
+    // gl.activeTexture(gl.TEXTURE0);
+    // gl.bindTexture(gl.TEXTURE_2D, uniforms.uTexture.webglTexture);
   }
 
   public useProgram(shaderProgram: ShaderProgram) {
@@ -162,8 +164,17 @@ class WebGLContext {
     return this._gl.createBuffer()!;
   }
 
-  public createTexture(): WebGLTexture {
-    return this._gl.createTexture()!;
+  public createWebGLTexture(source: TexImageSource): WebGLTexture {
+    const gl = this._gl;
+    const texture = gl.createTexture()!;
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+
+    return texture;
   }
 
   private _createNativeVAO() {
@@ -190,18 +201,18 @@ class WebGLContext {
     }
   }
 
-  private _supplyIndiciesData(indicies: BufferAttribute<Uint16Array>) {
+  private _supplyIndiciesData(indicies: BufferAttribute<Uint16Array>, buffer: WebGLBuffer) {
     const gl = this._gl;
 
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicies.buffer);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indicies.data, gl.STATIC_DRAW);
   }
 
-  private _supplyAttributeData(attribute: BufferAttribute<Float32Array>, program: WebGLProgram, name: string) {
+  private _supplyAttributeData(attribute: BufferAttribute<Float32Array>, program: WebGLProgram, name: string, buffer: WebGLBuffer) {
     const gl = this._gl;
     const attribLocation = gl.getAttribLocation(program, name);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, attribute.buffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, attribute.data, gl.STATIC_DRAW);
     gl.vertexAttribPointer(attribLocation, attribute.itemSize, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(attribLocation);

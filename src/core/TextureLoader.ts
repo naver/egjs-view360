@@ -29,18 +29,20 @@ class TextureLoader {
       if (Array.isArray(src) && src.length > 1) {
         return this.loadCubeImage(src);
       } else {
-        return this.loadImage(src);
+        const imgSrc = Array.isArray(src) ? src[0] : src;
+        return this.loadImage(imgSrc);
       }
     }
   }
 
-  public async loadImage(src: string | string[]): Promise<ImageTexture> {
+  public async loadImage(src: string): Promise<ImageTexture> {
     const images = this._toImageArray(src);
 
     return this._load(images, resolve => {
-      const webglTexture = this._ctx.createTexture();
+      const image = images[0];
+      const webglTexture = this._ctx.createWebGLTexture(image);
 
-      resolve(new ImageTexture(images[0], webglTexture));
+      resolve(new ImageTexture(image, webglTexture));
     });
   }
 
@@ -48,7 +50,8 @@ class TextureLoader {
     const images = this._toImageArray(src);
 
     return this._load(images, resolve => {
-      const webglTexture = this._ctx.createTexture();
+      // FIXME:
+      const webglTexture = this._ctx.createWebGLTexture(images[0]);
 
       resolve(new CubeTexture(images, webglTexture));
     });
@@ -58,7 +61,7 @@ class TextureLoader {
     const video = this._toVideoElement(src);
 
     return this._load([video], resolve => {
-      const webglTexture = this._ctx.createTexture();
+      const webglTexture = this._ctx.createWebGLTexture(video);
 
       resolve(new VideoTexture(video, webglTexture));
     });

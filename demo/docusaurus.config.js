@@ -1,9 +1,6 @@
 // @ts-check
-// Note: type annotations allow type checking and IDEs autocompletion
-
 const lightCodeTheme = require("prism-react-renderer/themes/oceanicNext");
 const darkCodeTheme = require("prism-react-renderer/themes/palenight");
-const sass = require("./plugin/sass");
 const glslify = require("./plugin/glslify");
 
 /** @type {import('@docusaurus/types').Config} */
@@ -18,7 +15,7 @@ const config = {
   organizationName: "naver",
   projectName: "naver.github.io",
   trailingSlash: false,
-  plugins: [sass, glslify],
+  plugins: ["docusaurus-plugin-sass", glslify],
   presets: [
     [
       "@docusaurus/preset-classic",
@@ -26,7 +23,6 @@ const config = {
       ({
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
-          // Please change this to your repo.
           editUrl: "https://github.com/naver/egjs-view360/edit/master/demo/",
           remarkPlugins: [require("remark-breaks")],
           breadcrumbs: false
@@ -37,7 +33,8 @@ const config = {
         theme: {
           customCss: [
             require.resolve("./src/styles/custom.css"),
-            require.resolve("./src/styles/global.css")
+            require.resolve("./src/styles/global.css"),
+            require.resolve("../sass/view360.sass")
           ]
         },
         googleAnalytics: {
