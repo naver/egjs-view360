@@ -135,7 +135,7 @@ class PanoViewer {
       camera.lookAt(yaw, pitch, zoom);
     });
     // FIXME: 최초 yaw pitch zoom 반영
-    camera.lookAtPos(vec3.fromValues(0, 0, -1));
+    camera.lookAtPos(vec3.fromValues(0, 0, -1), 0);
 
     const texture = await this._loadTexture(this._src, this._isVideo);
     const projection = this._createProjection(texture);

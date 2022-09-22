@@ -3,12 +3,14 @@
  * egjs projects are licensed under the MIT license
  */
 import Geometry from "./Geometry";
-import WebGLContext from "../webgl/WebGLContext";
 
 /** */
 class SphereGeometry extends Geometry {
   /** */
-  public constructor(radius = 2, widthSegments = 60, heightSegments = 60) {
+  public constructor() {
+    // const radius = 1;
+    const widthSegments = 60;
+    const heightSegments = 60;
     const ANGLE_CORRECTION_FOR_CENTER_ALIGN = -0.5 * Math.PI;
 
     const uvs: number[] = [];
@@ -33,7 +35,7 @@ class SphereGeometry extends Geometry {
         const v = latIdx / widthSegments;
 
         uvs.push(u, v);
-        vertices.push(radius * x, radius * y, radius * z);
+        vertices.push(x, y, z);
 
         if (lngIdx !== heightSegments && latIdx !== widthSegments) {
           const a = latIdx * (heightSegments + 1) + lngIdx;

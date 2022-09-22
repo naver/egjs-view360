@@ -6,13 +6,13 @@ class PanoViewer extends React.Component {
 
   public componentDidMount() {
     const viewer = new VanillaPanoViewer(this._wrapperRef.current!, {
-      src: "/egjs-view360/pano/equirect/equi.jpg"
+      src: "/egjs-view360/pano/equirect/equi-room.jpg"
     });
   }
 
   public render() {
     // For testing types
-    return <div ref={this._wrapperRef} className="view360-container is-square">
+    return <div ref={this._wrapperRef} className="view360-container is-16by9">
       <canvas className="view360-canvas"></canvas>
     </div>;
   }

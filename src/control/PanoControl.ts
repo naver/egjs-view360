@@ -90,17 +90,18 @@ class PanoControl extends Component<PanoControlEvents> {
         circular: false
       },
       zoom: {
-        range: [1, 90],
+        range: [0, 90],
         bounce: 0
       }
     }, {
       minimumDuration: DEFAULT_ANIMATION_DURATION,
       maximumDuration: DEFAULT_ANIMATION_DURATION,
-      easing: DEFAULT_EASING
+      easing: DEFAULT_EASING,
+      deceleration: 0.03
     }, {
       yaw: 0,
       pitch: 0,
-      zoom: 50
+      zoom: 0
     });
 
     const panInput = new PanInput(element, {
@@ -153,7 +154,7 @@ class PanoControl extends Component<PanoControlEvents> {
    * @returns {void}
    */
   public resize(width: number, height: number): void {
-    this._panInput.options.scale = [-360 / width, -180 / height];
+    this._panInput.options.scale = [-180 / width, -180 / height];
   }
 
   /**

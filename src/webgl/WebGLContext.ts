@@ -13,7 +13,6 @@ import ERROR from "../const/error";
 import { DEFAULT_CLASS } from "../const/external";
 import VertexArrayObject from "../core/VertexArrayObject";
 import BufferAttribute from "../core/BufferAttribute";
-import Texture from "../texture/Texture";
 
 class WebGLContext {
   private _canvas: HTMLCanvasElement;
@@ -53,6 +52,9 @@ class WebGLContext {
 
     canvas.addEventListener(BROWSER.EVENTS.CONTEXT_LOST, this._onContextLost);
     canvas.addEventListener(BROWSER.EVENTS.CONTEXT_RESTORED, this._onContextRestore);
+
+    // gl.enable(gl.CULL_FACE);
+    gl.enable(gl.DEPTH_TEST);
   }
 
   public clear() {

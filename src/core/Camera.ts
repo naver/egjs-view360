@@ -21,7 +21,7 @@ class Camera {
     this.projectionMatrix = mat4.create();
 
     this._up = vec3.fromValues(0, 1, 0);
-    this._fov = 80; // FIXME:
+    this._fov = 90; // FIXME:
     this._aspect = 1;
   }
 
@@ -41,24 +41,24 @@ class Camera {
     newPos[0] = newPos[2] * Math.sin(-yawRad);
     newPos[2] = -newPos[2] * Math.cos(-yawRad);
 
-    console.log(yaw, pitch);
-
-    this.lookAtPos(newPos);
+    this.lookAtPos(newPos, zoom);
   }
 
   /** */
-  public lookAtPos(pos: vec3) {
+  public lookAtPos(pos: vec3, dist: number) {
     const dir = vec3.clone(pos);
     vec3.normalize(dir, dir);
 
     const up = this._up;
     const viewMatrix = this.viewMatrix;
     const projMatrix = this.projectionMatrix;
-    const eye = mat4.getTranslation(vec3.create(), viewMatrix);
+
+    const negDir = vec3.negate(vec3.create(), dir);
+    const eye = vec3.scale(negDir, negDir, dist);
+    const vfov = Math.atan(Math.tan(toRadian(this._fov / 2)) / this._aspect) * 2;
 
     mat4.lookAt(viewMatrix, eye, dir, up);
-
-    mat4.perspective(projMatrix, toRadian(this._fov), this._aspect, 0.1, 10);
+    mat4.perspective(projMatrix, vfov, this._aspect, 0.1, 100);
   }
 }
 
