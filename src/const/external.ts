@@ -92,6 +92,3 @@ export const EASING = {
     }
   }
 } as const;
-
-export const DEFAULT_EASING = EASING.EASE_OUT_CUBIC;
-export const DEFAULT_ANIMATION_DURATION = 300;

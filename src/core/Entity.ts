@@ -5,7 +5,7 @@
 import { mat4 } from "gl-matrix";
 import Camera from "./Camera";
 import WebGLRenderer from "../renderer/WebGLRenderer";
-import Renderable from "../type/Renderable";
+import { Renderable } from "../type/internal";
 
 /**
  *

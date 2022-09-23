@@ -2,8 +2,7 @@
  * Copyright (c) 2022 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
-import { vec3 } from "gl-matrix";
-import Camera from "./core/Camera";
+import Camera, { CameraOptions } from "./core/Camera";
 import PanoControl, { PanoControlOptions } from "./control/PanoControl";
 import Entity from "./core/Entity";
 import TextureLoader from "./core/TextureLoader";
@@ -14,7 +13,6 @@ import WebGLRenderer from "./renderer/WebGLRenderer";
 import ERROR from "./const/error";
 import { EVENTS } from "./const/external";
 import { findCanvas } from "./utils";
-import Emittable from "./type/Emittable";
 import * as EVENT_TYPES from "./type/event";
 import Texture from "./texture/Texture";
 import EquirectProjection from "./projection/EquirectProjection";
@@ -34,7 +32,7 @@ export interface PanoViewerEvents {
  * @interface
  * @see [Options](/docs/options/source/src) page for detailed information
  */
-export interface PanoViewerOptions extends PanoControlOptions {
+export interface PanoViewerOptions extends CameraOptions, PanoControlOptions {
   src: string | string[];
   isVideo: boolean;
   canvasSelector: string;
@@ -45,7 +43,6 @@ export interface PanoViewerOptions extends PanoControlOptions {
  */
 class PanoViewer {
   private _rootEl: HTMLElement;
-  private _emitter: Emittable<PanoViewerEvents>;
   private _renderer: WebGLRenderer;
   private _camera: Camera;
   private _control: PanoControl;
@@ -71,11 +68,21 @@ class PanoViewer {
     }
   }
 
+  // Camera options
+  public get yaw() { return this._camera.yaw; }
+  public set yaw(val: PanoViewerOptions["yaw"]) { this._camera.yaw = val; }
+  public get pitch() { return this._camera.yaw; }
+  public set pitch(val: PanoViewerOptions["yaw"]) { this._camera.yaw = val; }
+  public get fov() { return this._camera.baseFov; }
+  public set fov(val: PanoViewerOptions["fov"]) { this._camera.baseFov = val; }
+
   // Control options
   public get useGrabCursor() { return this._control.useGrabCursor; }
-  public set useGrabCursor(val: PanoViewerOptions["useGrabCursor"]) {
-
-  }
+  public set useGrabCursor(val: PanoViewerOptions["useGrabCursor"]) { this._control.useGrabCursor = val; }
+  public get scrollable() { return this._control.rotate.scrollable; }
+  public set scrollable(val: PanoViewerOptions["scrollable"]) { this._control.rotate.scrollable = val; }
+  public get wheelScrollable() { return this._control.zoom.scrollable; }
+  public set wheelScrollable(val: PanoViewerOptions["scrollable"]) { this._control.zoom.scrollable = val; }
 
   /**
    *
@@ -83,8 +90,16 @@ class PanoViewer {
   public constructor(root: HTMLElement, {
     src,
     isVideo = false,
-    canvasSelector = "canvas",
-    useGrabCursor = true
+    yaw = 0,
+    pitch = 0,
+    initialZoom = 1,
+    fov = 90,
+    useGrabCursor = true,
+    rotate = true,
+    zoom = true,
+    scrollable = true,
+    wheelScrollable = false,
+    canvasSelector = "canvas"
   }: Partial<PanoViewerOptions> = {}) {
     this._rootEl = root;
     this._initialized = false;
@@ -97,11 +112,20 @@ class PanoViewer {
     // Core components
     const canvas = findCanvas(root, canvasSelector);
     this._renderer = new WebGLRenderer(canvas);
-    this._camera = new Camera();
+    this._camera = new Camera({
+      yaw,
+      pitch,
+      initialZoom,
+      fov
+    });
     this._scene = new Entity();
     this._animator = new FrameAnimator();
-    this._control = new PanoControl(canvas, {
-      useGrabCursor
+    this._control = new PanoControl(canvas, this._camera, {
+      useGrabCursor,
+      rotate,
+      zoom,
+      scrollable,
+      wheelScrollable
     });
 
     this.init();
@@ -129,13 +153,8 @@ class PanoViewer {
     renderer.ctx.init();
     renderer.resize();
     control.resize(renderer.width, renderer.height);
-    camera.setAspect(renderer.width, renderer.height);
-
-    control.on("change", ({ yaw, pitch, zoom }) => {
-      camera.lookAt(yaw, pitch, zoom);
-    });
-    // FIXME: 최초 yaw pitch zoom 반영
-    camera.lookAtPos(vec3.fromValues(0, 0, -1), 0);
+    camera.resize(renderer.width, renderer.height);
+    camera.updateMatrix();
 
     const texture = await this._loadTexture(this._src, this._isVideo);
     const projection = this._createProjection(texture);
@@ -162,7 +181,7 @@ class PanoViewer {
     const camera = this._camera;
 
     renderer.resize();
-    camera.setAspect(renderer.width, renderer.height);
+    camera.resize(renderer.width, renderer.height);
 
     this.renderFrame(0);
   }
@@ -170,11 +189,9 @@ class PanoViewer {
   public renderFrame = (delta: number) => {
     const scene = this._scene;
     const camera = this._camera;
+    const control = this._control;
 
-    if (delta > 0) {
-      // scene.update();
-      // camera.update();
-    }
+    control.update(camera, delta);
 
     this._renderer.render(scene, camera);
   };

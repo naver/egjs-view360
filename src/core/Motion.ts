@@ -5,7 +5,7 @@
 
 import { clamp, lerp, circulate } from "../utils";
 import { Range } from "../type/utils";
-import { DEFAULT_ANIMATION_DURATION, DEFAULT_EASING } from "../const/external";
+import { DEFAULT_ANIMATION_DURATION, DEFAULT_EASING } from "../const/internal";
 
 class Motion {
   // Options
@@ -93,7 +93,7 @@ class Motion {
     this._activated = false;
   }
 
-  public setEndDelta(delta: number): void {
+  public addDelta(delta: number): void {
     const range = this._range;
 
     this._start = this._val;

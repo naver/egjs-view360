@@ -2,46 +2,38 @@
  * Copyright (c) 2022 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
-import Component from "@egjs/component";
-import Axes, { OnChange, OnHold, OnRelease, PanInput, PinchInput, WheelInput } from "@egjs/axes";
-
+import RotateControl, { RotateControlOptions } from "./RotateControl";
+import ZoomControl, { ZoomControlOptions } from "./ZoomControl";
 import Camera from "../core/Camera";
 import { CURSOR } from "../const/browser";
-import { DEFAULT_ANIMATION_DURATION, DEFAULT_EASING, EVENTS } from "../const/external";
+import { CONTROL_EVENTS } from "../const/internal";
 import { ValueOf } from "../type/utils";
-
-/**
- * @interface
- */
-export interface PanoControlEvents {
-  change: {
-    yaw: number;
-    pitch: number;
-    zoom: number;
-  }
-}
+import { getObjectOption } from "../utils";
+import CameraControl from "./CameraControl";
 
 /**
  * @interface
  */
 export interface PanoControlOptions {
   useGrabCursor: boolean;
+  scrollable: boolean;
+  wheelScrollable: boolean;
+  rotate: boolean | Partial<RotateControlOptions>;
+  zoom: boolean | Partial<ZoomControlOptions>;
 }
 
 /**
  * Control for PanoViewer
  */
-class PanoControl extends Component<PanoControlEvents> {
+class PanoControl {
   // Options
   private _useGrabCursor: PanoControlOptions["useGrabCursor"];
 
   // Internal Values
+  private _camera: Camera;
   private _controlEl: HTMLElement;
-  private _axes: Axes;
-  private _panInput: PanInput;
-  private _wheelInput: WheelInput;
-  private _pinchInput: PinchInput;
-  private _screenScale: [number, number];
+  private _rotateControl: RotateControl;
+  private _zoomControl: ZoomControl;
   private _enabled: boolean;
 
   public get useGrabCursor() { return this._useGrabCursor; }
@@ -50,6 +42,8 @@ class PanoControl extends Component<PanoControlEvents> {
   }
 
   public get enabled() { return this._enabled; }
+  public get rotate() { return this._rotateControl; }
+  public get zoom() { return this._zoomControl; }
 
   /**
    * Whether one of the controls is animating at the moment
@@ -57,80 +51,37 @@ class PanoControl extends Component<PanoControlEvents> {
    * @readonly
    */
   public get animating() {
-    // TODO:
-    return true;
-    // return this._rotateControl.animating
-    //   || this._zoomControl.animating
-    //   || this._extraControls.some(control => control.animating);
+    return this._rotateControl.animating
+      || this._zoomControl.animating;
+      // TODO:
+      // || this._extraControls.some(control => control.animating);
   }
 
   /**
    * Create new PanoControl instance
    */
-  public constructor(element: HTMLElement, {
-    useGrabCursor
+  public constructor(element: HTMLElement, camera: Camera, {
+    useGrabCursor,
+    rotate,
+    zoom,
+    scrollable,
+    wheelScrollable
   }: PanoControlOptions) {
-    super();
-
     // Bind Options
     this._useGrabCursor = useGrabCursor;
 
     // Set internal values
+    this._camera = camera;
     this._controlEl = element;
     this._enabled = false;
 
-    // Setup Axes
-    const axes = new Axes({
-      yaw: {
-        range: [0, 360],
-        circular: true
-      },
-      pitch: {
-        range: [-89.9, 89.9],
-        circular: false
-      },
-      zoom: {
-        range: [0, 90],
-        bounce: 0
-      }
-    }, {
-      minimumDuration: DEFAULT_ANIMATION_DURATION,
-      maximumDuration: DEFAULT_ANIMATION_DURATION,
-      easing: DEFAULT_EASING,
-      deceleration: 0.03
-    }, {
-      yaw: 0,
-      pitch: 0,
-      zoom: 0
-    });
+    this._rotateControl = new RotateControl(getObjectOption(rotate));
+    this._zoomControl = new ZoomControl(getObjectOption(zoom));
 
-    const panInput = new PanInput(element, {
-      scale: [-1, -1],
-      releaseOnScroll: true
-    });
-    const wheelInput = new WheelInput(element, {
+    this._rotateControl.scrollable = scrollable;
+    this._zoomControl.scrollable = wheelScrollable;
 
-    });
-    const pinchInput = new PinchInput(element, {
-
-    });
-
-    axes.connect(["yaw", "pitch"], panInput);
-    axes.connect(["zoom"], wheelInput);
-    axes.connect(["zoom"], pinchInput);
-
-    panInput.disable();
-    wheelInput.disable();
-    pinchInput.disable();
-
-    axes.on("hold", this._onHold);
-    axes.on("release", this._onRelease);
-    axes.on("change", this._onChange);
-
-    this._axes = axes;
-    this._panInput = panInput;
-    this._wheelInput = wheelInput;
-    this._pinchInput = pinchInput;
+    this._bindEvents();
   }
 
   /**
@@ -140,11 +91,8 @@ class PanoControl extends Component<PanoControlEvents> {
    */
   public destroy(): void {
     this.disable();
-    this._axes.destroy();
-    this._panInput.destroy();
-    this._wheelInput.destroy();
-    this._pinchInput.destroy();
-    this._enabled = false;
+    this._rotateControl.destroy();
+    this._zoomControl.destroy();
   }
 
   /**
@@ -154,7 +102,7 @@ class PanoControl extends Component<PanoControlEvents> {
    * @returns {void}
    */
   public resize(width: number, height: number): void {
-    this._panInput.options.scale = [-180 / width, -180 / height];
+    this._rotateControl.resize(width, height);
   }
 
   /**
@@ -164,13 +112,10 @@ class PanoControl extends Component<PanoControlEvents> {
   public enable(): void {
     if (this._enabled) return;
 
-    this._panInput.enable();
-    this._wheelInput.enable();
-    this._pinchInput.enable();
+    const controlEl = this._controlEl;
 
-    if (this._useGrabCursor) {
-      this._setCursor(CURSOR.GRAB);
-    }
+    this._rotateControl.enable(controlEl);
+    this._zoomControl.enable(controlEl);
 
     this._enabled = true;
   }
@@ -182,25 +127,42 @@ class PanoControl extends Component<PanoControlEvents> {
   public disable(): void {
     if (!this._enabled) return;
 
-    this._panInput.disable();
-    this._wheelInput.disable();
-    this._pinchInput.disable();
-
-    this._setCursor(CURSOR.NONE);
+    this._rotateControl.disable();
+    this._zoomControl.disable();
 
     this._enabled = false;
+  }
+
+  /**
+   * Update control by given deltaTime
+   * @param {Camera} camera Camera to update
+   * @param {number} delta Number of milisec to update
+   * @returns {void}
+   */
+   public update(camera: Camera, delta: number): void {
+    const rotateControl = this._rotateControl;
+    const zoomControl = this._zoomControl;
+
+    zoomControl.update(delta);
+    rotateControl.setZoomScale(zoomControl.zoom);
+    rotateControl.update(delta);
+
+    const yaw = rotateControl.disableYaw ? camera.yaw : rotateControl.yaw;
+    const pitch = rotateControl.disableYaw ? camera.pitch : rotateControl.pitch;
+    const zoom = zoomControl.zoom;
+
+    camera.lookAt(yaw, pitch, zoom);
   }
 
   /**
    * Synchronize this control's state to current camera position
    * @returns {void}
    */
-  public sync(camera: Camera): void {
-    // this._axes.setTo({
-    //   yaw: camera.yaw,
-    //   pitch: camera.pitch,
-    //   zoom: camera.zoom
-    // }, 0);
+  public sync(): void {
+    const camera = this._camera;
+
+    this._rotateControl.sync(camera);
+    this._zoomControl.sync(camera);
   }
 
   private _setCursor(newCursor: ValueOf<typeof CURSOR>) {
@@ -210,34 +172,52 @@ class PanoControl extends Component<PanoControlEvents> {
     targetEl.style.cursor = newCursor;
   }
 
-  private _onHold = (evt: OnHold) => {
-    const isPanInput = evt.input === this._panInput;
-    if (!isPanInput) return;
+  private _bindEvents() {
+    const rotateControl = this._rotateControl;
+    const zoomControl = this._zoomControl;
 
-    const grabCursorEnabled = this._useGrabCursor && this._panInput.isEnabled();
+    rotateControl.on(CONTROL_EVENTS.HOLD, this._onHold);
+    rotateControl.on(CONTROL_EVENTS.RELEASE, this._onRelease);
+    rotateControl.on(CONTROL_EVENTS.ENABLE, this._onEnable);
+    rotateControl.on(CONTROL_EVENTS.DISABLE, this._onDisable);
+    zoomControl.on(CONTROL_EVENTS.ENABLE, this._onEnable);
+    zoomControl.on(CONTROL_EVENTS.DISABLE, this._onDisable);
+  }
 
-    if (grabCursorEnabled) {
+  private _onHold = () => {
+    if (this._useGrabCursor) {
       this._setCursor(CURSOR.GRABBING);
     }
   };
 
-  private _onRelease = (evt: OnRelease) => {
-    const isPanInput = evt.input === this._panInput;
-    if (!isPanInput) return;
-
-    const grabCursorEnabled = this._useGrabCursor && this._panInput.isEnabled();
-
-    if (grabCursorEnabled) {
+  private _onRelease = () => {
+    if (this._useGrabCursor) {
       this._setCursor(CURSOR.GRAB);
     }
   };
 
-  private _onChange = (evt: OnChange) => {
-    this.trigger("change", {
-      yaw: evt.pos.yaw,
-      pitch: evt.pos.pitch,
-      zoom: evt.pos.zoom
-    });
+  private _onEnable = ({
+    control,
+    updateCursor
+  }: {
+    control: CameraControl;
+    updateCursor: boolean;
+  }) => {
+    if (updateCursor && this._useGrabCursor) {
+      this._setCursor(CURSOR.GRAB);
+    }
+
+    control.sync(this._camera);
+  };
+
+  private _onDisable = ({
+    updateCursor
+  }: {
+    updateCursor: boolean
+  }) => {
+    if (updateCursor) {
+      this._setCursor(CURSOR.NONE);
+    }
   };
 }
 

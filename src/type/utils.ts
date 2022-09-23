@@ -8,10 +8,6 @@ export type NoBoolean<T> = T extends boolean ? never : T;
 export type EventMap = Record<string, any>;
 export type EventKey<T extends EventMap> = string & keyof T;
 
-export type OptionGetters<T> = {
-  [key in keyof T]: T[key]
-};
-
 export interface Range {
   min: number;
   max: number;

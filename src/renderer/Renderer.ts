@@ -4,7 +4,6 @@
  */
 import Component from "@egjs/component";
 import { EVENTS } from "../const/external";
-import * as EVENT_TYPES from "../type/event";
 
 export interface RendererEvents {
   [EVENTS.BEFORE_RENDER]: void;

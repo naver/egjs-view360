@@ -3,13 +3,13 @@
  * egjs projects are licensed under the MIT license
  */
 import Projection from "./Projection";
-import VertexArrayObject from "../core/VertexArrayObject";
 import WebGLContext from "../webgl/WebGLContext";
 import Texture from "../texture/Texture";
 import ShaderProgram from "../core/ShaderProgram";
 import SphereGeometry from "../geometry/SphereGeometry";
 import vs from "../shader/equirect.vert";
 import fs from "../shader/equirect.frag";
+import PlaneGeometry from "../geometry/PlaneGeometry";
 
 /**
  *
