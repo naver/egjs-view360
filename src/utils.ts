@@ -147,3 +147,7 @@ export const getAllAttributes = (element: HTMLElement) => {
     [name]: element.getAttribute(name)
   }), {});
 };
+
+export const toVerticalFov = (fovRadian: number, aspect: number) => {
+  return Math.atan(Math.tan(fovRadian * 0.5) / aspect) * 2;
+};

@@ -102,7 +102,7 @@ class PanoControl {
    * @returns {void}
    */
   public resize(width: number, height: number): void {
-    this._rotateControl.resize(width, height);
+    this._rotateControl.resize(this._camera, width, height);
   }
 
   /**
@@ -142,14 +142,15 @@ class PanoControl {
    public update(camera: Camera, delta: number): void {
     const rotateControl = this._rotateControl;
     const zoomControl = this._zoomControl;
-
     zoomControl.update(delta);
-    rotateControl.setZoomScale(zoomControl.zoom);
+
+    const zoom = this._zoomControl.getActiveZoom(camera);
+    // Slow down rotation on zoom-in
+    rotateControl.setZoomScale(Math.max(zoom, 1));
     rotateControl.update(delta);
 
     const yaw = rotateControl.disableYaw ? camera.yaw : rotateControl.yaw;
     const pitch = rotateControl.disableYaw ? camera.pitch : rotateControl.pitch;
-    const zoom = zoomControl.zoom;
 
     camera.lookAt(yaw, pitch, zoom);
   }

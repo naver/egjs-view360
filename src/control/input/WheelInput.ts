@@ -19,7 +19,7 @@ class WheelInput extends Component<ZoomInputEvents> {
     super();
 
     this._el = null;
-    this._baseScale = -0.02;
+    this._baseScale = 0.04;
     this._scrollable = false;
   }
 

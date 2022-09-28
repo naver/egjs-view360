@@ -151,9 +151,7 @@ class PanoViewer {
     const animator = this._animator;
 
     renderer.ctx.init();
-    renderer.resize();
-    control.resize(renderer.width, renderer.height);
-    camera.resize(renderer.width, renderer.height);
+    this._resizeComponents();
     camera.updateMatrix();
 
     const texture = await this._loadTexture(this._src, this._isVideo);
@@ -177,12 +175,7 @@ class PanoViewer {
   /**
    */
   public resize() {
-    const renderer = this._renderer;
-    const camera = this._camera;
-
-    renderer.resize();
-    camera.resize(renderer.width, renderer.height);
-
+    this._resizeComponents();
     this.renderFrame(0);
   }
 
@@ -208,6 +201,16 @@ class PanoViewer {
     const contentLoader = new TextureLoader(ctx);
 
     return await contentLoader.load(src, isVideo);
+  }
+
+  private _resizeComponents() {
+    const renderer = this._renderer;
+    const camera = this._camera;
+    const control = this._control;
+
+    renderer.resize();
+    camera.resize(renderer.width, renderer.height);
+    control.resize(renderer.width, renderer.height);
   }
 }
 

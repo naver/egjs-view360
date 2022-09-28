@@ -8,7 +8,14 @@ import WheelInput from "./input/WheelInput";
 import PinchInput from "./input/PinchInput";
 import Camera from "../core/Camera";
 import Motion from "../core/Motion";
-import { CONTROL_EVENTS, DEFAULT_ANIMATION_DURATION, DEFAULT_EASING } from "../const/internal";
+import {
+  CONTROL_EVENTS,
+  DEFAULT_ANIMATION_DURATION,
+  DEFAULT_EASING,
+  DEG_TO_RAD,
+  INFINITE_RANGE,
+  RAD_TO_DEG
+} from "../const/internal";
 
 /**
  * @interface
@@ -35,15 +42,14 @@ class ZoomControl extends Component<{
 }> implements CameraControl {
   // Options
   private _scale: ZoomControlOptions["scale"];
-  private _duration: ZoomControlOptions["duration"];
-  private _easing: ZoomControlOptions["easing"];
+  private _min: ZoomControlOptions["min"];
+  private _max: ZoomControlOptions["max"];
 
   // Internal values
   private _wheelInput: WheelInput;
   private _pinchInput: PinchInput;
   private _motion: Motion;
   private _enabled: boolean;
-  private _scaleModifier: number = 1;
 
   /**
    * Whether this control is enabled or not
@@ -56,10 +62,6 @@ class ZoomControl extends Component<{
    * @type {boolean}
    */
   public get animating() { return this._motion.activated; }
-  /**
-   *
-   */
-  public get zoom() { return this._motion.val; }
   /**
    * Whether the page is scrollable by this control
    * @type {boolean}
@@ -88,14 +90,27 @@ class ZoomControl extends Component<{
    * @type {number}
    * @default 300
    */
-  public get duration() { return this._duration; }
+  public get duration() { return this._motion.duration; }
+
+  /**
+   * Minimum zoom value
+   */
+  public get min() { return this._min; }
+  public set min(val: ZoomControlOptions["min"]) { this._min = val; }
+
+  /**
+   * Maximum zoom value
+   */
+  public get max() { return this._max; }
+  public set max(val: ZoomControlOptions["max"]) { this._max = val; }
+
   /**
    * Easing function of the animation
    * @type {function}
    * @default EASING.EASE_OUT_CUBIC
    * @see EASING
    */
-  public get easing() { return this._easing; }
+  public get easing() { return this._motion.easing; }
 
   /**
    * Create new ZoomControl instance
@@ -105,25 +120,22 @@ class ZoomControl extends Component<{
   public constructor({
     scale = 1,
     duration = DEFAULT_ANIMATION_DURATION,
-    min = 1,
-    max = 5,
+    min = 0.6,
+    max = 10,
     easing = DEFAULT_EASING
   }: Partial<ZoomControlOptions> = {}) {
     super();
 
     this._scale = scale;
-    this._duration = duration;
-    this._easing = easing;
+    this._min = min;
+    this._max = max;
 
     this._wheelInput = new WheelInput();
     this._pinchInput = new PinchInput();
     this._motion = new Motion({
       duration,
       easing,
-      range: {
-        min,
-        max
-      }
+      range: INFINITE_RANGE
     });
     this._enabled = false;
 
@@ -187,8 +199,31 @@ class ZoomControl extends Component<{
    */
   public sync(camera: Camera): void {
     const motion = this._motion;
+    const min = this._min;
+    const max = this._max;
 
-    motion.reset(camera.zoom);
+    const baseFov = camera.baseFov;
+    const renderingWidth = Math.tan(DEG_TO_RAD * baseFov * 0.5);
+
+    // max (zoom in) -> minimum fov
+    const minFov = Math.atan(renderingWidth / max) * 2 * RAD_TO_DEG;
+    const maxFov = Math.atan(renderingWidth / min) * 2 * RAD_TO_DEG;
+    const currentFov = Math.atan(renderingWidth / camera.zoom) * 2 * RAD_TO_DEG;
+
+    motion.range = {
+      min: Math.max(minFov, 1),
+      max: Math.min(maxFov, 180)
+    };
+    motion.reset(currentFov);
+  }
+
+  public getActiveZoom(camera: Camera) {
+    const baseFov = camera.baseFov;
+    const fov = this._motion.val;
+    const renderingWidth = Math.tan(DEG_TO_RAD * baseFov * 0.5);
+    const currentWidth = Math.tan(DEG_TO_RAD * fov * 0.5);
+
+    return renderingWidth / currentWidth;
   }
 
   private _bindInputs() {
@@ -196,7 +231,6 @@ class ZoomControl extends Component<{
     const pinchInput = this._pinchInput;
 
     wheelInput.on(CONTROL_EVENTS.CHANGE, this._onChange);
-
     pinchInput.on(CONTROL_EVENTS.CHANGE, this._onChange);
   }
 

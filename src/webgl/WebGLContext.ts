@@ -13,6 +13,7 @@ import ERROR from "../const/error";
 import { DEFAULT_CLASS } from "../const/external";
 import VertexArrayObject from "../core/VertexArrayObject";
 import BufferAttribute from "../core/BufferAttribute";
+import { DEG_TO_RAD } from "../const/internal";
 
 class WebGLContext {
   private _canvas: HTMLCanvasElement;
@@ -107,10 +108,9 @@ class WebGLContext {
     };
   }
 
-  public updateUniforms(entity: Entity, camera: Camera, shaderProgram: ShaderProgram) {
+  public updateCommonUniforms(entity: Entity, camera: Camera, shaderProgram: ShaderProgram) {
     const gl = this._gl;
 
-    const uniforms = shaderProgram.uniforms;
     const uniformLocations = shaderProgram.uniformLocations;
     const worldMatrix = entity.worldMatrix;
 
@@ -119,6 +119,24 @@ class WebGLContext {
 
     gl.uniformMatrix4fv(uniformLocations.uMVMatrix, false, mvMatrix);
     gl.uniformMatrix4fv(uniformLocations.uPMatrix, false, camera.projectionMatrix);
+
+    gl.uniform1f(uniformLocations.uYaw, camera.yaw * DEG_TO_RAD);
+    gl.uniform1f(uniformLocations.uPitch, camera.pitch * DEG_TO_RAD);
+    gl.uniform1f(uniformLocations.uZoom, camera.zoom);
+  }
+
+  public updateUniforms(entity: Entity, camera: Camera, shaderProgram: ShaderProgram) {
+    const gl = this._gl;
+
+    const uniforms = shaderProgram.uniforms;
+    const uniformLocations = shaderProgram.uniformLocations;
+    const worldMatrix = entity.worldMatrix;
+
+    // const mvMatrix = mat4.create();
+    // mat4.multiply(mvMatrix, camera.viewMatrix, worldMatrix);
+
+    // gl.uniformMatrix4fv(uniformLocations.uMVMatrix, false, mvMatrix);
+    // gl.uniformMatrix4fv(uniformLocations.uPMatrix, false, camera.projectionMatrix);
 
     // gl.uniform1i(uniformLocations.uTexture, 0);
     // gl.activeTexture(gl.TEXTURE0);
@@ -236,6 +254,9 @@ class WebGLContext {
     return {
       uMVMatrix: gl.getUniformLocation(program, "uMVMatrix"),
       uPMatrix: gl.getUniformLocation(program, "uPMatrix"),
+      uYaw: gl.getUniformLocation(program, "uYaw"),
+      uPitch: gl.getUniformLocation(program, "uPitch"),
+      uZoom: gl.getUniformLocation(program, "uZoom")
     };
   }
 

@@ -25,6 +25,7 @@ class Projection extends Entity {
     const ctx = renderer.ctx;
 
     ctx.useProgram(this._program);
+    ctx.updateCommonUniforms(this, camera, this._program);
     ctx.updateUniforms(this, camera, this._program);
     ctx.drawVAO(this._vao);
 

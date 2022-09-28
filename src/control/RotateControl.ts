@@ -9,7 +9,8 @@ import MouseInput from "./input/MouseInput";
 import TouchInput from "./input/TouchInput";
 import Camera from "../core/Camera";
 import Motion from "../core/Motion";
-import { CONTROL_EVENTS, INFINITE_RANGE, PITCH_RANGE, DEFAULT_ANIMATION_DURATION, DEFAULT_EASING } from "../const/internal";
+import { CONTROL_EVENTS, INFINITE_RANGE, PITCH_RANGE, DEFAULT_ANIMATION_DURATION, DEFAULT_EASING, DEG_TO_RAD, RAD_TO_DEG } from "../const/internal";
+import { toVerticalFov } from "../utils";
 
 /**
  * @interface
@@ -192,9 +193,12 @@ class RotateControl extends Component<{
    * @param width New width
    * @param height New height
    */
-  public resize(width: number, height: number) {
-    this._screenScale[0] = 180 / width;
-    this._screenScale[1] = 90 / height;
+  public resize(camera: Camera, width: number, height: number) {
+    const hfov = camera.baseFov;
+    const vfov = toVerticalFov(hfov * DEG_TO_RAD, camera.aspect) * RAD_TO_DEG;
+
+    this._screenScale[0] = hfov / width;
+    this._screenScale[1] = vfov / height;
   }
 
   /**

@@ -4,6 +4,7 @@
  */
 import { mat4, vec3 } from "gl-matrix";
 import { DEG_TO_RAD } from "../const/internal";
+import { toVerticalFov } from "../utils";
 
 export interface CameraOptions {
   yaw: number;
@@ -18,6 +19,9 @@ class Camera {
   public projectionMatrix: mat4;
   public yaw: number;
   public pitch: number;
+  /**
+   * Current camera's zoom
+   */
   public zoom: number;
 
   private _up: vec3;
@@ -70,6 +74,7 @@ class Camera {
    */
   public updateMatrix() {
     const up = this._up;
+    const aspect = this._aspect;
     const viewMatrix = this.viewMatrix;
     const projMatrix = this.projectionMatrix;
     const yawRad = DEG_TO_RAD * this.yaw;
@@ -83,11 +88,11 @@ class Camera {
     viewDir[2] = -viewDir[2] * Math.cos(-yawRad);
 
     const eye = vec3.create(); // Origin
-    const hFov = this._getEffectiveFov();
-    const vFov = this._toVerticalFov(hFov);
+    const hFov = this._getZoomedFov(); // In radians
+    const vFov = toVerticalFov(hFov, aspect);
 
     mat4.lookAt(viewMatrix, eye, viewDir, up);
-    mat4.perspective(projMatrix, vFov, this._aspect, 0.1, 100);
+    mat4.perspective(projMatrix, vFov * 2, aspect, 0.1, 100);
   }
 
   // TODO: 세로 2배의 경우는? 가이드 작성
@@ -95,12 +100,8 @@ class Camera {
    * @param zoom Current zoom value
    * @returns horizontal fov including zoom, in radian
    */
-  private _getEffectiveFov() {
-    return Math.atan(Math.tan((DEG_TO_RAD * this._baseFov * 0.5) / this.zoom)) * 2;
-  }
-
-  private _toVerticalFov(horizontalFov: number) {
-    return Math.atan(Math.tan(horizontalFov * 0.5) / this._aspect) * 2;
+  private _getZoomedFov() {
+    return Math.atan(Math.tan((DEG_TO_RAD * this._baseFov * 0.5)) / this.zoom);
   }
 }
 
