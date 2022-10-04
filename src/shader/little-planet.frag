@@ -26,9 +26,9 @@ vec2 gnomonicToWorld(in vec2 uv) {
   float lat = asin(cos_c * sin(uPitch) + (y * sin_c * cos(uPitch)) / rou);
 	float lon = uYaw + atan(x * sin_c, rou * cos(uPitch) * cos_c - y * sin(uPitch) * sin_c);
 
-	lat = (lat / PI_2 + 1.0) * 0.5; lon = (lon / PI + 1.0) * 0.5; //[0, 1]
+	lat = (lat / PI_2 + 1.0) * 0.5; lon = (lon / PI + 1.0) * 0.5; // [0, 1]
 
-  return vec2(lon, -lat);
+  return vec2(lon, lat);
 }
 
 void main() {

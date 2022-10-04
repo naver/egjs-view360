@@ -4,20 +4,32 @@
  */
 import Projection from "./Projection";
 import WebGLContext from "../webgl/WebGLContext";
-import Texture from "../texture/Texture";
+import UniformTexture from "../webgl/UniformTexture";
+import UniformFloat from "../webgl/UniformFloat";
+import Camera from "../core/Camera";
 import ShaderProgram from "../core/ShaderProgram";
-import SphereGeometry from "../geometry/SphereGeometry";
+import Texture from "../texture/Texture";
+import PlaneGeometry from "../geometry/PlaneGeometry";
+import WebGLRenderer from "../renderer/WebGLRenderer";
+import { DEG_TO_RAD } from "../const/internal";
 import vs from "../shader/little-planet.vert";
 import fs from "../shader/little-planet.frag";
-import PlaneGeometry from "../geometry/PlaneGeometry";
 
 /**
  *
  */
- class LittlePlanetProjection extends Projection {
+ class LittlePlanetProjection extends Projection<{
+  uTexture: UniformTexture;
+  uYaw: UniformFloat;
+  uPitch: UniformFloat;
+  uZoom: UniformFloat;
+ }> {
   public constructor(ctx: WebGLContext, texture: Texture) {
     const uniforms = {
-      uTexture: texture
+      uTexture: new UniformTexture(texture),
+      uYaw: new UniformFloat(0),
+      uPitch: new UniformFloat(0),
+      uZoom: new UniformFloat(0)
     };
 
     const geometry = new PlaneGeometry();
@@ -26,6 +38,20 @@ import PlaneGeometry from "../geometry/PlaneGeometry";
     const vao = ctx.createVAO(geometry, program);
 
     super(vao, program);
+  }
+
+  public render(renderer: WebGLRenderer, camera: Camera) {
+    const uniforms = this._program.uniforms;
+
+    uniforms.uYaw.val = camera.yaw * DEG_TO_RAD;
+    uniforms.uPitch.val = camera.pitch * DEG_TO_RAD;
+    uniforms.uZoom.val = camera.zoom;
+
+    uniforms.uYaw.needsUpdate = true;
+    uniforms.uPitch.needsUpdate = true;
+    uniforms.uZoom.needsUpdate = true;
+
+    super.render(renderer, camera);
   }
 }
 

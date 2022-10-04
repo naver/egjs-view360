@@ -3,17 +3,18 @@
  * egjs projects are licensed under the MIT license
  */
 import { mat4 } from "gl-matrix";
+import Uniform from "./Uniform";
 import Camera from "../core/Camera";
 import Entity from "../core/Entity";
 import ShaderProgram from "../core/ShaderProgram";
 import View360Error from "../core/View360Error";
+import VertexArrayObject from "../core/VertexArrayObject";
+import BufferAttribute from "../core/BufferAttribute";
 import Geometry from "../geometry/Geometry";
 import * as BROWSER from "../const/browser";
 import ERROR from "../const/error";
 import { DEFAULT_CLASS } from "../const/external";
-import VertexArrayObject from "../core/VertexArrayObject";
-import BufferAttribute from "../core/BufferAttribute";
-import { DEG_TO_RAD } from "../const/internal";
+import { UniformLocations } from "../type/internal";
 
 class WebGLContext {
   private _canvas: HTMLCanvasElement;
@@ -54,8 +55,8 @@ class WebGLContext {
     canvas.addEventListener(BROWSER.EVENTS.CONTEXT_LOST, this._onContextLost);
     canvas.addEventListener(BROWSER.EVENTS.CONTEXT_RESTORED, this._onContextRestore);
 
-    // gl.enable(gl.CULL_FACE);
     gl.enable(gl.DEPTH_TEST);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
   }
 
   public clear() {
@@ -93,14 +94,14 @@ class WebGLContext {
     gl.drawElements(gl.TRIANGLES, vao.count, gl.UNSIGNED_SHORT, 0);
   }
 
-  public getUniformLocations(program: WebGLProgram, uniforms: Record<string, any>) {
+  public getUniformLocations<T extends Record<string, Uniform>>(program: WebGLProgram, uniforms: T): UniformLocations<T> {
     const gl = this._gl;
 
     const uniformLocations = Object.keys(uniforms).reduce((locations, key) => {
-      locations[key] = gl.getUniformLocation(program, key);
+      locations[key as keyof T] = gl.getUniformLocation(program, key)!;
 
       return locations;
-    }, {});
+    }, {} as UniformLocations<T>);
 
     return {
       ...this._getCommonUniformLocations(program),
@@ -119,28 +120,22 @@ class WebGLContext {
 
     gl.uniformMatrix4fv(uniformLocations.uMVMatrix, false, mvMatrix);
     gl.uniformMatrix4fv(uniformLocations.uPMatrix, false, camera.projectionMatrix);
-
-    gl.uniform1f(uniformLocations.uYaw, camera.yaw * DEG_TO_RAD);
-    gl.uniform1f(uniformLocations.uPitch, camera.pitch * DEG_TO_RAD);
-    gl.uniform1f(uniformLocations.uZoom, camera.zoom);
   }
 
-  public updateUniforms(entity: Entity, camera: Camera, shaderProgram: ShaderProgram) {
+  public updateUniforms(shaderProgram: ShaderProgram) {
     const gl = this._gl;
 
     const uniforms = shaderProgram.uniforms;
     const uniformLocations = shaderProgram.uniformLocations;
-    const worldMatrix = entity.worldMatrix;
 
-    // const mvMatrix = mat4.create();
-    // mat4.multiply(mvMatrix, camera.viewMatrix, worldMatrix);
+    for (const key in uniforms) {
+      const uniform = uniforms[key];
+      const location = uniformLocations[key];
 
-    // gl.uniformMatrix4fv(uniformLocations.uMVMatrix, false, mvMatrix);
-    // gl.uniformMatrix4fv(uniformLocations.uPMatrix, false, camera.projectionMatrix);
-
-    // gl.uniform1i(uniformLocations.uTexture, 0);
-    // gl.activeTexture(gl.TEXTURE0);
-    // gl.bindTexture(gl.TEXTURE_2D, uniforms.uTexture.webglTexture);
+      if (uniform.needsUpdate) {
+        uniform.update(gl, location);
+      }
+    }
   }
 
   public useProgram(shaderProgram: ShaderProgram) {
@@ -252,11 +247,8 @@ class WebGLContext {
     const gl = this._gl;
 
     return {
-      uMVMatrix: gl.getUniformLocation(program, "uMVMatrix"),
-      uPMatrix: gl.getUniformLocation(program, "uPMatrix"),
-      uYaw: gl.getUniformLocation(program, "uYaw"),
-      uPitch: gl.getUniformLocation(program, "uPitch"),
-      uZoom: gl.getUniformLocation(program, "uZoom")
+      uMVMatrix: gl.getUniformLocation(program, "uMVMatrix")!,
+      uPMatrix: gl.getUniformLocation(program, "uPMatrix")!
     };
   }
 

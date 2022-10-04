@@ -4,6 +4,7 @@
  */
 import Projection from "./Projection";
 import WebGLContext from "../webgl/WebGLContext";
+import UniformTexture from "../webgl/UniformTexture";
 import Texture from "../texture/Texture";
 import ShaderProgram from "../core/ShaderProgram";
 import SphereGeometry from "../geometry/SphereGeometry";
@@ -13,10 +14,12 @@ import fs from "../shader/equirect.frag";
 /**
  *
  */
-class EquirectProjection extends Projection {
+class EquirectProjection extends Projection<{
+  uTexture: UniformTexture
+}> {
   public constructor(ctx: WebGLContext, texture: Texture) {
     const uniforms = {
-      uTexture: texture
+      uTexture: new UniformTexture(texture)
     };
 
     const geometry = new SphereGeometry();

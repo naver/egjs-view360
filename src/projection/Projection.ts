@@ -7,14 +7,14 @@ import Camera from "../core/Camera";
 import Entity from "../core/Entity";
 import WebGLRenderer from "../renderer/WebGLRenderer";
 import VertexArrayObject from "../core/VertexArrayObject";
+import Uniform from "../webgl/Uniform";
 
 /** */
-class Projection extends Entity {
-  protected _uniforms: Record<string, any>;
+class Projection<T extends Record<string, Uniform>> extends Entity {
   protected _vao: VertexArrayObject;
-  protected _program: ShaderProgram;
+  protected _program: ShaderProgram<T>;
 
-  public constructor(vao: VertexArrayObject, program: ShaderProgram) {
+  public constructor(vao: VertexArrayObject, program: ShaderProgram<T>) {
     super();
 
     this._vao = vao;
@@ -26,7 +26,7 @@ class Projection extends Entity {
 
     ctx.useProgram(this._program);
     ctx.updateCommonUniforms(this, camera, this._program);
-    ctx.updateUniforms(this, camera, this._program);
+    ctx.updateUniforms(this._program);
     ctx.drawVAO(this._vao);
 
     super.render(renderer, camera);
