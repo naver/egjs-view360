@@ -63,6 +63,7 @@ class TextureLoader {
     return this._load([video], resolve => {
       const webglTexture = this._ctx.createWebGLTexture(video);
 
+      video.play();
       resolve(new VideoTexture(video, webglTexture));
     });
   }
@@ -102,9 +103,12 @@ class TextureLoader {
   private _toVideoElement(src: string | string[]): HTMLVideoElement {
     const video = document.createElement("video");
 
-    video.setAttribute("crossorigin", "anonymous");
+    video.crossOrigin = "anonymous";
+    video.playsInline = true;
+    video.muted = true;
+    video.loop = true;
+    video.autoplay = true;
     video.setAttribute("webkit-playsinline", "");
-    video.setAttribute("playsinline", "");
 
     if (Array.isArray(src)) {
       src.forEach(source => this._appendSourceElement(video, source));

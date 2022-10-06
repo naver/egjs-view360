@@ -10,7 +10,7 @@ import VertexArrayObject from "../core/VertexArrayObject";
 import Uniform from "../webgl/Uniform";
 
 /** */
-class Projection<T extends Record<string, Uniform>> extends Entity {
+class Projection<T extends Record<string, Uniform> = Record<string, Uniform>> extends Entity {
   protected _vao: VertexArrayObject;
   protected _program: ShaderProgram<T>;
 

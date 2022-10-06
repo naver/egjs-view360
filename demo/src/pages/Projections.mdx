@@ -1,0 +1,43 @@
+import PanoViewer from "@site/src/components/PanoViewer";
+
+# Projections
+## Equirectangular
+<PanoViewer
+  src="/egjs-view360/pano/equirect/room.jpg"
+  projectionType="equirectangular"
+  showExampleCode />
+The equirectangular projection (also called the equidistant cylindrical projection, geographic projection, or la carte parallélogrammatique projection, and which includes the special case of the plate carrée projection or geographic projection) is a simple map projection attributed to Marinus of Tyre, who Ptolemy claims invented the projection about AD 100.
+
+## Cubemap
+<PanoViewer
+  src="/egjs-view360/pano/equirect/room.jpg"
+  projectionType="cubemap"
+  showExampleCode />
+cube mapping is a method of environment mapping that uses the six faces of a cube as the map shape.
+The environment is projected onto the sides of a cube and stored as six square textures, or unfolded into six regions of a single texture.
+
+## Cubestrip
+<PanoViewer
+  src="/egjs-view360/pano/equirect/room.jpg"
+  projectionType="cubestrip"
+  showExampleCode />
+Cubestrip is a format for a single image with a combination of six cube faces.
+It is almost identical to cubemap, but it is implemented in a different way.
+It aims at better performance and efficiency.
+In addition, it automatically detects and supports EAC.
+
+## Panorama
+<PanoViewer
+  src="/egjs-view360/pano/equirect/room.jpg"
+  projectionType="panorama"
+  showExampleCode />
+A panorama is any wide-angle view or representation of a physical space, whether in painting, drawing, photography, film, seismic images or a three-dimensional model.
+
+## Stereoscopic Equirectangular
+<PanoViewer
+  src="/egjs-view360/pano/equirect/room.jpg"
+  projectionType="stereoequi"
+  showExampleCode />
+Stereoscopy image format of EQUIRECTANGULAR.
+It is an experimental function to show a stereoscopic type equirectangular image on a plane.
+It does not support stereoscopic viewing function through special visual equipment at present.

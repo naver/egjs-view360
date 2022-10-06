@@ -1,10 +1,7 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "@tsconfig/docusaurus/tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "jsx": "react-jsx",
-    "esModuleInterop": true,
-    "experimentalDecorators": true
+    "baseUrl": "."
   },
   "include": [
     "../src/*",

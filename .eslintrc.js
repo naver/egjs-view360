@@ -14,6 +14,11 @@ module.exports = {
     "plugin:compat/recommended",
     "plugin:es/restrict-to-es2015"
   ],
+  settings: {
+    polyfills: [
+      "Promise"
+    ]
+  },
   overrides: [{
     files: [
       "./**/*.{ts,tsx}"

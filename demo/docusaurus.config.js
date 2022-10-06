@@ -59,13 +59,7 @@ const config = {
           {
             type: "doc",
             docId: "tutorials/installation",
-            label: "Docs",
-            position: "left"
-          },
-          {
-            type: "doc",
-            docId: "api/Class/PanoViewer",
-            label: "API",
+            label: "Tutorials",
             position: "left"
           },
           {
@@ -79,6 +73,20 @@ const config = {
             docId: "events/ready",
             label: "Events",
             position: "left"
+          },
+          {
+            to: "Projections",
+            label: "Projections"
+          },
+          {
+            type: "doc",
+            docId: "api/Class/PanoViewer",
+            label: "API",
+            position: "left"
+          },
+          {
+            type: "search",
+            position: "right",
           },
           {
             href: "https://www.npmjs.com/package/@egjs/view360",

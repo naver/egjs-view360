@@ -9,15 +9,15 @@ import Texture from "./Texture";
  */
 class ImageTexture implements Texture {
   public readonly webglTexture: WebGLTexture;
+  public readonly isVideo: boolean;
 
   private _image: HTMLImageElement;
 
-  public get width() { return this._image.naturalWidth; }
-  public get height() { return this._image.naturalHeight; }
   public get source() { return this._image; }
 
   public constructor(image: HTMLImageElement, webglTexture: WebGLTexture) {
     this.webglTexture = webglTexture;
+    this.isVideo = false;
 
     this._image = image;
   }

@@ -7,9 +7,8 @@
  */
 interface Texture {
   webglTexture: WebGLTexture;
-  width: number;
-  height: number;
   source: TexImageSource;
+  isVideo: boolean;
   update(): void;
 }
 

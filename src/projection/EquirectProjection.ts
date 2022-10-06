@@ -8,8 +8,8 @@ import UniformTexture from "../webgl/UniformTexture";
 import Texture from "../texture/Texture";
 import ShaderProgram from "../core/ShaderProgram";
 import SphereGeometry from "../geometry/SphereGeometry";
-import vs from "../shader/equirect.vert";
-import fs from "../shader/equirect.frag";
+import vs from "../shader/common.vert";
+import fs from "../shader/common.frag";
 
 /**
  *

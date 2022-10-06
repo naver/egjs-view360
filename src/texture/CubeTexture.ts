@@ -6,16 +6,15 @@ import Texture from "./Texture";
 
 class CubeTexture implements Texture {
   public readonly webglTexture: WebGLTexture;
+  public readonly isVideo: boolean;
 
   private _images: HTMLImageElement[];
 
-  // FIXME:
-  public get width() { return this._images[0].naturalWidth; }
-  public get height() { return this._images[0].naturalHeight; }
   public get source() { return this._images[0]; }
 
   public constructor(image: HTMLImageElement[], webglTexture: WebGLTexture) {
     this.webglTexture = webglTexture;
+    this.isVideo = false;
 
     this._images = image;
   }
