@@ -2,6 +2,7 @@ import clsx from "clsx";
 import React from "react";
 import { PanoViewer as VanillaPanoViewer, PanoViewerOptions } from "../../../src";
 import OptionExample from "./OptionExample";
+import License from "./License";
 
 interface DemoOptions extends Partial<PanoViewerOptions>, React.HTMLAttributes<HTMLDivElement> {
   showExampleCode: boolean | string[];
@@ -53,6 +54,15 @@ class PanoViewer extends React.Component<DemoOptions> {
     return <>
       <div ref={this._wrapperRef} className={clsx(className, "view360-container", "is-16by9")} style={style}>
         <canvas className="view360-canvas"></canvas>
+        { <License items={[
+  {
+    name: "Tyrannosaurus Rex 2.0",
+    link: "https://skfb.ly/o7NK9",
+    author: "TStevenz",
+    authorLink: "https://sketchfab.com/3dCoast",
+    license: "Creative Commons Attribution"
+  }
+]} /> }
         { children }
       </div>
       { showExampleCode && <OptionExample isPano={true} options={view3DOptions} />}

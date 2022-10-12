@@ -9,7 +9,8 @@ import Texture from "./Texture";
  */
 class VideoTexture implements Texture {
   public readonly webglTexture: WebGLTexture;
-  public readonly isVideo: boolean;
+  public isVideo: boolean;
+  public flipY: boolean;
 
   private _video: HTMLVideoElement;
 
@@ -18,12 +19,9 @@ class VideoTexture implements Texture {
   public constructor(video: HTMLVideoElement, webglTexture: WebGLTexture) {
     this.webglTexture = webglTexture;
     this.isVideo = true;
+    this.flipY = true;
 
     this._video = video;
-  }
-
-  public update() {
-    // this._video.requestVideoFrameCallback(() => void 0);
   }
 }
 

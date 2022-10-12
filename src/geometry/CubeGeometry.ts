@@ -62,21 +62,17 @@ class CubeGeometry extends Geometry {
       20, 22, 23
     ];
 
-    // TODO:
-    const cols = 3;
-    const rows = 2;
-
+    const oneThird = 1 / 3;
     const order = "RLUDFB";
     const coords: number[][] = [];
 
-    // 텍스쳐의 좌표는 윗쪽이 큰 값을 가지므로 row 는 역순으로 넣는다.
-    for (let r = rows - 1; r >= 0; r--) {
-      for (let c = 0; c < cols; c++) {
+    for (let r = 1; r >= 0; r--) {
+      for (let c = 0; c < 3; c++) {
         const coord = [
-          c / cols, r / rows,
-          (c + 1) / cols, r / rows,
-          (c + 1) / cols, (r + 1) / rows,
-          c / cols, (r + 1) / rows
+          c * oneThird, r * 0.5,
+          (c + 1) * oneThird, r * 0.5,
+          (c + 1) * oneThird, (r + 1) * 0.5,
+          c * oneThird, (r + 1) * 0.5
         ];
 
         coords.push(coord);

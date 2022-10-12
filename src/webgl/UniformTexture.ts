@@ -17,11 +17,12 @@ class UniformTexture extends Uniform {
   public update(gl: WebGLRenderingContext | WebGL2RenderingContext, location: WebGLUniformLocation) {
     const texture = this.texture;
 
-    texture.update();
-    // gl.uniform1i(location, 0);
-    // gl.activeTexture(gl.TEXTURE0);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, texture.flipY);
+    gl.uniform1i(location, 0);
+    gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture.webglTexture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.source);
+    console.log(texture.flipY);
 
     if (!texture.isVideo) {
       this.needsUpdate = false;

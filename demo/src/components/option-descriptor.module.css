@@ -1,0 +1,41 @@
+.container {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+}
+
+.tags {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.tags:not(:last-child) {
+  margin-right: 0.5rem;
+}
+
+.tag {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  height: 2rem;
+  line-height: 1.5;
+  padding-left: 0.75em;
+  padding-right: 0.75em;
+  white-space: nowrap;
+}
+
+.tag.dark {
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #fff;
+}
+
+.tag.info {
+  background-color: #3e8ed0;
+  color: #fff;
+}
+
+.tag.warning {
+  background-color: #ffe08a;
+  color: rgba(0, 0, 0, 0.7);
+}

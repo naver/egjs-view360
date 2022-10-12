@@ -38,9 +38,9 @@ export interface PanoViewerEvents {
  * @see [Options](/docs/options/source/src) page for detailed information
  */
 export interface PanoViewerOptions extends CameraOptions, PanoControlOptions {
-  src: string | string[];
-  projectionType: ValueOf<typeof PROJECTION_TYPE>;
+  src: string | string[] | null;
   isVideo: boolean;
+  projectionType: ValueOf<typeof PROJECTION_TYPE>;
   canvasSelector: string;
 }
 
@@ -56,9 +56,9 @@ class PanoViewer {
   private _scene: Entity;
   private _initialized: boolean;
 
-  private _src?: PanoViewerOptions["src"];
-  private _projectionType: PanoViewerOptions["projectionType"];
+  private _src: PanoViewerOptions["src"];
   private _isVideo: PanoViewerOptions["isVideo"];
+  private _projectionType: PanoViewerOptions["projectionType"];
   private _canvasSelector: PanoViewerOptions["canvasSelector"];
 
   public get root() { return this._rootEl; }
@@ -97,7 +97,7 @@ class PanoViewer {
    *
    */
   public constructor(root: HTMLElement, {
-    src,
+    src = null,
     projectionType = PROJECTION_TYPE.EQUIRECTANGULAR,
     isVideo = false,
     yaw = 0,

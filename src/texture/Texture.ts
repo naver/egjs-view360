@@ -9,7 +9,7 @@ interface Texture {
   webglTexture: WebGLTexture;
   source: TexImageSource;
   isVideo: boolean;
-  update(): void;
+  flipY: boolean;
 }
 
 export default Texture;

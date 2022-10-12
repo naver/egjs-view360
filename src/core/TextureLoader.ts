@@ -50,8 +50,7 @@ class TextureLoader {
     const images = this._toImageArray(src);
 
     return this._load(images, resolve => {
-      // FIXME:
-      const webglTexture = this._ctx.createWebGLTexture(images[0]);
+      const webglTexture = this._ctx.createWebGLCubeTexture(images);
 
       resolve(new CubeTexture(images, webglTexture));
     });

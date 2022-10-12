@@ -8,8 +8,8 @@ import WebGLContext from "../webgl/WebGLContext";
 import Texture from "../texture/Texture";
 import CubeGeometry from "../geometry/CubeGeometry";
 import ShaderProgram from "../core/ShaderProgram";
-import vs from "../shader/common.vert";
-import fs from "../shader/common.frag";
+import vs from "../shader/cube.vert";
+import fs from "../shader/cube.frag";
 
 class CubeProjection extends Projection<{
   uTexture: UniformTexture;

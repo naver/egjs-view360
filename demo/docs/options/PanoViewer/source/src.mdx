@@ -3,8 +3,26 @@ sidebar_position: 1
 ---
 
 import PanoViewer from "@site/src/components/PanoViewer";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="string | string[] | null" defaultVal="null" />
+
+Source URL to Panorama image / video.
 
 <PanoViewer
-  src="/egjs-view360/pano/cube/cubemap.jpg"
-  projectionType="cubestrip"
+  src="/egjs-view360/pano/equirect/veste.jpg"
+  showExampleCode />
+
+It also support an array of cubemap URLs.
+<PanoViewer
+  src={[
+    "/egjs-view360/pano/cube/FishermansBastion/posx.jpg",
+    "/egjs-view360/pano/cube/FishermansBastion/negx.jpg",
+    "/egjs-view360/pano/cube/FishermansBastion/posy.jpg",
+    "/egjs-view360/pano/cube/FishermansBastion/negy.jpg",
+    "/egjs-view360/pano/cube/FishermansBastion/posz.jpg",
+    "/egjs-view360/pano/cube/FishermansBastion/negz.jpg"
+  ]}
+  projectionType="cubemap"
+  license={[]}
   showExampleCode />

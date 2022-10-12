@@ -6,21 +6,17 @@ import Texture from "./Texture";
 
 class CubeTexture implements Texture {
   public readonly webglTexture: WebGLTexture;
-  public readonly isVideo: boolean;
+  public readonly images: HTMLImageElement[];
+  public isVideo: boolean;
+  public flipY: boolean;
 
-  private _images: HTMLImageElement[];
-
-  public get source() { return this._images[0]; }
+  public get source() { return this.images[0]; }
 
   public constructor(image: HTMLImageElement[], webglTexture: WebGLTexture) {
     this.webglTexture = webglTexture;
     this.isVideo = false;
-
-    this._images = image;
-  }
-
-  public update() {
-    // TODO: Update canvas2d
+    this.images = image;
+    this.flipY = false;
   }
 }
 
