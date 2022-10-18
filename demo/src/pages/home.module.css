@@ -1,11 +1,3 @@
-@font-face
-{
-  font-family: 'Staatliches';
-  font-weight: normal;
-  font-style: normal;
-  src: url('/font/Staatliches/Staatliches-Regular.ttf');
-}
-
 .max400 {
   width: 100%;
   max-width: 400px;
@@ -15,6 +7,8 @@
 
 .packageName {
   font-family: 'Staatliches', monospace;
+  font-size: 48px;
+  text-align: center;
 }
 
 .badges {

@@ -3,20 +3,22 @@ import InfoSVG from "../../static/icon/info.svg";
 
 const LICENSE_TO_LINK = {
   CC0: "https://creativecommons.org/publicdomain/zero/1.0/",
-  "Creative Commons Attribution": "https://creativecommons.org/licenses/by/4.0/",
-  "CC Attribution-NonCommercial-ShareAlike": "http://creativecommons.org/licenses/by-nc-sa/4.0/"
+  "CC BY 4.0": "https://creativecommons.org/licenses/by/4.0/",
+  "CC BY-NC-SA 4.0": "http://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "CC BY 3.0": "https://creativecommons.org/licenses/by/3.0/"
 };
 
-export default ({ items = [], className = "" }: {
-  className?: string;
-  items?: Array<{
+export interface LicenseProps extends React.HTMLAttributes<HTMLDivElement> {
+  items: Array<{
     name: string;
     link: string;
     author: string;
     authorLink: string;
     license: string;
-  }>;
-}) => (<div className={className}>
+  }>
+}
+
+export default ({ items = [], ...restProps }: LicenseProps) => (<div {...restProps}>
   <article className="message is-info">
     <div className="message-body">
       <div className="mb-2 is-flex is-align-items-center">

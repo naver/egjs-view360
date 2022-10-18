@@ -8,12 +8,13 @@ import OptionDescriptor from "@site/src/components/OptionDescriptor";
 <OptionDescriptor type="string | string[] | null" defaultVal="null" />
 
 Source URL to Panorama image / video.
-
+By default, it uses `equirectangular` projection, but you can change it with [projectionType](/docs/options/PanoViewer/source/projectionType/equirectangular)
 <PanoViewer
   src="/egjs-view360/pano/equirect/veste.jpg"
   showExampleCode />
 
-It also support an array of cubemap URLs.
+It also supports an array of cubemap URLs.
+The order is **"+X, -X, +Y, -Y, +Z, -Z"** by default, but you can change it with `cubemapOrder`
 <PanoViewer
   src={[
     "/egjs-view360/pano/cube/FishermansBastion/posx.jpg",
@@ -24,5 +25,11 @@ It also support an array of cubemap URLs.
     "/egjs-view360/pano/cube/FishermansBastion/negz.jpg"
   ]}
   projectionType="cubemap"
-  license={[]}
+  license={[{
+    name: "Fisherman's Bastion",
+    link: "https://www.humus.name/index.php?page=Textures&ID=117",
+    author: "Humus",
+    authorLink: "https://www.humus.name/",
+    license: "CC BY 3.0"
+  }]}
   showExampleCode />

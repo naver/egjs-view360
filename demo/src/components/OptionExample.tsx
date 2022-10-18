@@ -34,7 +34,7 @@ export default ({ isPano, options = {} }) => {
         <CodeBlock className="language-json">{ optionsAsString }</CodeBlock>
       </TabItem>
       <TabItem value="js">
-        <CodeBlock className="language-js">{`new ${name}("#el", ${optionsAsString});`}</CodeBlock>
+        <CodeBlock className="language-js">{`new ${name}("#ID_OF_YOUR_CONTAINER", ${optionsAsString});`}</CodeBlock>
       </TabItem>
       <TabItem value="react">
         <ReactCode name={name} options={options} />

@@ -2,6 +2,7 @@
 const lightCodeTheme = require("prism-react-renderer/themes/oceanicNext");
 const darkCodeTheme = require("prism-react-renderer/themes/palenight");
 const glslify = require("./plugin/glslify");
+const preloadFont = require("./plugin/preload-font");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -15,7 +16,7 @@ const config = {
   organizationName: "naver",
   projectName: "naver.github.io",
   trailingSlash: false,
-  plugins: ["docusaurus-plugin-sass", glslify],
+  plugins: ["docusaurus-plugin-sass", glslify, preloadFont],
   presets: [
     [
       "@docusaurus/preset-classic",

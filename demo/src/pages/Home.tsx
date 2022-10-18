@@ -1,8 +1,6 @@
 import React from "react";
 import clsx from "clsx";
-// @ts-ignore
 import Layout from "@theme/Layout";
-// @ts-ignore
 import Link from "@docusaurus/Link";
 
 import styles from "./home.module.css";

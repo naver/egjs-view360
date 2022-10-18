@@ -63,6 +63,10 @@ class PanoViewer {
 
   public get root() { return this._rootEl; }
 
+  /**
+   * Source URL to Panorama image/video.
+   * See [Example](/docs/options/PanoViewer/source/src)
+   */
   public get src() { return this._src; }
   public set src(val: PanoViewerOptions["src"] | undefined) {
     if (!val) return;

@@ -1,3 +1,40 @@
+@font-face
+{
+  font-family: 'Staatliches';
+  font-weight: normal;
+  font-style: normal;
+  src: url('/font/Staatliches/Staatliches-Regular.ttf');
+}
+
+@font-face
+{
+  font-family: 'NanumSquareNeo';
+  font-style: normal;
+  src: url('/font/NaverNanumSquareNeo/NanumSquareNeo.woff2') format('woff2'),
+    url('/font/NaverNanumSquareNeo/NanumSquareNeo.woff') format('woff'),
+    url('/font/NaverNanumSquareNeo/NanumSquareNeo.ttf') format('truetype'),
+    url('/font/NaverNanumSquareNeo/NanumSquareNeo.eot') format('embedded-opentype');
+  unicode-range: U+000-5FF;
+}
+
+html {
+  font-family: 'Staatliches';
+  font-family: 'NanumSquareNeo', var(--ifm-font-family-base);
+}
+
+main {
+  line-height: 2;
+}
+
+main a {
+  font-weight: 700;
+  text-underline-position: under;
+}
+
+.navbar__title {
+  font-weight: 700;
+}
+
 .header-github-link:hover,
 .header-npm-link:hover {
   opacity: 0.6;

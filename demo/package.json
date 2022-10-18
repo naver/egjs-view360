@@ -52,6 +52,7 @@
     "raw-loader": "^4.0.2",
     "remark-breaks": "^2.0.2",
     "sass": "^1.43.4",
-    "sass-to-string": "^1.6.3"
+    "sass-to-string": "^1.6.3",
+    "webpack-font-preload-plugin": "^1.5.0"
   }
 }
