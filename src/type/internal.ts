@@ -4,8 +4,8 @@
  */
 import Camera from "../core/Camera";
 import Renderer from "../renderer/Renderer";
-import Uniform from "../webgl/Uniform";
-import UniformMatrix from "../webgl/UniformMatrix";
+import Uniform from "../uniform/Uniform";
+import UniformMatrix from "../uniform/UniformMatrix";
 import { CONTROL_EVENTS } from "../const/internal";
 
 export interface Renderable {

@@ -3,23 +3,19 @@
  * egjs projects are licensed under the MIT license
  */
 import ImReady from "@egjs/imready";
-import ImageTexture from "../texture/ImageTexture";
-import CubeTexture from "../texture/CubeTexture";
-import VideoTexture from "../texture/VideoTexture";
+import Texture2D from "../texture/Texture2D";
+import TextureCube from "../texture/TextureCube";
 import { isString } from "../utils";
 import Texture from "../texture/Texture";
-import WebGLContext from "../webgl/WebGLContext";
 
 /**
  *
  */
 class TextureLoader {
   private _loadChecker: ImReady;
-  private _ctx: WebGLContext;
 
-  constructor(ctx: WebGLContext) {
+  constructor() {
     this._loadChecker = new ImReady();
-    this._ctx = ctx;
   }
 
   public async load(src: string | string[], isVideo: boolean): Promise<Texture> {
@@ -35,35 +31,49 @@ class TextureLoader {
     }
   }
 
-  public async loadImage(src: string): Promise<ImageTexture> {
+  public async loadImage(src: string): Promise<Texture2D> {
     const images = this._toImageArray(src);
 
     return this._load(images, resolve => {
       const image = images[0];
-      const webglTexture = this._ctx.createWebGLTexture(image);
 
-      resolve(new ImageTexture(image, webglTexture));
+      resolve(new Texture2D({
+        source: image,
+        width: image.naturalWidth,
+        height: image.naturalHeight,
+        isVideo: false,
+        flipY: true
+      }));
     });
   }
 
-  public async loadCubeImage(src: string[]): Promise<CubeTexture> {
+  public async loadCubeImage(src: string[]): Promise<TextureCube> {
     const images = this._toImageArray(src);
 
     return this._load(images, resolve => {
-      const webglTexture = this._ctx.createWebGLCubeTexture(images);
-
-      resolve(new CubeTexture(images, webglTexture));
+      resolve(new TextureCube({
+        sources: images,
+        width: images[0].naturalWidth,
+        height: images[0].naturalHeight,
+        flipY: false,
+        isVideo: false
+      }));
     });
   }
 
-  public async loadVideo(src: string | string[]): Promise<VideoTexture> {
+  public async loadVideo(src: string | string[]): Promise<Texture2D> {
     const video = this._toVideoElement(src);
 
     return this._load([video], resolve => {
-      const webglTexture = this._ctx.createWebGLTexture(video);
-
       video.play();
-      resolve(new VideoTexture(video, webglTexture));
+
+      resolve(new Texture2D({
+        source: video,
+        width: video.videoWidth,
+        height: video.videoHeight,
+        isVideo: true,
+        flipY: true
+      }));
     });
   }
 

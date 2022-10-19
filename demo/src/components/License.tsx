@@ -4,6 +4,7 @@ import InfoSVG from "../../static/icon/info.svg";
 const LICENSE_TO_LINK = {
   CC0: "https://creativecommons.org/publicdomain/zero/1.0/",
   "CC BY 4.0": "https://creativecommons.org/licenses/by/4.0/",
+  "CC BY-NC 3.0": "https://creativecommons.org/licenses/by-nc/3.0/",
   "CC BY-NC-SA 4.0": "http://creativecommons.org/licenses/by-nc-sa/4.0/",
   "CC BY 3.0": "https://creativecommons.org/licenses/by/3.0/"
 };

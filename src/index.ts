@@ -8,6 +8,7 @@ import SpinViewer, { SpinViewerOptions, SpinViewerEvents } from "./SpinViewer";
 export * from "./core";
 export * from "./control";
 export * from "./renderer";
+export * from "./uniform";
 export * from "./const/external";
 
 export {

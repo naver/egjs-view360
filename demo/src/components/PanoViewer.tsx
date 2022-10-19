@@ -5,15 +5,13 @@ import OptionExample from "./OptionExample";
 import License, { LicenseProps } from "./License";
 
 interface DemoOptions extends Partial<PanoViewerOptions>, React.HTMLAttributes<HTMLDivElement> {
-  license: LicenseProps;
+  license: LicenseProps["items"];
   showExampleCode: boolean | string[];
 }
 
 class PanoViewer extends React.Component<DemoOptions> {
   public static defaultProps: DemoOptions = {
-    license: {
-      items: []
-    },
+    license: [],
     showExampleCode: false
   };
 
@@ -42,6 +40,7 @@ class PanoViewer extends React.Component<DemoOptions> {
       showExampleCode,
       style,
       license,
+      on,
       ...restProps
     } = this.props;
 
@@ -54,12 +53,10 @@ class PanoViewer extends React.Component<DemoOptions> {
         return { ...options, [key]: restProps[key] };
       }, {});
 
-    delete view3DOptions["on"];
-
     return <>
       <div ref={this._wrapperRef} className={clsx(className, "view360-container", "is-16by9")} style={style}>
         <canvas className="view360-canvas"></canvas>
-        { <License {...license} /> }
+        { <License items={license} /> }
         { children }
       </div>
       { showExampleCode && <OptionExample isPano={true} options={view3DOptions} />}

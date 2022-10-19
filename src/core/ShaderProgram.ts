@@ -2,7 +2,7 @@
  * Copyright (c) 2022 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
-import Uniform from "../webgl/Uniform";
+import Uniform from "../uniform/Uniform";
 import WebGLContext from "../webgl/WebGLContext";
 import { UniformLocations } from "../type/internal";
 

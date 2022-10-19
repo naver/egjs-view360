@@ -4,29 +4,35 @@
  */
 import Projection from "./Projection";
 import WebGLContext from "../webgl/WebGLContext";
-import UniformTexture from "../webgl/UniformTexture";
-import UniformFloat from "../webgl/UniformFloat";
+import UniformTexture2D from "../uniform/UniformTexture2D";
+import UniformFloat from "../uniform/UniformFloat";
 import Camera from "../core/Camera";
 import ShaderProgram from "../core/ShaderProgram";
-import Texture from "../texture/Texture";
+import Texture2D from "../texture/Texture2D";
 import PlaneGeometry from "../geometry/PlaneGeometry";
 import WebGLRenderer from "../renderer/WebGLRenderer";
 import { DEG_TO_RAD } from "../const/internal";
 import vs from "../shader/little-planet.vert";
 import fs from "../shader/little-planet.frag";
 
+export interface LittlePlanetProjectionOptions {
+  texture: Texture2D;
+}
+
 /**
  *
  */
  class LittlePlanetProjection extends Projection<{
-  uTexture: UniformTexture;
+  uTexture: UniformTexture2D;
   uYaw: UniformFloat;
   uPitch: UniformFloat;
   uZoom: UniformFloat;
  }> {
-  public constructor(ctx: WebGLContext, texture: Texture) {
+  public constructor(ctx: WebGLContext, {
+    texture
+  }: LittlePlanetProjectionOptions) {
     const uniforms = {
-      uTexture: new UniformTexture(texture),
+      uTexture: new UniformTexture2D(ctx, texture),
       uYaw: new UniformFloat(0),
       uPitch: new UniformFloat(0),
       uZoom: new UniformFloat(0)

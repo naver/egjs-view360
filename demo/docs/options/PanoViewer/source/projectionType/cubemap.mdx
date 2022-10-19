@@ -1,0 +1,40 @@
+---
+sidebar_position: 2
+---
+
+import PanoViewer from "@site/src/components/PanoViewer";
+
+Cube mapping is a method of environment mapping that uses the six faces of a cube as the map shape.
+The environment is projected onto the sides of a cube and stored as six square textures, or unfolded into six regions of a single texture.
+
+As View360 uses [right handed coordinate system](https://en.wikipedia.org/wiki/Right-hand_rule), negative Z(-Z) direction will be shown as front by default.
+
+<PanoViewer
+  src={[
+    "/egjs-view360/pano/cube/FishermansBastion/posx.jpg",
+    "/egjs-view360/pano/cube/FishermansBastion/negx.jpg",
+    "/egjs-view360/pano/cube/FishermansBastion/posy.jpg",
+    "/egjs-view360/pano/cube/FishermansBastion/negy.jpg",
+    "/egjs-view360/pano/cube/FishermansBastion/posz.jpg",
+    "/egjs-view360/pano/cube/FishermansBastion/negz.jpg"
+  ]}
+  projectionType="cubemap"
+  license={[{
+    name: "Fisherman's Bastion",
+    link: "https://www.humus.name/index.php?page=Textures&ID=117",
+    author: "Humus",
+    authorLink: "https://www.humus.name/",
+    license: "CC BY 3.0"
+  }]}
+  showExampleCode />
+
+<!--
+<PanoViewer
+  src="/egjs-view360/pano/cube/bookcube1.jpg"
+  projectionType="cubemap"
+  showExampleCode /> -->
+
+<PanoViewer
+  src="/egjs-view360/pano/cube/cubemap.jpg"
+  projectionType="cubemap"
+  showExampleCode />

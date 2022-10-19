@@ -2,12 +2,14 @@
  * Copyright (c) 2022 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
+
 /**
  *
  */
 interface Texture {
-  webglTexture: WebGLTexture;
-  source: TexImageSource;
+  width: number;
+  height: number;
+  isCube: boolean;
   isVideo: boolean;
   flipY: boolean;
 }

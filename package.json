@@ -39,7 +39,7 @@
 		"url": "https://github.com/naver/egjs-view360/issues"
 	},
 	"browserslist": [
-		"last 2 version",
+		"last 2 chrome versions",
 		"ie 11",
 		"not op_mini all"
 	],

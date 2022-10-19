@@ -2,20 +2,19 @@
  * Copyright (c) 2022 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
-import BufferAttribute from "../core/BufferAttribute";
-import WebGLContext from "../webgl/WebGLContext";
+import VertexData from "../core/VertexData";
 
 /** */
 abstract class Geometry {
-  public readonly vertices: BufferAttribute<Float32Array>;
-  public readonly indicies: BufferAttribute<Uint16Array>;
-  public readonly uvs: BufferAttribute<Float32Array>;
+  public readonly vertices: VertexData<Float32Array>;
+  public readonly indicies: VertexData<Uint16Array>;
+  public readonly uvs: VertexData<Float32Array>;
 
   /** */
   public constructor(vertices: number[], indicies: number[], uvs: number[]) {
-    this.vertices = new BufferAttribute(new Float32Array(vertices), 3);
-    this.indicies = new BufferAttribute(new Uint16Array(indicies), 1);
-    this.uvs = new BufferAttribute(new Float32Array(uvs), 2);
+    this.vertices = new VertexData(new Float32Array(vertices), 3);
+    this.indicies = new VertexData(new Uint16Array(indicies), 1);
+    this.uvs = new VertexData(new Float32Array(uvs), 2);
   }
 }
 

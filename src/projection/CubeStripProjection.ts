@@ -3,23 +3,31 @@
  * egjs projects are licensed under the MIT license
  */
 import Projection from "./Projection";
-import UniformTexture from "../webgl/UniformTexture";
+import UniformTexture2D from "../uniform/UniformTexture2D";
 import WebGLContext from "../webgl/WebGLContext";
-import Texture from "../texture/Texture";
+import Texture2D from "../texture/Texture2D";
 import CubeGeometry from "../geometry/CubeGeometry";
 import ShaderProgram from "../core/ShaderProgram";
 import vs from "../shader/common.vert";
 import fs from "../shader/common.frag";
 
+export interface CubeStripProjectionOptions {
+  texture: Texture2D;
+  cubemapOrder: string;
+}
+
 class CubeStripProjection extends Projection<{
-  uTexture: UniformTexture;
+  uTexture: UniformTexture2D;
 }> {
-  public constructor(ctx: WebGLContext, texture: Texture) {
+  public constructor(ctx: WebGLContext, {
+    texture,
+    cubemapOrder
+  }: CubeStripProjectionOptions) {
     const uniforms = {
-      uTexture: new UniformTexture(texture)
+      uTexture: new UniformTexture2D(ctx, texture)
     };
 
-    const geometry = new CubeGeometry();
+    const geometry = new CubeGeometry(cubemapOrder);
     const program = new ShaderProgram(ctx, vs, fs, uniforms);
 
     const vao = ctx.createVAO(geometry, program);

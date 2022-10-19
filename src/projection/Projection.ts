@@ -5,9 +5,9 @@
 import ShaderProgram from "../core/ShaderProgram";
 import Camera from "../core/Camera";
 import Entity from "../core/Entity";
-import WebGLRenderer from "../renderer/WebGLRenderer";
 import VertexArrayObject from "../core/VertexArrayObject";
-import Uniform from "../webgl/Uniform";
+import WebGLRenderer from "../renderer/WebGLRenderer";
+import Uniform from "../uniform/Uniform";
 
 /** */
 class Projection<T extends Record<string, Uniform> = Record<string, Uniform>> extends Entity {

@@ -11,16 +11,18 @@ import View360Error from "./core/View360Error";
 import Projection from "./projection/Projection";
 import EquirectProjection from "./projection/EquirectProjection";
 import CubeProjection from "./projection/CubeProjection";
+import CubeStripProjection from "./projection/CubeStripProjection";
+import PanoramaProjection from "./projection/PanoramaProjection";
+import StereoEquiProjection from "./projection/StereoEquiProjection";
 import WebGLRenderer from "./renderer/WebGLRenderer";
 import Texture from "./texture/Texture";
+import Texture2D from "./texture/Texture2D";
+import TextureCube from "./texture/TextureCube";
 import ERROR from "./const/error";
 import { EVENTS, PROJECTION_TYPE } from "./const/external";
 import { findCanvas } from "./utils";
 import * as EVENT_TYPES from "./type/event";
 import { ValueOf } from "./type/utils";
-import CubeStripProjection from "./projection/CubeStripProjection";
-import PanoramaProjection from "./projection/PanoramaProjection";
-import StereoEquiProjection from "./projection/StereoEquiProjection";
 
 /**
  * @interface
@@ -41,6 +43,8 @@ export interface PanoViewerOptions extends CameraOptions, PanoControlOptions {
   src: string | string[] | null;
   isVideo: boolean;
   projectionType: ValueOf<typeof PROJECTION_TYPE>;
+  cubemapOrder: string;
+  autoInit: boolean;
   canvasSelector: string;
 }
 
@@ -54,11 +58,14 @@ class PanoViewer {
   private _control: PanoControl;
   private _animator: FrameAnimator;
   private _scene: Entity;
+  private _projection: Projection | null;
   private _initialized: boolean;
 
   private _src: PanoViewerOptions["src"];
   private _isVideo: PanoViewerOptions["isVideo"];
   private _projectionType: PanoViewerOptions["projectionType"];
+  private _cubemapOrder: PanoViewerOptions["cubemapOrder"];
+  private _autoInit: PanoViewerOptions["autoInit"];
   private _canvasSelector: PanoViewerOptions["canvasSelector"];
 
   public get root() { return this._rootEl; }
@@ -68,17 +75,21 @@ class PanoViewer {
    * See [Example](/docs/options/PanoViewer/source/src)
    */
   public get src() { return this._src; }
-  public set src(val: PanoViewerOptions["src"] | undefined) {
-    if (!val) return;
-
-    if (this._initialized) {
+  public set src(val: PanoViewerOptions["src"]) {
+    if (val && this._initialized) {
       this.load(val, this._isVideo);
     } else {
       this._src = val;
     }
   }
-  public get projectionType() { return this._projectionType; }
+  /**
+   * Whether the content is in video format like mp4
+   */
   public get isVideo() { return this._isVideo; }
+  public set isVideo(val: PanoViewerOptions["isVideo"]) { this._isVideo = val; }
+  public get projectionType() { return this._projectionType; }
+  public get cubemapOrder() { return this._cubemapOrder; }
+  public get autoInit() { return this._autoInit; }
   public get canvasSelector() { return this._canvasSelector; }
 
   // Camera options
@@ -104,6 +115,7 @@ class PanoViewer {
     src = null,
     projectionType = PROJECTION_TYPE.EQUIRECTANGULAR,
     isVideo = false,
+    cubemapOrder = "RLUDFB",
     yaw = 0,
     pitch = 0,
     initialZoom = 1,
@@ -113,6 +125,7 @@ class PanoViewer {
     zoom = true,
     scrollable = true,
     wheelScrollable = false,
+    autoInit = true,
     canvasSelector = "canvas"
   }: Partial<PanoViewerOptions> = {}) {
     this._rootEl = root;
@@ -122,6 +135,8 @@ class PanoViewer {
     this._src = src;
     this._projectionType = projectionType;
     this._isVideo = isVideo;
+    this._cubemapOrder = cubemapOrder;
+    this._autoInit = autoInit;
     this._canvasSelector = canvasSelector;
 
     // Core components
@@ -142,6 +157,7 @@ class PanoViewer {
       scrollable,
       wheelScrollable
     });
+    this._projection = null;
 
     this.init();
   }
@@ -176,22 +192,42 @@ class PanoViewer {
     animator.start(this.renderFrame);
     control.enable();
 
+    this._projection = projection;
     this._initialized = true;
   }
 
   public async load(src: string | string[], isVideo: boolean) {
-    const ctx = this._renderer.ctx;
-    const contentLoader = new TextureLoader(ctx);
-    // TODO:
-    const texture = await contentLoader.load(src, isVideo);
+    if (this._initialized) {
+      const scene = this._scene;
+      const texture = await this._loadTexture(src, isVideo);
+      const projection = this._createProjection(texture, this._projectionType);
 
-    this._src = src;
+      // Remove previous projection
+      const prevProjection = this._projection;
+      if (prevProjection) {
+        scene.remove(prevProjection);
+        prevProjection.destroy();
+      }
+
+      scene.add(projection);
+
+      this._src = src;
+      this._isVideo = isVideo;
+      this._projection = projection;
+    } else {
+      this._src = src;
+      this._isVideo = isVideo;
+
+      this.init();
+    }
   }
 
   /**
    */
   public resize() {
     this._resizeComponents();
+
+    // To prevent flickering, render immediately after resizing components
     this.renderFrame(0);
   }
 
@@ -208,17 +244,31 @@ class PanoViewer {
 
   private _createProjection(texture: Texture, projectionType: PanoViewerOptions["projectionType"]): Projection {
     const ctx = this._renderer.ctx;
+    const cubemapOrder = this._cubemapOrder;
 
+    // Projections will throw error when texture type is incorrect
     if (projectionType === PROJECTION_TYPE.EQUIRECTANGULAR) {
-      return new EquirectProjection(ctx, texture);
+      return new EquirectProjection(ctx, {
+        texture: texture as Texture2D
+      });
     } else if (projectionType === PROJECTION_TYPE.CUBEMAP) {
-      return new CubeProjection(ctx, texture);
+      return new CubeProjection(ctx, {
+        texture: texture as TextureCube,
+        cubemapOrder
+      });
     } else if (projectionType === PROJECTION_TYPE.CUBESTRIP) {
-      return new CubeStripProjection(ctx, texture);
+      return new CubeStripProjection(ctx, {
+        texture: texture as Texture2D,
+        cubemapOrder
+      });
     } else if (projectionType === PROJECTION_TYPE.PANORAMA) {
-      return new PanoramaProjection(ctx, texture);
+      return new PanoramaProjection(ctx, {
+        texture: texture as Texture2D,
+      });
     } else if (projectionType === PROJECTION_TYPE.STEREOSCOPIC_EQUI) {
-      return new StereoEquiProjection(ctx, texture);
+      return new StereoEquiProjection(ctx, {
+        texture: texture as Texture2D
+      });
     }
 
     throw new View360Error(ERROR.MESSAGES.WRONG_OPTION(projectionType, "projectionType"), ERROR.CODES.WRONG_OPTION);

@@ -6,40 +6,54 @@ import { mat4 } from "gl-matrix";
 import Camera from "./Camera";
 import WebGLRenderer from "../renderer/WebGLRenderer";
 import { Renderable } from "../type/internal";
+import { findIndex } from "../utils";
 
 /**
- *
+ * Base class for 3D objects
  */
 class Entity implements Renderable {
   public localMatrix: mat4;
   public worldMatrix: mat4;
-
-  private _parent: Entity | null;
-  private _children: Entity[];
+  public parent: Entity | null;
+  public children: Entity[];
 
   public constructor() {
     this.localMatrix = mat4.create();
     this.worldMatrix = mat4.create();
 
-    this._parent = null;
-    this._children = [];
+    this.parent = null;
+    this.children = [];
   }
 
   public destroy() {
-    this._parent = null;
-    this._children = [];
+    this.parent = null;
+    this.children = [];
   }
 
   public add(...childs: Entity[]) {
-    this._children.push(...childs);
+    this.children.push(...childs);
 
-    childs.forEach(child => {
-      child._parent = this;
-    });
+    for (const child of childs) {
+      child.parent = this;
+    }
+  }
+
+  public remove(...childs: Entity[]) {
+    const children = this.children;
+
+    for (const child of childs) {
+      const childIdx = findIndex(children, val => val === child);
+
+      if (childIdx >= 0) {
+        children.splice(childIdx, 1);
+      }
+
+      child.parent = null;
+    }
   }
 
   public render(renderer: WebGLRenderer, camera: Camera) {
-    this._children.forEach(child => {
+    this.children.forEach(child => {
       child.render(renderer, camera);
     });
   }

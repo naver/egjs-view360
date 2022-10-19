@@ -3,23 +3,29 @@
  * egjs projects are licensed under the MIT license
  */
 import Projection from "./Projection";
-import UniformTexture from "../webgl/UniformTexture";
+import UniformTexture2D from "../uniform/UniformTexture2D";
 import WebGLContext from "../webgl/WebGLContext";
-import Texture from "../texture/Texture";
-import CubeGeometry from "../geometry/CubeGeometry";
+import Texture2D from "../texture/Texture2D";
+import SphereGeometry from "../geometry/SphereGeometry";
 import ShaderProgram from "../core/ShaderProgram";
 import vs from "../shader/common.vert";
 import fs from "../shader/common.frag";
 
+export interface StereoEquiProjectionOptions {
+  texture: Texture2D;
+}
+
 class StereoEquiProjection extends Projection<{
-  uTexture: UniformTexture;
+  uTexture: UniformTexture2D;
 }> {
-  public constructor(ctx: WebGLContext, texture: Texture) {
+  public constructor(ctx: WebGLContext, {
+    texture
+  }: StereoEquiProjectionOptions) {
     const uniforms = {
-      uTexture: new UniformTexture(texture)
+      uTexture: new UniformTexture2D(ctx, texture)
     };
 
-    const geometry = new CubeGeometry();
+    const geometry = new SphereGeometry();
     const program = new ShaderProgram(ctx, vs, fs, uniforms);
 
     const vao = ctx.createVAO(geometry, program);

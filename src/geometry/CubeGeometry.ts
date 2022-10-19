@@ -8,7 +8,7 @@ import Geometry from "./Geometry";
  *
  */
 class CubeGeometry extends Geometry {
-  public constructor() {
+  public constructor(cubemapOrder: string) {
     const vertices = [
       // back
       1, -1, 1,
@@ -63,7 +63,7 @@ class CubeGeometry extends Geometry {
     ];
 
     const oneThird = 1 / 3;
-    const order = "RLUDFB";
+    const order = cubemapOrder;
     const coords: number[][] = [];
 
     for (let r = 1; r >= 0; r--) {
@@ -79,7 +79,6 @@ class CubeGeometry extends Geometry {
       }
     }
 
-    // vertices 에서 지정된 순서대로 그대로 그리기 위해 vertex 의 순서를 BFUDRL 로 재배치
     const uvs = "BFUDRL".split("")
       .map(face => order.indexOf(face))
       .map(index => coords[index])
