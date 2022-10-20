@@ -21,7 +21,7 @@ vec2 gnomonicToWorld(in vec2 uv) {
   float x = convertedScreenCoord.x, y = convertedScreenCoord.y;
 
   float rou = sqrt(x * x + y * y), c = stereographic ? 2.0 * atan(rou / (localRadius * 8. * uZoom) * 0.5) : atan(rou);
-	float sin_c = sin( c ), cos_c = cos( c );
+	float sin_c = sin(c), cos_c = cos(c);
 
   float lat = asin(cos_c * sin(uPitch) + (y * sin_c * cos(uPitch)) / rou);
 	float lon = uYaw + atan(x * sin_c, rou * cos(uPitch) * cos_c - y * sin(uPitch) * sin_c);

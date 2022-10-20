@@ -22,6 +22,7 @@ class WebGLContext {
   private _contextLost: boolean;
   private _maxTextureSize: number;
   private _isWebGL2: boolean;
+  private _debug: boolean;
   private _extensions: {
     vao: OES_vertex_array_object | null
   };
@@ -30,10 +31,12 @@ class WebGLContext {
   public get isWebGL2() { return this._isWebGL2; }
   public get supportVAO() { return this._isWebGL2 || !!this._extensions.vao; }
   public get lost() { return this._contextLost; }
+  public get debug() { return this._debug; }
 
-  public constructor(canvas: HTMLCanvasElement) {
+  public constructor(canvas: HTMLCanvasElement, debug: boolean) {
     this._canvas = canvas;
     this._contextLost = false;
+    this._debug = debug;
     this._extensions = {
       vao: null
     };
@@ -61,8 +64,13 @@ class WebGLContext {
   public clear() {
     const gl = this._gl;
 
-    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
     gl.clear(gl.COLOR_BUFFER_BIT);
+  }
+
+  public resize() {
+    const gl = this._gl;
+
+    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
   }
 
   public createVAO(geometry: Geometry, shaderProgram: ShaderProgram) {
@@ -156,7 +164,7 @@ class WebGLContext {
     gl.bindAttribLocation(program, 1, "uv");
     gl.linkProgram(program);
 
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    if (this._debug && !gl.getProgramParameter(program, gl.LINK_STATUS)) {
       let shaderLog: string | null = null;
 
       if (!gl.getShaderParameter(vs, gl.COMPILE_STATUS)) {

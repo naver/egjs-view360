@@ -2,7 +2,7 @@
  * Copyright (c) 2022 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
-import { mat4 } from "gl-matrix";
+import { mat4, quat, vec3 } from "gl-matrix";
 import Camera from "./Camera";
 import WebGLRenderer from "../renderer/WebGLRenderer";
 import { Renderable } from "../type/internal";
@@ -14,12 +14,18 @@ import { findIndex } from "../utils";
 class Entity implements Renderable {
   public localMatrix: mat4;
   public worldMatrix: mat4;
+  public rotation: quat;
+  public position: vec3;
+  public scale: vec3;
   public parent: Entity | null;
   public children: Entity[];
 
   public constructor() {
     this.localMatrix = mat4.create();
     this.worldMatrix = mat4.create();
+    this.rotation = quat.create();
+    this.position = vec3.fromValues(0, 0, 0);
+    this.scale = vec3.fromValues(1, 1, 1);
 
     this.parent = null;
     this.children = [];
@@ -56,6 +62,22 @@ class Entity implements Renderable {
     this.children.forEach(child => {
       child.render(renderer, camera);
     });
+  }
+
+  public updateLocalMatrix() {
+    mat4.fromRotationTranslationScale(this.localMatrix, this.rotation, this.position, this.scale);
+  }
+
+  public updateWorldMatrix() {
+    const parent = this.parent;
+
+    this.updateLocalMatrix();
+
+    if (parent) {
+      mat4.multiply(this.worldMatrix, parent.worldMatrix, this.localMatrix);
+    } else {
+      mat4.copy(this.worldMatrix, this.localMatrix);
+    }
   }
 }
 

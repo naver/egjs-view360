@@ -10,12 +10,11 @@ import WebGLContext from "../webgl/WebGLContext";
 
 class WebGLRenderer extends Renderer {
   public readonly ctx: WebGLContext;
-  private _renderQueued: boolean;
 
-  public constructor(canvas: HTMLCanvasElement) {
+  public constructor(canvas: HTMLCanvasElement, debug: boolean) {
     super(canvas);
 
-    this.ctx = new WebGLContext(canvas);
+    this.ctx = new WebGLContext(canvas, debug);
   }
 
   /**
@@ -31,6 +30,11 @@ class WebGLRenderer extends Renderer {
     this._onRender(entity, camera);
 
     this.trigger(EVENTS.RENDER);
+  }
+
+  public resize() {
+    super.resize();
+    this.ctx.resize();
   }
 
   protected _onRender(entity: Entity, camera: Camera) {

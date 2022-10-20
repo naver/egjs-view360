@@ -1,0 +1,23 @@
+---
+sidebar_position: 3
+---
+
+import PanoViewer from "@site/src/components/PanoViewer";
+
+<PanoViewer
+  src="/egjs-view360/pano/eac/youtube.png"
+  projectionType="eac"
+  showExampleCode />
+
+<PanoViewer
+  src="/egjs-view360/pano/eac/bathroom.mp4"
+  isVideo
+  projectionType="eac"
+  license={[{
+    name: "The Bathroom",
+    link: "https://www.youtube.com/watch?v=r7hv9K-u3U8",
+    author: "jan Ke Tami",
+    authorLink: "https://www.youtube.com/user/IamSamys",
+    license: "CC BY 3.0"
+  }]}
+  showExampleCode />

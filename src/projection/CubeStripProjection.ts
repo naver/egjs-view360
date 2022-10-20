@@ -14,6 +14,7 @@ import fs from "../shader/common.frag";
 export interface CubeStripProjectionOptions {
   texture: Texture2D;
   cubemapOrder: string;
+  cubemapFlipX: boolean;
 }
 
 class CubeStripProjection extends Projection<{
@@ -21,18 +22,26 @@ class CubeStripProjection extends Projection<{
 }> {
   public constructor(ctx: WebGLContext, {
     texture,
-    cubemapOrder
+    cubemapOrder,
+    cubemapFlipX
   }: CubeStripProjectionOptions) {
     const uniforms = {
       uTexture: new UniformTexture2D(ctx, texture)
     };
 
-    const geometry = new CubeGeometry(cubemapOrder);
+    const geometry = new CubeGeometry({
+      order: cubemapOrder
+    });
     const program = new ShaderProgram(ctx, vs, fs, uniforms);
 
     const vao = ctx.createVAO(geometry, program);
 
     super(vao, program);
+
+    if (cubemapFlipX) {
+      this.scale[0] = -1;
+      this.updateWorldMatrix();
+    }
   }
 }
 

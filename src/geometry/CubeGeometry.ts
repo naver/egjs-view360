@@ -3,12 +3,19 @@
  * egjs projects are licensed under the MIT license
  */
 import Geometry from "./Geometry";
+import { ROTATE } from "../const/internal";
 
 /**
  *
  */
 class CubeGeometry extends Geometry {
-  public constructor(cubemapOrder: string) {
+  public constructor({
+    order,
+    rotateUV
+  }: {
+    order: string;
+    rotateUV?: ROTATE[]
+  }) {
     const vertices = [
       // back
       1, -1, 1,
@@ -63,7 +70,6 @@ class CubeGeometry extends Geometry {
     ];
 
     const oneThird = 1 / 3;
-    const order = cubemapOrder;
     const coords: number[][] = [];
 
     for (let r = 1; r >= 0; r--) {
@@ -77,6 +83,31 @@ class CubeGeometry extends Geometry {
 
         coords.push(coord);
       }
+    }
+
+    if (rotateUV) {
+      rotateUV.forEach((degree, idx) => {
+        if (degree === ROTATE.ZERO) return;
+
+        const coord = coords[idx];
+        let newOrder: number[];
+
+        if (degree === ROTATE.CW_90) {
+          newOrder = [1, 2, 3, 0];
+        } else if (degree === ROTATE.CCW_90) {
+          newOrder = [3, 0, 1, 2];
+        } else {
+          newOrder = [2, 3, 0, 1];
+        }
+
+        const newCoords = Array<number>(coord.length);
+        for (let uvIdx = 0; uvIdx < coord.length / 2; uvIdx++) {
+          newCoords[uvIdx * 2 + 0] = coord[newOrder[uvIdx] * 2 + 0];
+          newCoords[uvIdx * 2 + 1] = coord[newOrder[uvIdx] * 2 + 1];
+        }
+
+        coords[idx] = newCoords;
+      });
     }
 
     const uvs = "BFUDRL".split("")

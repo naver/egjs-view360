@@ -23,3 +23,10 @@ export const INFINITE_RANGE: Readonly<Range> = {
 export const PITCH_RANGE: Readonly<Range> = {
   min: -89.9, max: 89.9
 };
+
+export enum ROTATE {
+  ZERO,
+  CW_90,
+  CCW_90,
+  CW_180
+}

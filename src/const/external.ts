@@ -22,13 +22,17 @@ export const PROJECTION_TYPE = {
    */
   CUBESTRIP: "cubestrip",
   /**
+   * Constant value for equiangular cubemap(EAC) type.
+   */
+  EAC: "eac",
+  /**
    * Constant value for PANORAMA type.
    * PANORAMA is a format for a panorma image which is taken from smartphone.
    */
   PANORAMA: "panorama",
   /**
    * Constant value for EQUI_STEREOSCOPY.
-   * Stereoscopy image format of EQUIRECTANGULAR. It is an experimental function to show a stereoscopic type equirectangular image on a plane. It does not support stereoscopic viewing function through special visual equipment at present.
+   * Stereoscopy image format of EQUIRECTANGULAR. It is an experimental function to show a stereoscopic type equirectangular image on a plane.
    */
   STEREOSCOPIC_EQUI: "stereoequi"
 } as const;

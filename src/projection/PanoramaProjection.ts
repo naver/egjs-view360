@@ -6,7 +6,7 @@ import Projection from "./Projection";
 import UniformTexture2D from "../uniform/UniformTexture2D";
 import WebGLContext from "../webgl/WebGLContext";
 import Texture2D from "../texture/Texture2D";
-import SphereGeometry from "../geometry/SphereGeometry";
+import CylinderGeometry from "../geometry/CylinderGeometry";
 import ShaderProgram from "../core/ShaderProgram";
 import vs from "../shader/common.vert";
 import fs from "../shader/common.frag";
@@ -25,7 +25,7 @@ class PanoramaProjection extends Projection<{
       uTexture: new UniformTexture2D(ctx, texture)
     };
 
-    const geometry = new SphereGeometry();
+    const geometry = new CylinderGeometry();
     const program = new ShaderProgram(ctx, vs, fs, uniforms);
 
     const vao = ctx.createVAO(geometry, program);

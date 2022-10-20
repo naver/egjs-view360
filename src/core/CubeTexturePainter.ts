@@ -38,21 +38,10 @@ class CubeTextureConverter {
     const texture = this.texture;
     let surfaceIdx = 0;
 
-    console.log([
-      gl.TEXTURE_CUBE_MAP_POSITIVE_X,
-      gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
-      gl.TEXTURE_CUBE_MAP_POSITIVE_Y,
-      gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
-      gl.TEXTURE_CUBE_MAP_POSITIVE_Z,
-      gl.TEXTURE_CUBE_MAP_NEGATIVE_Z
-    ]);
-
     for (let row = 0; row < this._row; row++) {
       for (let column = 0; column < this._column; column++) {
         const x = size * column;
         const y = size * row;
-
-        console.log(x, y, gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx);
 
         this._ctx.drawImage(texture.source as CanvasImageSource, x, y, size, size, 0, 0, size, size);
         gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._canvas);

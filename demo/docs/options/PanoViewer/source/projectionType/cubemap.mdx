@@ -6,8 +6,16 @@ import PanoViewer from "@site/src/components/PanoViewer";
 
 Cube mapping is a method of environment mapping that uses the six faces of a cube as the map shape.
 The environment is projected onto the sides of a cube and stored as six square textures, or unfolded into six regions of a single texture.
+Texture should be given in order of **"RLUDFB(+X, -X, +Y, -Y, +Z, -Z)"** by default, but you can change it with [cubemapOrder](/docs/options/PanoViewer/source/cubemapOrder)
 
-As View360 uses [right handed coordinate system](https://en.wikipedia.org/wiki/Right-hand_rule), negative Z(-Z) direction will be shown as front by default.
+:::caution
+
+Texture of positive Z(+Z) direction will be shown as front by default.
+But as Panoviewer uses [right handed coordinate system](https://en.wikipedia.org/wiki/Right-hand_rule), camera is looking at negative Z direction internally.
+You can change the default direction by using [yaw](/docs/options/PanoViewer/control/yaw) and [pitch](/docs/options/PanoViewer/control/pitch). (both in degrees)
+
+:::
+
 
 <PanoViewer
   src={[
@@ -28,11 +36,11 @@ As View360 uses [right handed coordinate system](https://en.wikipedia.org/wiki/R
   }]}
   showExampleCode />
 
-<!--
 <PanoViewer
   src="/egjs-view360/pano/cube/bookcube1.jpg"
   projectionType="cubemap"
-  showExampleCode /> -->
+  cubemapFlipX
+  showExampleCode />
 
 <PanoViewer
   src="/egjs-view360/pano/cube/cubemap.jpg"
