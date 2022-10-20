@@ -31,14 +31,17 @@ class CubeMapProjection extends Projection<{
     const uniforms = {
       uTexture: texture.isCube
         ? new UniformTextureCube(ctx, texture as TextureCube)
-        : new UniformCanvasCube(ctx, texture as Texture2D)
+        : new UniformCanvasCube(ctx, texture as Texture2D, cubemapOrder)
     };
+
+    if (texture.isCube) {
+      (texture as TextureCube).reorder(cubemapOrder);
+    }
 
     const geometry = new CubeGeometry({
       order: cubemapOrder
     });
     const program = new ShaderProgram(ctx, vs, fs, uniforms);
-
     const vao = ctx.createVAO(geometry, program);
 
     super(vao, program);

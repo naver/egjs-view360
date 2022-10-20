@@ -247,6 +247,9 @@ class WebGLContext {
     const gl = this._gl;
     const attribLocation = gl.getAttribLocation(program, name);
 
+    // Attribute not used
+    if (attribLocation < 0) return;
+
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, attribute.data, gl.STATIC_DRAW);
     gl.vertexAttribPointer(attribLocation, attribute.itemSize, gl.FLOAT, false, 0, 0);

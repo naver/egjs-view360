@@ -35,6 +35,15 @@ class TextureCube implements Texture {
     this.flipY = flipY;
     this.isCube = true;
   }
+
+  public reorder(order: string) {
+    const origSources = this.sources;
+    const rearranged = "RLUDFB".split("")
+      .map(face => order.indexOf(face))
+      .map(index => origSources[index]);
+
+    this.sources = rearranged;
+  }
 }
 
 export default TextureCube;

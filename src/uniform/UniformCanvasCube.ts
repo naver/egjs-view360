@@ -13,11 +13,11 @@ class UniformCanvasCube extends Uniform {
 
   public get texture() { return this._painter.texture; }
 
-  public constructor(ctx: WebGLContext, texture: Texture2D) {
+  public constructor(ctx: WebGLContext, texture: Texture2D, cubemapOrder: string) {
     super();
 
     this._webglTexture = ctx.createWebGLCubeTexture();
-    this._painter = new CubeTexturePainter(texture as Texture2D);
+    this._painter = new CubeTexturePainter(texture as Texture2D, cubemapOrder);
   }
 
   public update(gl: WebGLRenderingContext | WebGL2RenderingContext, location: WebGLUniformLocation) {

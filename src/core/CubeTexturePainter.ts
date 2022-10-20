@@ -6,14 +6,18 @@ import Texture2D from "../texture/Texture2D";
 
 class CubeTextureConverter {
   public readonly texture: Texture2D;
+  private _renderingOrder: number[];
   private _canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;
   private _row: number;
   private _column: number;
   private _size: number;
 
-  public constructor(texture: Texture2D) {
+  public constructor(texture: Texture2D, cubemapOrder: string) {
     this.texture = texture;
+    this._renderingOrder = "RLUDFB".split("")
+      .map(face => cubemapOrder.indexOf(face));
+
     const canvas = document.createElement("canvas");
 
     this._calcRenderingSize();
@@ -42,9 +46,10 @@ class CubeTextureConverter {
       for (let column = 0; column < this._column; column++) {
         const x = size * column;
         const y = size * row;
+        const renderingFace = this._renderingOrder[surfaceIdx];
 
         this._ctx.drawImage(texture.source as CanvasImageSource, x, y, size, size, 0, 0, size, size);
-        gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + surfaceIdx, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._canvas);
+        gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + renderingFace, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._canvas);
 
         surfaceIdx++;
       }

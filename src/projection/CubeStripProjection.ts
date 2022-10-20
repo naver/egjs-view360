@@ -33,7 +33,6 @@ class CubeStripProjection extends Projection<{
       order: cubemapOrder
     });
     const program = new ShaderProgram(ctx, vs, fs, uniforms);
-
     const vao = ctx.createVAO(geometry, program);
 
     super(vao, program);
