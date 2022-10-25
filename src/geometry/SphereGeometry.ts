@@ -41,7 +41,7 @@ class SphereGeometry extends Geometry {
           const a = latIdx * (heightSegments + 1) + lngIdx;
           const b = a + heightSegments + 1;
 
-          indicies.push(a, b, a + 1, b, b + 1, a + 1);
+          indicies.push(a, a + 1, b, b, a + 1, b + 1);
         }
       }
     }

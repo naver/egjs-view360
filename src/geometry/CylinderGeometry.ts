@@ -8,79 +8,39 @@ import Geometry from "./Geometry";
  *
  */
 class CylinderGeometry extends Geometry {
-  public constructor() {
-    const vertices = [
-      // back
-      1, -1, 1,
-      -1, -1, 1,
-      -1, 1, 1,
-      1, 1, 1,
+  public constructor(maxTheta: number) {
+    const vertices: number[] = [];
+    const indicies: number[] = [];
+    const uvs: number[] = [];
 
-      // front
-      -1, -1, -1,
-      1, -1, -1,
-      1, 1, -1,
-      -1, 1, -1,
+    const height = 1;
+    const radialSegments = 60;
+    const halfHeight = height * 0.5;
+    const heightSegments = [-halfHeight, halfHeight];
+    const invRadialSegments = 1 / radialSegments;
+    const angleConst = maxTheta * invRadialSegments;
 
-      // up
-      -1, 1, -1,
-      1, 1, -1,
-      1, 1, 1,
-      -1, 1, 1,
+    for (let yIdx = 0; yIdx < 2; yIdx++) {
+      const y = heightSegments[yIdx];
 
-      // down
-      -1, -1, 1,
-      1, -1, 1,
-      1, -1, -1,
-      -1, -1, -1,
+      for (let lngIdx = 0; lngIdx <= radialSegments; lngIdx++) {
+        const angle = lngIdx * angleConst + Math.PI - maxTheta * 0.5;
+        const x = Math.cos(angle);
+        const z = Math.sin(angle);
+        const u = lngIdx * invRadialSegments;
+        const v = yIdx;
 
-      // right
-      1, -1, -1,
-      1, -1, 1,
-      1, 1, 1,
-      1, 1, -1,
+        uvs.push(u, v);
+        vertices.push(x, y, z);
 
-      // left
-      -1, -1, 1,
-      -1, -1, -1,
-      -1, 1, -1,
-      -1, 1, 1
-    ];
+        if (yIdx === 0 && lngIdx < radialSegments) {
+          const a = lngIdx;
+          const b = a + radialSegments + 1;
 
-    const indicies = [
-      0, 1, 2,
-      0, 2, 3,
-      4, 5, 6,
-      4, 6, 7,
-      8, 9, 10,
-      8, 10, 11,
-      12, 13, 14,
-      12, 14, 15,
-      16, 17, 18,
-      16, 18, 19,
-      20, 21, 22,
-      20, 22, 23
-    ];
-
-    const oneThird = 1 / 3;
-    const coords: number[][] = [];
-
-    for (let r = 1; r >= 0; r--) {
-      for (let c = 0; c < 3; c++) {
-        const coord = [
-          c * oneThird, r * 0.5,
-          (c + 1) * oneThird, r * 0.5,
-          (c + 1) * oneThird, (r + 1) * 0.5,
-          c * oneThird, (r + 1) * 0.5
-        ];
-
-        coords.push(coord);
+          indicies.push(a, b, a + 1, b, b + 1, a + 1);
+        }
       }
     }
-
-    const uvs = "BFUDRL".split("")
-      .map(index => coords[index])
-      .reduce((acc, val) => acc.concat(val), []);
 
     super(vertices, indicies, uvs);
   }

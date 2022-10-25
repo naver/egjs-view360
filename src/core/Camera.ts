@@ -3,7 +3,7 @@
  * egjs projects are licensed under the MIT license
  */
 import { mat4, vec3 } from "gl-matrix";
-import { DEG_TO_RAD } from "../const/internal";
+import { DEG_TO_RAD, RAD_TO_DEG } from "../const/internal";
 import { toVerticalFov } from "../utils";
 
 export interface CameraOptions {
@@ -23,6 +23,7 @@ class Camera {
    * Current camera's zoom
    */
   public zoom: number;
+  public position: vec3;
 
   private _up: vec3;
   private _aspect: number;
@@ -50,6 +51,7 @@ class Camera {
     this.yaw = yaw;
     this.pitch = pitch;
     this.zoom = initialZoom;
+    this.position = vec3.create();
 
     this._up = vec3.fromValues(0, 1, 0);
     this._baseFov = fov;
@@ -65,8 +67,34 @@ class Camera {
     this.yaw = yaw;
     this.pitch = pitch;
     this.zoom = zoom;
+  }
 
-    this.updateMatrix();
+  public moveTo(x: number, y: number, z: number) {
+    const position = this.position;
+
+    position[0] = x;
+    position[1] = y;
+    position[2] = z;
+  }
+
+  /**
+   *
+   * @returns Zoomed horizontal FOV, in degress
+   */
+  public getHorizontalFov(zoom = this.zoom) {
+    return this._getZoomedHorizontalFov(zoom) * RAD_TO_DEG;
+  }
+
+  /**
+   *
+   * @returns Zoomed vertical FOV, in degress
+   */
+  public getVerticalFov(zoom = this.zoom) {
+    const aspect = this._aspect;
+    const hFov = this._getZoomedHorizontalFov(zoom); // In radians
+    const vFov = toVerticalFov(hFov, aspect);
+
+    return vFov * RAD_TO_DEG;
   }
 
   /**
@@ -79,6 +107,7 @@ class Camera {
     const projMatrix = this.projectionMatrix;
     const yawRad = DEG_TO_RAD * this.yaw;
     const pitchRad = DEG_TO_RAD * this.pitch;
+    const position = this.position;
     const viewDir = vec3.create();
 
     viewDir[1] = Math.sin(pitchRad);
@@ -87,21 +116,21 @@ class Camera {
     viewDir[0] = viewDir[2] * Math.sin(-yawRad);
     viewDir[2] = -viewDir[2] * Math.cos(-yawRad);
 
-    const eye = vec3.create(); // Origin
-    const hFov = this._getZoomedFov(); // In radians
+    vec3.add(viewDir, viewDir, position);
+
+    const hFov = this._getZoomedHorizontalFov(); // In radians
     const vFov = toVerticalFov(hFov, aspect);
 
-    mat4.lookAt(viewMatrix, eye, viewDir, up);
-    mat4.perspective(projMatrix, vFov * 2, aspect, 0.1, 100);
+    mat4.lookAt(viewMatrix, position, viewDir, up);
+    mat4.perspective(projMatrix, vFov, aspect, 0.1, 100);
   }
 
-  // TODO: 세로 2배의 경우는? 가이드 작성
   /**
    * @param zoom Current zoom value
    * @returns horizontal fov including zoom, in radian
    */
-  private _getZoomedFov() {
-    return Math.atan(Math.tan((DEG_TO_RAD * this._baseFov * 0.5)) / this.zoom);
+  private _getZoomedHorizontalFov(zoom = this.zoom) {
+    return 2 * Math.atan(Math.tan((DEG_TO_RAD * this._baseFov * 0.5)) / zoom);
   }
 }
 

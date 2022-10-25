@@ -8,6 +8,7 @@ import Entity from "../core/Entity";
 import VertexArrayObject from "../core/VertexArrayObject";
 import WebGLRenderer from "../renderer/WebGLRenderer";
 import Uniform from "../uniform/Uniform";
+import PanoControl from "../control/PanoControl";
 
 /** */
 class Projection<T extends Record<string, Uniform> = Record<string, Uniform>> extends Entity {
@@ -19,6 +20,16 @@ class Projection<T extends Record<string, Uniform> = Record<string, Uniform>> ex
 
     this._vao = vao;
     this._program = program;
+  }
+
+  /**
+   *
+   * @param control
+   * @param camera
+   */
+  public updateControlMode(control: PanoControl, camera: Camera) { // eslint-disable-line @typescript-eslint/no-unused-vars
+    // Use default mode & no view restriction
+    control.freeRestriction();
   }
 
   public render(renderer: WebGLRenderer, camera: Camera) {

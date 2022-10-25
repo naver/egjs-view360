@@ -19,10 +19,10 @@ export const DEFAULT_EASING = EASING.EASE_OUT_CUBIC;
 export const DEFAULT_ANIMATION_DURATION = 300;
 export const INFINITE_RANGE: Readonly<Range> = {
   min: -Infinity, max: Infinity
-};
+} as const;
 export const PITCH_RANGE: Readonly<Range> = {
   min: -89.9, max: 89.9
-};
+} as const;
 
 export enum ROTATE {
   ZERO,

@@ -2,6 +2,7 @@
  * Copyright (c) 2022 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
+import CameraControl from "./CameraControl";
 import RotateControl, { RotateControlOptions } from "./RotateControl";
 import ZoomControl, { ZoomControlOptions } from "./ZoomControl";
 import Camera from "../core/Camera";
@@ -9,7 +10,6 @@ import { CURSOR } from "../const/browser";
 import { CONTROL_EVENTS } from "../const/internal";
 import { ValueOf } from "../type/utils";
 import { getObjectOption } from "../utils";
-import CameraControl from "./CameraControl";
 
 /**
  * @interface
@@ -133,26 +133,34 @@ class PanoControl {
     this._enabled = false;
   }
 
+  public freeRestriction() {
+    this._rotateControl.freePitchRange();
+    this._rotateControl.freeYawRange();
+    this._zoomControl.freeZoomRange();
+  }
+
   /**
    * Update control by given deltaTime
    * @param {Camera} camera Camera to update
    * @param {number} delta Number of milisec to update
    * @returns {void}
    */
-   public update(camera: Camera, delta: number): void {
+  public update(camera: Camera, delta: number): void {
     const rotateControl = this._rotateControl;
     const zoomControl = this._zoomControl;
     zoomControl.update(delta);
 
-    const zoom = this._zoomControl.getActiveZoom(camera);
+    const zoom = zoomControl.getActiveZoom(camera);
     // Slow down rotation on zoom-in
     rotateControl.setZoomScale(Math.max(zoom, 1));
+    rotateControl.updateRange(camera, zoom);
     rotateControl.update(delta);
 
     const yaw = rotateControl.disableYaw ? camera.yaw : rotateControl.yaw;
-    const pitch = rotateControl.disableYaw ? camera.pitch : rotateControl.pitch;
+    const pitch = rotateControl.disablePitch ? camera.pitch : rotateControl.pitch;
 
     camera.lookAt(yaw, pitch, zoom);
+    camera.updateMatrix();
   }
 
   /**
@@ -162,8 +170,8 @@ class PanoControl {
   public sync(): void {
     const camera = this._camera;
 
-    this._rotateControl.sync(camera);
     this._zoomControl.sync(camera);
+    this._rotateControl.sync(camera);
   }
 
   private _setCursor(newCursor: ValueOf<typeof CURSOR>) {

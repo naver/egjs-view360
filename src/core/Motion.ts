@@ -34,7 +34,6 @@ class Motion {
   public set loop(val: boolean) { this._loop = val; }
 
   public get range() { return this._range; }
-  public set range(val: Range) { this._range = val; }
 
   public get easing() { return this._easing; }
   public set easing(val: (x: number) => number) { this._easing = val; }
@@ -59,7 +58,10 @@ class Motion {
    * @returns Difference(delta) of the value from the last update.
    */
   public update(deltaTime: number): number {
-    if (!this._activated) return 0;
+    if (!this._activated) {
+      this._val = this._end;
+      return 0;
+    }
 
     const start = this._start;
     const end = this._end;
@@ -100,6 +102,12 @@ class Motion {
     this._end = clamp(this._end + delta, range.min, range.max);
     this._progress = 0;
     this._activated = true;
+  }
+
+  public setRange(min: number, max: number) {
+    this._start = clamp(this._start, min, max);
+    this._end = clamp(this._end, min, max);
+    this._range = { min, max };
   }
 }
 

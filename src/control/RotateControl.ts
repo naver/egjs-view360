@@ -10,6 +10,7 @@ import TouchInput from "./input/TouchInput";
 import Camera from "../core/Camera";
 import Motion from "../core/Motion";
 import { CONTROL_EVENTS, INFINITE_RANGE, PITCH_RANGE, DEFAULT_ANIMATION_DURATION, DEFAULT_EASING, DEG_TO_RAD, RAD_TO_DEG } from "../const/internal";
+import { Range } from "../type/utils";
 import { toVerticalFov } from "../utils";
 
 /**
@@ -51,7 +52,9 @@ class RotateControl extends Component<{
   private _yMotion: Motion;
   private _screenScale: [number, number];
   private _zoomScale: number;
-  private _enabled: boolean = false;
+  private _enabled: boolean;
+  private _yawLimit: (Range & { cylinderHeight?: number }) | null;
+  private _pitchLimit: Range | null;
 
   /**
    * Whether this control is enabled or not
@@ -156,6 +159,9 @@ class RotateControl extends Component<{
     this._yMotion = new Motion({ duration, range: PITCH_RANGE, easing });
     this._screenScale = [1, 1];
     this._zoomScale = 1;
+    this._enabled = false;
+    this._yawLimit = null;
+    this._pitchLimit = null;
 
     this._bindInputs();
   }
@@ -182,6 +188,71 @@ class RotateControl extends Component<{
 
     xMotion.update(delta);
     yMotion.update(delta);
+  }
+
+  public restrictYawRange(min: number, max: number, cylinderHeight?: number) {
+    this._yawLimit = { min, max, cylinderHeight };
+  }
+
+  public freeYawRange() {
+    this._yawLimit = null;
+  }
+
+  /**
+   * Set new pitch range
+   * @param min Minimum pitch value
+   * @param max Maximum pitch value
+   */
+  public restrictPitchRange(min: number, max: number) {
+    this._pitchLimit = { min, max };
+  }
+
+  public freePitchRange() {
+    this._yMotion.setRange(PITCH_RANGE.min, PITCH_RANGE.max);
+    this._pitchLimit = null;
+  }
+
+  public updateRange(camera: Camera, zoom: number) {
+    const yawLimit = this._yawLimit;
+    const pitchLimit = this._pitchLimit;
+
+    if (yawLimit) {
+      const halfHFov = camera.getHorizontalFov(zoom) * 0.5;
+      let minYaw = yawLimit.min + halfHFov;
+      let maxYaw = yawLimit.max - halfHFov;
+
+      if (yawLimit.cylinderHeight) {
+        const halfVFovRad = toVerticalFov(halfHFov * DEG_TO_RAD, camera.aspect);
+        const h = yawLimit.cylinderHeight * 0.5;
+        const t = Math.tan(halfVFovRad);
+        const d = Math.sqrt((1 + h * h) / (1 + t * t));
+        const theta = Math.atan(Math.tan(halfHFov * DEG_TO_RAD) * d) * RAD_TO_DEG;
+
+        minYaw = yawLimit.min + theta;
+        maxYaw = yawLimit.max - theta;
+      }
+
+      if (minYaw > maxYaw) {
+        minYaw = 0;
+        maxYaw = 0;
+      }
+
+      this._xMotion.setRange(minYaw, maxYaw);
+    }
+
+    if (pitchLimit) {
+      const halfVFov = camera.getVerticalFov(zoom) * 0.5;
+
+      let minPitch = pitchLimit.min + halfVFov;
+      let maxPitch = pitchLimit.max - halfVFov;
+
+      if (minPitch > maxPitch) {
+        minPitch = 0;
+        maxPitch = 0;
+      }
+
+      this._yMotion.setRange(minPitch, maxPitch);
+    }
   }
 
   public setZoomScale(val: number) {
@@ -236,6 +307,7 @@ class RotateControl extends Component<{
    * @returns {void}
    */
   public sync(camera: Camera): void {
+    this.updateRange(camera, camera.zoom);
     this._xMotion.reset(camera.yaw);
     this._yMotion.reset(camera.pitch);
   }

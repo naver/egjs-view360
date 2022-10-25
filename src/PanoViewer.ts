@@ -37,15 +37,22 @@ export interface PanoViewerEvents {
 }
 
 /**
- * @interface
- * @see [Options](/docs/options/source/src) page for detailed information
+ * Options related to panorama source and its config
  */
-export interface PanoViewerOptions extends CameraOptions, PanoControlOptions {
+export interface PanoSourceOptions {
   src: string | string[] | null;
   isVideo: boolean;
   projectionType: ValueOf<typeof PROJECTION_TYPE>;
   cubemapOrder: string;
   cubemapFlipX: boolean;
+  isFullPanorama: boolean;
+}
+
+/**
+ * @interface
+ * @see [Options](/docs/options/PanoViewer/source/src) page for detailed information
+ */
+export interface PanoViewerOptions extends PanoSourceOptions, CameraOptions, PanoControlOptions {
   autoInit: boolean;
   canvasSelector: string;
   debug: boolean;
@@ -82,7 +89,7 @@ class PanoViewer {
   public get src() { return this._src; }
   public set src(val: PanoViewerOptions["src"]) {
     if (val && this._initialized) {
-      this.load(val, this._isVideo);
+      this.load({ src: val });
     } else {
       this._src = val;
     }
@@ -198,9 +205,14 @@ class PanoViewer {
     camera.updateMatrix();
 
     const texture = await this._loadTexture(this._src, this._isVideo);
-    const projection = this._createProjection(texture, this._projectionType);
+    const projection = this._createProjection(texture, {
+      projectionType: this._projectionType,
+      cubemapOrder: this._cubemapOrder,
+      cubemapFlipX: this._cubemapFlipX
+    });
 
     scene.add(projection);
+    projection.updateControlMode(control, camera);
     animator.start(this.renderFrame);
     control.enable();
 
@@ -208,11 +220,33 @@ class PanoViewer {
     this._initialized = true;
   }
 
-  public async load(src: string | string[], isVideo: boolean) {
+  public async load({
+    src,
+    isVideo = this._isVideo,
+    projectionType = this._projectionType,
+    cubemapOrder = this._cubemapOrder,
+    cubemapFlipX = this._cubemapFlipX
+  }: Partial<PanoSourceOptions>) {
+    if (!src) return;
+
+    const updateOptions = () => {
+      this._src = src;
+      this._isVideo = isVideo;
+      this._projectionType = projectionType;
+      this._cubemapOrder = cubemapOrder;
+      this._cubemapFlipX = cubemapFlipX;
+    };
+
     if (this._initialized) {
       const scene = this._scene;
+      const control = this._control;
+      const camera = this._camera;
       const texture = await this._loadTexture(src, isVideo);
-      const projection = this._createProjection(texture, this._projectionType);
+      const projection = this._createProjection(texture, {
+        projectionType,
+        cubemapOrder,
+        cubemapFlipX
+      });
 
       // Remove previous projection
       const prevProjection = this._projection;
@@ -222,14 +256,13 @@ class PanoViewer {
       }
 
       scene.add(projection);
+      projection.updateControlMode(control, camera);
 
-      this._src = src;
-      this._isVideo = isVideo;
+      updateOptions();
       this._projection = projection;
     } else {
-      this._src = src;
-      this._isVideo = isVideo;
-
+      // Should update internal options before init
+      updateOptions();
       this.init();
     }
   }
@@ -254,10 +287,12 @@ class PanoViewer {
     renderer.render(scene, camera);
   };
 
-  private _createProjection(texture: Texture, projectionType: PanoViewerOptions["projectionType"]): Projection {
+  private _createProjection(texture: Texture, {
+    projectionType,
+    cubemapOrder,
+    cubemapFlipX
+  }: Omit<PanoSourceOptions, "src" | "isVideo">): Projection {
     const ctx = this._renderer.ctx;
-    const cubemapOrder = this._cubemapOrder;
-    const cubemapFlipX = this._cubemapFlipX;
 
     // Projections will throw error when texture type is incorrect
     if (projectionType === PROJECTION_TYPE.EQUIRECTANGULAR) {
@@ -282,7 +317,7 @@ class PanoViewer {
       });
     } else if (projectionType === PROJECTION_TYPE.PANORAMA) {
       return new PanoramaProjection(ctx, {
-        texture: texture as Texture2D,
+        texture: texture as Texture2D
       });
     } else if (projectionType === PROJECTION_TYPE.STEREOSCOPIC_EQUI) {
       return new StereoEquiProjection(ctx, {

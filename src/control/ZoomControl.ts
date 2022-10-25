@@ -16,6 +16,7 @@ import {
   INFINITE_RANGE,
   RAD_TO_DEG
 } from "../const/internal";
+import { Range } from "../type/utils";
 
 /**
  * @interface
@@ -50,6 +51,7 @@ class ZoomControl extends Component<{
   private _pinchInput: PinchInput;
   private _motion: Motion;
   private _enabled: boolean;
+  private _zoomLimit: Range | null;
 
   /**
    * Whether this control is enabled or not
@@ -163,6 +165,14 @@ class ZoomControl extends Component<{
     motion.update(delta);
   }
 
+  public restrictZoomRange(min: number, max: number) {
+    this._zoomLimit = { min, max };
+  }
+
+  public freeZoomRange() {
+    this._zoomLimit = null;
+  }
+
   /**
    * Enable this input and add event listeners
    * @returns {void}
@@ -199,8 +209,9 @@ class ZoomControl extends Component<{
    */
   public sync(camera: Camera): void {
     const motion = this._motion;
-    const min = this._min;
-    const max = this._max;
+    const limit = this._zoomLimit;
+    const min = limit ? Math.max(limit.min, this._min) : this._min;
+    const max = limit ? Math.min(limit.max, this._max) : this._max;
 
     const baseFov = camera.baseFov;
     const renderingWidth = Math.tan(DEG_TO_RAD * baseFov * 0.5);
@@ -210,10 +221,7 @@ class ZoomControl extends Component<{
     const maxFov = Math.atan(renderingWidth / min) * 2 * RAD_TO_DEG;
     const currentFov = Math.atan(renderingWidth / camera.zoom) * 2 * RAD_TO_DEG;
 
-    motion.range = {
-      min: Math.max(minFov, 1),
-      max: Math.min(maxFov, 180)
-    };
+    motion.setRange(Math.max(minFov, 1), Math.min(maxFov, 180));
     motion.reset(currentFov);
   }
 
