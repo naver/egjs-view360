@@ -76,10 +76,6 @@ const config = {
             position: "left"
           },
           {
-            to: "Projections",
-            label: "Projections"
-          },
-          {
             type: "doc",
             docId: "api/Class/PanoViewer",
             label: "API",
@@ -114,16 +110,16 @@ const config = {
                 to: "docs/"
               },
               {
-                label: "API",
-                to: "docs/api/Class/PanoViewer"
-              },
-              {
                 label: "Options",
                 to: "docs/options/PanoViewer/source/src"
               },
               {
                 label: "Events",
                 to: "docs/events/ready"
+              },
+              {
+                label: "API",
+                to: "docs/api/Class/PanoViewer"
               }
             ]
           },
