@@ -5,7 +5,6 @@
 import Renderer from "./Renderer";
 import Camera from "../core/Camera";
 import Entity from "../core/Entity";
-import { EVENTS } from "../const/external";
 import WebGLContext from "../webgl/WebGLContext";
 
 class WebGLRenderer extends Renderer {
@@ -25,23 +24,13 @@ class WebGLRenderer extends Renderer {
 
     if (ctx.lost) return;
 
-    this.trigger(EVENTS.BEFORE_RENDER);
-
-    this._onRender(entity, camera);
-
-    this.trigger(EVENTS.RENDER);
+    ctx.clear();
+    entity.render(this, camera);
   }
 
   public resize() {
     super.resize();
     this.ctx.resize();
-  }
-
-  protected _onRender(entity: Entity, camera: Camera) {
-    const ctx = this.ctx;
-
-    ctx.clear();
-    entity.render(this, camera);
   }
 }
 

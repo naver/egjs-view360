@@ -5,9 +5,9 @@
 import Component from "@egjs/component";
 import * as BROWSER from "../../const/browser";
 import { CONTROL_EVENTS } from "../../const/internal";
-import { PanInputEvents } from "../../type/internal";
+import { RotateInputEvents } from "../../type/internal";
 
-class TouchInput extends Component<PanInputEvents> {
+class TouchInput extends Component<RotateInputEvents> {
   private _el: HTMLElement | null;
   private _prevPos: [number, number];
   private _isFirstTouch: boolean;

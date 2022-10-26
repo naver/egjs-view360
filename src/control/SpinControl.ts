@@ -2,10 +2,8 @@
  * Copyright (c) 2022 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
-import CameraControl from "./CameraControl";
 import RotateControl, { RotateControlOptions } from "./RotateControl";
 import ZoomControl, { ZoomControlOptions } from "./ZoomControl";
-import Camera from "../core/Camera";
 import { CURSOR } from "../const/browser";
 import { CONTROL_EVENTS } from "../const/internal";
 import { ValueOf } from "../type/utils";
@@ -14,7 +12,7 @@ import { getObjectOption } from "../utils";
 /**
  * @interface
  */
-export interface PanoControlOptions {
+export interface SpinControlOptions {
   useGrabCursor: boolean;
   scrollable: boolean;
   wheelScrollable: boolean;
@@ -23,33 +21,26 @@ export interface PanoControlOptions {
 }
 
 /**
- * Control for PanoViewer
+ * Control for SpinViewer
  */
-class PanoControl {
+class SpinControl {
   // Options
-  private _useGrabCursor: PanoControlOptions["useGrabCursor"];
+  private _useGrabCursor: SpinControlOptions["useGrabCursor"];
 
   // Internal Values
-  private _camera: Camera;
   private _controlEl: HTMLElement;
   private _rotateControl: RotateControl;
   private _zoomControl: ZoomControl;
   private _enabled: boolean;
 
   public get useGrabCursor() { return this._useGrabCursor; }
-  public set useGrabCursor(val: PanoControlOptions["useGrabCursor"]) {
+  public set useGrabCursor(val: SpinControlOptions["useGrabCursor"]) {
     this._useGrabCursor = val;
   }
 
   public get enabled() { return this._enabled; }
   public get rotate() { return this._rotateControl; }
   public get zoom() { return this._zoomControl; }
-
-  /**
-   * Whether one of the controls is animating at the moment
-   * @type {boolean}
-   * @readonly
-   */
   public get animating() {
     return this._rotateControl.animating
       || this._zoomControl.animating;
@@ -60,18 +51,17 @@ class PanoControl {
   /**
    * Create new PanoControl instance
    */
-  public constructor(element: HTMLElement, camera: Camera, {
+  public constructor(element: HTMLElement, {
     useGrabCursor,
     rotate,
     zoom,
     scrollable,
     wheelScrollable
-  }: PanoControlOptions) {
+  }: SpinControlOptions) {
     // Bind Options
     this._useGrabCursor = useGrabCursor;
 
     // Set internal values
-    this._camera = camera;
     this._controlEl = element;
     this._enabled = false;
 
@@ -91,8 +81,6 @@ class PanoControl {
    */
   public destroy(): void {
     this.disable();
-    this._rotateControl.destroy();
-    this._zoomControl.destroy();
   }
 
   /**
@@ -102,7 +90,7 @@ class PanoControl {
    * @returns {void}
    */
   public resize(width: number, height: number): void {
-    this._rotateControl.resizeByFov(this._camera, width, height);
+    this._rotateControl.resizeByDegree(360, 0, width, height);
   }
 
   /**
@@ -133,45 +121,17 @@ class PanoControl {
     this._enabled = false;
   }
 
-  public freeRestriction() {
-    this._rotateControl.freePitchRange();
-    this._rotateControl.freeYawRange();
-    this._zoomControl.freeZoomRange();
-  }
-
   /**
    * Update control by given deltaTime
-   * @param {Camera} camera Camera to update
    * @param {number} delta Number of milisec to update
    * @returns {void}
    */
-  public update(camera: Camera, delta: number): void {
+  public update(delta: number): void {
     const rotateControl = this._rotateControl;
     const zoomControl = this._zoomControl;
+
     zoomControl.update(delta);
-
-    const zoom = zoomControl.getActiveZoom(camera);
-    // Slow down rotation on zoom-in
-    rotateControl.setZoomScale(Math.max(zoom, 1));
-    rotateControl.updateRange(camera, zoom);
     rotateControl.update(delta);
-
-    const yaw = rotateControl.disableYaw ? camera.yaw : rotateControl.yaw;
-    const pitch = rotateControl.disablePitch ? camera.pitch : rotateControl.pitch;
-
-    camera.lookAt(yaw, pitch, zoom);
-    camera.updateMatrix();
-  }
-
-  /**
-   * Synchronize this control's state to current camera position
-   * @returns {void}
-   */
-  public sync(): void {
-    const camera = this._camera;
-
-    this._zoomControl.sync(camera);
-    this._rotateControl.sync(camera);
   }
 
   private _setCursor(newCursor: ValueOf<typeof CURSOR>) {
@@ -206,17 +166,13 @@ class PanoControl {
   };
 
   private _onEnable = ({
-    control,
     updateCursor
   }: {
-    control: CameraControl;
     updateCursor: boolean;
   }) => {
     if (updateCursor && this._useGrabCursor) {
       this._setCursor(CURSOR.GRAB);
     }
-
-    control.sync(this._camera);
   };
 
   private _onDisable = ({
@@ -230,4 +186,4 @@ class PanoControl {
   };
 }
 
-export default PanoControl;
+export default SpinControl;

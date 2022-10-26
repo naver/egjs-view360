@@ -264,7 +264,7 @@ class RotateControl extends Component<{
    * @param width New width
    * @param height New height
    */
-  public resize(camera: Camera, width: number, height: number) {
+  public resizeByFov(camera: Camera, width: number, height: number) {
     const hfov = camera.baseFov;
     const vfov = toVerticalFov(hfov * DEG_TO_RAD, camera.aspect) * RAD_TO_DEG;
 
@@ -272,6 +272,16 @@ class RotateControl extends Component<{
     this._screenScale[1] = vfov / height;
   }
 
+
+  /**
+   * Resize control to match target size
+   * @param width New width
+   * @param height New height
+   */
+  public resizeByDegree(xDegree: number, yDegree: number, width: number, height: number) {
+    this._screenScale[0] = xDegree / width;
+    this._screenScale[1] = yDegree / height;
+  }
   /**
    * Enable this input and add event listeners
    * @returns {void}

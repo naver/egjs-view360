@@ -25,7 +25,9 @@ export const EVENTS = {
   DOUBLE_CLICK: "dblclick",
   CONTEXT_CREATE_ERROR: "webglcontextcreationerror",
   CONTEXT_LOST: "webglcontextlost",
-  CONTEXT_RESTORED: "webglcontextrestored"
+  CONTEXT_RESTORED: "webglcontextrestored",
+  DEVICE_ORIENTATION: "deviceorientation",
+  DEVICE_MOTION: "devicemotion"
 } as const;
 
 export const EL_DIV = "div";

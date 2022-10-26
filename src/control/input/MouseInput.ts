@@ -5,9 +5,9 @@
 import Component from "@egjs/component";
 import * as BROWSER from "../../const/browser";
 import { CONTROL_EVENTS } from "../../const/internal";
-import { PanInputEvents } from "../../type/internal";
+import { RotateInputEvents } from "../../type/internal";
 
-class MouseInput extends Component<PanInputEvents> {
+class MouseInput extends Component<RotateInputEvents> {
   private _el: HTMLElement | null;
   private _prevPos: [number, number];
 

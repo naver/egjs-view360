@@ -2,22 +2,16 @@
  * Copyright (c) 2022 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
-import Component from "@egjs/component";
-import { EVENTS } from "../const/external";
-
-export interface RendererEvents {
-  [EVENTS.BEFORE_RENDER]: void;
-  [EVENTS.RENDER]: void;
-}
 
 /**
  *
  */
-abstract class Renderer extends Component<RendererEvents> {
+abstract class Renderer {
   protected _canvas: HTMLCanvasElement;
   protected _elementSize: { x: number, y: number };
   protected _pixelRatio: number;
 
+  public get canvas() { return this._canvas; }
   public get width() { return this._elementSize.x; }
   public get height() { return this._elementSize.y; }
   public get aspect() { return this._elementSize.x / this._elementSize.y; }
@@ -27,7 +21,6 @@ abstract class Renderer extends Component<RendererEvents> {
    * @param canvas
    */
   public constructor(canvas: HTMLCanvasElement) {
-    super();
     this._canvas = canvas;
     this._elementSize = { x: 0, y: 0 };
     this._pixelRatio = 1;

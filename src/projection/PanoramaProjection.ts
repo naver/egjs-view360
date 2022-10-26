@@ -17,6 +17,7 @@ import fs from "../shader/common.frag";
 
 export interface PanoramaProjectionOptions {
   texture: Texture2D;
+  is360Panorama: boolean;
 }
 
 class PanoramaProjection extends Projection<{
@@ -25,7 +26,8 @@ class PanoramaProjection extends Projection<{
   private _isFullPanorama: boolean;
 
   public constructor(ctx: WebGLContext, {
-    texture
+    texture,
+    is360Panorama
   }: PanoramaProjectionOptions) {
     const uniforms = {
       uTexture: new UniformTexture2D(ctx, texture)
@@ -34,7 +36,7 @@ class PanoramaProjection extends Projection<{
     const { width, height } = texture;
     const aspect = width / height;
     const halfVFov = 180 / aspect;
-    const isFullPanorama = aspect >= 6;
+    const isFullPanorama = is360Panorama || aspect >= 6;
 
     const cylinderTheta = isFullPanorama
       ? 2 * Math.PI

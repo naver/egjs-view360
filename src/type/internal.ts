@@ -21,7 +21,7 @@ export type UniformLocations<T extends Record<string, Uniform>> = {
   [key in keyof (T & CommonUniforms)]: WebGLUniformLocation
 };
 
-export interface PanInputEvents {
+export interface RotateInputEvents {
   [CONTROL_EVENTS.HOLD]: void;
   [CONTROL_EVENTS.CHANGE]: {
     x: number;

@@ -3,12 +3,11 @@
  * egjs projects are licensed under the MIT license
  */
 /**
- * An event that fires when PanoViewerBase is initialized.
- * This will be called once after the first 3D model is loaded.
- * @event PanoViewerBase#ready
- * @type {object}
- * @property {string} type A type of the event.
- * @property {T} target An instance of PanoViewerBase that triggered this event.
+ * An event that fires when the component is initialized.
+ * This will be called once after `init()` is called.
+ * @event ready
+ * @property A type of the event.
+ * @property An instance of the component that triggered this event.
  */
 export interface ReadyEvent<T> {
   type: string;
@@ -16,13 +15,23 @@ export interface ReadyEvent<T> {
 }
 
 /**
- * An event that fires when PanoViewerBase's {@link PanoViewerBase#resize resize()} is called
- * @event PanoViewerBase#resize
- * @type {object}
- * @property {string} type A type of the event.
- * @property {T} target An instance of PanoViewerBase that triggered this event.
- * @property {number} width New width of the canvas.
- * @property {number} height New height of the canvas.
+ * An event that fires when the content is loaded.
+ * @event load
+ * @property A type of the event.
+ * @property An instance of the component that triggered this event.
+ */
+export interface LoadEvent<T> {
+  type: string;
+  target: T;
+}
+
+/**
+ * An event that fires when component's `resize()` is called.
+ * @event resize
+ * @property A type of the event.
+ * @property An instance of the component that triggered this event.
+ * @property New width of the element.
+ * @property New height of the element.
  */
 export interface ResizeEvent<T> {
   type: string;
@@ -33,10 +42,9 @@ export interface ResizeEvent<T> {
 
 /**
  * An event that fires before rendering a frame.
- * @event PanoViewerBase#beforeRender
- * @type {object}
- * @property {string} type A type of the event.
- * @property {T} target An instance of PanoViewerBase that triggered this event.
+ * @event beforeRender
+ * @property A type of the event.
+ * @property An instance of the component that triggered this event.
  */
 export interface BeforeRenderEvent<T> {
   type: string;
@@ -45,10 +53,8 @@ export interface BeforeRenderEvent<T> {
 
 /**
  * An event that fires after rendering a frame.
- * @event PanoViewerBase#afterRender
- * @type {object}
- * @property {string} type A type of the event.
- * @property {T} target An instance of PanoViewerBase that triggered this event.
+ * @property A type of the event.
+ * @property An instance of the component that triggered this event.
  */
 export interface RenderEvent<T> {
   type: string;

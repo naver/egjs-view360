@@ -2,11 +2,13 @@
  * Copyright (c) 2022 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
+import Component from "@egjs/component";
 import Camera, { CameraOptions } from "./core/Camera";
 import PanoControl, { PanoControlOptions } from "./control/PanoControl";
 import Entity from "./core/Entity";
 import TextureLoader from "./core/TextureLoader";
 import FrameAnimator from "./core/FrameAnimator";
+import AutoResizer from "./core/AutoResizer";
 import View360Error from "./core/View360Error";
 import Projection from "./projection/Projection";
 import EquirectProjection from "./projection/EquirectProjection";
@@ -31,6 +33,7 @@ import { ValueOf } from "./type/utils";
  */
 export interface PanoViewerEvents {
   [EVENTS.READY]: EVENT_TYPES.ReadyEvent<PanoViewer>;
+  [EVENTS.LOAD]: EVENT_TYPES.LoadEvent<PanoViewer>;
   [EVENTS.RESIZE]: EVENT_TYPES.ResizeEvent<PanoViewer>;
   [EVENTS.BEFORE_RENDER]: EVENT_TYPES.BeforeRenderEvent<PanoViewer>;
   [EVENTS.RENDER]: EVENT_TYPES.RenderEvent<PanoViewer>;
@@ -45,7 +48,7 @@ export interface PanoSourceOptions {
   projectionType: ValueOf<typeof PROJECTION_TYPE>;
   cubemapOrder: string;
   cubemapFlipX: boolean;
-  isFullPanorama: boolean;
+  is360Panorama: boolean;
 }
 
 /**
@@ -54,14 +57,16 @@ export interface PanoSourceOptions {
  */
 export interface PanoViewerOptions extends PanoSourceOptions, CameraOptions, PanoControlOptions {
   autoInit: boolean;
+  autoResize: boolean;
   canvasSelector: string;
+  useResizeObserver: boolean;
   debug: boolean;
 }
 
 /**
  *
  */
-class PanoViewer {
+class PanoViewer extends Component<PanoViewerEvents> {
   private _rootEl: HTMLElement;
   private _renderer: WebGLRenderer;
   private _camera: Camera;
@@ -69,6 +74,7 @@ class PanoViewer {
   private _animator: FrameAnimator;
   private _scene: Entity;
   private _projection: Projection | null;
+  private _autoResizer: AutoResizer;
   private _initialized: boolean;
 
   private _src: PanoViewerOptions["src"];
@@ -76,8 +82,11 @@ class PanoViewer {
   private _projectionType: PanoViewerOptions["projectionType"];
   private _cubemapOrder: PanoViewerOptions["cubemapOrder"];
   private _cubemapFlipX: PanoViewerOptions["cubemapFlipX"];
+  private _is360Panorama: PanoViewerOptions["is360Panorama"];
   private _autoInit: PanoViewerOptions["autoInit"];
+  private _autoResize: PanoViewerOptions["autoResize"];
   private _canvasSelector: PanoViewerOptions["canvasSelector"];
+  private _useResizeObserver: PanoViewerOptions["useResizeObserver"];
   private _debug: PanoViewerOptions["debug"];
 
   public get root() { return this._rootEl; }
@@ -102,8 +111,11 @@ class PanoViewer {
   public get projectionType() { return this._projectionType; }
   public get cubemapOrder() { return this._cubemapOrder; }
   public get cubemapFlipX() { return this._cubemapFlipX; }
+  public get is360Panorama() { return this._is360Panorama; }
   public get autoInit() { return this._autoInit; }
+  public get autoResize() { return this._autoResize; }
   public get canvasSelector() { return this._canvasSelector; }
+  public get useResizeObserver() { return this._useResizeObserver; }
   public get debug() { return this._debug; }
   public set debug(val: PanoViewerOptions["debug"]) { this._debug = val; }
 
@@ -121,7 +133,7 @@ class PanoViewer {
   public get scrollable() { return this._control.rotate.scrollable; }
   public set scrollable(val: PanoViewerOptions["scrollable"]) { this._control.rotate.scrollable = val; }
   public get wheelScrollable() { return this._control.zoom.scrollable; }
-  public set wheelScrollable(val: PanoViewerOptions["scrollable"]) { this._control.zoom.scrollable = val; }
+  public set wheelScrollable(val: PanoViewerOptions["wheelScrollable"]) { this._control.zoom.scrollable = val; }
 
   /**
    *
@@ -142,9 +154,13 @@ class PanoViewer {
     scrollable = true,
     wheelScrollable = false,
     autoInit = true,
+    autoResize = true,
     canvasSelector = "canvas",
+    useResizeObserver = true,
     debug = false
   }: Partial<PanoViewerOptions> = {}) {
+    super();
+
     this._rootEl = root;
     this._initialized = false;
 
@@ -155,7 +171,9 @@ class PanoViewer {
     this._cubemapOrder = cubemapOrder;
     this._cubemapFlipX = cubemapFlipX;
     this._autoInit = autoInit;
+    this._autoResize = autoResize;
     this._canvasSelector = canvasSelector;
+    this._useResizeObserver = useResizeObserver;
     this._debug = debug;
 
     // Core components
@@ -177,13 +195,18 @@ class PanoViewer {
       wheelScrollable
     });
     this._projection = null;
+    this._autoResizer = new AutoResizer(useResizeObserver, () => this.resize());
 
-    this.init();
+    if (src && autoInit) {
+      this.init();
+    }
   }
 
   public destroy() {
     this._scene.destroy();
     this._animator.stop();
+    this._control.destroy();
+    this._autoResizer.disable();
   }
 
   /**
@@ -204,11 +227,16 @@ class PanoViewer {
     this._resizeComponents();
     camera.updateMatrix();
 
+    if (this._autoResize) {
+      this._autoResizer.enable(renderer.canvas);
+    }
+
     const texture = await this._loadTexture(this._src, this._isVideo);
     const projection = this._createProjection(texture, {
       projectionType: this._projectionType,
       cubemapOrder: this._cubemapOrder,
-      cubemapFlipX: this._cubemapFlipX
+      cubemapFlipX: this._cubemapFlipX,
+      is360Panorama: this._is360Panorama
     });
 
     scene.add(projection);
@@ -218,6 +246,11 @@ class PanoViewer {
 
     this._projection = projection;
     this._initialized = true;
+
+    this.trigger(EVENTS.READY, {
+      type: EVENTS.READY,
+      target: this
+    });
   }
 
   public async load({
@@ -225,7 +258,8 @@ class PanoViewer {
     isVideo = this._isVideo,
     projectionType = this._projectionType,
     cubemapOrder = this._cubemapOrder,
-    cubemapFlipX = this._cubemapFlipX
+    cubemapFlipX = this._cubemapFlipX,
+    is360Panorama = this._is360Panorama
   }: Partial<PanoSourceOptions>) {
     if (!src) return;
 
@@ -235,6 +269,7 @@ class PanoViewer {
       this._projectionType = projectionType;
       this._cubemapOrder = cubemapOrder;
       this._cubemapFlipX = cubemapFlipX;
+      this._is360Panorama = is360Panorama;
     };
 
     if (this._initialized) {
@@ -245,7 +280,8 @@ class PanoViewer {
       const projection = this._createProjection(texture, {
         projectionType,
         cubemapOrder,
-        cubemapFlipX
+        cubemapFlipX,
+        is360Panorama: is360Panorama
       });
 
       // Remove previous projection
@@ -274,6 +310,15 @@ class PanoViewer {
 
     // To prevent flickering, render immediately after resizing components
     this.renderFrame(0);
+
+    const { width, height } = this._renderer;
+
+    this.trigger(EVENTS.RESIZE, {
+      type: EVENTS.RESIZE,
+      target: this,
+      width,
+      height
+    });
   }
 
   public renderFrame = (delta: number) => {
@@ -282,15 +327,25 @@ class PanoViewer {
     const renderer = this._renderer;
     const control = this._control;
 
-    control.update(camera, delta);
+    this.trigger(EVENTS.BEFORE_RENDER, {
+      type: EVENTS.BEFORE_RENDER,
+      target: this
+    });
 
+    control.update(camera, delta);
     renderer.render(scene, camera);
+
+    this.trigger(EVENTS.RENDER, {
+      type: EVENTS.RENDER,
+      target: this
+    });
   };
 
   private _createProjection(texture: Texture, {
     projectionType,
     cubemapOrder,
-    cubemapFlipX
+    cubemapFlipX,
+    is360Panorama
   }: Omit<PanoSourceOptions, "src" | "isVideo">): Projection {
     const ctx = this._renderer.ctx;
 
@@ -317,7 +372,8 @@ class PanoViewer {
       });
     } else if (projectionType === PROJECTION_TYPE.PANORAMA) {
       return new PanoramaProjection(ctx, {
-        texture: texture as Texture2D
+        texture: texture as Texture2D,
+        is360Panorama
       });
     } else if (projectionType === PROJECTION_TYPE.STEREOSCOPIC_EQUI) {
       return new StereoEquiProjection(ctx, {
@@ -330,8 +386,14 @@ class PanoViewer {
 
   private async _loadTexture(src: string | string[], isVideo: boolean): Promise<Texture> {
     const contentLoader = new TextureLoader();
+    const texture = await contentLoader.load(src, isVideo);
 
-    return await contentLoader.load(src, isVideo);
+    this.trigger(EVENTS.LOAD, {
+      type: EVENTS.LOAD,
+      target: this
+    });
+
+    return texture;
   }
 
   private _resizeComponents() {
