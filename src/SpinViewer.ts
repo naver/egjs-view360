@@ -8,11 +8,13 @@ import Canvas2DRenderer from "./renderer/Canvas2DRenderer";
 import FrameAnimator from "./core/FrameAnimator";
 import TextureLoader from "./core/TextureLoader";
 import View360Error from "./core/View360Error";
-import Texture2D from "./texture/Texture2D";
+import Sprite from "./sprite/Sprite";
+import PackedSprite from "./sprite/PackedSprite";
+import SeparateSprite from "./sprite/SeparateSprite";
 import SpinControl, { SpinControlOptions } from "./control/SpinControl";
 import ERROR from "./const/error";
 import { EVENTS } from "./const/external";
-import { findCanvas } from "./utils";
+import { circulate, findCanvas } from "./utils";
 import * as EVENT_TYPES from "./type/event";
 
 /**
@@ -32,6 +34,8 @@ export interface SpinViewerEvents {
  */
 export interface SpinViewerOptions extends SpinControlOptions {
   src: string | string[] | null;
+  rows: number;
+  columns: number;
   autoInit: boolean;
   autoResize: boolean;
   canvasSelector: string;
@@ -48,9 +52,13 @@ class SpinViewer extends Component<SpinViewerEvents> {
   private _control: SpinControl;
   private _animator: FrameAnimator;
   private _autoResizer: AutoResizer;
+  private _sprite: Sprite | null;
+  private _imageIndex: number;
   private _initialized: boolean;
 
   private _src: SpinViewerOptions["src"];
+  private _rows: SpinViewerOptions["rows"];
+  private _columns: SpinViewerOptions["columns"];
   private _autoInit: SpinViewerOptions["autoInit"];
   private _autoResize: SpinViewerOptions["autoResize"];
   private _canvasSelector: SpinViewerOptions["canvasSelector"];
@@ -61,11 +69,14 @@ class SpinViewer extends Component<SpinViewerEvents> {
   public get src() { return this._src; }
   public set src(val: SpinViewerOptions["src"]) {
     if (val && this._initialized) {
-      this.load({ src: val });
+      this.load(val);
     } else {
       this._src = val;
     }
   }
+
+  public get rows() { return this._rows; }
+  public get columns() { return this._columns; }
 
   public get autoInit() { return this._autoInit; }
   public get autoResize() { return this._autoResize; }
@@ -82,6 +93,8 @@ class SpinViewer extends Component<SpinViewerEvents> {
 
   public constructor(root: HTMLElement, {
     src = null,
+    rows = 1,
+    columns = 1,
     useGrabCursor = true,
     rotate = true,
     zoom = true,
@@ -95,9 +108,12 @@ class SpinViewer extends Component<SpinViewerEvents> {
     super();
 
     this._rootEl = root;
+    this._imageIndex = 0;
     this._initialized = false;
 
     this._src = src;
+    this._rows = rows;
+    this._columns = columns;
     this._autoInit = autoInit;
     this._autoResize = autoResize;
     this._canvasSelector = canvasSelector;
@@ -115,6 +131,7 @@ class SpinViewer extends Component<SpinViewerEvents> {
       wheelScrollable
     });
     this._autoResizer = new AutoResizer(useResizeObserver, () => this.resize());
+    this._sprite = null;
 
     if (src && autoInit) {
       this.init();
@@ -127,7 +144,7 @@ class SpinViewer extends Component<SpinViewerEvents> {
     this._autoResizer.disable();
   }
 
-  public init() {
+  public async init() {
     if (!this._src) {
       throw new View360Error(ERROR.MESSAGES.PROVIDE_SRC_FIRST, ERROR.CODES.PROVIDE_SRC_FIRST);
     }
@@ -137,7 +154,11 @@ class SpinViewer extends Component<SpinViewerEvents> {
     const animator = this._animator;
 
     this._resizeComponents();
+    this._sprite = await this._loadSprite(this._src);
+
+    renderer.render(this._sprite, this._imageIndex);
     animator.start(this.renderFrame);
+    control.enable();
 
     this._initialized = true;
 
@@ -150,6 +171,7 @@ class SpinViewer extends Component<SpinViewerEvents> {
   public async load(src: SpinViewerOptions["src"]) {
     if (!src) return;
 
+    // TODO:
   }
 
   /**
@@ -173,6 +195,9 @@ class SpinViewer extends Component<SpinViewerEvents> {
   public renderFrame = (delta: number) => {
     const renderer = this._renderer;
     const control = this._control;
+    const sprite = this._sprite;
+
+    if (!sprite) return;
 
     this.trigger(EVENTS.BEFORE_RENDER, {
       type: EVENTS.BEFORE_RENDER,
@@ -180,7 +205,10 @@ class SpinViewer extends Component<SpinViewerEvents> {
     });
 
     control.update(delta);
-    renderer.render();
+
+    const newIdx = Math.floor(sprite.length * (-control.rotate.yaw / 360));
+    this._imageIndex = circulate(newIdx, 0, sprite.length);
+    renderer.render(sprite, this._imageIndex);
 
     this.trigger(EVENTS.RENDER, {
       type: EVENTS.RENDER,
@@ -188,18 +216,22 @@ class SpinViewer extends Component<SpinViewerEvents> {
     });
   };
 
-  private async _loadTexture(src: string | string[]): Promise<Texture2D> {
-    const contentLoader = new TextureLoader();
-    const texture = Array.isArray(src)
-      ? await Promise.all(src.map(url => contentLoader.loadImage(url)))
-      : await contentLoader.loadImage(src);
+  private async _loadSprite(src: string | string[]): Promise<Sprite> {
+    const textureLoader = new TextureLoader();
+    const sprite = Array.isArray(src)
+      ? new SeparateSprite(await textureLoader.loadMultipleImages(src))
+      : new PackedSprite({
+        texture: await textureLoader.loadImage(src),
+        columns: this._columns,
+        rows: this.rows
+      });
 
     this.trigger(EVENTS.LOAD, {
       type: EVENTS.LOAD,
       target: this
     });
 
-    return texture;
+    return sprite;
   }
 
   private _resizeComponents() {

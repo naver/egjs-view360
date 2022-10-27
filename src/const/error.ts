@@ -5,14 +5,14 @@
 
 /**
  * Error codes of {@link View360Error}
- * @type object
- * @property {0} WRONG_TYPE The given value's type is not expected
- * @property {1} WRONG_OPTION The given value's type is not expected
- * @property {2} ELEMENT_NOT_FOUND The element with given CSS selector does not exist
- * @property {3} CANVAS_NOT_FOUND The element given is not a \<canvas\> element
- * @property {4} WEBGL_NOT_SUPPORTED The browser does not support WebGL
- * @property {5} PROVIDE_SRC_FIRST `init()` is called before setting `src`
- * @property {6} FAILED_LINKING_PROGRAM Failed linking WebGL program
+ * @property The given value's type is not expected
+ * @property The given value's type is not expected
+ * @property The element with given CSS selector does not exist
+ * @property The element given is not a \<canvas\> element
+ * @property The browser does not support WebGL
+ * @property Failed creating canvas 2D context
+ * @property `init()` is called before setting `src`
+ * @property Failed linking WebGL program
  */
 export const ERROR_CODES: {
   [key in keyof typeof MESSAGES]: number;
@@ -22,8 +22,9 @@ export const ERROR_CODES: {
   ELEMENT_NOT_FOUND: 2,
   CANVAS_NOT_FOUND: 3,
   WEBGL_NOT_SUPPORTED: 4,
-  PROVIDE_SRC_FIRST: 5,
-  FAILED_LINKING_PROGRAM: 6
+  FAILED_CREATE_CONTEXT_2D: 5,
+  PROVIDE_SRC_FIRST: 6,
+  FAILED_LINKING_PROGRAM: 7
 };
 
 export const MESSAGES = {
@@ -32,6 +33,7 @@ export const MESSAGES = {
   ELEMENT_NOT_FOUND: (query: string) => `Element with selector "${query}" not found.`,
   CANVAS_NOT_FOUND: "The canvas element was not found inside the given root element.",
   WEBGL_NOT_SUPPORTED: "WebGL is not supported on this browser.",
+  FAILED_CREATE_CONTEXT_2D: "Failed to create canvas 2D context",
   PROVIDE_SRC_FIRST: "\"src\" should be provided before initialization.",
   FAILED_LINKING_PROGRAM: (msg: string | null, shaderLog: string | null) => `Failed linking WebGL program - "${msg}\nShader compile Log: ${shaderLog}`,
 };

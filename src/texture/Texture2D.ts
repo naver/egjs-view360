@@ -8,7 +8,7 @@ import Texture from "./Texture";
  *
  */
 class Texture2D implements Texture {
-  public source: TexImageSource;
+  public source: Exclude<TexImageSource, ImageData>;
   public width: number;
   public height: number;
   public readonly isCube: boolean;
@@ -22,7 +22,7 @@ class Texture2D implements Texture {
     isVideo,
     flipY
   }: {
-    source: TexImageSource;
+    source: Exclude<TexImageSource, ImageData>;
     width: number;
     height: number;
     isVideo: boolean;

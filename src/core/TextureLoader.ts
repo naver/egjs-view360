@@ -47,6 +47,22 @@ class TextureLoader {
     });
   }
 
+  public async loadMultipleImages(src: string[]): Promise<Texture2D[]> {
+    const images = this._toImageArray(src);
+
+    return this._load(images, resolve => {
+      const textures = images.map(image => new Texture2D({
+        source: image,
+        width: image.naturalWidth,
+        height: image.naturalHeight,
+        isVideo: false,
+        flipY: true
+      }));
+
+      resolve(textures);
+    });
+  }
+
   public async loadCubeImage(src: string[]): Promise<TextureCube> {
     const images = this._toImageArray(src);
 
