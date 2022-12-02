@@ -1,13 +1,13 @@
 {
   "name": "@egjs/ngx-view360",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "360 integrated viewing solution from inside-out view to outside-in view. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.",
   "peerDependencies": {
     "@angular/common": ">=10.0.0",
     "@angular/core": ">=10.0.0"
   },
   "dependencies": {
-    "@egjs/view360": "~3.6.3"
+    "@egjs/view360": "~3.6.4"
   },
   "devDependencies": {
     "@angular/common": "~10.0.0",

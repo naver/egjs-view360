@@ -1,6 +1,6 @@
 {
   "name": "@egjs/svelte-view360",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "360 integrated viewing solution from inside-out view to outside-in view. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.",
   "main": "dist/view360.cjs.js",
   "module": "dist/view360.esm.js",
@@ -30,7 +30,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@egjs/view360": "~3.6.3"
+    "@egjs/view360": "~3.6.4"
   },
   "devDependencies": {
     "@egjs/build-helper": "^0.1.2",
