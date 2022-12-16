@@ -37,8 +37,7 @@ export default defineComponent({
     };
   },
   mounted() {
-    const props = getValidProps(this);
-
+    const props = getValidProps(this.$props);
     this.vanillaSpinViewer = new VanillaSpinViewer(
       this.$refs.container as HTMLElement,
       props

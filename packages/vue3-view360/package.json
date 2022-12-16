@@ -8,6 +8,7 @@
   "sideEffects": false,
   "scripts": {
     "start": "vue-cli-service serve ./demo/main.ts",
+    "build:vue": "vue-cli-service build ./demo/main.ts",
     "build": "rm -rf dist && rollup -c && npm run declaration",
     "declaration": "rm -rf declaration && tsc -p tsconfig.declaration.json"
   },
