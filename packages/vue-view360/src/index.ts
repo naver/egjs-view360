@@ -1,8 +1,10 @@
-/* eslint-disable @typescript-eslint/naming-convention */
+/*
+ * Copyright (c) 2022 NAVER Corp.
+ * egjs projects are licensed under the MIT license
+ */
 import { VueConstructor } from "vue";
 
-import PanoViewer from "./PanoViewer";
-import SpinViewer from "./SpinViewer";
+import View360 from "./View360";
 
 declare global {
   interface Window {
@@ -12,13 +14,11 @@ declare global {
 
 const version = "#__VERSION__#";
 const install = (Vue: VueConstructor) => {
-  Vue.component("PanoViewer", PanoViewer);
-  Vue.component("SpinViewer", SpinViewer);
+  Vue.component("View360", View360);
 };
 
 const plugin = {
-  PanoViewer,
-  SpinViewer,
+  View360,
   install,
   version
 };
@@ -27,8 +27,7 @@ export * from "@egjs/view360";
 
 export default plugin;
 export {
-  PanoViewer,
-  SpinViewer,
+  View360,
   install,
   version
 };

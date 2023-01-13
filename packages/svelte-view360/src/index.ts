@@ -1,15 +1,8 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-import PanoViewer from "./PanoViewer";
-import SpinViewer from "./SpinViewer";
-
-const View360 = {
-  PanoViewer,
-  SpinViewer
-};
+/**
+ * Copyright (c) 2022 NAVER Corp.
+ * egjs projects are licensed under the MIT license
+ */
+import View360 from "./View360";
 
 export * from "@egjs/view360";
 export default View360;
-export {
-  PanoViewer,
-  SpinViewer
-};
