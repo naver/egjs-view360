@@ -1,0 +1,23 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="Array<View360Plugin>" defaultVal="[]" added="4.0.0" />
+
+View360에 적용 가능한 플러그인들을 추가합니다.
+사용 가능한 플러그인 목록은 [가이드](/docs/plugins)를 참고해주세요.
+
+View360 생성 이후에 플러그인을 추가하려면 [View360#addPlugins](/docs/api/Class/View360#addPlugins)를
+플러그인을 제거하려면 [View360#removePlugins](/docs/api/Class/View360#removePlugins)를 사용하실 수 있습니다.
+
+현재 활성화된 플러그인의 목록을 보려면 [View360#plugins](/docs/api/Class/View360#plugins)를 확인해주세요.
+
+## 예시
+```js
+const viewer = new View360("#el_id", {
+  plugins: [new ControlBar()]
+});
+
+console.log(viewer.plugins); // [ControlBar]
+
+viewer.addPlugins(new LoadingSpinner()) // [ControlBar, LoadingSpinner];
+```

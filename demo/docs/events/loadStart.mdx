@@ -1,0 +1,42 @@
+---
+sidebar_position: 4
+---
+
+import View360, { EVENTS } from "@site/src/components/View360";
+
+```ts
+import { EVENTS, LoadStartEvent } from "@egjs/view360";
+
+// Typescript
+const onLoadStart = (evt: LoadStartEvent) => {};
+
+view360.on(EVENTS.LOAD_START, onLoadStart);
+```
+
+An event that fires before loading the content.
+
+## Properties
+### src: string | HTMLElement | Array<string \| HTMLElement>
+Source URL / HTMLElement to load
+
+### video: [VideoConfig](/docs/api/Interface/VideoConfig)
+Source's video option
+
+:::info
+The example below intentionally disabled all controls for event order checking.
+
+The following is a list of available events in the example:
+- "loadStart", "load", "ready", "projectionChange"
+:::
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  license="veste"
+  clickToLoad={true}
+  rotate={false}
+  zoom={false}
+  gyro={false}
+  showControlBar={false}
+  showEvents={[EVENTS.LOAD_START, EVENTS.LOAD, EVENTS.READY, EVENTS.PROJECTION_CHANGE]} />

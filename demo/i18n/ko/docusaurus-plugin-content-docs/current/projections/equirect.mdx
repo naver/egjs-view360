@@ -1,0 +1,24 @@
+---
+title: EquirectProjection
+sidebar_position: 2
+---
+
+import View360 from "@site/src/components/View360";
+
+```js
+import { EquirectProjection } from "@egjs/view360";
+```
+
+Equirectangular Projection(등 장방형 도법)은 구체 형태의 파노라마 이미지를 표시하기 위해 주로 사용되는 투영법입니다.
+일반적으로, EquirectProjection에 사용되는 이미지는 아래 이미지와 비슷하게 생겼습니다.
+
+![equirect](/pano/equirect/equi.jpg)
+
+위 이미지를 EquirectProjection을 사용해서 나타내면, 아래와 같이 표시됩니다.
+
+<View360
+  projectionType="equirect"
+  projectionOptions={{
+    src: "/pano/equirect/equi_4096.jpg"
+  }}
+  showExampleCode />

@@ -1,0 +1,144 @@
+---
+title: How To - 프로젝션
+sidebar_position: 1
+id: projections-basics
+slug: /projections
+---
+
+프로젝션은 여러분의 360 이미지/동영상을 표시하는 방식을 나타냅니다.
+View360은 현재 일부 프로젝션 타입들만을 지원하고 있으며, 점차 여러가지 타입들을 추가로 지원할 예정입니다.
+
+## 프로젝션 사용하기
+사용자의 최종 번들 크기를 줄이기 위해(tree-shaking을 위해) 프로젝션들은 `@egjs/view360` 패키지 내에서 각자 export됩니다.
+때문에, 원하는 프로젝션을 다음과 같이 import하여 사용해주시면 됩니다.
+
+예를 들어, 아래는 EquirectProjection을 사용하는 예시입니다.
+```js
+import View360, { EquirectProjection } from "@egjs/view360";
+
+const viewer = new View360("#el_id", {
+  projection: new EquirectProjection({
+    src: "URL_TO_360_SOURCE"
+  })
+});
+```
+
+사용 가능한 프로젝션 목록은 왼쪽 사이드바를 확인해주세요.
+
+## 공통 옵션
+프로젝션들은 2개의 공통 옵션을 공유하며, 각 프로젝션마다 고유한 옵션도 존재합니다.
+두 개의 공통 옵션들은 다음과 같습니다.
+
+### src
+src는 해당 프로젝션을 이용해서 표시할 360 이미지/비디오의 소스를 의미합니다.
+
+두 가지의 방법으로 사용이 가능한데요,
+먼저, 360 이미지/비디오를 가리키는 URL을 지정하실 수 있습니다.
+
+```js
+const viewer = new View360("#el_id", {
+  projection: new EquirectProjection({
+    // 저희 데모에서 사용중인 예시입니다.
+    src: "/pano/equirect/equi.jpg"
+  })
+});
+```
+
+Cubemap과 같이 다수의 이미지를 사용하는 경우 URL배열을 사용하실 수도 있습니다.
+```js
+const viewer = new View360("#el_id", {
+  projection: new CubemapProjection({
+    // 기본 순서는 +X, -X, +Y, -Y, +Z, -Z입니다.
+    // CubemapProjection의 `cubemapOrder` 옵션으로 순서를 변경하실 수도 있습니다.
+    src: [
+      "/pano/cube/FishermansBastion/posx.jpg",
+      "/pano/cube/FishermansBastion/negx.jpg",
+      "/pano/cube/FishermansBastion/posy.jpg",
+      "/pano/cube/FishermansBastion/negy.jpg",
+      "/pano/cube/FishermansBastion/posz.jpg",
+      "/pano/cube/FishermansBastion/negz.jpg"
+    ]
+  })
+});
+```
+
+혹은, 다음과 같이 HTMLImageElement나, HTMLVideoElement를 직접 사용하실 수도 있습니다.
+이 방식은 [Video.js](https://videojs.com/) 등 다른 비디오 플레이어 라이브러리와 같이 사용하실 경우 유용합니다.
+
+> 마크업
+
+```html
+<-- 저희 video.js 데모에서 사용하는 예시입니다 -->
+<div id="container" data-vjs-player>
+  <video id="video" class="video-js vjs-fluid vjs-default-skin vjs-big-play-centered vjs-controls-enabled" data-setup='{"controls": true, "autoplay": true}'>
+    <source src="/pano/equirect/seven.mp4" type="video/mp4" />
+    <source src="/pano/equirect/seven.webm" type="video/webm" />
+  </video>
+  <canvas class="view360-canvas"></canvas>
+</div>
+```
+
+> 스크립트
+
+```js
+const container = document.querySelector("#container");
+const video = document.querySelector("#video");
+
+videojs(video).ready(() => {
+  // videojs 초기화 이후에 View360을 마운트합니다.
+  const viewer = new View360(container, {
+    projection: new EquirectProjection({
+      src: video,
+      video: true
+    })
+  });
+});
+```
+
+### video
+`video`는 360 콘텐츠가 비디오인지 여부를 지정할 수 있습니다.
+기본적으로 Boolean값을 사용할 수 있는데요, 다음과 같습니다.
+
+```js
+// 비디오가 아닌 경우
+const viewer = new View360("#el_id", {
+  projection: new EquirectProjection({
+    src: "/pano/equirect/equi.jpg",
+    // 위 src는 비디오가 아니라 이미지이므로 "false"를 사용합니다.
+    // video의 기본값이 false이므로 생략해도 무방합니다.
+    video: false
+  })
+});
+```
+
+```js
+// 비디오인 경우
+const viewer = new View360("#el_id", {
+  projection: new EquirectProjection({
+    src: "/pano/equirect/burano.mp4",
+    // 위 src가 비디오이므로 "true"를 사용합니다!
+    video: true
+  })
+});
+```
+
+video는 Boolean값 뿐만 아니라 오브젝트도 받을 수 있는데요
+이를 통해 HTMLVideoElement에 지정할 수 있는 일부 attribute들도 지정 가능합니다.
+예를 들어, 다음과 같이 사용하실 수도 있습니다.
+
+```js
+// 비디오인 경우
+const viewer = new View360("#el_id", {
+  projection: new EquirectProjection({
+    src: "/pano/equirect/burano.mp4",
+    // 비디오를 음소거 상태로 자동으로 시작하며, 비디오가 끝나도 루프하지 않습니다.
+    video: {
+      autoplay: true,
+      muted: true,
+      loop: false
+    }
+  })
+});
+```
+
+사용 가능한 옵션들은 [VideoConfig](./api/Interface/VideoConfig)를 확인해주세요.

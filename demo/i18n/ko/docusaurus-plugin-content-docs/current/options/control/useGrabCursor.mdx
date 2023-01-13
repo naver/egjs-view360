@@ -1,0 +1,24 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean" defaultVal="true" added="4.0.0" />
+
+마우스 사용시 CSS [cursor](https://developer.mozilla.org/en-US/docs/Web/CSS/cursor)값을 자동으로 변경할지를 설정합니다.
+`true`일 경우 기본 상태에서 `cursor: "grab"`을, 입력 도중에 `cursor: "grabbing"`을 캔버스에 적용합니다.
+
+## 예시
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  useGrabCursor={true}
+  license="veste"
+  showExampleCode />
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  useGrabCursor={false}
+  license="veste"
+  showExampleCode />

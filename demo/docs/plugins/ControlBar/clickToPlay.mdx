@@ -1,0 +1,25 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean" defaultVal="true" added="4.0.0" />
+
+When you click on the canvas, pause if the video is playing, or play if it is paused.
+
+## Example
+Below is an example of disabling `clickToPlay`.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ clickToPlay: false }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  clickToPlay: false
+})
+```

@@ -1,0 +1,44 @@
+---
+title: VR
+slug: /vr
+sidebar_position: 6
+---
+
+:::info
+VR only works in [Secure contexts](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts), run server with TLS/SSL(HTTPS) if it doesn't works.
+:::
+
+View360 can enter VR session by calling [view360.vr.enter()](/docs/api/Class/XRManager#enter).
+All projections except [LittlePlanetProjection](/docs/projections/littleplanet) support VR.
+
+```js
+const view360 = new View360(...);
+
+// button onclick or somewhere...
+view360.vr.enter();
+```
+
+## Prerequisites (for users)
+VR requires special device for display.
+The user must have one of the following devices to use VR feature:
+- Smartphone + [Cardboard VR headsets](https://arvr.google.com/cardboard/)
+- Head-mounted Displays (HMD)
+  - [Meta Quest 2](https://www.meta.com/kr/quest/products/quest-2/) is a typical HMD device.
+
+## WebXR API & WebVR API (deprecated)
+- View360 only supports WebXR API, not WebVR API.
+- You can try using [webxr-polyfill](https://github.com/immersive-web/webxr-polyfill) for environments where WebXR is not supported.
+
+## iOS
+iOS doesn't support WebXR Device API at the moment writing this document.
+So, you can't basically enter VR sessions in iOS, also [ControlBar](/docs/plugins/ControlBar)'s VR button won't show up.
+You can try using WebXR Polyfill, but it won't work perfectly due to the following reason.
+
+### Fullscreen
+- iOS doesn't support [Fullscreen API](https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API) regardless of browser.
+- As fullscreen API is required feature to render VR, it's almost impossible in iOS to render VR contents properly.
+- So, you can try to connect the native iOS app with the same service if you have any, or you can try PWA.
+
+### iOS 13+
+- View360 includes whether device motion is enabled before entering VR.
+- If you don't include permission check before entering VR, `vr.enter()` will pop up a native dialog to ask the user whether to permit device motion.

@@ -1,0 +1,197 @@
+---
+title: 시작하기
+id: quick-start
+slug: /quick-start
+sidebar_position: 2
+---
+
+import View360 from "@site/src/components/View360";
+
+## View360의 디폴트 스타일 사용하기
+먼저, View360이 제공하는 디폴트 스타일을 사용하기 위해선, View360이 제공하는 CSS 혹은 SASS파일을 페이지 내에 포함시켜야 합니다.
+
+가장 간단한 방법은, CDN 링크를 이용해서 `<head>` 태그 내에 CSS 파일을 포함시키는 것입니다.
+
+```html
+<head>
+  <!-- 다른 항목들 -->
+  <link rel="stylesheet" href="https://naver.github.io/egjs-view360/release/latest/css/view360.min.css">
+  <!-- 다른 항목들 -->
+</head>
+```
+
+혹은 React 등 일부 프레임워크에서는 환경에 따라 다음과 같이 CSS 파일을 직접 임포트하는 것도 가능합니다.
+
+```js
+import "@egjs/view360/css/view360.min.css";
+```
+
+현재 사용중이신 환경에서 CSS 파일을 임포트하는 방법을 확인해보시고, 적절한 방법을 사용해주세요.
+
+View360은 CSS 파일과 SASS 파일을 다음과 같은 형태로 제공합니다.
+- `@egjs/view360/css/*`
+- `@egjs/view360/sass/*`
+
+:::tip
+프레임워크 패키지의 경우 각각 `@egjs/view360`을 의존성 모듈로 보유하고 있기 때문에 위와 같이 사용하실 수도 있지만,
+각각의 프레임워크 패키지 내에서도 동일한 파일을 export하고 있습니다.
+때문에, 다음과 같이 프레임워크 패키지를 사용하셔도 완전히 동일한 파일을 사용하실 수 있습니다.
+```js
+// @egjs/view360/css/view360.min.css와 동일한 파일입니다.
+import "@egjs/react-view360/css/view360.min.css";
+```
+:::
+
+기본적으로는 모든 스타일이 번들링된 `view360.min.css`파일을 (혹은 `sass/view360.sass`) 사용해주시면 됩니다.
+혹은, 필요없는 스타일을 배제하시려면 특정 CSS 파일만 임포트하실 수도 있습니다.
+자세한 내용은 [스타일 설정](./styles#css) 문서를 확인해주세요.
+
+## 기본 HTML 구조
+:::info
+프레임워크를 사용중이신 경우 이 부분은 건너뛰셔도 됩니다.
+프레임워크에서는 자동으로 적절한 구조로 렌더링됩니다.
+에를 들어, React의 경우 다음과 같이 작성했을 때
+```jsx
+<View360 className="is-16by9" />
+```
+
+이렇게 렌더링됩니다.
+```jsx
+<div class="view360-container is-16by9">
+  <canvas class="view360-canvas" />
+</div>
+```
+:::
+
+View360을 사용하기 위해서는 두 개의 엘리먼트가 반드시 필요합니다.
+- 컨테이너 엘리먼트(어떤 태그든 상관없습니다)
+  - 디폴트로 `view360-container` 클래스를 사용합니다.
+- 캔버스 엘리먼트([<canvas\>](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/canvas))
+  - 디폴트로 `view360-canvas` 클래스를 사용합니다.
+
+가장 기본적인 구조는 다음과 같습니다.
+
+:::caution
+View360에서 제공하는 CSS 파일을 사용하실 경우, 비율을 설정하지 않을 경우 화면에 아무것도 표시되지 않게 됩니다.
+예를 들어, 다음과 같이 마크업을 설정할 경우 화면엔 아무것도 표시되지 않습니다.
+```html
+<div id="viewer" class="view360-container">
+  <canvas class="view360-canvas" />
+</div>
+```
+
+걱정 마세요, 클래스 하나만 추가하시면 됩니다.
+아래 예제에서는 `is-16by9` 클래스를 추가해서 뷰어를 전부 16:9 비율로 설정하고 있습니다.
+크기와 관련된 자세한 내용은 [스타일 설정](./styles#helper) 문서를 확인해주세요.
+:::
+
+```html
+<!-- 컨테이너 엘리먼트, "viewer"로 id를 설정했습니다. -->
+<div id="viewer" class="view360-container is-16by9">
+  <!-- 캔버스 엘리먼트 -->
+  <canvas class="view360-canvas" />
+</div>
+```
+
+실제로 위와 같은 마크업을 표시하면 다음과 같습니다. (영역을 표시하기 위해 의도적으로 배경색을 설정했습니다.)
+
+<div className="view360-container is-16by9" style={{ backgroundColor: "#bbb" }}>
+  <canvas className="view360-canvas" />
+</div>
+
+영역만 설정했기 때문에, 아직까진 아무것도 표시되지 않습니다.
+그럼 실제로 View360을 해당 영역에 올려 파노라마 이미지를 표시해봅시다.
+
+다만, 그 전에 먼저 확인해두어야 할 것이 있습니다.
+
+## 어떤 프로젝션을 사용해야할지 알아봅시다.
+360 이미지/비디오에는 다양한 포맷들이 있고, View360은 그에 대응하는 **Projection**들을 제공하고 있습니다.
+
+현재 View360이 제공하는 Projection별로 어떤 형태의 이미지를 사용하는지 표시하고 있으므로, 이를 확인하여 어떤 것을 사용할지 선택하시면 됩니다.
+
+예를 들어, 다음과 같은 형태의 이미지는 EquirectProjection을 사용해서 렌더링해야 합니다.
+
+![equirect](/pano/equirect/equi.jpg)
+
+자세한 내용은 아래 링크를 참고해주세요.
+- [사용 가능한 Projection들](./projections)
+
+:::info
+대표적인 포맷들은 View360에서 지원하고 있으므로 그것들을 사용하면 되지만, 지원하지 않는 포맷들도 있습니다.
+만약 지원이 되지 않는다면 [ffmpeg](https://ffmpeg.org/)를 이용해서 지원되는 포맷으로 변경하시거나, 저희에게 [이슈](https://github.com/naver/egjs-view360/issues/new)를 남겨주세요.
+
+- ffmpeg에서 지원하는 360 포맷들: https://ffmpeg.org/ffmpeg-filters.html#v360
+:::
+
+## 이미지를 표시해봅시다 - 1. 번들러를 사용하는 경우
+[Webpack](https://webpack.js.org/)이나 [Rollup](https://rollupjs.org/guide/en/)같은 번들러를 사용하거나, 브라우저의 [네이티브 JS module 방식](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)(`script type="module"`) 등 모듈 방식으로 View360을 사용하시는 경우 View360을 직접 import해서 다음과 같이 사용하실 수 있습니다.
+
+```js
+import View360, { EquirectProjection } from "@egjs/view360";
+
+// 아래처럼 컨테이너 엘리먼트를 선택하는 CSS Selector를 사용하거나 (#viewer)
+// 혹은 직접 HTMLElement를 사용해도 됩니다. (document.getElementById("viewer"))
+const viewer = new View360("#viewer", {
+  // Equirectangular projection을 사용합니다
+  projection: new EquirectProjection({
+    // 이미지 URL을 지정해주세요
+    src: "URL_TO_IMAGE",
+    // 이미지를 사용하므로 false입니다
+    video: false
+  })
+});
+```
+
+아래와 같이 표시되면 정상입니다.
+
+<View360
+  showControlBar={false}
+  showSpinner={false}
+  projectionOptions={{
+    src: "/pano/equirect/equi.jpg"
+  }}
+  projectionType="equirect" />
+
+## 이미지를 표시해봅시다 - 2. CDN 스크립트를 사용하는 경우
+CDN 링크를 이용해서 `<script>` 태그를 통해 View360을 사용하는 경우, View360은 UMD 모듈로 로드됩니다.
+
+이 경우 사용법이 다음과 같이 변경됩니다.
+
+1. View360이 `View360`이라는 이름의 전역 변수로 등록됩니다.
+2. Export되는 다른 모든 변수나 프로젝션 등은 `View360.XXX` 형태로 접근 가능합니다.
+
+기타 사용방법은 동일하며, 아래는 예시입니다.
+
+```html
+<head>
+  <!-- View360을 스크립트 태그를 이용해서 로드합니다 -->
+  <script src="https://naver.github.io/egjs-view360/release/latest/dist/view360.pkgd.min.js"></script>
+</head>
+```
+
+```js
+// View360은 글로벌에 등록되어 있습니다.
+const viewer = new View360("#viewer", {
+  // EquirectProjection 및 기타 모든 항목들이 View360 내의 프로퍼티로 저장되어 있습니다.
+  projection: new View360.EquirectProjection({
+    src: "URL_TO_IMAGE",
+    video: false
+  })
+});
+```
+
+## 옵션 설정하기, 이벤트 듣기, 플러그인 추가하기 ...
+이제 기본적인 표시는 마쳤으니, 원하는대로 커스터마이징 할 차례입니다.
+View360은 카메라, 컨트롤 등을 자유롭게 설정 가능하도록 다양한 옵션을 제공하고 있으며, 각 상황에 트리거되는 이벤트를 이용해서 원하는 동작을 구현하실 수도 있습니다.
+
+또한, 기본적인 UI나 기타 기능을 제공하는 플러그인도 존재합니다.
+
+다음 문서들을 확인해보세요.
+- [옵션](./options)
+- [이벤트](./events)
+- [플러그인](./plugins)
+- [프로젝션 타입들](./projections)
+
+또한, 사이드바의 다른 튜토리얼 문서들도 확인해보세요.
+
+궁금하신 점이나 필요한 기능 혹은 제보할 버그가 있다면 언제든지 [Github 이슈](https://github.com/naver/egjs-view360/issues/new)에 올려주세요.

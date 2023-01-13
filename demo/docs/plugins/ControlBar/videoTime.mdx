@@ -1,0 +1,52 @@
+import View360, { ControlBar } from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean | ControlBarItemOptions" defaultVal="true" added="4.0.0" />
+
+Displays the current time / total time of the video.
+If `true`, it'll show the button & apply the default options.
+If `false`, it won't display the button.
+You can also set detailed options by setting a object of type [ControlBarItemOptions](/docs/api/Plugin/Interface/ControlBarItemOptions).
+
+## Example
+Below is an example of not displaying a video time.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ videoTime: false }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  videoTime: false
+})
+```
+
+Below is an example of a video time displaying in a different location.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ videoTime: {
+    position: ControlBar.POSITION.MAIN_BOTTOM,
+    order: 0
+  } }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  videoTime: {
+    position: ControlBar.POSITION.MAIN_BOTTOM,
+    order: 0
+  }
+})
+```

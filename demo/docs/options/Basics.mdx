@@ -1,0 +1,58 @@
+---
+title: How To - Options
+sidebar_position: 1
+id: options-basics
+slug: /options
+---
+
+## Applying Options
+
+View360 accepts options as a second parameter in the form of a JavaScript object.
+You can set the option name to key and the option value to the value you want.
+For example, if you don't want to use the zoom function and want to turn off zoom, you can set the `zoom` option as follows.
+
+```js
+import View360 from "@egjs/view360";
+
+const viewer = new View360("#el_id", {
+  zoom: false
+});
+```
+
+The same goes for other options! For example, the `yawRange` which receives an object as a value can be set as follows:
+
+```js
+import View360 from "@egjs/view360";
+
+const view360 = new View360("#el_id", {
+  yawRange: {
+    min: -60,
+    max: 60
+  }
+});
+```
+
+## Changing Options
+Most options are designed to can be changed at any time, except for some that only work at initialization.
+If you want to change the option, change the value of `view360.NAME_OF_THE_OPTION`.
+
+```js
+// Change the camera fov
+view360.fov = 120;
+```
+
+However, some options, such as `rotate`, `zoom`, `gyro`, `autoplay`, and `hotspot`, do not store the option values provided by the user.
+For example, `view360.rotate` always points to [RotateControl](/docs/api/Class/RotateControl) even if the user set the option `rotate = false`.
+In this case, if you want to activate rotate, you can use the following method to enable `RotateControl` instead:
+```js
+view360.rotate.enable();
+```
+
+Changing detailed options is possible the same as changing other options.
+```js
+// Set the rotate speed as twice as fast.
+view360.rotate.pointerScale = [2, 2];
+```
+
+Is the option not changeable or doesn't work the way you want it to?
+Please leave the [issue](https://github.com/naver/egjs-view360/issues/new) and we'll help.

@@ -1,0 +1,40 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="object" defaultVal="{}" added="4.0.0" />
+
+Add event handlers to View360.
+Receive objects with event name and handler as key-value.
+
+:::info
+You can also use [EVENTS](/docs/api/Variables/EVENTS) constant for the event name.
+:::
+
+You can also use [View360#on](/docs/api/Class/View360#on) or [View360#once](/docs/api/Class/View360#once) to add event listeners.
+You can use [View360#off](/docs/api/Class/View360#off) to remove the event handler.
+
+## Example
+```ts
+// The example below is written in Typescript.
+import View360, { EVENTS, ReadyEvent, ViewChangeEvent } from "@egjs/view360";
+
+// First, let's define an event handler.
+const onReady = (evt: ReadyEvent) => {
+  console.log(evt.target); // This value is the same as 'view360' below.
+};
+
+// Let's also define the handler when the camera view is changed.
+const onViewChange = (evt: ViewChangeEvent) => {
+  console.log(evt.yaw); // New yaw value.
+};
+
+const view360 = new View360("#el_id", {
+  // Add event handlers.
+  on: {
+    // You can use the EVENTS constant
+    [EVENTS.READY]: onReady,
+    // Or, you can do it like this if you know the name of the event.
+    viewChange: onViewChange
+  }
+});
+```

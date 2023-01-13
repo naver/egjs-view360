@@ -1,0 +1,98 @@
+---
+title: CubemapProjection
+sidebar_position: 3
+---
+
+import View360 from "@site/src/components/View360";
+
+```js
+import { CubemapProjection } from "@egjs/view360";
+```
+
+큐브맵은 일반적으로 정육면체의 6면을 이미지로 채우는 방식의 투영법입니다.
+CubemapProjection은 동일한 방식으로 파노라마 이미지를 표시하는데요, 때문에 사용하기 위해선 6장의 이미지가 필요합니다.
+
+실제로 6장의 이미지를 사용하기 위해선 두 가지 방법이 있는데요,
+1. 정육면체의 각 방향을 나타내는 6장의 이미지를 사용하거나
+2. 6장의 이미지를 하나의 이미지로 만들어 사용하실 수 있습니다.
+
+기본값으로 6장의 이미지는 **"RLUDFB(+X, -X, +Y, -Y, +Z, -Z)"** 순서로 파싱됩니다.
+[cubemapOrder](#cubemapOrder) 옵션을 사용해서 변경하실 수도 있습니다.
+
+:::caution
+
+아무 옵션 없이 기본값으로 큐브맵을 사용하실 경우 +Z축 방향의 이미지가 앞쪽 방향(yaw: 0)으로 표시됩니다.
+
+하지만, View360은 [오른손 좌표계](https://en.wikipedia.org/wiki/Right-hand_rule)를 사용하므로, 내부 카메라는 실제로는 -Z 방향을 가리키고 있습니다.
+대부분의 경우, 이 점을 신경쓰시면서 개발하실 필요는 없습니다.
+
+표시할 기본 방향을 변경하시려면 [initialYaw](/docs/options/camera/initialYaw)나 [initialPitch](/docs/options/camera/initialPitch) 옵션을 사용하실 수 있습니다.
+
+:::
+
+일반적으로 큐브맵 이미지는 아래와 같이 생겼습니다.
+
+![cubemap](/pano/cube/cubemap.jpg)
+> 위는 6장의 이미지가 3x2 형태로 패킹된 형태입니다.
+> 6장의 이미지를 각각 따로 사용하거나, 1x6, 2x3, 6x1 형태도 사용 가능합니다.
+
+위 이미지가 왼쪽 위부터 오른쪽으로 **"RLUDFB"** 순서대로 파싱된다는걸 확인해주세요
+
+위 이미지를 CubemapProjection을 사용해서 표시하면 아래와 같습니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/cube/cubemap.jpg"
+  }}
+  projectionType="cubemap"
+  showExampleCode />
+
+아래 예시는 6장의 이미지를 별도로 사용하는 예시입니다.
+뷰어 우측 하단의 이미지 아이콘을 누르면 원본 이미지를 확인하실 수 있습니다.
+
+<View360
+  projectionOptions={{
+    src: [
+      "/pano/cube/FishermansBastion/posx.jpg",
+      "/pano/cube/FishermansBastion/negx.jpg",
+      "/pano/cube/FishermansBastion/posy.jpg",
+      "/pano/cube/FishermansBastion/negy.jpg",
+      "/pano/cube/FishermansBastion/posz.jpg",
+      "/pano/cube/FishermansBastion/negz.jpg"
+    ]
+  }}
+  projectionType="cubemap"
+  license="fisherman"
+  showExampleCode />
+
+## 추가 옵션들 {#options}
+`src`, `video` 이외에 CubemapProjection은 다음 옵션들을 추가로 사용 가능합니다.
+
+### cubemapOrder
+CubemapOrder는 큐브맵을 파싱하는 순서를 변경합니다.
+기본적으로 **"RLUDFB(+X, -X, +Y, -Y, +Z, -Z)"** 순서로 파싱되는데, 다음과 같이 순서를 변경할 수 있습니다.
+아래는 **"LRDUBF"**로 변경한 경우입니다. 앞-뒤, 왼쪽-오른쪽, 위-아래가 전부 위치가 바뀐걸 확인해보세요.
+
+<View360
+  projectionOptions={{
+    src: "/pano/cube/cubemap.jpg",
+    // 왼쪽-오른쪽, 위-아래, 앞-뒤 순서를 바꾸고 있습니다.
+    cubemapOrder: "LRDUBF"
+  }}
+  projectionType="cubemap"
+  showExampleCode />
+
+### cubemapFlipX
+일부 큐브맵 이미지의 경우 좌-우 반전된 상태로 있는 경우도 있습니다.
+이 경우 이미지 편집 프로그램 등을 이용해서 변경하실 수도 있지만, `cubemapFlipX` 옵션을 사용하실 수도 있습니다.
+
+아래가 좌우 반전된 큐브맵 이미지의 예시입니다.
+뷰어 우측 하단의 이미지 아이콘을 누르면 원본 이미지를 확인하실 수 있습니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/cube/bookcube1.jpg",
+    cubemapFlipX: true
+  }}
+  projectionType="cubemap"
+  showExampleCode />

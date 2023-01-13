@@ -1,0 +1,49 @@
+import View360 from "@site/src/components/View360";
+
+A plugin that displays extra buttons & video control above View360
+
+## Example
+```js
+import View360, { ControlBar } from "@egjs/view360";
+// If you're not using the bundled CSS (view360.css)
+import "@egjs/view360/css/control-bar.min.css";
+
+const viewer = new View360(...);
+
+viewer.loadPlugins(new ControlBar({
+  autoHide: {
+    delay: 0
+  },
+  playButton: false
+}));
+```
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar
+  license="burano" />
+
+For detailed options, check the items below `ControlBar` on the left sidebar.
+
+## Constants
+ControlBar provides constants that can be used when setting options.
+
+### [DEFAULT_CLASS](/docs/api/Plugin/Class/ControlBar#DEFAULT_CLASS)
+Default class names used by ControlBar
+```js
+import { ControlBar } from "@egjs/view360";
+
+ControlBar.DEFAULT_CLASS
+```
+
+### [POSITION](/docs/api/Plugin/Class/ControlBar#POSITION)
+The location to display items inside the ControlBar.
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+ControlBar.POSITION.TOP_LEFT // "top-left"
+```

@@ -1,0 +1,41 @@
+---
+sidebar_position: 7
+---
+
+import View360, { EVENTS } from "@site/src/components/View360";
+
+```ts
+import { EVENTS, ResizeEvent } from "@egjs/view360";
+
+// Typescript
+const onResize = (evt: ResizeEvent) => {};
+
+view360.on(EVENTS.RESIZE, onResize);
+```
+
+An event that fires when [View360#resize](/docs/api/Class/View360#resize) is called.
+
+## Properties
+### width: number
+New width of the canvas (=`canvas.clientWidth`)
+
+### height: number
+New height of the canvas (=`canvas.clientHeight`)
+
+:::info
+The example below intentionally disabled all controls for event order checking.
+
+The following is a list of available events in the example:
+- "resize", "beforeRender", "render"
+:::
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  license="veste"
+  rotate={false}
+  zoom={false}
+  gyro={false}
+  showControlBar={false}
+  showEvents={[EVENTS.RESIZE, EVENTS.BEFORE_RENDER, EVENTS.RENDER]} />

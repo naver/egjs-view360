@@ -1,0 +1,49 @@
+import View360 from "@site/src/components/View360";
+
+ControlBar는 뷰어 영역에 비디오 및 기타 파노라마 관련 컨트롤들을 추가해주는 플러그인입니다.
+
+## 예시
+```js
+import View360, { ControlBar } from "@egjs/view360";
+// 번들된 CSS(view360.css)를 사용하지 않는 경우에만 필요합니다.
+import "@egjs/view360/css/control-bar.min.css";
+
+const viewer = new View360(...);
+
+viewer.loadPlugins(new ControlBar({
+  autoHide: {
+    delay: 0
+  },
+  playButton: false
+}));
+```
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar
+  license="burano" />
+
+자세한 옵션은 좌측 사이드바의 ControlBar 아래 항목들을 확인해주세요
+
+## 상수
+ControlBar는 옵션 지정시 활용 가능한 상수를 두 개 제공합니다.
+
+### [DEFAULT_CLASS](/docs/api/Plugin/Class/ControlBar#DEFAULT_CLASS)
+ControlBar가 사용하는 디폴트 클래스 이름들
+```js
+import { ControlBar } from "@egjs/view360";
+
+ControlBar.DEFAULT_CLASS
+```
+
+### [POSITION](/docs/api/Plugin/Class/ControlBar#POSITION)
+ControlBar 내부에 아이템을 표시할 위치.
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+ControlBar.POSITION.TOP_LEFT // "top-left"
+```

@@ -1,0 +1,28 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="number" defaultVal="1" added="4.0.0" />
+
+최초 zoom값을 설정합니다.
+`zoom * 100%`만큼 보여지는 영역이 확대됩니다.
+가령, `zoom: 2`일 경우 가로 방향으로 200%만큼 확대해서 보여줍니다.
+
+값은 [zoomRange](./zoomRange) 범위 내의 값을 입력해야 합니다.
+
+## 예시
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  initialZoom={2}
+  license="veste"
+  showExampleCode />
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  initialZoom={0.3}
+  zoomRange={{ min: 0.3, max: 5 }}
+  license="veste"
+  showExampleCode />

@@ -1,0 +1,41 @@
+---
+sidebar_position: 10
+---
+
+import View360 from "@site/src/components/View360";
+
+```ts
+import { EVENTS, InputStartEvent } from "@egjs/view360";
+
+// Typescript
+const onInputStart = (evt: InputStartEvent) => {};
+
+view360.on(EVENTS.INPUT_START, onInputStart);
+```
+
+An event that fires on input start.
+
+## Properties
+### srcEvent: MouseEvent | TouchEvent | KeyboardEvent
+Source [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event) of the input.
+
+### inputType: "rotate" | "zoom"
+Type of the input.
+
+### isTouch: boolean
+Whether the input was touch.
+
+### isKeyboard: boolean
+Whether the input was keyboard.
+
+:::info
+The following is a list of available events in the example:
+- "inputStart", "inputEnd", "staticClick"
+:::
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  license="veste"
+  showEvents={["inputStart", "inputEnd", "staticClick"]} />

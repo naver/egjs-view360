@@ -1,0 +1,18 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+import AutoResize from "@site/src/components/demo/AutoResize";
+
+<OptionDescriptor type="boolean" defaultVal="true" added="4.0.0" />
+
+`true`일 경우, 캔버스의 크기가 변경되었을 때 자동으로 [View360#resize](/docs/api/Class/View360#resize)를 호출합니다.
+
+[useResizeObserver](./useResizeObserver) 옵션을 같이 사용하면 더 효율적으로 크기 재계산을 수행 가능합니다.
+다만 이 경우 [ResizeObserver](https://caniuse.com/resizeobserver)의 지원범위 내에서만 사용되며, 그 외에는 window의 `resize` 이벤트 발생시에 자동으로 크기를 재계산합니다.
+
+## 예시
+아래 예시에서, 아래쪽 뷰어는 autoResize를 `false`로 설정했습니다.
+크기 조절 이후에 컨트롤 및 해상도가 어떻게 변하는지 확인해보세요.
+
+더 명확한 비교를 위해 `width: 25%`를 기본 크기로 설정했습니다.
+
+<AutoResize />

@@ -1,0 +1,464 @@
+---
+title: 마이그레이션 가이드 (v3 → v4)
+sidebar_position: 1
+---
+
+메이저 버젼이 v4로 올라가면서 많은 부분들이 변경되었습니다.
+
+이 가이드에서는 기존 메이저 버젼을 사용하시던 분들이 v4로 넘어갈 수 있도록 변경된 점들을 가이드해드립니다.
+
+## SpinViewer (deprecated)
+:::danger
+SpinViewer는 v4부터 더 이상 제공되지 않습니다. View360은 이제 기존 PanoViewer만을 제공합니다.
+:::
+- PanoViewer가 View360으로 이름을 변경했습니다.
+- SpinViewer를 사용하시는 분들은 여전히 v3를 사용하실 수 있습니다.
+
+## 마크업 구조 변경
+기존의 경우, 컨테이너 엘리먼트 하나만 정의하고, 이를 지정하면 내부에 canvas를 추가하고 강제로 스타일을 변경하는 방식을 사용했습니다.
+이 방식의 경우 조금 더 편리하다는 장점은 있으나, PanoViewer가 마운트된 이후의 스타일을 예측하기 어렵다는 단점이 있었습니다.
+
+신규 버젼에서는 View360을 마운트하기 위해서, 컨테이너 엘리먼트와 캔버스 엘리먼트가 둘 다 주어져야만 합니다.
+또한, 기본 스타일을 직접 주입하지 않고 별도의 CSS 파일을 제공하는 방식을 사용했습니다.
+이를 통해, View360이 마운트되지 않더라도 표시되는 영역의 크기를 쉽게 예측 가능하며, 또한 헬퍼 클래스를 통해 뷰어의 비율도 쉽게 조절 가능하도록 했습니다.
+
+> 기존
+
+```html
+<div class="viewer" id="myPanoViewer"></div>
+```
+
+> 변경
+
+```html
+<head>
+  <!-- CSS는 이제 별도로 제공됩니다 -->
+  <link rel="stylesheet" href="https://naver.github.io/egjs-view360/release/latest/css/view360.min.css">
+</head>
+<body>
+  <!-- view360-container라는 클래스를 추가해야 합니다. -->
+  <!-- 또한, 뷰어의 비율을 비율 헬퍼 클래스(is-16by9 등)를 통해 쉽게 변경 가능합니다. -->
+  <div class="view360-container is-16by9" id="myPanoViewer">
+    <!-- 내부에 캔버스 엘리먼트가 반드시 필요합니다 -->
+    <canvas class="view360-canvas">
+  </div>
+</body>
+```
+
+## 변경된 옵션들
+### image & video
+Projection의 옵션, [src](../../api/Projection/Interface/ProjectionOptions#src)로 통합되었습니다.
+
+> 기존
+
+```js
+import { PanoViewer } from "@egjs/view360";
+
+const panoViewer = new PanoViewer(container, {
+  image: "/path/to/image/image.jpg"
+});
+```
+
+> 변경
+
+```js
+import View360, { EquirectProjection } from "@egjs/view360";
+
+const viewer = new View360(container, {
+  projection: new EquirectProjection({
+    src: "/path/to/image/image.jpg", // image & video는 src로 통합되었습니다.
+    video: false // 비디오 관련 옵션은 video 옵션을 사용하시면 됩니다
+  })
+});
+```
+
+### projectionType
+각 프로젝션 타입은 tree-shaking을 위해서 클래스로 분리되었습니다.
+이제 `projectionType` 대신 `projection`을 사용하며, 클래스를 직접 임포트해서 사용 가능합니다.
+
+> 기존
+
+```js
+import { PanoViewer } from "@egjs/view360";
+
+const panoViewer = new PanoViewer(container, {
+  projectionType: "equirectangular"
+});
+```
+
+> 변경
+
+```js
+import View360, { EquirectProjection } from "@egjs/view360";
+
+const viewer = new View360(container, {
+  projection: new EquirectProjection({
+    ...some_options // 옵션들
+  })
+});
+```
+
+### panorama 프로젝션 타입
+
+- **CylindricalProjection**으로 변경되었습니다.
+- 이제 사용자 이미지의 비율에 따라 수평 방향으로 360도를 다 커버하는지 판정하지 않습니다.
+  - **partial** 옵션을 사용해주세요.
+
+> 기존
+
+```js
+import { PanoViewer } from "@egjs/view360";
+
+const panoViewer = new PanoViewer(container, {
+  projectionType: "panorama"
+});
+```
+
+> 변경
+
+```js
+import View360, { CylindricalProjection } from "@egjs/view360";
+
+const viewer = new View360(container, {
+  projection: new CylindricalProjection({
+    ...some_options // 옵션들
+  })
+});
+```
+
+### cubemapConfig
+- CubemapProjection 및 CubestripProjection의 옵션으로 분리되었습니다.
+- order: cubemapOrder로 변경되었습니다.
+- tileConfig: 삭제되었으며, `cubemapFlipX`로 일부 기능을 사용 가능합니다.
+
+### width & height
+
+삭제되었습니다. 이제 CSS를 통해 컨테이너 엘리먼트의 크기를 직접 조절하실 수 있습니다.
+
+### yaw & pitch
+
+- 각각 initialYaw & initialPitch로 변경되었습니다.
+
+### showPolePoint
+삭제되었습니다.
+
+### useZoom
+`zoom`을 통해 동일하게 사용 가능합니다.
+
+> 기존
+
+```js
+import { PanoViewer } from "@egjs/view360";
+
+const panoViewer = new PanoViewer(container, {
+  useZoom: false
+});
+```
+
+> 변경
+
+```js
+import View360 from "@egjs/view360";
+
+const viewer = new View360(container, {
+  zoom: false
+});
+```
+
+### useKeyboard
+`rotate.disableKeyboard`을 통해 동일하게 사용 가능합니다.
+
+> 기존
+
+```js
+import { PanoViewer } from "@egjs/view360";
+
+const panoViewer = new PanoViewer(container, {
+  useKeyboard: false
+});
+```
+
+> 변경
+
+```js
+import View360 from "@egjs/view360";
+
+const viewer = new View360(container, {
+  rotate: { disableKeyboard: true }
+});
+```
+
+### gyroMode
+- GYRO_MODE.NONE: `gyro: false`로 대체 가능합니다.
+- GYRO_MODE.YAWPITCH: `gyro: true`로 대체 가능합니다.
+- GYRO_MODE.VR: `gyro: { ignoreRoll: false }`로 대체 가능합니다.
+
+> 기존
+
+```js
+import { PanoViewer } from "@egjs/view360";
+
+const panoViewer = new PanoViewer(container, {
+  gyroMode: "VR"
+});
+```
+
+> 변경
+
+```js
+import View360 from "@egjs/view360";
+
+const viewer = new View360(container, {
+  gyro: { ignoreRoll: false }
+});
+```
+
+### fovRange
+좀 더 쉽게 사용하실 수 있도록 zoomRange로 변경했습니다.
+fov값을 zoom 값으로 변경하려면 [Camera#fovToZoom](../../api/Class/Camera#fovToZoom)을 사용해보세요.
+
+> 기존
+
+```js
+import { PanoViewer } from "@egjs/view360";
+
+const panoViewer = new PanoViewer(container, {
+  fovRange: [15, 90]
+});
+```
+
+> 변경
+
+```js
+import View360 from "@egjs/view360";
+
+const viewer = new View360(container, {
+  zoomRange: [1, 5] // 1배율부터 5배율까지 확대 가능합니다
+});
+```
+
+### touchDirection
+삭제되었으며, `rotate.disablePitch`와 `rotate.disableYaw`로 대체 가능합니다.
+
+> 기존
+
+```js
+import { PanoViewer } from "@egjs/view360";
+
+const panoViewer = new PanoViewer(container, {
+  touchDirection: TOUCH_DIRECTION.YAW
+});
+```
+
+> 변경
+
+```js
+import View360 from "@egjs/view360";
+
+const viewer = new View360(container, {
+  rotate: { disablePitch: true }
+});
+```
+
+### canvasClass
+삭제되었습니다. 캔버스 엘리먼트가 자동생성되지 않으므로, 직접 지정하시면 됩니다!
+
+### (static) PanoViewer.isGyroSensorAvailable
+- GyroControl의 스태틱 메소드 `isAvailable`로 옮겨졌습니다.
+- 이제 콜백을 받는 대신 사용 가능 여부를 포함한 Promise를 리턴합니다.
+
+> 기존
+
+```js
+PanoViewer.isGyroSensorAvailable(available => {
+  console.log(available);
+});
+```
+
+> 변경
+
+```js
+import { GyroControl } from "@egjs/view360";
+
+const available = await GyroControl.isAvailable();
+```
+
+### enableSensor & disableSensor
+- `view360.gyro`로 접근 가능한 GyroControl의 `enable` & `disable`로 옮겨졌습니다.
+
+> 기존
+
+```js
+viewer.enableSensor();
+```
+
+> 변경
+
+```js
+viewer.control.gyro.enable();
+```
+
+### enterVR & exitVR
+- `view360.vr`의 `enter & exit`으로 변경되었습니다.
+
+> 기존
+
+```js
+viewer.enterVR();
+```
+
+> 변경
+
+```js
+viewer.vr.enter();
+```
+
+### getYaw, getPitch, getFov
+- `view360.camera`의 프로퍼티로 변경되었습니다.
+
+> 기존
+
+```js
+const currentYaw = viewer.getYaw();
+```
+
+> 변경
+
+```js
+const currentYaw = viewer.camera.yaw;
+```
+
+### getYawRange, getPitchRange, getFovRange
+- `view360.camera`의 메소드 및 프로퍼티로 변경되었습니다.
+- `getFovRange`는 `getZoomRange`로 변경되었습니다.
+
+> 기존
+
+```js
+const [min, max] = viewer.getYawRange();
+```
+
+> 변경
+
+```js
+// 옵션으로 입력한 yawRange
+const { min, max } = viewer.camera.yawRange;
+
+// 현재 zoom 값을 고려한 실제 yaw range
+const { min, max } = viewer.camera.getYawRange(viewer.camera.zoom);
+```
+
+### getProjectionType
+- 삭제되었습니다.
+- 대신 `viewer.projection`으로 현재 프로젝션 인스턴스에 접근 가능합니다.
+
+### getTouchDirection
+- 삭제되었습니다.
+
+### getImage, getVideo
+- View360의 `getTexture()`로 대체 가능합니다.
+
+> 기존
+
+```js
+const image = viewer.getImage();
+```
+
+> 변경
+
+```js
+const image = viewer.getTexture().source;
+```
+
+### keepUpdate
+- 삭제되었습니다. 렌더링할지 여부는 View360이 알아서 관리하도록 변경했습니다.
+
+### lookAt
+- `view360.camera.lookAt` 혹은 `view360.camera.animateTo`로 대체 가능합니다.
+
+> 기존
+
+```js
+viewer.lookAt({ yaw, pitch, fov }, duration);
+```
+
+> 변경
+
+```js
+// 바로 변경하는 경우
+viewer.camera.lookAt({
+  yaw,
+  pitch,
+  zoom
+});
+
+// 애니메이션 적용시
+viewer.camera.animateTo({
+  yaw,
+  pitch,
+  zoom,
+  duration
+});
+
+// 바로 반영이 필요한 경우 1회의 렌더링이 필요합니다.
+viewer.renderFrame(0);
+```
+
+### setImage & setVideo
+`view360.load`로 대체 가능합니다.
+
+> 기존
+
+```js
+panoViewer.setImage("/path/to/image/image.png", {
+  projectionType: eg.view360.PanoViewer.PROJECTION_TYPE.CUBEMAP
+});
+```
+
+> 변경
+
+```js
+view360.load(new CubemapProjection({
+  src: "/path/to/image/image.png"
+}));
+```
+
+### 기타 option setter methods
+변경 가능한 옵션에 한해, 직접 값을 변경하시면 됩니다.
+
+> 기존
+
+```js
+panoViewer.setUseKeyboard(false);
+```
+
+> 변경
+
+```js
+view360.rotate.disableKeyboard = true;
+```
+
+### updateViewportDimensions
+직접 컨테이너의 크기를 변경하시면 됩니다.
+
+> 기존
+
+```js
+panoViewer.updateViewportDimensions({ width: 250, height: 250 });
+```
+
+> 변경
+
+```js
+const container = viewer.root;
+
+container.style.width = "250px";
+container.style.height = "250px";
+```
+
+## 이벤트
+### error
+삭제되었습니다. 이제 View360Error가 직접 throw됩니다.
+
+### animationEnd
+삭제되었습니다. 이제 `inputStart`와 `inputEnd` 이벤트를 대신 사용하실 수 있습니다.

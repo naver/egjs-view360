@@ -1,0 +1,32 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean" defaultVal="true" added="4.0.0" />
+
+If `true`, ignore the roll(Z-axis rotation) value of the gyroscope input.
+
+:::caution
+If you set this value to 'false', it will ignore the camera range constraint.
+Options such as [yawRange](/docs/options/camera/yawRange) and [pitchRange](/docs/options/camera/pitchRange) will be ignored, and also [CylinderProjection](/docs/projections/cylindrical)'s range will be ignored.
+:::
+
+## Example
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  gyro={{
+    ignoreRoll: true
+  }}
+  license="veste"
+  showExampleCode />
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  gyro={{
+    ignoreRoll: false
+  }}
+  license="veste"
+  showExampleCode />

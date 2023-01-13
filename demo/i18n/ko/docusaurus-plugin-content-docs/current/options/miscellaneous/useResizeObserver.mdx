@@ -1,0 +1,8 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean" defaultVal="true" added="4.0.0" />
+
+`true`일 때 [autoResize](./autoResize) 옵션이 활성화되었으면, 사용 가능한 환경에서 [ResizeObserver](https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver) API를 사용해서 캔버스 크기 변화를 추적합니다.
+
+`false`를 지정했거나, `ResizeObserver`를 사용할 수 없는 환경에서는 window의 `resize`을 대신 추적합니다.

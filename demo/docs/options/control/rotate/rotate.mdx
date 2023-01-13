@@ -1,0 +1,39 @@
+---
+sidebar_position: 1
+---
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean | RotateControlOptions" defaultVal="true" added="4.0.0" />
+
+Options for camera rotation.
+
+If `true`, enable rotation via mouse/touch/keyboard with the default options (default)
+If `false`, disable rotation control. If `gyro: true`, rotation through gyro is still possible.
+
+In addition to the boolean value, detailed options can be specified through objects of type [RotateControlOptions](/docs/api/Interface/RotateControlOptions).
+
+## Example
+Here's an example of disabling rotation.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  rotate={false}
+  license="veste"
+  showExampleCode />
+
+For detailed options, you can specify the object as shown below.
+Below is an example of disabling the pitch (X-axis rotation).
+Refer to the sub-items on the left sidebar for detailed options and related descriptions.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  rotate={{
+    disablePitch: true
+  }}
+  license="veste"
+  showExampleCode />

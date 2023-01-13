@@ -1,0 +1,40 @@
+---
+sidebar_position: 2
+---
+
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean | ZoomControlOptions" defaultVal="true" added="4.0.0" />
+
+Options for camera zoom.
+
+If `true`, enable zoom control with the default options.
+If `false`, disable zoom control.
+
+In addition to the boolean value, detailed options can be specified through objects of type [ZoomControlOptions](/docs/api/Interface/ZoomControlOptions).
+
+## Example
+Here's an example of disabling zoom.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  zoom={false}
+  license="veste"
+  showExampleCode />
+
+For detailed options, you can specify the object as shown below.
+Below is an example of changing the scale of the zoom
+Refer to the sub-items on the left sidebar for detailed options and related descriptions.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  zoom={{
+    scale: 2
+  }}
+  license="veste"
+  showExampleCode />

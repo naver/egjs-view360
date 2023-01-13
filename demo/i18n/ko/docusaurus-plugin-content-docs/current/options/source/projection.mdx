@@ -1,0 +1,30 @@
+---
+title: projection
+sidebar_position: 1
+---
+
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="Projection" defaultVal="false" added="4.0.0" />
+
+파노라마 이미지/비디오를 표시하기 위한 [Projection](/docs/api/Projection/Class/Projection)을 설정합니다.
+각 프로젝션의 사용방법과 사용 가능한 프로젝션 목록은 [프로젝션 가이드](../../projections)에서 확인하실 수 있습니다.
+
+## 예시
+```js
+import View360, { EquirectProjection } from "@egjs/view360";
+
+const viewer = new View360("#el_id", {
+  projection: new EquirectProjection({
+    src: "URL_TO_PANO_IMAGE_OR_VIDEO"
+  })
+})
+```
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  projectionType="equirect"
+  license="veste" />

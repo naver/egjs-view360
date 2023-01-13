@@ -1,0 +1,31 @@
+---
+title: CubestripProjection
+sidebar_position: 4
+---
+
+import View360 from "@site/src/components/View360";
+
+```js
+import { CubestripProjection } from "@egjs/view360";
+```
+
+`CubestripProjection` is almost the same projection as `CubemapProjection`.
+The different is, Cubestrip receives only one image. That is, only a single cubemap image in the form 1x6, 2x3, 3x2, and 6x1 is accepted.
+Below is an example.
+
+![cubemap](/pano/cube/cubemap.jpg)
+
+Cubestrip's purpose is to use a more efficient rendering method compared to Cubemap when using a single cube map image.
+For a single cube map image, `CubemapProjection` internally split it into six images, but `CubestripProjection` does not include that process.
+
+<View360
+  projectionOptions={{
+    src: "/pano/cube/cubemap.jpg"
+  }}
+  projectionType="cubestrip"
+  showExampleCode />
+
+## Options {#options}
+It uses the same option as `CubemapProjection`!
+
+Please check [CubemapProjection's options](./cubemap#options).

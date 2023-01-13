@@ -1,0 +1,29 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="number" defaultVal="0" added="4.0.0" />
+
+Initial yaw(Y-axis rotation) value.
+
+If the absolute value is in the range of 0-180,
+The viewer will look to the left if initialYaw > 0 and to the right if initialYaw < 0.
+
+There is no restriction on the numerical range, but it is stored within the range of 0~360 when actual `yaw` is set.
+For example, `300` is used for `-60` and `60` for `420` as the actual value.
+
+## Example
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  initialYaw={60}
+  license="veste"
+  showExampleCode />
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  initialYaw={-60}
+  license="veste"
+  showExampleCode />

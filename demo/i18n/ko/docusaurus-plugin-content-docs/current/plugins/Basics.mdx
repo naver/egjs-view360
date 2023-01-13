@@ -1,0 +1,47 @@
+---
+title: How To - 플러그인
+sidebar_position: 1
+id: plugins-basics
+slug: /plugins
+---
+
+플러그인은 View360에 추가적인 기능을 제공해주는 부가적인 컴포넌트들입니다.
+
+## 플러그인 추가하기
+플러그인은 두 가지 방법으로 추가할 수 있습니다.
+
+#### 1. [plugins](/docs/options/miscellaneous/plugins) 옵션을 이용해서 추가하기
+
+```js
+import View360, { ControlBar } from "@egjs/view360";
+
+const viewer = new View360("#el_id", {
+  plugins: [new ControlBar()]
+})
+```
+
+#### 2. [loadPlugins](/docs/api/Class/View360#loadPlugins) 메소드를 이용해서 추가하기
+
+```js
+import View360, { ControlBar } from "@egjs/view360";
+
+const viewer = new View360("#el_id");
+
+viewer.loadPlugins(new ControlBar());
+```
+
+## 플러그인 제거하기
+플러그인들은 [removePlugins](/docs/api/Class/View360#removePlugins)를 호출해서 제거할 수 있습니다.
+혹은, View360의 [destroy](/docs/api/Class/View360#destroy) 메소드가 호출될 때 제거됩니다.
+
+```js
+import View360, { ControlBar } from "@egjs/view360";
+
+const plugin = new ControlBar();
+const viewer = new View360("#el_id", {
+  plugins: [plugin]
+});
+
+// 컨트롤바를 제거합니다
+viewer.removePlugins(plugin);
+```

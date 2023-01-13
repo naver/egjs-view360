@@ -1,0 +1,25 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean" defaultVal="false" added="4.0.0" />
+
+Disable the context menu that appears when you right-click.
+
+## Example
+The below example is the case of `disableContextMenu: false`, and the context menu is displayed when the mouse is right-clicked.
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  disableContextMenu={false}
+  license="veste"
+  showExampleCode />
+
+The below example is the case of `disableContextMenu: true`, the context menu does not display even if you right-click.
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  disableContextMenu={true}
+  license="veste"
+  showExampleCode />

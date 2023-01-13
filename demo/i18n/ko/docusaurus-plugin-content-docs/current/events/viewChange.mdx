@@ -1,0 +1,42 @@
+---
+sidebar_position: 13
+---
+
+import View360 from "@site/src/components/View360";
+
+```ts
+import { EVENTS, ViewChangeEvent } from "@egjs/view360";
+
+// typescript 코드입니다.
+const onViewChange = (evt: ViewChangeEvent) => {};
+
+view360.on(EVENTS.VIEW_CHANGE, onViewChange);
+```
+
+카메라가 보는 방향이 변경되었을 때 발생하는 이벤트.
+이 이벤트는 프레임이 렌더링되었을때만 발생합니다.
+즉, 프레임 렌더 사이에 실제 카메라 방향이 여러번 변경되더라도 실제 이벤트는 화면 갱신이 이루어지는 시점에 바라보는 값으로만 트리거됩니다.
+
+## 프로퍼티
+### yaw: number
+갱신된 카메라의 yaw 값.
+
+### pitch: number
+갱신된 카메라의 pitch 값.
+
+### zoom: number
+갱신된 카메라의 zoom 값.
+
+### quaternion: number[]
+갱신된 카메라의 회전 quaternion 값. (x, y, z, w)
+
+:::info
+아래 예제에서는 "viewChange" 이벤트만 확인 가능합니다.
+:::
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  license="veste"
+  showEvents={["viewChange"]} />

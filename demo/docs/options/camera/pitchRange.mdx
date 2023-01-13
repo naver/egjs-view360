@@ -1,0 +1,24 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="{ min: number, max: number } | null" defaultVal="null" added="4.0.0" />
+
+Limits the camera's X-axis rotation range to the given value.
+
+## Example
+<View360
+  projectionOptions={{
+    src: [
+      "/pano/cube/FishermansBastion/posx.jpg",
+      "/pano/cube/FishermansBastion/negx.jpg",
+      "/pano/cube/FishermansBastion/posy.jpg",
+      "/pano/cube/FishermansBastion/negy.jpg",
+      "/pano/cube/FishermansBastion/posz.jpg",
+      "/pano/cube/FishermansBastion/negz.jpg"
+    ]
+  }}
+  projectionType="cubemap"
+  pitchRange={{ min: -30, max: 30 }}
+  showControlBar
+  license="fisherman"
+  showExampleCode />

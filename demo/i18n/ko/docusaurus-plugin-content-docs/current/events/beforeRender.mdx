@@ -1,0 +1,27 @@
+---
+sidebar_position: 8
+---
+
+import View360 from "@site/src/components/View360";
+
+```ts
+import { EVENTS, BeforeRenderEvent } from "@egjs/view360";
+
+// typescript 코드입니다.
+const onBeforeRender = (evt: BeforeRenderEvent) => {};
+
+view360.on(EVENTS.BEFORE_RENDER, onBeforeRender);
+```
+
+새로운 프레임 렌더 직전에 발생하는 이벤트
+
+:::info
+아래 예제에서는 "beforeRender" 이벤트만 확인 가능합니다.
+:::
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  license="veste"
+  showEvents={["beforeRender"]} />

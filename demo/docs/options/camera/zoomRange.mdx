@@ -1,0 +1,41 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="{ min: number, max: number } | null" defaultVal="null" added="4.0.0" />
+
+Limits the camera's zoom range to the given value.
+
+## Example
+<View360
+  projectionOptions={{
+    src: [
+      "/pano/cube/FishermansBastion/posx.jpg",
+      "/pano/cube/FishermansBastion/negx.jpg",
+      "/pano/cube/FishermansBastion/posy.jpg",
+      "/pano/cube/FishermansBastion/negy.jpg",
+      "/pano/cube/FishermansBastion/posz.jpg",
+      "/pano/cube/FishermansBastion/negz.jpg"
+    ]
+  }}
+  projectionType="cubemap"
+  zoomRange={{ min: 0.3, max: 2 }}
+  showControlBar
+  license="fisherman"
+  showExampleCode />
+
+<View360
+  projectionOptions={{
+    src: [
+      "/pano/cube/FishermansBastion/posx.jpg",
+      "/pano/cube/FishermansBastion/negx.jpg",
+      "/pano/cube/FishermansBastion/posy.jpg",
+      "/pano/cube/FishermansBastion/negy.jpg",
+      "/pano/cube/FishermansBastion/posz.jpg",
+      "/pano/cube/FishermansBastion/negz.jpg"
+    ]
+  }}
+  projectionType="cubemap"
+  zoomRange={{ min: 4, max: 10 }}
+  showControlBar
+  license="fisherman"
+  showExampleCode />

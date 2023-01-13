@@ -1,0 +1,119 @@
+---
+title: Installation
+id: installation
+slug: /
+sidebar_position: 1
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import CodeBlock from "@theme/CodeBlock";
+import Install from "@site/src/components/tutorial/Install";
+
+:::info
+View360 v4 is currently in beta, and some APIs may change after the final release.
+View360 v4 must be installed using the `@next` tag explicitly.
+
+```shell
+npm install @egjs/view360@next
+```
+
+If you want a stable version, please install v3 using the tag `@latest`.
+```shell
+npm install @egjs/view360@latest
+```
+
+Looking for the documents of the previous version? Check these documents:
+- [Demo (v3)](/egjs-view360/release/3.6.4)
+- [API (v3)](/egjs-view360/release/3.6.4/doc/)
+:::
+
+## 📦 Package managers (recommended)
+You can easily install Flicking with package managers like [npm](https://www.npmjs.com/) or [yarn](https://classic.yarnpkg.com/en/)
+
+:::caution
+View360 offers different packages for each framework.
+For example, you have to install `@egjs/react-view360` if you're using React.
+:::
+
+<Install />
+
+## 🔗 CDN Links
+### Minified & Packaged (with dependencies)
+<Tabs
+  groupId="cdn"
+  defaultValue="url"
+  lazy={true}
+  values={[
+    { label: "URL", value: "url" },
+    { label: "HTML <script>", value: "html" }
+  ]}>
+  <TabItem value="url">
+    <CodeBlock className="language-shell">
+      https://naver.github.io/egjs-view360/release/latest/dist/view360.pkgd.min.js<br/>
+      # or...<br/>
+      https://unpkg.com/@egjs/view360@latest/dist/view360.pkgd.min.js
+    </CodeBlock>
+  </TabItem>
+  <TabItem value="html">
+    <CodeBlock className="language-html">{[
+      `<script src="https://naver.github.io/egjs-view360/release/latest/dist/view360.pkgd.min.js"></script>`,
+      `<script src="https://naver.github.io/egjs-view360/release/latest/dist/view360.pkgd.min.js"></script>`
+    ].join("\n<!-- or... -->\n")}</CodeBlock>
+  </TabItem>
+</Tabs>
+
+### Packaged (with dependencies)
+<Tabs
+  groupId="cdn"
+  defaultValue="url"
+  lazy={true}
+  values={[
+    { label: "URL", value: "url" },
+    { label: "HTML <script>", value: "html" }
+  ]}>
+  <TabItem value="url">
+    <CodeBlock className="language-shell">
+      https://naver.github.io/egjs-view360/release/latest/dist/view360.pkgd.js<br/>
+      # or...<br/>
+      https://unpkg.com/@egjs/view360@latest/dist/view360.pkgd.js
+    </CodeBlock>
+  </TabItem>
+  <TabItem value="html">
+    <CodeBlock className="language-html">{[
+      `<script src="https://naver.github.io/egjs-view360/release/latest/dist/view360.pkgd.js"></script>`,
+      `<script src="https://unpkg.com/@egjs/view360@latest/dist/view360.pkgd.js"></script>`
+    ].join("\n<!-- or... -->\n")}</CodeBlock>
+  </TabItem>
+</Tabs>
+
+### CSS
+<Tabs
+  groupId="cdn"
+  defaultValue="url"
+  lazy={true}
+  values={[
+    { label: "URL", value: "url" },
+    { label: "HTML <link>", value: "html" },
+    { label: "CSS @import", value: "css" }
+  ]}>
+  <TabItem value="url">
+    <CodeBlock className="language-shell">
+      https://naver.github.io/egjs-view360/release/latest/css/view360.min.css<br/>
+      # or...<br/>
+      https://unpkg.com/@egjs/view360@latest/css/view360.min.css
+    </CodeBlock>
+  </TabItem>
+  <TabItem value="html">
+    <CodeBlock className="language-html">{[
+      `<link rel="stylesheet" href="https://naver.github.io/egjs-view360/release/latest/css/view360.min.css">`,
+      `<link rel="stylesheet" href="https://unpkg.com/@egjs/view360@latest/css/view360.min.css">`
+    ].join("\n<!-- or... -->\n")}</CodeBlock>
+  </TabItem>
+  <TabItem value="css">
+    <CodeBlock className="language-css">{[
+      `@import "https://naver.github.io/egjs-view360/release/latest/css/view360.min.css";`,
+      `@import "https://unpkg.com/@egjs/view360@latest/css/view360.min.css";`
+    ].join("\n/* or... */\n")}</CodeBlock>
+  </TabItem>
+</Tabs>

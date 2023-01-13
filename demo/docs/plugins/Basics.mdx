@@ -1,0 +1,47 @@
+---
+title: How To - Plugins
+sidebar_position: 1
+id: plugins-basics
+slug: /plugins
+---
+
+Plugins are set of optional components that adds additional ability to View360.
+
+## Adding plugins
+Plugins can be added in two ways.
+
+#### 1. Add plugins before initialization with the option [plugins](/docs/options/miscellaneous/plugins)
+
+```js
+import View360, { ControlBar } from "@egjs/view360";
+
+const viewer = new View360("#el_id", {
+  plugins: [new ControlBar()]
+})
+```
+
+#### 2. Add plugins at anytime with [loadPlugins](/docs/api/Class/View360#loadPlugins)
+
+```js
+import View360, { ControlBar } from "@egjs/view360";
+
+const viewer = new View360("#el_id");
+
+viewer.loadPlugins(new ControlBar());
+```
+
+## Removing plugins
+Plugins can be removed at anytime by calling [removePlugins](/docs/api/Class/View360#removePlugins).
+Otherwise, they will be removed when View360's [destroy](/docs/api/Class/View360#destroy) is called.
+
+```js
+import View360, { ControlBar } from "@egjs/view360";
+
+const plugin = new ControlBar();
+const viewer = new View360("#el_id", {
+  plugins: [plugin]
+});
+
+// Remove control bar
+viewer.removePlugins(plugin);
+```

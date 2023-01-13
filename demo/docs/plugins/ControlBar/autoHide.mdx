@@ -1,0 +1,65 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean | AutoHideOptions" defaultVal="true" added="4.0.0" />
+
+Automatically hides the control bar when playing a video.
+If `true`, it'll enable this feature and apply default options.
+If `false`, it'll disable this feature.
+Check [AutoHideOptions](/docs/api/Plugin/Interface/AutoHideOptions) for configurable options.
+
+## Options
+### initialDelay: number = `3000`
+How long does it take for the control bar to disappear after first display (ms)
+
+### delay: number = `0`
+How long it takes for the control bar to disappear after the mouse leaves the control bar area (ms)
+
+### idleDelay: number = `3000`
+How long it takes for the control bar to disappear when there is no user input, for example in a mobile or full-screen environment (ms)
+
+## Example
+Below is an example of applying the default values.
+If you want to apply default options, you can omit the `autoHide` item in the ControlBar option.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ autoHide: {
+    initialDelay: 3000,
+    delay: 500,
+    idleDelay: 3000
+  } }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  autoHide: {
+    initialDelay: 3000,
+    delay: 500,
+    idleDelay: 3000
+  }
+})
+```
+
+Below is an example of disabling the `autoHide`.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ autoHide: false }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  autoHide: false
+})
+```

@@ -1,0 +1,58 @@
+---
+title: How To - 옵션
+sidebar_position: 1
+id: options-basics
+slug: /options
+---
+
+## 옵션 설정하는 법
+
+View360은 옵션들을 오브젝트 형태로 두 번째 패러미터로 받습니다.
+옵션 이름은 key로, 지정하고자 하는 옵션 값을 value로 설정하시면 됩니다.
+예를 들어, 줌 기능을 사용하고 싶지 않아 줌을 끄고 싶을 경우 `zoom`옵션을 다음과 같이 설정하시면 됩니다.
+
+```js
+import View360 from "@egjs/view360";
+
+const viewer = new View360("#el_id", {
+  zoom: false
+});
+```
+
+다른 옵션들도 마찬가지입니다! 예를 들어, 오브젝트를 옵션으로 받는 `yawRange` 옵션은 다음과 같이 설정 가능합니다.
+
+```js
+import View360 from "@egjs/view360";
+
+const view360 = new View360("#el_id", {
+  yawRange: {
+    min: -60,
+    max: 60
+  }
+});
+```
+
+## 옵션 변경하는 법
+초기화 시기에만 동작하는 일부 옵션을 제외하고, 대부분의 옵션들은 언제든지 변경 가능하도록 설정되었습니다.
+옵션을 변경하시려면, `view360.옵션명`으로 접근해서 변경하시면 됩니다.
+
+```js
+// 카메라 fov를 변경합니다
+view360.fov = 120;
+```
+
+다만, 일부 옵션들, 예를 들어 `rotate`, `zoom`, `gyro`, `autoplay`, `hotspot`과 같은 옵션들은 사용자가 제공한 옵션 값을 그대로 저장하고 있지 않습니다.
+에를 들어, 사용자가 `rotate = false`로 옵션을 지정했더라도, `view360.rotate`는 항상 [RotateControl](/docs/api/Class/RotateControl)을 가리킵니다.
+이 경우 rotate를 활성하고 싶을 경우 다음과 같이 해당 인스턴스의 메소드를 호출하는 방법을 대신 사용하실 수 있습니다.
+```js
+view360.rotate.enable();
+```
+
+세부 옵션을 변경하는 것은 다른 옵션 변경 방법과 동일하게 가능합니다.
+```js
+// 회전 속도가 2배속이 됩니다
+view360.rotate.pointerScale = [2, 2];
+```
+
+옵션이 변경 불가능하거나, 원하는대로 동작하지 않나요?
+[이슈](https://github.com/naver/egjs-view360/issues/new)를 남겨주시면 도와드리겠습니다.

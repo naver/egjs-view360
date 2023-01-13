@@ -1,0 +1,37 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean" defaultVal="true" added="4.0.0" />
+
+Call [init()](/docs/api/Class/View360#init) at the creation of View360.
+It is also possible to initialize at any time by setting it as 'false'.
+
+## Example
+```ts
+import View360, { EquirectProjection, EVENTS } from "@egjs/view360";
+
+// viewer.init() is called at the time of instance creation.
+// However, since "init()" operates asynchronously, the actual initialization completion time can be known through the "ready" event.
+const viewer = new View360("#el_id", {
+  autoInit: true,
+  projection: new EquirectProjection({ src: "SRC_TO_URL" })
+});
+
+console.log(viewer.initialized); // This value is false at this point, as "init()" is the asynchronous.
+
+viewer.once(EVENTS.READY, () => {
+  console.log(viewer.initialized); // true
+});
+```
+
+Below is an example of invoking init at the time of button click.
+You should call `view360.init()` at the button's onclick handler.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  license="veste"
+  autoInit={false}
+  clickToLoad
+  showExampleCode />

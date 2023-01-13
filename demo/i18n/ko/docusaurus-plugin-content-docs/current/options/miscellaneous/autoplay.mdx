@@ -1,0 +1,36 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean | AutoplayOptions" defaultVal="false" added="4.0.0" />
+
+카메라를 수평 방향으로 자동으로 움직이도록 만듭니다.
+`true`를 사용하면 기본값을 적용하고, `false`를 적용하면 비활성화합니다.
+세부 옵션도 [AutoplayOptions](/docs/api/Interface/AutoplayOptions) 타입으로 지정 가능합니다.
+
+## 예시
+### true
+`true`값 사용 예시, 실제로 적용되는 기본 옵션들은 [AutoplayOptions](/docs/api/Interface/AutoplayOptions)를 확인해주세요.
+기본적으로 시계방향으로 회전합니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  license="veste"
+  autoplay
+  showExampleCode />
+
+### 세부 옵션 지정
+옵션 세부 정보는 [AutoplayOptions](/docs/api/Interface/AutoplayOptions)를 확인해주세요
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  license="veste"
+  autoplay={{
+    delay: 5000,
+    delayOnMouseLeave: 1000,
+    speed: -2,
+    pauseOnHover: true
+  }}
+  showExampleCode />

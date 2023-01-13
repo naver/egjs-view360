@@ -1,0 +1,36 @@
+---
+title: EquiangularProjection
+sidebar_position: 5
+---
+
+import View360 from "@site/src/components/View360";
+
+```js
+import { EquiangularProjection } from "@egjs/view360";
+```
+
+`EquiangularProjection` is a projection type based on EquiAngular Cubemap (EAC).
+EAC is a format that is usually used in YouTube videos, and generally looks like this:
+
+![eac](/pano/eac/eac.jpg)
+
+Displaying the image above with the `EquiangularProjection` is as follows:
+
+<View360
+  projectionOptions={{
+    src: "/pano/eac/eac.jpg"
+  }}
+  projectionType="eac"
+  showExampleCode />
+
+Another example, also check [Original YouTube video](https://www.youtube.com/watch?v=r7hv9K-u3U8).
+
+<View360
+  projectionOptions={{
+    src: "/pano/eac/bathroom.mp4",
+    video: true
+  }}
+  projectionType="eac"
+  showControlBar
+  license="bathroom"
+  showExampleCode />

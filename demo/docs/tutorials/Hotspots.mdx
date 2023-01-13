@@ -1,0 +1,65 @@
+---
+title: Using hotspots
+slug: /hotspot
+sidebar_position: 6
+---
+
+import View360 from "@site/src/components/View360";
+
+When you add elements with a specific class name within the View360 area, View360 automatically collects it and recognizes it as a hotspot.
+
+The basic structure is as follows:
+
+```html
+<div class="view360-container is-16by9">
+  <canvas class="view360-canvas">
+  <!-- Hotspot container -->
+  <div class="view360-hotspots">
+    <!-- Hotspots -->
+    <div class="view360-hotspot" data-yaw="0" data-pitch="0">1</div>
+    <!-- You can use either Yaw(Y-axis rotation), Pitch(X-axis rotation) for hotspot position -->
+    <div class="view360-hotspot" data-yaw="-90" data-pitch="0">2</div>
+    <!-- You can also use direct 3D coordinates. -->
+    <div class="view360-hotspot" data-position="0 1 0">3</div>
+    <!-- View 360 only places the hotspot in the appropriate location. -->
+    <!-- You can decorate your hotspots however you want! -->
+    <div class="view360-hotspot" data-yaw="-90" data-pitch="-90">
+      <div>It doesn't matter what content you put inside the hotspot or what size you have.</div>
+      <img src="SOME_IMG_URL" alt="Of course, you can display images." />
+    </div>
+  </div>
+</div>
+```
+
+<View360
+  projectionOptions={{
+    src: [
+      "/pano/cube/FishermansBastion/posx.jpg",
+      "/pano/cube/FishermansBastion/negx.jpg",
+      "/pano/cube/FishermansBastion/posy.jpg",
+      "/pano/cube/FishermansBastion/negy.jpg",
+      "/pano/cube/FishermansBastion/posz.jpg",
+      "/pano/cube/FishermansBastion/negz.jpg"
+    ]
+  }}
+  projectionType="cubemap"
+  hotspot={{ zoom: true }}
+  showExampleCode
+  showControlBar
+  license="fisherman">
+  <div className="view360-hotspots">
+    <div className="view360-hotspot demo-hotspot" data-yaw="0" data-pitch="0">
+      <span>1</span>
+      <iframe className="demo-hotspot-bubble" width="250" height="250" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+    </div>
+    <div className="view360-hotspot demo-hotspot" data-yaw="-90" data-pitch="0">2</div>
+    <div className="view360-hotspot demo-hotspot" data-yaw="-90" data-pitch="90">3</div>
+    <div className="view360-hotspot demo-hotspot" data-yaw="-90" data-pitch="-90">4</div>
+  </div>
+</View360>
+
+> The above demo added a style to display a white circle by adding a `demo-hotspot` class.
+> You can add styles or interactions yourself and decorate them as you like.
+
+The behavior of the hotspot can also be customized.
+Check out [hotspot options](/docs/options/hotspot).

@@ -1,0 +1,178 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="ControlBarItem[]" defaultVal="[]" added="4.0.0" />
+
+커스텀 컨트롤바 아이템들을 추가합니다.
+
+## 예시
+View360 데모 페이지에서는, 커스텀 아이템들을 추가해서 ControlBar를 사용하고 있습니다.
+
+그 중 하나로 ControlBar 우측 하단에 표시하는 "원본 이미지 보기"버튼을 추가하는 예제를 보여드리겠습니다.
+
+```ts
+import View360, { ControlBar, ControlBarItem, ControlBarItemOptions, View360Options } from "@egjs/view360";
+
+class OriginalImageButton extends ControlBarItem {
+  public readonly element: HTMLElement;
+
+  private _modalEl: HTMLElement;
+  private _viewer: View360 | null;
+
+  public constructor({
+    position = ControlBar.POSITION.MAIN_RIGHT,
+    order = 0
+  }: Partial<ControlBarItemOptions> = {}) {
+    super({
+      position,
+      order
+    });
+
+    this.element = document.createElement("button");
+    this.element.classList.add("demo-controls-orig-image");
+
+    this._modalEl = document.createElement("div");
+    this._modalEl.classList.add("demo-controls-orig-image-modal");
+    this._modalEl.addEventListener("click", this._toggleModal);
+
+    this._viewer = null;
+  }
+
+  public init(viewer: View360, controlBar: ControlBar) {
+    const element = this.element;
+    const btnClass = controlBar.className.CONTROLS_BUTTON;
+
+    element.classList.add(btnClass);
+    element.addEventListener("click", this._toggleModal);
+    this._attachModal(viewer.root);
+
+    this._viewer = viewer;
+  }
+
+  public destroy(viewer: View360, controlBar: ControlBar) {
+    const element = this.element;
+    const btnClass = controlBar.className.CONTROLS_BUTTON;
+
+    element.classList.remove(btnClass);
+    element.removeEventListener("click", this._toggleModal);
+    this._detachModal(viewer.root);
+    this._clearModal();
+
+    this._viewer = null;
+  }
+
+  private _toggleModal = () => {
+    const viewer = this._viewer;
+    const modal = this._modalEl;
+    modal.classList.toggle("visible");
+
+    if (!viewer || !viewer.projection) return;
+
+    const visible = modal.classList.contains("visible");
+
+    if (!visible) {
+      return this._clearModal();
+    }
+
+    const src = viewer.projection.src as string | string[];
+    const srcArr = Array.isArray(src) ? src : [src];
+    const isVideo = !!viewer.projection.video;
+
+    srcArr.forEach(url => {
+      const contentEl = isVideo
+        ? document.createElement("video")
+        : document.createElement("img");
+      contentEl.classList.add("content");
+      contentEl.src = url;
+
+      if (isVideo) {
+        contentEl.addEventListener("click", evt => {
+          evt.stopPropagation();
+        });
+        (contentEl as HTMLVideoElement).controls = true;
+      }
+
+      modal.appendChild(contentEl);
+    });
+  };
+
+  private _clearModal = () => {
+    const modal = this._modalEl;
+
+    while (modal.firstChild) {
+      if (modal.firstChild instanceof HTMLVideoElement) {
+        const video = modal.firstChild;
+
+        video.pause();
+        video.removeAttribute("src");
+        video.load();
+      }
+
+      modal.removeChild(modal.firstChild);
+    }
+  }
+
+  private _attachModal(element: HTMLElement) {
+    element.appendChild(this._modalEl);
+  }
+
+  private _detachModal(element: HTMLElement) {
+    element.removeChild(this._modalEl);
+  }
+}
+
+export default OriginalImageButton;
+```
+
+코드가 기네요! 하지만 세부 코드는 확인하실 필요 없습니다.
+다음 핵심적인 내용들만 확인해주시면 됩니다.
+
+1. 커스텀 아이템 클래스는 `ControlBarItem`을 상속해야 합니다.
+```js
+class OriginalImageButton extends ControlBarItem
+```
+
+2. 생성자에서 다음과 같이 두 개의 옵션을 받고(더 추가하셔도 됩니다), `super` 콜을 통해 `ControlBarItem`으로 넘겨줍시다.
+
+아래 예시에서, 기본 위치를 하단 바의 오른쪽(`POSITION.RIGHT`), 그리고 가능한 빠른 순서(`order: 0`)로 표시하는 것을 확인해주세요.
+ControlBar에 포함된 기본 아이템들은 전부 `order: 9999`를 기본값으로 사용하니 참고해주세요.
+```ts
+constructor({
+  position = ControlBar.POSITION.RIGHT,
+  order = 0
+}: Partial<ControlBarItemOptions> = {}) {
+  super({
+    position,
+    order
+  });
+}
+```
+
+3. 커스텀 아이템를 표시할 엘리먼트가 필요합니다. 엘리먼트 생성 이후에 `this.element`에 할당해줍시다.
+
+```js
+this.element = document.createElement("button");
+this.element.classList.add("demo-controls-orig-image");
+```
+
+4. 아이템의 실제 동작을 구현해줍시다.
+
+추가되었을 때, 제거되었을 때의 동작을 각각 구현해주시면 됩니다.
+각 메소드에서 전달받는 인자는 View360과 ControlBar의 인스턴스입니다.
+```ts
+public init(viewer: View360, controlBar: ControlBar) {
+  // 아이템이 추가되었을 때의 동작
+}
+
+public destroy(viewer: View360, controlBar: ControlBar) {
+  // 아이템이 제거되었을 때의 동작
+}
+```
+
+이렇게 만드신 이후에는, ControlBar의 `customItems` 항목에 추가해서 다음과 같이 사용하시면 됩니다.
+
+```js
+new ControlBar({
+  customItems: [new OriginalImageButton()]
+});
+```

@@ -1,0 +1,64 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean | AutoHideOptions" defaultVal="true" added="4.0.0" />
+
+비디오 재생시 자동으로 컨트롤바를 숨깁니다.
+`true`일 경우 기본값을 적용하고, `false`일 경우 비활성화합니다.
+설정 가능한 옵션은 [AutoHideOptions](/docs/api/Plugin/Interface/AutoHideOptions)를 확인해주세요.
+
+## 옵션
+### initialDelay: number = `3000`
+컨트롤바가 처음으로 표시되고 사라지기까지 걸리는 시간 (ms)
+
+### delay: number = `0`
+마우스가 컨트롤바 영역을 떠난 뒤 컨트롤바가 사라지기까지 걸리는 시간 (ms)
+
+### idleDelay: number = `3000`
+모바일이나 풀스크린 환경 등에서 사용자 입력이 없을 때 컨트롤바가 사라지기까지 걸리는 시간 (ms)
+
+## 예시
+아래는 기본값을 적용하는 예시입니다.
+이와 같이 기본값을 적용하는 경우 ControlBar 옵션에서 `autoHide` 항목을 생략해도 무방합니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ autoHide: {
+    initialDelay: 3000,
+    delay: 500,
+    idleDelay: 3000
+  } }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  autoHide: {
+    initialDelay: 3000,
+    delay: 500,
+    idleDelay: 3000
+  }
+})
+```
+
+아래는 autoHide 동작을 끄는 예시입니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ autoHide: false }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  autoHide: false
+})
+```

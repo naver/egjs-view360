@@ -1,0 +1,9 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="number" defaultVal="1 / 30" added="4.0.0" />
+
+Maximum value of the time difference between frames (in seconds).
+It prevents sudden changes in the screen when frame rendering is delayed due to performance, etc.
+
+For example, even if the frame interval is 30 seconds due to delayed rendering, if the option is `0.33`, the internal time will only be updated by `0.33` seconds.

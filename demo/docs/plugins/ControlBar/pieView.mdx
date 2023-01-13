@@ -1,0 +1,74 @@
+import View360, { ControlBar } from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean | PieViewOptions" defaultVal="true" added="4.0.0" />
+
+Displays a pie view that shows the direction the current camera is pointing at.
+If `true`, it'll show the button & apply the default options.
+If `false`, it won't display the button.
+You can also set detailed options by setting a object of type [PieViewOptions](/docs/api/Plugin/Interface/PieViewOptions).
+
+## Example
+Below is an example of not displaying a pie view.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ pieView: false }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  pieView: false
+})
+```
+
+Below is an example of not resetting the camera position when you click Pie View.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ pieView: {
+    resetCamera: false
+  } }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  pieView: {
+    resetCamera: false
+  }
+})
+```
+
+Below is an example of a pie view displaying in a different location.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ pieView: {
+    position: ControlBar.POSITION.MAIN_RIGHT,
+    order: 0
+  } }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  pieView: {
+    position: ControlBar.POSITION.MAIN_RIGHT,
+    order: 0
+  }
+})
+```

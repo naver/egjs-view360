@@ -1,0 +1,20 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="Record<string, string>" defaultVal="{}" added="4.0.0" />
+
+Override default class names.
+You can use it to set a different class name for the control bar element.
+
+## Example
+Below is an example of changing the class of the control bar root element (`.pano-controls`).
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  className: {
+    CONTROLS_ROOT: "new-root-classname"
+  }
+})
+```

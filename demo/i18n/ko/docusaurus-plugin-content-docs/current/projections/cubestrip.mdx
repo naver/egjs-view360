@@ -1,0 +1,31 @@
+---
+title: CubestripProjection
+sidebar_position: 4
+---
+
+import View360 from "@site/src/components/View360";
+
+```js
+import { CubestripProjection } from "@egjs/view360";
+```
+
+CubestripProjection은 CubemapProjection과 거의 동일한 프로젝션입니다.
+다른 점으로, Cubestrip은 한 장의 이미지만 받습니다. 즉, 1x6, 2x3, 3x2, 6x1 형태의 큐브맵 이미지만 받습니다.
+아래가 그 예시입니다.
+
+![cubemap](/pano/cube/cubemap.jpg)
+
+Cubestrip의 목적은 단일 큐브맵 이미지를 사용할 때, Cubemap과 대비해서 더 효율적인 렌더링 방법을 사용하는 것입니다.
+CubemapProjection의 경우 단일 큐브맵 이미지의 경우 내부적으로 이를 분할해서 6장의 이미지로 만드는데 CubestripProjection은 그 과정을 포함하지 않습니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/cube/cubemap.jpg"
+  }}
+  projectionType="cubestrip"
+  showExampleCode />
+
+## 추가 옵션들 {#options}
+CubemapProjection과 동일한 옵션을 사용합니다!
+
+[CubemapProjection의 옵션 항목](./cubemap#options)을 확인해주세요.

@@ -1,0 +1,41 @@
+---
+title: CylindricalProjection
+sidebar_position: 6
+---
+
+import View360 from "@site/src/components/View360";
+
+```js
+import { CylindricalProjection } from "@egjs/view360";
+```
+
+![cylindrical](/pano/cylindrical/panorama.jpg)
+
+Like its name, `CylindricalProjection` is a projection that maps images to a cylinder and shows them.
+Generally, it is a suitable projection method for displaying panoramic images taken using a smartphone.
+
+Panorama content that can be projected with `CylindricalProjection` usually does not include the entire 360 degree.
+This is the case with pitch(up/down) as well as yaw(left/right).
+
+Below is an example of a `CylindricalProjection`. You can view the original image by pressing the image button in the lower right corner of the viewer.
+
+<View360
+  projectionOptions={{
+    src: "/pano/cylindrical/panorama2.jpg"
+  }}
+  projectionType="cylindrical"
+  showExampleCode />
+
+## Options {#options}
+### partial
+Cylindrical Projection assumes that the user image covers all 360 degrees in the horizontal direction by default.
+If the image you are using does not include all 360 degrees, you can add `partial: true` as below.
+
+<View360
+  projectionOptions={{
+    src: "/pano/cylindrical/panorama.jpg",
+    partial: true
+  }}
+  projectionType="cylindrical"
+  license="snow_mountain"
+  showExampleCode />

@@ -1,0 +1,41 @@
+---
+title: CylindricalProjection
+sidebar_position: 6
+---
+
+import View360 from "@site/src/components/View360";
+
+```js
+import { CylindricalProjection } from "@egjs/view360";
+```
+
+![cylindrical](/pano/cylindrical/panorama.jpg)
+
+CylindricalProjection은 그 이름처럼 원통(Cylinder)에 이미지를 매핑해서 보여주는 프로젝션입니다.
+일반적으로 스마트폰 등을 이용해서 촬영한 파노라마 이미지를 표시하기에 적합한 프로젝션 방식입니다.
+
+CylindricalProjection에 사용되는 파노라마 콘텐츠는 보통 360도 전체를 포함하지 않는 경우가 많습니다.
+이는 상/하(pitch)는 물론 좌/우(yaw)의 경우도 마찬가지입니다.
+
+아래는 파노라마 이미지의 예시입니다. 뷰어 우측 하단의 이미지 버튼을 누르면 원본 이미지를 확인하실 수 있습니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/cylindrical/panorama2.jpg"
+  }}
+  projectionType="cylindrical"
+  showExampleCode />
+
+## 추가 옵션들 {#options}
+### partial
+CylindricalProjection은 사용자 이미지가 기본적으로 수평 방향으로 360도 전부를 다 커버한다고 가정합니다.
+만약 사용중이신 이미지가 360도를 전부 포함하지 않는 경우 아래와 같이 `partial: true`를 추가해주시면 됩니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/cylindrical/panorama.jpg",
+    partial: true
+  }}
+  projectionType="cylindrical"
+  license="snow_mountain"
+  showExampleCode />

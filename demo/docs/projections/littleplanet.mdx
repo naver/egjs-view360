@@ -1,0 +1,68 @@
+---
+title: LittlePlanetProjection
+sidebar_position: 8
+---
+
+import View360 from "@site/src/components/View360";
+
+```js
+import { LittlePlanetProjection } from "@egjs/view360";
+```
+
+`LittlePlanetProjection` will show your panorama image with the so-called "Little planet" or "Tiny planet" effect.
+
+:::caution
+
+This currently supports only [Equirectangular](./equirect) panorama image/videos.
+
+:::
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  projectionType="littleplanet"
+  initialPitch={-90}
+  license="veste"
+  showExampleCode />
+
+## Examples
+### Center point
+Center point of the projection is controlled by [pitch](/docs/api/Class/Camera#pitch).
+You can use the option [initialPitch](/docs/options/Camera/initialPitch) to change how it looks at initialization.
+
+#### initialPitch: -90
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  projectionType="littleplanet"
+  initialPitch={-90}
+  license="veste"
+  showExampleCode />
+
+#### initialPitch: 90
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  projectionType="littleplanet"
+  initialPitch={90}
+  license="veste"
+  showExampleCode />
+
+### Locking controls
+You can use [disablePitch](/docs/options/Control/rotate#disablePitch) or [disableYaw](/docs/options/Control/rotate#disableYaw) to lock center point change.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  projectionType="littleplanet"
+  rotate={{ disablePitch: true }}
+  initialPitch={-90}
+  initialZoom={1.8}
+  license="veste"
+  showExampleCode />

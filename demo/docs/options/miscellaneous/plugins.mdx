@@ -1,0 +1,23 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="Array<View360Plugin>" defaultVal="[]" added="4.0.0" />
+
+Add plugins to View360.
+See [Guide](/docs/plugins) for a list of available plugins.
+
+To add plugins at anytime, you can use [View360#addPlugins](/docs/api/Class/View360#addPlugins).
+To remove the added plugins, you can use [View360#removePlugins](/docs/api/Class/View360#removePlugins).
+
+You can use [View360#plugins](/docs/api/Class/View360#plugins) for a list of currently active plugins.
+
+## Example
+```js
+const viewer = new View360("#el_id", {
+  plugins: [new ControlBar()]
+});
+
+console.log(viewer.plugins); // [ControlBar]
+
+viewer.addPlugins(new LoadingSpinner()) // [ControlBar, LoadingSpinner];
+```

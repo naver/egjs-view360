@@ -1,0 +1,19 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean" defaultVal="false" added="4.0.0" />
+
+키보드를 이용한 회전을 비활성화합니다.
+
+## 예시
+키보드를 이용한 회전을 막는 예시입니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  rotate={{
+    disableKeyboard: true
+  }}
+  license="veste"
+  showExampleCode />

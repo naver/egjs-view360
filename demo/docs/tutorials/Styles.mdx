@@ -1,0 +1,162 @@
+---
+title: Applying CSS styles
+id: styles
+slug: /styles
+sidebar_position: 3
+---
+
+import View360 from "@site/src/components/View360";
+
+## Adding styles
+Although it is not mandatory, we recommend that you use the CSS file provided by View360 for a more convenient use.
+
+You can choose a bundled file (view360.css or view360.sass) or a file from the list of CSS files below and include it in the page.
+
+The simplest way is to include the CSS file in the `<head>` tag using the CDN link.
+
+```html
+<head>
+  <!-- Other tags... -->
+  <link rel="stylesheet" href="https://naver.github.io/egjs-view360/release/latest/css/view360.min.css">
+  <!-- Other tags... -->
+</head>
+```
+
+Alternatively, some frameworks, such as React, allow you to import CSS files directly, depending on your environment like this:
+
+```jsx
+import "@egjs/view360/css/view360.min.css";
+```
+
+Please check how to import CSS files in your environment and use the appropriate method.
+
+For example, for the case of [Docusaurus](https://docusaurus.io/), which is used to display this document,
+we're including `view360.sass` file within the `customCss` section in their config file, in conjunction with `docusaurus-plugin-sass`.
+
+## CSS & SASS files {#css}
+View360 provides the following CSS files with the path `@egjs/view360/css/FILE_NAME.css`.
+It also uses the same format for SASS files, `@egjs/view360/sass/FILE_NAME.sass`.
+
+In addition, each CSS file is provided as minified. You only need to add `.min` to it
+- ex) `view360.css` -> `view360.min.css`
+
+Below is a list of files and their descriptions.
+- view360.css
+  - This is a file that contains all of the following items. If you're not sure which file to use, just use this.
+- base.css
+  - Define the default styles for View360 containers and canvases.
+- helper.css
+  - Define helper classes where you can set the ratio of View360 containers.
+- hotspot.css
+  - Defines the styles required when using the Hotspot (Annotation).
+- vr.css
+  - Defines the style required when using VR features.
+- control-bar.css
+  - Defines the styles used in the [ControlBar plugin](./plugins/ControlBar).
+- loading-spinner.css
+  - Defines the styles used in the [LoadingSpinner plugin](./plugins/LoadingSpinner).
+
+
+## Helper class for the viewer ratio {#helper}
+If you import a bundled view360 CSS file or a `helper.css` (or `helper.sass`) file, you can use helper classes that can be used with `.view360-container` for viewer size ratio.
+
+For example, by adding `is-square` (or `is-1by1`), you can make the aspect ratio of the viewer area 1:1.
+
+Therefore, you can display the viewer in the desired proportion and size.
+You only have to define the width of the viewer.
+
+```html
+<div id="viewer" class="view360-container is-1by1">
+  <canvas class="view360-canvas" />
+</div>
+```
+
+<View360
+  showControlBar={false}
+  showSpinner={false}
+  ratio="1by1"
+  projectionOptions={{
+    src: "/pano/equirect/equi.jpg"
+  }}
+  projectionType="equirect" />
+
+You can use the predefined ratios below as a class.
+For example, `is-4by3` displays the viewer in a 4:3 aspect ratio.
+
+```
+is-square
+is-1by1
+is-5by4
+is-4by3
+is-3by2
+is-5by3
+is-16by9
+is-2by1
+is-3by1
+is-4by5
+is-3by4
+is-2by3
+is-3by5
+is-9by16
+is-1by2
+is-1by3
+```
+
+### CSS `aspect-ratio`
+You can also use CSS [aspect-ratio](https://developer.mozilla.org/en-US/docs/Web/CSS/aspect-ratio) instead of helper classes, but please aware that property is not supported in old browsers.
+- https://caniuse.com/mdn-css_properties_aspect-ratio
+
+```html
+<div class="view360-container">
+  <canvas class="view360-canvas" />
+</div>
+```
+```css
+.view360-container {
+  aspect-ratio: 2;
+}
+```
+
+## Setting the viewer size manually {#manual-size}
+The inner canvas (`.view360-canvas`) element is set to be the same size as the container element.
+So, if you just set the size of the container element, the viewer will use the same size.
+
+For example, if you set the style as follows:
+```html
+<div id="viewer" class="view360-container" style="width: 250px; height: 250px;">
+  <canvas class="view360-canvas" />
+</div>
+```
+
+It is displayed in size 250 * 250 as shown below. Customize it however you want!
+<View360
+  showControlBar={false}
+  showSpinner={false}
+  ratio={null}
+  style={{
+    width: "250px",
+    height: "250px"
+  }}
+  projectionOptions={{
+    src: "/pano/equirect/equi.jpg"
+  }}
+  projectionType="equirect" />
+
+## Sass - Changing class prefix
+For the class names used in View360, `view360` is prepended by default.
+If you want to change this for some reason, you can change the `$prefix` variable in the class file as follows.
+
+```sass
+$view360-prefix: new-prefix
+@import '@egjs/view360/sass/view360.sass'
+```
+
+In this case, `view360-container` is changed to `new-prefix-container`.
+
+Another prefix that you can change is prefix for helper classes, `is`
+You can change that prefix with `$view360-helper-prefix`.
+```sass
+$view360-helper-prefix: new-helper-prefix
+@import '@egjs/view360/sass/view360.sass'
+```
+In this case, `is-16by9` is changed to `new-helper-prefix-16by9`.

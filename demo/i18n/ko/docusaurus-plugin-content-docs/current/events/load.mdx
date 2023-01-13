@@ -1,0 +1,42 @@
+---
+sidebar_position: 5
+---
+
+import View360, { EVENTS } from "@site/src/components/View360";
+
+```ts
+import { EVENTS, LoadEvent } from "@egjs/view360";
+
+// typescript 코드입니다.
+const onLoad = (evt: LoadStartEvent) => {};
+
+view360.on(EVENTS.LOAD, onLoad);
+```
+
+콘텐츠가 로드된 직후 발생하는 이벤트.
+
+## 프로퍼티
+### src: string | HTMLElement | Array<string \| HTMLElement>
+로드할 콘텐츠의 URL 문자열 / HTMLElement
+
+### video: [VideoConfig](/docs/api/Interface/VideoConfig)
+로드할 콘텐츠의 비디오 옵션
+
+:::info
+아래 예제는 이벤트 순서 확인을 위해 의도적으로 모든 컨트롤을 비활성화했습니다.
+
+예제에서 확인 가능한 이벤트 목록은 다음과 같습니다.
+- "loadStart", "load", "ready", "projectionChange"
+:::
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  license="veste"
+  clickToLoad={true}
+  rotate={false}
+  zoom={false}
+  gyro={false}
+  showControlBar={false}
+  showEvents={[EVENTS.LOAD_START, EVENTS.LOAD, EVENTS.READY, EVENTS.PROJECTION_CHANGE]} />

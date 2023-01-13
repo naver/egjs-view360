@@ -1,0 +1,19 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+import AutoResize from "@site/src/components/demo/AutoResize";
+
+<OptionDescriptor type="boolean" defaultVal="true" added="4.0.0" />
+
+If `true`, automatically calls [View360#resize](/docs/api/Class/View360#resize) when the canvas is resized.
+
+The [useResizeObserver](./useResizeObserver) option can be used together to perform size recalculation more efficiently.
+However, in this case, it is used only within the supported range of [ResizeObserver](https://caniuse.com/resizeobserver) API.
+In the environments where [ResizeObserver](https://caniuse.com/resizeobserver) API can't be used, the size is automatically recalculated when a `resize` event occurs in window.
+
+## Example
+In the example below, the second viewer is using `autoResize: false`
+See how controls and resolutions change after resizing.
+
+For a better comparison, `width: 25%` is set to the default size.
+
+<AutoResize />

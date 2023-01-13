@@ -1,0 +1,41 @@
+import View360, { EASING } from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="function" defaultVal="EASING.EASE_OUT_CUBIC" added="4.0.0" />
+
+회전 애니메이션에 적용할 easing function.
+기본값으로 [EASING.EASE_OUT_CUBIC](/docs/api/Variables/EASING)이 적용됩니다.
+
+## 예시
+```js
+import View360, { EASING } from "@egjs/view360";
+
+const view360 = new View360("#el_id", {
+  rotate: {
+    easing: EASING.LINEAR
+  }
+})
+```
+
+아래는 [EASING.LINEAR](/docs/api/Variables/EASING)를 적용한 예시입니다.
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  rotate={{
+    easing: EASING.LINEAR
+  }}
+  license="veste" />
+
+아래는 [EASING.EASE_OUT_BOUNCE](/docs/api/Variables/EASING)를 적용한 예시입니다.
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  rotate={{
+    easing: EASING.EASE_OUT_BOUNCE
+  }}
+  license="veste" />
+
+직접 easing function을 만들어서 사용하실 수도 있습니다.
+타입은 `(x: number) => number`고, x는 0~1사이 값이 들어오며 시작은 x=0일 때 0을, x=1일 때 1인 값을 반환하면 됩니다.

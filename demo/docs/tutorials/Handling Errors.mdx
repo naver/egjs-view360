@@ -1,0 +1,23 @@
+---
+title: Handling Errors
+id: handling-errors
+slug: /handling-errors
+sidebar_position: 4
+---
+
+When an error occurs inside View360, a [View360Error](./api/Class/View360Error) containing a predefined `code` is thrown.
+If necessary, you can handle the error based on the corresponding `code` value.
+Check the [ERROR_CODES](./api/Variables/ERROR_CODES) for a list of possible `code` values.
+
+Below is an example of that.
+```ts
+import View360, { View360Error, ERROR_CODES } from "@egjs/view360";
+
+try {
+  const viewer = new View360("#wrapper");
+} catch (err) {
+  if (err instanceof View360Error && err.code === ERROR_CODES.ELEMENT_NOT_FOUND) {
+    // No element corresponding to "#wrapper" was found.
+  }
+}
+```

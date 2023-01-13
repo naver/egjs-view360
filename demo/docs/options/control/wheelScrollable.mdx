@@ -1,0 +1,30 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean" defaultVal="true" added="4.0.0" />
+
+If set to `true`, the page can be scrolled using the mouse wheel within the canvas area.
+
+:::caution
+If this value is enabled, zooming is not possible using the mouse wheel.
+:::
+
+## Example
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  wheelScrollable={false}
+  license="veste"
+  showExampleCode />
+
+The below example is the case using the option `wheelScrollable: true`.
+You should use the mouse input to check this example.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  wheelScrollable={true}
+  license="veste"
+  showExampleCode />

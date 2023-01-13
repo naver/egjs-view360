@@ -1,0 +1,31 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean" defaultVal="true" added="4.0.0" />
+
+`true`로 설정할 경우, 캔버스 영역 내에서 마우스 휠을 이용한 페이지 스크롤이 가능해집니다.
+
+:::caution
+이 값을 활성화할 경우, 마우스 휠을 사용해서 줌을 할 수 없습니다.
+:::
+
+## 예시
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  wheelScrollable={false}
+  license="veste"
+  showExampleCode />
+
+아래는 `wheelScrollable: true`로 지정한 경우입니다.
+데스크톱 환경에서 마우스를 뷰어 영역에 올린 다음 휠로 스크롤했을 때 페이지가 스크롤되는걸 확인해보세요.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  wheelScrollable={true}
+  license="veste"
+  showExampleCode />

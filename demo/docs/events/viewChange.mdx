@@ -1,0 +1,42 @@
+---
+sidebar_position: 13
+---
+
+import View360 from "@site/src/components/View360";
+
+```ts
+import { EVENTS, ViewChangeEvent } from "@egjs/view360";
+
+// Typescript
+const onViewChange = (evt: ViewChangeEvent) => {};
+
+view360.on(EVENTS.VIEW_CHANGE, onViewChange);
+```
+
+An event that fires on camera view direction change.
+This is triggered only on frame render.
+In other words, even if the actual camera orientation changes several times between frame renderings, the actual event is triggered only with the camera's direction at the time the screen is updated.
+
+## Properties
+### yaw: number
+Camera's new yaw value.
+
+### pitch: number
+Camera's new pitch value.
+
+### zoom: number
+Camera's new zoom value.
+
+### quaternion: number[]
+Camera's new quaternion value. (x, y, z, w)
+
+:::info
+In the example below, only the "viewChange" event is visible.
+:::
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  license="veste"
+  showEvents={["viewChange"]} />

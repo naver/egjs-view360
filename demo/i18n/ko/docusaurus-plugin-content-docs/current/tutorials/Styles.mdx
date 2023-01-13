@@ -1,0 +1,148 @@
+---
+title: 스타일 설정
+id: styles
+slug: /styles
+sidebar_position: 3
+---
+
+import View360 from "@site/src/components/View360";
+
+## 스타일 추가하기
+강제사항은 아니지만, 좀 더 편한 사용을 위해서 View360이 제공하는 CSS 파일을 사용하는 것을 권장드립니다.
+
+번들된 파일(view360.css 혹은 view360.sass), 혹은 아래의 CSS 파일 리스트에서 원하는 파일을 골라 페이지에 포함시키면 됩니다.
+
+가장 간단한 방법은, CDN 링크를 이용해서 `<head>` 태그 내에 CSS 파일을 포함시키는 것입니다.
+
+```html
+<head>
+  <!-- 다른 항목들 -->
+  <link rel="stylesheet" href="https://naver.github.io/egjs-view360/release/latest/css/view360.min.css">
+  <!-- 다른 항목들 -->
+</head>
+```
+
+혹은 React 등 일부 프레임워크에서는 환경에 따라 다음과 같이 CSS 파일을 직접 임포트하는 것도 가능합니다.
+
+```jsx
+import "@egjs/view360/css/view360.min.css";
+```
+
+현재 사용중이신 환경에서 CSS 파일을 임포트하는 방법을 확인해보시고, 적절한 방법을 사용해주세요.
+
+예를 들어, 현재 이 문서를 표시하고 있는 [Docusaurus](https://docusaurus.io/)에서는 `docusaurus-plugin-sass`와 함께 사용해서 설정 파일 내의 `customCss` 항목 내에 `view360.sass` 파일을 추가하는 방식으로도 사용 가능합니다.
+
+## CSS & SASS 파일들 {#css}
+View360은 다음 CSS 파일들을 `@egjs/view360/css/파일명.css`의 경로로 제공하며, 동일한 이름을 사용해서 `@egjs/view360/sass/파일명.sass` 경로에서 SASS 파일도 제공합니다.
+
+또한, 각각의 CSS 파일들은 minified된 형태로도 제공됩니다. .min만 추가하시면 됩니다.
+- 예) `view360.css` -> `view360.min.css`
+
+아래는 파일 목록과 설명입니다.
+- view360.css
+  - 아래의 모든 항목들이 모두 포함된 파일입니다. 어떤 파일을 사용해야할지 잘 모르겠다면 이것만 사용하세요.
+- base.css
+  - view360 컨테이너 및 캔버스의 기본 스타일을 정의합니다.
+- helper.css
+  - view360 컨테이너의 비율을 설정할 수 있는 헬퍼 클래스들을 정의합니다.
+- hotspot.css
+  - Hotspot(Annotation) 기능 사용시 필요한 스타일들을 정의합니다.
+- vr.css
+  - VR 기능 사용시 필요한 스타일을 정의합니다.
+- control-bar.css
+  - [ControlBar 플러그인](./plugins/ControlBar)에 사용되는 스타일들을 정의합니다.
+- loading-spinner.css
+  - [LoadingSpinner 플러그인](./plugins/LoadingSpinner)에 사용되는 스타일들을 정의합니다.
+
+
+## 뷰어 비율을 쉽게 설정할 수 있는 헬퍼 클래스 {#helper}
+번들된 view360 CSS 파일이나 `helper.css`(혹은 `helper.sass`) 파일을 임포트하면 `.view360-container`와 함께 사용해서 크기를 설정할 수 있는 헬퍼 클래스를 사용할 수 있게 됩니다.
+
+예를 들어, `is-square`(혹은 `is-1by1`)를 추가하면 다음과 같이 뷰어 영역의 가로:세로 비율을 1:1로 만들 수 있습니다.
+
+따라서, 엘리먼트의 가로 길이만 정의하시면 뷰어를 원하는 비율 및 크기로 표시 가능합니다.
+
+```html
+<div id="viewer" class="view360-container is-1by1">
+  <canvas class="view360-canvas" />
+</div>
+```
+
+<View360
+  showControlBar={false}
+  showSpinner={false}
+  ratio="1by1"
+  projectionOptions={{
+    src: "/pano/equirect/equi.jpg"
+  }}
+  projectionType="equirect" />
+
+아래의 미리 정의된 비율들을 클래스로 사용하실 수 있습니다.
+예를 들어, `is-4by3`은 가로:세로 4:3 비율로 뷰어를 표시합니다.
+
+```
+is-square
+is-1by1
+is-5by4
+is-4by3
+is-3by2
+is-5by3
+is-16by9
+is-2by1
+is-3by1
+is-4by5
+is-3by4
+is-2by3
+is-3by5
+is-9by16
+is-1by2
+is-1by3
+```
+
+### CSS `aspect-ratio`
+CSS의 [aspect-ratio](https://developer.mozilla.org/en-US/docs/Web/CSS/aspect-ratio) 프로퍼티를 사용해서 뷰어 비율을 설정하실 수도 있습니다.
+다만 이 경우, 오래된 브라우저에서는 지원되지 않는다는 점을 기억해주세요.
+- https://caniuse.com/mdn-css_properties_aspect-ratio
+
+## 직접 크기 설정하기 {#manual-size}
+내부의 캔버스(`.view360-canvas`) 엘리먼트는 컨테이너 엘리먼트의 크기와 동일한 크기를 갖도록 설정되었습니다.
+그래서, 컨테이너 엘리먼트의 크기만 설정하면 뷰어가 해당 크기와 동일하게 설정됩니다.
+예를 들어 다음과 같이 스타일을 설정하면,
+
+```html
+<div id="viewer" class="view360-container" style="width: 250px; height: 250px;">
+  <canvas class="view360-canvas" />
+</div>
+```
+
+아래와 같이 250 * 250 크기로 표시됩니다. 원하는대로 커스터마이징해보세요!
+<View360
+  showControlBar={false}
+  showSpinner={false}
+  ratio={null}
+  style={{
+    width: "250px",
+    height: "250px"
+  }}
+  projectionOptions={{
+    src: "/pano/equirect/equi.jpg"
+  }}
+  projectionType="equirect" />
+
+## SASS 파일에서 클래스 접두사 변경하기
+View360에서 사용하는 클래스 이름들의 경우, 기본적으로 `view360`이 앞에 붙습니다.
+모종의 이유로 이를 변경하고 싶으실 경우, 다음과 같이 sass 파일 내에서 다음과 같이 `$prefix` 변수를 변경하시면 됩니다.
+
+```sass
+$view360-prefix: new-prefix
+@import '@egjs/view360/sass/view360.sass'
+```
+이 경우, `view360-container`는 `new-prefix-container`로 변경됩니다.
+
+변경 가능한 다른 접두사에는 헬퍼 클래스의 접두사인 `is`가 있습니다.
+헬퍼 클래스의 접두사는 `$view360-helper-prefix`를 사용해서 변경 가능합니다.
+```sass
+$view360-helper-prefix: new-helper-prefix
+@import '@egjs/view360/sass/view360.sass'
+```
+이 경우, `is-16by9`는 `new-helper-prefix-16by9`로 변경됩니다.

@@ -1,0 +1,28 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean" defaultVal="false" added="4.0.0" />
+
+마우스 우클릭시 표시되는 컨텍스트 메뉴를 비활성화합니다.
+
+## 예시
+
+아래는 `disableContextMenu: false`인 경우로, 마우스 우클릭했을 때 컨텍스트 메뉴가 표시됩니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  disableContextMenu={false}
+  license="veste"
+  showExampleCode />
+
+아래는 `disableContextMenu: true`인 경우로, 마우스 우클릭하더라도 컨텍스트 메뉴가 표시되지 않습니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  disableContextMenu={true}
+  license="veste"
+  showExampleCode />

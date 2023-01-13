@@ -1,0 +1,29 @@
+---
+title: Common Properties
+sidebar_position: 2
+---
+
+All events share two common properties.
+
+### type: string
+A type of the event.
+This value is equal to event's name.
+
+:::info Example
+```ts
+viewer.on("ready", evt => {
+  console.log(evt.type); // "ready"
+});
+```
+:::
+
+### target: View360
+An instance of the component that triggered this event.
+
+:::info Example
+```ts
+viewer.on("ready", evt => {
+  console.log(evt.target); // = viewer
+});
+```
+:::

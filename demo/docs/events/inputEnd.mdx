@@ -1,0 +1,42 @@
+---
+sidebar_position: 11
+---
+
+import View360 from "@site/src/components/View360";
+
+```ts
+import { EVENTS, InputEndEvent } from "@egjs/view360";
+
+// Typescript
+const onInputEnd = (evt: InputEndEvent) => {};
+
+view360.on(EVENTS.INPUT_END, onInputEnd);
+```
+
+An event that fires on input end.
+
+## Properties
+### inputType: "rotate" | "zoom"
+Type of the input.
+
+### isTouch: boolean
+Whether the input was touch.
+
+### isKeyboard: boolean
+Whether the input was keyboard.
+
+### scrolling: boolean
+Whether the page scroll triggered during the input on the touch devices.
+When the page has scrolled, input itself is blocked so you can ignore the input sequence when this value is `true`.
+
+:::info
+The following is a list of available events in the example:
+- "inputStart", "inputEnd", "staticClick"
+:::
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  license="veste"
+  showEvents={["inputStart", "inputEnd", "staticClick"]} />

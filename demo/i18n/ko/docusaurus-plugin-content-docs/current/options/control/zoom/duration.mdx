@@ -1,0 +1,18 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="number" defaultVal="300" added="4.0.0" />
+
+줌 애니메이션의 재생시간 (ms)
+마지막 입력으로부터 이 값에 해당하는 시간동안 애니메이션이 재생됩니다.
+
+## 예시
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  zoom={{
+    duration: 1000
+  }}
+  license="veste"
+  showExampleCode />

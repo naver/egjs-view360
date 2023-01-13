@@ -1,0 +1,19 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="Record<string, string>" defaultVal="{}" added="4.0.0" />
+
+디폴트 클래스 이름들을 오버라이드합니다.
+컨트롤바 엘리먼트에 별도의 이름을 설정하고자 할 때 사용하실 수 있습니다.
+
+## 예시
+아래는 컨트롤바 루트 엘리먼트(`.pano-controls`)의 클래스를 바꾸는 예시입니다.
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  className: {
+    CONTROLS_ROOT: "new-root-classname"
+  }
+})
+```

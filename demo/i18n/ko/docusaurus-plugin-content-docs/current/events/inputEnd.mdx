@@ -1,0 +1,42 @@
+---
+sidebar_position: 11
+---
+
+import View360 from "@site/src/components/View360";
+
+```ts
+import { EVENTS, InputEndEvent } from "@egjs/view360";
+
+// typescript 코드입니다.
+const onInputEnd = (evt: InputEndEvent) => {};
+
+view360.on(EVENTS.INPUT_END, onInputEnd);
+```
+
+사용자 입력이 끝날 때 발생하는 이벤트.
+
+## 프로퍼티
+### inputType: "rotate" | "zoom"
+사용자 입력의 종류
+
+### isTouch: boolean
+사용자 입력이 터치를 통한 것이었는지 여부
+
+### isKeyboard: boolean
+사용자 입력이 키보드를 통한 것이었는지 여부
+
+### scrolling: boolean
+터치 디바이스에서 입력 도중 스크롤이 발생하였는지 여부.
+`true`일 경우 실제로 카메라 회전은 블락되어 일어나지 않기 때문에, 해당 입력 시퀀스는 무시해도 좋습니다.
+
+:::info
+예제에서 확인 가능한 이벤트 목록은 다음과 같습니다.
+- "inputStart", "inputEnd", "staticClick"
+:::
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  license="veste"
+  showEvents={["inputStart", "inputEnd", "staticClick"]} />

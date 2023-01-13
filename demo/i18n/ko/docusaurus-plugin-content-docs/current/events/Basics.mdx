@@ -1,0 +1,96 @@
+---
+title: How To - 이벤트
+sidebar_position: 1
+id: events-basics
+slug: /events
+---
+
+## 이벤트 상수
+이벤트 이름들은 [EVENTS](/docs/api/Variables/EVENTS)에 정의되어 있습니다.
+
+```js
+import { EVENTS } from "@egjs/view360";
+
+EVENTS.READY // = "ready"
+EVENTS.VIEW_CHANGE // = "viewChange"
+```
+
+## 이벤트 핸들러 추가하는 법
+
+View360의 이벤트 핸들러는 크게 두 가지 방법으로 추가하실 수 있습니다.
+
+### [on](/docs/options/miscellaneous/on) 옵션 사용
+on 옵션을 사용하면, View360의 인스턴스 생성 시점에 자동으로 이벤트 핸들러를 추가해줍니다.
+
+```js
+import View360, { EVENTS } from "@egjs/view360";
+
+// 이벤트 핸들러가 이 시점에 추가됩니다.
+const view360 = new View360("#el_id", {
+  on: {
+    [EVENTS.READY]: evt => {
+      console.log("View360 is Ready!");
+    },
+    // 여러 개의 이벤트 핸들러를 추가할 수 있습니다.
+    // 다만, 현재는 한 이벤트에 대해 하나의 핸들러만 옵션으로 추가할 수 있습니다.
+    [EVENTS.VIEW_CHANGE]: evt => {
+      console.log("View360's view direction is changed.");
+    }
+  }
+});
+```
+
+### [on](/docs/api/Class/View360#on) 메소드 사용
+on 메소드를 사용해서, View360에 언제든지 이벤트 핸들러를 추가할 수 있습니다.
+
+```js
+import View360, { EVENTS } from "@egjs/view360";
+
+const view360 = new View360("#el_id");
+
+view360.on(EVENTS.READY, evt => {
+  console.log("READY!")
+});
+```
+
+바리에이션으로 [once](/docs/api/Class/View360#once)가 있습니다.
+once로 추가한 이벤트 핸들러는 1회만 트리거된 후 이벤트 핸들러 목록에서 제거됩니다.
+```js
+import View360, { EVENTS } from "@egjs/view360";
+
+const view360 = new View360("#el_id");
+
+view360.once(EVENTS.RENDER, evt => {
+  console.log("This will be logged once after the first render");
+});
+```
+
+## 이벤트 핸들러 제거하기
+[off](/docs/api/Class/View360#off)를 사용하면 사전에 등록한 이벤트 핸들러를 제거할 수 있습니다.
+3가지의 사용 방법이 있는데요, 다음과 같습니다.
+
+### 단일 이벤트 핸들러 제거
+이벤트 이름 및 핸들러를 인자로 제공하면 됩니다.
+```ts
+import { EVENTS, ViewChangeEvent } from "@egjs/view360";
+const onViewChange = (evt: ViewChangeEvent) => {};
+
+view360.on(EVENTS.VIEW_CHANGE, onViewChange);
+
+// onViewChange만 이벤트 핸들러 목록에서 제거합니다.
+view360.off(EVENTS.VIEW_CHANGE, onViewChange);
+```
+
+### 특정 이벤트의 모든 이벤트 핸들러 제거
+이벤트 이름만 인자로 제공하면 됩니다.
+```js
+// viewChange이벤트의 모든 이벤트 핸들러가 제거됩니다.
+view360.off("viewChange");
+```
+
+### 이벤트 핸들러 전부 제거
+아무 인자 없이 `off`를 호출해주시면 됩니다.
+```js
+// 모든 이벤트 핸들러가 제거됩니다.
+view360.off();
+```

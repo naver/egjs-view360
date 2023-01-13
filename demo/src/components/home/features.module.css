@@ -1,0 +1,61 @@
+.features {
+  margin: 5rem 0;
+}
+
+.feature {
+  display: flex;
+  flex-direction: row;
+}
+
+.feature.reversed {
+  flex-direction: row-reverse;
+}
+
+.desc,
+.image {
+  flex: 1 0;
+}
+
+.desc {
+  padding: 2rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+.title > svg {
+  margin-right: 0.5rem;
+}
+
+.image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 18rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.image > * {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 768px) {
+  .feature,
+  .feature.reversed {
+    flex-direction: column-reverse;
+  }
+
+  .desc {
+    padding: 0;
+  }
+
+  .image {
+    padding: 5rem;
+  }
+}

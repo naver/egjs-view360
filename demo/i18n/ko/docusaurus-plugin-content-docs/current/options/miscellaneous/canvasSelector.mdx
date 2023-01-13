@@ -1,0 +1,25 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="string" defaultVal={`"canvas"`} added="4.0.0" />
+
+파노라마 이미지/비디오를 렌더링할 canvas 엘리먼트의 CSS 선택자.
+캔버스 엘리먼트는 루트 엘리먼트 내부에 있어야합니다. 루트 엘리먼트의 직계 자식 엘리먼트(Direct child element)일 필요는 없습니다.
+
+## 예시
+```html
+<div class="view360-container">
+  <canvas id="not_this_one"></canvas>
+  <!-- 캔버스는 view360-container 내부에만 있으면 됩니다. -->
+  <div>
+    <!-- 이 엘리먼트가 선택됩니다 -->
+    <canvas id="canvas_to_select"></canvas>
+  </div>
+</div>
+```
+
+```ts
+const viewer = new View360("#el_id", {
+  canvasSelector: "#canvas_to_select"
+});
+```

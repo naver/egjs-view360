@@ -1,0 +1,40 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="object" defaultVal="{}" added="4.0.0" />
+
+View360에 이벤트 핸들러들을 추가합니다.
+이벤트 이름과 핸들러를 key-value로 하는 오브젝트를 받습니다.
+
+:::info
+이벤트 이름은 [EVENTS](/docs/api/Variables/EVENTS)변수를 이용하실 수도 있습니다.
+:::
+
+이벤트 핸들러 등록은 [View360#on](/docs/api/Class/View360#on)이나 [View360#once](/docs/api/Class/View360#once)를 사용하실 수도 있습니다.
+이벤트 핸들러를 제거하려면 [View360#off](/docs/api/Class/View360#off)를 사용하실 수 있습니다.
+
+## 예시
+```ts
+// 아래 예시는 타입스크립트로 작성되었습니다.
+import View360, { EVENTS, ReadyEvent, ViewChangeEvent } from "@egjs/view360";
+
+// 먼저 이벤트 핸들러를 정의합시다.
+const onReady = (evt: ReadyEvent) => {
+  console.log(evt.target); // 이 값은 아래 `view360`과 동일합니다.
+};
+
+// 카메라 뷰가 변경되었을 때의 핸들러도 정의해봅시다.
+const onViewChange = (evt: ViewChangeEvent) => {
+  console.log(evt.yaw); // 변경된 yaw 값입니다.
+};
+
+const view360 = new View360("#el_id", {
+  // 이벤트 핸들러를 추가합니다.
+  on: {
+    // EVENTS 상수를 사용해도 되고
+    [EVENTS.READY]: onReady,
+    // 이벤트 이름을 안다면 이렇게 하셔도 됩니다.
+    viewChange: onViewChange
+  }
+});
+```

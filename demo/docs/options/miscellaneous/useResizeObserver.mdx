@@ -1,0 +1,7 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean" defaultVal="true" added="4.0.0" />
+
+If `true` and the [autoResize](./autoResize) option is enabled, use the [ResizeObserver](https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver) API in your available environment to track canvas size changes.
+If `false` or if `ResizeObserver` is not available, it will use `resize` event of window instead.

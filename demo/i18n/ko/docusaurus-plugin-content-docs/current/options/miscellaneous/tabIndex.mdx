@@ -1,0 +1,25 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="number | null" defaultVal="0" added="4.0.0" />
+
+캔버스 엘리먼트에 적용할 [tabindex](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/tabindex) 어트리뷰트의 값.
+초기화 이후에 `view360-canvas`에 이 값이 `tabindex`로 설정됩니다
+이 값을 설정해야만 키보드 컨트롤을 사용 가능합니다.
+
+기본값으로 `0`이 설정됩니다.
+이미 캔버스 엘리먼트에 `tabindex`를 설정하셨을 경우 `null`로 지정하면 `tabindex`값을 변경하지 않습니다.
+
+## 예시
+```ts
+const viewer = new View360("#el_id", {
+  tabindex: 5
+});
+```
+
+```html
+<!-- After init -->
+<div class="view360-container">
+  <canvas class="view360-canvas" tabindex="5"></canvas>
+</div>
+```

@@ -1,0 +1,42 @@
+.wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 6px;
+  padding: 8px;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 250ms, width 250ms;
+  /*
+   * Following background-image svgs are from tabler icons
+   * https://github.com/tabler/tabler-icons
+   *
+   * tabler icons is licensed under the MIT license
+   * https://github.com/tabler/tabler-icons/blob/master/LICENSE
+   */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' class='icon icon-tabler icon-tabler-copyright' width='24' height='24' viewBox='0 0 24 24' stroke-width='2' stroke='%23fff' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath stroke='none' d='M0 0h24v24H0z' fill='none'%3E%3C/path%3E%3Ccircle cx='12' cy='12' r='9'%3E%3C/circle%3E%3Cpath d='M14 9.75a3.016 3.016 0 0 0 -4.163 .173a2.993 2.993 0 0 0 0 4.154a3.016 3.016 0 0 0 4.163 .173'%3E%3C/path%3E%3C/svg%3E");
+  background-size: 24px 24px;
+  background-origin: content-box;
+  background-repeat: no-repeat;
+}
+
+.wrapper:hover {
+  opacity: 1;
+}
+
+.item {
+  display: none;
+}
+
+@media screen and (max-width: 768px), print {
+  .wrapper {
+    margin: 4.5px;
+    padding: 6px;
+    width: 30px;
+    height: 30px;
+    background-size: 18px 18px;
+  }
+}

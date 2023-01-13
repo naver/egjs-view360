@@ -1,0 +1,25 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="{ min: number, max: number } | null" defaultVal="null" added="4.0.0" />
+
+카메라의 Y축 회전 범위를 주어진 값으로 제한합니다.
+
+## 예시
+
+<View360
+  projectionOptions={{
+    src: [
+      "/pano/cube/FishermansBastion/posx.jpg",
+      "/pano/cube/FishermansBastion/negx.jpg",
+      "/pano/cube/FishermansBastion/posy.jpg",
+      "/pano/cube/FishermansBastion/negy.jpg",
+      "/pano/cube/FishermansBastion/posz.jpg",
+      "/pano/cube/FishermansBastion/negz.jpg"
+    ]
+  }}
+  projectionType="cubemap"
+  yawRange={{ min: -60, max: 60 }}
+  showControlBar
+  license="fisherman"
+  showExampleCode />

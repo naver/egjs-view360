@@ -1,0 +1,31 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean" defaultVal="true" added="4.0.0" />
+
+When set to `true`, allows scrolling within the canvas area of the mobile(touch) environment.
+
+:::caution
+If you enable this value, vertical swiping will cause the page scroll.
+
+In order for the user to change the camera view up/down,
+The user must first swipe horizontally and then swipe vertically.
+:::
+
+## Example (Check it on mobile)
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  scrollable={true}
+  license="veste"
+  showExampleCode />
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  scrollable={false}
+  license="veste"
+  showExampleCode />
