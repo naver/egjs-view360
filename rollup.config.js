@@ -1,17 +1,16 @@
-import buildHelper from "@egjs/build-helper";
+/* eslint-env node */
+const glslify = require("rollup-plugin-glslify");
+const buildHelper = require("./packages/view360/config/build-helper");
 
 const external = {
-  "@egjs/axes": "eg.Axes",
   "@egjs/component": "eg.Component",
-  "@egjs/agent": "eg.agent",
   "@egjs/imready": "eg.ImReady",
-  "gl-matrix": "glMatrix",
-  "promise-polyfill": "Promise"
-}
-const name = "eg.view360";
-const plugins = [];
+  "gl-matrix": "glMatrix"
+};
+const name = "View360";
+const plugins = [glslify()];
 
-export default buildHelper([
+module.exports = buildHelper([
   {
     name,
     input: "./src/index.umd.ts",

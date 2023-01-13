@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "lib": ["es2020", "dom"],
+    "target": "ES5",
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "noUnusedLocals": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "types": [
+      "karma-chai",
+      "mocha"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["../../packages/view360/src/*"]
+    }
+  },
+  "include": [
+    "../../packages/view360/**/*.ts",
+    "./**/*.ts",
+    "./**/*.tsx"
+  ],
+  "exclude": [
+    "libs",
+    "node_modules/**/*"
+  ]
+}

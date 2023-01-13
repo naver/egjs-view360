@@ -1,7 +1,7 @@
 egjs-view360
-Copyright 2017 NAVER Corp.
+Copyright 2022 NAVER Corp.
 
-This project contains subcomponents with separate copyright notices and license terms. 
+This project contains subcomponents with separate copyright notices and license terms.
 Your use of the source code for these subcomponents is subject to the terms and conditions of the following licenses.
 
 =====
@@ -93,7 +93,7 @@ with others.
 
 The OFL allows the licensed fonts to be used, studied, modified and
 redistributed freely as long as they are not sold by themselves. The
-fonts, including any derivative works, can be bundled, embedded, 
+fonts, including any derivative works, can be bundled, embedded,
 redistributed and/or sold with any software provided that any reserved
 names are not used by derivative works. The fonts and derivatives,
 however, cannot be released under any other type of license. The

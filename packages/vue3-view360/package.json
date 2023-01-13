@@ -1,15 +1,19 @@
 {
   "name": "@egjs/vue3-view360",
-  "version": "3.0.4",
+  "version": "4.0.0",
   "description": "360 integrated viewing solution from inside-out view to outside-in view. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.",
   "main": "dist/view360.cjs.js",
   "module": "dist/view360.esm.js",
   "types": "declaration/index.d.ts",
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css",
+    "**/*.sass"
+  ],
   "scripts": {
     "start": "vue-cli-service serve ./demo/main.ts",
     "build:vue": "vue-cli-service build ./demo/main.ts",
     "build": "rm -rf dist && rollup -c && npm run declaration",
+    "postbuild": "cpx 'node_modules/@egjs/view360/css/*' css/ && cpx 'node_modules/@egjs/view360/sass/*' sass/",
     "declaration": "rm -rf declaration && tsc -p tsconfig.declaration.json"
   },
   "repository": {
@@ -30,7 +34,8 @@
     "not op_mini all"
   ],
   "dependencies": {
-    "@egjs/view360": "~3.6.4"
+    "@egjs/view360": "~4.0.0",
+    "react-app-rewire-alias": "^1.1.7"
   },
   "peerDependencies": {
     "vue": "^3.0.0"
@@ -42,6 +47,7 @@
     "@vue/cli-service": "~4.5.0",
     "@vue/compiler-sfc": "^3.2.6",
     "cpx": "^1.5.0",
+    "react-app-rewire-alias": "^1.1.7",
     "rollup-plugin-vue": "^6.0.0",
     "tslib": "^2.3.1",
     "typescript": "^4.1.6",
