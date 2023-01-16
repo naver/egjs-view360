@@ -136,7 +136,7 @@ const config = {
             dropdownActiveClassDisabled: true,
             dropdownItemsAfter: [
               {
-                to: "/egjs-view360/release/3.6.4/",
+                to: "https://naver.github.io/egjs-view360/release/3.6.4/",
                 label: "v3.6.4"
               }
             ]
