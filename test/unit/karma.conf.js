@@ -55,6 +55,11 @@ module.exports = config => {
 
   if (config.coverage) {
     karmaConfig.reporters.push("karma-typescript");
+  }
+
+  if (config.chrome) {
+    karmaConfig.singleRun = false;
+  } else {
     karmaConfig.singleRun = true;
   }
 

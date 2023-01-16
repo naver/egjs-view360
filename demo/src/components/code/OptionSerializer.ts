@@ -33,22 +33,6 @@ class OptionSerializer {
     return optionsAsProp;
   }
 
-  public serializeNGX(options: Record<string, any>, space: number, indentLevel = 0) {
-    const indent = " ".repeat(space * (indentLevel + 1));
-
-    const optionsAsProp = Object.keys(options).map(key => {
-      const val = (typeof options[key] === "string")
-        ? `"'${options[key]}'"`
-        : (options[key] instanceof ProjectionData)
-          ? "\"projection\""
-          : `"${JSON.stringify(options[key]).replace(/\"/g, "'")}"`;
-
-      return `[${key}]=${val}`
-    }).join(`\n${indent}`);
-
-    return optionsAsProp;
-  }
-
   public serializeVue(options: Record<string, any>, space: number, indentLevel = 0) {
     const indent = " ".repeat(space * (indentLevel + 1));
 

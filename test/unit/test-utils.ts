@@ -19,6 +19,12 @@ export const cleanup = () => {
   });
 };
 
+export const wait = (time: number) => {
+  return new Promise(resolve => {
+    setTimeout(resolve, time);
+  });
+};
+
 export const createView360 = async (options: Partial<View360Options & { children: HTMLElement[] }> = {}): Promise<View360> => {
   const sandbox = createSandbox(`${Date.now()}`);
   const container = document.createElement("div");
@@ -36,22 +42,16 @@ export const createView360 = async (options: Partial<View360Options & { children
     container.appendChild(el);
   });
 
-  const view3D = new View360(container, restOptions);
+  const view360 = new View360(container, restOptions);
 
-  (window as any).instances.push(view3D);
+  (window as any).instances.push(view360);
 
-  if (!view3D.autoInit || !view3D.projection) return view3D;
+  if (!view360.autoInit || !view360.projection) return view360;
 
   return new Promise(resolve => {
-    view3D.once(EVENTS.READY, () => {
-      resolve(view3D);
+    view360.once(EVENTS.READY, () => {
+      resolve(view360);
     });
-  });
-};
-
-export const wait = (time: number) => {
-  return new Promise(resolve => {
-    setTimeout(resolve, time);
   });
 };
 

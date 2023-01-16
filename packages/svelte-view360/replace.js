@@ -1,7 +1,15 @@
-import { PANOVIEWER_OPTIONS, SPINVIEWER_OPTIONS } from "@egjs/view360";
+import View360 from "@egjs/view360";
+
+const options = Object.getOwnPropertyNames(View360.prototype)
+  .filter(name => {
+    const descriptor = Object.getOwnPropertyDescriptor(View360.prototype, name);
+
+    if (name.startsWith("_")) return false;
+    if (descriptor?.value) return false;
+
+    return true;
+  });
 
 export default [
-  ["__DECLARE_PANO_PROPS__", Object.keys(PANOVIEWER_OPTIONS).map(opt => `export let ${opt} = undefined;`).join("\n")],
-  ["__GET_PANO_PROPS__", `{ ${Object.keys(PANOVIEWER_OPTIONS).join(", ")} }`],
-  ["__DECLARE_SPIN_PROPS__", Object.keys(SPINVIEWER_OPTIONS).map(opt => `export let ${opt} = undefined;`).join("\n")]
+  ["__DECLARE_PROPS__", options.map(opt => `export let ${opt} = undefined;`).join("\n")]
 ];

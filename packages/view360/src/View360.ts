@@ -199,6 +199,13 @@ class View360 extends Component<View360Events> {
    * ```
    */
   public get projection() { return this._projection; }
+  public set projection(val: View360Options["projection"]) {
+    if (this._initialized && val) {
+      this.load(val);
+    } else {
+      this._projection = val;
+    }
+  }
   /**
    * A boolean value whether {@link View360#init init()} is called before.
    * @ko {@link View360#init init()}이 호출되었는지 여부를 가리키는 값

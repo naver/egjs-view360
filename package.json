@@ -15,7 +15,7 @@
     "demo:deploy": "lerna-helper deploy --base @egjs/view360 --src demo/build/ --remote upstream",
     "demo:deploy-origin": "lerna-helper deploy --base @egjs/view360 --src demo/build/ --remote origin",
     "release": "lerna-helper release --base @egjs/view360 --remote upstream --branch master",
-    "bootstrap": "lerna bootstrap --hoist -- --legacy-peer-deps"
+    "bootstrap": "lerna bootstrap -- --legacy-peer-deps"
   },
   "repository": {
     "type": "git",

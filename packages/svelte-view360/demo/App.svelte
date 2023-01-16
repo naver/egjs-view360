@@ -1,28 +1,19 @@
 <script lang="ts">
-  import { Router, Link, Route } from "svelte-routing";
-  import Rerender from "./pano/Rerender.svelte";
-  import Video from "./pano/Video.svelte";
-  import Spin from "./spin/Spin.svelte";
+import { onMount } from "svelte";
+import View360, { CubemapProjection, EquirectProjection } from "../src";
 
-  export let url = "";
+let projection = new CubemapProjection({
+  src: "https://naver.github.io/egjs-view360/examples/panoviewer/etc/img/bookcube1.jpg"
+});
+
+let view360: View360;
+
+function changeProjection() {
+  projection = new EquirectProjection({
+    src: "https://naver.github.io/egjs-view360/examples/panoviewer/etc/img/bookcube1.jpg"
+  })
+}
 </script>
 
-<Router url="{url}">
-  <nav class="is-size-4">
-    <div>
-      <span>PanoViewer:</span>
-      <Link to="rerender">Rerender</Link>
-      <Link to="video">Video</Link>
-    </div>
-    <div>
-      <span>SpinViewer:</span>
-      <Link to="spin">Spin</Link>
-    </div>
-  </nav>
-  <div>
-    <Route path="rerender" component={Rerender} />
-    <Route path="video" component={Video} />
-    <Route path="spin" component={Spin} />
-    <Route path="/"></Route>
-  </div>
-</Router>
+<View360 bind:this={view360} projection={projection} />
+<button on:click={changeProjection}></button>

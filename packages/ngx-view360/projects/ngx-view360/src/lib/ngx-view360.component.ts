@@ -2,7 +2,8 @@
  * Copyright (c) 2022 NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
- import {
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import {
   Component,
   Input,
   AfterViewInit,
@@ -11,12 +12,15 @@
   Output,
   EventEmitter,
   OnDestroy,
+  NgZone,
   Inject,
   PLATFORM_ID,
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
-import { isPlatformBrowser } from "@angular/common";
+import { isPlatformServer } from "@angular/common";
+import { fromEvent, Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 import VanillaView360, {
   EVENTS,
   DEFAULT_CLASS,
@@ -36,7 +40,7 @@ import VanillaView360, {
   View360Options
 } from "@egjs/view360";
 import View360Interface from "./View360Interface";
-import { optionNames, optionInputs, setterNames } from "./const";
+import { setterNames } from "./const";
 
 @Component({
   selector: "ngx-view360, [NgxView360]",
@@ -46,13 +50,13 @@ import { optionNames, optionInputs, setterNames } from "./const";
   `,
   host: {
     style: "display: block;",
-    class: DEFAULT_CLASS.CONTAINER
-  },
-  inputs: optionInputs
+    class: "view360-container"
+  }
 })
 export class NgxView360Component extends View360Interface
   implements AfterViewInit, OnDestroy, OnChanges {
-  @Input() public canvasClass: string;
+  @Input() public options!: Partial<View360Options>;
+  @Input() public canvasClass!: string;
 
   @Output("ready") public readyEmitter = new EventEmitter<ReadyEvent>();
   @Output("loadStart") public loadStartEmitter = new EventEmitter<LoadStartEvent>();
@@ -68,72 +72,74 @@ export class NgxView360Component extends View360Interface
   @Output("vrStart") public vrStartEmitter = new EventEmitter<VRStartEvent>();
   @Output("vrEnd") public vrEndEmitter = new EventEmitter<VREndEvent>();
 
-  @ViewChild("canvas") public canvas: ElementRef<HTMLCanvasElement>;
+  @ViewChild("canvas") public canvas!: ElementRef<HTMLCanvasElement>;
 
   public get element() { return this._elRef.nativeElement; }
-  private get _canvasElClass() { return `${DEFAULT_CLASS.CANVAS} ${this.canvasClass ?? ""}`.trim(); }
+  public get _canvasElClass() { return `${DEFAULT_CLASS.CANVAS} ${this.canvasClass ?? ""}`.trim(); }
+  private _destroy$ = new Subject<void>();
 
   public constructor(
     private _elRef: ElementRef<HTMLElement>,
-    @Inject(PLATFORM_ID) private _platformId
+    @Inject(PLATFORM_ID) private _platformId: any,
+    private _ngZone: NgZone
   ) {
     super();
     this._view360 = null;
   }
 
   public ngAfterViewInit() {
-    if (!isPlatformBrowser(this._platformId)) return;
+    if (isPlatformServer(this._platformId)) return;
 
     const container = this._elRef.nativeElement;
-    const options = this._getOptions();
+    const options = this.options ?? {};
 
-    this._view360 = new VanillaView360(container, options);
+    this._view360 = this._ngZone.runOutsideAngular(
+      () => new VanillaView360(container, options)
+    );
 
     this._bindEvents();
   }
 
   public ngOnDestroy() {
+    this._destroy$.next();
     this._view360?.destroy();
   }
 
   public ngOnChanges(changes: SimpleChanges) {
-    if (!this._view360) return;
+    console.log(changes);
+    const view360 = this._view360;
+    if (!view360) return;
+
+    const changed = changes.options;
+    if (!changed) return;
+
+    const prev = changed.previousValue;
+    const current = changed.currentValue;
 
     setterNames.forEach(name => {
-      const changed = changes[`opt-${name}`];
-      if (!changed) return;
-
-      const oldProp = changed.previousValue;
-      const newProp = changed.currentValue;
+      const oldProp = prev[name];
+      const newProp = current[name];
 
       if (newProp !== oldProp) {
-        this._view360[name] = newProp;
+        (view360 as any)[name] = newProp;
       }
     });
   }
 
-  private _getOptions() {
-    return optionNames.reduce((options, name) => {
-      options[name] = this[`opt-${name}`];
-      return options;
-    }, {}) as View360Options;
-  }
-
   private _bindEvents() {
-    const view360 = this._view360;
+    const view360 = this._view360!;
 
     Object.keys(EVENTS).forEach(evtKey => {
-      const evtName = EVENTS[evtKey];
+      const evtName = (EVENTS as any)[evtKey];
 
-      view360.on(evtName, e => {
-        const emitter = this[`${evtName}Emitter`];
-
-        e.currentTarget = this;
-
-        if (emitter) {
-          emitter.emit(e);
-        }
-      });
+      fromEvent(view360, evtName)
+        .pipe(takeUntil(this._destroy$))
+        .subscribe(event => {
+          const emitter = (this as any)[`${evtName}Emitter`];
+          if (emitter && emitter.observers.length > 0) {
+            this._ngZone.run(() => emitter.emit(event));
+          }
+        });
     });
   }
 }

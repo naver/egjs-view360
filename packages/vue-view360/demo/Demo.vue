@@ -1,23 +1,19 @@
 <template>
   <div>
-    <header>
-      <div class="header">
-        <span>PanoViewer:</span>
-        <router-link to="/rerender">Rerender</router-link>
-        <router-link to="/video">Video</router-link>
-      </div>
-      <div>
-        <span>SpinViewer:</span>
-        <router-link to="/spin">Spin</router-link>
-      </div>
-    </header>
-    <transition name="component-fade" mode="out-in">
-      <router-view></router-view>
-    </transition>
+    <View360 :projection="projection" />
   </div>
 </template>
-<style>
-.header * {
-  margin-right: 0.75rem;
+<script>
+import { View360, CubemapProjection } from "../src/index";
+
+export default {
+  created() {
+    this.projection = new CubemapProjection({
+      src: "https://naver.github.io/egjs-view360/examples/panoviewer/etc/img/bookcube1.jpg"
+    });
+  },
+  components: {
+    View360
+  }
 }
-</style>
+</script>

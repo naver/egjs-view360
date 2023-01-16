@@ -11,8 +11,6 @@ export const optionNames = Object.getOwnPropertyNames(View360.prototype)
     return true;
   });
 
-export const optionInputs = optionNames.map(name => `opt-${name}: ${name}`);
-
 export const setterNames = optionNames
   .filter(name => {
     const descriptor = Object.getOwnPropertyDescriptor(View360.prototype, name);

@@ -6,7 +6,8 @@
   } from "svelte";
   import VanillaView360, {
     EVENTS,
-    DEFAULT_CLASS
+    DEFAULT_CLASS,
+    View360Options
   } from "@egjs/view360";
 
   // @ts-ignore
@@ -72,16 +73,16 @@
     return containerEl;
   }
 
-  function getSetterProps() {
+  function getSetterProps(): View360Options {
     return view360SetterNames.reduce((props, name) => {
       props[name] = $$props[name];
 
       return props;
-    }, {});
+    }, {}) as View360Options;
   }
 </script>
 
-<svelte:options accessors={true} />
+<svelte:options accessors />
 <div bind:this={containerEl} {...$$restProps} class={containerClass}>
   <canvas class={canvasClass}></canvas>
   <slot />
