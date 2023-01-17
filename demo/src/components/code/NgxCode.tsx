@@ -6,7 +6,7 @@ export default ({ options, serializer }) => {
 
   const importTxt = [
     "import { Component } from \"@angular/core\";",
-    `import { ${projection} } from "@egjs/ngx-view360";`
+    `import { View360Options, ${projection} } from "@egjs/ngx-view360";`
   ].join("\n");
 
   return <>
@@ -37,7 +37,7 @@ export class AppModule { }
   \`
 })
 export class View360Demo {
-  options = ${serializer.serialize(options, 2, 1)}
+  options: Partial<View360Options> = ${serializer.serialize(options, 2, 1)}
 }`
   }</CodeBlock>
   </>

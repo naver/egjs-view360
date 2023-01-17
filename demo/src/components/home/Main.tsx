@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import clsx from "clsx";
 import Link from "@docusaurus/Link";
 import Tabs from "@theme/Tabs";
@@ -115,8 +115,10 @@ const items = [
   }
 ];
 
-export default () => {
-  const item = items[Math.floor(Math.random() * items.length)];
+export default React.memo(() => {
+  const item = useMemo(() => {
+    return items[Math.floor(Math.random() * items.length)];
+  }, []);
 
   return <section className={styles.mainHero}>
     <View360
@@ -235,4 +237,4 @@ export default () => {
       </Link>
     </div>
   </section>
-}
+})

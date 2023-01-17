@@ -1,5 +1,6 @@
 import React from "react";
 import clsx from "clsx";
+import Link from "@docusaurus/Link";
 import styles from "./license.module.css";
 import LICENSE from "./license";
 
@@ -17,39 +18,73 @@ export interface LicenseProps extends React.HTMLAttributes<HTMLDivElement> {
   item: string | null
 }
 
-export default ({ item = null, ...restProps }: LicenseProps) => {
-  const license = LICENSE[item];
-  const modalRef = React.useRef<HTMLDivElement>();
-  const stopPropagate = React.useCallback(evt => {
-    evt.stopPropagation();
-  }, []);
+class License extends React.Component<LicenseProps, {
+  license: Record<string, any> | null;
+  visible: boolean;
+}> {
+  public static defaultProps = {
+    item: null
+  };
 
-  return <>
-    <div className={clsx("license-container", styles.wrapper)} {...restProps} title="Show Attribution" onClick={evt => {
-      modalRef.current!.classList.add("visible");
-    }}></div>
-    <div ref={modalRef} onClick={() => {
-      modalRef.current!.classList.remove("visible");
-    }} className="demo-viewer-modal">
-      { license &&
-        <div className="content">
+  private _modalRef = React.createRef<HTMLDivElement>();
+
+  public constructor(props) {
+    super(props);
+
+    this.state = {
+      license: props.item ? LICENSE[props.item] : null,
+      visible: false
+    }
+  }
+
+  public componentDidUpdate(prevProps: Readonly<LicenseProps>): void {
+    if (this.props.item !== prevProps.item) {
+      this.setState({
+        license: LICENSE[this.props.item]
+      });
+    }
+  }
+
+  public render() {
+    const modalRef = this._modalRef;
+    const { item, ...restProps } = this.props;
+    const license = this.state.license;
+
+    if (!license) return <></>;
+
+    return <>
+      <div className={clsx("license-container", styles.wrapper)} {...restProps} title="Show Attribution" onClick={evt => {
+        evt.stopPropagation();
+        this.setState({ visible: true });
+      }}></div>
+      <div ref={modalRef} key={item}
+      className={clsx({
+        visible: this.state.visible,
+        "demo-viewer-modal": true
+      })}
+      onClick={() => {
+        this.setState({ visible: false });
+      }}>
+        {this.state.visible && <div className="content">
           {license.ansel && <>
             <span>Screenshot from </span>
           </>}
-          <a href={license.link} target="_blank" rel="noopener noreferrer" onClick={stopPropagate}>{ license.name }</a>
+          <Link href={license.link} target="_blank" rel="noopener noreferrer" onClick={evt => evt.stopPropagation()}>{ license.name }</Link>
           <span> by </span>
-          <a href={license.authorLink} target="_blank" rel="noopener noreferrer" onClick={stopPropagate}>{ license.author }</a>
+          <Link href={license.authorLink} target="_blank" rel="noopener noreferrer" onClick={evt => evt.stopPropagation()}>{ license.author }</Link>
           {license.license && <>
             <span> licensed under </span>
-            <a href={LICENSE_TO_LINK[license.license]} target="_blank" rel="noopener noreferrer" onClick={stopPropagate}>{ license.license }</a>
+            <Link href={LICENSE_TO_LINK[license.license]} target="_blank" rel="noopener noreferrer" onClick={evt => evt.stopPropagation()}>{ license.license }</Link>
           </>}
           {
             license.ansel && <>
             <span> taken with </span>
-            <a href="https://www.nvidia.com/en-us/geforce/geforce-experience/ansel/" target="_blank" rel="noopener noreferrer" onClick={stopPropagate}>NVidia Ansel</a>
+            <Link href="https://www.nvidia.com/en-us/geforce/geforce-experience/ansel/" target="_blank" rel="noopener noreferrer" onClick={evt => evt.stopPropagation()}>NVidia Ansel</Link>
           </>}
-        </div>
-      }
-    </div>
-  </>;
-};
+        </div>}
+      </div>
+    </>;
+  }
+}
+
+export default License;
