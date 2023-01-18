@@ -1,11 +1,11 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
     "strict": false,
     "resolveJsonModule": true,
     "skipLibCheck": true
   },
   "include": [
-    "../packages/view360/src/**/*.ts",
+    "./packages/view360/src/**/*.ts",
   ]
 }

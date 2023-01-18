@@ -8,7 +8,7 @@
     "packages:build": "npm run build --prefix packages/view360 && lerna run build --ignore @egjs/view360 --stream",
     "packages:publish": "lerna-helper publish --commit 'chore: update packages versions'",
     "changelog": "lerna-helper changelog --type all --base @egjs/view360",
-    "docs:build": "npm run generate --prefix docgen",
+    "docs:build": "typedoc-to-mdx -c typedoc-to-mdx.json",
     "demo:build": "run-s demo:copy-lib docs:build demo:build-docusaurus",
     "demo:copy-lib": "npm run build --prefix packages/view360 && npm run demo:copy-lib --prefix packages/view360",
     "demo:build-docusaurus": "npm run build --prefix demo",
@@ -47,6 +47,7 @@
     "husky": "^4.3.8",
     "lerna": "^4.0.0",
     "npm-run-all": "^4.1.5",
+    "typedoc-to-mdx": "^0.1.0",
     "typescript": "^4.7.4"
   },
   "husky": {

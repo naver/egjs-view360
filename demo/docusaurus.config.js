@@ -4,6 +4,7 @@ const darkCodeTheme = require("prism-react-renderer/themes/oceanicNext");
 const remarkBreaks = require("remark-breaks");
 const glslify = require("./plugin/glslify");
 const preloadFont = require("./plugin/preload-font");
+const view360Pkg = require("../packages/view360/package.json");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -45,6 +46,12 @@ const config = {
           sidebarPath: require.resolve("./sidebars.js"),
           editUrl: "https://github.com/naver/egjs-view360/edit/master/demo/",
           remarkPlugins: [remarkBreaks],
+          lastVersion: "current",
+          versions: {
+            current: {
+              label: `v${view360Pkg.version}`
+            }
+          },
           breadcrumbs: false
         },
         pages: {
@@ -53,9 +60,9 @@ const config = {
         theme: {
           customCss: [
             require.resolve("../packages/view360/sass/view360.sass"),
+            require.resolve("typedoc-to-mdx/sass/theme.sass"),
             require.resolve("./src/styles/custom.css"),
             require.resolve("./src/styles/global.css"),
-            require.resolve("../docgen/theme.sass")
           ]
         },
         googleAnalytics: {

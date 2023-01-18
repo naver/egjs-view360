@@ -1,5 +1,5 @@
 {
-  "entryPoints": ["../packages/view360/src/index.ts"],
+  "entryPoints": ["./packages/view360/src/index.ts"],
   "exclude": ["**/*+(.spec|.e2e).ts"],
   "sourceLinkTemplate": "https://github.com/naver/egjs-view360/blob/{gitRevision}/{path}#L{line}",
   "excludePrivate": true,

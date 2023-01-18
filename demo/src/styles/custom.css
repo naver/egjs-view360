@@ -105,3 +105,7 @@ html[data-theme='dark'] .tabs__item--active[data-framework="react"] {
   --ifm-tabs-color-active: #FF3E00;
   --ifm-tabs-color-active-border: #FF3E00;
 }
+
+.badge--warning {
+  color: var(--ifm-color-content);
+}
