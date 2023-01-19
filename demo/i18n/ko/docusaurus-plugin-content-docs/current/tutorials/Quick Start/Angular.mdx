@@ -1,0 +1,126 @@
+---
+title: Angular
+id: quick-start-ngx
+slug: /quick-start-ngx
+sidebar_position: 2
+---
+
+# 시작하기 (Angular)
+## 가장 기본적인 렌더링 코드
+먼저 `app.module.ts`에서 `NgxView360Module`를 등록해주세요.
+
+```ts title=app.module.ts
+import { NgModule } from "@angular/core";
+import { BrowserModule } from "@angular/platform-browser";
+import { AppComponent } from "./app.component";
+import { NgxView360Module } from "@egjs/ngx-view360";
+
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    NgxView360Module
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+```
+
+그러면 View360을 `<ngx-view360>`로 사용할 수 있습니다.
+```ts title=demo.component.ts
+import { Component } from "@angular/core";
+import { View360Options, EquirectProjection } from "@egjs/ngx-view360";
+
+@Component({
+  selector: "some-demo-component",
+  template: `
+    <ngx-view360 [options]="options" />
+  `
+})
+export class View360Demo {
+  options: Partial<View360Options> = {
+    projection: new EquirectProjection({
+      src: "/egjs-view360/pano/equirect/veste.jpg",
+    })
+  }
+}
+```
+
+## 옵션
+모든 옵션은 `[options]` prop을 이용해서 지정해야 합니다.
+옵션 변경은 다음과 같이 할 수 있습니다.
+```ts
+changeOption() {
+  this.options = {
+    ...this.options,
+    projection: new EquirectProjection({
+      src: "NEW_SRC"
+    })
+  };
+}
+```
+
+## 스타일
+`angular.json` 파일에 `@egjs/ngx-view360`에서 제공하는 CSS 파일을 추가하거나
+
+```json
+"options": {
+  // ...
+  "styles": [
+    "node_modules/@egjs/ngx-view360/css/view360.min.css"
+    // ... Other global styles
+  ]
+  // ...
+}
+```
+
+혹은 글로벌 스타일 파일에서 직접 import하실 수도 있습니다.
+
+```css title=app/src/styles.css
+/* You can add global styles to this file, and also import other style files */
+@import "@egjs/ngx-view3d/css/view3d-bundle.min.css";
+```
+
+## 프로퍼티와 메소드
+[프로퍼티와 메소드](/docs/properties-and-methods) 문서를 확인해주세요.
+
+## 이벤트
+
+[Events](/docs/events)에 정의되어있는 모든 이벤트들은 다른 Angular 이벤트들과 동일한 방식으로 사용 가능합니다.
+예를 들어, `viewChange` 이벤트에 대한 핸들러는 다음과 같이 등록 가능합니다.
+
+```ts
+import { ViewChangeEvent } from "@egjs/ngx-view360";
+
+@Component({
+  selector: "some-demo-component",
+  template: `
+    <ngx-view360 (viewChange)="onViewChange($event)" />
+  `
+})
+export class View360Demo {
+  onViewChange(event: ViewChangeEvent) {
+    // ...
+  }
+}
+```
+
+## 추가 Props
+### canvasClass: `string` = `""`
+`class`을 사용하면, `.view360-container` 엘리먼트에 클래스를 추가하게 됩니다.
+대신에, `canvasClass`를 사용하면 `.view360-canvas` 엘리먼트에 클래스를 추가하실 수 있습니다.
+
+예를 들어, 다음 코드는:
+```html
+<ngx-view360 canvasClass="SOME_CLASS" />
+```
+
+다음과 같이 렌더링됩니다:
+```html
+<div class="view360-container">
+  <canvas class="view360-canvas SOME_CLASS" />
+</div>
+```

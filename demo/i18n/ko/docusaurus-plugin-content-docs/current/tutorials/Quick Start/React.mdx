@@ -1,0 +1,97 @@
+---
+title: React
+id: quick-start-react
+slug: /quick-start-react
+sidebar_position: 1
+---
+
+# 시작하기 (React)
+## 가장 기본적인 렌더링 코드
+```tsx title=Demo.tsx
+import React, { useMemo } from "react";
+import View360, { EquirectProjection } from "@egjs/react-view360";
+import "@egjs/react-view360/css/view360.min.css";
+
+export default () => {
+  const projection = useMemo(() => new EquirectProjection({
+    src: "/egjs-view360/pano/equirect/veste.jpg"
+  }), []);
+
+  return <View360 projection={projection} />
+}
+```
+
+위 코드는 다음과 같이 렌더링됩니다.
+```html
+<div class="view360-container">
+  <canvas class="view360-canvas" />
+</div>
+```
+
+## Projection
+렌더링할때마다 `projection`이 새로 생성될 경우, 프로젝션이 변경된 것으로 간주되어 문제가 발생할 수 있습니다.
+`useMemo`를 사용하시면 이 문제를 방지하실 수 있습니다.
+
+:::danger
+**즉, 아래처럼 하시면 안됩니다.** 아래 코드는 매 렌더링마다 `EquirectProjection`의 인스턴스를 생성합니다.
+
+```tsx
+import View360, { EquirectProjection } from "@egjs/react-view360";
+
+export default () => {
+  return <View360 projection={new EquirectProjection({ ... })} />
+}
+```
+:::
+
+## 스타일
+`@egjs/react-view360`에서 직접 CSS 파일을 임포트하실 수 있습니다.
+```js
+import "@egjs/react-view360/css/view360.min.css";
+```
+
+## 프로퍼티와 메소드
+[프로퍼티와 메소드](/docs/properties-and-methods) 문서를 확인해주세요.
+
+## 이벤트
+[Events](/docs/events)에 정의되어있는 모든 이벤트들은 `onXXX` 형태로 핸들러를 추가하실 수 있습니다.
+예를 들어, `viewChange` 이벤트에 대한 핸들러를 `onViewChange`를 이용해서 다음과 같이 추가 가능합니다.
+
+```tsx
+import View360, { ViewChangeEvent } from "@egjs/react-view360";
+import "@egjs/react-view360/css/view360.min.css";
+
+<View360 onViewChange={(evt: ViewChangeEvent) => {}} />
+```
+
+## 추가 Props
+### tag: `string` = `"div"`
+`tag`는 `.view360-container` 엘리먼트의 HTML 태그를 변경할 수 있습니다.
+
+예를 들어, 다음과 같이 사용하면:
+```jsx
+<View360 tag="li" />
+```
+
+이렇게 렌더링됩니다:
+```html
+<li class="view360-container">
+  <canvas class="view360-canvas" />
+</li>
+```
+
+### canvasClass: `string` = `""`
+`className`을 사용하면, `.view360-container` 엘리먼트에 클래스를 추가하게 됩니다.
+대신에, `canvasClass`를 사용하면 `.view360-canvas` 엘리먼트에 클래스를 추가하실 수 있습니다.
+
+예를 들어, 다음 코드는:
+```jsx
+<View360 className="CLASS_A" canvasClass="CLASS_B" />
+```
+
+다음과 같이 렌더링됩니다:
+```html
+<div class="view360-container CLASS_A">
+  <canvas class="view360-canvas CLASS_B" />
+</div>
+```

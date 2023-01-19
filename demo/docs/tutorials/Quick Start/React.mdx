@@ -1,0 +1,96 @@
+---
+title: React
+id: quick-start-react
+slug: /quick-start-react
+sidebar_position: 1
+---
+
+# Quick Start (React)
+## Most basic rendering code
+```tsx title=Demo.tsx
+import React, { useMemo } from "react";
+import View360, { EquirectProjection } from "@egjs/react-view360";
+import "@egjs/react-view360/css/view360.min.css";
+
+export default () => {
+  const projection = useMemo(() => new EquirectProjection({
+    src: "/egjs-view360/pano/equirect/veste.jpg"
+  }), []);
+
+  return <View360 projection={projection} />
+}
+```
+
+The above code will generate DOMs like this:
+```html
+<div class="view360-container">
+  <canvas class="view360-canvas" />
+</div>
+```
+
+## Projection
+As `projection` shouldn't change on re-render, you can use `useMemo` for memoization.
+
+:::danger
+**Don't do it like this**, this will create instance of `EquirectProjection` on every render.
+
+```tsx
+import View360, { EquirectProjection } from "@egjs/react-view360";
+
+export default () => {
+  return <View360 projection={new EquirectProjection({ ... })} />
+}
+```
+:::
+
+## Styles
+You can directly import CSS file from `@egjs/react-view360`.
+```js
+import "@egjs/react-view360/css/view360.min.css";
+```
+
+## Properties & Methods
+See [Properties & Methods](/docs/properties-and-methods)
+
+## Events
+All the events from [Events](/docs/events) are provided in the form of `onXXX`.
+For example, you can listen to `viewChange` event by using the prop `onViewChange`.
+
+```tsx
+import View360, { ViewChangeEvent } from "@egjs/react-view360";
+import "@egjs/react-view360/css/view360.min.css";
+
+<View360 onViewChange={(evt: ViewChangeEvent) => {}} />
+```
+
+## Additional props
+### tag: `string` = `"div"`
+`tag` can change HTML tag of `.view360-container` element.
+
+For example, this:
+```jsx
+<View360 tag="li" />
+```
+
+will generate this:
+```html
+<li class="view360-container">
+  <canvas class="view360-canvas" />
+</li>
+```
+
+### canvasClass: `string` = `""`
+Using prop `className` will add classes to the `.view360-container` element.
+Instead, you can use `canvasClass` to add classes to `.view360-canvas` element.
+
+For example, this:
+```jsx
+<View360 className="CLASS_A" canvasClass="CLASS_B" />
+```
+
+will generate this:
+```html
+<div class="view360-container CLASS_A">
+  <canvas class="view360-canvas CLASS_B" />
+</div>
+```

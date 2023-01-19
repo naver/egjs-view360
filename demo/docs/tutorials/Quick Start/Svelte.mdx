@@ -1,0 +1,64 @@
+---
+title: Svelte
+id: quick-start-svelte
+slug: /quick-start-svelte
+sidebar_position: 4
+---
+
+# Quick Start (Svelte)
+## Most basic rendering code
+```html
+<script>
+import View360, { EquirectProjection } from "@egjs/svelte-view360";
+import "@egjs/svelte-view360/css/view360.min.css";
+
+const projection = new EquirectProjection({
+  src: "/egjs-view360/pano/equirect/veste.jpg"
+});
+</script>
+
+<View360 projection={projection} />
+```
+
+## Styles
+You can directly import CSS file from `@egjs/svelte-view360`.
+```js
+import "@egjs/svelte-view360/css/view360.min.css";
+```
+
+## Properties & Methods
+See [Properties & Methods](/docs/properties-and-methods)
+
+## Events
+You can use all events from [Events](/docs/events) like normal svelte events.
+But as they're delivered as [CustomEvent](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent), all event props are provided inside `detail`.
+For example, you can listen to `viewChange` event like this.
+
+```html
+<script lang="ts">
+import View360, { ViewChangeEvent } from "../src";
+
+function viewChange(evt: CustomEvent<ViewChangeEvent>) {
+  console.log(evt.detail); // = ViewChangeEvent
+}
+</script>
+
+<View360 on:viewChange={viewChange} />
+```
+
+## Additional props
+### canvasClass: `string` = `""`
+Using prop `class` will add classes to the `.view360-container` element.
+Instead, you can use `canvasClass` to add classes to `.view360-canvas` element.
+
+For example, this:
+```jsx
+<View360 class="CLASS_A" canvasClass="CLASS_B" />
+```
+
+will generate this:
+```html
+<div class="view360-container CLASS_A">
+  <canvas class="view360-canvas CLASS_B" />
+</div>
+```

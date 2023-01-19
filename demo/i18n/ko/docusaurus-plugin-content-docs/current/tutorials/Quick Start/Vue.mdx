@@ -1,0 +1,126 @@
+---
+title: Vue
+id: quick-start-vue
+slug: /quick-start-vue
+sidebar_position: 3
+---
+
+# 시작하기 (Vue 2 & 3)
+## 가장 기본적인 렌더링 코드
+```html title=Demo.vue
+<template>
+  <View360 :projection="projection" />
+</template>
+<script>
+// Vue@3을 사용중이시라면 "@egjs/vue3-view360"를 대신 사용해주세요.
+import { View360, EquirectProjection } from "@egjs/vue-view360";
+
+export default {
+  created() {
+    this.projection = new EquirectProjection({
+      src: "/egjs-view360/pano/equirect/veste.jpg"
+    });
+  },
+  components: {
+    View360
+  }
+}
+</script>
+```
+
+## 스타일
+`@egjs/vue-view360`에서 직접 CSS 파일을 임포트하실 수 있습니다.
+```js title=main.ts
+import "@egjs/vue-view360/css/view360.min.css";
+```
+
+## 컴포넌트 등록
+### 전역 컴포넌트로 등록 (Vue2)
+```ts
+import Vue from "vue";
+import View360 from "@egjs/vue-view360";
+import "@egjs/vue-view360/css/view360.min.css";
+
+// 앱 전역에 "View360" 컴포넌트를 추가합니다.
+Vue.use(View360);
+```
+
+### 전역 컴포넌트로 등록 (Vue3)
+```ts
+import Vue from "vue";
+import View360 from "@egjs/vue3-view360";
+import "@egjs/vue-view360/css/view360.min.css";
+
+const app = createApp(App);
+
+// 앱 전역에 "View360" 컴포넌트를 추가합니다.
+app.use(View360);
+```
+
+### 지역 컴포넌트로 등록
+```ts
+// "default" 대신에 아래와 같이 직접 View360을 import해야 합니다.
+import { View360 } from "@egjs/vue3-view360";
+
+export default {
+  components: {
+    View360
+  }
+}
+```
+
+## 프로퍼티와 메소드
+[프로퍼티와 메소드](/docs/properties-and-methods) 문서를 확인해주세요.
+
+## 이벤트
+[Events](/docs/events)에 정의되어있는 모든 이벤트들은 `kebab-case` 형식으로 이름을 변경하여 사용할 수 있습니다.
+예를 들어, `viewChange`는 `view-change`로 변경되어 다음과 같이 사용 가능합니다.
+
+```html
+<template>
+  <View360 @view-change="onViewChange" />
+</template>
+<script lang="ts">
+import { ViewChangeEvent } from "@egjs/vue-view360";
+
+export default {
+  methods: {
+    onViewChange(evt: ViewChangeEvent) {
+      // ...
+    }
+  }
+}
+</script>
+```
+
+## 추가 Props
+### tag: `string` = `"div"`
+`tag`는 `.view360-container` 엘리먼트의 HTML 태그를 변경할 수 있습니다.
+
+예를 들어, 다음과 같이 사용하면:
+```jsx
+<View360 tag="li" />
+```
+
+이렇게 렌더링됩니다:
+```html
+<li class="view360-container">
+  <canvas class="view360-canvas" />
+</li>
+```
+
+### canvasClass: `string` = `""`
+`class`을 사용하면, `.view360-container` 엘리먼트에 클래스를 추가하게 됩니다.
+대신에, `canvasClass`를 사용하면 `.view360-canvas` 엘리먼트에 클래스를 추가하실 수 있습니다.
+
+For example, this:
+```jsx
+<View360 class="CLASS_A" canvasClass="CLASS_B" />
+```
+
+다음과 같이 렌더링됩니다:
+```html
+<div class="view360-container CLASS_A">
+  <canvas class="view360-canvas CLASS_B" />
+</div>
+```

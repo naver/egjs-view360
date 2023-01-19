@@ -12,7 +12,7 @@ export default ({ options, serializer }) => {
   return <CodeBlock className="language-jsx">{`${importTxt}
 
 export default () => {
-  const projection = useMemo(() => new ${projection.constructor.name}(${serializer.serialize(projectionOptions, 2, 1)}), []);
+  const projection = useMemo(() => new ${projection}(${serializer.serialize(projectionOptions, 2, 1)}), []);
 
   return <View360 ${serializer.serializeJSX(options, 2, 1)} />
 }`}</CodeBlock>;

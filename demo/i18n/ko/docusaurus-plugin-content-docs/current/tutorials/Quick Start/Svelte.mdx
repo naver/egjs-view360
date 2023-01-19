@@ -1,0 +1,64 @@
+---
+title: Svelte
+id: quick-start-svelte
+slug: /quick-start-svelte
+sidebar_position: 4
+---
+
+# 시작하기 (Svelte)
+## 가장 기본적인 렌더링 코드
+```html
+<script>
+import View360, { EquirectProjection } from "@egjs/svelte-view360";
+import "@egjs/svelte-view360/css/view360.min.css";
+
+const projection = new EquirectProjection({
+  src: "/egjs-view360/pano/equirect/veste.jpg"
+});
+</script>
+
+<View360 projection={projection} />
+```
+
+## 스타일
+`@egjs/svelte-view360`에서 직접 CSS 파일을 임포트하실 수 있습니다.
+```js
+import "@egjs/svelte-view360/css/view360.min.css";
+```
+
+## 프로퍼티와 메소드
+[프로퍼티와 메소드](/docs/properties-and-methods) 문서를 확인해주세요.
+
+## 이벤트
+[Events](/docs/events)에 정의되어있는 모든 이벤트들은 다른 Svelte 이벤트들과 동일한 방식으로 사용 가능합니다.
+하지만, 이벤트가 [CustomEvent](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent) 형식으로 전달되므로, 실제 이벤트 프로퍼티들은 `detail` 내에 저장되어 있습니다.
+예를 들어, `viewChange` 이벤트에 대한 핸들러는 다음과 같이 등록 가능합니다.
+
+```html
+<script lang="ts">
+import View360, { ViewChangeEvent } from "../src";
+
+function viewChange(evt: CustomEvent<ViewChangeEvent>) {
+  console.log(evt.detail); // = ViewChangeEvent
+}
+</script>
+
+<View360 on:viewChange={viewChange} />
+```
+
+## 추가 Props
+### canvasClass: `string` = `""`
+`class`을 사용하면, `.view360-container` 엘리먼트에 클래스를 추가하게 됩니다.
+대신에, `canvasClass`를 사용하면 `.view360-canvas` 엘리먼트에 클래스를 추가하실 수 있습니다.
+
+예를 들어, 다음 코드는:
+```jsx
+<View360 class="CLASS_A" canvasClass="CLASS_B" />
+```
+
+다음과 같이 렌더링됩니다:
+```html
+<div class="view360-container CLASS_A">
+  <canvas class="view360-canvas CLASS_B" />
+</div>
+```

@@ -1,0 +1,126 @@
+---
+title: Angular
+id: quick-start-ngx
+slug: /quick-start-ngx
+sidebar_position: 2
+---
+
+# Quick Start (Angular)
+## Most basic rendering code
+
+First, register `NgxView360Module` inside your `app.module.ts`.
+
+```ts title=app.module.ts
+import { NgModule } from "@angular/core";
+import { BrowserModule } from "@angular/platform-browser";
+import { AppComponent } from "./app.component";
+import { NgxView360Module } from "@egjs/ngx-view360";
+
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    NgxView360Module
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+```
+
+Then you can use View360 as `<ngx-view360>` like this:
+```ts title=demo.component.ts
+import { Component } from "@angular/core";
+import { View360Options, EquirectProjection } from "@egjs/ngx-view360";
+
+@Component({
+  selector: "some-demo-component",
+  template: `
+    <ngx-view360 [options]="options" />
+  `
+})
+export class View360Demo {
+  options: Partial<View360Options> = {
+    projection: new EquirectProjection({
+      src: "/egjs-view360/pano/equirect/veste.jpg",
+    })
+  }
+}
+```
+
+## Options
+All options should be provided with prop `[options]`.
+You can change options like this:
+```ts
+changeOption() {
+  this.options = {
+    ...this.options,
+    projection: new EquirectProjection({
+      src: "NEW_SRC"
+    })
+  };
+}
+```
+
+## Styles
+You can either add our CSS file to styles section of `angular.json`
+
+```json
+"options": {
+  // ...
+  "styles": [
+    "node_modules/@egjs/ngx-view360/css/view360.min.css"
+    // ... Other global styles
+  ]
+  // ...
+}
+```
+
+Or import from other global style file
+
+```css title=app/src/styles.css
+/* You can add global styles to this file, and also import other style files */
+@import "@egjs/ngx-view3d/css/view3d-bundle.min.css";
+```
+
+## Properties & Methods
+See [Properties & Methods](/docs/properties-and-methods)
+
+## Events
+All the events from [Events](/docs/events) can be directly used same as normal Angular events.
+For example, you can listen to `viewChange` event like this:
+
+```ts
+import { ViewChangeEvent } from "@egjs/ngx-view360";
+
+@Component({
+  selector: "some-demo-component",
+  template: `
+    <ngx-view360 (viewChange)="onViewChange($event)" />
+  `
+})
+export class View360Demo {
+  onViewChange(event: ViewChangeEvent) {
+    // ...
+  }
+}
+```
+
+## Additional props
+### canvasClass: `string` = `""`
+Using prop `class` will add classes to the `.view360-container` element.
+Instead, you can use `canvasClass` to add classes to `.view360-canvas` element.
+
+For example, this:
+```html
+<ngx-view360 [canvasClass]="SOME_CLASS" />
+```
+
+will generate this:
+```html
+<div class="view360-container">
+  <canvas class="view360-canvas SOME_CLASS" />
+</div>
+```
