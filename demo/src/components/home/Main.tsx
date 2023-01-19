@@ -131,10 +131,10 @@ export default React.memo(() => {
       license={item.license}
     />
     <div className={styles.packageName}><IconView360 width="60" height="60" />View360</div>
-    <div className={styles.packageNameSub}>A 360° panorama image / video viewer built with Typescript</div>
+    <div className={styles.packageNameSub}>360° panorama image / video viewer built with Typescript</div>
     <div className={styles.badges}>
       <a href="https://www.npmjs.com/package/@egjs/view360" target="_blank" rel="noopener noreferrer">
-        <img alt="npm" src="https://img.shields.io/npm/v/@egjs/view360?logo=npm"></img>
+        <img alt="npm" src="https://img.shields.io/npm/v/@egjs/view360/next?logo=npm"></img>
       </a>
       <a href="https://www.npmjs.com/package/@egjs/view360" target="_blank" rel="noopener noreferrer">
         <img alt="npm bundle size" src="https://img.shields.io/bundlephobia/minzip/@egjs/view360?label=%F0%9F%92%BE%20minzipped"></img>
