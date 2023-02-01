@@ -22,7 +22,7 @@ module.exports = config => {
       "./test-utils.ts",
       "./specs/**/*.spec.ts",
       "./!(node_modules)/**/*.ts",
-      "../../packages/view360/src/**/*.ts",
+      "../../src/**/*.ts",
     ],
     preprocessors: {
       "../../**/*.ts": ["karma-typescript"]

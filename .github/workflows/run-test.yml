@@ -14,9 +14,6 @@ jobs:
         run: npm install
       - name: install-packages
         run: npm run bootstrap
-      - name: install-unit
-        working-directory: ./test
-        run: npm install
       - name: run unit test
-        working-directory: ./test
+        working-directory: ./packages/view360/test/unit
         run: npm run test
