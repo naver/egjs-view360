@@ -106,7 +106,6 @@ export class NgxView360Component extends View360Interface
   }
 
   public ngOnChanges(changes: SimpleChanges) {
-    console.log(changes);
     const view360 = this._view360;
     if (!view360) return;
 

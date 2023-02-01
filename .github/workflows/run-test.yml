@@ -1,0 +1,22 @@
+name: Run tests
+on: [push, pull_request]
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
+      - name: install-root
+        run: npm install
+      - name: install-packages
+        run: npm run bootstrap
+      - name: install-unit
+        working-directory: ./test
+        run: npm install
+      - name: run unit test
+        working-directory: ./test
+        run: npm run test

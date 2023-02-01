@@ -3,6 +3,7 @@
  * egjs projects are licensed under the MIT license
  */
 import {
+  View360Options,
   View360Events
 } from "@egjs/view360";
 
@@ -13,4 +14,6 @@ export type View360EventProps = {
 export type View360Props = {
   tag: keyof JSX.IntrinsicElements;
   canvasClass: string;
-} & Omit<React.HTMLAttributes<HTMLDivElement>, keyof View360EventProps> & View360EventProps;
+} & Omit<React.HTMLAttributes<HTMLDivElement>, keyof View360EventProps | keyof View360Options>
+  & View360EventProps
+  & View360Options;

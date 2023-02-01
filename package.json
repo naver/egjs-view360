@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "lint": "eslint 'packages/**/!(demo)/src/*.ts'",
+    "test": "lerna run test",
     "packages": "npm run packages:update && npm run packages:build && npm run packages:publish",
     "packages:update": "lerna-helper version",
     "packages:build": "npm run build --prefix packages/view360 && lerna run build --ignore @egjs/view360 --stream",
@@ -29,8 +30,6 @@
   "homepage": "https://github.com/naver/egjs-view360#readme",
   "devDependencies": {
     "@egjs/release-helper": "^0.2.3",
-    "@types/karma-chai": "^0.1.2",
-    "@types/mocha": "^8.0.3",
     "@types/webvr-api": "^0.0.36",
     "@types/webxr": "^0.5.0",
     "@typescript-eslint/eslint-plugin": "^4.18.0",

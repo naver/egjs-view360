@@ -40,9 +40,6 @@
   "dependencies": {
     "@egjs/view360": "~4.0.0"
   },
-  "peerDependencies": {
-    "vue": "^2.0.0"
-  },
   "devDependencies": {
     "@egjs/build-helper": "^0.1.2",
     "@vue/cli-plugin-typescript": "^3.7.0",

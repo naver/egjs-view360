@@ -4,15 +4,12 @@
  */
 import * as React from "react";
 import VanillaView360, {
-  View360Options,
   withMethods,
   EVENTS,
   DEFAULT_CLASS
 } from "@egjs/view360";
 
 import { View360Props } from "./types";
-
-type View360PropsAndOptions = Partial<View360Props & View360Options>;
 
 const view360SetterNames = Object.getOwnPropertyNames(VanillaView360.prototype)
   .filter(name => {
@@ -24,7 +21,7 @@ const view360SetterNames = Object.getOwnPropertyNames(VanillaView360.prototype)
     return !!descriptor!.set;
   });
 
-class View360 extends React.PureComponent<View360PropsAndOptions> {
+class View360 extends React.PureComponent<View360Props> {
   public static defaultProps: Partial<View360Props> = {
     tag: "div"
   };
@@ -35,14 +32,13 @@ class View360 extends React.PureComponent<View360PropsAndOptions> {
   public get view360() { return this._vanillaView360; }
   public get element() { return this._containerEl; }
 
-  public constructor(props: View360PropsAndOptions) {
+  public constructor(props: View360Props) {
     super(props);
 
     withMethods(this, "_vanillaView360");
   }
 
   public componentDidMount() {
-    console.log("mounted");
     this._vanillaView360 = new VanillaView360(
       this._containerEl,
       this.props
@@ -115,5 +111,5 @@ class View360 extends React.PureComponent<View360PropsAndOptions> {
   }
 }
 
-interface View360 extends React.Component<View360PropsAndOptions>, VanillaView360 {}
+interface View360 extends React.Component<View360Props>, VanillaView360 {}
 export default View360;
