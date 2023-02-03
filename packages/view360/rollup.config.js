@@ -17,7 +17,7 @@ const plugins = [
 ];
 
 const common = {
-  sourcemap: false,
+  sourcemap: true,
   tsconfig,
   plugins
 };

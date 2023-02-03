@@ -23,7 +23,7 @@ const commonjsPlugin = require("@rollup/plugin-commonjs")();
 const typescriptPlugin = require("rollup-plugin-typescript2");
 const minifyPlugin = require("rollup-plugin-prototype-minify")({ sourcemap: true })
 const resolvePlugin = require("@rollup/plugin-node-resolve")({ include: "node_modules/**" });
-const uglifyPlugin = require("rollup-plugin-uglify").uglify;
+const { terser } = require("rollup-plugin-terser");
 const visualizerPlugin = require("rollup-plugin-visualizer");
 
 module.exports = function config(options) {
@@ -74,23 +74,7 @@ module.exports = function config(options) {
   commonjs && nextPlugins.push(commonjsPlugin);
   resolve && nextPlugins.push(resolvePlugin);
   if (uglify) {
-    const condition = typeof uglify === "string" ? uglify : `name:(\\s*)${pkg.name.replace(/\//g, "\\/")}`;
-    const uglifyFunction = eval(`(function () {
-      return function (node, comment) {
-        var text = comment.value;
-        var type = comment.type;
-        if (type === "comment2") {
-        // multiline comment
-          return /${condition}/g.test(text);
-        }
-      }
-      })();`);
-    nextPlugins.push(uglifyPlugin({
-      sourcemap: true,
-      output: {
-        comments: uglifyFunction,
-      },
-    }));
+    nextPlugins.push(terser());
   }
   visualizer && nextPlugins.push(visualizerPlugin({
     sourcemap: true,
