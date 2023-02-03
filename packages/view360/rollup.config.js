@@ -1,7 +1,7 @@
 /* eslint-env node */
 
 const glslify = require("rollup-plugin-glslify");
-const buildHelper = require("./config/build-helper");
+const buildHelper = require("../../config/build-helper");
 
 const name = "View360";
 const fileName = "view360";

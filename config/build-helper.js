@@ -1,5 +1,5 @@
 const fs = require("fs");
-const pkg = require("../package.json");
+const pkg = require("../packages/view360/package.json");
 
 let copyright = `Copyright (c) ${pkg.author ? pkg.author.name || pkg.author : ""}`;
 try {

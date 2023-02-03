@@ -3,7 +3,8 @@
  * egjs projects are licensed under the MIT license
  */
 import Component from "@egjs/component";
-import ControlBar, { ControlBarOptions } from "./ControlBar";
+import { ControlBarOptions } from "./ControlBar";
+import { CONTROL_BAR_DEFAULT_CLASS } from "./const";
 import Motion from "../../core/Motion";
 import MouseInput from "../../control/input/MouseInput";
 import TouchInput from "../../control/input/TouchInput";
@@ -63,7 +64,7 @@ class RangeControl extends Component<{
       bottom: 0,
       top: 0
     } as DOMRect;
-    this._fixedClass = ControlBar.DEFAULT_CLASS.FIXED;
+    this._fixedClass = CONTROL_BAR_DEFAULT_CLASS.FIXED;
   }
 
   public init(className: Required<ControlBarOptions["className"]>) {

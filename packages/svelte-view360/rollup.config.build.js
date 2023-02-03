@@ -1,17 +1,18 @@
+/* eslint-env node */
 
-import buildHelper from "@egjs/build-helper";
 import svelte from "rollup-plugin-svelte";
 import sveltePreprocess, { replace } from "svelte-preprocess";
 import nodeResolve from "@rollup/plugin-node-resolve";
 
 import replaces from "./replace";
+const buildHelper = require("../../config/build-helper");
 
 const defaultOptions = {
 	external: {
 		svelte: "svelte",
-    "@egjs/view360": "eg.View360",
-    "@egjs/axes": "eg.Axes",
-    "@egjs/component": "eg.Component"
+    "@egjs/view360": "View360",
+    "@egjs/component": "Component",
+    "gl-matrix": "glMatrix"
 	},
 	plugins: [
 		svelte({

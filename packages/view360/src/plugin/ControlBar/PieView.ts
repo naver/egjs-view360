@@ -4,6 +4,7 @@
  */
 import ControlBar from "./ControlBar";
 import ControlBarItem, { ControlBarItemOptions } from "./ControlBarItem";
+import { CONTROL_BAR_ITEM_POSITION } from "./const";
 import View360 from "../../View360";
 import { circulate, getObjectOption } from "../../utils";
 import * as BROWSER from "../../const/browser";
@@ -48,7 +49,6 @@ class PieView extends ControlBarItem {
   public resetCamera: PieViewOptions["resetCamera"];
 
   private _viewer: View360 | null;
-  private _pieSVGEl: SVGSVGElement;
   private _piePathEl: SVGPathElement;
   private _rangeCircleEl: SVGCircleElement;
 
@@ -59,7 +59,7 @@ class PieView extends ControlBarItem {
    */
   public constructor({
     resetCamera = true,
-    position = ControlBar.POSITION.TOP_RIGHT,
+    position = CONTROL_BAR_ITEM_POSITION.TOP_RIGHT,
     order = 9999
   }: Partial<PieViewOptions> = {}) {
     super({
@@ -156,7 +156,6 @@ class PieView extends ControlBarItem {
 
     root.appendChild(pieSVG);
 
-    this._pieSVGEl = pieSVG;
     this._piePathEl = piePath;
     this._rangeCircleEl = rangeCircle;
   }

@@ -8,6 +8,7 @@ import RangeControl from "./RangeControl";
 import View360 from "../../View360";
 import TextureVideo from "../../texture/TextureVideo";
 import { CONTROL_EVENTS, VIDEO_TIME_CHANGE_EVENT } from "../../const/internal";
+import { CONTROL_BAR_ITEM_POSITION } from "./const";
 import { EVENTS } from "../../const/external";
 import * as BROWSER from "../../const/browser";
 
@@ -36,7 +37,7 @@ class ProgressBar extends ControlBarItem {
    * @param options - Options {@ko 옵션들}
    */
   public constructor({
-    position = ControlBar.POSITION.MAIN_TOP,
+    position = CONTROL_BAR_ITEM_POSITION.MAIN_TOP,
     order = 9999
   }: Partial<ControlBarItemOptions> = {}) {
     super({

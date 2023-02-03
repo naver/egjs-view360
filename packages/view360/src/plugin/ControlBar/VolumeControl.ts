@@ -5,6 +5,7 @@
 import ControlBar from "./ControlBar";
 import ControlBarItem, { ControlBarItemOptions } from "./ControlBarItem";
 import RangeControl from "./RangeControl";
+import { CONTROL_BAR_ITEM_POSITION } from "./const";
 import View360 from "../../View360";
 import TextureVideo from "../../texture/TextureVideo";
 import * as BROWSER from "../../const/browser";
@@ -33,7 +34,7 @@ class VolumeControl extends ControlBarItem {
    * @param options - Options {@ko 옵션들}
    */
   public constructor({
-    position = ControlBar.POSITION.MAIN_RIGHT,
+    position = CONTROL_BAR_ITEM_POSITION.MAIN_RIGHT,
     order = 9999
   }: Partial<ControlBarItemOptions> = {}) {
     super({
