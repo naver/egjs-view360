@@ -5,6 +5,7 @@ import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 import CodeBlock from "@theme/CodeBlock";
 import View360 from "../View360";
+import items from "./main-pano-items";
 import styles from "./main.module.css";
 
 import {
@@ -15,105 +16,6 @@ import {
   IconBrandVue,
   IconBrandSvelte
 } from "@tabler/icons";
-
-const items = [
-  {
-    src: "https://i.imgur.com/Z0yjE1j.jpg",
-    license: "dq11"
-  },
-  {
-    src: "https://i.imgur.com/rPObANb.jpg",
-    license: "dq11"
-  },
-  {
-    src: "https://i.imgur.com/BpRbzL4.jpg",
-    license: "dq11"
-  },
-  {
-    src: "https://i.imgur.com/tq9T7Ei.jpg",
-    license: "dq11"
-  },
-  {
-    src: "https://i.imgur.com/mFeCIYu.jpg",
-    license: "dq11"
-  },
-  {
-    src: "https://i.imgur.com/Lj9ggAi.jpg",
-    license: "dq11"
-  },
-  {
-    src: "https://i.imgur.com/I0l4tGE.jpg",
-    license: "dq11"
-  },
-  {
-    src: "https://i.imgur.com/FFN9rOi.jpg",
-    license: "dq11"
-  },
-  {
-    src: "https://i.imgur.com/tZr9R7x.jpg",
-    license: "witness"
-  },
-  {
-    src: "https://i.imgur.com/yr3VlX5.jpg",
-    license: "witness"
-  },
-  {
-    src: "https://i.imgur.com/XtOPvAE.jpg",
-    license: "witness"
-  },
-  {
-    src: "https://i.imgur.com/rBqA88I.jpg",
-    license: "witness"
-  },
-  {
-    src: "https://i.imgur.com/GM3JG6v.jpg",
-    license: "witness"
-  },
-  {
-    src: "https://i.imgur.com/Ma9cYKU.jpg",
-    license: "witness"
-  },
-  {
-    src: "https://i.imgur.com/pwDsA3E.jpg",
-    license: "battlefieldV"
-  },
-  {
-    src: "https://i.imgur.com/EuaMSrk.jpg",
-    license: "battlefieldV"
-  },
-  {
-    src: "https://i.imgur.com/trjoz25.jpg",
-    license: "battlefieldV"
-  },
-  {
-    src: "https://i.imgur.com/xk3c3ZD.jpg",
-    license: "qube2"
-  },
-  {
-    src: "https://i.imgur.com/oHRPfv2.jpg",
-    license: "qube2"
-  },
-  {
-    src: "https://i.imgur.com/jg0YeAB.jpg",
-    license: "drg"
-  },
-  {
-    src: "https://i.imgur.com/rafUJ5h.jpg",
-    license: "for_honor"
-  },
-  {
-    src: "https://i.imgur.com/DO3fzUw.jpg",
-    license: "for_honor"
-  },
-  {
-    src: "https://i.imgur.com/8cOGi4F.jpg",
-    license: "for_honor"
-  },
-  {
-    src: "https://i.imgur.com/Pm4XO73.jpg",
-    license: "for_honor"
-  }
-];
 
 export default React.memo(() => {
   const item = useMemo(() => {

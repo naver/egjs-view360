@@ -83,6 +83,13 @@ const LICENSE = {
     author: "Square Enix",
     authorLink: "https://www.square-enix.com/",
     ansel: true
+  },
+  "ff15": {
+    name: "FINAL FANTASY XV",
+    link: "https://finalfantasyxv.square-enix-games.com/",
+    author: "Square Enix",
+    authorLink: "https://www.square-enix.com/",
+    ansel: true
   }
 }
 
