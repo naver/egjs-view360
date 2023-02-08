@@ -15,6 +15,7 @@
     "postbuild": "cpx 'node_modules/@egjs/view360/css/*' css/ && cpx 'node_modules/@egjs/view360/sass/*' sass/",
     "declaration": "rm -rf declaration && tsc -p tsconfig.declaration.json",
     "lint": "vue-cli-service lint --no-fix",
+    "test": "vue-cli-service test:unit -g test/*.spec.ts -w",
     "demo": "vue-cli-service demo"
   },
   "repository": {
@@ -36,15 +37,21 @@
     "@egjs/view360": "4.0.0-beta.0"
   },
   "devDependencies": {
+    "@testing-library/vue": "^5.0.0",
+    "@types/chai": "^4.3.4",
+    "@types/mocha": "^10.0.1",
     "@vue/cli-plugin-typescript": "^3.7.0",
+    "@vue/cli-plugin-unit-mocha": "^3.7.0",
     "@vue/cli-service": "^3.7.0",
+    "jsdom": "^21.1.0",
     "rollup-plugin-vue": "^6.0.0",
     "tslib": "^2.3.1",
     "typescript": "^4.7.4",
     "vue": "^2.0.0",
     "vue-cli-plugin-p11n": "^0.3.0",
     "vue-router": "^3.0.6",
-    "vue-template-compiler": "^2.5.21"
+    "vue-template-compiler": "^2.5.21",
+    "vuex": "^4.1.0"
   },
   "keywords": [
 		"360-photo",

@@ -25,7 +25,8 @@
 		"lint": "eslint 'src/**/*.ts'",
 		"demo:copy-lib": "run-s demo:copy-lib-version demo:copy-lib-latest",
 		"demo:copy-lib-version": "cpx 'dist/**/*' ../../demo/static/release/$npm_package_version --clean && cpx 'css/**/*' ../../demo/static/release/$npm_package_version/css --clean && cpx 'sass/**/*' ../../demo/static/release/$npm_package_version/sass --clean",
-		"demo:copy-lib-latest": "cpx 'dist/**/*' ../../demo/static/release/latest --clean && cpx 'css/**/*' ../../demo/static/release/latest/css --clean && cpx 'sass/**/*' ../../demo/static/release/latest/sass --clean"
+		"demo:copy-lib-latest": "cpx 'dist/**/*' ../../demo/static/release/latest --clean && cpx 'css/**/*' ../../demo/static/release/latest/css --clean && cpx 'sass/**/*' ../../demo/static/release/latest/sass --clean",
+    "test": "npm run test --prefix test/unit"
 	},
 	"repository": {
 		"type": "git",

@@ -803,6 +803,8 @@ class View360 extends Component<View360Events> {
    * @since 4.0.0
    */
   public resize() {
+    if (!this._initialized) return;
+
     this._resizeComponents();
 
     // To prevent flickering, render immediately after resizing components

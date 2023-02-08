@@ -23,9 +23,18 @@ module.exports = config => {
       "./specs/**/*.spec.ts",
       "./!(node_modules)/**/*.ts",
       "../../src/**/*.ts",
+      {
+        pattern: "./pano/**/*.*",
+        watched: false,
+        included: false,
+        served: true
+      }
     ],
     preprocessors: {
       "../../**/*.ts": ["karma-typescript"]
+    },
+    proxies: {
+      "/pano/": "/base/pano/"
     },
     karmaTypescriptConfig: {
       tsconfig: "./tsconfig.json",
@@ -45,7 +54,12 @@ module.exports = config => {
     customLaunchers: {
       CustomChromeHeadless: {
         base: "ChromeHeadless",
-        flags: ["--window-size=640,480", "--no-sandbox", "--disable-setuid-sandbox"]
+        flags: [
+          "--headless",
+          "--window-size=640,480",
+          "--no-sandbox",
+          "--disable-setuid-sandbox"
+        ]
       }
     },
     reporters: ["mocha"]

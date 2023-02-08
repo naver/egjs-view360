@@ -75,7 +75,7 @@ class WebGLContext {
     const canvas = this._canvas;
 
     if (gl) {
-      // gl is not defined when destroy called before init
+      // gl is not defined when destroy is called before init
       gl.bindBuffer(gl.ARRAY_BUFFER, null);
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
     }
