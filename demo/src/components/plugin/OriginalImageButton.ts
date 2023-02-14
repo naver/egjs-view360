@@ -38,7 +38,7 @@ class OriginalImageButton extends ControlBarItem {
 
     element.classList.add(btnClass);
     element.addEventListener("click", this._toggleModal);
-    this._attachModal(viewer.root);
+    this._attachModal(viewer.rootEl);
 
     this._viewer = viewer;
   }
@@ -49,7 +49,7 @@ class OriginalImageButton extends ControlBarItem {
 
     element.classList.remove(btnClass);
     element.removeEventListener("click", this._toggleModal);
-    this._detachModal(viewer.root);
+    this._detachModal(viewer.rootEl);
     this._clearModal();
 
     this._viewer = null;

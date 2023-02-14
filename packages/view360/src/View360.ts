@@ -122,10 +122,10 @@ class View360 extends Component<View360Events> {
    * import View360 from "@egjs/view360";
    *
    * const viewer = new View360("#viewer");
-   * console.log(viewer.root); // Element with id "viewer"
+   * console.log(viewer.rootEl); // Element with id "viewer"
    * ```
    */
-  public get root() { return this._rootEl; }
+  public get rootEl() { return this._rootEl; }
   /**
    * Projection renderer.
    * @ko 프로젝션 렌더러.

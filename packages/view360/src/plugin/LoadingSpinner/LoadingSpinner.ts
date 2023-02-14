@@ -80,7 +80,7 @@ class LoadingSpinner implements View360Plugin {
   }
 
   private _startLoading = ({ target: viewer }: LoadStartEvent) => {
-    viewer.root.appendChild(this._container);
+    viewer.rootEl.appendChild(this._container);
 
     if (viewer.initialized) {
       viewer.once(EVENTS.LOAD, this._detachElements);
@@ -93,8 +93,8 @@ class LoadingSpinner implements View360Plugin {
     const container = this._container;
     if (!container) return;
 
-    if (container.parentElement === viewer.root) {
-      viewer.root.removeChild(container);
+    if (container.parentElement === viewer.rootEl) {
+      viewer.rootEl.removeChild(container);
     }
   };
 

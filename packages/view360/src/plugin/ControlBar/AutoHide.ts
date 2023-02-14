@@ -81,9 +81,9 @@ class AutoHide {
     }
 
     const initialDelay = this._initialDelay;
-    const root = viewer.root;
+    const root = viewer.rootEl;
 
-    this._targetEl = viewer.root;
+    this._targetEl = viewer.rootEl;
     this._timer = window.setTimeout(() => {
       this.hide();
     }, initialDelay);
@@ -113,7 +113,7 @@ class AutoHide {
     if (!this._targetEl) return;
 
     const controlBar = this._controlBar;
-    const root = viewer.root;
+    const root = viewer.rootEl;
     const video = this._video;
 
     root.removeEventListener(BROWSER.EVENTS.MOUSE_DOWN, this._onHold);

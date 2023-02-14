@@ -301,7 +301,7 @@ class ControlBar implements View360Plugin {
   }
 
   public init(viewer: View360) {
-    const panoRoot = viewer.root;
+    const panoRoot = viewer.rootEl;
     const controlsRoot = this._rootEl;
     const defaultItems = this._createDefaultItems();
 
@@ -319,7 +319,7 @@ class ControlBar implements View360Plugin {
 
   public destroy(viewer: View360): void {
     // Remove controls root from pano root
-    const panoRoot = viewer.root;
+    const panoRoot = viewer.rootEl;
     const controlsRoot = this._rootEl;
     const items = this._items;
 
@@ -509,7 +509,7 @@ class ControlBar implements View360Plugin {
   }
 
   private _updateKeyboardHandler(viewer: View360) {
-    const panoRoot = viewer.root;
+    const panoRoot = viewer.rootEl;
     const videoControl = this._videoControl;
     const texture = viewer.projection?.getTexture();
 

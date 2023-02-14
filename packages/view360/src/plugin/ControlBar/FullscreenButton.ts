@@ -62,7 +62,7 @@ class FullscreenButton extends ControlBarItem {
     }
 
     this._controlBar = controlBar;
-    this._targetEl = viewer.root;
+    this._targetEl = viewer.rootEl;
   }
 
   public destroy() {
