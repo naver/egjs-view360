@@ -10,10 +10,8 @@ jobs:
           node-version: 16
           cache: "npm"
           cache-dependency-path: "**/package-lock.json"
-      - name: install-root
-        run: npm install
-      - name: install-packages
-        run: npm run bootstrap
+      - name: install
+        run: npm ci
       - name: run unit test
         working-directory: ./packages/view360/test/unit
         run: npm run test
