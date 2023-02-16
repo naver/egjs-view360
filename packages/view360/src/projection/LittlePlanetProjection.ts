@@ -63,7 +63,7 @@ class LittlePlanetProjection extends Projection<{
     const vao = ctx.createVAO(geometry, program);
     const mesh = new TriangleMesh(vao, program);
 
-    this.mesh = mesh;
+    this._mesh = mesh;
   }
 
   public updateControl(control: PanoControl) {
@@ -71,7 +71,7 @@ class LittlePlanetProjection extends Projection<{
   }
 
   public update(camera: Camera) {
-    const mesh = this.mesh;
+    const mesh = this._mesh;
     if (!mesh) return;
 
     const uniforms = mesh.program.uniforms;

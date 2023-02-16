@@ -84,13 +84,13 @@ class CylindricalProjection extends Projection<{
     quat.rotateY(mesh.rotation, mesh.rotation, -Math.PI / 2);
     mesh.updateMatrix();
 
-    this.mesh = mesh;
+    this._mesh = mesh;
   }
 
   public updateCamera(camera: Camera) {
     super.updateCamera(camera);
 
-    const mesh = this.mesh;
+    const mesh = this._mesh;
     if (!mesh) return;
 
     const uTexture = mesh.program.uniforms.uTexture;

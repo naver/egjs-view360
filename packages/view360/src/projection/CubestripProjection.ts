@@ -80,7 +80,7 @@ class CubestripProjection extends Projection<{
     }
     mesh.updateMatrix();
 
-    this.mesh = mesh;
+    this._mesh = mesh;
   }
 }
 

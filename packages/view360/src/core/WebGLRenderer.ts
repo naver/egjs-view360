@@ -115,7 +115,7 @@ class WebGLRenderer {
    */
   public render(projection: Projection, camera: Camera) {
     const ctx = this.ctx;
-    const mesh = projection.mesh;
+    const mesh = projection.getMesh();
     if (ctx.lost || !mesh) return;
 
     ctx.clear();
@@ -137,7 +137,7 @@ class WebGLRenderer {
    */
   public renderVR(projection: Projection, vr: XRManager, frame: XRFrame) {
     const ctx = this.ctx;
-    const mesh = projection.mesh;
+    const mesh = projection.getMesh();
     const eyeParams = vr.getEyeParams(frame);
 
     if (!eyeParams || !mesh) return;

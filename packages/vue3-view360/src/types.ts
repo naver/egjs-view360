@@ -3,6 +3,7 @@
  * egjs projects are licensed under the MIT license
  */
 import {
+  Projection,
   View360Events,
   View360Options,
 } from "@egjs/view360";
@@ -16,6 +17,7 @@ export type View360Props = {
 } & {
   tag: PropType<string>;
   canvasClass: PropType<string>;
+  projection: PropType<Omit<Projection, "_mesh">>
 }
 
 export type VueView360Events = {

@@ -47,7 +47,7 @@ class EquiangularProjection extends Projection<{
     const vao = ctx.createVAO(geometry, program);
     const mesh = new TriangleMesh(vao, program);
 
-    this.mesh = mesh;
+    this._mesh = mesh;
   }
 }
 

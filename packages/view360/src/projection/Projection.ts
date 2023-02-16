@@ -61,12 +61,8 @@ abstract class Projection<T extends CommonProjectionUniforms = CommonProjectionU
    * ```
    */
   public readonly video: ProjectionOptions["video"];
-  /**
-   * A 3D triangle mesh for projection. It's `null` until loading the `src`.
-   * @ko Projection을 표시하기 위한 Mesh, src를 로드하기 전까지는 `null`입니다.
-   * @since 4.0.0
-   */
-  public mesh: TriangleMesh<T> | null;
+
+  protected _mesh: TriangleMesh<T> | null;
 
   /**
    * Create new instance
@@ -79,7 +75,7 @@ abstract class Projection<T extends CommonProjectionUniforms = CommonProjectionU
   }: ProjectionOptions) {
     this.src = src;
     this.video = video;
-    this.mesh = null;
+    this._mesh = null;
   }
 
   /**
@@ -100,7 +96,7 @@ abstract class Projection<T extends CommonProjectionUniforms = CommonProjectionU
    * @param ctx
    */
   public releaseAllResources(ctx: WebGLContext) {
-    this.mesh?.destroy(ctx);
+    this._mesh?.destroy(ctx);
   }
 
   /**
@@ -139,9 +135,18 @@ abstract class Projection<T extends CommonProjectionUniforms = CommonProjectionU
    * @since 4.0.0
    */
   public getTexture() {
-    if (!this.mesh) return null;
+    if (!this._mesh) return null;
 
-    return this.mesh.program.uniforms.uTexture.texture;
+    return this._mesh.program.uniforms.uTexture.texture;
+  }
+
+  /**
+   * A 3D triangle mesh for projection. It's `null` until loading the `src`.
+   * @ko Projection을 표시하기 위한 Mesh, src를 로드하기 전까지는 `null`입니다.
+   * @since 4.0.0
+   */
+  public getMesh(): TriangleMesh<T> | null {
+    return this._mesh;
   }
 }
 
