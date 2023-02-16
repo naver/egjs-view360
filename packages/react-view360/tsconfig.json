@@ -22,7 +22,11 @@
     "strict": false,
     "isolatedModules": false,
     "noEmit": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "src": ["./src/*"]
+    }
   },
   "include": [
     "src"

@@ -1,5 +1,6 @@
+/* eslint-disable import/no-anonymous-default-export */
 import React, { useMemo } from "react";
-import View360, { CubemapProjection } from "src";
+import View360, { CubemapProjection } from "../src";
 import "./App.css";
 import "@egjs/view360/css/view360.min.css";
 

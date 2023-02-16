@@ -2,7 +2,7 @@
  * Copyright (c) 2023-present NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
-import { defineComponent, PropType, h } from "vue";
+import { defineComponent, h } from "vue";
 import VanillaView360, {
   DEFAULT_CLASS,
   EVENTS,
@@ -11,12 +11,7 @@ import VanillaView360, {
 } from "@egjs/view360";
 
 import { View360Props } from "./types";
-
-type PropTypes = {
-  [key in keyof View360Props]: {
-    type: PropType<View360Props[key]>;
-  }
-};
+import { VUE_VIEW360_EVENTS, VUE_VIEW360_METHODS } from "./const";
 
 const view360OptionNames = Object.getOwnPropertyNames(VanillaView360.prototype)
   .filter(name => {
@@ -29,11 +24,11 @@ const view360OptionNames = Object.getOwnPropertyNames(VanillaView360.prototype)
   });
 
 const view360Options = view360OptionNames.reduce((props, name) => {
-    return {
-      ...props,
-      [name]: null
-    };
-  }, {}) as PropTypes;
+  return {
+    ...props,
+    [name]: null
+  };
+}, {}) as Omit<View360Props, "tag" | "canvasClass">;
 
 const view360SetterNames = view360OptionNames.filter(name => {
   const descriptor = Object.getOwnPropertyDescriptor(VanillaView360.prototype, name);
@@ -56,9 +51,14 @@ const View360 = defineComponent({
     }
   },
   data() {
-    return {} as {
-      view360: VanillaView360;
+    return {
+      view360: null
+    } as {
+      view360: VanillaView360 | null;
     };
+  },
+  methods: {
+    ...VUE_VIEW360_METHODS
   },
   created() {
     withMethods(this, "view360");
@@ -73,7 +73,7 @@ const View360 = defineComponent({
     const events = Object.keys(EVENTS).map(key => (EVENTS as any)[key]);
 
     events.forEach(eventName => {
-      this.view360.on(eventName, (e: any) => {
+      this.view360!.on(eventName, (e: any) => {
         e.target = this;
 
         // Make events from camelCase to kebab-case
@@ -83,6 +83,9 @@ const View360 = defineComponent({
   },
   beforeUnmount() {
     this.view360?.destroy();
+  },
+  emits: {
+    ...VUE_VIEW360_EVENTS
   },
   render() {
     const canvasClass = this.canvasClass ?? "";
@@ -109,5 +112,7 @@ const View360 = defineComponent({
     }, {} as Record<string, any>)
   }
 });
+
+interface View360 extends VanillaView360 {}
 
 export default View360;

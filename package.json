@@ -15,8 +15,7 @@
     "demo:build-docusaurus": "npm run build --prefix demo",
     "demo:deploy": "lerna-helper deploy --base @egjs/view360 --src demo/build/ --remote upstream",
     "demo:deploy-origin": "lerna-helper deploy --base @egjs/view360 --src demo/build/ --remote origin",
-    "release": "lerna-helper release --base @egjs/view360 --remote upstream --branch master",
-    "bootstrap": "lerna bootstrap -- --legacy-peer-deps"
+    "release": "lerna-helper release --base @egjs/view360 --remote upstream --branch master"
   },
   "repository": {
     "type": "git",
@@ -66,5 +65,13 @@
     "hooks": {
       "commit-msg": "node ./config/validate-commit-msg.js"
     }
-  }
+  },
+  "workspaces": [
+    "packages/view360",
+    "packages/react-view360",
+    "packages/ngx-view360/projects/ngx-view360",
+    "packages/vue-view360",
+    "packages/vue3-view360",
+    "packages/svelte-view360"
+  ]
 }

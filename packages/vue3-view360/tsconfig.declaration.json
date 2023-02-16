@@ -4,6 +4,7 @@
     "skipLibCheck": true,
     "removeComments": true,
     "declaration": true,
+    "noEmit": false,
     "emitDeclarationOnly": true,
     "declarationDir": "declaration",
     "strict": false

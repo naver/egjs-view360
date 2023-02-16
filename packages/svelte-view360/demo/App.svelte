@@ -1,8 +1,9 @@
 <script lang="ts">
 import { onMount } from "svelte";
-import View360, { CubemapProjection, EquirectProjection } from "../src";
+import View360, { CubemapProjection, EquirectProjection, Projection } from "../src";
+import "@egjs/view360/css/view360.css";
 
-let projection = new CubemapProjection({
+let projection: Projection = new CubemapProjection({
   src: "https://naver.github.io/egjs-view360/examples/panoviewer/etc/img/bookcube1.jpg"
 });
 
@@ -15,5 +16,5 @@ function changeProjection() {
 }
 </script>
 
-<View360 bind:this={view360} projection={projection} />
+<View360 bind:this={view360} class="is-16by9" projection={projection} />
 <button on:click={changeProjection}></button>
