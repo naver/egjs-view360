@@ -7,12 +7,12 @@ sidebar_position: 3
 
 # Quick Start (Vue 2 & 3)
 ## Most basic rendering code
+### Vue2
 ```html title=Demo.vue
 <template>
-  <View360 :projection="projection" />
+  <View360 class="is-16by9" :projection="projection" />
 </template>
 <script>
-// Use "@egjs/vue3-view360" instead if you're using Vue@3
 import { View360, EquirectProjection } from "@egjs/vue-view360";
 
 export default {
@@ -25,6 +25,32 @@ export default {
     View360
   }
 }
+</script>
+```
+
+### Vue3
+```html title=Demo.vue
+<template>
+  <View360 class="is-16by9" :projection="projection" />
+</template>
+<script>
+import { defineComponent } from "vue";
+import { View360, EquirectProjection } from "@egjs/vue3-view360";
+
+export default defineComponent({
+  setup() {
+    const projection = new EquirectProjection({
+      src: "/egjs-view360/pano/equirect/veste.jpg"
+    });
+
+    return {
+      projection
+    }
+  },
+  components: {
+    View360
+  }
+})
 </script>
 ```
 

@@ -17,13 +17,13 @@ export default () => {
     src: "/egjs-view360/pano/equirect/veste.jpg"
   }), []);
 
-  return <View360 projection={projection} />
+  return <View360 className="is-16by9" projection={projection} />
 }
 ```
 
 위 코드는 다음과 같이 렌더링됩니다.
 ```html
-<div class="view360-container">
+<div class="view360-container is-16by9">
   <canvas class="view360-canvas" />
 </div>
 ```

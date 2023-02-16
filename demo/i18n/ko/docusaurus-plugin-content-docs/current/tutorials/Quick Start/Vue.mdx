@@ -7,12 +7,12 @@ sidebar_position: 3
 
 # 시작하기 (Vue 2 & 3)
 ## 가장 기본적인 렌더링 코드
+### Vue2
 ```html title=Demo.vue
 <template>
-  <View360 :projection="projection" />
+  <View360 class="is-16by9" :projection="projection" />
 </template>
 <script>
-// Vue@3을 사용중이시라면 "@egjs/vue3-view360"를 대신 사용해주세요.
 import { View360, EquirectProjection } from "@egjs/vue-view360";
 
 export default {
@@ -25,6 +25,32 @@ export default {
     View360
   }
 }
+</script>
+```
+
+### Vue3
+```html title=Demo.vue
+<template>
+  <View360 class="is-16by9" :projection="projection" />
+</template>
+<script>
+import { defineComponent } from "vue";
+import { View360, EquirectProjection } from "@egjs/vue3-view360";
+
+export default defineComponent({
+  setup() {
+    const projection = new EquirectProjection({
+      src: "/egjs-view360/pano/equirect/veste.jpg"
+    });
+
+    return {
+      projection
+    }
+  },
+  components: {
+    View360
+  }
+})
 </script>
 ```
 
