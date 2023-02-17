@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    
+
     <meta property="og:title" content="SpinViewer">
     <meta property="og:image" content="./common/img/SpinViewer.png">
     <meta name="Description" content="Object 360 photo viewer ↪️👠↩️">
@@ -21,7 +21,7 @@
 	<link rel="stylesheet" href="./common/css/container.css">
 
 
-	<script src="release/latest/dist/view360.pkgd.min.js"></script>
+	<script src="/egjs-view360/release/3.6.3/dist/view360.pkgd.min.js"></script>
 
 <script>
 	var homeUrl = window.location.href;
@@ -35,10 +35,6 @@
 		homeUrl += "/";
 	};
 	window.HOMELINK = homeUrl;
-	window.LIBLINK = [];
-	
-	window.LIBLINK.push(window.HOMELINK + "release/latest/dist/view360.pkgd.min.js");
-	
 </script>
 <body>
 
@@ -48,7 +44,7 @@
 <header id="header" class="header">
         <div class="container">
             <div class="logo pull-left home">
-                <a href="https://naver.github.io/egjs-view360">
+                <a href="https://naver.github.io/egjs-view360/v3">
                     <img class="egjs_logo" src="./common/img/type_black.svg"/>
                     view360
                 </a><!--//logo-->
@@ -57,7 +53,7 @@
                 </a>
             </div>
             <div class="pull-right home">
-                <a target="_blank" href="//naver.github.io/egjs-view360/release/latest/doc/"> API </a>/ 
+                <a target="_blank" href="//naver.github.io/egjs-view360/release/3.6.4/doc/"> API </a>/
                 <a target="_blank" href="//github.com/naver/egjs-view360"> Github </a>
             </div>
 
@@ -67,18 +63,18 @@
 		<div class="container">
 			<div class="hero-image" style="background-image: url(./common/img/SpinViewer.png)">
 			</div>
-			<h2 class="title">	
+			<h2 class="title">
 				<span class="highlight">SpinViewer</span>
 			</h2>
 			<p class="intro">Object 360 photo viewer ↪️👠↩️<br/>
-				<span class="hashtag">		
-					
-					#product 
-					
-					#turntable 
-					
-					#sprite-image 
-					
+				<span class="hashtag">
+
+					#product
+
+					#turntable
+
+					#sprite-image
+
 				</span>
 			</p>
 		</div>
@@ -143,16 +139,16 @@
 		location.hash = hash;
 		lis.removeClass("checked");
 		target.setAttribute('class', "checked");
-		
+
 		Tab.open(hash);
 		return false;
 	});
 </script>
 	<section id="showcase" class="docs section">
 		<div class="container">
-			<div class="docs-inner">				
+			<div class="docs-inner">
 				<h2 class="title text-center">Showcase</h2>
-				
+
 				<div>
 	<style>
 		#spinviewer-showcase {
@@ -188,7 +184,7 @@
 		});
 
 		spinViewer.on("load", function() {
-			this.spinBy(360, {duration: 3000});
+			spinViewer.spinBy(360, {duration: 3000});
 		});
 	</script>
 </div>
@@ -202,14 +198,14 @@
 					<p class="text-center">
 						<a href="#features">Features </a>/
 						<a href="#getting-started">Getting Started </a>
-						
-						
-						
+
+
+
 							/ <a href="#examples">Examples </a>
-						
-						
+
+
 							/ <a href="#projects">Projects </a>
-						
+
 					</p>
 				</div>
 			</div>
@@ -218,7 +214,7 @@
 		<div class="container">
 			<div class="docs-inner">
 				<h2 class="title text-center">Features</h2>
-				
+
 				<h3 id="supported">Supported</h3>
 <ul>
   <li>Sprite image of (n x m) Grid style</li>
@@ -249,8 +245,8 @@
 		<div class="container">
 			<div class="docs-inner">
 				<h2 class="title text-center">Getting Started</h2>
-				
-				
+
+
 <h3 id="installation">Installation</h3>
 
 <h4 id="npm">npm</h4>
@@ -264,11 +260,11 @@
 Download the latest version of view360.js and include using the script tag</p>
 
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
-<span class="c">&lt;!--script src="/path/to/js/release/latest/dist/SpinViewer/view360.spinviewer.pkgd.min.js"&gt;&lt;/script--&gt;</span>
-<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"//naver.github.io/egjs-view360/release/latest/dist/SpinViewer/view360.spinviewer.pkgd.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="c">&lt;!--script src="/path/to/js/release/3.6.3/dist/SpinViewer/view360.spinviewer.pkgd.min.js"&gt;&lt;/script--&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"//naver.github.io/egjs-view360/release/3.6.3/dist/SpinViewer/view360.spinviewer.pkgd.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
 </code></pre></div></div>
 
-<p><a href="//naver.github.io/egjs-view360/release/latest/dist/SpinViewer/view360.spinviewer.pkgd.min.js">Download link</a></p>
+<p><a href="//naver.github.io/egjs-view360/release/3.6.3/dist/SpinViewer/view360.spinviewer.pkgd.min.js">Download link</a></p>
 
 <h3 id="usage">Usage</h3>
 
@@ -306,14 +302,14 @@ Download the latest version of view360.js and include using the script tag</p>
 			</div>
 		</div>
 	</section>
-	
-	
+
+
 	<section id="examples" class="docs section">
 		<div class="container">
 			<div class="docs-inner">
 				<h2 class="title text-center">Examples</h2>
 				<ul class="link_list">
-				
+
 				<li class="link_item">
 					<a href="examples/spinviewer/spinviewer_basic_example.html" class="td_a">
 						<div class="link_item_image">
@@ -324,21 +320,21 @@ Download the latest version of view360.js and include using the script tag</p>
 						</div>
 					</a>
 				</li>
-				
+
 				</ul>
 			</div>
 		</div>
 	</section>
-	
-	
-	
-	
+
+
+
+
 	<section id="projects" class="docs section">
 		<div class="container">
 			<div class="docs-inner">
 				<h2 class="title text-center">Projects</h2>
 				<ul class="link_list">
-				
+
 				<li class="link_item">
 					<a href="https://shopping.naver.com" class="td_a">
 						<div class="link_item_image">
@@ -349,7 +345,7 @@ Download the latest version of view360.js and include using the script tag</p>
 						</div>
 					</a>
 				</li>
-				
+
 				<li class="link_item">
 					<a href="https://sell.smartstore.naver.com/#/home/about" class="td_a">
 						<div class="link_item_image">
@@ -360,14 +356,14 @@ Download the latest version of view360.js and include using the script tag</p>
 						</div>
 					</a>
 				</li>
-				
+
 				</ul>
-				<p><br/>Don't see your project? Post an <strong><a href="https://github.com/naver/egjs-view360/issues/new"/>issue</a></strong> with <i>built-with-view360</i> label  over on the <strong><a href="https://github.com/naver/egjs-view360/"/>github page</a></strong>.					
-			</div>	
-			</p>		
+				<p><br/>Don't see your project? Post an <strong><a href="https://github.com/naver/egjs-view360/issues/new"/>issue</a></strong> with <i>built-with-view360</i> label  over on the <strong><a href="https://github.com/naver/egjs-view360/"/>github page</a></strong>.
+			</div>
+			</p>
 		</div>
 	</section>
-	
+
 
 </div>
 <!-- ******FOOTER****** -->
