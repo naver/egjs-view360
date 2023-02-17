@@ -19,10 +19,6 @@
 		homeUrl += "/";
 	};
 	window.HOMELINK = homeUrl;
-	window.LIBLINK = [];
-	{% for dist in site.data.egjs.dist %}
-	window.LIBLINK.push(window.HOMELINK + "{{ dist }}");
-	{% endfor %}
 </script>
 <body>
 
@@ -37,13 +33,13 @@
 		<div class="container">
 			<div class="hero-image" style="background-image: url(./common/img/{{ subComponent.name }}.png)">
 			</div>
-			<h2 class="title">	
+			<h2 class="title">
 				<span class="highlight">{{ subComponent.name }}</span>
 			</h2>
 			<p class="intro">{{ subComponent.desc }}<br/>
-				<span class="hashtag">		
+				<span class="hashtag">
 					{% for hashtag in subComponent.hashtags %}
-					#{{ hashtag }} 
+					#{{ hashtag }}
 					{% endfor %}
 				</span>
 			</p>
@@ -72,7 +68,7 @@
 						<p>{{projection.name}}</p>
 					</a>
 				</li>
-				{% endfor %}			
+				{% endfor %}
 			</ul>
 		</div>
 	</section>
@@ -135,9 +131,9 @@
 				</li>
 				{% endfor %}
 				</ul>
-				<p><br/>Don't see your project? Post an <strong><a target="_blank" href="https://github.com/{{ site.data.egjs.github.user }}/{{ site.data.egjs.github.repo }}/issues/new"/>issue</a></strong> with <i>built-with-view360</i> label  over on the <strong><a href="https://github.com/{{ site.data.egjs.github.user }}/{{ site.data.egjs.github.repo }}/"/>github page</a></strong>.					
-			</div>	
-			</p>		
+				<p><br/>Don't see your project? Post an <strong><a target="_blank" href="https://github.com/{{ site.data.egjs.github.user }}/{{ site.data.egjs.github.repo }}/issues/new"/>issue</a></strong> with <i>built-with-view360</i> label  over on the <strong><a href="https://github.com/{{ site.data.egjs.github.user }}/{{ site.data.egjs.github.repo }}/"/>github page</a></strong>.
+			</div>
+			</p>
 		</div>
 	</section>
 	{% endif %}
@@ -151,14 +147,14 @@
 		var list = [];
 		{% for projection in subComponent.projections %}
 		{% for demo in projection.demos %}
-		list.push({sort: parseInt("{{demo.sort}}" || "0") || 999999, html: '<li>' + 
+		list.push({sort: parseInt("{{demo.sort}}" || "0") || 999999, html: '<li>' +
 			'<a href="{{demo.link}}" target="_blank">' +
-				'<p class="image-area">' + 
-					'<img src="./common/img/{{demo.image}}" class="image" alt="{{demo.name}}\'s image"/>' + 
+				'<p class="image-area">' +
+					'<img src="./common/img/{{demo.image}}" class="image" alt="{{demo.name}}\'s image"/>' +
 				'</p>' +
-				'<p class="title">{{demo.name}}</p>' + 
+				'<p class="title">{{demo.name}}</p>' +
 				'<p class="description">{{demo.description}}</p>' +
-			'</a>' + 
+			'</a>' +
 		'</li>'});
 		{% endfor %}
 		{% endfor %}

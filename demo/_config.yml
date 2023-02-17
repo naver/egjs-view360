@@ -1,5 +1,5 @@
 # Build settings
 source: demo
-destination: demo/_site
+destination: demo/_site/v3
 exclude: [started.md, demo.md]
 markdown: kramdown

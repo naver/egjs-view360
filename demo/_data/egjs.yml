@@ -21,7 +21,7 @@ subComponents:
     - photoSphere
     - panorama
     - motion-tracking
-  distPath: release/latest/dist/PanoViewer/
+  distPath: dist/PanoViewer/
   dists:
     - filename: view360.panoviewer.pkgd.js
       size: 435
@@ -191,7 +191,7 @@ subComponents:
     - product
     - turntable
     - sprite-image
-  distPath: release/latest/dist/SpinViewer/
+  distPath: dist/SpinViewer/
   dists:
     - filename: view360.spinviewer.pkgd.js
       size: 206

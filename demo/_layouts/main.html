@@ -20,7 +20,7 @@
 
     <p>{{ site.data.egjs.desc }}</p>
 </header>
-<section id="tools">        
+<section id="tools">
 {% for subComponents in site.data.egjs.subComponents %}
 <article>
         <div class="container">
@@ -28,28 +28,28 @@
                 <div class="cover-image" style="background-image: url({{ subComponents.ogimage }})"></div>
             </a>
 
-            <div class="content">    
+            <div class="content">
             <a class="h-link title" href="./{{ subComponents.name | downcase }}.html">
                 <h3>{{ subComponents.name }}</h3>
             </a>
             <div class="download-links">
                 {% for dist in subComponents.dists %}
-                <a class="h-link" href="{{ subComponents.distPath }}{{ dist.filename }}">
+                <a class="h-link" href="/{{ site.github.repo }}/release/{{ site.data.version }}/{{ subComponents.distPath }}{{ dist.filename }}">
                     {{ dist.filename }} <span class="size">{{ dist.size }}kb</span>
                 </a>
                 {% endfor %}
             </div>
-            
+
             <p>
                 {{ subComponents.desc }}<br/>
                 <span class="hashtag">
                     {% for hashtag in subComponents.hashtags %}
-                    #{{ hashtag }} 
+                    #{{ hashtag }}
                     {% endfor %}
                 </span>
-            </p>                 
+            </p>
             <a class="h-link ref-link" href="./{{ subComponents.name | downcase }}.html" class="button example">Read the Tutorial</a></br>
-        </div></div>  
+        </div></div>
     </article>
 {% endfor %}
 </section>

@@ -19,10 +19,6 @@
 		homeUrl += "/";
 	};
 	window.HOMELINK = homeUrl;
-	window.LIBLINK = [];
-	{% for dist in site.data.egjs.dist %}
-	window.LIBLINK.push(window.HOMELINK + "{{ dist }}");
-	{% endfor %}
 </script>
 <body>
 
@@ -37,13 +33,13 @@
 		<div class="container">
 			<div class="hero-image" style="background-image: url({{ subComponent.ogimage }})">
 			</div>
-			<h2 class="title">	
+			<h2 class="title">
 				<span class="highlight">{{ subComponent.name }}</span>
 			</h2>
 			<p class="intro">{{ subComponent.desc }}<br/>
-				<span class="hashtag">		
+				<span class="hashtag">
 					{% for hashtag in subComponent.hashtags %}
-					#{{ hashtag }} 
+					#{{ hashtag }}
 					{% endfor %}
 				</span>
 			</p>
@@ -53,7 +49,7 @@
 	{% include nav.html %}
 	<section id="showcase" class="docs section">
 		<div class="container">
-			<div class="docs-inner">				
+			<div class="docs-inner">
 				<h2 class="title text-center">Showcase</h2>
 				{% capture demo %}{% include_relative {{ page.demo }} %}{% endcapture %}
 				{{ demo | markdownify }}
@@ -66,7 +62,7 @@
 					<p class="text-center">
 						<a href="#features">Features </a>/
 						<a href="#getting-started">Getting Started </a>
-						
+
 						{% if subComponent.tools %}
 							/ <a href="#tools">Tools </a>
 						{% endif %}
@@ -166,9 +162,9 @@
 				</li>
 				{% endfor %}
 				</ul>
-				<p><br/>Don't see your project? Post an <strong><a href="https://github.com/{{ site.data.egjs.github.user }}/{{ site.data.egjs.github.repo }}/issues/new"/>issue</a></strong> with <i>built-with-view360</i> label  over on the <strong><a href="https://github.com/{{ site.data.egjs.github.user }}/{{ site.data.egjs.github.repo }}/"/>github page</a></strong>.					
-			</div>	
-			</p>		
+				<p><br/>Don't see your project? Post an <strong><a href="https://github.com/{{ site.data.egjs.github.user }}/{{ site.data.egjs.github.repo }}/issues/new"/>issue</a></strong> with <i>built-with-view360</i> label  over on the <strong><a href="https://github.com/{{ site.data.egjs.github.user }}/{{ site.data.egjs.github.repo }}/"/>github page</a></strong>.
+			</div>
+			</p>
 		</div>
 	</section>
 	{% endif %}
