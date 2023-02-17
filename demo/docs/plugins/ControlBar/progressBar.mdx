@@ -1,0 +1,50 @@
+import View360, { ControlBar } from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean | ControlBarItemOptions" defaultVal="true" added="4.0.0" />
+
+Displays the video progress bar.
+If `true`, it'll show the button & apply the default options.
+If `false`, it won't display the button.
+You can also set detailed options by setting a object of type [ControlBarItemOptions](/docs/api/Plugin/Interface/ControlBarItemOptions).
+
+## Example
+Below is an example of not displaying a progress bar.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ progressBar: false }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  progressBar: false
+})
+```
+
+Below is an example of a progress bar displaying in a different location.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ progressBar: {
+    position: ControlBar.POSITION.MAIN_BOTTOM
+  } }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  progressBar: {
+    position: ControlBar.POSITION.MAIN_BOTTOM
+  }
+})
+```

@@ -1,0 +1,41 @@
+---
+slug: /options/hotspot
+---
+
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="Partial<HotspotOptions>" defaultVal="{}" added="4.0.0" />
+
+핫스팟에 사용할 옵션을 지정합니다.
+[HotspotOptions](/docs/api/Interface/HotspotOptions) 타입의 오브젝트를 값으로 받습니다.
+
+핫스팟 사용법 가이드는 [관련 가이드](/docs/hotspot)를 참고해주세요.
+
+## 예시
+<View360
+  projectionOptions={{
+    src: [
+      "/pano/cube/FishermansBastion/posx.jpg",
+      "/pano/cube/FishermansBastion/negx.jpg",
+      "/pano/cube/FishermansBastion/posy.jpg",
+      "/pano/cube/FishermansBastion/negy.jpg",
+      "/pano/cube/FishermansBastion/posz.jpg",
+      "/pano/cube/FishermansBastion/negz.jpg"
+    ]
+  }}
+  projectionType="cubemap"
+  hotspot={{ zoom: false }}
+  showExampleCode
+  showControlBar
+  license="fisherman">
+  <div className="view360-hotspots">
+    <div className="view360-hotspot demo-hotspot" data-yaw="0" data-pitch="0">
+      <span>1</span>
+      <iframe className="demo-hotspot-bubble" width="250" height="250" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+    </div>
+    <div className="view360-hotspot demo-hotspot" data-yaw="-90" data-pitch="0">2</div>
+    <div className="view360-hotspot demo-hotspot" data-yaw="-90" data-pitch="90">3</div>
+    <div className="view360-hotspot demo-hotspot" data-yaw="-90" data-pitch="-90">4</div>
+  </div>
+</View360>

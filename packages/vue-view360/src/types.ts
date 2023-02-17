@@ -1,4 +1,10 @@
-import { PanoViewerOptions, SpinViewerOptions } from "@egjs/view360";
+/*
+ * Copyright (c) 2023-present NAVER Corp.
+ * egjs projects are licensed under the MIT license
+ */
+import { View360Options } from "@egjs/view360";
 
-export type PanoViewerProps = PanoViewerOptions & { tag: string };
-export type SpinViewerProps = SpinViewerOptions & { tag: string };
+export type View360Props = {
+  tag: string;
+  canvasClass: string;
+} & View360Options;

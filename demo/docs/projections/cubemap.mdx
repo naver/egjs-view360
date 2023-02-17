@@ -1,0 +1,98 @@
+---
+title: CubemapProjection
+sidebar_position: 3
+---
+
+import View360 from "@site/src/components/View360";
+
+```js
+import { CubemapProjection } from "@egjs/view360";
+```
+
+CubemapProjection is projection that fill six sides of a cube with images.
+CubemapProjection displays panoramic images in the same way, so you need six images to use.
+
+There are actually two ways to use six images.
+1. Use 6 image files that represent each direction of the cube or
+2. You can use six images as one image file.
+
+By default, 6 images are parsed in **"RLUDFB(+X, -X, +Y, -Y, +Z, -Z)"** order.
+You can also change it using the [cubemapOrder](#cubemapOrder) option.
+
+:::caution
+
+If you use the cube map by default without any options, the image in the +Z axis direction is displayed in the forward direction (yaw: 0).
+
+However, since View360 uses the [right hand coordinate system](https://en.wikipedia.org/wiki/Right-hand_rule), the internal camera is actually pointing towards -Z direction.
+In most cases, you don't have to care about this.
+
+If you want to change the default orientation to display, you can use the option [initialYaw](/docs/options/camera/initialYaw) or [initialPitch](/docs/options/camera/initialPitch).
+
+:::
+
+In general, the cube map image looks like this.
+
+![cubemap](/pano/cube/cubemap.jpg)
+> Above, 6 images are packed as single image in 3x2 format.
+> 6 images can be used separately, or a single image in 1x6, 2x3, or 6x1 forms are also available.
+
+Please note that the image above will be parsed in order of **"RLUDFB"** from top left to right.
+The image above is displayed using `CubemapProjection` as shown below.
+
+<View360
+  projectionOptions={{
+    src: "/pano/cube/cubemap.jpg"
+  }}
+  projectionType="cubemap"
+  showExampleCode />
+
+The example below is an example of using six separate images.
+You can view the original image by clicking the image icon in the lower right corner of the viewer.
+
+<View360
+  projectionOptions={{
+    src: [
+      "/pano/cube/FishermansBastion/posx.jpg",
+      "/pano/cube/FishermansBastion/negx.jpg",
+      "/pano/cube/FishermansBastion/posy.jpg",
+      "/pano/cube/FishermansBastion/negy.jpg",
+      "/pano/cube/FishermansBastion/posz.jpg",
+      "/pano/cube/FishermansBastion/negz.jpg"
+    ]
+  }}
+  projectionType="cubemap"
+  license="fisherman"
+  showExampleCode />
+
+## Options {#options}
+In addition to `src` and `video`, CubemapProjection has the following additional options:
+
+### cubemapOrder
+`cubemapOrder` changes the order in which cube maps are parsed.
+
+By default, image is parsed in order of **"RLUDFB(+X, -X, +Y, +Z)"**, and you can change the order like the below.
+Below is the case of changing to **"LRDUBF"**. Make sure that front-back, left-right, up-down are all switched positions.
+
+<View360
+  projectionOptions={{
+    src: "/pano/cube/cubemap.jpg",
+    // 왼쪽-오른쪽, 위-아래, 앞-뒤 순서를 바꾸고 있습니다.
+    cubemapOrder: "LRDUBF"
+  }}
+  projectionType="cubemap"
+  showExampleCode />
+
+### cubemapFlipX
+Some cube map images are left-right inverted.
+In this case, you can change it using an image editing program, etc., but you can also use the `cubemapFlipX` option.
+
+Below is an example of an inverted cube map image.
+You can view the original image by clicking the image icon in the lower right corner of the viewer.
+
+<View360
+  projectionOptions={{
+    src: "/pano/cube/bookcube1.jpg",
+    cubemapFlipX: true
+  }}
+  projectionType="cubemap"
+  showExampleCode />

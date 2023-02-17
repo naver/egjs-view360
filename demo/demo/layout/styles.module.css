@@ -1,0 +1,37 @@
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+.mdxPageWrapper {
+  justify-content: center;
+}
+
+.backLink {
+  display: inline-flex;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid transparent;
+}
+
+.backLink:hover {
+  border-bottom-color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.backIcon {
+  width: 30px;
+  height: 30px;
+  margin-right: 0.5rem;
+  fill: var(--ifm-color-primary);
+}
+
+.backLabel {
+  display: inline-block;
+  margin: 0;
+}
+
+.backLabel:hover {
+  text-decoration: none;
+}

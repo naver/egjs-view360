@@ -1,0 +1,8 @@
+{
+  "locales": ["ko"],
+  "outDir": "./demo/docs/api",
+  "localesDir": "./demo/i18n/{locale}/docusaurus-plugin-content-docs/current/api",
+  "typedoc": "./typedoc.json",
+  "tsconfig": "./tsconfig.api.json",
+  "baseUrl": "https://github.com/naver/egjs-view360/"
+}

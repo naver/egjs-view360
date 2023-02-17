@@ -1,0 +1,27 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="number" defaultVal="0" added="4.0.0" />
+
+최초 pitch(X축 회전)값을 설정합니다.
+initialPitch > 0 일 경우 위를, initialPitch < 0일 경우 아래를 바라봅니다.
+
+`-90 ~ 90` 내의 값을 사용해야 합니다.
+해당 범위를 넘어서는 값은 범위 내로 clamp됩니다.
+
+## 예시
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  initialPitch={45}
+  license="veste"
+  showExampleCode />
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  initialPitch={-45}
+  license="veste"
+  showExampleCode />

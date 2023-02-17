@@ -1,0 +1,144 @@
+---
+title: How To - Projections
+sidebar_position: 1
+id: projections-basics
+slug: /projections
+---
+
+Projection represents how you display your 360 image/video.
+View360 currently supports only a few projection types, and will gradually support a number of additional projection types.
+
+## Using Projections
+To reduce the user's final bundle size (for tree-shaking), the projections are exported separately within the `@egjs/view360` package.
+Therefore, you should import the projection you want as follows and use it.
+
+For example, below is an example of using EquirectProjection.
+```js
+import View360, { EquirectProjection } from "@egjs/view360";
+
+const viewer = new View360("#el_id", {
+  projection: new EquirectProjection({
+    src: "URL_TO_360_SOURCE"
+  })
+});
+```
+
+Check the left sidebar for a list of available projections.
+
+## Common Options
+Projections share two common options, and each projection can has its own option.
+The two common options are as follows.
+
+### src
+src means the source of 360 image/video to be displayed using the projection.
+
+You can use it in two ways.
+First, you can use the URL string that points to the 360 image/video.
+
+```js
+const viewer = new View360("#el_id", {
+  projection: new EquirectProjection({
+    // This is an example that we're using in our demo.
+    src: "/pano/equirect/equi.jpg"
+  })
+});
+```
+
+If you use multiple images, such as Cubemap, you can also use a URL array.
+```js
+const viewer = new View360("#el_id", {
+  projection: new CubemapProjection({
+    // The default order is +X, -X, +Y, -Y, +Z, -Z.
+    // You can also change the order with the 'cubemapOrder' option in CubemapProjection.
+    src: [
+      "/pano/cube/FishermansBastion/posx.jpg",
+      "/pano/cube/FishermansBastion/negx.jpg",
+      "/pano/cube/FishermansBastion/posy.jpg",
+      "/pano/cube/FishermansBastion/negy.jpg",
+      "/pano/cube/FishermansBastion/posz.jpg",
+      "/pano/cube/FishermansBastion/negz.jpg"
+    ]
+  })
+});
+```
+
+Alternatively, you can use HTMLImageElement or HTMLVideoElement directly as follows:
+This is useful when used with other video player libraries, such as [Video.js](https://videojs.com/)).
+
+> HTML
+
+```html
+<-- This is an example that we use in our video.js demo. -->
+<div id="container" data-vjs-player>
+  <video id="video" class="video-js vjs-fluid vjs-default-skin vjs-big-play-centered vjs-controls-enabled" data-setup='{"controls": true, "autoplay": true}'>
+    <source src="/pano/equirect/seven.mp4" type="video/mp4" />
+    <source src="/pano/equirect/seven.webm" type="video/webm" />
+  </video>
+  <canvas class="view360-canvas"></canvas>
+</div>
+```
+
+> Javascript
+
+```js
+const container = document.querySelector("#container");
+const video = document.querySelector("#video");
+
+videojs(video).ready(() => {
+  // Mount View360 after video.js initialization.
+  const viewer = new View360(container, {
+    projection: new EquirectProjection({
+      src: video,
+      video: true
+    })
+  });
+});
+```
+
+### video
+`video` can specify whether 360 content is a video.
+By default, you can use Boolean values, as follows:
+
+```js
+// If it's not video
+const viewer = new View360("#el_id", {
+  projection: new EquirectProjection({
+    src: "/pano/equirect/equi.jpg",
+    // The src above is an image, not a video, so use "false" here.
+    // The default value for "video" is false, so you can omit it.
+    video: false
+  })
+});
+```
+
+```js
+// If it's video
+const viewer = new View360("#el_id", {
+  projection: new EquirectProjection({
+    src: "/pano/equirect/burano.mp4",
+    // Use "true" because the "src" above is a video!
+    video: true
+  })
+});
+```
+
+`video` can receive not only Boolean values but also objects.
+This allows you to assign some attributes to HTMLVideoElement.
+For example, you can use it like this:
+
+```js
+// If it's video
+const viewer = new View360("#el_id", {
+  projection: new EquirectProjection({
+    src: "/pano/equirect/burano.mp4",
+    // It automatically starts the video muted, and does not loop after the video ends.
+    video: {
+      autoplay: true,
+      muted: true,
+      loop: false
+    }
+  })
+});
+```
+
+Check [VideoConfig](./api/Interface/VideoConfig) for the available options.

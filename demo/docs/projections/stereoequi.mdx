@@ -1,0 +1,59 @@
+---
+title: StereoEquiProjection
+sidebar_position: 7
+---
+
+import View360 from "@site/src/components/View360";
+
+```js
+import { StereoEquiProjection } from "@egjs/view360";
+```
+
+![stereo](/pano/stereoequi/stereoequi.png)
+
+`StereoEquiProjection` is a projection that allows you to display content in the form of two equirectangular images packed in up/down or left/right.
+By default, only one of the two images is displayed, displaying up for up/down and left for left/right.
+
+Other projections, except some, also support VR mode, but only `StereoEquiProjection` can provide different images from eye to eye in VR mode.
+
+Here is an example of `StereoEquiProjection`.
+You can check the original image by pressing the image button in the lower right corner of the viewer.
+
+<View360
+  projectionType="stereoequi"
+  projectionOptions={{
+    src: "/pano/stereoequi/stereoequi.png"
+  }}
+  license="san_francisco"
+  showExampleCode />
+
+## Modes
+Two modes are available for `StereoEquiProjection`, `top_bottom` and `left_right`.
+
+All available modes are provided with [StereoEquiProjection.MODE](/docs/api/Projection/Class/StereoEquiProjection#MODE)
+
+```js
+import { StereoEquiProjection } from "@egjs/view360";
+
+StereoEquiProjection.MODE.TOP_BOTTOM // ="top_bottom"
+StereoEquiProjection.MODE.LEFT_RIGHT // ="left_right"
+```
+
+![stereo_sbs](/pano/stereoequi/veste.jpg)
+When the stereo image is placed by side-by-side like the above image, you can use `mode: "left_right"`.
+
+<View360
+  projectionType="stereoequi"
+  projectionOptions={{
+    src: "/pano/stereoequi/veste.jpg",
+    mode: "left_right"
+  }}
+  license="veste"
+  showExampleCode />
+
+## Options {#options}
+In addition to `src` and `video`, StereoEquiProjection has the following additional options:
+
+### mode
+Stereoscopic mode of the image.
+Default is `"top_bottom"`

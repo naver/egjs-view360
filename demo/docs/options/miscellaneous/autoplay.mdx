@@ -1,0 +1,37 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean | AutoplayOptions" defaultVal="false" added="4.0.0" />
+
+Makes the camera move automatically in a horizontal direction.
+Use `true` to enable autoplay & apply the default options; use `false` to disable it.
+You can also set detailed options by using objects with type [AutoplayOptions](/docs/api/Interface/AutoplayOptions).
+
+## Example
+### true
+Here's an example of using the option `autoplay: true`, see [AutoplayOptions](/docs/api/Interface/AutoplayOptions) for the default options that actually applied.
+By default, it rotates clockwise.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  license="veste"
+  autoplay
+  showExampleCode />
+
+### Detailed options
+For option details, see [AutoplayOptions](/docs/api/Interface/AutoplayOptions)
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  license="veste"
+  autoplay={{
+    delay: 5000,
+    delayOnMouseLeave: 1000,
+    speed: -2,
+    pauseOnHover: true
+  }}
+  showExampleCode />

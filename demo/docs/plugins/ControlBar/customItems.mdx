@@ -1,0 +1,179 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="ControlBarItem[]" defaultVal="[]" added="4.0.0" />
+
+Add custom control bar items.
+
+## Example
+On the View 360 demo page, we are using ControlBar with custom buttons.
+One of them is to add the "View original image" button, which is displayed in the lower right corner of the ControlBar.
+
+```ts
+import View360, { ControlBar, ControlBarItem, ControlBarItemOptions, View360Options } from "@egjs/view360";
+
+class OriginalImageButton extends ControlBarItem {
+  public readonly element: HTMLElement;
+
+  private _modalEl: HTMLElement;
+  private _viewer: View360 | null;
+
+  public constructor({
+    position = ControlBar.POSITION.RIGHT,
+    order = 0
+  }: Partial<ControlBarItemOptions> = {}) {
+    super({
+      position,
+      order
+    });
+
+    this.element = document.createElement("button");
+    this.element.classList.add("demo-controls-orig-image");
+
+    this._modalEl = document.createElement("div");
+    this._modalEl.classList.add("demo-controls-orig-image-modal");
+    this._modalEl.addEventListener("click", this._toggleModal);
+
+    this._viewer = null;
+  }
+
+  public init(viewer: View360, controlBar: ControlBar) {
+    const element = this.element;
+    const btnClass = controlBar.className.CONTROLS_BUTTON;
+
+    element.classList.add(btnClass);
+    element.addEventListener("click", this._toggleModal);
+    this._attachModal(viewer.rootEl);
+
+    this._viewer = viewer;
+  }
+
+  public destroy(viewer: View360, controlBar: ControlBar) {
+    const element = this.element;
+    const btnClass = controlBar.className.CONTROLS_BUTTON;
+
+    element.classList.remove(btnClass);
+    element.removeEventListener("click", this._toggleModal);
+    this._detachModal(viewer.rootEl);
+    this._clearModal();
+
+    this._viewer = null;
+  }
+
+  private _toggleModal = () => {
+    const viewer = this._viewer;
+    const modal = this._modalEl;
+    modal.classList.toggle("visible");
+
+    if (!viewer || !viewer.projection) return;
+
+    const visible = modal.classList.contains("visible");
+
+    if (!visible) {
+      return this._clearModal();
+    }
+
+    const src = viewer.projection.src as string | string[];
+    const srcArr = Array.isArray(src) ? src : [src];
+    const isVideo = !!viewer.projection.video;
+
+    srcArr.forEach(url => {
+      const contentEl = isVideo
+        ? document.createElement("video")
+        : document.createElement("img");
+      contentEl.classList.add("content");
+      contentEl.src = url;
+
+      if (isVideo) {
+        contentEl.addEventListener("click", evt => {
+          evt.stopPropagation();
+        });
+        (contentEl as HTMLVideoElement).controls = true;
+      }
+
+      modal.appendChild(contentEl);
+    });
+  };
+
+  private _clearModal = () => {
+    const modal = this._modalEl;
+
+    while (modal.firstChild) {
+      if (modal.firstChild instanceof HTMLVideoElement) {
+        const video = modal.firstChild;
+
+        video.pause();
+        video.removeAttribute("src");
+        video.load();
+      }
+
+      modal.removeChild(modal.firstChild);
+    }
+  }
+
+  private _attachModal(element: HTMLElement) {
+    element.appendChild(this._modalEl);
+  }
+
+  private _detachModal(element: HTMLElement) {
+    element.removeChild(this._modalEl);
+  }
+}
+
+export default OriginalImageButton;
+```
+
+That's a long source code! But you don't need to check the detailed code.
+You just need to check the following key details.
+
+1. Custom item classes must inherit `ControlBarItem`.
+```js
+class OriginalImageButton extends ControlBarItem
+```
+
+2. It should receive two essential options at the constructor (you can add more) and hand them over to `ControlBarItem` through a `super` call.
+
+In the example below, check that the default position is displayed on the right side of the lower bar (`POSITION.RIGHT`) and in the fastest order possible (`order: 0`).
+Please note that all basic items included in `ControlBar` use `order: 9999` as the default.
+
+```ts
+constructor({
+  position = ControlBar.POSITION.MAIN_RIGHT,
+  order = 0
+}: Partial<ControlBarItemOptions> = {}) {
+  super({
+    position,
+    order
+  });
+}
+```
+
+3. An element is required to display custom items. After creating it, assign it to `this.element`.
+
+```js
+this.element = document.createElement("button");
+this.element.classList.add("demo-controls-orig-image");
+```
+
+4. Let's implement the actual behavior of the item.
+
+You can implement each action when it is added and removed.
+The parameters that each method receives are instances of View360 and ControlBar.
+
+```ts
+public init(viewer: View360, controlBar: ControlBar) {
+  // Behavior when an item is added
+}
+
+public destroy(viewer: View360, controlBar: ControlBar) {
+  // Behavior when an item is removed
+}
+```
+
+After making it like this, you can add it to the `customItems` item in ControlBar and use it as follows.
+
+```js
+new ControlBar({
+  customItems: [new OriginalImageButton()]
+});
+```

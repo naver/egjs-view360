@@ -1,0 +1,97 @@
+---
+title: How To - Events
+sidebar_position: 1
+id: events-basics
+slug: /events
+---
+
+## Event Constants
+Event names are defined at [EVENTS](/docs/api/Variables/EVENTS).
+
+```js
+import { EVENTS } from "@egjs/view360";
+
+EVENTS.READY // = "ready"
+EVENTS.VIEW_CHANGE // = "viewChange"
+```
+
+## How to add event handlers
+
+You can add event handlers in View360 in two main ways.
+
+### With option "[on](/docs/options/miscellaneous/on)"
+The `on` option automatically adds an event handler at the time of instance creation in View360.
+
+```js
+import View360, { EVENTS } from "@egjs/view360";
+
+// The event handler is added at this point.
+const view360 = new View360("#el_id", {
+  on: {
+    [EVENTS.READY]: evt => {
+      console.log("View360 is Ready!");
+    },
+    // You can add multiple event handlers.
+    // However, only one handler can be added as an option for an event.
+    [EVENTS.VIEW_CHANGE]: evt => {
+      console.log("View360's view direction is changed.");
+    }
+  }
+});
+```
+
+### With method "[on](/docs/api/Class/View360#on)"
+You can use the `on` method to add event handlers to View 360 at any time.
+
+```js
+import View360, { EVENTS } from "@egjs/view360";
+
+const view360 = new View360("#el_id");
+
+view360.on(EVENTS.READY, evt => {
+  console.log("READY!")
+});
+```
+
+There is method [once](/docs/api/Class/View360#once) as a variation.
+Event handlers that you add with `once` are only triggered once before being removed from the event handlers list.
+
+```js
+import View360, { EVENTS } from "@egjs/view360";
+
+const view360 = new View360("#el_id");
+
+view360.once(EVENTS.RENDER, evt => {
+  console.log("This will be logged once after the first render");
+});
+```
+
+## Removing event handlers
+[off](/docs/api/Class/View360#off) lets you remove pre-registered event handlers.
+There are three ways to use it, as follows.
+
+### Remove a single event handler
+You can provide the event name and handler as parameters.
+```ts
+import { EVENTS, ViewChangeEvent } from "@egjs/view360";
+const onViewChange = (evt: ViewChangeEvent) => {};
+
+view360.on(EVENTS.VIEW_CHANGE, onViewChange);
+
+// Remove only "onViewChange" from the event handler list.
+view360.off(EVENTS.VIEW_CHANGE, onViewChange);
+```
+
+### Remove all event handlers for a particular event
+You only need to provide the event name as a parameter.
+```js
+// All event handlers for viewChange events are removed.
+view360.off("viewChange");
+```
+
+### Remove all event handlers
+You can call `off` without any parameters.
+```js
+// All event handlers are removed.
+view360.off();
+```

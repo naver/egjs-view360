@@ -1,16 +1,20 @@
 {
   "name": "@egjs/svelte-view360",
-  "version": "3.0.3",
+  "version": "4.0.0-beta.0",
   "description": "360 integrated viewing solution from inside-out view to outside-in view. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.",
   "main": "dist/view360.cjs.js",
   "module": "dist/view360.esm.js",
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css",
+    "**/*.sass"
+  ],
   "es2015": "dist/view360.esm.js",
   "types": "declaration/index.d.ts",
   "svelte": "lib/index.js",
   "scripts": {
     "build": "rm -rf dist && rollup -c ./rollup.config.build.js && npm run build:lib && npm run declaration",
     "build:lib": "rm -rf lib && node ./build",
+    "postbuild": "cpx 'node_modules/@egjs/view360/css/*' css/ && cpx 'node_modules/@egjs/view360/sass/*' sass/",
     "declaration": "rm -rf declaration && tsc -p tsconfig.declaration.json",
     "postdeclaration": "cpx './src/**.d.ts' 'declaration'",
     "dev": "rollup -c -w",
@@ -30,16 +34,14 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@egjs/view360": "~3.6.4"
+    "@egjs/view360": "4.0.0-beta.0"
   },
   "devDependencies": {
-    "@egjs/build-helper": "^0.1.2",
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-node-resolve": "^11.0.0",
     "@rollup/plugin-typescript": "^8.0.0",
     "@tsconfig/svelte": "^2.0.0",
     "cpx": "^1.5.0",
-    "rollup": "^2.3.4",
     "rollup-plugin-css-only": "^3.1.0",
     "rollup-plugin-livereload": "^2.0.0",
     "rollup-plugin-svelte": "^7.0.0",
@@ -48,9 +50,24 @@
     "sveld": "^0.10.2",
     "svelte": "^3.0.0",
     "svelte-check": "^2.0.0",
-    "svelte-preprocess": "^4.7.4",
+    "svelte-preprocess": "^4.10.7",
     "svelte-routing": "^1.6.0",
-    "tslib": "^2.0.0",
-    "typescript": "^4.0.0"
-  }
+    "tslib": "^2.0.0"
+  },
+  "keywords": [
+		"360-photo",
+		"360-video",
+		"view360",
+		"panorama",
+		"spinner",
+		"webgl",
+		"device-orientation",
+		"touch",
+		"VR",
+		"3D",
+		"canvas",
+		"360"
+	],
+  "lernaHelperReleaseType": "prerelease",
+  "lernaHelperPublishTag": "next"
 }

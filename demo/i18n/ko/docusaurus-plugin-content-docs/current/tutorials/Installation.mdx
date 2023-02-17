@@ -1,0 +1,122 @@
+---
+title: 설치 방법
+id: installation
+slug: /
+sidebar_position: 1
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import CodeBlock from "@theme/CodeBlock";
+import Install from "@site/src/components/tutorial/Install";
+
+:::info
+View360 v4는 현재 베타 상태로 개발되고 있으며, 최종 릴리즈 전까지 일부 API가 변경될 수 있습니다.
+View360 v4는 `@next` 태그를 명시적으로 사용해서 설치하셔야 합니다.
+```shell
+npm install @egjs/view360@next
+```
+
+Stable 버젼을 원하실 경우 `@latest`` 태그를 사용해서 v3를 설치해주세요
+```shell
+npm install @egjs/view360@latest
+```
+
+기존 버젼의 문서를 찾고 계신가요? 아래 링크들을 확인해보세요:
+- [Demo (v3)](https://naver.github.io/egjs-view360/release/3.6.4/)
+- [API (v3)](https://naver.github.io/egjs-view360/release/3.6.4/doc/)
+:::
+
+## 📦 패키지 매니저를 이용하는 방법 (recommended)
+[npm](https://www.npmjs.com/)이나 [yarn](https://classic.yarnpkg.com/en/)을 사용하면 View360을 쉽게 설치하실 수 있습니다.
+
+:::caution
+View360은 지원하는 프레임워크마다 다른 패키지를 제공하고 있습니다.
+예를 들어, React를 사용중이신 경우 `@egjs/react-view360`를 설치하시면 됩니다.
+:::
+
+<Install />
+
+## 🔗 CDN 링크
+### Minified & Packaged (의존성 모듈 포함)
+> 어떤걸 사용해야할지 잘 모르겠다면 이 파일을 사용하세요
+
+<Tabs
+  groupId="cdn"
+  defaultValue="url"
+  lazy={true}
+  values={[
+    { label: "URL", value: "url" },
+    { label: "HTML <script>", value: "html" }
+  ]}>
+  <TabItem value="url">
+    <CodeBlock className="language-shell">
+      https://naver.github.io/egjs-view360/release/latest/dist/view360.pkgd.min.js<br/>
+      # or...<br/>
+      https://unpkg.com/@egjs/view360@latest/dist/view360.pkgd.min.js
+    </CodeBlock>
+  </TabItem>
+  <TabItem value="html">
+    <CodeBlock className="language-html">{[
+      `<script src="https://naver.github.io/egjs-view360/release/latest/dist/view360.pkgd.min.js"></script>`,
+      `<script src="https://naver.github.io/egjs-view360/release/latest/dist/view360.pkgd.min.js"></script>`
+    ].join("\n<!-- or... -->\n")}</CodeBlock>
+  </TabItem>
+</Tabs>
+
+### Packaged (의존성 모듈 포함)
+<Tabs
+  groupId="cdn"
+  defaultValue="url"
+  lazy={true}
+  values={[
+    { label: "URL", value: "url" },
+    { label: "HTML <script>", value: "html" }
+  ]}>
+  <TabItem value="url">
+    <CodeBlock className="language-shell">
+      https://naver.github.io/egjs-view360/release/latest/dist/view360.pkgd.js<br/>
+      # or...<br/>
+      https://unpkg.com/@egjs/view360@latest/dist/view360.pkgd.js
+    </CodeBlock>
+  </TabItem>
+  <TabItem value="html">
+    <CodeBlock className="language-html">{[
+      `<script src="https://naver.github.io/egjs-view360/release/latest/dist/view360.pkgd.js"></script>`,
+      `<script src="https://unpkg.com/@egjs/view360@latest/dist/view360.pkgd.js"></script>`
+    ].join("\n<!-- or... -->\n")}</CodeBlock>
+  </TabItem>
+</Tabs>
+
+### CSS
+> 디폴트 스타일을 제공합니다.
+
+<Tabs
+  groupId="cdn"
+  defaultValue="url"
+  lazy={true}
+  values={[
+    { label: "URL", value: "url" },
+    { label: "HTML <link>", value: "html" },
+    { label: "CSS @import", value: "css" }
+  ]}>
+  <TabItem value="url">
+    <CodeBlock className="language-shell">
+      https://naver.github.io/egjs-view360/release/latest/css/view360.min.css<br/>
+      # or...<br/>
+      https://unpkg.com/@egjs/view360@latest/css/view360.min.css
+    </CodeBlock>
+  </TabItem>
+  <TabItem value="html">
+    <CodeBlock className="language-html">{[
+      `<link rel="stylesheet" href="https://naver.github.io/egjs-view360/release/latest/css/view360.min.css">`,
+      `<link rel="stylesheet" href="https://unpkg.com/@egjs/view360@latest/css/view360.min.css">`
+    ].join("\n<!-- or... -->\n")}</CodeBlock>
+  </TabItem>
+  <TabItem value="css">
+    <CodeBlock className="language-css">{[
+      `@import "https://naver.github.io/egjs-view360/release/latest/css/view360.min.css";`,
+      `@import "https://unpkg.com/@egjs/view360@latest/css/view360.min.css";`
+    ].join("\n/* or... */\n")}</CodeBlock>
+  </TabItem>
+</Tabs>

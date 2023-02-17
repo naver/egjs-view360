@@ -1,14 +1,10 @@
 /*
- * Copyright (c) 2017 NAVER Corp.
+ * Copyright (c) 2023-present NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
-import PanoViewer from "./PanoViewer";
-import SpinViewer from "./SpinViewer";
+import View360 from "./View360";
 
 export * from "@egjs/view360";
 export * from "./types";
 
-export {
-  PanoViewer,
-  SpinViewer
-}
+export default View360;

@@ -1,0 +1,38 @@
+import HLS from "../components/hls";
+
+# m3u8 HLS video
+
+<HLS />
+
+View360 will not offer any type of video type extensions, but you can use it with other libraries that offers additional video formats.
+
+Here, I'll show how to use View360 with [hls.js](https://github.com/video-dev/hls.js/) to play `m3u8` hls video.
+
+## HTML
+Just add a video element with `display: none` inside View360 container.
+```html
+<div class="view360-container">
+  <canvas class="view360-canvas" />
+  <video id="video" playsInline crossOrigin="anonymous" style="display: none;" />
+</div>
+```
+
+## JS
+Then you can use it like this.
+```js
+const video = document.querySelector("#video");
+const videoUrl = "/pano/equirect/m3u8/equi.m3u8";
+
+if (Hls.isSupported()) {
+  var hls = new Hls();
+  hls.loadSource(videoUrl);
+  hls.attachMedia(video);
+} else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+  video.src = videoUrl;
+}
+
+view360.load(new EquirectProjection({
+  src: video,
+  video: { autoplay: false }
+}))
+```

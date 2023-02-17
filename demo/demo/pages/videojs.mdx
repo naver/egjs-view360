@@ -1,0 +1,59 @@
+import VideoJS from "../components/videojs";
+
+# Using video.js with View360
+
+<VideoJS />
+
+View360 can be used with other video player libraries.
+You can use it like this if you want additional features that video library offers, or to apply a better video player UI.
+
+Here, I'll how to use View360 with the [video.js](https://videojs.com/) for demonstration.
+
+## HTML
+The usage is the same as video.js, but one `<canvas>` is added to the container element.
+
+```html
+<div id="container" data-vjs-player>
+  <video id="video"
+    class="video-js vjs-fluid vjs-default-skin vjs-big-play-centered vjs-controls-enabled"
+    data-setup='{"controls": true, "autoplay": false, "playsinline": true}'
+  >
+    <source src="/pano/equirect/seven.mp4" type="video/mp4" />
+    <source src="/pano/equirect/seven.webm" type="video/webm" />
+  </video>
+
+  <!-- Add "canvas" inside video.js container -->
+  <canvas class="view360-canvas"></canvas>
+</div>
+```
+
+## JS
+Init video.js, then mount View360 above it.
+
+```js
+const container = document.querySelector("#container");
+const video = document.querySelector("#video");
+
+videojs(video).ready(() => {
+  const viewer = new View360(container, {
+    projection: new EquirectProjection({
+      src: video,
+      video: {
+        autoplay: false
+      }
+    }),
+    plugins: [new ControlBar({
+      autoHide: false,
+      showBackground: false,
+      progressBar: false,
+      playButton: false,
+      volumeButton: false,
+      fullscreenButton: false,
+      videoTime: false,
+      pieView: { order: 0 },
+      gyroButton: { position: "top-right", order: 1 },
+      vrButton: { position: "top-right", order: 2 }
+    })]
+  });
+});
+```

@@ -1,0 +1,30 @@
+---
+title: projection
+sidebar_position: 1
+---
+
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="Projection" defaultVal="false" added="4.0.0" />
+
+[Projection](/docs/api/Projection/Class/Projection) for displaying panorama image/video.
+A list of the available projections and how to use each projection can be found in the [Projection Guide](../../projections).
+
+## Example
+```js
+import View360, { EquirectProjection } from "@egjs/view360";
+
+const viewer = new View360("#el_id", {
+  projection: new EquirectProjection({
+    src: "URL_TO_PANO_IMAGE_OR_VIDEO"
+  })
+})
+```
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  projectionType="equirect"
+  license="veste" />

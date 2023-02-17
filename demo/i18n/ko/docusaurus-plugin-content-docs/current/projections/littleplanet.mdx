@@ -1,0 +1,68 @@
+---
+title: LittlePlanetProjection
+sidebar_position: 8
+---
+
+import View360 from "@site/src/components/View360";
+
+```js
+import { LittlePlanetProjection } from "@egjs/view360";
+```
+
+LittlePlanetProjection은 흔히 "Little planet"이나 "Tiny planet"이라 불리는 이펙트를 적용해주는 프로젝션입니다.
+
+:::caution
+
+현재는 [Equirectangular](./equirect) 파노라마 이미지/비디오만 지원하고 있습니다.
+
+:::
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  projectionType="littleplanet"
+  initialPitch={-90}
+  license="veste"
+  showExampleCode />
+
+## 예제
+### 중심점
+Little Planet 이펙트의 중심점은 [pitch](/docs/api/Class/Camera#pitch)(X축 회전값)에 의해 결정됩니다.
+초기 pitch값을 설정하는 [initialPitch](/docs/options/Camera/initialPitch) 옵션을 사용해서 초기화 시점에 어떻게 보일지 선택할 수 있습니다.
+
+#### initialPitch: -90
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  projectionType="littleplanet"
+  initialPitch={-90}
+  license="veste"
+  showExampleCode />
+
+#### initialPitch: 90
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  projectionType="littleplanet"
+  initialPitch={90}
+  license="veste"
+  showExampleCode />
+
+### 회전 동작 막기
+만약 중심점 변환을 원하지 않거나, 회전을 원하지 않는다면 [disablePitch](/docs/options/Control/rotate#disablePitch)나 [disableYaw](/docs/options/Control/rotate#disableYaw) 옵션을 사용하실 수 있습니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  projectionType="littleplanet"
+  rotate={{ disablePitch: true }}
+  initialPitch={-90}
+  initialZoom={1.8}
+  license="veste"
+  showExampleCode />

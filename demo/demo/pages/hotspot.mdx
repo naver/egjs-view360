@@ -1,0 +1,260 @@
+import Hotspot from "../components/hotspot";
+
+# 📍 Hotspot
+
+:::info
+Please check out the [hotspot tutorial](/docs/hotspot) first.
+:::
+
+<Hotspot />
+
+In the demo above, we implemented three additional features in addition to hotspots.
+1. Show different hotspots per scene.
+2. Click to display a magazine modal.
+3. Change scene by clicking hotspot.
+
+Unfortunately, View360 doesn't support these additional features officially at the moment.
+But you can customize your hotspots with the features above following this guide below.
+
+## Step-to-step guide (React)
+The guide below is written in React, but the basics are same, so you can just apply it in a way that fits the framework you're using.
+
+### 1. Hotspot Data
+In this demo, we have two types of hotspots.
+One is with the search icon, and one is text which can change projection src.
+
+Here's actual data of each hotspot for the two scenes used in the demonstration:
+
+```json
+{
+  // Scene 1
+  1: [
+    {
+      type: "search",
+      yaw: 232,
+      pitch: -14,
+      book: 1
+    },
+    {
+      type: "search",
+      yaw: 133,
+      pitch: -18,
+      book: 2
+    },
+    {
+      type: "search",
+      yaw: 186,
+      pitch: -17,
+      book: 3
+    },
+    {
+      type: "link",
+      yaw: 94,
+      pitch: -8,
+      text: "Economy\nCulture"
+    }
+  ],
+  // Scene 2
+  2: [
+    {
+      type: "search",
+      yaw: 120,
+      pitch: -23,
+      book: 4
+    },
+    {
+      type: "link",
+      yaw: -100,
+      pitch: -12,
+      text: "Technology\nScience"
+    }
+  ]
+}
+```
+
+And we should render them respectively, here's a React code of it.
+
+```jsx
+// srcNum is current scene index
+const hotspots = data[srcNum];
+
+<div className="view360-hotspots">
+  {hotspots.map((hotspot, idx) => (
+    <div key={srcNum * 100 + idx} // A very rough way of bypassing key duplication
+      // Bind different class name by hotspot type
+      className={clsx("view360-hotspot", hotspot.type === "search" ? styles.search : styles.link)}
+      data-yaw={hotspot.yaw}
+      data-pitch={hotspot.pitch}>
+      { hotspot.type === "link" ? hotspot.text : "" }
+    </div>
+  ))}
+</div>
+```
+
+### 2. Styles
+Here's a set of styles used in the above demo.
+```css
+.search {
+  width: 24px;
+  height: 24px;
+}
+
+.search:before {
+  position: absolute;
+  content: "";
+  width: 12px;
+  height: 12px;
+  top: 0px;
+  left: 0px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+}
+
+.search:after {
+  position: absolute;
+  content: "";
+  top: 14px;
+  left: 14px;
+  width: 3px;
+  height: 8px;
+  background: #fff;
+  transform-origin: 50% 0%;
+  transform: rotate(-45deg);
+}
+
+.link {
+  text-align: center;
+  font-weight: bold;
+  color: #fff;
+}
+
+.search,
+.link {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+.modal[data-visible="true"] {
+  z-index: 9999;
+  display: flex;
+  background-color: rgba(0, 0, 0, 0.7);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+```
+
+### 3. Show different hotspots per scene.
+You can do this by changing the list of hotspot elements to be rendered.
+
+```jsx
+// srcNum is current scene index
+const hotspots = data[srcNum];
+
+<div className="view360-hotspots">
+  {hotspots.map((hotspot, idx) => (
+    <div key={srcNum * 100 + idx} // A very rough way of bypassing key duplication
+      // Bind different class name by hotspot type
+      className={clsx("view360-hotspot", hotspot.type === "search" ? styles.search : styles.link)}
+      data-yaw={hotspot.yaw}
+      data-pitch={hotspot.pitch}>
+      { hotspot.type === "link" ? hotspot.text : "" }
+    </div>
+  ))}
+</div>
+```
+
+Then you should call `hotspot.refresh` after hotspot elements are changed.
+
+```js
+useEffect(() => {
+  viewerRef.current.hotspot.refresh();
+}, [srcNum]);
+```
+
+### 4. Click to display a magazine modal.
+For this feature, you need a modal element within the container element of View360.
+```jsx
+<div className="view360-container">
+  <canvas className="view360-canvas" />
+  <div className="view360-hotspots">
+    <!-- Hotspots... -->
+  </div>
+  <!-- You have to add this element -->
+  <div ref={modalRef} className="modal" data-visible="false">
+    <!-- Book Image -->
+    <img ref={imgRef} />
+  </div>
+</div>
+```
+
+Then, we can add click handlers for the hotspots with the type `search`.
+The below is a React code of it.
+```jsx
+const hotspots = data[srcNum];
+
+{hotspots.map((hotspot, idx) => (
+  // All the other props are omitted.
+  <div onClick={() => {
+    if (hotspot.type === "search") {
+      openLayer(hotspot.book);
+    } else {
+      // TODO!
+    }
+  }}></div>
+))}
+```
+
+Then we can change the modal's img within `openLayer`
+```js
+const openLayer = useCallback(bookID => {
+  imgRef.current.src = `/demo/book${bookID}.jpg`;
+  modalRef.current.dataset.visible = "true";
+}, []);
+```
+
+Also, you should close modal when clicked.
+```jsx
+<div ref={modalRef}
+  onClickCapture={evt => {
+    evt.stopPropagation();
+    modalRef.current.dataset.visible = "false";
+  }}>
+  <img ref={imgRef} />
+</div>
+```
+
+### 5. Change scene by clicking hotspot.
+For hotspots with type `link`, we should change projection on clicking it.
+```jsx
+const hotspots = data[srcNum];
+
+{hotspots.map((hotspot, idx) => (
+  // All the other props are omitted.
+  <div onClick={() => {
+    if (hotspot.type === "search") {
+      openLayer(hotspot.book);
+    } else {
+      changeProjection();
+    }
+  }}></div>
+))}
+```
+
+As we have only two scenes at the moment, it could be roughly done like this:
+```js
+const changeProjection = useCallback(() => {
+  // 2 if 1 or 1 if 2
+  const nextRoom = 3 - srcNum;
+  setSrc(nextRoom);
+}, [srcNum]);
+```

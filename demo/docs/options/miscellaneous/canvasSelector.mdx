@@ -1,0 +1,25 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="string" defaultVal={`"canvas"`} added="4.0.0" />
+
+CSS selector for the canvas element to render panorama image/video.
+The canvas element must be inside the root element. It does not have to be a direct child element of the root element.
+
+## Example
+```html
+<div class="view360-container">
+  <canvas id="not_this_one"></canvas>
+  <!-- The canvas only needs to be inside the view360-container. -->
+  <div>
+    <!-- This element is selected. -->
+    <canvas id="canvas_to_select"></canvas>
+  </div>
+</div>
+```
+
+```ts
+const viewer = new View360("#el_id", {
+  canvasSelector: "#canvas_to_select"
+});
+```

@@ -1,0 +1,30 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean" defaultVal="true" added="4.0.0" />
+
+`true`로 설정할 경우, 모바일(터치) 환경의 캔버스 영역 내에서 스크롤을 가능하게 합니다.
+
+:::caution
+이 값을 활성화할 경우, 세로로 먼저 스와이프할 경우 스크롤이 발생하기 때문에
+사용자가 카메라 뷰를 위/아래로 바꾸기 위해서는
+먼저 가로로 스와이프한 이후에 세로로 스와이프해야만 합니다.
+:::
+
+## 예시 (모바일 환경에서 확인해주세요)
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  scrollable={true}
+  license="veste"
+  showExampleCode />
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  scrollable={false}
+  license="veste"
+  showExampleCode />

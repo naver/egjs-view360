@@ -1,33 +1,19 @@
 /*
- * Copyright (c) 2017 NAVER Corp.
+ * Copyright (c) 2023-present NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
-import ReactPanoViewer from "./PanoViewer";
-import ReactSpinViewer from "./SpinViewer";
 import {
-  AnimationEndEvent,
-  ChangeEvent,
-  ErrorEvent,
-  ImageErrorEvent,
-  LoadEvent,
-  ReadyEvent,
-  ViewChangeEvent
+  View360Options,
+  View360Events
 } from "@egjs/view360";
 
-export interface PanoViewerProps {
-  tag: keyof JSX.IntrinsicElements;
-  onReady: (evt: ReadyEvent<ReactPanoViewer>) => any;
-  onViewChange: (evt: ViewChangeEvent<ReactPanoViewer>) => any;
-  onAnimationEnd: (evt: AnimationEndEvent<ReactPanoViewer>) => any;
-  onError: (evt: ErrorEvent<ReactPanoViewer>) => any;
-  [key: string]: any;
-}
+export type View360EventProps = {
+  [key in keyof View360Events as `on${Capitalize<string & key>}`]: (evt: View360Events[key]) => any;
+};
 
-export interface SpinViewerProps {
+export type View360Props = {
   tag: keyof JSX.IntrinsicElements;
-  onLoad: (evt: LoadEvent<ReactSpinViewer>) => any;
-  onImageError: (evt: ImageErrorEvent<ReactSpinViewer>) => any;
-  onChange: (evt: ChangeEvent<ReactSpinViewer>) => any;
-  onAnimationEnd: (evt: AnimationEndEvent<ReactSpinViewer>) => any;
-  [key: string]: any;
-}
+  canvasClass: string;
+} & Omit<React.HTMLAttributes<HTMLDivElement>, keyof View360EventProps | keyof View360Options>
+  & View360EventProps
+  & View360Options;

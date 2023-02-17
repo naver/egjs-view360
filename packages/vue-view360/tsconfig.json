@@ -12,10 +12,6 @@
     "downlevelIteration": true,
     "sourceMap": true,
     "baseUrl": ".",
-    "types": [
-      "@egjs/view360",
-      "webpack-env"
-    ],
     "paths": {
       "~/*": ["../../src/*"],
     },

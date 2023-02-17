@@ -1,0 +1,26 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean" defaultVal="true" added="4.0.0" />
+
+비디오 키보드 컨트롤을 활성화합니다.
+위 / 아래 화살표키를 누를 시 비디오 볼륨을, 왼쪽 / 오른쪽 화살표키를 누를 시 비디오 시간을 조정합니다.
+
+## 예시
+아래는 키보드 컨트롤을 비활성화하는 예시입니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ keyboardControls: false }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  keyboardControls: false
+})
+```

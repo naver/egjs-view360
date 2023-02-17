@@ -1,0 +1,41 @@
+---
+sidebar_position: 7
+---
+
+import View360, { EVENTS } from "@site/src/components/View360";
+
+```ts
+import { EVENTS, ResizeEvent } from "@egjs/view360";
+
+// typescript 코드입니다.
+const onResize = (evt: ResizeEvent) => {};
+
+view360.on(EVENTS.RESIZE, onResize);
+```
+
+[View360#resize](/docs/api/Class/View360#resize)가 호출되었을 때 발생하는 이벤트
+
+## 프로퍼티
+### width: number
+변경된 캔버스의 너비 (=`canvas.clientWidth`)
+
+### height: number
+변경된 캔버스의 높이 (=`canvas.clientHeight`)
+
+:::info
+아래 예제는 이벤트 순서 확인을 위해 의도적으로 모든 컨트롤을 비활성화했습니다.
+
+예제에서 확인 가능한 이벤트 목록은 다음과 같습니다.
+- "resize", "beforeRender", "render"
+:::
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  license="veste"
+  rotate={false}
+  zoom={false}
+  gyro={false}
+  showControlBar={false}
+  showEvents={[EVENTS.RESIZE, EVENTS.BEFORE_RENDER, EVENTS.RENDER]} />

@@ -1,0 +1,52 @@
+import View360, { ControlBar } from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean | ControlBarItemOptions" defaultVal="true" added="4.0.0" />
+
+VR 진입버튼을 표시합니다.
+`true`일 경우 기본값을 적용하고, `false`일 경우 표시하지 않습니다.
+세부 옵션도 설정 가능합니다. [ControlBarItemOptions](/docs/api/Plugin/Interface/ControlBarItemOptions)를 확인해보세요.
+기본적으로 VR을 사용 가능한 환경에서만 표시됩니다.
+
+## 예시
+아래는 버튼을 표시하지 않는 예시입니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ vrButton: false }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  vrButton: false
+})
+```
+
+아래는 버튼을 다른 위치에 표시하는 예시입니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ vrButton: {
+    position: ControlBar.POSITION.TOP_RIGHT,
+    order: 0
+  } }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  vrButton: {
+    position: ControlBar.POSITION.TOP_RIGHT,
+    order: 0
+  }
+})
+```

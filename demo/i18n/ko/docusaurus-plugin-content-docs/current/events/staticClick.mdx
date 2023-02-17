@@ -1,0 +1,32 @@
+---
+sidebar_position: 12
+---
+
+import View360 from "@site/src/components/View360";
+
+```ts
+import { EVENTS, StaticClickEvent } from "@egjs/view360";
+
+// typescript 코드입니다.
+const onStaticClick = (evt: StaticClickEvent) => {};
+
+view360.on(EVENTS.STATIC_CLICK, onStaticClick);
+```
+
+캔버스 엘리먼트를 드래그하지 않고 클릭했을 때 발생하는 이벤트.
+
+## 프로퍼티
+### isTouch: boolean
+사용자 입력이 터치를 통한 것이었는지 여부
+
+:::info
+예제에서 확인 가능한 이벤트 목록은 다음과 같습니다.
+- "inputStart", "inputEnd", "staticClick"
+:::
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  license="veste"
+  showEvents={["inputStart", "inputEnd", "staticClick"]} />

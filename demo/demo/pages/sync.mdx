@@ -1,0 +1,39 @@
+import Sync from "../components/sync";
+
+# 🔄 Synchronize two viewers
+
+<Sync />
+
+This feature requires additional touch, but can achieved like this.
+Suppose there're two instances of View360.
+
+```js
+const viewer1 = new View360(...);
+const viewer2 = new View360(...);
+```
+
+We'll use `viewChange` event, then change the view direction of the other viewer.
+But, as changing the view direction of the other viewer will trigger `viewChange` event, we should bypass it like this:
+```js
+let ignoreViewChange1 = false;
+let ignoreViewChange2 = false;
+
+viewer1.on("viewChange", evt => {
+  const otherTarget = viewer2;
+  if (!otherTarget.initialized) return;
+  if (ignoreViewChange1) {
+    ignoreViewChange1 = false;
+    return;
+  }
+
+  ignoreViewChange2 = true;
+  otherTarget.camera.animateTo({
+    yaw: evt.yaw,
+    pitch: evt.pitch,
+    zoom: evt.zoom,
+    duration: 0
+  });
+});
+
+// Same for viewer2...
+```

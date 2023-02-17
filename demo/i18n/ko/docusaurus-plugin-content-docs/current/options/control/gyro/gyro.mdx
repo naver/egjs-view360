@@ -1,0 +1,63 @@
+---
+sidebar_position: 3
+---
+
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean | GyroControlOptions" defaultVal="true" added="4.0.0" />
+
+모바일 기기에서 자이로스코프에 의한 회전을 담당하는 컨트롤.
+
+`true`일 경우 자이로스코프에 의한 회전을 활성화하고 (기본값)
+`false`일 경우 자이로스코프에 의한 회전을 비활성화합니다.
+boolean값 뿐만 아니라 [GyroControlOptions](/docs/api/Interface/GyroControlOptions)타입의 오브젝트를 통해 세부 옵션도 지정할 수 있습니다.
+
+:::caution
+주의할 점으로, iOS와 같은 일부 환경의 경우 사용자로부터 DeviceMotion Permission을 받아야만 자이로컨트롤을 활성화 가능합니다.
+즉, `true`로 지정한다고 해서 바로 자이로컨트롤을 사용할 수 있는 것은 아닙니다.
+
+DeviceMotion을 통해 Permission 수령이 필요한지 여부는 다음과 같이 확인 가능합니다.
+
+```js
+import { GyroControl } from "@egjs/view360";
+
+// iOS 13+ 등에서는 shouldQueryPermission가 `true`입니다.
+const shouldQueryPermission = DeviceMotionEvent
+  && typeof DeviceMotionEvent.requestPermission === "function";
+// 이미 자이로스코프 권한을 취득했는지 여부를 반환합니다.
+// 비동기 코드로, 최대 1초 걸릴 수 있습니다.
+const gyroAvailable = await GyroControl.isAvailable();
+
+// ⚠️ 아래 코드는 유저 인터랙션 컨텍스트 내에서 실행되어야 합니다.
+// 즉, 클릭 이벤트의 핸들러 등에서 실행되어야 하며, 그렇지 않을 경우 동작하지 않습니다.
+if (shouldQueryPermission && !gyroAvailable) {
+  const permissionGranted = await GyroControl.requestSensorPermission();
+}
+```
+:::
+
+## 예시 (모바일에서 확인해주세요)
+자이로 컨트롤을 비활성화하는 예시입니다.
+우측 하단의 자이로스코프 버튼을 눌러 재활성화 가능합니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  gyro={false}
+  license="veste"
+  showExampleCode />
+
+세부 옵션은 아래와 같이 오브젝트를 지정하면 됩니다.
+적용 가능한 세부 옵션 및 관련 설명은 왼쪽 사이드바의 하위 항목을 참고해주세요.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  gyro={{
+    ignoreRoll: false
+  }}
+  license="veste"
+  showExampleCode />

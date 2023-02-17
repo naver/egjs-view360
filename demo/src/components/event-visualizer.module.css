@@ -1,0 +1,15 @@
+.header {
+  font-weight: 700;
+}
+.footer {
+  font-size: 0.8rem;
+}
+.separator {
+  margin: 0 0.5rem;
+}
+.btn {
+  cursor: initial;
+  margin: 0 0.25rem 0.5rem 0.25rem;
+  border-color: transparent;
+  color: white;
+}

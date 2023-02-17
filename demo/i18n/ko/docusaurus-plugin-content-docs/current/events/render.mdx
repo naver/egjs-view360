@@ -1,0 +1,27 @@
+---
+sidebar_position: 9
+---
+
+import View360 from "@site/src/components/View360";
+
+```ts
+import { EVENTS, RenderEvent } from "@egjs/view360";
+
+// typescript 코드입니다.
+const onRender = (evt: RenderEvent) => {};
+
+view360.on(EVENTS.RENDER, onRender);
+```
+
+새로운 프레임 렌더 직후에 발생하는 이벤트
+
+:::info
+아래 예제에서는 "render" 이벤트만 확인 가능합니다.
+:::
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  license="veste"
+  showEvents={["render"]} />

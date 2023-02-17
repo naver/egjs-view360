@@ -1,0 +1,86 @@
+---
+title: 핫스팟(어노테이션) 표시하기
+slug: /hotspot
+sidebar_position: 6
+---
+
+import View360 from "@site/src/components/View360";
+
+View360 영역 내에 특정한 클래스 이름을 갖는 마크업을 추가하면, View360은 이를 자동으로 수집해서 핫스팟으로 인식합니다.
+
+기본적인 구조는 다음과 같습니다.
+
+```html
+<div class="view360-container is-16by9">
+  <canvas class="view360-canvas">
+  <!-- 핫스팟 컨테이너 -->
+  <div class="view360-hotspots">
+    <!-- 핫스팟들 -->
+    <div class="view360-hotspot" data-yaw="0" data-pitch="0">1</div>
+    <!-- 핫스팟 위치를 지정하기 위해 Yaw(Y축 회전), Pitch(X축 회전)을 사용하거나 -->
+    <div class="view360-hotspot" data-yaw="-90" data-pitch="0">2</div>
+    <!-- 직접 3차원 좌표를 사용할 수도 있습니다 -->
+    <div class="view360-hotspot" data-position="0 1 0">3</div>
+    <!-- View360은 핫스팟을 적절한 위치에 배치만 해줍니다. -->
+    <!-- 핫스팟을 꾸미는건 원하는대로 하실 수 있습니다! -->
+    <div class="view360-hotspot" data-yaw="-90" data-pitch="-90">
+      <div>핫스팟 내부에 어떤 내용을 넣던, 어떤 크기를 갖던 상관 없습니다</div>
+      <img src="SOME_IMG_URL" alt="물론 이미지도 표시 가능하구요" />
+    </div>
+  </div>
+</div>
+```
+
+프레임워크를 사용중이신 경우라면, `<View360>` 내부에 `.view360-hotspots` 엘리먼트를 추가해서 동일하게 사용하실 수 있습니다.
+```html
+<View360 class="is-16by9">
+  <!-- Hotspot container -->
+  <div class="view360-hotspots">
+    <!-- Hotspots -->
+    <div class="view360-hotspot" data-yaw="0" data-pitch="0">1</div>
+    <!-- You can use either Yaw(Y-axis rotation), Pitch(X-axis rotation) for hotspot position -->
+    <div class="view360-hotspot" data-yaw="-90" data-pitch="0">2</div>
+    <!-- You can also use direct 3D coordinates. -->
+    <div class="view360-hotspot" data-position="0 1 0">3</div>
+    <!-- View 360 only places the hotspot in the appropriate location. -->
+    <!-- You can decorate your hotspots however you want! -->
+    <div class="view360-hotspot" data-yaw="-90" data-pitch="-90">
+      <div>It doesn't matter what content you put inside the hotspot or what size you have.</div>
+      <img src="SOME_IMG_URL" alt="Of course, you can display images." />
+    </div>
+  </div>
+</View360>
+```
+
+<View360
+  projectionOptions={{
+    src: [
+      "/pano/cube/FishermansBastion/posx.jpg",
+      "/pano/cube/FishermansBastion/negx.jpg",
+      "/pano/cube/FishermansBastion/posy.jpg",
+      "/pano/cube/FishermansBastion/negy.jpg",
+      "/pano/cube/FishermansBastion/posz.jpg",
+      "/pano/cube/FishermansBastion/negz.jpg"
+    ]
+  }}
+  projectionType="cubemap"
+  hotspot={{ zoom: true }}
+  showExampleCode
+  showControlBar
+  license="fisherman">
+  <div className="view360-hotspots">
+    <div className="view360-hotspot demo-hotspot" data-yaw="0" data-pitch="0">
+      <span>1</span>
+      <iframe className="demo-hotspot-bubble" width="250" height="250" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+    </div>
+    <div className="view360-hotspot demo-hotspot" data-yaw="-90" data-pitch="0">2</div>
+    <div className="view360-hotspot demo-hotspot" data-yaw="-90" data-pitch="90">3</div>
+    <div className="view360-hotspot demo-hotspot" data-yaw="-90" data-pitch="-90">4</div>
+  </div>
+</View360>
+
+> 위 데모는 `demo-hotspot` 클래스를 추가해서 흰색 원을 표시하도록 스타일을 추가했습니다.
+> 스타일이나 인터랙션은 직접 추가하셔서 원하는대로 꾸미실 수 있습니다.
+
+핫스팟의 동작도 커스터마이징 가능합니다.
+[핫스팟 옵션](/docs/options/hotspot)을 확인해보세요

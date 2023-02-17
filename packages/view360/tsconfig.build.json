@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig",
+  "include": [
+    "./src/**/*.ts",
+  ],
+  "compilerOptions": {
+    "target": "es6"
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}

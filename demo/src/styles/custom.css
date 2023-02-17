@@ -1,0 +1,111 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* You can override the default Infima variables here. */
+:root {
+  --ifm-color-primary: #4f7296;
+  --ifm-color-primary-dark: #476787;
+  --ifm-color-primary-darker: #436180;
+  --ifm-color-primary-darkest: #375069;
+  --ifm-color-primary-light: #577da5;
+  --ifm-color-primary-lighter: #5d83aa;
+  --ifm-color-primary-lightest: #7494b6;
+
+  --ifm-color-info: #3e8ed0;
+  --ifm-color-success: #48c78e;
+  --ifm-color-warning: #ffe08a;
+  --ifm-color-danger: #f03a5f;
+
+  --ifm-color-content: hsl(214, 59.4%, 15.3%);
+  --ifm-footer-logo-max-width: min(5rem, 60vw);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #72a3d5;
+  --ifm-color-primary-dark: #5993cd;
+  --ifm-color-primary-darker: #4c8aca;
+  --ifm-color-primary-darkest: #3572b0;
+  --ifm-color-primary-light: #8bb3dd;
+  --ifm-color-primary-lighter: #98bce0;
+  --ifm-color-primary-lightest: #bed4ec;
+  --ifm-color-content: #e3e3e3;
+}
+
+.docusaurus-highlight-code-line {
+  background-color: rgba(0, 0, 0, 0.1);
+  display: block;
+  margin: 0 calc(-1 * var(--ifm-pre-padding));
+  padding: 0 var(--ifm-pre-padding);
+}
+
+html[data-theme='dark'] .docusaurus-highlight-code-line {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+html[data-theme='dark'] {
+  --ifm-background-color: rgb(36, 37, 38);
+}
+
+html[data-theme='dark'] .navbar {
+  --ifm-navbar-shadow: 0 1px 2px 0 rgba(255, 255, 255, 0.1);
+}
+
+.footer--dark {
+  --ifm-footer-background-color: rgb(40, 44, 52);
+}
+
+.collapsibleContent_node_modules-\@docusaurus-theme-common-lib-components-Details-styles-module {
+  padding-top: 0 !important;
+}
+
+.tabs__item--active[data-framework="npm"] {
+  --ifm-tabs-color-active: #CB3837;
+  --ifm-tabs-color-active-border: #CB3837;
+}
+
+.tabs__item--active[data-framework="yarn"] {
+  --ifm-tabs-color-active: #2C8EBB;
+  --ifm-tabs-color-active-border: #2C8EBB;
+}
+
+.tabs__item--active[data-framework="js"] {
+  --ifm-tabs-color-active: #e4a226;
+  --ifm-tabs-color-active-border: #e4a226;
+}
+
+html[data-theme='dark'] .tabs__item--active[data-framework="js"] {
+  --ifm-tabs-color-active: #f7df1e;
+  --ifm-tabs-color-active-border: #f7df1e;
+}
+
+.tabs__item--active[data-framework="ng"] {
+  --ifm-tabs-color-active: #dd0031;
+  --ifm-tabs-color-active-border: #dd0031;
+}
+
+.tabs__item--active[data-framework="react"] {
+  --ifm-tabs-color-active: #0484a7;
+  --ifm-tabs-color-active-border: #0484a7;
+}
+
+html[data-theme='dark'] .tabs__item--active[data-framework="react"] {
+  --ifm-tabs-color-active: #61DBFB;
+  --ifm-tabs-color-active-border: #61DBFB;
+}
+
+.tabs__item--active[data-framework="vue"] {
+  --ifm-tabs-color-active: #42b883;
+  --ifm-tabs-color-active-border: #42b883;
+}
+
+.tabs__item--active[data-framework="svelte"] {
+  --ifm-tabs-color-active: #FF3E00;
+  --ifm-tabs-color-active-border: #FF3E00;
+}
+
+.badge--warning {
+  color: var(--ifm-color-content);
+}

@@ -1,0 +1,24 @@
+---
+title: EquirectProjection
+sidebar_position: 2
+---
+
+import View360 from "@site/src/components/View360";
+
+```js
+import { EquirectProjection } from "@egjs/view360";
+```
+
+`EquirectProjection` (Equirectangular Projection) is a projection that is used to display panoramic images in the form of spheres.
+Typically, the image used in EquirectProjection looks similar to the image below.
+
+![equirect](/pano/equirect/equi.jpg)
+
+When you use `EquirectProjection` to display the image above, it looks like this.
+
+<View360
+  projectionType="equirect"
+  projectionOptions={{
+    src: "/pano/equirect/equi_4096.jpg"
+  }}
+  showExampleCode />

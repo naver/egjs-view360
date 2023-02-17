@@ -1,0 +1,65 @@
+---
+slug: /options/hotspot/zoom
+---
+
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+import AutoResize from "@site/src/components/demo/AutoResize";
+
+<OptionDescriptor type="boolean" defaultVal="false" added="4.0.0" />
+
+핫스팟에 스케일을 적용해서 배경 파노라마 이미지의 크기 변화와 동일하게 크기를 조절합니다.
+
+`false`일 경우 핫스팟 엘리먼트는 카메라 줌 정도에 상관없이 동일한 크기를 유지합니다.
+`true`일 경우 핫스팟 엘리먼트가 카메라 줌 정도에 맞춰 크기를 변경합니다.
+
+## 예시
+차이를 확인하시기 쉽도록, 아래 예시들은 의도적으로 `zoom`이외에 다른 컨트롤을 비활성화했습니다.
+
+### zoom: false
+<View360
+  projectionOptions={{
+    src: [
+      "/pano/cube/FishermansBastion/posx.jpg",
+      "/pano/cube/FishermansBastion/negx.jpg",
+      "/pano/cube/FishermansBastion/posy.jpg",
+      "/pano/cube/FishermansBastion/negy.jpg",
+      "/pano/cube/FishermansBastion/posz.jpg",
+      "/pano/cube/FishermansBastion/negz.jpg"
+    ]
+  }}
+  rotate={false}
+  gyro={false}
+  projectionType="cubemap"
+  hotspot={{ zoom: false }}
+  showExampleCode
+  showControlBar
+  license="fisherman">
+  <div className="view360-hotspots">
+    <div className="view360-hotspot demo-hotspot" data-yaw="0" data-pitch="0">1</div>
+  </div>
+</View360>
+
+### zoom: true
+<View360
+  projectionOptions={{
+    src: [
+      "/pano/cube/FishermansBastion/posx.jpg",
+      "/pano/cube/FishermansBastion/negx.jpg",
+      "/pano/cube/FishermansBastion/posy.jpg",
+      "/pano/cube/FishermansBastion/negy.jpg",
+      "/pano/cube/FishermansBastion/posz.jpg",
+      "/pano/cube/FishermansBastion/negz.jpg"
+    ]
+  }}
+  rotate={false}
+  gyro={false}
+  projectionType="cubemap"
+  hotspot={{ zoom: true }}
+  showExampleCode
+  showControlBar
+  license="fisherman">
+  <div className="view360-hotspots">
+    <div className="view360-hotspot demo-hotspot" data-yaw="0" data-pitch="0">1</div>
+  </div>
+</View360>

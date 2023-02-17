@@ -1,0 +1,206 @@
+---
+title: 프로퍼티와 메소드
+slug: /properties-and-methods
+sidebar_position: 5
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import {
+  IconBrandReact,
+  IconBrandAngular,
+  IconBrandVue,
+  IconBrandSvelte
+} from "@tabler/icons";
+
+View360의 [API 문서](/docs/api/Class/View360)를 확인해보시면 **Properties** 항목 및 **Methods** 항목에 다양한 프로퍼티와 메소드가 정의되어있는 것을 확인하실 수 있습니다.
+
+이 프로퍼티와 메소드들은 View360의 인스턴스에 정의되어 있습니다. 즉, 예를 들어 [yaw](/docs/api/Class/Camera#yaw) 항목을 콘솔에 표시한 이후, [load()](/docs/api/Class/View360#load) 메소드를 호출하려면 다음과 같이 코드를 작성하시면 됩니다.
+
+```js
+// 옵션은 생략합니다.
+const view360 = new View360(...);
+
+// 현재 yaw 값을 콘솔창에 출력
+console.log(view360.camera.yaw);
+
+// 새로운 프로젝션 로드
+view360.load(...);
+```
+
+React와 같은 프레임워크를 사용하시는 경우(예: `@egjs/react-view360`)에도 동일하게 사용하실 수 있습니다.
+프레임워크별로 컴포넌트의 레퍼런스를 가져오는 방법은 달라집니다만, 사용하는 방법은 동일합니다.
+아래가 그 예시입니다.
+
+<Tabs
+  groupId="options"
+  defaultValue="react"
+  lazy={true}
+  values={[
+    {
+      label: <div className="framework-wrapper">
+        <IconBrandReact width="18" height="18" /> React
+      </div>,
+      value: "react",
+      attributes: {
+        "data-framework": "react"
+      }
+    },
+    {
+      label: <div className="framework-wrapper">
+        <IconBrandAngular width="18" height="18" /> Angular
+      </div>,
+      value: "ng",
+      attributes: {
+        "data-framework": "ng"
+      }
+    },
+    {
+      label: <div className="framework-wrapper">
+        <IconBrandVue width="18" height="18" /> Vue@2
+      </div>,
+      value: "vue2",
+      attributes: {
+        "data-framework": "vue"
+      }
+    },
+    {
+      label: <div className="framework-wrapper">
+        <IconBrandVue width="18" height="18" /> Vue@3
+      </div>,
+      value: "vue3",
+      attributes: {
+        "data-framework": "vue"
+      }
+    },
+    {
+      label: <div className="framework-wrapper">
+        <IconBrandSvelte width="18" height="18" /> Svelte
+      </div>,
+      value: "svelte",
+      attributes: {
+        "data-framework": "svelte"
+      }
+    }
+  ]}>
+  <TabItem value="react">
+
+```tsx
+import React, { useRef, useEffect } from "react";
+import View360 from "@egjs/view360";
+
+// 타입스크립트(.tsx) 코드입니다.
+export default () => {
+  const viewerRef = useRef<View360>();
+
+  useEffect(() => {
+    // 인스턴스를 가져왔습니다. 이걸로 프로퍼티와 메소드에 접근 가능합니다.
+    const view360 = viewerRef.current;
+
+    console.log(view360.camera.yaw);
+    view360.load(...);
+  }, []);
+
+  return <View360 ref={viewerRef} />;
+}
+```
+
+  </TabItem>
+  <TabItem value="ng">
+
+```ts
+import { Component, ViewChild } from "@angular/core";
+
+@Component({
+  selector: "demo-comp",
+  template: "<ngx-view360 #viewer />"
+})
+export class DemoComponent {
+  // this.view360를 이용해서 프로퍼티 및 메소드에 접근 가능합니다.
+  @ViewChild("viewer") public view360;
+
+  public printCurrentYaw() {
+    console.log(this.view360.camera.yaw);
+  }
+
+  public loadNewProjection() {
+    this.view360.load(...);
+  }
+}
+```
+
+  </TabItem>
+  <TabItem value="vue2">
+
+```html
+<template>
+  <view360 ref="viewer" />
+</template>
+<script lang="ts">
+import Vue from "vue";
+
+// 인스턴스를 this.$refs.viewer로 접근 가능합니다.
+// 이를 이용해서, 프로퍼티에 접근하거나 메소드를 호출할 수 있습니다.
+export default Vue.extend({
+  methods: {
+    printCurrentYaw() {
+      console.log(this.$refs.viewer.camera.yaw);
+    },
+    loadNewProjection() {
+      this.$refs.viewer.load(...);
+    }
+  }
+});
+</script>
+```
+
+  </TabItem>
+  <TabItem value="vue3">
+
+```html
+<template>
+  <view360 ref="viewer" />
+</template>
+<script lang="ts">
+import { defineComponent } from "vue";
+
+// 인스턴스를 this.$refs.viewer로 접근 가능합니다.
+// 이를 이용해서, 프로퍼티에 접근하거나 메소드를 호출할 수 있습니다.
+export default defineComponent({
+  methods: {
+    printCurrentYaw() {
+      console.log(this.$refs.viewer.camera.yaw);
+    },
+    loadNewProjection() {
+      this.$refs.viewer.load(...);
+    }
+  }
+});
+</script>
+```
+
+  </TabItem>
+  <TabItem value="svelte">
+
+```html
+<script lang="tsx">
+import View360 from "@egjs/svelte-view360";
+
+// bind:this를 이용해서 이 변수에 컴포넌트 인스턴스를 바인딩하면 됩니다.
+// 이를 이용해서, 프로퍼티에 접근하거나 메소드를 호출할 수 있습니다.
+let view360: View360;
+
+function printCurrentYaw() {
+  console.log(view360.camera.yaw);
+}
+
+function loadNewProjection() {
+  view360.load(...);
+}
+</script>
+
+<View360 bind:this={view360}>
+```
+
+  </TabItem>
+</Tabs>

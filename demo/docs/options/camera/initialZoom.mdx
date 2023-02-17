@@ -1,0 +1,28 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="number" defaultVal="1" added="4.0.0" />
+
+The initial zoom value.
+The area shown will be enlarged by `zoom * 100%`.
+For example, `zoom: 2` magnifies the image by 200% horizontally.
+
+Value must be within the range of [zoomRange](./zoomRange).
+
+## Example
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  initialZoom={2}
+  license="veste"
+  showExampleCode />
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  initialZoom={0.3}
+  zoomRange={{ min: 0.3, max: 5 }}
+  license="veste"
+  showExampleCode />

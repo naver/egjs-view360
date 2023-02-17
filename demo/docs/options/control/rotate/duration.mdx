@@ -1,0 +1,18 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="number" defaultVal="300" added="4.0.0" />
+
+Playback time of rotating animation (ms)
+From the last input, the animation will play for a period of time corresponding to this value.
+
+## Example
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  rotate={{
+    duration: 1000
+  }}
+  license="veste"
+  showExampleCode />

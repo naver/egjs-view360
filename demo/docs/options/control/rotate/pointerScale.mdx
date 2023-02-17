@@ -1,0 +1,20 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="[number, number]" defaultVal="[1, 1]" added="4.0.0" />
+
+Scale factor of the rotation via mouse or touch.
+The values are `[Scale of left/right movement (=yaw), Scale of up/down movement (= pitch)]`.
+
+## Example
+Below is an example of setting the yaw scale and the pitch scale by 2 and 0.5 each.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  rotate={{
+    pointerScale: [2, 0.5]
+  }}
+  license="veste"
+  showExampleCode />

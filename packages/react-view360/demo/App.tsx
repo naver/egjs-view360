@@ -1,30 +1,15 @@
-import React, { Component } from "react";
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route
-} from "react-router-dom";
-import Header from "./Header";
-import Rerender from "./pano/Rerender";
-import Video from "./pano/Video";
-import Default from "./spin/Default";
+/* eslint-disable import/no-anonymous-default-export */
+import React, { useMemo } from "react";
+import View360, { CubemapProjection } from "../src";
 import "./App.css";
+import "@egjs/view360/css/view360.min.css";
 
-export default class App extends Component<{}> {
-  public render() {
-    return (<Router>
-      <Header/>
-      <Switch>
-        <Route path="/rerender">
-          <Rerender />
-        </Route>
-        <Route path="/video">
-          <Video />
-        </Route>
-        <Route path="/spin">
-          <Default />
-        </Route>
-      </Switch>
-    </Router>);
-  }
+export default () => {
+  const projection = useMemo(() => new CubemapProjection({
+    src: "https://naver.github.io/egjs-view360/examples/panoviewer/etc/img/bookcube1.jpg"
+  }), []);
+
+  return <View360
+    projection={projection}
+    className="is-3by1" />
 }

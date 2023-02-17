@@ -1,0 +1,67 @@
+---
+sidebar_position: 3
+---
+
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean | GyroControlOptions" defaultVal="true" added="4.0.0" />
+
+:::info
+Gyroscope sensor only works in [Secure contexts](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts), run server with TLS/SSL(HTTPS) if it doesn't works.
+:::
+
+Options for gyroscope rotation on mobile devices.
+
+If `true`, enable rotation by gyroscope with the default options (default)
+If `false`, disable gyroscope rotation.
+In addition to the boolean value, detailed options can be specified with type [GyroControlOptions](/docs/api/Interface/GyroControlOptions).
+
+:::caution
+Note that in some environments, such as iOS, gyro control can only be activated by receiving DeviceMotion Permission from the user.
+In other words, `true` does not mean that gyro control can be used immediately.
+
+Whether permission is required through DeviceMotion can be determined as follows.
+
+```js
+import { GyroControl } from "@egjs/view360";
+
+// shouldQueryPermission is 'true' on some envs like iOS 13+.
+const shouldQueryPermission = DeviceMotionEvent
+  && typeof DeviceMotionEvent.requestPermission === "function";
+// Returns whether you have already acquired gyroscope permissions.
+// This method is asynchronous, which can take up to 1 second.
+const gyroAvailable = await GyroControl.isAvailable();
+
+// ⚠️ The code below must be executed within the user interaction context.
+// That is, it must be run on a handler of click events, etc., otherwise it will not work.
+if (shouldQueryPermission && !gyroAvailable) {
+  const permissionGranted = await GyroControl.requestSensorPermission();
+}
+```
+:::
+
+## Example (Check it on mobile)
+An example of disabling gyro controls.
+Reactivate is possible by pressing the gyroscope button in the lower right corner.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  gyro={false}
+  license="veste"
+  showExampleCode />
+
+For detailed options, you can use the object like the example below.
+Refer to the sub-items on the left sidebar for detailed options and related descriptions.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  gyro={{
+    ignoreRoll: false
+  }}
+  license="veste"
+  showExampleCode />

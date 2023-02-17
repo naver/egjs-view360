@@ -1,0 +1,152 @@
+---
+title: Vue
+id: quick-start-vue
+slug: /quick-start-vue
+sidebar_position: 3
+---
+
+# Quick Start (Vue 2 & 3)
+## Most basic rendering code
+### Vue2
+```html title=Demo.vue
+<template>
+  <View360 class="is-16by9" :projection="projection" />
+</template>
+<script>
+import { View360, EquirectProjection } from "@egjs/vue-view360";
+
+export default {
+  created() {
+    this.projection = new EquirectProjection({
+      src: "/egjs-view360/pano/equirect/veste.jpg"
+    });
+  },
+  components: {
+    View360
+  }
+}
+</script>
+```
+
+### Vue3
+```html title=Demo.vue
+<template>
+  <View360 class="is-16by9" :projection="projection" />
+</template>
+<script>
+import { defineComponent } from "vue";
+import { View360, EquirectProjection } from "@egjs/vue3-view360";
+
+export default defineComponent({
+  setup() {
+    const projection = new EquirectProjection({
+      src: "/egjs-view360/pano/equirect/veste.jpg"
+    });
+
+    return {
+      projection
+    }
+  },
+  components: {
+    View360
+  }
+})
+</script>
+```
+
+## Styles
+You can directly import CSS file from `@egjs/vue-view360`.
+```js title=main.ts
+import "@egjs/vue-view360/css/view360.min.css";
+```
+
+## Registering component
+### Global (Vue2)
+```ts
+import Vue from "vue";
+import View360 from "@egjs/vue-view360";
+import "@egjs/vue-view360/css/view360.min.css";
+
+// This will register the component named "View360"
+Vue.use(View360);
+```
+
+### Global (Vue3)
+```ts
+import Vue from "vue";
+import View360 from "@egjs/vue3-view360";
+import "@egjs/vue-view360/css/view360.min.css";
+
+const app = createApp(App);
+
+// This will register the component named "View360"
+app.use(View360);
+```
+
+### Local
+```ts
+// You have to import like this, you shouldn't use the "default"
+import { View360 } from "@egjs/vue3-view360";
+
+export default {
+  components: {
+    View360
+  }
+}
+```
+
+## Properties & Methods
+See [Properties & Methods](/docs/properties-and-methods)
+
+## Events
+All the events from [Events](/docs/events) are renamed to `kebab-case`.
+For example, `viewChange` is changed to `view-change`.
+
+```html
+<template>
+  <View360 @view-change="onViewChange" />
+</template>
+<script lang="ts">
+import { ViewChangeEvent } from "@egjs/vue-view360";
+
+export default {
+  methods: {
+    onViewChange(evt: ViewChangeEvent) {
+      // ...
+    }
+  }
+}
+</script>
+```
+
+## Additional props
+### tag: `string` = `"div"`
+`tag` can change HTML tag of `.view360-container` element.
+
+For example, this:
+```jsx
+<View360 tag="li" />
+```
+
+will generate this:
+```html
+<li class="view360-container">
+  <canvas class="view360-canvas" />
+</li>
+```
+
+### canvasClass: `string` = `""`
+Using prop `class` will add classes to the `.view360-container` element.
+Instead, you can use `canvasClass` to add classes to `.view360-canvas` element.
+
+For example, this:
+```jsx
+<View360 class="CLASS_A" canvasClass="CLASS_B" />
+```
+
+will generate this:
+```html
+<div class="view360-container CLASS_A">
+  <canvas class="view360-canvas CLASS_B" />
+</div>
+```

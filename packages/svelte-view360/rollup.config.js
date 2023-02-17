@@ -7,6 +7,7 @@ import livereload from "rollup-plugin-livereload";
 import { terser } from "rollup-plugin-terser";
 import sveltePreprocess, { replace } from "svelte-preprocess";
 import css from "rollup-plugin-css-only";
+import fs from "fs";
 
 import replaces from "./replace";
 

@@ -1,0 +1,24 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean" defaultVal="true" added="4.0.0" />
+
+Sets whether to automatically change the CSS [cursor](https://developer.mozilla.org/en-US/docs/Web/CSS/cursor) value when using the mouse.
+If `true`, apply `cursor: "grab"` to the canvas when it's in the default state and `cursor: "grabbing"` during input.
+
+## Example
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  useGrabCursor={true}
+  license="veste"
+  showExampleCode />
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  useGrabCursor={false}
+  license="veste"
+  showExampleCode />

@@ -1,0 +1,29 @@
+---
+title: 공통 프로퍼티
+sidebar_position: 2
+---
+
+모든 이벤트는 2개의 공통 프로퍼티를 공유합니다.
+
+### type: string
+이벤트 타입.
+이벤트 이름과 값이 같습니다.
+
+:::info 예시
+```ts
+viewer.on("ready", evt => {
+  console.log(evt.type); // "ready"
+});
+```
+:::
+
+### target: View360
+이벤트를 발생시킨 컴포넌트의 인스턴스.
+
+:::info 예시
+```ts
+viewer.on("ready", evt => {
+  console.log(evt.target); // = viewer
+});
+```
+:::

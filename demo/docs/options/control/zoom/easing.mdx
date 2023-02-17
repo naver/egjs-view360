@@ -1,0 +1,41 @@
+import View360, { EASING } from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="function" defaultVal="EASING.EASE_OUT_CUBIC" added="4.0.0" />
+
+Easing function for rotating animation.
+[EASING.EASE_OUT_CUBIC](/docs/api/Variables/EASING) is applied by default.
+
+## Example
+```js
+import View360, { EASING } from "@egjs/view360";
+
+const view360 = new View360("#el_id", {
+  zoom: {
+    easing: EASING.LINEAR
+  }
+})
+```
+
+Below is an example of applying [EASING.LINEAR](/docs/api/Variables/EASING).
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  zoom={{
+    easing: EASING.LINEAR
+  }}
+  license="veste" />
+
+Below is an example of applying [EASING.EASE_OUT_BOUNCE](/docs/api/Variables/EASING).
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  zoom={{
+    easing: EASING.EASE_OUT_BOUNCE
+  }}
+  license="veste" />
+
+You can also make your own easing function and use it.
+Type is `(x: number) => number`, x comes in between 0 and 1, function should return 0 when x = 0, and 1 when x = 1.

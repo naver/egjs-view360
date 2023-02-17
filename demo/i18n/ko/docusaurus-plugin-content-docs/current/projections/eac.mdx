@@ -1,0 +1,36 @@
+---
+title: EquiangularProjection
+sidebar_position: 5
+---
+
+import View360 from "@site/src/components/View360";
+
+```js
+import { EquiangularProjection } from "@egjs/view360";
+```
+
+EquiangularProjection은 Equi Angular Cubemap(EAC)을 기반으로 한 프로젝션 타입입니다.
+EAC는 Youtube 동영상에서 주로 사용하는 포맷으로, 일반적으로 다음과 같은 형태를 갖고 있습니다.
+
+![eac](/pano/eac/eac.jpg)
+
+위 이미지를 EquiangularProjection으로 표시하면 다음과 같습니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/eac/eac.jpg"
+  }}
+  projectionType="eac"
+  showExampleCode />
+
+다른 예시입니다, [원본 Youtube 동영상](https://www.youtube.com/watch?v=r7hv9K-u3U8)도 확인해보세요.
+
+<View360
+  projectionOptions={{
+    src: "/pano/eac/bathroom.mp4",
+    video: true
+  }}
+  projectionType="eac"
+  showControlBar
+  license="bathroom"
+  showExampleCode />

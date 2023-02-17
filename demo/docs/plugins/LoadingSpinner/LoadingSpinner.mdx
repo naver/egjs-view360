@@ -1,0 +1,53 @@
+---
+sidebar_position: 3
+---
+
+import View360 from "@site/src/components/View360";
+
+LoadingSpinner adds a simple loading bar while loading your image / video.
+
+## Example
+```js
+import View360, { LoadingSpinner } from "@egjs/view360";
+// If you're not using the bundled CSS (view360.css or pano-viewer.css)
+import "@egjs/view360/css/loading-spinner.min.css";
+
+const viewer = new View360("#id_of_el", {
+  src: "URL_TO_SRC",
+  autoInit: false
+});
+
+viewer.loadPlugins(new LoadingSpinner());
+
+// When "Load" button is clicked
+viewer.init();
+```
+
+<View360
+  projectionOptions={{
+    src: [
+      "/egjs-view360/pano/cube/FishermansBastion/posx.jpg",
+      "/egjs-view360/pano/cube/FishermansBastion/negx.jpg",
+      "/egjs-view360/pano/cube/FishermansBastion/posy.jpg",
+      "/egjs-view360/pano/cube/FishermansBastion/negy.jpg",
+      "/egjs-view360/pano/cube/FishermansBastion/posz.jpg",
+      "/egjs-view360/pano/cube/FishermansBastion/negz.jpg"
+    ]
+  }}
+  projectionType="cubemap"
+  showSpinner
+  clickToLoad
+  license="fisherman" />
+
+For detailed options, check the items below `LoadingSpinner` on the left sidebar.
+
+## Constants
+LoadingSpinner는 provides constants that can be used when setting options.
+
+### [DEFAULT_CLASS](/docs/api/Plugin/Class/LoadingSpinner#DEFAULT_CLASS)
+Default class names used by LoadingSpinner
+```js
+import { LoadingSpinner } from "@egjs/view360";
+
+LoadingSpinner.DEFAULT_CLASS
+```

@@ -1,0 +1,463 @@
+---
+title: Migration Guide (v3 → v4)
+sidebar_position: 1
+---
+
+A lot of things changed as the major version went up to v4.
+
+In this guide, we will guide you through the changes so that those who used the previous major version can move on to v4.
+
+## SpinViewer (deprecated)
+:::danger
+SpinViewer is no longer available from v4. View360 now offers only PanoViewer.
+:::
+- PanoViewer renamed to View360.
+- If you're using SpinViewer, you can still use v3.
+
+## HTML structure
+Traditionally, View360 required only one container element.
+A canvas was added inside the container and the style was force-injected.
+This method has the advantage of being a little more convenient, but it has the disadvantage of being difficult to predict the style after the PanoViewer is mounted.
+
+In the new version, both the container element and the canvas element must be given to mount View360.
+In addition, we're providing a separate CSS file without directly injecting the default style.
+This makes it easy to predict the size of the displayed area even if View360 is not mounted, and makes it easy to adjust the viewer ratio through helper classes.
+
+> v3
+
+```html
+<div class="viewer" id="myPanoViewer"></div>
+```
+
+> v4
+
+```html
+<head>
+  <!-- CSS file is now provided. -->
+  <link rel="stylesheet" href="https://naver.github.io/egjs-view360/release/latest/css/view360.min.css">
+</head>
+<body>
+  <!-- You need to add a class view360-container. -->
+  <!-- In addition, you can easily change the viewer's ratio through a ratio helper class (such as is-16by9). -->
+  <div class="view360-container is-16by9" id="myPanoViewer">
+    <!-- You must add a canvas element inside. -->
+    <canvas class="view360-canvas">
+  </div>
+</body>
+```
+
+## Changed options
+### image & video
+Integrated into Projection's option, [src](../../api/Projection/Interface/ProjectionOptions#src).
+
+> v3
+
+```js
+import { PanoViewer } from "@egjs/view360";
+
+const panoViewer = new PanoViewer(container, {
+  image: "/path/to/image/image.jpg"
+});
+```
+
+> v4
+
+```js
+import View360, { EquirectProjection } from "@egjs/view360";
+
+const viewer = new View360(container, {
+  projection: new EquirectProjection({
+    src: "/path/to/image/image.jpg", // image & video is integrated into src.
+    video: false // For video-related options, use the "video".
+  })
+});
+```
+
+### projectionType
+Each projection type is separated into classes for tree-shaking.
+You can now use `projection` instead of `projectionType` by importing the projection class.
+
+> v3
+
+```js
+import { PanoViewer } from "@egjs/view360";
+
+const panoViewer = new PanoViewer(container, {
+  projectionType: "equirectangular"
+});
+```
+
+> v4
+
+```js
+import View360, { EquirectProjection } from "@egjs/view360";
+
+const viewer = new View360(container, {
+  projection: new EquirectProjection({
+    ...some_options // options for the projection
+  })
+});
+```
+
+### projectionType: panorama
+
+- Changed to **CylindricalProjection**
+- It won't automatically detect whether it covers all 360 degrees horizontally by the proportion of the user's image.
+  - Please use the option **partial**.
+
+> v3
+
+```js
+import { PanoViewer } from "@egjs/view360";
+
+const panoViewer = new PanoViewer(container, {
+  projectionType: "panorama"
+});
+```
+
+> v4
+
+```js
+import View360, { CylindricalProjection } from "@egjs/view360";
+
+const viewer = new View360(container, {
+  projection: new CylindricalProjection({
+    ...some_options // options for the projection
+  })
+});
+```
+
+### cubemapConfig
+- Separated as an option for `CubemapProjection` and `CubestripProjection`.
+  - order: Renamed to `cubemapOrder`.
+  - tileConfig: Deleted, some features are available with `cubemapFlipX`.
+
+### width & height
+Deleted. You can now resize the container elements directly through the CSS.
+
+### yaw & pitch
+- Changed to `initialYaw` & `initialPitch` respectively.
+
+### showPolePoint
+Deleted.
+
+### useZoom
+It can be used in the same way with the option `zoom`
+
+> v3
+
+```js
+import { PanoViewer } from "@egjs/view360";
+
+const panoViewer = new PanoViewer(container, {
+  useZoom: false
+});
+```
+
+> v4
+
+```js
+import View360 from "@egjs/view360";
+
+const viewer = new View360(container, {
+  zoom: false
+});
+```
+
+### useKeyboard
+It can be used in the same way with the option `rotate.disableKeyboard`.
+
+> v3
+
+```js
+import { PanoViewer } from "@egjs/view360";
+
+const panoViewer = new PanoViewer(container, {
+  useKeyboard: false
+});
+```
+
+> v4
+
+```js
+import View360 from "@egjs/view360";
+
+const viewer = new View360(container, {
+  rotate: { disableKeyboard: true }
+});
+```
+
+### gyroMode
+- GYRO_MODE.NONE: It can be replaced by `gyro: false`.
+- GYRO_MODE.YAWPITCH: It can be replaced by `gyro: true`.
+- GYRO_MODE.VR: It can be replaced by `gyro: { ignoreRoll: false }`.
+
+> v3
+
+```js
+import { PanoViewer } from "@egjs/view360";
+
+const panoViewer = new PanoViewer(container, {
+  gyroMode: "VR"
+});
+```
+
+> v4
+
+```js
+import View360 from "@egjs/view360";
+
+const viewer = new View360(container, {
+  gyro: { ignoreRoll: false }
+});
+```
+
+### fovRange
+We changed it to zoomRange for easier use.
+Try [Camera#fovToZoom](../../api/Class/Camera#fovToZoom) to convert the fov value to the zoom value.
+
+> v3
+
+```js
+import { PanoViewer } from "@egjs/view360";
+
+const panoViewer = new PanoViewer(container, {
+  fovRange: [15, 90]
+});
+```
+
+> v4
+
+```js
+import View360 from "@egjs/view360";
+
+const viewer = new View360(container, {
+  zoomRange: [1, 5] // You can zoom in from 100% to 500%.
+});
+```
+
+### touchDirection
+Deleted and can be replaced with `rotate.disablePitch` and `rotate.disableYaw`.
+
+> v3
+
+```js
+import { PanoViewer } from "@egjs/view360";
+
+const panoViewer = new PanoViewer(container, {
+  touchDirection: TOUCH_DIRECTION.YAW
+});
+```
+
+> v4
+
+```js
+import View360 from "@egjs/view360";
+
+const viewer = new View360(container, {
+  rotate: { disablePitch: true }
+});
+```
+
+### canvasClass
+Deleted. Canvas elements are not automatically created, so you can set class name yourself!
+
+### (static) PanoViewer.isGyroSensorAvailable
+- Moved to GyroControl's static metho' `isAvailable`.
+- Instead of receiving a callback, it will now return a Promise with availability.
+
+> v3
+
+```js
+PanoViewer.isGyroSensorAvailable(available => {
+  console.log(available);
+});
+```
+
+> v4
+
+```js
+import { GyroControl } from "@egjs/view360";
+
+const available = await GyroControl.isAvailable();
+```
+
+### enableSensor & disableSensor
+- Moved to `enable` & `disable` of GyroControl, which can be accessed by `view360.gyro`.
+
+> v3
+
+```js
+viewer.enableSensor();
+```
+
+> v4
+
+```js
+viewer.control.gyro.enable();
+```
+
+### enterVR & exitVR
+- Moved to `enter & exit` of `view360.vr`.
+
+> v3
+
+```js
+viewer.enterVR();
+```
+
+> v4
+
+```js
+viewer.vr.enter();
+```
+
+### getYaw, getPitch, getFov
+- Changed to properties of `view360.camera`.
+
+> v3
+
+```js
+const currentYaw = viewer.getYaw();
+```
+
+> v4
+
+```js
+const currentYaw = viewer.camera.yaw;
+```
+
+### getYawRange, getPitchRange, getFovRange
+- Changed to `view360.camera` method and properties.
+- `getFovRange` has been changed to `getZoomRange`.
+
+> v3
+
+```js
+const [min, max] = viewer.getYawRange();
+```
+
+> v4
+
+```js
+// Same to the option "yawRange"
+const { min, max } = viewer.camera.yawRange;
+
+// Actual yaw range considering current zoom value
+const { min, max } = viewer.camera.getYawRange(viewer.camera.zoom);
+```
+
+### getProjectionType
+- Deleted.
+- Instead, you can access the current projection instance with `viewer.projection`.
+
+### getTouchDirection
+- Deleted.
+
+### getImage, getVideo
+- It can be replaced by `getTexture()` of View360.
+
+> v3
+
+```js
+const image = viewer.getImage();
+```
+
+> v4
+
+```js
+const image = viewer.getTexture().source;
+```
+
+### keepUpdate
+- Deleted. View360 now controls whether to render or not.
+
+### lookAt
+- It can be replaced with `view360.camera.lookAt` or `view360.camera.animateTo`.
+
+> v3
+
+```js
+viewer.lookAt({ yaw, pitch, fov }, duration);
+```
+
+> v4
+
+```js
+// If you want to change cam direction immediately
+viewer.camera.lookAt({
+  yaw,
+  pitch,
+  zoom
+});
+
+// When applying animation
+viewer.camera.animateTo({
+  yaw,
+  pitch,
+  zoom,
+  duration
+});
+
+// If you need immediate reflection, you have to call this.
+viewer.renderFrame(0);
+```
+
+### setImage & setVideo
+It can be replaced with `view360.load`.
+
+> v3
+
+```js
+panoViewer.setImage("/path/to/image/image.png", {
+  projectionType: eg.view360.PanoViewer.PROJECTION_TYPE.CUBEMAP
+});
+```
+
+> v4
+
+```js
+view360.load(new CubemapProjection({
+  src: "/path/to/image/image.png"
+}));
+```
+
+### Other option setters
+You can change the value directly only for the options that can be changed.
+
+> v3
+
+```js
+panoViewer.setUseKeyboard(false);
+```
+
+> v4
+
+```js
+view360.rotate.disableKeyboard = true;
+```
+
+### updateViewportDimensions
+You can change the size of the container yourself.
+
+> v3v
+
+```js
+panoViewer.updateViewportDimensions({ width: 250, height: 250 });
+```
+
+> v4
+
+```js
+const container = viewer.rootEl;
+
+container.style.width = "250px";
+container.style.height = "250px";
+```
+
+## Events
+### error
+Deleted. View360Error is now throwed instead.
+
+### animationEnd
+Deleted. You can now use `inputStart` and `inputEnd` events instead.

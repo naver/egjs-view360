@@ -1,0 +1,25 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean" defaultVal="true" added="4.0.0" />
+
+캔버스를 클릭했을 때 비디오가 재생중이었으면 일시정지하고, 일시정지중이었다면 다시 재생합니다.
+
+## 예시
+아래는 clickToPlay 동작을 끄는 예시입니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ clickToPlay: false }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  clickToPlay: false
+})
+```

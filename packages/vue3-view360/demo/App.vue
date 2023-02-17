@@ -1,29 +1,45 @@
+<script lang="ts">
+import { EquirectProjection, Projection, ReadyEvent } from "@egjs/view360";
+import { defineComponent, onMounted, ref } from "vue";
+import { View360, CubemapProjection } from "../src/index";
+
+export default defineComponent({
+  setup() {
+    const view360 = ref<View360>();
+    const projection = ref<Projection>(new CubemapProjection({
+      src: "https://naver.github.io/egjs-view360/examples/panoviewer/etc/img/bookcube1.jpg"
+    }));
+
+    onMounted(() => {
+      console.log(view360.value!.initialized);
+    });
+
+    function changeProjection() {
+      projection.value = new EquirectProjection({
+        src: "https://naver.github.io/egjs-view360/examples/panoviewer/etc/img/bookcube1.jpg"
+      })
+    }
+
+    function onReady(evt: ReadyEvent) {
+      console.log("ready", evt.target.fov);
+    }
+
+    return {
+      view360,
+      projection,
+      changeProjection,
+      onReady
+    }
+  },
+  components: {
+    View360
+  }
+})
+</script>
+
 <template>
   <div>
-    <header>
-      <div class="header">
-        <span>PanoViewer:</span>
-        <router-link to="/rerender">Rerender</router-link>
-        <router-link to="/video">Video</router-link>
-      </div>
-      <div>
-        <span>SpinViewer:</span>
-        <router-link to="/spin">Spin</router-link>
-      </div>
-    </header>
-    <router-view></router-view>
+    <View360 :tab-index="1" :projection="projection" ref="view360" @ready="onReady"/>
+    <button @click="changeProjection">CLICK ME</button>
   </div>
 </template>
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-.header * {
-  margin-right: 0.75rem;
-}
-</style>

@@ -1,0 +1,27 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="number" defaultVal="0" added="4.0.0" />
+
+Initial pitch(X-axis rotation) value.
+Look up if initialPitch > 0 and down if initialPitch < 0.
+
+A value between `-90 and 90` must be used.
+Values beyond that range are clamped into the range.
+
+## Example
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  initialPitch={45}
+  license="veste"
+  showExampleCode />
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  initialPitch={-45}
+  license="veste"
+  showExampleCode />

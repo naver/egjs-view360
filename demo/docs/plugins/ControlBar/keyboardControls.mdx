@@ -1,0 +1,27 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean" defaultVal="true" added="4.0.0" />
+
+Enables video keyboard controls.
+When enabled, you can adjust the video volume with the up/down arrow keys and the video time with the left/right arrow keys.
+Also enabling this will disable rotation control via keyboard.
+
+## Example
+Below is an example of disabling video keyboard controls.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ keyboardControls: false }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  keyboardControls: false
+})
+```

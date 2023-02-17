@@ -1,0 +1,27 @@
+---
+sidebar_position: 9
+---
+
+import View360 from "@site/src/components/View360";
+
+```ts
+import { EVENTS, RenderEvent } from "@egjs/view360";
+
+// Typescript
+const onRender = (evt: RenderEvent) => {};
+
+view360.on(EVENTS.RENDER, onRender);
+```
+
+An event that fires after rendering a frame.
+
+:::info
+In the example below, only the "render" event is visible.
+:::
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  license="veste"
+  showEvents={["render"]} />

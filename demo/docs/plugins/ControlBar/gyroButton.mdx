@@ -1,0 +1,57 @@
+import View360, { ControlBar } from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean" defaultVal="true" added="4.0.0" />
+
+Displays the gyroscope control enable/disable button.
+If `true`, it'll show the button & apply the default options.
+If `false`, it won't display the button.
+You can also set detailed options by setting a object of type [ControlBarItemOptions](/docs/api/Plugin/Interface/ControlBarItemOptions).
+The gyroscope button will be displayed only in environments where the gyroscope is available.
+
+:::caution
+The examples below are only available in a mobile environment.
+:::
+
+## Example
+Below is an example of not displaying a button.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ gyroButton: false }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  gyroButton: false
+})
+```
+
+Below is an example of a button displaying in a different location.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ gyroButton: {
+    position: ControlBar.POSITION.TOP_RIGHT,
+    order: 0
+  } }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  gyroButton: {
+    position: ControlBar.POSITION.TOP_RIGHT,
+    order: 0
+  }
+})
+```

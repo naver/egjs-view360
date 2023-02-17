@@ -1,0 +1,32 @@
+---
+sidebar_position: 12
+---
+
+import View360 from "@site/src/components/View360";
+
+```ts
+import { EVENTS, StaticClickEvent } from "@egjs/view360";
+
+// Typescript
+const onStaticClick = (evt: StaticClickEvent) => {};
+
+view360.on(EVENTS.STATIC_CLICK, onStaticClick);
+```
+
+An event that fires after clicking on canvas element without dragging.
+
+## Properties
+### isTouch: boolean
+Whether the input was touch.
+
+:::info
+The following is a list of available events in the example:
+- "inputStart", "inputEnd", "staticClick"
+:::
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  license="veste"
+  showEvents={["inputStart", "inputEnd", "staticClick"]} />

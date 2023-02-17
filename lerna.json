@@ -1,0 +1,41 @@
+{
+  "packages": [
+    "packages/view360",
+    "packages/ngx-view360/projects/ngx-view360",
+    "packages/react-view360",
+    "packages/svelte-view360",
+    "packages/vue-view360",
+    "packages/vue3-view360"
+  ],
+  "version": "independent",
+  "lernaHelperOptions": {
+    "beforeReleaseScripts": [
+      "npm run packages:build",
+      "npm run demo:build",
+      "npm run demo:deploy"
+    ],
+    "deployFileMap": [
+      {
+        "basePath": "packages/view360/dist",
+        "dists": [
+          "demo/release/{{version}}/dist",
+          "demo/release/latest/dist"
+        ]
+      },
+      {
+        "basePath": "packages/view360/css",
+        "dists": [
+          "demo/release/{{version}}/css",
+          "demo/release/latest/css"
+        ]
+      },
+      {
+        "basePath": "packages/view360/sass",
+        "dists": [
+          "demo/release/{{version}}/sass",
+          "demo/release/latest/sass"
+        ]
+      }
+    ]
+  }
+}

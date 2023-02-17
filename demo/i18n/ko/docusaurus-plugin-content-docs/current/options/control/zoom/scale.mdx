@@ -1,0 +1,20 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="number" defaultVal="1" added="4.0.0" />
+
+줌 컨트롤의 배율
+이 값을 2로 할 경우, 마우스 휠 한 번에 대해 증감하는 줌 정도가 2배로 늘어나게 됩니다.
+모바일의 경우도 마찬가지로, 핀치 동작에서 두 손가락 사이의 거리가 늘어난 양에 대해 증감하는 줌 정도가 2배로 늘어납니다.
+
+## 예시
+아래는 zoom 배율을 2배로 늘리는 예시입니다.
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  zoom={{
+    scale: 2
+  }}
+  license="veste"
+  showExampleCode />

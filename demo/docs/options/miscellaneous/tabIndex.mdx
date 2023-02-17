@@ -1,0 +1,25 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="number | null" defaultVal="0" added="4.0.0" />
+
+The value of the [tabindex](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/tabindex) attribute to apply to the canvas element.
+This value is set to `tabindex` in `.view360-canvas` after initialization.
+You must set this value to enable the keyboard controls.
+
+The default value is `0`.
+If you have already set `tabindex` on the canvas element by yourself, use `null` and it won't change the `tabindex` value.
+
+## Example
+```ts
+const viewer = new View360("#el_id", {
+  tabindex: 5
+});
+```
+
+```html
+<!-- After init -->
+<div class="view360-container">
+  <canvas class="view360-canvas" tabindex="5"></canvas>
+</div>
+```

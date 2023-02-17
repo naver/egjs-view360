@@ -1,0 +1,73 @@
+import View360, { ControlBar } from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean | PieViewOptions" defaultVal="true" added="4.0.0" />
+
+현재 카메라가 가리키는 방향을 표시하는 파이 뷰를 표시합니다.
+`true`일 경우 기본값을 적용하고, `false`일 경우 표시하지 않습니다.
+세부 옵션도 설정 가능합니다. [PieViewOptions](/docs/api/Plugin/Interface/PieViewOptions)를 확인해보세요.
+
+## 예시
+아래는 버튼을 표시하지 않는 예시입니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ pieView: false }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  pieView: false
+})
+```
+
+아래는 파이뷰를 클릭했을 때, 카메라 위치를 리셋하지 않도록 하는 예시입니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ pieView: {
+    resetCamera: false
+  } }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  pieView: {
+    resetCamera: false
+  }
+})
+```
+
+아래는 버튼을 다른 위치에 표시하는 예시입니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ pieView: {
+    position: ControlBar.POSITION.MAIN_RIGHT,
+    order: 0
+  } }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  pieView: {
+    position: ControlBar.POSITION.MAIN_RIGHT,
+    order: 0
+  }
+})
+```

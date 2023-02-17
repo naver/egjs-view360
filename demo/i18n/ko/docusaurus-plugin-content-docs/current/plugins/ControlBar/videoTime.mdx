@@ -1,0 +1,51 @@
+import View360, { ControlBar } from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean | ControlBarItemOptions" defaultVal="true" added="4.0.0" />
+
+비디오의 현재 시간 / 총 시간을 표시합니다.
+`true`일 경우 기본값을 적용하고, `false`일 경우 표시하지 않습니다.
+세부 옵션도 설정 가능합니다. [ControlBarItemOptions](/docs/api/Plugin/Interface/ControlBarItemOptions)를 확인해보세요.
+
+## 예시
+아래는 비디오 시간을 표시하지 않는 예시입니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ videoTime: false }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  videoTime: false
+})
+```
+
+아래는 비디오 시간을 다른 위치에 표시하는 예시입니다.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/burano.mp4",
+    video: true
+  }}
+  showControlBar={{ videoTime: {
+    position: ControlBar.POSITION.MAIN_BOTTOM,
+    order: 0
+  } }}
+  license="burano" />
+
+```js
+import { ControlBar } from "@egjs/view360";
+
+new ControlBar({
+  videoTime: {
+    position: ControlBar.POSITION.MAIN_BOTTOM,
+    order: 0
+  }
+})
+```

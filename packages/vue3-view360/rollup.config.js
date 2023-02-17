@@ -1,23 +1,24 @@
-const buildHelper = require("@egjs/build-helper");
-const commonjs = require("rollup-plugin-commonjs");
+/* eslint-env node */
+const buildHelper = require("../../config/build-helper");
 const vue = require("rollup-plugin-vue");
 
 const external = {
   "vue": "Vue",
-  "@egjs/view360": "eg.View360",
-  "@egjs/axes": "eg.Axes",
-  "@egjs/component": "eg.Component"
+  "@egjs/view360": "View360",
+  "@egjs/component": "Component",
+  "@egjs/imready": "eg.ImReady",
+  "gl-matrix": "glMatrix"
 };
 
 const defaultOptions = {
   sourcemap: true,
   plugins: [
-    commonjs(),
     vue()
   ],
   external
 };
-export default buildHelper([
+
+module.exports = buildHelper([
   {
     ...defaultOptions,
     format: "es",

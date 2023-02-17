@@ -1,0 +1,28 @@
+---
+sidebar_position: 14
+---
+
+import View360 from "@site/src/components/View360";
+
+```ts
+import { EVENTS, VREndEvent } from "@egjs/view360";
+
+// Typescript
+const onVREnd = (evt: VREndEvent) => {};
+
+view360.on(EVENTS.VR_START, onVREnd);
+```
+
+An event that fires after exiting VR mode
+
+:::info
+The following is a list of available events in the example:
+- "vrStart", "vrEnd"
+:::
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  license="veste"
+  showEvents={["vrStart", "vrEnd"]} />

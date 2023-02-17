@@ -1,0 +1,49 @@
+import View360 from "@site/src/components/View360";
+
+LoadingSpinner는 360이미지/비디오를 로드하는 도중에 간단한 로딩 스피너를 보여주는 플러그인입니다.
+
+## 예시
+```js
+import View360, { LoadingSpinner } from "@egjs/view360";
+// 번들된 CSS(view360.css)를 사용하지 않는 경우에만 필요합니다.
+import "@egjs/view360/css/loading-spinner.min.css";
+
+const viewer = new View360("#id_of_el", {
+  src: "URL_TO_SRC",
+  autoInit: false
+});
+
+viewer.loadPlugins(new LoadingSpinner());
+
+// 아래 예시에서 "Load" 버튼이 눌렸을 때 `init`을 호출합니다.
+viewer.init();
+```
+
+<View360
+  projectionOptions={{
+    src: [
+      "/pano/cube/FishermansBastion/posx.jpg",
+      "/pano/cube/FishermansBastion/negx.jpg",
+      "/pano/cube/FishermansBastion/posy.jpg",
+      "/pano/cube/FishermansBastion/negy.jpg",
+      "/pano/cube/FishermansBastion/posz.jpg",
+      "/pano/cube/FishermansBastion/negz.jpg"
+    ]
+  }}
+  projectionType="cubemap"
+  showSpinner
+  clickToLoad
+  license="fisherman" />
+
+자세한 옵션은 좌측 사이드바의 LoadingSpinner 아래 항목들을 확인해주세요
+
+## 상수
+LoadingSpinner는 옵션 지정시 활용 가능한 상수들을 제공합니다.
+
+### [DEFAULT_CLASS](/docs/api/Plugin/Class/LoadingSpinner#DEFAULT_CLASS)
+LoadingSpinner가 사용하는 디폴트 클래스 이름들
+```js
+import { LoadingSpinner } from "@egjs/view360";
+
+LoadingSpinner.DEFAULT_CLASS
+```

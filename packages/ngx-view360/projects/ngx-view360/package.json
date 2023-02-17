@@ -1,18 +1,12 @@
 {
   "name": "@egjs/ngx-view360",
-  "version": "3.0.4",
+  "version": "4.0.0-beta.0",
   "description": "360 integrated viewing solution from inside-out view to outside-in view. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.",
-  "peerDependencies": {
-    "@angular/common": ">=10.0.0",
-    "@angular/core": ">=10.0.0"
-  },
   "dependencies": {
-    "@egjs/view360": "~3.6.4"
+    "@egjs/view360": "4.0.0-beta.0"
   },
-  "devDependencies": {
-    "@angular/common": "~10.0.0",
-    "@angular/core": "~10.0.0"
-  },
+  "lernaHelperReleaseType": "prerelease",
+  "lernaHelperPublishTag": "next",
   "repository": {
     "type": "git",
     "url": "https://github.com/naver/egjs-view360/tree/master/packages/ngx-view360"
@@ -27,5 +21,19 @@
   "bugs": {
     "url": "https://github.com/naver/egjs-view360/issues"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "keywords": [
+		"360-photo",
+		"360-video",
+		"view360",
+		"panorama",
+		"spinner",
+		"webgl",
+		"device-orientation",
+		"touch",
+		"VR",
+		"3D",
+		"canvas",
+		"360"
+	]
 }

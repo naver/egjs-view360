@@ -1,0 +1,23 @@
+---
+title: 에러 핸들링
+id: handling-errors
+slug: /handling-errors
+sidebar_position: 4
+---
+
+View360 내부에서 에러가 발생했을 때, 미리 정의된 `code`를 포함하는 [View360Error](./api/Class/View360Error)가 발생합니다.
+필요한 경우 해당 `code` 값을 토대로, 에러를 핸들링 하실 수 있습니다.
+가능한 `code` 값 목록을 확인하시려면 [ERROR_CODES](./api/Variables/ERROR_CODES) 문서를 확인해보세요.
+
+아래는 그 예시입니다.
+```ts
+import View360, { View360Error, ERROR_CODES } from "@egjs/view360";
+
+try {
+  const viewer = new View360("#wrapper");
+} catch (err) {
+  if (err instanceof View360Error && err.code === ERROR_CODES.ELEMENT_NOT_FOUND) {
+    // "#wrapper"에 해당하는 엘리먼트를 찾을 수 없었습니다.
+  }
+}
+```

@@ -1,0 +1,61 @@
+.mainHero {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.heroViewer {
+  aspect-ratio: 2;
+  width: 100%;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 20px;
+}
+
+.max400 {
+  width: 100%;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.packageName {
+  font-family: 'Staatliches', monospace;
+  font-size: 64px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.packageNameSub {
+  font-size: 18px;
+  text-align: center;
+  font-weight: bold;
+  color: hsl(0, 0%, 55%);
+}
+
+.badges {
+  display: inline-block;
+  text-align: center;
+  width: 100%;
+  margin-top: 0.5rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.badges *:not(:last-child) {
+  margin-right: 0.5rem;
+}
+
+.btnsWrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.mainTabs {
+  margin-left: auto;
+  margin-right: auto;
+  width: max-content;
+  max-width: 100%;
+}

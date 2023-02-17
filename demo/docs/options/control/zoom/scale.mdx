@@ -1,0 +1,21 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="number" defaultVal="1" added="4.0.0" />
+
+Scale factor of the zoom control.
+If this value is set to 2, the zoom increasing and decreasing for single mouse wheel will be doubled.
+Similarly for mobile, the amount of zoom that increases or decreases in the amount of increased distance between two fingers in the pinch action doubles.
+
+## Example
+Below is an example of doubling the zoom scale.
+
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  zoom={{
+    scale: 2
+  }}
+  license="veste"
+  showExampleCode />

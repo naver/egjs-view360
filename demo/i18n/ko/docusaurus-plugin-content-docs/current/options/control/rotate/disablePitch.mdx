@@ -1,0 +1,17 @@
+import View360 from "@site/src/components/View360";
+import OptionDescriptor from "@site/src/components/OptionDescriptor";
+
+<OptionDescriptor type="boolean" defaultVal="false" added="4.0.0" />
+
+x축 회전(pitch)을 비활성화합니다.
+
+## 예시
+<View360
+  projectionOptions={{
+    src: "/pano/equirect/veste.jpg"
+  }}
+  rotate={{
+    disablePitch: true
+  }}
+  license="veste"
+  showExampleCode />
