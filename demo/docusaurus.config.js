@@ -143,14 +143,14 @@ const config = {
             dropdownActiveClassDisabled: true,
             dropdownItemsAfter: [
               {
-                to: "https://naver.github.io/egjs-view360/release/3.6.4/",
-                label: "v3.6.4"
+                to: "https://naver.github.io/egjs-view360/v3/",
+                label: "v3"
               }
             ]
           },
           {
-            type: 'localeDropdown',
-            position: 'right'
+            type: "localeDropdown",
+            position: "right"
           },
           {
             href: "https://www.npmjs.com/package/@egjs/view360",
