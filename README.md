@@ -2,9 +2,9 @@
 
 ![](https://user-images.githubusercontent.com/3903575/38671092-6a4494a0-3e85-11e8-9eca-9619a2545801.gif)
 
-<div style="max-width: 100%; font-size: 64px;">
+<h1 style="max-width: 100%;">
   <a href="https://naver.github.io/egjs-view360/">View360</a>
-</div>
+</h1>
 
 <h3 align="center" style="max-width: 100%;">
 360° panorama image / video viewer built with Typescript
