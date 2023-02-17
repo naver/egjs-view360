@@ -7,6 +7,7 @@ import VanillaCode from "./code/VanillaCode";
 import ReactCode from "./code/ReactCode";
 import NgxCode from "./code/NgxCode";
 import VueCode from "./code/VueCode";
+import Vue3Code from "./code/Vue3Code";
 import SvelteCode from "./code/SvelteCode";
 import ProjectionData from "./code/ProjectionData";
 import OptionSerializer from "./code/OptionSerializer";
@@ -106,10 +107,10 @@ export default ({ options = {}, projectionType, projectionOptions }) => {
         <NgxCode options={options} serializer={serializer} />
       </TabItem>
       <TabItem value="vue2">
-        <VueCode vue={"vue"} options={options} serializer={serializer} />
+        <VueCode options={options} serializer={serializer} />
       </TabItem>
       <TabItem value="vue3">
-        <VueCode vue={"vue3"} options={options} serializer={serializer} />
+        <Vue3Code options={options} serializer={serializer} />
       </TabItem>
       <TabItem value="svelte">
         <SvelteCode options={options} serializer={serializer} />
