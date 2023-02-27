@@ -24,3 +24,4 @@ docs/api/
 i18n/ko/docusaurus-plugin-content-docs/current/api/
 sidebars-api.js
 static/release/
+release/

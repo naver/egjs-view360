@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.0-beta.4](https://github.com/naver/egjs-view360/compare/@egjs/view360@4.0.0-beta.0...@egjs/view360@4.0.0-beta.4) (2023-02-27)
+
+
+### :mega: Other
+
+* update packages versions ([64d704d](https://github.com/naver/egjs-view360/commit/64d704dde25002931fb7422a817a6322542b66eb))
+
+
+
 ## 4.0.0-beta.0 (2023-02-17)
 
 
