@@ -1,10 +1,10 @@
 /*
-Copyright (c) NAVER Corp.
+Copyright (c) 2023-present NAVER Corp.
 name: @egjs/view360
 license: MIT
 author: NAVER Corp.
 repository: https://github.com/naver/egjs-view360
-version: 4.0.0-beta.0
+version: 4.0.0-beta.4
 */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('@egjs/component'), require('gl-matrix'), require('@egjs/imready')) :
@@ -5168,7 +5168,7 @@ version: 4.0.0-beta.0
      * console.log(View360.VERSION) // 4.0.0
      * ```
      */
-    View360.VERSION = "4.0.0-beta.0";
+    View360.VERSION = "4.0.0-beta.4";
 
     /*
      * Copyright (c) 2023-present NAVER Corp.
