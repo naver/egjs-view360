@@ -5,7 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build ngx-view360 --configuration production",
-    "postbuild": "cpx 'projects/ngx-view360/node_modules/@egjs/view360/css/*' dist/ngx-view360/css/ && cpx 'projects/ngx-view360/node_modules/@egjs/view360/sass/*' dist/ngx-view360/sass/",
+    "postbuild": "cpx '../view360/css/*' dist/ngx-view360/css/ && cpx '../view360/sass/*' dist/ngx-view360/sass/",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"

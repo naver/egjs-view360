@@ -1,6 +1,6 @@
 {
   "name": "@egjs/vue3-view360",
-  "version": "4.0.0-beta.0",
+  "version": "4.0.0-beta.4",
   "description": "360 integrated viewing solution from inside-out view to outside-in view. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.",
   "main": "dist/view360.cjs.js",
   "module": "dist/view360.esm.js",
@@ -9,11 +9,20 @@
     "**/*.css",
     "**/*.sass"
   ],
+  "files": [
+    "./declaration/**/*",
+    "./dist/**/*",
+    "./sass/**/*",
+    "./css/**/*",
+    "./src/**/*",
+    "./README.md",
+    "./LICENSE"
+  ],
   "scripts": {
     "start": "vite --host 0.0.0.0 --port 3000",
     "build:vue": "vue-tsc && vite build",
     "build": "rm -rf dist && rollup -c && npm run declaration",
-    "postbuild": "cpx 'node_modules/@egjs/view360/css/*' css/ && cpx 'node_modules/@egjs/view360/sass/*' sass/",
+    "postbuild": "cpx '../view360/css/*' css/ && cpx '../view360/sass/*' sass/",
     "declaration": "rm -rf declaration && tsc -p tsconfig.declaration.json"
   },
   "repository": {
@@ -29,7 +38,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@egjs/view360": "4.0.0-beta.0"
+    "@egjs/view360": "4.0.0-beta.4"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.0.0",
@@ -39,23 +48,23 @@
     "typescript": "^4.7.4",
     "vite": "^4.1.0",
     "vue": "^3.2.6",
-    "vue-tsc": "^1.0.24",
-    "vue-router": "^4.0.12"
+    "vue-router": "^4.0.12",
+    "vue-tsc": "^1.0.24"
   },
   "keywords": [
-		"360-photo",
-		"360-video",
-		"view360",
-		"panorama",
-		"spinner",
-		"webgl",
-		"device-orientation",
-		"touch",
-		"VR",
-		"3D",
-		"canvas",
-		"360"
-	],
+    "360-photo",
+    "360-video",
+    "view360",
+    "panorama",
+    "spinner",
+    "webgl",
+    "device-orientation",
+    "touch",
+    "VR",
+    "3D",
+    "canvas",
+    "360"
+  ],
   "browserslist": [
     "last 2 version",
     "ie 9-11",

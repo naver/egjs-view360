@@ -1,6 +1,6 @@
 {
   "name": "@egjs/svelte-view360",
-  "version": "4.0.0-beta.0",
+  "version": "4.0.0-beta.4",
   "description": "360 integrated viewing solution from inside-out view to outside-in view. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.",
   "main": "dist/view360.cjs.js",
   "module": "dist/view360.esm.js",
@@ -8,13 +8,23 @@
     "**/*.css",
     "**/*.sass"
   ],
+  "files": [
+    "./declaration/**/*",
+    "./dist/**/*",
+    "./lib/**/*",
+    "./sass/**/*",
+    "./css/**/*",
+    "./src/**/*",
+    "./README.md",
+    "./LICENSE"
+  ],
   "es2015": "dist/view360.esm.js",
   "types": "declaration/index.d.ts",
   "svelte": "lib/index.js",
   "scripts": {
     "build": "rm -rf dist && rollup -c ./rollup.config.build.js && npm run build:lib && npm run declaration",
     "build:lib": "rm -rf lib && node ./build",
-    "postbuild": "cpx 'node_modules/@egjs/view360/css/*' css/ && cpx 'node_modules/@egjs/view360/sass/*' sass/",
+    "postbuild": "cpx '../view360/css/*' css/ && cpx '../view360/sass/*' sass/",
     "declaration": "rm -rf declaration && tsc -p tsconfig.declaration.json",
     "postdeclaration": "cpx './src/**.d.ts' 'declaration'",
     "dev": "rollup -c -w",
@@ -34,7 +44,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@egjs/view360": "4.0.0-beta.0"
+    "@egjs/view360": "4.0.0-beta.4"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
@@ -55,19 +65,19 @@
     "tslib": "^2.0.0"
   },
   "keywords": [
-		"360-photo",
-		"360-video",
-		"view360",
-		"panorama",
-		"spinner",
-		"webgl",
-		"device-orientation",
-		"touch",
-		"VR",
-		"3D",
-		"canvas",
-		"360"
-	],
+    "360-photo",
+    "360-video",
+    "view360",
+    "panorama",
+    "spinner",
+    "webgl",
+    "device-orientation",
+    "touch",
+    "VR",
+    "3D",
+    "canvas",
+    "360"
+  ],
   "lernaHelperReleaseType": "prerelease",
   "lernaHelperPublishTag": "next"
 }

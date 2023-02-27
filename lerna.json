@@ -1,6 +1,7 @@
 {
   "packages": [
     "packages/view360",
+    "packages/ngx-view360",
     "packages/ngx-view360/projects/ngx-view360",
     "packages/react-view360",
     "packages/svelte-view360",

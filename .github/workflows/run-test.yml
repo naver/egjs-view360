@@ -12,6 +12,9 @@ jobs:
           cache-dependency-path: "**/package-lock.json"
       - name: install
         run: npm ci
+      - name: install-test
+        working-directory: ./packages/view360/test/unit
+        run: npm ci
       - name: run unit test
         working-directory: ./packages/view360/test/unit
         run: npm run test
