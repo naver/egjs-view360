@@ -2,11 +2,6 @@
   "name": "docs",
   "version": "0.0.0",
   "private": true,
-  "sideEffects": [
-    "**/*.css",
-    "**/*.sass",
-    "../src/register/**/*"
-  ],
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start --host 0.0.0.0",

@@ -9,8 +9,8 @@ import { CubemapProjection, EquirectProjection } from 'projects/ngx-view360/src/
 export class AppComponent {
   title = 'demo';
   options: any = {
-    projection: new CubemapProjection({
-      src: "https://naver.github.io/egjs-view360/examples/panoviewer/etc/img/bookcube1.jpg"
+    projection: new EquirectProjection({
+      src: "https://iili.io/HGJ5sVa.jpg"
     })
   }
 
@@ -18,7 +18,7 @@ export class AppComponent {
     this.options = {
       ...this.options,
       projection: new EquirectProjection({
-        src: "https://naver.github.io/egjs-view360/examples/panoviewer/etc/img/bookcube1.jpg"
+        src: "https://iili.io/HGJ5yNt.jpg"
       })
     };
   }

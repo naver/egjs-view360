@@ -4,6 +4,9 @@
   "description": "360 integrated viewing solution from inside-out view to outside-in view. It provides user-friendly service by rotating 360 degrees through various user interaction such as motion sensor and touch.",
   "main": "dist/view360.cjs.js",
   "module": "dist/view360.esm.js",
+  "es2015": "dist/view360.esm.js",
+  "types": "declaration/index.d.ts",
+  "svelte": "lib/index.js",
   "sideEffects": [
     "**/*.css",
     "**/*.sass"
@@ -18,9 +21,6 @@
     "./README.md",
     "./LICENSE"
   ],
-  "es2015": "dist/view360.esm.js",
-  "types": "declaration/index.d.ts",
-  "svelte": "lib/index.js",
   "scripts": {
     "build": "rm -rf dist && rollup -c ./rollup.config.build.js && npm run build:lib && npm run declaration",
     "build:lib": "rm -rf lib && node ./build",

@@ -59,8 +59,7 @@
     "vue": "^2.0.0",
     "vue-cli-plugin-p11n": "^0.3.0",
     "vue-router": "^3.0.6",
-    "vue-template-compiler": "^2.5.21",
-    "vuex": "^4.1.0"
+    "vue-template-compiler": "^2.5.21"
   },
   "keywords": [
     "360-photo",
@@ -82,5 +81,8 @@
     "not op_mini all"
   ],
   "lernaHelperReleaseType": "prerelease",
-  "lernaHelperPublishTag": "next"
+  "lernaHelperPublishTag": "next",
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  }
 }

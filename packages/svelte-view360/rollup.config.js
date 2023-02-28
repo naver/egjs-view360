@@ -7,7 +7,7 @@ import livereload from "rollup-plugin-livereload";
 import { terser } from "rollup-plugin-terser";
 import sveltePreprocess, { replace } from "svelte-preprocess";
 import css from "rollup-plugin-css-only";
-import fs from "fs";
+import fs from "fs-extra";
 
 import replaces from "./replace";
 
@@ -59,6 +59,7 @@ export default {
 		// we'll extract any component CSS out into
 		// a separate file - better for performance
 		css({ output: function(styles, styleNodes) {
+      fs.ensureDirSync('public/build');
       fs.writeFileSync('public/build/bundle.css', styles);
     }}),
 

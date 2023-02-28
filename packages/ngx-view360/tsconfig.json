@@ -13,8 +13,8 @@
     "downlevelIteration": true,
     "paths": {
       "ngx-infinitegrid": [
-        "dist/ngx-infinitegrid/ngx-infinitegrid",
-        "dist/ngx-infinitegrid"
+        "dist/ngx-view360/ngx-view360",
+        "dist/ngx-view360"
       ]
     },
     "experimentalDecorators": true,

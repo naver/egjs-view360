@@ -201,6 +201,16 @@ GitHub.sublime-settings
 !.vscode/launch.json
 !.vscode/extensions.json
 
+### yarn ###
+# https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
+
+.yarn/*
+!.yarn/releases
+!.yarn/patches
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+
 ### Custom ###
 packages/*-view360/**/sass/
 TODO.md

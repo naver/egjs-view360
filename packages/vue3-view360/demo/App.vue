@@ -1,13 +1,12 @@
 <script lang="ts">
-import { EquirectProjection, Projection, ReadyEvent } from "@egjs/view360";
 import { defineComponent, onMounted, ref } from "vue";
-import { View360, CubemapProjection } from "../src/index";
+import { View360, EquirectProjection, Projection, ReadyEvent } from "../src/index";
 
 export default defineComponent({
   setup() {
     const view360 = ref<View360>();
-    const projection = ref<Projection>(new CubemapProjection({
-      src: "https://naver.github.io/egjs-view360/examples/panoviewer/etc/img/bookcube1.jpg"
+    const projection = ref<Projection>(new EquirectProjection({
+      src: "https://iili.io/HGJXXr7.jpg"
     }));
 
     onMounted(() => {
@@ -16,7 +15,7 @@ export default defineComponent({
 
     function changeProjection() {
       projection.value = new EquirectProjection({
-        src: "https://naver.github.io/egjs-view360/examples/panoviewer/etc/img/bookcube1.jpg"
+        src: "https://iili.io/HGJXlmG.jpg"
       })
     }
 
