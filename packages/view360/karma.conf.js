@@ -18,26 +18,26 @@ module.exports = config => {
       }
     },
     files: [
-      "./setup.ts",
-      "./test-utils.ts",
-      "./specs/**/*.spec.ts",
-      "./!(node_modules)/**/*.ts",
-      "../../src/**/*.ts",
+      "./test/unit/setup.ts",
+      "./test/unit/test-utils.ts",
+      "./test/unit/specs/**/*.spec.ts",
+      "./test/unit/**/*.ts",
+      "./src/**/*.ts",
       {
-        pattern: "./pano/**/*.*",
+        pattern: "./test/unit/pano/**/*.*",
         watched: false,
         included: false,
         served: true
       }
     ],
     preprocessors: {
-      "../../**/*.ts": ["karma-typescript"]
+      "./**/*.ts": ["karma-typescript"]
     },
     proxies: {
-      "/pano/": "/base/pano/"
+      "/pano/": "/base/test/unit/pano/"
     },
     karmaTypescriptConfig: {
-      tsconfig: "./tsconfig.json",
+      tsconfig: "./test/unit/tsconfig.json",
       reports: {
         lcovonly: {
           "directory": "coverage",

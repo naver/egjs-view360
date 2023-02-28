@@ -4,17 +4,13 @@ jobs:
   unit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: "npm"
-          cache-dependency-path: "**/package-lock.json"
+          cache: "yarn"
       - name: install
-        run: npm ci
-      - name: install-test
-        working-directory: ./packages/view360/test/unit
-        run: npm ci
+        run: yarn install --immutable --immutable-cache --check-cache
       - name: run unit test
-        working-directory: ./packages/view360/test/unit
-        run: npm run test
+        working-directory: ./packages/view360
+        run: yarn test
