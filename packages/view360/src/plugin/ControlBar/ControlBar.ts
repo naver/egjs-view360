@@ -409,7 +409,9 @@ class ControlBar implements View360Plugin {
   }
 
   private _clearItemElements() {
-    const wrappers = Object.keys(ControlBar.POSITION).map(key => ControlBar.POSITION[key]);
+    const wrappers = Object.keys(ControlBar.POSITION)
+      .map(key => ControlBar.POSITION[key])
+      .map(pos => this._wrapperEl[pos]);
 
     // Remove all elements inside wrappers
     wrappers.forEach(wrapper => {
