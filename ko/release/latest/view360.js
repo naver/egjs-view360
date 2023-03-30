@@ -4,7 +4,7 @@ name: @egjs/view360
 license: MIT
 author: NAVER Corp.
 repository: https://github.com/naver/egjs-view360
-version: 4.0.0-beta.4
+version: 4.0.0-beta.5
 */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('@egjs/component'), require('gl-matrix'), require('@egjs/imready')) :
@@ -5168,7 +5168,7 @@ version: 4.0.0-beta.4
      * console.log(View360.VERSION) // 4.0.0
      * ```
      */
-    View360.VERSION = "4.0.0-beta.4";
+    View360.VERSION = "4.0.0-beta.5";
 
     /*
      * Copyright (c) 2023-present NAVER Corp.
@@ -6763,7 +6763,7 @@ version: 4.0.0-beta.4
         };
       }
       _clearItemElements() {
-        const wrappers = Object.keys(ControlBar.POSITION).map(key => ControlBar.POSITION[key]);
+        const wrappers = Object.keys(ControlBar.POSITION).map(key => ControlBar.POSITION[key]).map(pos => this._wrapperEl[pos]);
         // Remove all elements inside wrappers
         wrappers.forEach(wrapper => {
           while (wrapper.firstChild) {
