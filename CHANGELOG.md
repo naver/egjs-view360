@@ -3,6 +3,41 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.0-beta.5](https://github.com/naver/egjs-view360/compare/4.0.0-beta.0...4.0.0-beta.5) (2023-03-30)
+### :sparkles: Packages
+* `@egjs/ngx-view360` 4.0.0-beta.5
+* `@egjs/react-view360` 4.0.0-beta.5
+* `@egjs/svelte-view360` 4.0.0-beta.5
+* `@egjs/view360` 4.0.0-beta.5
+* `@egjs/vue-view360` 4.0.0-beta.5
+* `@egjs/vue3-view360` 4.0.0-beta.5
+
+
+### :bug: Bug Fix
+
+* `@egjs/view360`, `@egjs/react-view360`
+    * ControlBar not removing child elements ([ab21128](https://github.com/naver/egjs-view360/commit/ab21128f84ecffab4dd6f71667aea3677af964a8))
+
+
+### :memo: Documentation
+
+* fix v3 demo link ([f052485](https://github.com/naver/egjs-view360/commit/f05248505738283f0b35bfc747bcbb60422bda66))
+* fix vue3 example code ([3573da5](https://github.com/naver/egjs-view360/commit/3573da579cd1a8d939af96b87d9c5f75cf918a40))
+* update title style ([05308d3](https://github.com/naver/egjs-view360/commit/05308d3ff3890dbc2f9330c7a771557023d60303))
+
+
+### :mega: Other
+
+* All
+    * fix install script ([5c25860](https://github.com/naver/egjs-view360/commit/5c2586054ec2c5bd8649a9d30e114705fdfa5579))
+    * Release 4.0.0-beta.4 ([81e3504](https://github.com/naver/egjs-view360/commit/81e3504229edcacac80ff92bef634bc38a813a99))
+    * update packages versions ([85b1d14](https://github.com/naver/egjs-view360/commit/85b1d142ef0b48f61a229c2c3f272900412bf0af))
+    * update packages versions ([64d704d](https://github.com/naver/egjs-view360/commit/64d704dde25002931fb7422a817a6322542b66eb))
+* `@egjs/view360`
+    * fix actions ([7716598](https://github.com/naver/egjs-view360/commit/77165982ea31f969f36d8defb47e4ef45e934e1d))
+
+
+
 ## [4.0.0-beta.4](https://github.com/naver/egjs-view360/compare/4.0.0-beta.0...4.0.0-beta.4) (2023-02-27)
 ### :sparkles: Packages
 * `@egjs/ngx-view360` 4.0.0-beta.4
