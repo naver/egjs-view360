@@ -6,7 +6,6 @@ import Projection, { ProjectionOptions } from "./Projection";
 import WebGLContext from "../core/WebGLContext";
 import UniformTexture2D from "../uniform/UniformTexture2D";
 import UniformFloat from "../uniform/UniformFloat";
-import Camera from "../core/Camera";
 import PanoControl from "../control/PanoControl";
 import ShaderProgram from "../core/ShaderProgram";
 import Texture2D from "../texture/Texture2D";
@@ -14,6 +13,7 @@ import PlaneGeometry from "../geometry/PlaneGeometry";
 import vs from "../shader/little-planet.vert";
 import fs from "../shader/little-planet.frag";
 import TriangleMesh from "../core/TriangleMesh";
+import { OBJECT_3D_EVENTS } from "../const/internal";
 
 /**
  * Options for {@link LittlePlanetProjection}
@@ -31,12 +31,7 @@ export interface LittlePlanetProjectionOptions extends ProjectionOptions {
  * @since 4.0.0
  * @category Projection
  */
-class LittlePlanetProjection extends Projection<{
-  uTexture: UniformTexture2D;
-  uYaw: UniformFloat;
-  uPitch: UniformFloat;
-  uZoom: UniformFloat;
-}> {
+class LittlePlanetProjection extends Projection {
   /**
    * Create new instance
    * @ko 새로운 인스턴스를 생성합니다.
@@ -46,7 +41,7 @@ class LittlePlanetProjection extends Projection<{
     super(options);
   }
 
-  public applyTexture(ctx: WebGLContext, texture: Texture2D) {
+  public createMesh(ctx: WebGLContext, texture: Texture2D) {
     texture.wrapS = WebGLRenderingContext.REPEAT;
     texture.wrapT = WebGLRenderingContext.REPEAT;
 
@@ -63,27 +58,24 @@ class LittlePlanetProjection extends Projection<{
     const vao = ctx.createVAO(geometry, program);
     const mesh = new TriangleMesh(vao, program);
 
-    this._mesh = mesh;
+    mesh.on(OBJECT_3D_EVENTS.UPDATE, ({ camera }) => {
+      const uniforms = mesh.program.uniforms;
+
+      uniforms.uYaw.val = camera.yaw / 360;
+      // Range from 0 ~ 1
+      uniforms.uPitch.val = (camera.pitch / 180) + 0.5;
+      uniforms.uZoom.val = camera.zoom;
+
+      uniforms.uYaw.needsUpdate = true;
+      uniforms.uPitch.needsUpdate = true;
+      uniforms.uZoom.needsUpdate = true;
+    });
+
+    return mesh;
   }
 
   public updateControl(control: PanoControl) {
     control.ignoreZoomScale = true;
-  }
-
-  public update(camera: Camera) {
-    const mesh = this._mesh;
-    if (!mesh) return;
-
-    const uniforms = mesh.program.uniforms;
-
-    uniforms.uYaw.val = camera.yaw / 360;
-    // Range from 0 ~ 1
-    uniforms.uPitch.val = (camera.pitch / 180) + 0.5;
-    uniforms.uZoom.val = camera.zoom;
-
-    uniforms.uYaw.needsUpdate = true;
-    uniforms.uPitch.needsUpdate = true;
-    uniforms.uZoom.needsUpdate = true;
   }
 }
 

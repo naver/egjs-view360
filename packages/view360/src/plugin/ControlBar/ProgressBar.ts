@@ -59,7 +59,7 @@ class ProgressBar extends ControlBarItem {
   }
 
   public init(viewer: View360, controlBar: ControlBar) {
-    const video = viewer.projection?.getTexture();
+    const video = viewer.mesh?.getTexture();
     const element = this.element;
     const rangeControl = this._rangeControl;
     const unavailableClass = controlBar.className.UNAVAILABLE;

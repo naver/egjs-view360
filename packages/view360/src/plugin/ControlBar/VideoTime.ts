@@ -45,7 +45,7 @@ class VideoTime extends ControlBarItem {
   }
 
   public init(viewer: View360, controlBar: ControlBar) {
-    const video = viewer.projection?.getTexture();
+    const video = viewer.mesh?.getTexture();
     const element = this.element;
     const className = controlBar.className;
 

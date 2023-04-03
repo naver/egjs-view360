@@ -43,9 +43,7 @@ export interface CubemapProjectionOptions extends ProjectionOptions {
  * @since 4.0.0
  * @category Projection
  */
-class CubemapProjection extends Projection<{
-  uTexture: UniformTextureCube | UniformCanvasCube;
-}> {
+class CubemapProjection extends Projection {
   private _cubemapOrder: NonNullable<CubemapProjectionOptions["cubemapOrder"]>;
   private _cubemapFlipX: NonNullable<CubemapProjectionOptions["cubemapFlipX"]>;
 
@@ -66,7 +64,7 @@ class CubemapProjection extends Projection<{
     this._cubemapFlipX = cubemapFlipX;
   }
 
-  public applyTexture(ctx: WebGLContext, texture: Texture2D) {
+  public createMesh(ctx: WebGLContext, texture: Texture2D) {
     const cubemapOrder = this._cubemapOrder;
     const cubemapFlipX = this._cubemapFlipX;
     const uniforms = {
@@ -87,7 +85,7 @@ class CubemapProjection extends Projection<{
     }
     mesh.updateMatrix();
 
-    this._mesh = mesh;
+    return mesh;
   }
 }
 

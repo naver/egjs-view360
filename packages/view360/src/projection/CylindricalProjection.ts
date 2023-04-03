@@ -40,10 +40,11 @@ export interface CylindricalProjectionOptions extends ProjectionOptions {
  * @since 4.0.0
  * @category Projection
  */
-class CylindricalProjection extends Projection<{
-  uTexture: UniformTexture2D;
-}> {
+class CylindricalProjection extends Projection {
   private _partial: boolean;
+  private _aspect: number;
+  private _halfHeight: number;
+  private _mesh: TriangleMesh | null;
 
   /**
    * Create new instance.
@@ -58,9 +59,14 @@ class CylindricalProjection extends Projection<{
     } = options;
 
     this._partial = partial;
+    this._aspect = 1;
+    this._halfHeight = 0;
+    this._mesh = null;
   }
 
-  public applyTexture(ctx: WebGLContext, texture: Texture2D) {
+  public createMesh(ctx: WebGLContext, texture: Texture2D) {
+    if (this._mesh) return this._mesh;
+
     const partial = this._partial;
     const { width, height } = texture;
     const aspect = width / height;
@@ -84,20 +90,21 @@ class CylindricalProjection extends Projection<{
     quat.rotateY(mesh.rotation, mesh.rotation, -Math.PI / 2);
     mesh.updateMatrix();
 
+    this._aspect = aspect;
+    this._halfHeight = cylinderHeight * 0.5;
     this._mesh = mesh;
+
+    return mesh;
   }
 
   public updateCamera(camera: Camera) {
     super.updateCamera(camera);
 
     const mesh = this._mesh;
-    if (!mesh) return;
+    const aspect = this._aspect;
+    const halfHeight = this._halfHeight;
 
-    const uTexture = mesh.program.uniforms.uTexture;
-    const texture = uTexture.texture;
-    const { width, height } = texture;
-    const aspect = width / height;
-    const halfHeight = mesh.scale[1] * 0.5;
+    if (!mesh) return;
 
     if (this._partial) {
       const restrictedYaw = 0.5 * aspect * RAD_TO_DEG;

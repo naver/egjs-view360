@@ -435,7 +435,7 @@ class ControlBar implements View360Plugin {
     } else {
       if (!this.clickToPlay) return;
 
-      const video = viewer.projection?.getTexture();
+      const video = viewer.mesh?.getTexture();
       if (!video || !video.isVideo()) return;
 
       if (video.isPaused()) {
@@ -475,7 +475,7 @@ class ControlBar implements View360Plugin {
       }
     } else {
       // Automatically choose whether to show background by content type
-      const texture = viewer.projection?.getTexture();
+      const texture = viewer.mesh?.getTexture();
 
       if (texture && texture.isVideo()) {
         // Enable auto hide when content type is video
@@ -499,7 +499,7 @@ class ControlBar implements View360Plugin {
       }
     } else {
       // Automatically choose whether to show background by content type
-      const texture = viewer.projection?.getTexture();
+      const texture = viewer.mesh?.getTexture();
 
       if (texture && texture.isVideo()) {
         // Show bg when content type is video
@@ -513,7 +513,7 @@ class ControlBar implements View360Plugin {
   private _updateKeyboardHandler(viewer: View360) {
     const panoRoot = viewer.rootEl;
     const videoControl = this._videoControl;
-    const texture = viewer.projection?.getTexture();
+    const texture = viewer.mesh?.getTexture();
 
     if (this.keyboardControls && texture && texture.isVideo()) {
       videoControl.enable(panoRoot, texture);

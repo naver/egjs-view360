@@ -2,7 +2,18 @@
  * Copyright (c) 2023-present NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
+import Component from "@egjs/component";
 import { mat4, quat, vec3 } from "gl-matrix";
+import { OBJECT_3D_EVENTS } from "../const/internal";
+import Camera from "./Camera";
+
+/**
+ * Context interface used for object update
+ * @internal
+ */
+interface ObjectUpdateContext {
+  camera: Camera;
+}
 
 /**
  * Base class for 3D objects
@@ -10,7 +21,11 @@ import { mat4, quat, vec3 } from "gl-matrix";
  * @since 4.0.0
  * @internal
  */
-class Object3D {
+class Object3D extends Component<{
+  [OBJECT_3D_EVENTS.UPDATE]: {
+    camera: Camera
+  };
+}> {
   /**
    * Local matrix of the object
    * @ko 오브젝트의 local matrix
@@ -41,6 +56,8 @@ class Object3D {
    * @ko 새로운 인스턴스를 생성합니다.
    */
   public constructor() {
+    super();
+
     this.matrix = mat4.create();
     this.rotation = quat.create();
     this.position = vec3.fromValues(0, 0, 0);
@@ -54,6 +71,10 @@ class Object3D {
    */
   public updateMatrix() {
     mat4.fromRotationTranslationScale(this.matrix, this.rotation, this.position, this.scale);
+  }
+
+  public update(ctx: ObjectUpdateContext) {
+    this.trigger(OBJECT_3D_EVENTS.UPDATE, ctx);
   }
 }
 

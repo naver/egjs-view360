@@ -50,7 +50,7 @@ class VolumeControl extends ControlBarItem {
   }
 
   public init(viewer: View360, controlBar: ControlBar) {
-    const video = viewer.projection?.getTexture();
+    const video = viewer.mesh?.getTexture();
     const root = this._rootEl;
     const button = this._buttonEl;
     const rangeControl = this._rangeControl;

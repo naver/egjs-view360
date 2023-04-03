@@ -5,13 +5,19 @@
 import Object3D from "./Object3D";
 import ShaderProgram from "./ShaderProgram";
 import VertexArrayObject from "./VertexArrayObject";
-import Uniform from "../uniform/Uniform";
 import WebGLContext from "./WebGLContext";
+import UniformCanvasCube from "../uniform/UniformCanvasCube";
+import UniformTexture2D from "../uniform/UniformTexture2D";
+import UniformTextureCube from "../uniform/UniformTextureCube";
+
+type CommonProjectionUniforms = {
+  uTexture: UniformTexture2D | UniformTextureCube | UniformCanvasCube;
+}
 
 /**
  * @hidden
  */
-class TriangleMesh<T extends Record<string, Uniform> = Record<string, never>> extends Object3D {
+class TriangleMesh<T extends CommonProjectionUniforms = CommonProjectionUniforms> extends Object3D {
   /**
    * @internal
    * Geometry data for projection
@@ -33,6 +39,10 @@ class TriangleMesh<T extends Record<string, Uniform> = Record<string, never>> ex
   public destroy(ctx: WebGLContext) {
     ctx.releaseVAO(this.vao);
     ctx.releaseShaderResources(this.program);
+  }
+
+  public getTexture() {
+    return this.program.uniforms.uTexture.texture;
   }
 }
 

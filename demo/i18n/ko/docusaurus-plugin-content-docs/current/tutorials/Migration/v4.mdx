@@ -356,7 +356,7 @@ const { min, max } = viewer.camera.getYawRange(viewer.camera.zoom);
 - 삭제되었습니다.
 
 ### getImage, getVideo
-- View360의 `getTexture()`로 대체 가능합니다.
+- View360.mesh의 `getTexture()`로 대체 가능합니다.
 
 > 기존
 
@@ -367,7 +367,7 @@ const image = viewer.getImage();
 > 변경
 
 ```js
-const image = viewer.getTexture().source;
+const image = viewer.mesh.getTexture().source;
 ```
 
 ### keepUpdate
