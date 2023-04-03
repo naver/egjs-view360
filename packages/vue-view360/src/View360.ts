@@ -2,7 +2,7 @@
  * Copyright (c) 2023-present NAVER Corp.
  * egjs projects are licensed under the MIT license
  */
-import Vue, { CreateElement, isProxy } from "vue";
+import Vue, { CreateElement } from "vue";
 import VanillaView360, {
   DEFAULT_CLASS,
   EVENTS,
@@ -56,11 +56,6 @@ export default Vue.extend<{
   },
   mounted() {
     const props = getValidProps(this.$props);
-
-    if (props.projection && isProxy(props.projection)) {
-      // props.projection = Object.assign({}, props.projection);
-      console.log(props.projection);
-    }
 
     this._view360 = new VanillaView360(
       this.$refs.container as HTMLElement,
