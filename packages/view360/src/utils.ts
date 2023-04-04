@@ -140,7 +140,7 @@ export const isFullscreen = () => {
 };
 
 export const sensorCanBeEnabledIOS = () => {
-  return !!DeviceMotionEvent && "requestPermission" in DeviceMotionEvent && window.isSecureContext;
+  return window.isSecureContext && !!DeviceMotionEvent && "requestPermission" in DeviceMotionEvent;
 };
 
 export const hfovToZoom = (baseFov: number, fov: number) => {

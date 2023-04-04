@@ -94,7 +94,7 @@ class AutoHide {
     root.addEventListener(BROWSER.EVENTS.MOUSE_LEAVE, this._onMouseLeave);
     this._addFullscreenHandlers();
 
-    const video = viewer.projection?.getTexture();
+    const video = viewer.mesh?.getTexture();
     if (!video || !video.isVideo()) {
       return;
     }

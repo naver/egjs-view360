@@ -37,11 +37,7 @@ export interface StereoEquiProjectionOptions extends ProjectionOptions {
  * @since 4.0.0
  * @category Projection
  */
-class StereoEquiProjection extends Projection<{
-  uTexture: UniformTexture2D;
-  uEye: UniformFloat;
-  uTexScaleOffset: UniformVector4Array;
-}> {
+class StereoEquiProjection extends Projection {
   /**
    * Available stereoscopic modes
    * @ko 사용가능한 스테레오스코픽 모드들
@@ -73,7 +69,7 @@ class StereoEquiProjection extends Projection<{
     this._mode = options.mode;
   }
 
-  public applyTexture(ctx: WebGLContext, texture: Texture2D) {
+  public createMesh(ctx: WebGLContext, texture: Texture2D) {
     let leftEye: number[];
     let rightEye: number[];
 
@@ -101,7 +97,7 @@ class StereoEquiProjection extends Projection<{
     const vao = ctx.createVAO(geometry, program);
     const mesh = new TriangleMesh(vao, program);
 
-    this._mesh = mesh;
+    return mesh;
   }
 }
 

@@ -8,13 +8,6 @@ import TriangleMesh from "../core/TriangleMesh";
 import Texture from "../texture/Texture";
 import WebGLContext from "../core/WebGLContext";
 import { VideoConfig } from "../type/external";
-import UniformCanvasCube from "../uniform/UniformCanvasCube";
-import UniformTexture2D from "../uniform/UniformTexture2D";
-import UniformTextureCube from "../uniform/UniformTextureCube";
-
-type CommonProjectionUniforms = {
-  uTexture: UniformTexture2D | UniformTextureCube | UniformCanvasCube;
-}
 
 /**
  * Common option for {@link Projection}s
@@ -39,7 +32,7 @@ export interface ProjectionOptions {
  * @category Projection
  * @since 4.0.0
  */
-abstract class Projection<T extends CommonProjectionUniforms = CommonProjectionUniforms> {
+abstract class Projection {
   /**
    * Source URL to panorama image/video.
    * @ko 파노라마 이미지/비디오의 URL
@@ -62,8 +55,6 @@ abstract class Projection<T extends CommonProjectionUniforms = CommonProjectionU
    */
   public readonly video: ProjectionOptions["video"];
 
-  protected _mesh: TriangleMesh<T> | null;
-
   /**
    * Create new instance
    * @ko 새로운 인스턴스를 생성합니다.
@@ -75,29 +66,17 @@ abstract class Projection<T extends CommonProjectionUniforms = CommonProjectionU
   }: ProjectionOptions) {
     this.src = src;
     this.video = video;
-    this._mesh = null;
   }
 
   /**
-   * Apply texture to current projection.
-   * @ko 주어진 텍스쳐를 현재 프로젝션에 적용합니다.
+   * Generate triangle mesh from current projection.
+   * @ko 현재 프로젝션으로부터 TriangleMesh의 인스턴스를 생성합니다.
    * @param ctx - Instance of the WebGLContext helper {@ko WebGL context 헬퍼의 인스턴스}
    * @param texture - New texture to apply {@ko 새로 적용할 텍스쳐}
    * @internal
    * @since 4.0.0
    */
-  public abstract applyTexture(ctx: WebGLContext, texture: Texture): void;
-
-  /**
-   * Release all resources projection has.
-   * This is automatically called on projection change & View360's destroy call
-   * @ko 현재 갖고 있는 모든 리소스를 반환합니다.
-   * 이 메소드는 프로젝션 변경 및 View360의 destroy 호출 시 자동으로 호출됩니다.
-   * @param ctx
-   */
-  public releaseAllResources(ctx: WebGLContext) {
-    this._mesh?.destroy(ctx);
-  }
+  public abstract createMesh(ctx: WebGLContext, texture: Texture): TriangleMesh;
 
   /**
    * Update camera to match projection's settings.
@@ -118,35 +97,6 @@ abstract class Projection<T extends CommonProjectionUniforms = CommonProjectionU
    */
   public updateControl(control: PanoControl) {
     control.ignoreZoomScale = false;
-  }
-
-  /**
-   * Update projection.
-   * @ko 현재 프로젝션 정보를 갱신합니다.
-   * @param camera - Instance of the camera to reference {@ko 참조할 카메라의 인스턴스}
-   * @since 4.0.0
-   */
-  public update(camera: Camera) {} // eslint-disable-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
-
-  /**
-   * Return active texture.
-   * @ko 현재 활성화된 텍스쳐를 반환합니다.
-   * @internal
-   * @since 4.0.0
-   */
-  public getTexture() {
-    if (!this._mesh) return null;
-
-    return this._mesh.program.uniforms.uTexture.texture;
-  }
-
-  /**
-   * A 3D triangle mesh for projection. It's `null` until loading the `src`.
-   * @ko Projection을 표시하기 위한 Mesh, src를 로드하기 전까지는 `null`입니다.
-   * @since 4.0.0
-   */
-  public getMesh(): TriangleMesh<T> | null {
-    return this._mesh;
   }
 }
 

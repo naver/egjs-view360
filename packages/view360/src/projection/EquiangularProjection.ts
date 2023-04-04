@@ -29,10 +29,8 @@ export interface EquiangularProjectionOptions extends ProjectionOptions {}
  * @since 4.0.0
  * @category Projection
  */
-class EquiangularProjection extends Projection<{
-  uTexture: UniformTexture2D;
-}> {
-  public applyTexture(ctx: WebGLContext, texture: Texture2D) {
+class EquiangularProjection extends Projection {
+  public createMesh(ctx: WebGLContext, texture: Texture2D) {
     const uniforms = {
       uTexture: new UniformTexture2D(ctx, texture)
     };
@@ -47,7 +45,7 @@ class EquiangularProjection extends Projection<{
     const vao = ctx.createVAO(geometry, program);
     const mesh = new TriangleMesh(vao, program);
 
-    this._mesh = mesh;
+    return mesh;
   }
 }
 

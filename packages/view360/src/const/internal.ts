@@ -10,6 +10,10 @@ export const CAMERA_EVENTS = {
   ANIMATION_END: "animationEnd"
 } as const;
 
+export const OBJECT_3D_EVENTS = {
+  UPDATE: "update"
+} as const;
+
 export const CONTROL_EVENTS = {
   INPUT_START: "inputStart",
   CHANGE: "change",

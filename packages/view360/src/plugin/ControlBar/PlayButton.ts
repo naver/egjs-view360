@@ -45,7 +45,7 @@ class PlayButton extends ControlBarItem {
 
   public init(viewer: View360, controlBar: ControlBar) {
     const element = this.element;
-    const video = viewer.projection?.getTexture();
+    const video = viewer.mesh?.getTexture();
     const className = controlBar.className;
     const unavailableClass = className.UNAVAILABLE;
 

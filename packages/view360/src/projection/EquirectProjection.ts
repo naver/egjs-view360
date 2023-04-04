@@ -28,9 +28,7 @@ export interface EquirectProjectionOptions extends ProjectionOptions {
  * @since 4.0.0
  * @category Projection
  */
-class EquirectProjection extends Projection<{
-  uTexture: UniformTexture2D
-}> {
+class EquirectProjection extends Projection {
   /**
    * Create new instance
    * @ko 새로운 인스턴스를 생성합니다.
@@ -40,7 +38,7 @@ class EquirectProjection extends Projection<{
     super(options);
   }
 
-  public applyTexture(ctx: WebGLContext, texture: Texture2D) {
+  public createMesh(ctx: WebGLContext, texture: Texture2D) {
     const uniforms = {
       uTexture: new UniformTexture2D(ctx, texture)
     };
@@ -51,7 +49,7 @@ class EquirectProjection extends Projection<{
     const vao = ctx.createVAO(geometry, program);
     const mesh = new TriangleMesh(vao, program);
 
-    this._mesh = mesh;
+    return mesh;
   }
 }
 

@@ -9,6 +9,7 @@ import TextureLoader from "./core/TextureLoader";
 import FrameAnimator from "./core/FrameAnimator";
 import AutoResizer from "./core/AutoResizer";
 import Autoplay, { AutoplayOptions } from "./core/Autoplay";
+import TriangleMesh from "./core/TriangleMesh";
 import XRManager from "./core/XRManager";
 import View360Error from "./core/View360Error";
 import Projection from "./projection/Projection";
@@ -95,6 +96,7 @@ class View360 extends Component<View360Events> {
   private _autoplay: Autoplay;
   private _hotspot: HotspotRenderer;
   private _projection: Projection | null;
+  private _mesh: TriangleMesh | null;
   private _autoResizer: AutoResizer;
   private _vr: XRManager;
   private _plugins: View360Plugin[];
@@ -187,12 +189,11 @@ class View360 extends Component<View360Events> {
    */
   public get plugins() { return this._plugins; }
   /**
-   * A instance of {@link Projection} that currently enabled. `null` if not initialized yet.
+   * An instance of {@link Projection} that currently enabled. `null` if not initialized yet.
    * You should call {@link View360#load} to change panorama src or projection type.
    * @ko 현재 사용중인 {@link Projection}의 인스턴스. 프로젝션을 활성화하지 않았을 경우 `null`입니다.
    * 파노라마 이미지 소스나 프로젝션 타입을 변경하려면 {@link View360#load}를 호출하면 됩니다.
    * @since 4.0.0
-   * @readonly
    * @example
    * ```ts
    * const viewer = new View360
@@ -206,6 +207,14 @@ class View360 extends Component<View360Events> {
       this._projection = val;
     }
   }
+  /**
+   * An instance of triangle mesh to render.
+   * @ko 렌더링할 triangle mesh의 인스턴스
+   * @internal
+   * @since 4.0.0
+   * @readonly
+   */
+  public get mesh() { return this._mesh; }
   /**
    * A boolean value whether {@link View360#init init()} is called before.
    * @ko {@link View360#init init()}이 호출되었는지 여부를 가리키는 값
@@ -680,6 +689,7 @@ class View360 extends Component<View360Events> {
     this._animator = new FrameAnimator(maxDeltaTime);
     this._autoplay = new Autoplay(this, canvas, autoplay);
     this._projection = projection;
+    this._mesh = null;
     this._autoResizer = new AutoResizer(useResizeObserver, () => this.resize());
     this._vr = new XRManager(this._renderer.ctx);
     this._hotspot = new HotspotRenderer(this._rootEl, this._renderer, hotspot);
@@ -703,9 +713,9 @@ class View360 extends Component<View360Events> {
     this._control.destroy();
     this._autoResizer.disable();
 
-    if (this._projection) {
-      this._projection.releaseAllResources(this._renderer.ctx);
-      this._projection = null;
+    if (this._mesh) {
+      this._mesh.destroy(this._renderer.ctx);
+      this._mesh = null;
     }
 
     this._plugins.forEach(plugin => plugin.destroy(this));
@@ -749,7 +759,7 @@ class View360 extends Component<View360Events> {
     });
 
     const texture = await this._loadTexture(projection);
-    this._applyProjection(projection, texture, null);
+    this._applyProjection(projection, texture);
     hotspot.refresh();
     animator.start(this._renderFrameOnDemand);
     await control.enable();
@@ -786,7 +796,7 @@ class View360 extends Component<View360Events> {
 
     if (this._initialized) {
       const texture = await this._loadTexture(projection);
-      this._applyProjection(projection, texture, this._projection);
+      this._applyProjection(projection, texture);
       this.renderFrame(0);
     } else {
       // Should update internal options before init
@@ -882,9 +892,9 @@ class View360 extends Component<View360Events> {
     const control = this._control;
     const hotspot = this._hotspot;
     const autoPlayer = this._autoplay;
-    const projection = this._projection;
+    const mesh = this._mesh;
 
-    if (!projection) return;
+    if (!mesh) return;
 
     this._emit(EVENTS.BEFORE_RENDER);
 
@@ -899,7 +909,7 @@ class View360 extends Component<View360Events> {
       control.update(delta);
     }
 
-    renderer.render(projection, camera);
+    renderer.render(mesh, camera);
     hotspot.render(camera);
 
     if (camera.changed) {
@@ -934,7 +944,8 @@ class View360 extends Component<View360Events> {
     const camera = this._camera;
     const control = this._control;
     const autoplay = this._autoplay;
-    const texture = this._projection?.getTexture();
+    const mesh = this._mesh;
+    const texture = mesh?.getTexture();
 
     if (!this._initialized || !texture) return;
     if (
@@ -949,33 +960,34 @@ class View360 extends Component<View360Events> {
 
   private _renderVRFrame = (_delta: number, frame: XRFrame) => {
     const vr = this._vr;
-    const projection = this._projection;
+    const mesh = this._mesh;
     const renderer = this._renderer;
 
-    if (!projection) return;
+    if (!mesh) return;
 
     this._emit(EVENTS.BEFORE_RENDER);
 
-    renderer.renderVR(projection, vr, frame);
+    renderer.renderVR(mesh, vr, frame);
 
     this._emit(EVENTS.RENDER);
   }
 
-  private _applyProjection(projection: Projection, texture: Texture, prevProjection: Projection | null) {
+  private _applyProjection(projection: Projection, texture: Texture) {
     const camera = this._camera;
     const control = this._control;
     const renderer = this._renderer;
+    const mesh = this._mesh;
 
-    // Remove previous projection
-    if (prevProjection) {
-      prevProjection.releaseAllResources(this._renderer.ctx);
+    // Remove previous context
+    if (mesh) {
+      mesh.destroy(renderer.ctx);
     }
 
-    projection.applyTexture(renderer.ctx, texture);
+    const newMesh = projection.createMesh(renderer.ctx, texture);
     projection.updateCamera(camera);
     projection.updateControl(control);
 
-    this._projection = projection;
+    this._mesh = newMesh;
     this._emit(EVENTS.PROJECTION_CHANGE, {
       projection
     });

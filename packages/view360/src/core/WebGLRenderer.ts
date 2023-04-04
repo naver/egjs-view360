@@ -4,9 +4,9 @@
  */
 import { mat4 } from "gl-matrix";
 import Camera from "./Camera";
-import Projection from "../projection/Projection";
 import WebGLContext from "./WebGLContext";
 import XRManager from "./XRManager";
+import TriangleMesh from "./TriangleMesh";
 
 /**
  * Projection renderer, based on WebGL
@@ -113,15 +113,14 @@ class WebGLRenderer {
    * @param cameraa - Camera instance {@ko 카메라의 인스턴스}
    * @since 4.0.0
    */
-  public render(projection: Projection, camera: Camera) {
+  public render(mesh: TriangleMesh, camera: Camera) {
     const ctx = this.ctx;
-    const mesh = projection.getMesh();
-    if (ctx.lost || !mesh) return;
+    if (ctx.lost) return;
 
     ctx.clear();
     ctx.useProgram(mesh.program);
     ctx.updateCommonUniforms(mesh, camera, mesh.program);
-    projection.update(camera);
+    mesh.update({ camera });
     ctx.updateUniforms(mesh.program);
     ctx.draw(mesh.vao, mesh.program);
   }
@@ -130,14 +129,13 @@ class WebGLRenderer {
    * Render VR frame, only used for rendering frames inside VR sessions.
    * @ko VR 프레임을 렌더링합니다. VR 세션 진입 도중에만 사용됩니다.
    * @internal
-   * @param projection - Projection to render {@ko 렌더링할 프로젝션}
+   * @param mesh - Triangle mesh to render {@ko 렌더링할 메쉬}
    * @param vr - Instance of XRManager {@ko XRManager의 인스턴스}
    * @param frame - VR frame {@ko VR 프레임}
    * @since 4.0.0
    */
-  public renderVR(projection: Projection, vr: XRManager, frame: XRFrame) {
+  public renderVR(mesh: TriangleMesh, vr: XRManager, frame: XRFrame) {
     const ctx = this.ctx;
-    const mesh = projection.getMesh();
     const eyeParams = vr.getEyeParams(frame);
 
     if (!eyeParams || !mesh) return;
