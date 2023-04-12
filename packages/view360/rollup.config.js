@@ -68,5 +68,12 @@ module.exports = buildHelper([
     exports: "named",
     external,
     ...common
-  }
+  },
+  {
+		input: "./src/index.cjs.ts",
+		output: `./dist/${fileName}.cjs.js`,
+		format: "cjs",
+		exports: "named",
+    ...common
+	}
 ]);
