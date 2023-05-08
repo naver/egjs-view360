@@ -1,11 +1,13 @@
+/* eslint-env node */
 const path = require("path");
 
 const fs = require("fs-extra");
 const svelte = require("svelte/compiler");
-const { typescript } = require("svelte-preprocess");
+const { typescript, replace } = require("svelte-preprocess");
 const ts = require("typescript");
 
 const tsconfig = require("./tsconfig.json");
+const replaces = require("./replace.cjs");
 
 const files = fs.readdirSync(path.resolve(__dirname, "./src"), { withFileTypes: true });
 
@@ -42,7 +44,8 @@ svelteFiles.forEach(async fileName => {
       tsconfigDirectory: ".",
       tsconfigFile: "./tsconfig.json",
       handleMixedImports: true
-    })
+    }),
+    replace(replaces)
   ], {
     filename: fileName
   });
