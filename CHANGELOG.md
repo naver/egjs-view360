@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.0-beta.6](https://github.com/naver/egjs-view360/compare/4.0.0-beta.5...4.0.0-beta.6) (2023-05-08)
+### :sparkles: Packages
+* `@egjs/ngx-view360` 4.0.0-beta.6
+* `@egjs/react-view360` 4.0.0-beta.6
+* `@egjs/svelte-view360` 4.0.0-beta.6
+* `@egjs/view360` 4.0.0-beta.6
+* `@egjs/vue-view360` 4.0.0-beta.6
+* `@egjs/vue3-view360` 4.0.0-beta.6
+
+
+### :bug: Bug Fix
+
+* `@egjs/vue3-view360`, `@egjs/vue-view360`, `@egjs/view360`, `@egjs/svelte-view360`, `@egjs/react-view360`
+    * create cjs build and fix wrong exports ([61b2e39](https://github.com/naver/egjs-view360/commit/61b2e398f0fd666f949b94820368bb413e4963c4))
+* `@egjs/vue-view360`, `@egjs/view360`
+    * low performance due to proxy wrapping ([f9fd058](https://github.com/naver/egjs-view360/commit/f9fd05863f8e919941ef238ca215c381b5991fa8))
+
+
+### :mega: Other
+
+* All
+    * update packages versions ([8a95762](https://github.com/naver/egjs-view360/commit/8a95762a2c8319899884207d871577cdc5a23db6))
+
+
+
 ## [4.0.0-beta.5](https://github.com/naver/egjs-view360/compare/4.0.0-beta.0...4.0.0-beta.5) (2023-03-30)
 ### :sparkles: Packages
 * `@egjs/ngx-view360` 4.0.0-beta.5
