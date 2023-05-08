@@ -1,0 +1,34 @@
+@import variable
+
+.#{$view360-prefix}-spinner
+  position: absolute
+  top: 0
+  left: 0
+  width: 100%
+  height: 100%
+  display: flex
+  justify-content: center
+  align-items: center
+  background-color: rgba(0, 0, 0, 0.15)
+
+.#{$view360-prefix}-spinner-ring
+  top: 0
+  left: 0
+  padding: 0
+  margin: 0
+  width: 64px
+  height: 64px
+  box-sizing: content-box
+  background-color: transparent
+  border-style: solid
+  border-radius: 50%
+  border-width: 10px
+  border-color: #fff
+  border-bottom-color: transparent
+  animation: view360-spin-animation 1.2s linear infinite
+
+@keyframes view360-spin-animation
+  0%
+    transform: rotate(0deg)
+  100%
+    transform: rotate(360deg)

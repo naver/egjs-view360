@@ -4,7 +4,7 @@ name: @egjs/view360
 license: MIT
 author: NAVER Corp.
 repository: https://github.com/naver/egjs-view360
-version: 4.0.0-beta.5
+version: 4.0.0-beta.6
 */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('@egjs/component'), require('gl-matrix'), require('@egjs/imready')) :
@@ -321,6 +321,9 @@ version: 4.0.0-beta.5
       CHANGE: "change",
       ANIMATION_END: "animationEnd"
     };
+    const OBJECT_3D_EVENTS = {
+      UPDATE: "update"
+    };
     const CONTROL_EVENTS = {
       INPUT_START: "inputStart",
       CHANGE: "change",
@@ -461,7 +464,7 @@ version: 4.0.0-beta.5
       return false;
     };
     const sensorCanBeEnabledIOS = () => {
-      return !!DeviceMotionEvent && "requestPermission" in DeviceMotionEvent && window.isSecureContext;
+      return window.isSecureContext && !!DeviceMotionEvent && "requestPermission" in DeviceMotionEvent;
     };
     const hfovToZoom = (baseFov, fov) => {
       const renderingWidth = Math.tan(DEG_TO_RAD * baseFov * 0.5);
@@ -4151,14 +4154,15 @@ version: 4.0.0-beta.5
        * @param cameraa - Camera instance {@ko 카메라의 인스턴스}
        * @since 4.0.0
        */
-      render(projection, camera) {
+      render(mesh, camera) {
         const ctx = this.ctx;
-        const mesh = projection.getMesh();
-        if (ctx.lost || !mesh) return;
+        if (ctx.lost) return;
         ctx.clear();
         ctx.useProgram(mesh.program);
         ctx.updateCommonUniforms(mesh, camera, mesh.program);
-        projection.update(camera);
+        mesh.update({
+          camera
+        });
         ctx.updateUniforms(mesh.program);
         ctx.draw(mesh.vao, mesh.program);
       }
@@ -4166,14 +4170,13 @@ version: 4.0.0-beta.5
        * Render VR frame, only used for rendering frames inside VR sessions.
        * @ko VR 프레임을 렌더링합니다. VR 세션 진입 도중에만 사용됩니다.
        * @internal
-       * @param projection - Projection to render {@ko 렌더링할 프로젝션}
+       * @param mesh - Triangle mesh to render {@ko 렌더링할 메쉬}
        * @param vr - Instance of XRManager {@ko XRManager의 인스턴스}
        * @param frame - VR frame {@ko VR 프레임}
        * @since 4.0.0
        */
-      renderVR(projection, vr, frame) {
+      renderVR(mesh, vr, frame) {
         const ctx = this.ctx;
-        const mesh = projection.getMesh();
         const eyeParams = vr.getEyeParams(frame);
         if (!eyeParams || !mesh) return;
         ctx.bindXRFrame(frame);
@@ -4293,12 +4296,11 @@ version: 4.0.0-beta.5
         return this._plugins;
       }
       /**
-       * A instance of {@link Projection} that currently enabled. `null` if not initialized yet.
+       * An instance of {@link Projection} that currently enabled. `null` if not initialized yet.
        * You should call {@link View360#load} to change panorama src or projection type.
        * @ko 현재 사용중인 {@link Projection}의 인스턴스. 프로젝션을 활성화하지 않았을 경우 `null`입니다.
        * 파노라마 이미지 소스나 프로젝션 타입을 변경하려면 {@link View360#load}를 호출하면 됩니다.
        * @since 4.0.0
-       * @readonly
        * @example
        * ```ts
        * const viewer = new View360
@@ -4313,6 +4315,16 @@ version: 4.0.0-beta.5
         } else {
           this._projection = val;
         }
+      }
+      /**
+       * An instance of triangle mesh to render.
+       * @ko 렌더링할 triangle mesh의 인스턴스
+       * @internal
+       * @since 4.0.0
+       * @readonly
+       */
+      get mesh() {
+        return this._mesh;
       }
       /**
        * A boolean value whether {@link View360#init init()} is called before.
@@ -4826,8 +4838,8 @@ version: 4.0.0-beta.5
           const control = this._control;
           const hotspot = this._hotspot;
           const autoPlayer = this._autoplay;
-          const projection = this._projection;
-          if (!projection) return;
+          const mesh = this._mesh;
+          if (!mesh) return;
           this._emit(EVENTS.BEFORE_RENDER);
           if (autoPlayer.playing) {
             autoPlayer.update(delta);
@@ -4838,7 +4850,7 @@ version: 4.0.0-beta.5
           } else {
             control.update(delta);
           }
-          renderer.render(projection, camera);
+          renderer.render(mesh, camera);
           hotspot.render(camera);
           if (camera.changed) {
             this._emit(EVENTS.VIEW_CHANGE, {
@@ -4852,22 +4864,22 @@ version: 4.0.0-beta.5
           this._emit(EVENTS.RENDER);
         };
         this._renderFrameOnDemand = delta => {
-          var _a;
           const camera = this._camera;
           const control = this._control;
           const autoplay = this._autoplay;
-          const texture = (_a = this._projection) === null || _a === void 0 ? void 0 : _a.getTexture();
+          const mesh = this._mesh;
+          const texture = mesh === null || mesh === void 0 ? void 0 : mesh.getTexture();
           if (!this._initialized || !texture) return;
           if (!camera.animation && !control.animating && !autoplay.playing && !texture.isVideo()) return;
           this.renderFrame(delta);
         };
         this._renderVRFrame = (_delta, frame) => {
           const vr = this._vr;
-          const projection = this._projection;
+          const mesh = this._mesh;
           const renderer = this._renderer;
-          if (!projection) return;
+          if (!mesh) return;
           this._emit(EVENTS.BEFORE_RENDER);
-          renderer.renderVR(projection, vr, frame);
+          renderer.renderVR(mesh, vr, frame);
           this._emit(EVENTS.RENDER);
         };
         this._rootEl = getElement(root);
@@ -4904,6 +4916,7 @@ version: 4.0.0-beta.5
         this._animator = new FrameAnimator(maxDeltaTime);
         this._autoplay = new Autoplay(this, canvas, autoplay);
         this._projection = projection;
+        this._mesh = null;
         this._autoResizer = new AutoResizer(useResizeObserver, () => this.resize());
         this._vr = new XRManager(this._renderer.ctx);
         this._hotspot = new HotspotRenderer(this._rootEl, this._renderer, hotspot);
@@ -4923,9 +4936,9 @@ version: 4.0.0-beta.5
         this._renderer.destroy();
         this._control.destroy();
         this._autoResizer.disable();
-        if (this._projection) {
-          this._projection.releaseAllResources(this._renderer.ctx);
-          this._projection = null;
+        if (this._mesh) {
+          this._mesh.destroy(this._renderer.ctx);
+          this._mesh = null;
         }
         this._plugins.forEach(plugin => plugin.destroy(this));
         this._initialized = false;
@@ -4961,7 +4974,7 @@ version: 4.0.0-beta.5
             plugin.init(this);
           });
           const texture = yield this._loadTexture(projection);
-          this._applyProjection(projection, texture, null);
+          this._applyProjection(projection, texture);
           hotspot.refresh();
           animator.start(this._renderFrameOnDemand);
           yield control.enable();
@@ -4995,7 +5008,7 @@ version: 4.0.0-beta.5
           if (!projection) return false;
           if (this._initialized) {
             const texture = yield this._loadTexture(projection);
-            this._applyProjection(projection, texture, this._projection);
+            this._applyProjection(projection, texture);
             this.renderFrame(0);
           } else {
             // Should update internal options before init
@@ -5076,18 +5089,19 @@ version: 4.0.0-beta.5
           target: this
         }, evtParams));
       }
-      _applyProjection(projection, texture, prevProjection) {
+      _applyProjection(projection, texture) {
         const camera = this._camera;
         const control = this._control;
         const renderer = this._renderer;
-        // Remove previous projection
-        if (prevProjection) {
-          prevProjection.releaseAllResources(this._renderer.ctx);
+        const mesh = this._mesh;
+        // Remove previous context
+        if (mesh) {
+          mesh.destroy(renderer.ctx);
         }
-        projection.applyTexture(renderer.ctx, texture);
+        const newMesh = projection.createMesh(renderer.ctx, texture);
         projection.updateCamera(camera);
         projection.updateControl(control);
-        this._projection = projection;
+        this._mesh = newMesh;
         this._emit(EVENTS.PROJECTION_CHANGE, {
           projection
         });
@@ -5168,7 +5182,7 @@ version: 4.0.0-beta.5
      * console.log(View360.VERSION) // 4.0.0
      * ```
      */
-    View360.VERSION = "4.0.0-beta.5";
+    View360.VERSION = "4.0.0-beta.6";
 
     /*
      * Copyright (c) 2023-present NAVER Corp.
@@ -5180,12 +5194,13 @@ version: 4.0.0-beta.5
      * @since 4.0.0
      * @internal
      */
-    class Object3D {
+    class Object3D extends Component__default["default"] {
       /**
        * Create new instance.
        * @ko 새로운 인스턴스를 생성합니다.
        */
       constructor() {
+        super();
         this.matrix = glMatrix.mat4.create();
         this.rotation = glMatrix.quat.create();
         this.position = glMatrix.vec3.fromValues(0, 0, 0);
@@ -5198,6 +5213,9 @@ version: 4.0.0-beta.5
        */
       updateMatrix() {
         glMatrix.mat4.fromRotationTranslationScale(this.matrix, this.rotation, this.position, this.scale);
+      }
+      update(ctx) {
+        this.trigger(OBJECT_3D_EVENTS.UPDATE, ctx);
       }
     }
 
@@ -5575,7 +5593,7 @@ version: 4.0.0-beta.5
       }
       init(viewer, controlBar) {
         var _a;
-        const video = (_a = viewer.projection) === null || _a === void 0 ? void 0 : _a.getTexture();
+        const video = (_a = viewer.mesh) === null || _a === void 0 ? void 0 : _a.getTexture();
         const element = this.element;
         const rangeControl = this._rangeControl;
         const unavailableClass = controlBar.className.UNAVAILABLE;
@@ -5669,7 +5687,7 @@ version: 4.0.0-beta.5
       init(viewer, controlBar) {
         var _a;
         const element = this.element;
-        const video = (_a = viewer.projection) === null || _a === void 0 ? void 0 : _a.getTexture();
+        const video = (_a = viewer.mesh) === null || _a === void 0 ? void 0 : _a.getTexture();
         const className = controlBar.className;
         const unavailableClass = className.UNAVAILABLE;
         if (!video || !video.isVideo()) {
@@ -5800,7 +5818,7 @@ version: 4.0.0-beta.5
       }
       init(viewer, controlBar) {
         var _a;
-        const video = (_a = viewer.projection) === null || _a === void 0 ? void 0 : _a.getTexture();
+        const video = (_a = viewer.mesh) === null || _a === void 0 ? void 0 : _a.getTexture();
         const root = this._rootEl;
         const button = this._buttonEl;
         const rangeControl = this._rangeControl;
@@ -6014,7 +6032,7 @@ version: 4.0.0-beta.5
       }
       init(viewer, controlBar) {
         var _a;
-        const video = (_a = viewer.projection) === null || _a === void 0 ? void 0 : _a.getTexture();
+        const video = (_a = viewer.mesh) === null || _a === void 0 ? void 0 : _a.getTexture();
         const element = this.element;
         const className = controlBar.className;
         if (!video || !video.isVideo()) {
@@ -6406,7 +6424,7 @@ version: 4.0.0-beta.5
         root.addEventListener(EVENTS$1.MOUSE_MOVE, this._onMouseMove);
         root.addEventListener(EVENTS$1.MOUSE_LEAVE, this._onMouseLeave);
         this._addFullscreenHandlers();
-        const video = (_a = viewer.projection) === null || _a === void 0 ? void 0 : _a.getTexture();
+        const video = (_a = viewer.mesh) === null || _a === void 0 ? void 0 : _a.getTexture();
         if (!video || !video.isVideo()) {
           return;
         }
@@ -6627,7 +6645,7 @@ version: 4.0.0-beta.5
             }
           } else {
             if (!this.clickToPlay) return;
-            const video = (_a = viewer.projection) === null || _a === void 0 ? void 0 : _a.getTexture();
+            const video = (_a = viewer.mesh) === null || _a === void 0 ? void 0 : _a.getTexture();
             if (!video || !video.isVideo()) return;
             if (video.isPaused()) {
               video.source.play();
@@ -6783,7 +6801,7 @@ version: 4.0.0-beta.5
           }
         } else {
           // Automatically choose whether to show background by content type
-          const texture = (_a = viewer.projection) === null || _a === void 0 ? void 0 : _a.getTexture();
+          const texture = (_a = viewer.mesh) === null || _a === void 0 ? void 0 : _a.getTexture();
           if (texture && texture.isVideo()) {
             // Enable auto hide when content type is video
             autoHider.enable(viewer);
@@ -6805,7 +6823,7 @@ version: 4.0.0-beta.5
           }
         } else {
           // Automatically choose whether to show background by content type
-          const texture = (_b = viewer.projection) === null || _b === void 0 ? void 0 : _b.getTexture();
+          const texture = (_b = viewer.mesh) === null || _b === void 0 ? void 0 : _b.getTexture();
           if (texture && texture.isVideo()) {
             // Show bg when content type is video
             background.classList.remove(hiddenClass);
@@ -6818,7 +6836,7 @@ version: 4.0.0-beta.5
         var _a;
         const panoRoot = viewer.rootEl;
         const videoControl = this._videoControl;
-        const texture = (_a = viewer.projection) === null || _a === void 0 ? void 0 : _a.getTexture();
+        const texture = (_a = viewer.mesh) === null || _a === void 0 ? void 0 : _a.getTexture();
         if (this.keyboardControls && texture && texture.isVideo()) {
           videoControl.enable(panoRoot, texture);
         } else {
@@ -6884,18 +6902,6 @@ version: 4.0.0-beta.5
       }) {
         this.src = src;
         this.video = video;
-        this._mesh = null;
-      }
-      /**
-       * Release all resources projection has.
-       * This is automatically called on projection change & View360's destroy call
-       * @ko 현재 갖고 있는 모든 리소스를 반환합니다.
-       * 이 메소드는 프로젝션 변경 및 View360의 destroy 호출 시 자동으로 호출됩니다.
-       * @param ctx
-       */
-      releaseAllResources(ctx) {
-        var _a;
-        (_a = this._mesh) === null || _a === void 0 ? void 0 : _a.destroy(ctx);
       }
       /**
        * Update camera to match projection's settings.
@@ -6915,31 +6921,6 @@ version: 4.0.0-beta.5
        */
       updateControl(control) {
         control.ignoreZoomScale = false;
-      }
-      /**
-       * Update projection.
-       * @ko 현재 프로젝션 정보를 갱신합니다.
-       * @param camera - Instance of the camera to reference {@ko 참조할 카메라의 인스턴스}
-       * @since 4.0.0
-       */
-      update(camera) {} // eslint-disable-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
-      /**
-       * Return active texture.
-       * @ko 현재 활성화된 텍스쳐를 반환합니다.
-       * @internal
-       * @since 4.0.0
-       */
-      getTexture() {
-        if (!this._mesh) return null;
-        return this._mesh.program.uniforms.uTexture.texture;
-      }
-      /**
-       * A 3D triangle mesh for projection. It's `null` until loading the `src`.
-       * @ko Projection을 표시하기 위한 Mesh, src를 로드하기 전까지는 `null`입니다.
-       * @since 4.0.0
-       */
-      getMesh() {
-        return this._mesh;
       }
     }
 
@@ -7102,6 +7083,9 @@ version: 4.0.0-beta.5
         ctx.releaseVAO(this.vao);
         ctx.releaseShaderResources(this.program);
       }
+      getTexture() {
+        return this.program.uniforms.uTexture.texture;
+      }
     }
 
     class ShaderProgram {
@@ -7228,7 +7212,7 @@ version: 4.0.0-beta.5
         this._cubemapOrder = cubemapOrder;
         this._cubemapFlipX = cubemapFlipX;
       }
-      applyTexture(ctx, texture) {
+      createMesh(ctx, texture) {
         const cubemapOrder = this._cubemapOrder;
         const cubemapFlipX = this._cubemapFlipX;
         const uniforms = {
@@ -7244,7 +7228,7 @@ version: 4.0.0-beta.5
           mesh.scale[0] = -1;
         }
         mesh.updateMatrix();
-        this._mesh = mesh;
+        return mesh;
       }
     }
 
@@ -7309,7 +7293,7 @@ version: 4.0.0-beta.5
         this._cubemapOrder = cubemapOrder;
         this._cubemapFlipX = cubemapFlipX;
       }
-      applyTexture(ctx, texture) {
+      createMesh(ctx, texture) {
         const cubemapOrder = this._cubemapOrder;
         const cubemapFlipX = this._cubemapFlipX;
         const uniforms = {
@@ -7325,7 +7309,7 @@ version: 4.0.0-beta.5
           mesh.scale[0] = -1;
         }
         mesh.updateMatrix();
-        this._mesh = mesh;
+        return mesh;
       }
     }
 
@@ -7392,8 +7376,12 @@ version: 4.0.0-beta.5
           partial = false
         } = options;
         this._partial = partial;
+        this._aspect = 1;
+        this._halfHeight = 0;
+        this._mesh = null;
       }
-      applyTexture(ctx, texture) {
+      createMesh(ctx, texture) {
+        if (this._mesh) return this._mesh;
         const partial = this._partial;
         const {
           width,
@@ -7413,20 +7401,17 @@ version: 4.0.0-beta.5
         glMatrix.quat.identity(mesh.rotation);
         glMatrix.quat.rotateY(mesh.rotation, mesh.rotation, -Math.PI / 2);
         mesh.updateMatrix();
+        this._aspect = aspect;
+        this._halfHeight = cylinderHeight * 0.5;
         this._mesh = mesh;
+        return mesh;
       }
       updateCamera(camera) {
         super.updateCamera(camera);
         const mesh = this._mesh;
+        const aspect = this._aspect;
+        const halfHeight = this._halfHeight;
         if (!mesh) return;
-        const uTexture = mesh.program.uniforms.uTexture;
-        const texture = uTexture.texture;
-        const {
-          width,
-          height
-        } = texture;
-        const aspect = width / height;
-        const halfHeight = mesh.scale[1] * 0.5;
         if (this._partial) {
           const restrictedYaw = 0.5 * aspect * RAD_TO_DEG;
           camera.restrictYawRange(-restrictedYaw, restrictedYaw);
@@ -7454,7 +7439,7 @@ version: 4.0.0-beta.5
      * @category Projection
      */
     class EquiangularProjection extends Projection {
-      applyTexture(ctx, texture) {
+      createMesh(ctx, texture) {
         const uniforms = {
           uTexture: new UniformTexture2D(ctx, texture)
         };
@@ -7465,7 +7450,7 @@ version: 4.0.0-beta.5
         const program = new ShaderProgram(ctx, vs$2, fs$1, uniforms);
         const vao = ctx.createVAO(geometry, program);
         const mesh = new TriangleMesh(vao, program);
-        this._mesh = mesh;
+        return mesh;
       }
     }
 
@@ -7533,7 +7518,7 @@ version: 4.0.0-beta.5
       constructor(options) {
         super(options);
       }
-      applyTexture(ctx, texture) {
+      createMesh(ctx, texture) {
         const uniforms = {
           uTexture: new UniformTexture2D(ctx, texture)
         };
@@ -7541,7 +7526,7 @@ version: 4.0.0-beta.5
         const program = new ShaderProgram(ctx, vs$2, fs$2, uniforms);
         const vao = ctx.createVAO(geometry, program);
         const mesh = new TriangleMesh(vao, program);
-        this._mesh = mesh;
+        return mesh;
       }
     }
 
@@ -7602,7 +7587,7 @@ version: 4.0.0-beta.5
       constructor(options) {
         super(options);
       }
-      applyTexture(ctx, texture) {
+      createMesh(ctx, texture) {
         texture.wrapS = WebGLRenderingContext.REPEAT;
         texture.wrapT = WebGLRenderingContext.REPEAT;
         const uniforms = {
@@ -7615,22 +7600,22 @@ version: 4.0.0-beta.5
         const program = new ShaderProgram(ctx, vs$1, fs, uniforms);
         const vao = ctx.createVAO(geometry, program);
         const mesh = new TriangleMesh(vao, program);
-        this._mesh = mesh;
+        mesh.on(OBJECT_3D_EVENTS.UPDATE, ({
+          camera
+        }) => {
+          const uniforms = mesh.program.uniforms;
+          uniforms.uYaw.val = camera.yaw / 360;
+          // Range from 0 ~ 1
+          uniforms.uPitch.val = camera.pitch / 180 + 0.5;
+          uniforms.uZoom.val = camera.zoom;
+          uniforms.uYaw.needsUpdate = true;
+          uniforms.uPitch.needsUpdate = true;
+          uniforms.uZoom.needsUpdate = true;
+        });
+        return mesh;
       }
       updateControl(control) {
         control.ignoreZoomScale = true;
-      }
-      update(camera) {
-        const mesh = this._mesh;
-        if (!mesh) return;
-        const uniforms = mesh.program.uniforms;
-        uniforms.uYaw.val = camera.yaw / 360;
-        // Range from 0 ~ 1
-        uniforms.uPitch.val = camera.pitch / 180 + 0.5;
-        uniforms.uZoom.val = camera.zoom;
-        uniforms.uYaw.needsUpdate = true;
-        uniforms.uPitch.needsUpdate = true;
-        uniforms.uZoom.needsUpdate = true;
       }
     }
 
@@ -7671,7 +7656,7 @@ version: 4.0.0-beta.5
         super(options);
         this._mode = options.mode;
       }
-      applyTexture(ctx, texture) {
+      createMesh(ctx, texture) {
         let leftEye;
         let rightEye;
         switch (this._mode) {
@@ -7693,7 +7678,7 @@ version: 4.0.0-beta.5
         const program = new ShaderProgram(ctx, vs, fs$2, uniforms);
         const vao = ctx.createVAO(geometry, program);
         const mesh = new TriangleMesh(vao, program);
-        this._mesh = mesh;
+        return mesh;
       }
     }
     /**
