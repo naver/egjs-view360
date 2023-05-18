@@ -11,6 +11,14 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+
+
+**Note:** Version bump only for package view360-root
+
+
+
+
+
 ## [4.0.0-beta.7](https://github.com/naver/egjs-view360/compare/3.4.3...4.0.0-beta.7) (2023-05-18)
 ### :sparkles: Packages
 * `@egjs/ngx-view360` 4.0.0-beta.7
