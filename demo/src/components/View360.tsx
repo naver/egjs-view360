@@ -15,7 +15,7 @@ import {
 import { getObjectOption } from "../../../packages/view360/src/utils";
 import LoadButton from "./LoadButton";
 import OptionExample from "./OptionExample";
-import License, { LicenseProps } from "./License";
+import License, { LicenseProps } from "./License.tsx";
 import OriginalImageButton from "./plugin/OriginalImageButton";
 import { PROJECTION_TYPE } from "./const";
 import EventVisualizer from "./EventVisualizer";
@@ -133,16 +133,16 @@ const View360 = React.forwardRef(({
     classes.push(`is-${ratio}`);
   }
 
-  return <>
-    <div ref={wrapperRef} className={clsx(...classes, className)} style={style}>
-      <canvas className="view360-canvas"></canvas>
-      { license && <License item={license} /> }
-      { clickToLoad && <LoadButton onClick={() => { viewer.init(); }} /> }
-      { children }
-    </div>
-    { showExampleCode && <OptionExample options={view360Options} projectionType={projectionType} projectionOptions={projectionOptions} />}
-    { showEvents.length > 0 && <EventVisualizer viewer={viewer} events={showEvents} />}
-  </>;
+    return <>
+      <div ref={wrapperRef} className={clsx(...classes, className)} style={style}>
+        <canvas className="view360-canvas"></canvas>
+        { license && <License item={license} /> }
+        { clickToLoad && <LoadButton onClick={() => { viewer.init(); }} /> }
+        { children }
+      </div>
+      { showExampleCode && <OptionExample options={view360Options} projectionType={projectionType} projectionOptions={projectionOptions} />}
+      { showEvents.length > 0 && <EventVisualizer viewer={viewer} events={showEvents} />}
+    </>;
 });
 
 const createProjection = (projectionType: string, projectionOptions: any, withBaseUrl): Projection => {
@@ -170,7 +170,7 @@ const createProjection = (projectionType: string, projectionOptions: any, withBa
     default:
       throw new Error(`Wrong projection, given: ${projectionType}`);
   }
-}
+};
 
 export * from "../../../packages/view360/src/index";
 
