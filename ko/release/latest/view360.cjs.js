@@ -4,7 +4,7 @@ name: @egjs/view360
 license: MIT
 author: NAVER Corp.
 repository: https://github.com/naver/egjs-view360
-version: 4.0.0-beta.6
+version: 4.0.0-beta.7
 */
 'use strict';
 
@@ -5182,7 +5182,7 @@ class View360 extends Component__default["default"] {
  * console.log(View360.VERSION) // 4.0.0
  * ```
  */
-View360.VERSION = "4.0.0-beta.6";
+View360.VERSION = "4.0.0-beta.7";
 
 /*
  * Copyright (c) 2023-present NAVER Corp.

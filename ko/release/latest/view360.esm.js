@@ -4,7 +4,7 @@ name: @egjs/view360
 license: MIT
 author: NAVER Corp.
 repository: https://github.com/naver/egjs-view360
-version: 4.0.0-beta.6
+version: 4.0.0-beta.7
 */
 import Component from '@egjs/component';
 import { quat, vec3, mat4, vec2 } from 'gl-matrix';
@@ -5161,7 +5161,7 @@ class View360 extends Component {
  * console.log(View360.VERSION) // 4.0.0
  * ```
  */
-View360.VERSION = "4.0.0-beta.6";
+View360.VERSION = "4.0.0-beta.7";
 
 /*
  * Copyright (c) 2023-present NAVER Corp.

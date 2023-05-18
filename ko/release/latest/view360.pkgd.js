@@ -4,7 +4,7 @@ name: @egjs/view360
 license: MIT
 author: NAVER Corp.
 repository: https://github.com/naver/egjs-view360
-version: 4.0.0-beta.6
+version: 4.0.0-beta.7
 */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -7742,7 +7742,7 @@ version: 4.0.0-beta.6
      * console.log(View360.VERSION) // 4.0.0
      * ```
      */
-    View360.VERSION = "4.0.0-beta.6";
+    View360.VERSION = "4.0.0-beta.7";
 
     /*
      * Copyright (c) 2023-present NAVER Corp.
