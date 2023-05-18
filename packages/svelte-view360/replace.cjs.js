@@ -1,4 +1,5 @@
-import View360 from "@egjs/view360";
+/* eslint-env node */
+const View360 = require("@egjs/view360");
 
 const options = Object.getOwnPropertyNames(View360.prototype)
   .filter(name => {
@@ -10,7 +11,7 @@ const options = Object.getOwnPropertyNames(View360.prototype)
     return true;
   });
 
-export default [
+module.exports = [
   ["// @ts-ignore", ""],
   ["__DECLARE_PROPS__", options.map(opt => `export let ${opt} = undefined;`).join("\n")]
 ];
