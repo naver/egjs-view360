@@ -36,7 +36,7 @@ export default React.memo(() => {
     <div className={styles.packageNameSub}>360° panorama image / video viewer built with Typescript</div>
     <div className={styles.badges}>
       <a href="https://www.npmjs.com/package/@egjs/view360" target="_blank" rel="noopener noreferrer">
-        <img alt="npm" src="https://img.shields.io/npm/v/@egjs/view360/next?logo=npm"></img>
+        <img alt="npm" src="https://img.shields.io/npm/v/@egjs/view360?logo=npm"></img>
       </a>
       <a href="https://www.npmjs.com/package/@egjs/view360" target="_blank" rel="noopener noreferrer">
         <img alt="npm bundle size" src="https://img.shields.io/bundlephobia/minzip/@egjs/view360?label=%F0%9F%92%BE%20minzipped"></img>
@@ -113,22 +113,22 @@ export default React.memo(() => {
         }
       ]}>
       <TabItem value="js">
-        <CodeBlock className={clsx(styles.max400, "language-shell")}>{"npm install @egjs/view360@next"}</CodeBlock>
+        <CodeBlock className={clsx(styles.max400, "language-shell")}>{"npm install @egjs/view360"}</CodeBlock>
       </TabItem>
       <TabItem value="react">
-        <CodeBlock className={clsx(styles.max400, "language-shell")}>{"npm install @egjs/react-view360@next"}</CodeBlock>
+        <CodeBlock className={clsx(styles.max400, "language-shell")}>{"npm install @egjs/react-view360"}</CodeBlock>
       </TabItem>
       <TabItem value="ng">
-        <CodeBlock className={clsx(styles.max400, "language-shell")}>{"npm install @egjs/ngx-view360@next"}</CodeBlock>
+        <CodeBlock className={clsx(styles.max400, "language-shell")}>{"npm install @egjs/ngx-view360"}</CodeBlock>
       </TabItem>
       <TabItem value="vue2">
-        <CodeBlock className={clsx(styles.max400, "language-shell")}>{"npm install @egjs/vue-view360@next"}</CodeBlock>
+        <CodeBlock className={clsx(styles.max400, "language-shell")}>{"npm install @egjs/vue-view360"}</CodeBlock>
       </TabItem>
       <TabItem value="vue3">
-        <CodeBlock className={clsx(styles.max400, "language-shell")}>{"npm install @egjs/vue3-view360@next"}</CodeBlock>
+        <CodeBlock className={clsx(styles.max400, "language-shell")}>{"npm install @egjs/vue3-view360"}</CodeBlock>
       </TabItem>
       <TabItem value="svelte">
-        <CodeBlock className={clsx(styles.max400, "language-shell")}>{"npm install @egjs/svelte-view360@next"}</CodeBlock>
+        <CodeBlock className={clsx(styles.max400, "language-shell")}>{"npm install @egjs/svelte-view360"}</CodeBlock>
       </TabItem>
     </Tabs>
     <div className={styles.btnsWrapper}>
