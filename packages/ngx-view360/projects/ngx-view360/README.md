@@ -4,16 +4,16 @@
 
 <p align=center>
   <a href="https://www.npmjs.com/package/@egjs/ngx-view360" target="_blank">
-    <img src="https://img.shields.io/npm/v/@egjs/ngx-view360/next?style=flat-square&color=dd0031&label=version&logo=NPM">
+    <img src="https://img.shields.io/npm/v/@egjs/ngx-view360?style=flat-square&color=dd0031&label=version&logo=NPM">
   </a>
   <a href="https://www.npmjs.com/package/@egjs/ngx-view360" target="_blank">
-    <img alt="npm bundle size (scoped)" src="https://img.shields.io/bundlephobia/minzip/@egjs/ngx-view360/next?style=flat-square&label=%F0%9F%92%BE%20gzipped&color=007acc">
+    <img alt="npm bundle size (scoped)" src="https://img.shields.io/bundlephobia/minzip/@egjs/ngx-view360?style=flat-square&label=%F0%9F%92%BE%20gzipped&color=007acc">
   </a>
   <a href="https://github.com/naver/egjs-view360/graphs/commit-activity">
     <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/m/naver/egjs-view360.svg?style=flat-square&label=%E2%AC%86%20commits&color=08CE5D">
   </a>
   <a href="https://www.npmjs.com/package/@egjs/ngx-view360" target="_blank">
-    <img src="https://img.shields.io/npm/dm/@egjs/ngx-view360/next?style=flat-square&label=%E2%AC%87%20downloads&color=08CE5D" alt="npm downloads per month">
+    <img src="https://img.shields.io/npm/dm/@egjs/ngx-view360?style=flat-square&label=%E2%AC%87%20downloads&color=08CE5D" alt="npm downloads per month">
   </a>
   <a href="https://github.com/naver/egjs-view360/graphs/contributors" target="_blank">
     <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/naver/egjs-view360.svg?label=%F0%9F%91%A5%20contributors&style=flat-square&color=08CE5D"></a>

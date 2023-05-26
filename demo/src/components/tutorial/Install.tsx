@@ -81,24 +81,24 @@ export default () => <Tabs
     }
   ]}>
   <TabItem value="npm">
-    <CodeBlock className="language-shell">npm install @egjs/view360@next</CodeBlock>
+    <CodeBlock className="language-shell">npm install @egjs/view360</CodeBlock>
   </TabItem>
   <TabItem value="yarn">
-    <CodeBlock className="language-shell">yarn add @egjs/view360@next</CodeBlock>
+    <CodeBlock className="language-shell">yarn add @egjs/view360</CodeBlock>
   </TabItem>
   <TabItem value="react">
-    <CodeBlock className="language-shell">npm install @egjs/react-view360@next</CodeBlock>
+    <CodeBlock className="language-shell">npm install @egjs/react-view360</CodeBlock>
   </TabItem>
   <TabItem value="ng">
-    <CodeBlock className="language-shell">npm install @egjs/ngx-view360@next</CodeBlock>
+    <CodeBlock className="language-shell">npm install @egjs/ngx-view360</CodeBlock>
   </TabItem>
   <TabItem value="vue2">
-    <CodeBlock className="language-shell">npm install @egjs/vue-view360@next</CodeBlock>
+    <CodeBlock className="language-shell">npm install @egjs/vue-view360</CodeBlock>
   </TabItem>
   <TabItem value="vue3">
-    <CodeBlock className="language-shell">npm install @egjs/vue3-view360@next</CodeBlock>
+    <CodeBlock className="language-shell">npm install @egjs/vue3-view360</CodeBlock>
   </TabItem>
   <TabItem value="svelte">
-    <CodeBlock className="language-shell">npm install @egjs/svelte-view360@next</CodeBlock>
+    <CodeBlock className="language-shell">npm install @egjs/svelte-view360</CodeBlock>
   </TabItem>
 </Tabs>

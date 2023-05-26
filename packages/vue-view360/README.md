@@ -13,7 +13,7 @@
 <div style="display: inline-block; max-width: 400px; padding: 20px 0">
 
 ```shell
-npm install @egjs/vue-view360@next
+npm install @egjs/vue-view360
 ```
 
 </div>
@@ -21,7 +21,7 @@ npm install @egjs/vue-view360@next
 
 <p align="center" style="max-width: 100%;">
   <a href="https://www.npmjs.com/package/@egjs/view360" target="_blank" rel="noopener noreferrer">
-    <img alt="npm" src="https://img.shields.io/npm/v/@egjs/view360/next?logo=npm"></img>
+    <img alt="npm" src="https://img.shields.io/npm/v/@egjs/view360?logo=npm"></img>
   </a>
   <a href="https://www.npmjs.com/package/@egjs/view360" target="_blank" rel="noopener noreferrer">
     <img alt="npm bundle size" src="https://img.shields.io/bundlephobia/minzip/@egjs/view360?label=%F0%9F%92%BE%20minzipped"></img>
@@ -60,11 +60,11 @@ npm install @egjs/vue-view360@next
 ## 📦 Packages
 |Package|Version|Description|
 |:-----:|:-----:|:-----:|
-|[**@egjs/ngx-view360**](https://github.com/naver/egjs-view360/blob/master/packages/ngx-view360/README.md)|<a href="https://www.npmjs.com/package/@egjs/ngx-view360" target="_blank"><img src="https://img.shields.io/npm/v/@egjs/ngx-view360/next?style=flat-square&color=dd0031&label=%F0%9F%94%96" alt="version" /></a>|[Angular](https://angular.io/) port of @egjs/view360|
-|[**@egjs/react-view360**](https://github.com/naver/egjs-view360/blob/master/packages/react-view360/README.md)|<a href="https://www.npmjs.com/package/@egjs/react-view360" target="_blank"><img src="https://img.shields.io/npm/v/@egjs/react-view360/next?style=flat-square&color=00d8ff&label=%F0%9F%94%96" alt="version" /></a>|[React](https://reactjs.org/) port of @egjs/view360|
-|[**@egjs/vue-view360**](https://github.com/naver/egjs-view360/blob/master/packages/vue-view360/README.md)|<a href="https://www.npmjs.com/package/@egjs/vue-view360" target="_blank"><img src="https://img.shields.io/npm/v/@egjs/vue-view360/next?style=flat-square&color=42b883&label=%F0%9F%94%96" alt="version" /></a>|[Vue.js@2](https://vuejs.org/v2/guide/index.html) port of @egjs/view360|
-|[**@egjs/vue3-view360**](https://github.com/naver/egjs-view360/blob/master/packages/vue3-view360/README.md)|<a href="https://www.npmjs.com/package/@egjs/vue3-view360" target="_blank"><img src="https://img.shields.io/npm/v/@egjs/vue3-view360/next?style=flat-square&color=42b883&label=%F0%9F%94%96" alt="version" /></a>|[Vue.js@3](https://v3.vuejs.org/) port of @egjs/view360|
-|[**@egjs/svelte-view360**](https://github.com/naver/egjs-view360/blob/master/packages/svelte-view360/README.md)|<a href="https://www.npmjs.com/package/@egjs/svelte-view360" target="_blank"><img src="https://img.shields.io/npm/v/@egjs/svelte-view360/next?style=flat-square&color=FF3E00&label=%F0%9F%94%96" alt="version" /></a>|[Svelte](https://svelte.dev/) port of @egjs/view360|
+|[**@egjs/ngx-view360**](https://github.com/naver/egjs-view360/blob/master/packages/ngx-view360/README.md)|<a href="https://www.npmjs.com/package/@egjs/ngx-view360" target="_blank"><img src="https://img.shields.io/npm/v/@egjs/ngx-view360?style=flat-square&color=dd0031&label=%F0%9F%94%96" alt="version" /></a>|[Angular](https://angular.io/) port of @egjs/view360|
+|[**@egjs/react-view360**](https://github.com/naver/egjs-view360/blob/master/packages/react-view360/README.md)|<a href="https://www.npmjs.com/package/@egjs/react-view360" target="_blank"><img src="https://img.shields.io/npm/v/@egjs/react-view360?style=flat-square&color=00d8ff&label=%F0%9F%94%96" alt="version" /></a>|[React](https://reactjs.org/) port of @egjs/view360|
+|[**@egjs/vue-view360**](https://github.com/naver/egjs-view360/blob/master/packages/vue-view360/README.md)|<a href="https://www.npmjs.com/package/@egjs/vue-view360" target="_blank"><img src="https://img.shields.io/npm/v/@egjs/vue-view360?style=flat-square&color=42b883&label=%F0%9F%94%96" alt="version" /></a>|[Vue.js@2](https://vuejs.org/v2/guide/index.html) port of @egjs/view360|
+|[**@egjs/vue3-view360**](https://github.com/naver/egjs-view360/blob/master/packages/vue3-view360/README.md)|<a href="https://www.npmjs.com/package/@egjs/vue3-view360" target="_blank"><img src="https://img.shields.io/npm/v/@egjs/vue3-view360?style=flat-square&color=42b883&label=%F0%9F%94%96" alt="version" /></a>|[Vue.js@3](https://v3.vuejs.org/) port of @egjs/view360|
+|[**@egjs/svelte-view360**](https://github.com/naver/egjs-view360/blob/master/packages/svelte-view360/README.md)|<a href="https://www.npmjs.com/package/@egjs/svelte-view360" target="_blank"><img src="https://img.shields.io/npm/v/@egjs/svelte-view360?style=flat-square&color=FF3E00&label=%F0%9F%94%96" alt="version" /></a>|[Svelte](https://svelte.dev/) port of @egjs/view360|
 
 ## License
 egjs-view360 is released under the [MIT license](https://github.com/naver/egjs-view360/blob/master/LICENSE).

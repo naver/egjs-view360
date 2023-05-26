@@ -80,8 +80,6 @@
     "ie 11",
     "not op_mini all"
   ],
-  "lernaHelperReleaseType": "prerelease",
-  "lernaHelperPublishTag": "next",
   "installConfig": {
     "hoistingLimits": "workspaces"
   }
