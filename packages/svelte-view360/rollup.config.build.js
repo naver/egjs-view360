@@ -1,10 +1,11 @@
 /* eslint-env node */
 
-import svelte from "rollup-plugin-svelte";
-import sveltePreprocess, { replace } from "svelte-preprocess";
-import nodeResolve from "@rollup/plugin-node-resolve";
+const svelte = require("rollup-plugin-svelte");
+const sveltePreprocess = require("svelte-preprocess");
+const nodeResolve = require("@rollup/plugin-node-resolve");
+const { replace } = sveltePreprocess;
 
-import replaces from "./replace";
+const replaces = require("./replace.cjs");
 const buildHelper = require("../../config/build-helper");
 
 const defaultOptions = {
@@ -27,7 +28,7 @@ const defaultOptions = {
 	]
 };
 
-export default buildHelper([
+module.exports = buildHelper([
 	{
 		...defaultOptions,
 		input: "./src/index.umd.ts",

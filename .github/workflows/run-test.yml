@@ -4,13 +4,13 @@ jobs:
   unit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: 16
+          node-version: 24
           cache: "yarn"
       - name: install
-        run: yarn install --immutable --immutable-cache --check-cache
+        run: yarn install --frozen-lockfile
       - name: run unit test
         working-directory: ./packages/view360
         run: yarn test

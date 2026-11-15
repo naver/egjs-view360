@@ -4,7 +4,7 @@ const defaultOptions = {
   tsconfig: "tsconfig.build.json",
   sourcemap: true,
 };
-export default buildHelper([
+module.exports = buildHelper([
   {
     ...defaultOptions,
     input: "./src/index.ts",
