@@ -105,6 +105,10 @@ class RangeControl extends Component<{
     touchInput.off();
     mouseInput.disable();
     touchInput.disable();
+
+    // Remove subscribers (e.g. ProgressBar/VolumeControl) so they are not
+    // duplicated when this control is initialized again.
+    this.off();
   }
 
   public resize() {
