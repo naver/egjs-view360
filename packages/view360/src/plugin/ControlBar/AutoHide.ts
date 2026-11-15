@@ -125,6 +125,7 @@ class AutoHide {
 
     window.clearTimeout(this._timer);
     controlBar.containerEl.classList.remove(this._fixedClass);
+    controlBar.containerEl.classList.remove(this._hiddenClass);
 
     if (video) {
       video.source.removeEventListener(BROWSER.EVENTS.VIDEO_PLAY, this._onVideoPlay);
