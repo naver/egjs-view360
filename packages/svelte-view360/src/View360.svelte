@@ -36,7 +36,7 @@
   let prevProps = getSetterProps();
 
   $: containerClass = `${DEFAULT_CLASS.CONTAINER} ${$$props.class ?? ""}`.trim();
-  $: canvasClass = `${DEFAULT_CLASS.CANVAS} ${$$props.canvasClass ?? ""}`.trim();
+  $: canvasClassName = `${DEFAULT_CLASS.CANVAS} ${canvasClass ?? ""}`.trim();
 
   // On props change
   $: {
@@ -84,6 +84,6 @@
 
 <svelte:options accessors />
 <div bind:this={containerEl} {...$$restProps} class={containerClass}>
-  <canvas class={canvasClass}></canvas>
+  <canvas class={canvasClassName}></canvas>
   <slot />
 </div>
