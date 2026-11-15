@@ -294,10 +294,6 @@ class ControlBar implements View360Plugin {
     this._customItems = customItems;
     this._autoHider = new AutoHide(this, getObjectOption(autoHide));
     this._videoControl = new VideoControl();
-
-    customItems.forEach(item => {
-      this._items[item.position].push(item);
-    });
   }
 
   public init(viewer: View360) {
