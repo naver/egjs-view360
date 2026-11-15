@@ -794,13 +794,15 @@ class View360 extends Component<View360Events> {
   public async load(projection: Projection): Promise<boolean> {
     if (!projection) return false;
 
+    // Should update internal reference before init/render
+    // so that `projection` getter & range setters use the new projection
+    this._projection = projection;
+
     if (this._initialized) {
       const texture = await this._loadTexture(projection);
       this._applyProjection(projection, texture);
       this.renderFrame(0);
     } else {
-      // Should update internal options before init
-      this._projection = projection;
       this.init();
     }
 
