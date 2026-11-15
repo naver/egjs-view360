@@ -65,8 +65,8 @@ class CylindricalProjection extends Projection {
   }
 
   public createMesh(ctx: WebGLContext, texture: Texture2D) {
-    if (this._mesh) return this._mesh;
-
+    // Always build a new mesh: View360 destroys the previous mesh before calling
+    // this method, so returning a cached one would render with released GL resources.
     const partial = this._partial;
     const { width, height } = texture;
     const aspect = width / height;
