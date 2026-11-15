@@ -100,8 +100,8 @@ class LoadingSpinner implements View360Plugin {
 
   private _createElements() {
     const className = {
-      ...this.className,
-      ...LoadingSpinner.DEFAULT_CLASS
+      ...LoadingSpinner.DEFAULT_CLASS,
+      ...this.className
     };
 
     const container = createElement(className.CONTAINER);
