@@ -709,6 +709,8 @@ class View360 extends Component<View360Events> {
   public destroy() {
     this._camera.destroy();
     this._animator.stop();
+    this._autoplay.destroy();
+    this._vr.destroy();
     this._renderer.destroy();
     this._control.destroy();
     this._autoResizer.disable();
