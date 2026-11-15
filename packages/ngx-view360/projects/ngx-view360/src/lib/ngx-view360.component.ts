@@ -112,8 +112,8 @@ export class NgxView360Component extends View360Interface
     const changed = changes.options;
     if (!changed) return;
 
-    const prev = changed.previousValue;
-    const current = changed.currentValue;
+    const prev = changed.previousValue ?? {};
+    const current = changed.currentValue ?? {};
 
     setterNames.forEach(name => {
       const oldProp = prev[name];
