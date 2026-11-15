@@ -1,6 +1,5 @@
 /* eslint-env node */
 const buildHelper = require("../../config/build-helper");
-const VuePlugin = require("rollup-plugin-vue");
 
 const external = {
   "vue": "Vue",
@@ -12,10 +11,9 @@ const external = {
 
 const defaultOptions = {
   sourcemap: true,
-  plugins: [VuePlugin()],
   external
 };
-export default buildHelper([
+module.exports = buildHelper([
   {
     ...defaultOptions,
     format: "es",
