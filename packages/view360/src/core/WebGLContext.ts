@@ -236,9 +236,10 @@ class WebGLContext {
 
       if (!uniform) continue;
 
-      if (uniform.needsUpdate) {
-        uniform.destroy(gl);
-      }
+      // Always destroy the uniform. `needsUpdate` is reset to `false` after the
+      // first upload, so gating destruction on it leaked already-uploaded
+      // resources (e.g. WebGL textures) whenever the mesh was destroyed.
+      uniform.destroy(gl);
     }
 
     gl.deleteProgram(shaderProgram.program);
